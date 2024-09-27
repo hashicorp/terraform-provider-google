@@ -1,0 +1,3 @@
+```release-note:new-resource
+pubsub: added GCS ingestion settings and platform log settings to `google_pubsub_topic` resource
+```

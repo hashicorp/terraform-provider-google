@@ -177,6 +177,38 @@ func TestAccPubsubTopic_kinesisIngestionUpdate(t *testing.T) {
 	})
 }
 
+func TestAccPubsubTopic_cloudStorageIngestionUpdate(t *testing.T) {
+	t.Parallel()
+
+	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubTopicDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubTopic_updateWithCloudStorageIngestionSettings(topic),
+			},
+			{
+				ResourceName:      "google_pubsub_topic.foo",
+				ImportStateId:     topic,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccPubsubTopic_updateWithUpdatedCloudStorageIngestionSettings(topic),
+			},
+			{
+				ResourceName:      "google_pubsub_topic.foo",
+				ImportStateId:     topic,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccPubsubTopic_update(topic, key, value string) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "foo" {
@@ -288,6 +320,50 @@ resource "google_pubsub_topic" "foo" {
         consumer_arn = "arn:aws:kinesis:us-west-2:111111111111:stream/updated-fake-stream-name/consumer/consumer-1:1111111111"
         aws_role_arn = "arn:aws:iam::111111111111:role/updated-fake-role-name"
         gcp_service_account = "updated-fake-service-account@fake-gcp-project.iam.gserviceaccount.com"
+    }
+  }
+}
+`, topic)
+}
+
+func testAccPubsubTopic_updateWithCloudStorageIngestionSettings(topic string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "foo" {
+  name = "%s"
+
+  # Outside of automated terraform-provider-google CI tests, these values must be of actual Cloud Storage resources for the test to pass.
+  ingestion_data_source_settings {
+    cloud_storage {
+        bucket = "test-bucket"
+        text_format {
+            delimiter = " "
+        }
+        minimum_object_create_time = "2024-01-01T00:00:00Z"
+        match_glob = "foo/**"
+    }
+    platform_logs_settings {
+        severity = "WARNING"
+    }
+  }
+}
+`, topic)
+}
+
+func testAccPubsubTopic_updateWithUpdatedCloudStorageIngestionSettings(topic string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "foo" {
+  name = "%s"
+
+  # Outside of automated terraform-provider-google CI tests, these values must be of actual Cloud Storage resources for the test to pass.
+  ingestion_data_source_settings {
+    cloud_storage {
+        bucket = "updated-test-bucket"
+        avro_format {}
+        minimum_object_create_time = "2024-02-02T00:00:00Z"
+        match_glob = "bar/**"
+    }
+    platform_logs_settings {
+        severity = "ERROR"
     }
   }
 }

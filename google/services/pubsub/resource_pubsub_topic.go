@@ -106,6 +106,103 @@ equals to this service account number.`,
 									},
 								},
 							},
+							ConflictsWith: []string{},
+						},
+						"cloud_storage": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Settings for ingestion from Cloud Storage.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bucket": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `Cloud Storage bucket. The bucket name must be without any
+prefix like "gs://". See the bucket naming requirements:
+https://cloud.google.com/storage/docs/buckets#naming.`,
+									},
+									"avro_format": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Configuration for reading Cloud Storage data in Avro binary format. The
+bytes of each object will be set to the 'data' field of a Pub/Sub message.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{},
+									},
+									"match_glob": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Glob pattern used to match objects that will be ingested. If unset, all
+objects will be ingested. See the supported patterns:
+https://cloud.google.com/storage/docs/json_api/v1/objects/list#list-objects-and-prefixes-using-glob`,
+									},
+									"minimum_object_create_time": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `The timestamp set in RFC3339 text format. If set, only objects with a
+larger or equal timestamp will be ingested. Unset by default, meaning
+all objects will be ingested.`,
+									},
+									"pubsub_avro_format": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Configuration for reading Cloud Storage data written via Cloud Storage
+subscriptions(See https://cloud.google.com/pubsub/docs/cloudstorage). The
+data and attributes fields of the originally exported Pub/Sub message
+will be restored when publishing.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{},
+									},
+									"text_format": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Configuration for reading Cloud Storage data in text format. Each line of
+text as specified by the delimiter will be set to the 'data' field of a
+Pub/Sub message.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"delimiter": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `The delimiter to use when using the 'text' format. Each line of text as
+specified by the delimiter will be set to the 'data' field of a Pub/Sub
+message. When unset, '\n' is used.`,
+													Default: "\n",
+												},
+											},
+										},
+										ExactlyOneOf: []string{},
+									},
+								},
+							},
+							ConflictsWith: []string{},
+						},
+						"platform_logs_settings": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Settings for Platform Logs regarding ingestion to Pub/Sub. If unset,
+no Platform Logs will be generated.'`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"severity": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"SEVERITY_UNSPECIFIED", "DISABLED", "DEBUG", "INFO", "WARNING", "ERROR", ""}),
+										Description: `The minimum severity level of Platform Logs that will be written. If unspecified,
+no Platform Logs will be written. Default value: "SEVERITY_UNSPECIFIED" Possible values: ["SEVERITY_UNSPECIFIED", "DISABLED", "DEBUG", "INFO", "WARNING", "ERROR"]`,
+										Default: "SEVERITY_UNSPECIFIED",
+									},
+								},
+							},
 						},
 					},
 				},
@@ -718,6 +815,10 @@ func flattenPubsubTopicIngestionDataSourceSettings(v interface{}, d *schema.Reso
 	transformed := make(map[string]interface{})
 	transformed["aws_kinesis"] =
 		flattenPubsubTopicIngestionDataSourceSettingsAwsKinesis(original["awsKinesis"], d, config)
+	transformed["cloud_storage"] =
+		flattenPubsubTopicIngestionDataSourceSettingsCloudStorage(original["cloudStorage"], d, config)
+	transformed["platform_logs_settings"] =
+		flattenPubsubTopicIngestionDataSourceSettingsPlatformLogsSettings(original["platformLogsSettings"], d, config)
 	return []interface{}{transformed}
 }
 func flattenPubsubTopicIngestionDataSourceSettingsAwsKinesis(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -752,6 +853,91 @@ func flattenPubsubTopicIngestionDataSourceSettingsAwsKinesisAwsRoleArn(v interfa
 }
 
 func flattenPubsubTopicIngestionDataSourceSettingsAwsKinesisGcpServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsCloudStorage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["bucket"] =
+		flattenPubsubTopicIngestionDataSourceSettingsCloudStorageBucket(original["bucket"], d, config)
+	transformed["text_format"] =
+		flattenPubsubTopicIngestionDataSourceSettingsCloudStorageTextFormat(original["textFormat"], d, config)
+	transformed["avro_format"] =
+		flattenPubsubTopicIngestionDataSourceSettingsCloudStorageAvroFormat(original["avroFormat"], d, config)
+	transformed["pubsub_avro_format"] =
+		flattenPubsubTopicIngestionDataSourceSettingsCloudStoragePubsubAvroFormat(original["pubsubAvroFormat"], d, config)
+	transformed["minimum_object_create_time"] =
+		flattenPubsubTopicIngestionDataSourceSettingsCloudStorageMinimumObjectCreateTime(original["minimumObjectCreateTime"], d, config)
+	transformed["match_glob"] =
+		flattenPubsubTopicIngestionDataSourceSettingsCloudStorageMatchGlob(original["matchGlob"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubTopicIngestionDataSourceSettingsCloudStorageBucket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsCloudStorageTextFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["delimiter"] =
+		flattenPubsubTopicIngestionDataSourceSettingsCloudStorageTextFormatDelimiter(original["delimiter"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubTopicIngestionDataSourceSettingsCloudStorageTextFormatDelimiter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsCloudStorageAvroFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsCloudStoragePubsubAvroFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsCloudStorageMinimumObjectCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsCloudStorageMatchGlob(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsPlatformLogsSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["severity"] =
+		flattenPubsubTopicIngestionDataSourceSettingsPlatformLogsSettingsSeverity(original["severity"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubTopicIngestionDataSourceSettingsPlatformLogsSettingsSeverity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -859,6 +1045,20 @@ func expandPubsubTopicIngestionDataSourceSettings(v interface{}, d tpgresource.T
 		transformed["awsKinesis"] = transformedAwsKinesis
 	}
 
+	transformedCloudStorage, err := expandPubsubTopicIngestionDataSourceSettingsCloudStorage(original["cloud_storage"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCloudStorage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cloudStorage"] = transformedCloudStorage
+	}
+
+	transformedPlatformLogsSettings, err := expandPubsubTopicIngestionDataSourceSettingsPlatformLogsSettings(original["platform_logs_settings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPlatformLogsSettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["platformLogsSettings"] = transformedPlatformLogsSettings
+	}
+
 	return transformed, nil
 }
 
@@ -915,6 +1115,148 @@ func expandPubsubTopicIngestionDataSourceSettingsAwsKinesisAwsRoleArn(v interfac
 }
 
 func expandPubsubTopicIngestionDataSourceSettingsAwsKinesisGcpServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsCloudStorage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBucket, err := expandPubsubTopicIngestionDataSourceSettingsCloudStorageBucket(original["bucket"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBucket); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bucket"] = transformedBucket
+	}
+
+	transformedTextFormat, err := expandPubsubTopicIngestionDataSourceSettingsCloudStorageTextFormat(original["text_format"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTextFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["textFormat"] = transformedTextFormat
+	}
+
+	transformedAvroFormat, err := expandPubsubTopicIngestionDataSourceSettingsCloudStorageAvroFormat(original["avro_format"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["avroFormat"] = transformedAvroFormat
+	}
+
+	transformedPubsubAvroFormat, err := expandPubsubTopicIngestionDataSourceSettingsCloudStoragePubsubAvroFormat(original["pubsub_avro_format"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["pubsubAvroFormat"] = transformedPubsubAvroFormat
+	}
+
+	transformedMinimumObjectCreateTime, err := expandPubsubTopicIngestionDataSourceSettingsCloudStorageMinimumObjectCreateTime(original["minimum_object_create_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinimumObjectCreateTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minimumObjectCreateTime"] = transformedMinimumObjectCreateTime
+	}
+
+	transformedMatchGlob, err := expandPubsubTopicIngestionDataSourceSettingsCloudStorageMatchGlob(original["match_glob"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMatchGlob); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["matchGlob"] = transformedMatchGlob
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsCloudStorageBucket(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsCloudStorageTextFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDelimiter, err := expandPubsubTopicIngestionDataSourceSettingsCloudStorageTextFormatDelimiter(original["delimiter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDelimiter); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["delimiter"] = transformedDelimiter
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsCloudStorageTextFormatDelimiter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsCloudStorageAvroFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsCloudStoragePubsubAvroFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsCloudStorageMinimumObjectCreateTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsCloudStorageMatchGlob(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsPlatformLogsSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSeverity, err := expandPubsubTopicIngestionDataSourceSettingsPlatformLogsSettingsSeverity(original["severity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeverity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["severity"] = transformedSeverity
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsPlatformLogsSettingsSeverity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
