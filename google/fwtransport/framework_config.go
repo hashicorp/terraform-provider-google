@@ -36,9 +36,10 @@ import (
 type FrameworkProviderConfig struct {
 	// Temporary, as we'll replace use of FrameworkProviderConfig with transport_tpg.Config soon
 	// transport_tpg.Config has a the fields below, hence these changes are needed
-	Credentials               types.String
-	AccessToken               types.String
-	ImpersonateServiceAccount types.String
+	Credentials                        types.String
+	AccessToken                        types.String
+	ImpersonateServiceAccount          types.String
+	ImpersonateServiceAccountDelegates types.List
 	// End temporary
 
 	BillingProject             types.String
@@ -345,6 +346,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.Credentials = data.Credentials
 	p.AccessToken = data.AccessToken
 	p.ImpersonateServiceAccount = data.ImpersonateServiceAccount
+	p.ImpersonateServiceAccountDelegates = data.ImpersonateServiceAccountDelegates
 	// End temporary
 
 	// Copy values from the ProviderModel struct containing data about the provider configuration (present only when responsing to ConfigureProvider rpc calls)
