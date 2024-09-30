@@ -362,7 +362,8 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 				Config: testAccDataflowJob_zone(bucket, job, zone),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckNoResourceAttr("google_dataflow_job.big_data", "labels.%"),
-					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "3"),
+					// goog-terraform-provisioned: true is added
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "4"),
 				),
 			},
 			{
