@@ -364,6 +364,63 @@ func TestAccComputeInstance_diskResourcePolicies(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_diskResourcePolicies_attachmentDiff(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	context_1 := map[string]interface{}{
+		"instance_name": fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"random_suffix": acctest.RandString(t, 10),
+		"comment":       "",
+	}
+	context_2 := map[string]interface{}{
+		"instance_name": context_1["instance_name"],
+		"random_suffix": context_1["random_suffix"],
+		"comment":       "#",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_diskResourcePoliciesAttachment(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeInstance_diskResourcePoliciesAttachment(context_2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeInstance_diskResourcePoliciesOnePolicy(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_machineTypeUrl(t *testing.T) {
 	t.Parallel()
 
@@ -4586,6 +4643,61 @@ resource "google_compute_instance" "foobar" {
     network = "default"
   }
 }
+`, context)
+}
+
+func testAccComputeInstance_diskResourcePoliciesAttachment(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_resource_policy" "test-snapshot-policy" {
+  name    = "test-policy-%{random_suffix}"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "11:00"
+      }
+    }
+  }
+}
+
+resource "google_compute_resource_policy" "test-snapshot-policy2" {
+  name    = "test-policy2-%{random_suffix}"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "22:00"
+      }
+    }
+  }
+}
+
+resource "google_compute_instance" "foobar" {
+  name           = "%{instance_name}"
+  machine_type   = "e2-medium"
+  zone           = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+
+%{comment} resource "google_compute_disk_resource_policy_attachment" "attachment" {
+%{comment}   name = google_compute_resource_policy.test-snapshot-policy2.name
+%{comment}   disk = google_compute_instance.foobar.name
+%{comment}   zone = google_compute_instance.foobar.zone
+%{comment} }
 `, context)
 }
 
