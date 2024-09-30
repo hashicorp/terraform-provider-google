@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_dataproc_batch`
+```
+```release-note:enhancement
+dataproc: switched to the v1 API for `google_dataproc_autoscaling_policy` resource (beta)
+```
