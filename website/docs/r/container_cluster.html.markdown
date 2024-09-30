@@ -890,8 +890,8 @@ gvnic {
 * `image_type` - (Optional) The image type to use for this node. Note that changing the image type
     will delete and recreate all nodes in the node pool.
 
-* `labels` - (Optional) The Kubernetes labels (key/value pairs) to be applied to each node. The kubernetes.io/ and k8s.io/ prefixes are
-    reserved by Kubernetes Core components and cannot be specified.
+* `labels` - (Optional) The Kubernetes labels (key/value pairs) to be applied to each node. The kubernetes.io/ k8s.io/ and cloud.google.com/ prefixes are
+    reserved by Kubernetes/GKE Core components and cannot be specified.
 
 * `resource_labels` - (Optional) The GCP labels (key/value pairs) to be applied to each node. Refer [here](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-managing-labels)
     for how these labels are applied to clusters, node pools and nodes.
