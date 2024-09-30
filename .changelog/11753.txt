@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue where the `boot_disk.initialize_params.resource_policies` field in `google_compute_instance` forced a resource recreation when used in combination with `google_compute_disk_resource_policy_attachment`
+```
