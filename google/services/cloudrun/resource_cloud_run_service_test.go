@@ -423,7 +423,7 @@ func TestAccCloudRunService_withProviderDefaultLabels(t *testing.T) {
 
 					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.annotations.%", "1"),
 					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.annotations.generated-by", "magic-modules"),
-					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_annotations.%", "6"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_annotations.%", "7"),
 				),
 			},
 			{
@@ -449,7 +449,7 @@ func TestAccCloudRunService_withProviderDefaultLabels(t *testing.T) {
 
 					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.annotations.%", "1"),
 					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.annotations.generated-by", "magic-modules-update"),
-					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_annotations.%", "6"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_annotations.%", "7"),
 				),
 			},
 			{
@@ -508,7 +508,7 @@ func TestAccCloudRunService_withProviderDefaultLabels(t *testing.T) {
 					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_labels.%", "1"),
 
 					resource.TestCheckNoResourceAttr("google_cloud_run_service.default", "metadata.0.annotations.%"),
-					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_annotations.%", "5"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_annotations.%", "6"),
 				),
 			},
 			{
@@ -547,8 +547,11 @@ func TestAccCloudRunServiceMigration_withLabels(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.%", "2"),
 					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_labels.%", "3"),
-					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.annotations.%", "1"),
-					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_annotations.%", "6"),
+					// A new system annotation is added by the API around 08/28/2024,
+					// and the current service annotation filter doesn't work for this new annotation during the migration,
+					// so it is treated as the user defined annotation.
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.annotations.%", "2"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_annotations.%", "7"),
 				),
 			},
 		},
