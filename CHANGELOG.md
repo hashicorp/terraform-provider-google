@@ -25,7 +25,6 @@ IMPROVEMENTS:
 * compute: added `SUSPENDED` as a possible value to `desired_state` field in `google_compute_instance` resource ([#19586](https://github.com/hashicorp/terraform-provider-google/pull/19586))
 * compute: added import support for `projects/{{project}}/meta-data/{{key}}` format for `google_compute_project_metadata_item` resource ([#19613](https://github.com/hashicorp/terraform-provider-google/pull/19613))
 * compute: marked `customer_name` and `location` fields as optional in `google_compute_interconnect` resource to support cross cloud interconnect ([#19619](https://github.com/hashicorp/terraform-provider-google/pull/19619))
-* compute: promoted `client_destination_port` and `instance` fields in `google_compute_region_network_endpoint` resource to GA ([#19574](https://github.com/hashicorp/terraform-provider-google/pull/19574))
 * container: added `linux_node_config.hugepages_config` field to `google_container_node_pool` resource ([#19521](https://github.com/hashicorp/terraform-provider-google/pull/19521))
 * container: promoted `gcfs_config` field in `google_container_cluster` resource to GA ([#19617](https://github.com/hashicorp/terraform-provider-google/pull/19617))
 * looker: added `psc_enabled` and `psc_config` fields to `google_looker_instance` resource ([#19523](https://github.com/hashicorp/terraform-provider-google/pull/19523))
