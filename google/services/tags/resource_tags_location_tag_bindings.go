@@ -9,8 +9,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"google.golang.org/api/googleapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -182,7 +184,7 @@ func resourceTagsLocationTagBindingRead(d *schema.ResourceData, meta interface{}
 		UserAgent: userAgent,
 	})
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("TagsLocationTagBinding %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(transformTagsLocationTagBindingReadError(err), d, fmt.Sprintf("TagsLocationTagBinding %q", d.Id()))
 	}
 	log.Printf("[DEBUG] Skipping res with name for import = %#v,)", res)
 
@@ -197,7 +199,7 @@ func resourceTagsLocationTagBindingRead(d *schema.ResourceData, meta interface{}
 		for pageToken != "" {
 			url, err = transport_tpg.AddQueryParams(url, map[string]string{"pageToken": fmt.Sprintf("%s", res["nextPageToken"])})
 			if err != nil {
-				return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("TagsLocationTagBinding %q", d.Id()))
+				return transport_tpg.HandleNotFoundError(transformTagsLocationTagBindingReadError(err), d, fmt.Sprintf("TagsLocationTagBinding %q", d.Id()))
 			}
 			resp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 				Config:    config,
@@ -387,4 +389,28 @@ func resourceTagsLocationTagBindingFindNestedObjectInList(d *schema.ResourceData
 		return idx, item, nil
 	}
 	return -1, nil, nil
+}
+
+func transformTagsLocationTagBindingReadError(err error) error {
+	if gErr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error); ok && gErr.Code == 403 {
+		for _, detail := range gErr.Details {
+			if detailMap, ok := detail.(map[string]interface{}); ok {
+				if detailType, ok := detailMap["@type"].(string); ok && detailType == "type.googleapis.com/google.rpc.ResourceInfo" {
+					if description, ok := detailMap["description"].(string); ok && strings.Contains(description, "(or the resource may not exist in this location)") {
+						// This error occurs when either the tag binding parent does not exist, or permission is denied. It is
+						// deliberately ambiguous so that existence information is not revealed to the caller. However, for
+						// the Read function, we can only assume that the membership does not exist, and proceed with attempting
+						// other operations. Since HandleNotFoundError(...) expects an error code of 404 when a resource does not
+						// exist, to get the desired behavior, we modify the error code to be 404.
+						gErr.Code = 404
+					}
+				}
+			}
+		}
+
+		log.Printf("[DEBUG] Transformed TagsLocationTagBinding error")
+		return gErr
+	}
+
+	return err
 }

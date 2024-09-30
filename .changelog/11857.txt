@@ -1,0 +1,3 @@
+```release-note:bug
+tags:  removed `google_tags_location_tag_binding` resource from the Terraform state when its parent resource has been removed outside of Terraform
+```
