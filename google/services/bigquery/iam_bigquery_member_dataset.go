@@ -129,9 +129,11 @@ func mergeAccess(newAccess []map[string]interface{}, currAccess []interface{}) [
 	mergedAccess = append(mergedAccess, newAccess...)
 
 	for _, item := range currAccess {
-		// Type assertion to check if it's amap
 		if itemMap, ok := item.(map[string]interface{}); ok {
-			mergedAccess = append(mergedAccess, itemMap)
+			// Check if the item has a "dataset" key
+			if _, ok := itemMap["dataset"]; ok {
+				mergedAccess = append(mergedAccess, itemMap)
+			}
 		}
 	}
 	return mergedAccess

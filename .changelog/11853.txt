@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed `google_bigquery_dataset_iam_member` to be able to delete itself and overwrite the existing iam members for bigquery dataset keeping the authorized datasets as they are.
+```
