@@ -1,0 +1,3 @@
+```release-note: enhancement
+compute: move `TDX` instance option for `confidential_instance_type` in `google_compute_instance` from Beta to GA(ga)
+```

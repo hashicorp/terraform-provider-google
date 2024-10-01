@@ -1065,7 +1065,7 @@ be from 0 to 999,999,999 inclusive.`,
 								The confidential computing technology the instance uses.
 								SEV is an AMD feature. TDX is an Intel feature. One of the following
 								values is required: SEV, SEV_SNP, TDX. If SEV_SNP, min_cpu_platform =
-								"AMD Milan" is currently required. TDX is only available in beta.`,
+								"AMD Milan" is currently required.`,
 							AtLeastOneOf: []string{"confidential_instance_config.0.enable_confidential_compute", "confidential_instance_config.0.confidential_instance_type"},
 						},
 					},
