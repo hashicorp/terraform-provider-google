@@ -72,7 +72,7 @@ The following arguments are supported:
 
 * `location` -
   (Optional)
-  The location of the resource. The supported locations are: global, us-central1, us-east1, us-west1, asia-east1, europe-west1.
+  The location of the resource. The only supported location is global so far.
 
 
 ## Attributes Reference

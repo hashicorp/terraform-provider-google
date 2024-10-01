@@ -74,7 +74,7 @@ func ResourceLoggingLogScope() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `The location of the resource. The supported locations are: global, us-central1, us-east1, us-west1, asia-east1, europe-west1.`,
+				Description: `The location of the resource. The only supported location is global so far.`,
 			},
 			"parent": {
 				Type:             schema.TypeString,
