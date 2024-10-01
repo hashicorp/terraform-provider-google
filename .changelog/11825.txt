@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `bgp_best_path_selection_mode `,`bgp_bps_always_compare_med` and `bgp_bps_inter_region_cost ` fields to `google_compute_network` resource
+```
+```release-note:enhancement
+compute: added `next_hop_origin `,`next_hop_med ` and `next_hop_inter_region_cost ` output fields to `google_compute_route` resource
+```
