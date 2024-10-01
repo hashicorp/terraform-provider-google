@@ -1,0 +1,3 @@
+```release-note:enhancement
+sourcerepo: added `create_ignore_already_exists` field to `google_sourcerepo_repository` resource
+```
