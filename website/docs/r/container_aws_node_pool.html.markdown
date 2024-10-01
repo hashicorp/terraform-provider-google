@@ -179,9 +179,15 @@ resource "google_container_aws_node_pool" "primary" {
     auto_repair = true
   }
 
+  kubelet_config {
+    cpu_manager_policy    = "none"
+    cpu_cfs_quota         = true
+    cpu_cfs_quota_period  = "100ms"
+    pod_pids_limit        = 1024
+  }
+
   project = "my-project-name"
 }
-
 
 ```
 ## Example Usage - basic_enum_aws_cluster
@@ -633,6 +639,10 @@ The `max_pods_constraint` block supports:
 **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
 Please refer to the field `effective_annotations` for all of the annotations present on the resource.
   
+* `kubelet_config` -
+  (Optional)
+  The kubelet configuration for the node pool.
+  
 * `management` -
   (Optional)
   The Management configuration for this node pool.
@@ -720,6 +730,24 @@ The `taints` block supports:
 * `value` -
   (Required)
   Value for the taint.
+    
+The `kubelet_config` block supports:
+    
+* `cpu_cfs_quota` -
+  (Optional)
+  Whether or not to enable CPU CFS quota. Defaults to true.
+    
+* `cpu_cfs_quota_period` -
+  (Optional)
+  Optional. The CPU CFS quota period to use for the node. Defaults to "100ms".
+    
+* `cpu_manager_policy` -
+  (Optional)
+  The CpuManagerPolicy to use for the node. Defaults to "none".
+    
+* `pod_pids_limit` -
+  (Optional)
+  Optional. The maximum number of PIDs in each pod running on the node. The limit scales automatically based on underlying machine size if left unset.
     
 The `management` block supports:
     
