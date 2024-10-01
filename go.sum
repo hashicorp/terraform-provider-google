@@ -440,3 +440,7 @@ honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWh
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 rsc.io/binaryregexp v0.2.0 h1:HfqmD5MEmC0zvwBuF187nq9mdnXjXsSivRiXN7SmRkE=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v1.73.0 h1:mVsrkdw7rJbmay3EE/KjHx7WbQcrfwLmxmzCFDXIl90=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v1.73.0/go.mod h1:pL2Qt5HT+x6xrTd806oMiM3awW6kNIXB/iiuClz6m6k=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v1.74.0 h1:YV3eTXgDw3Zp8Mc12WE2Aa3+22twNd07xkFkEODrlOQ=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v1.74.0/go.mod h1:pL2Qt5HT+x6xrTd806oMiM3awW6kNIXB/iiuClz6m6k=
