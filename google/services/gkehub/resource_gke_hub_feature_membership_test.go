@@ -110,6 +110,7 @@ resource "google_gke_hub_feature_membership" "feature_member_1" {
   configmanagement {
     version = "1.18.2"
     config_sync {
+      enabled = true
       source_format = "hierarchy"
       git {
         sync_repo   = "https://github.com/GoogleCloudPlatform/magic-modules"
@@ -127,6 +128,7 @@ resource "google_gke_hub_feature_membership" "feature_member_2" {
   configmanagement {
     version = "1.18.2"
     config_sync {
+      enabled = true
       source_format = "hierarchy"
       git {
         sync_repo   = "https://github.com/terraform-providers/terraform-provider-google"
@@ -178,6 +180,7 @@ resource "google_gke_hub_feature_membership" "feature_member_2" {
   configmanagement {
     version = "1.18.2"
     config_sync {
+      enabled = true
       source_format = "hierarchy"
       git {
         sync_repo   = "https://github.com/terraform-providers/terraform-provider-google-beta"
@@ -216,6 +219,7 @@ resource "google_gke_hub_feature_membership" "feature_member_2" {
   configmanagement {
     version = "1.18.2"
     config_sync {
+      enabled = true
       source_format = "unstructured"
       git {
         sync_repo   = "https://github.com/terraform-providers/terraform-provider-google-beta"
@@ -244,6 +248,7 @@ resource "google_gke_hub_feature_membership" "feature_member_3" {
   configmanagement {
     version = "1.18.2"
     config_sync {
+      enabled = true
       source_format = "hierarchy"
       git {
         sync_repo   = "https://github.com/hashicorp/terraform"
@@ -423,6 +428,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   configmanagement {
     version = "1.18.2"
     config_sync {
+      enabled = true
       git {
         sync_repo      = "https://github.com/hashicorp/terraform"
         https_proxy    = "https://example.com"
@@ -486,6 +492,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   configmanagement {
     version = "1.18.2"
     config_sync {
+      enabled = true
       git {
         sync_repo      = "https://github.com/hashicorp/terraform"
         https_proxy    = "https://example.com"
@@ -555,6 +562,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   configmanagement {
     version = "1.18.2"
     config_sync {
+      enabled = true
       git {
         sync_repo   = "https://github.com/hashicorp/terraform"
         secret_type = "none"
@@ -644,6 +652,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   configmanagement {
     version = "1.18.2"
     config_sync {
+      enabled = true
       source_format = "unstructured"
       oci {
         sync_repo = "us-central1-docker.pkg.dev/sample-project/config-repo/config-sync-gke:latest"
@@ -693,6 +702,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   configmanagement {
     version = "1.18.2"
     config_sync {
+      enabled = true
       source_format = "hierarchy"
       oci {
         sync_repo = "us-central1-docker.pkg.dev/sample-project/config-repo/config-sync-gke:latest"
