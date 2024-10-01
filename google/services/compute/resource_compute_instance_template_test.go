@@ -756,6 +756,13 @@ func TestAccComputeInstanceTemplate_ConfidentialInstanceConfigMain(t *testing.T)
 					testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(&instanceTemplate2, false, "SEV_SNP"),
 				),
 			},
+			{
+				Config: testAccComputeInstanceTemplateConfidentialInstanceConfigEnableTdx(acctest.RandString(t, 10), "TDX"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar5", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(&instanceTemplate, false, "TDX"),
+				),
+			},
 		},
 	})
 }
@@ -3246,6 +3253,39 @@ resource "google_compute_instance_template" "foobar4" {
 
 }
 `, suffix, minCpuPlatform, confidentialInstanceType, suffix, minCpuPlatform, confidentialInstanceType)
+}
+
+func testAccComputeInstanceTemplateConfidentialInstanceConfigEnableTdx(suffix string, confidentialInstanceType string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image3" {
+  family  = "ubuntu-2204-lts"
+  project = "tdx-guest-images"
+}
+
+resource "google_compute_instance_template" "foobar5" {
+  name         = "tf-test-instance5-template-%s"
+  machine_type = "c3-standard-4"
+
+  disk {
+    source_image = data.google_compute_image.my_image3.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  confidential_instance_config {
+    confidential_instance_type = %q
+  }
+
+  scheduling {
+    on_host_maintenance = "TERMINATE"
+  }
+
+}
+`, suffix, confidentialInstanceType)
 }
 
 func testAccComputeInstanceTemplateAdvancedMachineFeatures(suffix string) string {
