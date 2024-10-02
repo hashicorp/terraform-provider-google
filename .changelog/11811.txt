@@ -1,0 +1,3 @@
+```release-note:bug
+iam: addressed `google_service_account` creation issues caused by the eventual consistency of the GCP IAM API by ignoring 403 errors returned on polling the service account after creation.
+```
