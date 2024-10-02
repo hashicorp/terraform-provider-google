@@ -74,6 +74,46 @@ resource "google_discovery_engine_chat_engine" "primary" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=discoveryengine_chat_engine_existing_dialogflow_agent&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Discoveryengine Chat Engine Existing Dialogflow Agent
+
+
+```hcl
+resource "google_discovery_engine_data_store" "test_data_store" {
+  location                    = "global"
+  data_store_id               = "data-store"
+  display_name                = "Structured datastore"
+  industry_vertical           = "GENERIC"
+  content_config              = "NO_CONTENT"
+  solution_types              = ["SOLUTION_TYPE_CHAT"]
+}
+
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name = "dialogflowcx-agent"
+  location = "global"
+  default_language_code = "en"
+  time_zone = "America/Los_Angeles"
+}
+
+resource "google_discovery_engine_chat_engine" "primary" {
+  engine_id = "chat-engine-id"
+  collection_id = "default_collection"
+  location = google_discovery_engine_data_store.test_data_store.location
+  display_name = "Chat engine"
+  industry_vertical = "GENERIC"
+  data_store_ids = [google_discovery_engine_data_store.test_data_store.data_store_id]
+  common_config {
+    company_name = "test-company"
+  }
+  chat_engine_config {
+    dialogflow_agent_to_link = google_dialogflow_cx_agent.agent.id
+  }
+}
+```
 
 ## Argument Reference
 
@@ -109,9 +149,15 @@ The following arguments are supported:
 <a name="nested_chat_engine_config"></a>The `chat_engine_config` block supports:
 
 * `agent_creation_config` -
-  (Required)
+  (Optional)
   The configuration to generate the Dialogflow agent that is associated to this Engine.
+  Exactly one of `agent_creation_config` or `dialogflow_agent_to_link` must be set.
   Structure is [documented below](#nested_agent_creation_config).
+
+* `dialogflow_agent_to_link` -
+  (Optional)
+  The resource name of an existing Dialogflow agent to link to this Chat Engine. Format: `projects/<Project_ID>/locations/<Location_ID>/agents/<Agent_ID>`.
+  Exactly one of `agent_creation_config` or `dialogflow_agent_to_link` must be set.
 
 
 <a name="nested_agent_creation_config"></a>The `agent_creation_config` block supports:

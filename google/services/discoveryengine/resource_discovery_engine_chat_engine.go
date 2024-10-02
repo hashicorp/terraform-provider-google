@@ -64,10 +64,12 @@ func ResourceDiscoveryEngineChatEngine() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"agent_creation_config": {
-							Type:        schema.TypeList,
-							Required:    true,
-							Description: `The configuration to generate the Dialogflow agent that is associated to this Engine.`,
-							MaxItems:    1,
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Description: `The configuration to generate the Dialogflow agent that is associated to this Engine.
+Exactly one of 'agent_creation_config' or 'dialogflow_agent_to_link' must be set.`,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"default_language_code": {
@@ -92,6 +94,16 @@ func ResourceDiscoveryEngineChatEngine() *schema.Resource {
 									},
 								},
 							},
+							ExactlyOneOf: []string{"chat_engine_config.0.agent_creation_config", "chat_engine_config.0.dialogflow_agent_to_link"},
+						},
+						"dialogflow_agent_to_link": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: verify.ValidateRegexp(`^projects\/[a-zA-Z0-9-]+(?:\/locations\/[a-zA-Z0-9-]+)?\/agents\/[a-zA-Z0-9-]+$`),
+							Description: `The resource name of an existing Dialogflow agent to link to this Chat Engine. Format: 'projects/<Project_ID>/locations/<Location_ID>/agents/<Agent_ID>'.
+Exactly one of 'agent_creation_config' or 'dialogflow_agent_to_link' must be set.`,
+							ExactlyOneOf: []string{"chat_engine_config.0.agent_creation_config", "chat_engine_config.0.dialogflow_agent_to_link"},
 						},
 					},
 				},
@@ -105,7 +117,6 @@ func ResourceDiscoveryEngineChatEngine() *schema.Resource {
 			"data_store_ids": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The data stores associated with this engine. Multiple DataStores in the same Collection can be associated here. All listed DataStores must be 'SOLUTION_TYPE_CHAT'. Adding or removing data stores will force recreation.`,
 				MinItems:    1,
 				Elem: &schema.Schema{
@@ -403,6 +414,12 @@ func resourceDiscoveryEngineChatEngineUpdate(d *schema.ResourceData, meta interf
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	dataStoreIdsProp, err := expandDiscoveryEngineChatEngineDataStoreIds(d.Get("data_store_ids"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("data_store_ids"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dataStoreIdsProp)) {
+		obj["dataStoreIds"] = dataStoreIdsProp
+	}
 
 	obj, err = resourceDiscoveryEngineChatEngineEncoder(d, meta, obj)
 	if err != nil {
@@ -420,6 +437,10 @@ func resourceDiscoveryEngineChatEngineUpdate(d *schema.ResourceData, meta interf
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("data_store_ids") {
+		updateMask = append(updateMask, "dataStoreIds")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -619,6 +640,13 @@ func expandDiscoveryEngineChatEngineChatEngineConfig(v interface{}, d tpgresourc
 		transformed["agentCreationConfig"] = transformedAgentCreationConfig
 	}
 
+	transformedDialogflowAgentToLink, err := expandDiscoveryEngineChatEngineChatEngineConfigDialogflowAgentToLink(original["dialogflow_agent_to_link"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDialogflowAgentToLink); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dialogflowAgentToLink"] = transformedDialogflowAgentToLink
+	}
+
 	return transformed, nil
 }
 
@@ -675,6 +703,10 @@ func expandDiscoveryEngineChatEngineChatEngineConfigAgentCreationConfigTimeZone(
 }
 
 func expandDiscoveryEngineChatEngineChatEngineConfigAgentCreationConfigLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineChatEngineChatEngineConfigDialogflowAgentToLink(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

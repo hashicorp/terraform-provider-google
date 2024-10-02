@@ -1,0 +1,3 @@
+```release-note:enhancement
+discoveryengine: added `chat_engine_config.dialogflow_agent_to_link` field to `google_discovery_engine_chat_engine` resource
+```
