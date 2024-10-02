@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: fixed an error where BigTable IAM resources could be created with conditions but the condition was not stored in state
+```
