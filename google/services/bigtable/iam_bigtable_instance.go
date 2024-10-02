@@ -73,8 +73,11 @@ func BigtableInstanceIdParseFunc(d *schema.ResourceData, config *transport_tpg.C
 }
 
 func (u *BigtableInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	req := &bigtableadmin.GetIamPolicyRequest{}
-
+	req := &bigtableadmin.GetIamPolicyRequest{
+		Options: &bigtableadmin.GetPolicyOptions{
+			RequestedPolicyVersion: tpgiamresource.IamPolicyVersion,
+		},
+	}
 	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
