@@ -36,11 +36,13 @@ import (
 type FrameworkProviderConfig struct {
 	// Temporary, as we'll replace use of FrameworkProviderConfig with transport_tpg.Config soon
 	// transport_tpg.Config has a the fields below, hence these changes are needed
-	Credentials                        types.String
-	AccessToken                        types.String
-	ImpersonateServiceAccount          types.String
-	ImpersonateServiceAccountDelegates types.List
-	RequestReason                      types.String
+	Credentials                               types.String
+	AccessToken                               types.String
+	ImpersonateServiceAccount                 types.String
+	ImpersonateServiceAccountDelegates        types.List
+	RequestReason                             types.String
+	AddTerraformAttributionLabel              types.Bool
+	TerraformAttributionLabelAdditionStrategy types.String
 	// End temporary
 
 	BillingProject             types.String
@@ -349,7 +351,8 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.ImpersonateServiceAccount = data.ImpersonateServiceAccount
 	p.ImpersonateServiceAccountDelegates = data.ImpersonateServiceAccountDelegates
 	p.RequestReason = data.RequestReason
-
+	p.AddTerraformAttributionLabel = data.AddTerraformAttributionLabel
+	p.TerraformAttributionLabelAdditionStrategy = data.TerraformAttributionLabelAdditionStrategy
 	// End temporary
 
 	// Copy values from the ProviderModel struct containing data about the provider configuration (present only when responsing to ConfigureProvider rpc calls)
