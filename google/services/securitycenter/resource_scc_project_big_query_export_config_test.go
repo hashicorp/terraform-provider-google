@@ -75,9 +75,12 @@ resource "google_bigquery_dataset" "default" {
   }
 }
 
-resource "time_sleep" "wait_1_minute" {
+resource "time_sleep" "wait_x_minutes" {
 	depends_on = [google_bigquery_dataset.default]
 	create_duration = "3m"
+	# need to wait for destruction due to 
+	# 'still in use' error from api 
+	destroy_duration = "1m"
 }
 
 resource "google_scc_project_scc_big_query_export" "default" {
@@ -87,7 +90,7 @@ resource "google_scc_project_scc_big_query_export" "default" {
   description  = "Cloud Security Command Center Findings Big Query Export Config"
   filter       = "state=\"ACTIVE\" AND NOT mute=\"MUTED\""
 
-  depends_on = [time_sleep.wait_1_minute]
+  depends_on = [time_sleep.wait_x_minutes]
 }
 
 `, context)
