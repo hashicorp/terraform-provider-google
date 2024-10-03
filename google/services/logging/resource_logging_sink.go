@@ -65,9 +65,10 @@ func resourceLoggingSinkSchema() map[string]*schema.Schema {
 						Description: `A description of this exclusion.`,
 					},
 					"filter": {
-						Type:        schema.TypeString,
-						Required:    true,
-						Description: `An advanced logs filter that matches the log entries to be excluded. By using the sample function, you can exclude less than 100% of the matching log entries`,
+						Type:             schema.TypeString,
+						Required:         true,
+						DiffSuppressFunc: OptionalSurroundingSpacesSuppress,
+						Description:      `An advanced logs filter that matches the log entries to be excluded. By using the sample function, you can exclude less than 100% of the matching log entries`,
 					},
 					"disabled": {
 						Type:        schema.TypeBool,
