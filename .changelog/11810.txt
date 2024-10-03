@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed issue which caused to not being able to disable `enable_cilium_clusterwide_network_policy` field on `google_container_cluster`.
+```
