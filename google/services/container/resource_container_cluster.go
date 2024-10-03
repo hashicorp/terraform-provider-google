@@ -3147,6 +3147,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
 				DesiredEnableCiliumClusterwideNetworkPolicy: enabled,
+				ForceSendFields: []string{"DesiredEnableCiliumClusterwideNetworkPolicy"},
 			},
 		}
 		updateF := updateFunc(req, "updating cilium clusterwide network policy")
