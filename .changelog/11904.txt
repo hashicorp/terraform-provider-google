@@ -1,0 +1,3 @@
+```release-note:bug
+secretmanager: fixed the issue of unpopulated fields `labels`, `annotations` and `version_destroy_ttl` in the terraform state for the `google_secret_manager_secrets` datasource
+```

@@ -146,17 +146,21 @@ func flattenSecretManagerSecretsSecrets(v interface{}, d *schema.ResourceData, c
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"replication":     flattenSecretManagerSecretReplication(original["replication"], d, config),
-			"annotations":     flattenSecretManagerSecretAnnotations(original["annotations"], d, config),
-			"expire_time":     flattenSecretManagerSecretExpireTime(original["expireTime"], d, config),
-			"labels":          flattenSecretManagerSecretLabels(original["labels"], d, config),
-			"rotation":        flattenSecretManagerSecretRotation(original["rotation"], d, config),
-			"topics":          flattenSecretManagerSecretTopics(original["topics"], d, config),
-			"version_aliases": flattenSecretManagerSecretVersionAliases(original["versionAliases"], d, config),
-			"create_time":     flattenSecretManagerSecretCreateTime(original["createTime"], d, config),
-			"name":            flattenSecretManagerSecretName(original["name"], d, config),
-			"project":         getDataFromName(original["name"], 1),
-			"secret_id":       getDataFromName(original["name"], 3),
+			"replication":           flattenSecretManagerSecretReplication(original["replication"], d, config),
+			"annotations":           flattenSecretManagerSecretEffectiveAnnotations(original["annotations"], d, config),
+			"effective_annotations": flattenSecretManagerSecretEffectiveAnnotations(original["annotations"], d, config),
+			"expire_time":           flattenSecretManagerSecretExpireTime(original["expireTime"], d, config),
+			"labels":                flattenSecretManagerSecretEffectiveLabels(original["labels"], d, config),
+			"effective_labels":      flattenSecretManagerSecretEffectiveLabels(original["labels"], d, config),
+			"terraform_labels":      flattenSecretManagerSecretEffectiveLabels(original["labels"], d, config),
+			"rotation":              flattenSecretManagerSecretRotation(original["rotation"], d, config),
+			"topics":                flattenSecretManagerSecretTopics(original["topics"], d, config),
+			"version_aliases":       flattenSecretManagerSecretVersionAliases(original["versionAliases"], d, config),
+			"version_destroy_ttl":   flattenSecretManagerSecretVersionDestroyTtl(original["versionDestroyTtl"], d, config),
+			"create_time":           flattenSecretManagerSecretCreateTime(original["createTime"], d, config),
+			"name":                  flattenSecretManagerSecretName(original["name"], d, config),
+			"project":               getDataFromName(original["name"], 1),
+			"secret_id":             getDataFromName(original["name"], 3),
 		})
 	}
 	return transformed

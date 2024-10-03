@@ -43,6 +43,8 @@ exported:
 
 * `version_aliases` - Mapping from version alias to version name.
 
+* `version_destroy_ttl` - The version destroy ttl for the secret version.
+
 * `topics` -
   A list of up to 10 Pub/Sub topics to which messages are published when control plane operations are called on the secret or its versions.
   Structure is [documented below](#nested_topics).
