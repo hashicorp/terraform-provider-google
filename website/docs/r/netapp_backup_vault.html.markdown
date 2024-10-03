@@ -35,7 +35,7 @@ To get more information about BackupVault, see:
 ```hcl
 resource "google_netapp_backup_vault" "test_backup_vault" {
   name = "test-backup-vault"
-  location = "us-central1"
+  location = "us-west1"
   description = "Terraform created vault"
   labels = { 
     "creator": "testuser"
