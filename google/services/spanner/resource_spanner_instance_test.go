@@ -321,6 +321,7 @@ resource "google_spanner_instance" "basic" {
   config       = "regional-us-central1"
   display_name = "%s-dname"
   num_nodes    = 1
+  edition      = "ENTERPRISE" 
 }
 `, name, name)
 }
@@ -392,6 +393,7 @@ resource "google_spanner_instance" "basic" {
       storage_utilization_percent           = 95
     }
   }
+  edition      = "ENTERPRISE"
 }
 `, name, name)
 }
@@ -412,6 +414,7 @@ resource "google_spanner_instance" "basic" {
       storage_utilization_percent           = %v
     }
   }
+  edition      = "ENTERPRISE"
 }
 `, name, name, maxProcessingUnits, minProcessingUnits, cupUtilizationPercent, storageUtilizationPercent)
 }
@@ -432,6 +435,7 @@ resource "google_spanner_instance" "basic" {
       storage_utilization_percent           = 95
     }
   }
+  edition      = "ENTERPRISE"
 }
 `, name, name)
 }
@@ -452,6 +456,7 @@ resource "google_spanner_instance" "basic" {
       storage_utilization_percent           = %v
     }
   }
+  edition      = "ENTERPRISE"
 }
 `, name, name, maxNodes, minNodes, cupUtilizationPercent, storageUtilizationPercent)
 }
