@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
-func TestAccFwProvider_impersonate_service_account_delegates(t *testing.T) {
+func TestAccSdkProvider_impersonate_service_account_delegates(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
 		// Configuring the provider using inputs
 		//     There are no environment variables for this field
@@ -98,6 +98,9 @@ func testAccSdkProvider_impersonate_service_account_delegates_usage(t *testing.T
 	acctest.VcrTest(t, resource.TestCase{
 		// No PreCheck for checking ENVs
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSdkProvider_impersonate_service_account_delegates_testViaFailure_1(context),
@@ -169,6 +172,22 @@ resource "google_service_account_iam_member" "delegate_create_target_token" {
   service_account_id = google_service_account.target.name
   role               = "roles/iam.serviceAccountTokenCreator"
   member             = "serviceAccount:${google_service_account.delegate.email}"
+}
+
+# Despite provisioning all the needed service accounts and permissions above
+# this test sometimes fails with "Permission 'iam.serviceAccounts.getAccessToken' denied on resource (or it may not exist)"
+# This error can be caused by either of:
+#   - the IAM Service Account Credentials API not being enabled
+#   - the service account not existing
+#   - eventual consistency affecting IAM policies set on the service accounts
+# Splitting this test into 2 steps is not sufficient to help with timing issues, so we add this sleep
+resource "time_sleep" "wait_5_minutes" {
+  depends_on = [
+    google_service_account_iam_member.base_create_delegate_token,
+    google_service_account_iam_member.delegate_create_target_token
+  ]
+
+  create_duration = "300s"	
 }
 `, context)
 }
