@@ -851,6 +851,9 @@ func TestAccComposer1Environment_withNodeConfig(t *testing.T) {
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposer1Environment_nodeCfg(envName, network, subnetwork, serviceAccount),
@@ -2383,7 +2386,7 @@ resource "google_composer_environment" "test" {
       image_version = "composer-1-airflow-2"
     }
   }
-  depends_on = [google_project_iam_member.composer-worker]
+  depends_on = [time_sleep.wait_3_minutes]
 }
 
 resource "google_compute_network" "test" {
@@ -2396,6 +2399,11 @@ resource "google_compute_subnetwork" "test" {
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.test.self_link
+}
+
+resource "time_sleep" "wait_3_minutes" {
+	depends_on = [google_project_iam_member.composer-worker]
+	create_duration = "3m"
 }
 
 resource "google_service_account" "test" {
