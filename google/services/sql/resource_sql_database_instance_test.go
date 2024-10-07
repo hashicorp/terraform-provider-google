@@ -2490,6 +2490,50 @@ func TestAccSqlDatabaseInstance_useInternalCaByDefault(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_useCasBasedServerCa(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + acctest.RandString(t, 10)
+	resourceName := "google_sql_database_instance.instance"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_setCasServerCa(databaseName, "GOOGLE_MANAGED_CAS_CA"),
+				Check:  resource.ComposeTestCheckFunc(resource.TestCheckResourceAttr(resourceName, "settings.0.ip_configuration.0.server_ca_mode", "GOOGLE_MANAGED_CAS_CA")),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testGoogleSqlDatabaseInstance_setCasServerCa(databaseName, serverCaMode string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "POSTGRES_15"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+    ip_configuration {
+      ipv4_enabled    = "true"
+      server_ca_mode  = "%s"
+    }
+  }
+}
+`, databaseName, serverCaMode)
+}
+
 func testGoogleSqlDatabaseInstance_setSslOptionsForPostgreSQL(databaseName string, databaseVersion string, sslMode string) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {
