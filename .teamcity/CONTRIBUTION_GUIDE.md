@@ -89,7 +89,12 @@ If you want to test a feature branch on a schedule ahead of a release you can up
 
 First, make sure that the feature branch `FEATURE-BRANCH-major-release-X.0.0` is created in the downstream TPG and TPGB repositories, where X is the major version.
 
-See this PR as an example of adding a major release testing project: https://github.com/SarahFrench/magic-modules/pull/9/files
+See these PRs as examples of adding a major release testing project:
+- v6.0.0:
+    - https://github.com/GoogleCloudPlatform/magic-modules/pull/11104
+    - https://github.com/GoogleCloudPlatform/magic-modules/pull/11143 (a fix to the one above)
+- v7.0.0:
+    - https://github.com/GoogleCloudPlatform/magic-modules/pull/11887
 
 That PR creates a new file at `.teamcity/components/projects/feature_branches/FEATURE-BRANCH-major-release-X.0.0.kt` (replacing `X` with the version number). This file defines a new project that will contain all the builds run against the feature branch. See [FEATURE-BRANCH-major-release-6.0.0.kt](https://github.com/GoogleCloudPlatform/magic-modules/blob/main/mmv1/third_party/terraform/.teamcity/components/projects/feature_branches/FEATURE-BRANCH-major-release-6.0.0.kt) as an example.
 
