@@ -386,7 +386,7 @@ is desired, you will need to modify your state file manually using
     is not accessible from the Internet. If omitted, ssh provisioners will not
     work unless Terraform can send traffic to the instance's network (e.g. via
     tunnel or because it is running on another cloud instance on that network).
-    This block can be repeated multiple times. Structure [documented below](#nested_access_config).
+    This block can be specified once per `network_interface`. Structure [documented below](#nested_access_config).
 
 * `alias_ip_range` - (Optional) An
     array of alias IP ranges for this network interface. Can only be specified for network
