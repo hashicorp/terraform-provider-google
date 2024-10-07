@@ -9,7 +9,8 @@ package projects.reused
 
 import SharedResourceNameVcr
 import VcrRecordingProjectId
-import builds.*
+import builds.AccTestConfiguration
+import builds.VcrDetails
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 import replaceCharsId
