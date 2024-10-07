@@ -437,9 +437,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 468
+// Generated resources: 469
 // Generated IAM resources: 261
-// Total generated resources: 729
+// Total generated resources: 730
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1043,6 +1043,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_secret_manager_regional_secret_iam_member":                           tpgiamresource.ResourceIamMember(secretmanagerregional.SecretManagerRegionalRegionalSecretIamSchema, secretmanagerregional.SecretManagerRegionalRegionalSecretIamUpdaterProducer, secretmanagerregional.SecretManagerRegionalRegionalSecretIdParseFunc),
 	"google_secret_manager_regional_secret_iam_policy":                           tpgiamresource.ResourceIamPolicy(secretmanagerregional.SecretManagerRegionalRegionalSecretIamSchema, secretmanagerregional.SecretManagerRegionalRegionalSecretIamUpdaterProducer, secretmanagerregional.SecretManagerRegionalRegionalSecretIdParseFunc),
 	"google_secret_manager_regional_secret_version":                              secretmanagerregional.ResourceSecretManagerRegionalRegionalSecretVersion(),
+	"google_secure_source_manager_branch_rule":                                   securesourcemanager.ResourceSecureSourceManagerBranchRule(),
 	"google_secure_source_manager_instance":                                      securesourcemanager.ResourceSecureSourceManagerInstance(),
 	"google_secure_source_manager_instance_iam_binding":                          tpgiamresource.ResourceIamBinding(securesourcemanager.SecureSourceManagerInstanceIamSchema, securesourcemanager.SecureSourceManagerInstanceIamUpdaterProducer, securesourcemanager.SecureSourceManagerInstanceIdParseFunc),
 	"google_secure_source_manager_instance_iam_member":                           tpgiamresource.ResourceIamMember(securesourcemanager.SecureSourceManagerInstanceIamSchema, securesourcemanager.SecureSourceManagerInstanceIamUpdaterProducer, securesourcemanager.SecureSourceManagerInstanceIdParseFunc),
