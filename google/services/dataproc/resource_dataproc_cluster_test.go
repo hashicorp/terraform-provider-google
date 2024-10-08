@@ -1416,6 +1416,10 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
   region = "us-central1"
 
   cluster_config {
+    software_config {
+      image_version = "2.0.35-debian10"
+    }
+
     gce_cluster_config {
       subnetwork = "%s"
       zone = "%s"
@@ -1651,6 +1655,9 @@ resource "google_dataproc_cluster" "basic" {
   region = "us-central1"
 
   cluster_config {
+    software_config {
+      image_version = "2.0.35-debian10"
+    }
     gce_cluster_config {
       subnetwork = "%s"
       zone = "us-central1-f"
@@ -1763,6 +1770,7 @@ resource "google_dataproc_cluster" "with_init_action" {
 
     # Keep the costs down with smallest config we can get away with
     software_config {
+      image_version = "2.0.35-debian10"
       override_properties = {
         "dataproc:dataproc.allow.zero.workers" = "true"
       }
@@ -2027,6 +2035,7 @@ resource "google_dataproc_cluster" "with_bucket" {
 
     # Keep the costs down with smallest config we can get away with
     software_config {
+      image_version = "2.0.35-debian10"
       override_properties = {
         "dataproc:dataproc.allow.zero.workers" = "true"
       }
@@ -2060,6 +2069,7 @@ resource "google_dataproc_cluster" "with_bucket" {
 
     # Keep the costs down with smallest config we can get away with
     software_config {
+      image_version = "2.0.35-debian10"
       override_properties = {
         "dataproc:dataproc.allow.zero.workers" = "true"
       }
@@ -2249,6 +2259,7 @@ resource "google_dataproc_cluster" "with_service_account" {
   cluster_config {
     # Keep the costs down with smallest config we can get away with
     software_config {
+      image_version = "2.0.35-debian10"
       override_properties = {
         "dataproc:dataproc.allow.zero.workers" = "true"
       }

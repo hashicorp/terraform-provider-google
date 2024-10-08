@@ -864,6 +864,7 @@ resource "google_dataproc_cluster" "basic" {
   cluster_config {
     # Keep the costs down with smallest config we can get away with
     software_config {
+      image_version = "2.0.35-debian10"
       override_properties = {
         "dataproc:dataproc.allow.zero.workers" = "true"
       }
