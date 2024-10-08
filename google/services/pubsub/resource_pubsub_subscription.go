@@ -630,7 +630,7 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	retryPolicyProp, err := expandPubsubSubscriptionRetryPolicy(d.Get("retry_policy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("retry_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(retryPolicyProp)) && (ok || !reflect.DeepEqual(v, retryPolicyProp)) {
+	} else if v, ok := d.GetOkExists("retry_policy"); ok || !reflect.DeepEqual(v, retryPolicyProp) {
 		obj["retryPolicy"] = retryPolicyProp
 	}
 	enableMessageOrderingProp, err := expandPubsubSubscriptionEnableMessageOrdering(d.Get("enable_message_ordering"), d, config)
@@ -914,7 +914,7 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	retryPolicyProp, err := expandPubsubSubscriptionRetryPolicy(d.Get("retry_policy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("retry_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retryPolicyProp)) {
+	} else if v, ok := d.GetOkExists("retry_policy"); ok || !reflect.DeepEqual(v, retryPolicyProp) {
 		obj["retryPolicy"] = retryPolicyProp
 	}
 	enableExactlyOnceDeliveryProp, err := expandPubsubSubscriptionEnableExactlyOnceDelivery(d.Get("enable_exactly_once_delivery"), d, config)
@@ -1434,9 +1434,6 @@ func flattenPubsubSubscriptionRetryPolicy(v interface{}, d *schema.ResourceData,
 		return nil
 	}
 	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
 	transformed["minimum_backoff"] =
 		flattenPubsubSubscriptionRetryPolicyMinimumBackoff(original["minimumBackoff"], d, config)
@@ -1927,8 +1924,13 @@ func expandPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{}, 
 
 func expandPubsubSubscriptionRetryPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	if len(l) == 0 {
 		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})

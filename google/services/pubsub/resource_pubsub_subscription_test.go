@@ -38,6 +38,30 @@ func TestAccPubsubSubscription_emptyTTL(t *testing.T) {
 	})
 }
 
+func TestAccPubsubSubscription_emptyRetryPolicy(t *testing.T) {
+	t.Parallel()
+
+	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
+	subscription := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_emptyRetryPolicy(topic, subscription),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportStateId:     subscription,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccPubsubSubscription_basic(t *testing.T) {
 	t.Parallel()
 
@@ -492,6 +516,22 @@ resource "google_pubsub_subscription" "foo" {
     ttl = ""
   }
   enable_message_ordering    = false
+}
+`, topic, subscription)
+}
+
+func testAccPubsubSubscription_emptyRetryPolicy(topic, subscription string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "foo" {
+  name = "%s"
+}
+
+resource "google_pubsub_subscription" "foo" {
+  name  = "%s"
+  topic = google_pubsub_topic.foo.id
+
+  retry_policy {
+  }
 }
 `, topic, subscription)
 }
