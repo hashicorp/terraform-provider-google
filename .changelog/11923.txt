@@ -1,0 +1,3 @@
+```release-note:bug
+dataproc: fixed a bug in `google_dataproc_cluster` that prevented creation of clusters with `internal_ip_only` set to false
+```
