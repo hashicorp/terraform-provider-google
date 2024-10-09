@@ -121,6 +121,62 @@ resource "google_iam_workload_identity_pool_provider" "example" {
 `, context)
 }
 
+func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderGithubActionsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderGithubActionsExample(context),
+			},
+			{
+				ResourceName:            "google_iam_workload_identity_pool_provider.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"workload_identity_pool_id", "workload_identity_pool_provider_id"},
+			},
+		},
+	})
+}
+
+func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderGithubActionsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_iam_workload_identity_pool" "pool" {
+  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+}
+
+resource "google_iam_workload_identity_pool_provider" "example" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
+  workload_identity_pool_provider_id = "tf-test-example-prvdr%{random_suffix}"
+  display_name                       = "Name of provider"
+  description                        = "GitHub Actions identity pool provider for automated test"
+  disabled                           = true
+  attribute_condition = <<EOT
+    assertion.repository_owner_id == "123456789" &&
+    attribute.repository == "gh-org/gh-repo" &&
+    assertion.ref == "refs/heads/main" &&
+    assertion.ref_type == "branch"
+EOT
+  attribute_mapping = {
+    "google.subject"       = "assertion.sub"
+    "attribute.actor"      = "assertion.actor"
+    "attribute.aud"        = "assertion.aud"
+    "attribute.repository" = "assertion.repository"
+  }
+  oidc {
+    issuer_uri = "https://token.actions.githubusercontent.com"
+  }
+}
+`, context)
+}
+
 func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderOidcBasicExample(t *testing.T) {
 	t.Parallel()
 
