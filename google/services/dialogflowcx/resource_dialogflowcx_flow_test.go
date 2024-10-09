@@ -27,17 +27,19 @@ func TestAccDialogflowCXFlow_update(t *testing.T) {
 				Config: testAccDialogflowCXFlow_basic(context),
 			},
 			{
-				ResourceName:      "google_dialogflow_cx_flow.my_flow",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dialogflow_cx_flow.my_flow",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings"},
 			},
 			{
 				Config: testAccDialogflowCXFlow_full(context),
 			},
 			{
-				ResourceName:      "google_dialogflow_cx_flow.my_flow",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dialogflow_cx_flow.my_flow",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings"},
 			},
 		},
 	})
@@ -343,10 +345,25 @@ func testAccDialogflowCXFlow_full(context map[string]interface{}) string {
       audio_export_gcs_destination {
         uri = "${google_storage_bucket.bucket.url}/prefix-"
       }
+      speech_settings {
+        endpointer_sensitivity        = 30
+        no_speech_timeout             = "3.500s"
+        use_timeout_based_endpointing = true
+        models = {
+          name : "wrench"
+          mass : "1.3kg"
+          count : "3"
+        }
+      }
       dtmf_settings {
         enabled      = true
         max_digits   = 1
         finish_digit = "#"
+      }
+      logging_settings {
+        enable_stackdriver_logging     = true
+        enable_interaction_logging     = true
+        enable_consent_based_redaction = true
       }
     }
   }

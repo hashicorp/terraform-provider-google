@@ -384,10 +384,25 @@ resource "google_dialogflow_cx_flow" "basic_flow" {
     audio_export_gcs_destination {
       uri = "${google_storage_bucket.bucket.url}/prefix-"
     }
+    speech_settings {
+      endpointer_sensitivity        = 30
+      no_speech_timeout             = "3.500s"
+      use_timeout_based_endpointing = true
+      models = {
+        name : "wrench"
+        mass : "1.3kg"
+        count : "3"
+      }
+    }
     dtmf_settings {
       enabled      = true
       max_digits   = 1
       finish_digit = "#"
+    }
+    logging_settings {
+      enable_stackdriver_logging     = true
+      enable_interaction_logging     = true
+      enable_consent_based_redaction = true
     }
   }
 } 
@@ -851,6 +866,15 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   * Flow level
   Structure is [documented below](#nested_audio_export_gcs_destination).
 
+* `speech_settings` -
+  (Optional)
+  Settings for speech to text detection. Exposed at the following levels:
+  * Agent level
+  * Flow level
+  * Page level
+  * Parameter level
+  Structure is [documented below](#nested_speech_settings).
+
 * `dtmf_settings` -
   (Optional)
   Define behaviors for DTMF (dual tone multi frequency). DTMF settings does not override each other. DTMF settings set at different levels define DTMF detections running in parallel. Exposed at the following levels:
@@ -860,6 +884,12 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   * Parameter level
   Structure is [documented below](#nested_dtmf_settings).
 
+* `logging_settings` -
+  (Optional)
+  Settings for logging. Settings for Dialogflow History, Contact Center messages, StackDriver logs, and speech logging. Exposed at the following levels:
+  * Agent level
+  Structure is [documented below](#nested_logging_settings).
+
 
 <a name="nested_audio_export_gcs_destination"></a>The `audio_export_gcs_destination` block supports:
 
@@ -867,6 +897,26 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Optional)
   The Google Cloud Storage URI for the exported objects. Whether a full object name, or just a prefix, its usage depends on the Dialogflow operation.
   Format: gs://bucket/object-name-or-prefix
+
+<a name="nested_speech_settings"></a>The `speech_settings` block supports:
+
+* `endpointer_sensitivity` -
+  (Optional)
+  Sensitivity of the speech model that detects the end of speech. Scale from 0 to 100.
+
+* `no_speech_timeout` -
+  (Optional)
+  Timeout before detecting no speech.
+  A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
+
+* `use_timeout_based_endpointing` -
+  (Optional)
+  Use timeout based endpointing, interpreting endpointer sensitivy as seconds of timeout value.
+
+* `models` -
+  (Optional)
+  Mapping from language to Speech-to-Text model. The mapped Speech-to-Text model will be selected for requests from its corresponding language. For more information, see [Speech models](https://cloud.google.com/dialogflow/cx/docs/concept/speech-models).
+  An object containing a list of **"key": value** pairs. Example: **{ "name": "wrench", "mass": "1.3kg", "count": "3" }**.
 
 <a name="nested_dtmf_settings"></a>The `dtmf_settings` block supports:
 
@@ -881,6 +931,20 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
 * `finish_digit` -
   (Optional)
   The digit that terminates a DTMF digit sequence.
+
+<a name="nested_logging_settings"></a>The `logging_settings` block supports:
+
+* `enable_stackdriver_logging` -
+  (Optional)
+  Enables Google Cloud Logging.
+
+* `enable_interaction_logging` -
+  (Optional)
+  Enables DF Interaction logging.
+
+* `enable_consent_based_redaction` -
+  (Optional)
+  Enables consent-based end-user input redaction, if true, a pre-defined session parameter **$session.params.conversation-redaction** will be used to determine if the utterance should be redacted.
 
 ## Attributes Reference
 

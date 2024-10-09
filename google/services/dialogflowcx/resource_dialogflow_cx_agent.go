@@ -141,6 +141,69 @@ Format: gs://bucket/object-name-or-prefix`,
 								},
 							},
 						},
+						"logging_settings": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Settings for logging. Settings for Dialogflow History, Contact Center messages, StackDriver logs, and speech logging. Exposed at the following levels:
+* Agent level`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable_consent_based_redaction": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Enables consent-based end-user input redaction, if true, a pre-defined session parameter **$session.params.conversation-redaction** will be used to determine if the utterance should be redacted.`,
+									},
+									"enable_interaction_logging": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Enables DF Interaction logging.`,
+									},
+									"enable_stackdriver_logging": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Enables Google Cloud Logging.`,
+									},
+								},
+							},
+						},
+						"speech_settings": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Settings for speech to text detection. Exposed at the following levels:
+* Agent level
+* Flow level
+* Page level
+* Parameter level`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"endpointer_sensitivity": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Sensitivity of the speech model that detects the end of speech. Scale from 0 to 100.`,
+									},
+									"models": {
+										Type:     schema.TypeMap,
+										Optional: true,
+										Description: `Mapping from language to Speech-to-Text model. The mapped Speech-to-Text model will be selected for requests from its corresponding language. For more information, see [Speech models](https://cloud.google.com/dialogflow/cx/docs/concept/speech-models).
+An object containing a list of **"key": value** pairs. Example: **{ "name": "wrench", "mass": "1.3kg", "count": "3" }**.`,
+										Elem: &schema.Schema{Type: schema.TypeString},
+									},
+									"no_speech_timeout": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Timeout before detecting no speech.
+A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".`,
+									},
+									"use_timeout_based_endpointing": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Use timeout based endpointing, interpreting endpointer sensitivy as seconds of timeout value.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -163,6 +226,7 @@ Format: gs://bucket/object-name-or-prefix`,
 			"enable_stackdriver_logging": {
 				Type:        schema.TypeBool,
 				Optional:    true,
+				Deprecated:  "`enable_stackdriver_logging` is deprecated and will be removed in a future major release. Please use `advanced_settings.logging_settings.enable_stackdriver_logging`instead.",
 				Description: `Determines whether this agent should log conversation queries.`,
 			},
 			"git_integration_settings": {
@@ -491,9 +555,6 @@ func resourceDialogflowCXAgentRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("security_settings", flattenDialogflowCXAgentSecuritySettings(res["securitySettings"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
-	if err := d.Set("enable_stackdriver_logging", flattenDialogflowCXAgentEnableStackdriverLogging(res["enableStackdriverLogging"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
 	if err := d.Set("enable_spell_correction", flattenDialogflowCXAgentEnableSpellCorrection(res["enableSpellCorrection"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
@@ -815,10 +876,6 @@ func flattenDialogflowCXAgentSecuritySettings(v interface{}, d *schema.ResourceD
 	return v
 }
 
-func flattenDialogflowCXAgentEnableStackdriverLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenDialogflowCXAgentEnableSpellCorrection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -834,8 +891,12 @@ func flattenDialogflowCXAgentAdvancedSettings(v interface{}, d *schema.ResourceD
 	transformed := make(map[string]interface{})
 	transformed["audio_export_gcs_destination"] =
 		flattenDialogflowCXAgentAdvancedSettingsAudioExportGcsDestination(original["audioExportGcsDestination"], d, config)
+	transformed["speech_settings"] =
+		flattenDialogflowCXAgentAdvancedSettingsSpeechSettings(original["speechSettings"], d, config)
 	transformed["dtmf_settings"] =
 		flattenDialogflowCXAgentAdvancedSettingsDtmfSettings(original["dtmfSettings"], d, config)
+	transformed["logging_settings"] =
+		flattenDialogflowCXAgentAdvancedSettingsLoggingSettings(original["loggingSettings"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDialogflowCXAgentAdvancedSettingsAudioExportGcsDestination(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -852,6 +913,54 @@ func flattenDialogflowCXAgentAdvancedSettingsAudioExportGcsDestination(v interfa
 	return []interface{}{transformed}
 }
 func flattenDialogflowCXAgentAdvancedSettingsAudioExportGcsDestinationUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXAgentAdvancedSettingsSpeechSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["endpointer_sensitivity"] =
+		flattenDialogflowCXAgentAdvancedSettingsSpeechSettingsEndpointerSensitivity(original["endpointerSensitivity"], d, config)
+	transformed["no_speech_timeout"] =
+		flattenDialogflowCXAgentAdvancedSettingsSpeechSettingsNoSpeechTimeout(original["noSpeechTimeout"], d, config)
+	transformed["use_timeout_based_endpointing"] =
+		flattenDialogflowCXAgentAdvancedSettingsSpeechSettingsUseTimeoutBasedEndpointing(original["useTimeoutBasedEndpointing"], d, config)
+	transformed["models"] =
+		flattenDialogflowCXAgentAdvancedSettingsSpeechSettingsModels(original["models"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowCXAgentAdvancedSettingsSpeechSettingsEndpointerSensitivity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDialogflowCXAgentAdvancedSettingsSpeechSettingsNoSpeechTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXAgentAdvancedSettingsSpeechSettingsUseTimeoutBasedEndpointing(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXAgentAdvancedSettingsSpeechSettingsModels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -894,6 +1003,21 @@ func flattenDialogflowCXAgentAdvancedSettingsDtmfSettingsMaxDigits(v interface{}
 }
 
 func flattenDialogflowCXAgentAdvancedSettingsDtmfSettingsFinishDigit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXAgentAdvancedSettingsLoggingSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("advanced_settings.0.logging_settings")
+}
+func flattenDialogflowCXAgentAdvancedSettingsLoggingSettingsEnableStackdriverLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXAgentAdvancedSettingsLoggingSettingsEnableInteractionLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXAgentAdvancedSettingsLoggingSettingsEnableConsentBasedRedaction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1023,11 +1147,25 @@ func expandDialogflowCXAgentAdvancedSettings(v interface{}, d tpgresource.Terraf
 		transformed["audioExportGcsDestination"] = transformedAudioExportGcsDestination
 	}
 
+	transformedSpeechSettings, err := expandDialogflowCXAgentAdvancedSettingsSpeechSettings(original["speech_settings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSpeechSettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["speechSettings"] = transformedSpeechSettings
+	}
+
 	transformedDtmfSettings, err := expandDialogflowCXAgentAdvancedSettingsDtmfSettings(original["dtmf_settings"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedDtmfSettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["dtmfSettings"] = transformedDtmfSettings
+	}
+
+	transformedLoggingSettings, err := expandDialogflowCXAgentAdvancedSettingsLoggingSettings(original["logging_settings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLoggingSettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["loggingSettings"] = transformedLoggingSettings
 	}
 
 	return transformed, nil
@@ -1054,6 +1192,69 @@ func expandDialogflowCXAgentAdvancedSettingsAudioExportGcsDestination(v interfac
 
 func expandDialogflowCXAgentAdvancedSettingsAudioExportGcsDestinationUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDialogflowCXAgentAdvancedSettingsSpeechSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEndpointerSensitivity, err := expandDialogflowCXAgentAdvancedSettingsSpeechSettingsEndpointerSensitivity(original["endpointer_sensitivity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEndpointerSensitivity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["endpointerSensitivity"] = transformedEndpointerSensitivity
+	}
+
+	transformedNoSpeechTimeout, err := expandDialogflowCXAgentAdvancedSettingsSpeechSettingsNoSpeechTimeout(original["no_speech_timeout"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNoSpeechTimeout); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["noSpeechTimeout"] = transformedNoSpeechTimeout
+	}
+
+	transformedUseTimeoutBasedEndpointing, err := expandDialogflowCXAgentAdvancedSettingsSpeechSettingsUseTimeoutBasedEndpointing(original["use_timeout_based_endpointing"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseTimeoutBasedEndpointing); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useTimeoutBasedEndpointing"] = transformedUseTimeoutBasedEndpointing
+	}
+
+	transformedModels, err := expandDialogflowCXAgentAdvancedSettingsSpeechSettingsModels(original["models"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedModels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["models"] = transformedModels
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowCXAgentAdvancedSettingsSpeechSettingsEndpointerSensitivity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXAgentAdvancedSettingsSpeechSettingsNoSpeechTimeout(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXAgentAdvancedSettingsSpeechSettingsUseTimeoutBasedEndpointing(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXAgentAdvancedSettingsSpeechSettingsModels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandDialogflowCXAgentAdvancedSettingsDtmfSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1098,6 +1299,51 @@ func expandDialogflowCXAgentAdvancedSettingsDtmfSettingsMaxDigits(v interface{},
 }
 
 func expandDialogflowCXAgentAdvancedSettingsDtmfSettingsFinishDigit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXAgentAdvancedSettingsLoggingSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnableStackdriverLogging, err := expandDialogflowCXAgentAdvancedSettingsLoggingSettingsEnableStackdriverLogging(original["enable_stackdriver_logging"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableStackdriverLogging); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableStackdriverLogging"] = transformedEnableStackdriverLogging
+	}
+
+	transformedEnableInteractionLogging, err := expandDialogflowCXAgentAdvancedSettingsLoggingSettingsEnableInteractionLogging(original["enable_interaction_logging"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableInteractionLogging); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableInteractionLogging"] = transformedEnableInteractionLogging
+	}
+
+	transformedEnableConsentBasedRedaction, err := expandDialogflowCXAgentAdvancedSettingsLoggingSettingsEnableConsentBasedRedaction(original["enable_consent_based_redaction"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableConsentBasedRedaction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableConsentBasedRedaction"] = transformedEnableConsentBasedRedaction
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowCXAgentAdvancedSettingsLoggingSettingsEnableStackdriverLogging(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXAgentAdvancedSettingsLoggingSettingsEnableInteractionLogging(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXAgentAdvancedSettingsLoggingSettingsEnableConsentBasedRedaction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
