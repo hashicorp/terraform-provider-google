@@ -580,6 +580,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"oracle_database_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"org_policy_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1028,6 +1033,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.NetworkSecurityBasePath = d.Get("network_security_custom_endpoint").(string)
 	config.NetworkServicesBasePath = d.Get("network_services_custom_endpoint").(string)
 	config.NotebooksBasePath = d.Get("notebooks_custom_endpoint").(string)
+	config.OracleDatabaseBasePath = d.Get("oracle_database_custom_endpoint").(string)
 	config.OrgPolicyBasePath = d.Get("org_policy_custom_endpoint").(string)
 	config.OSConfigBasePath = d.Get("os_config_custom_endpoint").(string)
 	config.OSLoginBasePath = d.Get("os_login_custom_endpoint").(string)

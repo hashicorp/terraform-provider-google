@@ -93,6 +93,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networksecurity"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networkservices"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/notebooks"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/oracledatabase"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/orgpolicy"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/osconfig"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/oslogin"

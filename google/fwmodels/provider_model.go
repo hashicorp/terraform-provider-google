@@ -115,6 +115,7 @@ type ProviderModel struct {
 	NetworkSecurityCustomEndpoint          types.String `tfsdk:"network_security_custom_endpoint"`
 	NetworkServicesCustomEndpoint          types.String `tfsdk:"network_services_custom_endpoint"`
 	NotebooksCustomEndpoint                types.String `tfsdk:"notebooks_custom_endpoint"`
+	OracleDatabaseCustomEndpoint           types.String `tfsdk:"oracle_database_custom_endpoint"`
 	OrgPolicyCustomEndpoint                types.String `tfsdk:"org_policy_custom_endpoint"`
 	OSConfigCustomEndpoint                 types.String `tfsdk:"os_config_custom_endpoint"`
 	OSLoginCustomEndpoint                  types.String `tfsdk:"os_login_custom_endpoint"`
