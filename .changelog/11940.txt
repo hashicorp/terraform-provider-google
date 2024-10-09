@@ -1,0 +1,3 @@
+```release-note:enhancement
+dialogflowcx: added `advanced_settings.logging_settings` and `advanced_settings.speech_settings` to `google_dialogflow_cx_agent` and `google_dialogflow_cx_flow`
+```
