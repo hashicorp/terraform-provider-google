@@ -139,7 +139,7 @@ The following arguments are supported:
 
 <a name="nested_attached_disk"></a>The `attached_disk` block supports:
 
-* `source` - The name or self_link of the disk attached to this instance.
+* `source` - The self_link of the disk attached to this instance.
 
 * `device_name` - Name with which the attached disk is accessible
     under `/dev/disk/by-id/`

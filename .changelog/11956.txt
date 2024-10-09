@@ -1,0 +1,3 @@
+```release-note:none
+Clarifies that the `source` field of `attached_disk` data source in the `google_compute_instance` which always is `self_link` and cannot be name.
+```
