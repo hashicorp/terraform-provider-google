@@ -3532,7 +3532,7 @@ func expandComputeRegionBackendServiceIap(v interface{}, d tpgresource.Terraform
 	transformedEnabled, err := expandComputeRegionBackendServiceIapEnabled(original["enabled"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["enabled"] = transformedEnabled
 	}
 
