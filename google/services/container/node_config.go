@@ -546,6 +546,7 @@ func schemaNodeConfig() *schema.Schema {
 				"kubelet_config": {
 					Type:        schema.TypeList,
 					Optional:    true,
+					Computed:    true,
 					MaxItems:    1,
 					Description: `Node kubelet configs.`,
 					Elem: &schema.Resource{
@@ -764,6 +765,7 @@ func schemaNodePoolAutoConfigNodeKubeletConfig() *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
 		Optional:    true,
+		Computed:    true,
 		MaxItems:    1,
 		Description: `Node kubelet configs.`,
 		Elem: &schema.Resource{
