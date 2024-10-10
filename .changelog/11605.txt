@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: Update `google_compute_instance` documentation to disclose the current state of support on custom machine_types
+```
