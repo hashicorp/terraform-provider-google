@@ -335,6 +335,66 @@ resource "google_network_connectivity_spoke" "primary" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_spoke_linked_producer_vpc_network_basic&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Connectivity Spoke Linked Producer Vpc Network Basic
+
+
+```hcl
+resource "google_compute_network" "network" {
+  name                    = "net-spoke"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_global_address" "address" {
+  name          = "test-address"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.network.id
+}
+
+resource "google_service_networking_connection" "peering" {
+  network                 = google_compute_network.network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.address.name]
+}
+
+resource "google_network_connectivity_hub" "basic_hub" {
+  name = "hub-basic"
+}
+
+resource "google_network_connectivity_spoke" "linked_vpc_spoke"  {
+  name     = "vpc-spoke"
+  location = "global"
+  hub      = google_network_connectivity_hub.basic_hub.id
+  linked_vpc_network {
+    uri = google_compute_network.network.self_link
+  }
+}
+
+resource "google_network_connectivity_spoke" "primary"  {
+  name        = "producer-spoke"
+  location    = "global"
+  description = "A sample spoke with a linked router appliance instance"
+  labels = {
+    label-one = "value-one"
+  }
+  hub         = google_network_connectivity_hub.basic_hub.id
+  linked_producer_vpc_network {
+    network = google_compute_network.network.name
+    peering = google_service_networking_connection.peering.peering
+    exclude_export_ranges = [
+    "198.51.100.0/24",
+    "10.10.0.0/16"
+    ]
+  }
+  depends_on  = [google_network_connectivity_spoke.linked_vpc_spoke]
+}
+```
 
 ## Argument Reference
 
@@ -386,6 +446,11 @@ The following arguments are supported:
   (Optional)
   VPC network that is associated with the spoke.
   Structure is [documented below](#nested_linked_vpc_network).
+
+* `linked_producer_vpc_network` -
+  (Optional)
+  Producer VPC network that is associated with the spoke.
+  Structure is [documented below](#nested_linked_producer_vpc_network).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -461,6 +526,28 @@ The following arguments are supported:
 * `include_export_ranges` -
   (Optional)
   IP ranges allowed to be included from peering.
+
+<a name="nested_linked_producer_vpc_network"></a>The `linked_producer_vpc_network` block supports:
+
+* `network` -
+  (Required)
+  The URI of the Service Consumer VPC that the Producer VPC is peered with.
+
+* `peering` -
+  (Required)
+  The name of the VPC peering between the Service Consumer VPC and the Producer VPC (defined in the Tenant project) which is added to the NCC hub. This peering must be in ACTIVE state.
+
+* `producer_network` -
+  (Output)
+  The URI of the Producer VPC.
+
+* `include_export_ranges` -
+  (Optional)
+  IP ranges allowed to be included from peering.
+
+* `exclude_export_ranges` -
+  (Optional)
+  IP ranges encompassing the subnets to be excluded from peering.
 
 ## Attributes Reference
 
