@@ -4,7 +4,7 @@ description: |-
   Get information about a Docker Image within a Google Artifact Registry Repository.
 ---
 
-# google\_artifact\_registry\_docker\_image
+# google_artifact_registry_docker_image
 
 This data source fetches information from a provided Artifact Registry repository, including the fully qualified name and URI for an image, based on a the latest version of image name and optional digest or tag.
 

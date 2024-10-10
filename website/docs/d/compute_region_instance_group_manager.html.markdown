@@ -4,7 +4,7 @@ description: |-
 Get a Compute Region Instance Group within GCE.
 ---
 
-# google\_compute\_region\_instance\_group\_manager
+# google_compute_region_instance_group_manager
 
 Get a Compute Region Instance Group Manager within GCE.
 For more information, see [the official documentation](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups)
