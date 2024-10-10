@@ -4,7 +4,7 @@ description: |-
   Get subnetworks within GCE.
 ---
 
-# google\_compute\_subnetworks
+# google_compute_subnetworks
 
 Get subnetworks within GCE.
 See [the official documentation](https://cloud.google.com/vpc/docs/subnets)
