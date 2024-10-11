@@ -247,7 +247,7 @@ resource "google_datastream_connection_profile" "source" {
 
     postgresql_profile {
         hostname = "hostname"
-        port     = 3306
+        port     = 5432
         username = "user"
         password = "pass"
         database = "postgres"
