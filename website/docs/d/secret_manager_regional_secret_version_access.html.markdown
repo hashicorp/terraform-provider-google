@@ -34,6 +34,9 @@ The following arguments are supported:
 - `version` - (Optional) The version of the regional secret to get. If it
     is not provided, the latest version is retrieved.
 
+- `is_secret_data_base64` - (Optional) If set to 'true', the secret data is
+    expected to be base64-encoded string.
+
 ## Attributes Reference
 
 The following attributes are exported:
