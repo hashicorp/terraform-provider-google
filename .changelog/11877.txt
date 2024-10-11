@@ -1,0 +1,6 @@
+```release-note:enhancement
+secretmanager: added `is_secret_data_base64` field to `google_secret_manager_secret_version` and `google_secret_manager_secret_version_access` datasources
+```
+```release-note:enhancement
+secretmanagerregional: added `is_secret_data_base64` field to `google_secret_manager_regional_secret_version` and `google_secret_manager_regional_secret_version_access` datasources
+```
