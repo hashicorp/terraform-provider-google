@@ -567,6 +567,31 @@ resource "google_network_services_mesh" "mesh" {
   name     = "network-services-mesh"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_service_invokeriam&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Service Invokeriam
+
+
+```hcl
+resource "google_cloud_run_v2_service" "default" {
+  provider = google-beta
+  name     = "cloudrun-service"
+  location = "us-central1"
+  deletion_protection = false
+  invoker_iam_disabled = true
+  description = "The serving URL of this service will not perform any IAM check when invoked"
+  ingress = "INGRESS_TRAFFIC_ALL"
+  
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -1184,6 +1209,10 @@ The following arguments are supported:
   (Optional)
   Specifies how to distribute traffic over a collection of Revisions belonging to the Service. If traffic is empty or not provided, defaults to 100% traffic to the latest Ready Revision.
   Structure is [documented below](#nested_traffic).
+
+* `invoker_iam_disabled` -
+  (Optional)
+  Disables IAM permission check for run.routes.invoke for callers of this service. This feature is available by invitation only. For more information, visit https://cloud.google.com/run/docs/securing/managing-access#invoker_check.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
