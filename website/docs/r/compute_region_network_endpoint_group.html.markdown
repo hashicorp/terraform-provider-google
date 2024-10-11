@@ -191,6 +191,7 @@ resource "google_app_engine_flexible_app_version" "appengine_neg" {
 resource "google_storage_bucket" "appengine_neg" {
   name     = "appengine-neg"
   location = "US"
+  uniform_bucket_level_access = true
 }
 
 resource "google_storage_bucket_object" "appengine_neg" {
