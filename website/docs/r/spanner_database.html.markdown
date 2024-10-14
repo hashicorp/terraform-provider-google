@@ -131,9 +131,14 @@ When the field is set to false, deleting the database is allowed.
 <a name="nested_encryption_config"></a>The `encryption_config` block supports:
 
 * `kms_key_name` -
-  (Required)
+  (Optional)
   Fully qualified name of the KMS key to use to encrypt this database. This key must exist
   in the same location as the Spanner Database.
+
+* `kms_key_names` -
+  (Optional)
+  Fully qualified name of the KMS keys to use to encrypt this database. The keys must exist
+  in the same locations as the Spanner Database.
 
 ## Attributes Reference
 
