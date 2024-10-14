@@ -1755,6 +1755,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 					d.Get(prefix + "node_config.0.workload_metadata_config")),
 			}
 			if req.WorkloadMetadataConfig == nil {
+				req.WorkloadMetadataConfig = &container.WorkloadMetadataConfig{}
 				req.ForceSendFields = []string{"WorkloadMetadataConfig"}
 			}
 			updateF := func() error {
@@ -1822,6 +1823,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 					d.Get(prefix + "node_config.0.kubelet_config")),
 			}
 			if req.KubeletConfig == nil {
+				req.KubeletConfig = &container.NodeKubeletConfig{}
 				req.ForceSendFields = []string{"KubeletConfig"}
 			}
 			updateF := func() error {
@@ -1855,6 +1857,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 					d.Get(prefix + "node_config.0.linux_node_config")),
 			}
 			if req.LinuxNodeConfig == nil {
+				req.LinuxNodeConfig = &container.LinuxNodeConfig{}
 				req.ForceSendFields = []string{"LinuxNodeConfig"}
 			}
 			updateF := func() error {
