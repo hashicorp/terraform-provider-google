@@ -578,6 +578,78 @@ resource "google_workstations_workstation_config" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_allowed_ports&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Workstation Config Allowed Ports
+
+
+```hcl
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "workstation-cluster"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  provider      = google-beta
+  name          = "workstation-cluster"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.name
+}
+
+resource "google_workstations_workstation_cluster" "default" {
+  provider               = google-beta
+  workstation_cluster_id = "workstation-cluster"
+  network                = google_compute_network.default.id
+  subnetwork             = google_compute_subnetwork.default.id
+  location               = "us-central1"
+  
+  labels = {
+    "label" = "key"
+  }
+
+  annotations = {
+    label-one = "value-one"
+  }
+}
+
+resource "google_workstations_workstation_config" "default" {
+  provider               = google-beta
+  workstation_config_id  = "workstation-config"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-central1"
+
+  host {
+    gce_instance {
+      machine_type                = "e2-standard-4"
+      boot_disk_size_gb           = 35
+      disable_public_ip_addresses = true
+    }
+  }
+
+  # Allow only port 80 (HTTP)
+  allowed_ports {
+    first = 80
+    last  = 80
+  }
+
+  # Allow only port 22 (SSH)
+  allowed_ports {
+    first = 22
+    last  = 22
+  }
+
+  # Allow port range 1024-65535
+  allowed_ports {
+    first = 1024
+    last  = 65535
+  }
+}
+```
 
 ## Argument Reference
 
@@ -671,6 +743,11 @@ The following arguments are supported:
 * `disable_tcp_connections` -
   (Optional)
   Disables support for plain TCP connections in the workstation. By default the service supports TCP connections via a websocket relay. Setting this option to true disables that relay, which prevents the usage of services that require plain tcp connections, such as ssh. When enabled, all communication must occur over https or wss.
+
+* `allowed_ports` -
+  (Optional)
+  A list of port ranges specifying single ports or ranges of ports that are externally accessible in the workstation. Allowed ports must be one of 22, 80, or within range 1024-65535. If not specified defaults to ports 22, 80, and ports 1024-65535.
+  Structure is [documented below](#nested_allowed_ports).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -938,6 +1015,16 @@ The following arguments are supported:
 * `port` -
   (Required)
   Port to which the request should be sent.
+
+<a name="nested_allowed_ports"></a>The `allowed_ports` block supports:
+
+* `first` -
+  (Optional)
+  Starting port number for the current range of ports. Valid ports are 22, 80, and ports within the range 1024-65535.
+
+* `last` -
+  (Optional)
+  Ending port number for the current range of ports. Valid ports are 22, 80, and ports within the range 1024-65535.
 
 ## Attributes Reference
 
