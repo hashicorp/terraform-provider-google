@@ -191,7 +191,7 @@ resource "google_compute_region_network_endpoint_group" "appengine_neg" {
 
 resource "google_app_engine_flexible_app_version" "appengine_neg" {
   version_id = "v1"
-  service    = "appengine-network-endpoint-group"
+  service    = "tf-test-appengine-neg%{random_suffix}"
   runtime    = "nodejs"
   flexible_runtime_settings {
     operating_system = "ubuntu22"
