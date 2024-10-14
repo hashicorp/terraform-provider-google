@@ -38,8 +38,8 @@ To get more information about CloudExadataInfrastructure, see:
 
 ```hcl
 resource "google_oracle_database_cloud_exadata_infrastructure" "my-cloud-exadata"{
-  display_name = "OFake exadata displayname"
-  cloud_exadata_infrastructure_id = "ofake-exadata"
+  cloud_exadata_infrastructure_id = "my-instance"
+  display_name = "my-instance displayname"
   location = "us-east4"
   project = "my-project"
   properties {
@@ -59,8 +59,8 @@ resource "google_oracle_database_cloud_exadata_infrastructure" "my-cloud-exadata
 
 ```hcl
 resource "google_oracle_database_cloud_exadata_infrastructure" "my-cloud-exadata"{
-  display_name = "OFake exadata displayname"
-  cloud_exadata_infrastructure_id = "ofake-exadata-id"
+  cloud_exadata_infrastructure_id = "my-instance"
+  display_name = "my-instance displayname"
   location = "us-east4"
   project = "my-project"
   gcp_oracle_zone = "us-east4-b-r1"
