@@ -240,6 +240,25 @@ func ExpandStringMap(d TerraformResourceData, key string) map[string]string {
 	return ConvertStringMap(v.(map[string]interface{}))
 }
 
+// InterfaceSliceToStringSlice converts a []interface{} containing strings to []string
+func InterfaceSliceToStringSlice(v interface{}) ([]string, error) {
+	interfaceSlice, ok := v.([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("expected []interface{}, got %T", v)
+	}
+
+	stringSlice := make([]string, len(interfaceSlice))
+	for i, item := range interfaceSlice {
+		strItem, ok := item.(string)
+		if !ok {
+			return nil, fmt.Errorf("expected string, got %T at index %d", item, i)
+		}
+		stringSlice[i] = strItem
+	}
+
+	return stringSlice, nil
+}
+
 // SortStringsByConfigOrder takes a slice of map[string]interface{} from a TF config
 // and API data, and returns a new slice containing the API data, reorderd to match
 // the TF config as closely as possible (with new items at the end of the list.)

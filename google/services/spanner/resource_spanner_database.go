@@ -162,10 +162,22 @@ whereas setting “enableDropProtection” to true protects the database from de
 					Schema: map[string]*schema.Schema{
 						"kms_key_name": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 							ForceNew: true,
 							Description: `Fully qualified name of the KMS key to use to encrypt this database. This key must exist
 in the same location as the Spanner Database.`,
+							ExactlyOneOf: []string{"encryption_config.0.kms_key_name", "encryption_config.0.kms_key_names"},
+						},
+						"kms_key_names": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Description: `Fully qualified name of the KMS keys to use to encrypt this database. The keys must exist
+in the same locations as the Spanner Database.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							ExactlyOneOf: []string{"encryption_config.0.kms_key_name", "encryption_config.0.kms_key_names"},
 						},
 					},
 				},
@@ -821,10 +833,44 @@ func flattenSpannerDatabaseEncryptionConfig(v interface{}, d *schema.ResourceDat
 	transformed := make(map[string]interface{})
 	transformed["kms_key_name"] =
 		flattenSpannerDatabaseEncryptionConfigKmsKeyName(original["kmsKeyName"], d, config)
+	transformed["kms_key_names"] =
+		flattenSpannerDatabaseEncryptionConfigKmsKeyNames(original["kmsKeyNames"], d, config)
 	return []interface{}{transformed}
 }
 func flattenSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenSpannerDatabaseEncryptionConfigKmsKeyNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Ignore `kms_key_names` if `kms_key_name` is set, because that field takes precedence.
+	_, kmsNameSet := d.GetOk("encryption_config.0.kms_key_name")
+	if kmsNameSet {
+		return nil
+	}
+
+	rawConfigValue := d.Get("encryption_config.0.kms_key_names")
+
+	// Convert config value to []string
+	configValue, err := tpgresource.InterfaceSliceToStringSlice(rawConfigValue)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert config value: %s", err)
+		return v
+	}
+
+	// Convert v to []string
+	apiStringValue, err := tpgresource.InterfaceSliceToStringSlice(v)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert API value: %s", err)
+		return v
+	}
+
+	sortedStrings, err := tpgresource.SortStringsByConfigOrder(configValue, apiStringValue)
+	if err != nil {
+		log.Printf("[ERROR] Could not sort API response value: %s", err)
+		return v
+	}
+
+	return sortedStrings
 }
 
 func flattenSpannerDatabaseDatabaseDialect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -870,10 +916,21 @@ func expandSpannerDatabaseEncryptionConfig(v interface{}, d tpgresource.Terrafor
 		transformed["kmsKeyName"] = transformedKmsKeyName
 	}
 
+	transformedKmsKeyNames, err := expandSpannerDatabaseEncryptionConfigKmsKeyNames(original["kms_key_names"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyNames); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyNames"] = transformedKmsKeyNames
+	}
+
 	return transformed, nil
 }
 
 func expandSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSpannerDatabaseEncryptionConfigKmsKeyNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
