@@ -5,7 +5,7 @@ package bigquery_test
 import (
 	"fmt"
 	"reflect"
-	"strings"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -116,6 +116,48 @@ func TestAccBigqueryDatasetIamMember_iamMember(t *testing.T) {
 	})
 }
 
+func TestAccBigqueryDatasetIamMember_withDeletedServiceAccount(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	serviceAccountID := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	serviceAccountEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", serviceAccountID, envvar.GetTestProjectFromEnv())
+
+	expected := map[string]interface{}{
+		"role":        "roles/viewer",
+		"userByEmail": serviceAccountEmail,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDatasetIamMember_withServiceAccount(datasetID, serviceAccountID),
+				Check:  testAccCheckBigQueryDatasetIamMemberPresent(t, "google_bigquery_dataset.dataset", expected),
+			},
+			{
+				// No change from Step 1 except for hard-coding the service account email to remove the explicit resource reference in preparation for the service accoutn deletion.
+				Config: testAccBigqueryDatasetIamMember_withServiceAccountEmail(datasetID, serviceAccountID, serviceAccountEmail),
+				Check:  testAccCheckBigQueryDatasetIamMemberPresent(t, "google_bigquery_dataset.dataset", expected),
+			},
+			{
+				// Delete the service account but keep the rest the same.
+				// The service account will show up with a "deleted:serviceAccount:" prefix and a "?uid=" suffix when getting dataset access from now on.
+				// The plan should show an attempt to recreate the IAM member resource because the dataset access no longer contains the original account email so there is a diff.
+				Config:             testAccBigqueryDatasetIamMember_withServiceAccountDeleted(datasetID, serviceAccountEmail),
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				// Apply the same plan as the previous step.
+				// It should fail because the specified account has now been deleted, so the account email is invalid.
+				Config:      testAccBigqueryDatasetIamMember_withServiceAccountDeleted(datasetID, serviceAccountEmail),
+				ExpectError: regexp.MustCompile(fmt.Sprintf(".+Service account %s does not exist.+", serviceAccountEmail)),
+			},
+		},
+	})
+}
+
 func testAccCheckBigQueryDatasetIamMemberPresent(t *testing.T, n string, expected map[string]interface{}) resource.TestCheckFunc {
 	return testAccCheckBigQueryDatasetIamMember(t, n, expected, true)
 }
@@ -148,15 +190,6 @@ func testAccCheckBigQueryDatasetIamMember(t *testing.T, n string, expected map[s
 		}
 		access := ds["access"].([]interface{})
 		for _, a := range access {
-			if aMap, ok := a.(map[string]interface{}); ok {
-				if iamMember, ok := aMap["iamMember"].(string); ok {
-					// The iam account may have been deleted but the binding may be present for the dataset.
-					// This case is supposed to always throw an error.
-					if strings.HasPrefix(iamMember, "deleted:") {
-						return fmt.Errorf("Found deleted service account: %s", iamMember)
-					}
-				}
-			}
 			if reflect.DeepEqual(a, expected) {
 				if !expectPresent {
 					return fmt.Errorf("Found access %+v, expected not present", expected)
@@ -259,4 +292,54 @@ resource "google_iam_workload_identity_pool_provider" "wif_provider" {
   }
 }
 `, datasetID, wifIDs, wifIDs)
+}
+
+func testAccBigqueryDatasetIamMember_withServiceAccount(datasetID, serviceAccountID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "%s"
+}
+
+resource "google_service_account" "sa" {
+  account_id = "%s"
+}
+
+resource "google_bigquery_dataset_iam_member" "access" {
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  role       = "roles/viewer"
+  member     = "serviceAccount:${google_service_account.sa.email}"
+}
+`, datasetID, serviceAccountID)
+}
+
+func testAccBigqueryDatasetIamMember_withServiceAccountEmail(datasetID, serviceAccountID, serviceAccountEmail string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "%s"
+}
+
+resource "google_service_account" "sa" {
+  account_id = "%s"
+}
+
+resource "google_bigquery_dataset_iam_member" "access" {
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  role       = "roles/viewer"
+  member     = "serviceAccount:%s"
+}
+`, datasetID, serviceAccountID, serviceAccountEmail)
+}
+
+func testAccBigqueryDatasetIamMember_withServiceAccountDeleted(datasetID, serviceAccountEmail string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_dataset_iam_member" "access" {
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  role       = "roles/viewer"
+  member     = "serviceAccount:%s"
+}
+`, datasetID, serviceAccountEmail)
 }
