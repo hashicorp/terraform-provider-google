@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed a regression that caused `google_bigquery_dataset_iam_*` resources to attempt to set deleted IAM members, thereby triggering an API error 
+```
