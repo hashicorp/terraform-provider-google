@@ -99,6 +99,8 @@ resource "google_workstations_workstation_config" "default" {
     "label" = "key"
   }
 
+  max_usable_workstations = 1 
+  
   host {
     gce_instance {
       machine_type                = "e2-standard-4"
@@ -743,6 +745,10 @@ The following arguments are supported:
 * `disable_tcp_connections` -
   (Optional)
   Disables support for plain TCP connections in the workstation. By default the service supports TCP connections via a websocket relay. Setting this option to true disables that relay, which prevents the usage of services that require plain tcp connections, such as ssh. When enabled, all communication must occur over https or wss.
+
+* `max_usable_workstations` -
+  (Optional)
+  Maximum number of workstations under this configuration a user can have workstations.workstation.use permission on. Only enforced on CreateWorkstation API calls on the user issuing the API request.
 
 * `allowed_ports` -
   (Optional)
