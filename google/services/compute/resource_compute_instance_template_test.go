@@ -318,6 +318,26 @@ func TestAccComputeInstanceTemplate_diskIops(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_diskIopsThroughput(t *testing.T) {
+	t.Parallel()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_diskIopsThroughput(acctest.RandString(t, 10)),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_subnet_auto(t *testing.T) {
 	t.Parallel()
 
@@ -2571,6 +2591,37 @@ resource "google_compute_instance_template" "foobar" {
     disk_size_gb     = 100
     boot             = true
     provisioned_iops = 10000
+    labels = {
+      foo = "bar"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, suffix)
+}
+
+func testAccComputeInstanceTemplate_diskIopsThroughput(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "tf-test-instance-template-%s"
+  machine_type = "e2-medium"
+
+  disk {
+    source_image           = data.google_compute_image.my_image.self_link
+    auto_delete            = true
+    disk_size_gb           = 100
+    boot                   = true
+    disk_type              = "hyperdisk-balanced"
+    provisioned_iops       = 10000
+    provisioned_throughput = 1024
     labels = {
       foo = "bar"
     }

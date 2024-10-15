@@ -171,7 +171,15 @@ func ResourceComputeInstanceTemplate() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Computed:    true,
-							Description: `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. Values must be between 10,000 and 120,000. For more details, see the [Extreme persistent disk documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk).`,
+							Description: `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. For more details, see the [Extreme persistent disk documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk) or the [Hyperdisk documentation](https://cloud.google.com/compute/docs/disks/hyperdisks) depending on the selected disk_type.`,
+						},
+
+						"provisioned_throughput": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `Indicates how much throughput to provision for the disk, in MB/s. This sets the amount of data that can be read or written from the disk per second. Values must greater than or equal to 1. For more details, see the [Hyperdisk documentation](https://cloud.google.com/compute/docs/disks/hyperdisks).`,
 						},
 
 						"resource_manager_tags": {
@@ -1181,7 +1189,7 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 		}
 		if v, ok := d.GetOk(prefix + ".source"); ok {
 			disk.Source = v.(string)
-			conflicts := []string{"disk_size_gb", "disk_name", "disk_type", "provisioned_iops", "source_image", "source_snapshot", "labels"}
+			conflicts := []string{"disk_size_gb", "disk_name", "disk_type", "provisioned_iops", "provisioned_throughput", "source_image", "source_snapshot", "labels"}
 			for _, conflict := range conflicts {
 				if _, ok := d.GetOk(prefix + "." + conflict); ok {
 					return nil, fmt.Errorf("Cannot use `source` with any of the fields in %s", conflicts)
@@ -1203,6 +1211,9 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 			}
 			if v, ok := d.GetOk(prefix + ".provisioned_iops"); ok {
 				disk.InitializeParams.ProvisionedIops = int64(v.(int))
+			}
+			if v, ok := d.GetOk(prefix + ".provisioned_throughput"); ok {
+				disk.InitializeParams.ProvisionedThroughput = int64(v.(int))
 			}
 			if _, ok := d.GetOk(prefix + ".resource_manager_tags"); ok {
 				disk.InitializeParams.ResourceManagerTags = tpgresource.ExpandStringMap(d, prefix+".resource_manager_tags")
@@ -1416,12 +1427,13 @@ func resourceComputeInstanceTemplateUpdate(d *schema.ResourceData, meta interfac
 }
 
 type diskCharacteristics struct {
-	mode            string
-	diskType        string
-	diskSizeGb      string
-	autoDelete      bool
-	sourceImage     string
-	provisionedIops string
+	mode                  string
+	diskType              string
+	diskSizeGb            string
+	autoDelete            bool
+	sourceImage           string
+	provisionedIops       string
+	provisionedThroughput string
 }
 
 func diskCharacteristicsFromMap(m map[string]interface{}) diskCharacteristics {
@@ -1457,6 +1469,12 @@ func diskCharacteristicsFromMap(m map[string]interface{}) diskCharacteristics {
 		dc.provisionedIops = fmt.Sprintf("%v", v)
 	}
 
+	if v := m["provisioned_throughput"]; v != nil {
+		// Terraform and GCP return ints as different types (int vs int64), so just
+		// use strings to compare for simplicity.
+		dc.provisionedThroughput = fmt.Sprintf("%v", v)
+	}
+
 	return dc
 }
 
@@ -1480,6 +1498,7 @@ func flattenDisk(disk *compute.AttachedDisk, configDisk map[string]any, defaultP
 		}
 		diskMap["disk_type"] = disk.InitializeParams.DiskType
 		diskMap["provisioned_iops"] = disk.InitializeParams.ProvisionedIops
+		diskMap["provisioned_throughput"] = disk.InitializeParams.ProvisionedThroughput
 		diskMap["disk_name"] = disk.InitializeParams.DiskName
 		diskMap["labels"] = disk.InitializeParams.Labels
 		// The API does not return a disk size value for scratch disks. They are largely only one size,
