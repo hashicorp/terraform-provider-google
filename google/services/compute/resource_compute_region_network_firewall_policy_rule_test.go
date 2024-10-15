@@ -12,12 +12,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
-func TestAccComputeNetworkFirewallPolicyRule_update(t *testing.T) {
+func TestAccComputeRegionNetworkFirewallPolicyRule_update(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"org_name":      fmt.Sprintf("organizations/%s", envvar.GetTestOrgFromEnv(t)),
+		"region":        envvar.GetTestRegionFromEnv(),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -25,55 +26,55 @@ func TestAccComputeNetworkFirewallPolicyRule_update(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetworkFirewallPolicyRule_start(context),
+				Config: testAccComputeRegionNetworkFirewallPolicyRule_start(context),
 			},
 			{
-				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule1",
+				ResourceName:      "google_compute_region_network_firewall_policy_rule.fw_policy_rule1",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Referencing using ID causes import to fail
 				ImportStateVerifyIgnore: []string{"firewall_policy"},
 			},
 			{
-				Config: testAccComputeNetworkFirewallPolicyRule_update(context),
+				Config: testAccComputeRegionNetworkFirewallPolicyRule_update(context),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
+						plancheck.ExpectResourceAction("google_compute_region_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
 					},
 				},
 			},
 			{
-				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule1",
+				ResourceName:      "google_compute_region_network_firewall_policy_rule.fw_policy_rule1",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Referencing using ID causes import to fail
 				ImportStateVerifyIgnore: []string{"firewall_policy"},
 			},
 			{
-				Config: testAccComputeNetworkFirewallPolicyRule_removeConfigs(context),
+				Config: testAccComputeRegionNetworkFirewallPolicyRule_removeConfigs(context),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
+						plancheck.ExpectResourceAction("google_compute_region_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
 					},
 				},
 			},
 			{
-				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule1",
+				ResourceName:      "google_compute_region_network_firewall_policy_rule.fw_policy_rule1",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Referencing using ID causes import to fail
 				ImportStateVerifyIgnore: []string{"firewall_policy"},
 			},
 			{
-				Config: testAccComputeNetworkFirewallPolicyRule_start(context),
+				Config: testAccComputeRegionNetworkFirewallPolicyRule_start(context),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
+						plancheck.ExpectResourceAction("google_compute_region_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
 					},
 				},
 			},
 			{
-				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule1",
+				ResourceName:      "google_compute_region_network_firewall_policy_rule.fw_policy_rule1",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Referencing using ID causes import to fail
@@ -83,12 +84,13 @@ func TestAccComputeNetworkFirewallPolicyRule_update(t *testing.T) {
 	})
 }
 
-func TestAccComputeNetworkFirewallPolicyRule_multipleRules(t *testing.T) {
+func TestAccComputeRegionNetworkFirewallPolicyRule_multipleRules(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"org_name":      fmt.Sprintf("organizations/%s", envvar.GetTestOrgFromEnv(t)),
+		"region":        envvar.GetTestRegionFromEnv(),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -96,44 +98,44 @@ func TestAccComputeNetworkFirewallPolicyRule_multipleRules(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetworkFirewallPolicyRule_multiple(context),
+				Config: testAccComputeRegionNetworkFirewallPolicyRule_multiple(context),
 			},
 			{
-				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule1",
+				ResourceName:      "google_compute_region_network_firewall_policy_rule.fw_policy_rule1",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Referencing using ID causes import to fail
 				ImportStateVerifyIgnore: []string{"firewall_policy"},
 			},
 			{
-				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule2",
+				ResourceName:      "google_compute_region_network_firewall_policy_rule.fw_policy_rule2",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Referencing using ID causes import to fail
 				ImportStateVerifyIgnore: []string{"firewall_policy"},
 			},
 			{
-				Config: testAccComputeNetworkFirewallPolicyRule_multipleAdd(context),
+				Config: testAccComputeRegionNetworkFirewallPolicyRule_multipleAdd(context),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
+						plancheck.ExpectResourceAction("google_compute_region_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
 					},
 				},
 			},
 			{
-				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule3",
+				ResourceName:      "google_compute_region_network_firewall_policy_rule.fw_policy_rule3",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Referencing using ID causes import to fail
 				ImportStateVerifyIgnore: []string{"firewall_policy"},
 			},
 			{
-				Config: testAccComputeNetworkFirewallPolicyRule_multipleRemove(context),
+				Config: testAccComputeRegionNetworkFirewallPolicyRule_multipleRemove(context),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
-						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule2", plancheck.ResourceActionDestroy),
-						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule3", plancheck.ResourceActionUpdate),
+						plancheck.ExpectResourceAction("google_compute_region_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
+						plancheck.ExpectResourceAction("google_compute_region_network_firewall_policy_rule.fw_policy_rule2", plancheck.ResourceActionDestroy),
+						plancheck.ExpectResourceAction("google_compute_region_network_firewall_policy_rule.fw_policy_rule3", plancheck.ResourceActionUpdate),
 					},
 				},
 			},
@@ -141,53 +143,13 @@ func TestAccComputeNetworkFirewallPolicyRule_multipleRules(t *testing.T) {
 	})
 }
 
-func TestAccComputeNetworkFirewallPolicyRule_securityProfileGroup_update(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"org_name":      fmt.Sprintf("organizations/%s", envvar.GetTestOrgFromEnv(t)),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeNetworkFirewallPolicyRule_securityProfileGroup_basic(context),
-			},
-			{
-				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule1",
-				ImportState:       true,
-				ImportStateVerify: true,
-				// Referencing using ID causes import to fail
-				ImportStateVerifyIgnore: []string{"firewall_policy"},
-			},
-			{
-				Config: testAccComputeNetworkFirewallPolicyRule_securityProfileGroup_update(context),
-				ConfigPlanChecks: resource.ConfigPlanChecks{
-					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
-					},
-				},
-			},
-			{
-				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule1",
-				ImportState:       true,
-				ImportStateVerify: true,
-				// Referencing using ID causes import to fail
-				ImportStateVerifyIgnore: []string{"firewall_policy"},
-			},
-		},
-	})
-}
-
-func TestAccComputeNetworkFirewallPolicyRule_secureTags(t *testing.T) {
+func TestAccComputeRegionNetworkFirewallPolicyRule_secureTags(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"project_name":  envvar.GetTestProjectFromEnv(),
+		"region":        envvar.GetTestRegionFromEnv(),
 		"service_acct":  envvar.GetTestServiceAccountFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
 	}
@@ -195,28 +157,28 @@ func TestAccComputeNetworkFirewallPolicyRule_secureTags(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeNetworkFirewallPolicyRuleDestroyProducer(t),
+		CheckDestroy:             testAccCheckComputeRegionNetworkFirewallPolicyRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetworkFirewallPolicyRule_secureTags(context),
+				Config: testAccComputeRegionNetworkFirewallPolicyRule_secureTags(context),
 			},
 			{
-				ResourceName:      "google_compute_network_firewall_policy_rule.primary",
+				ResourceName:      "google_compute_region_network_firewall_policy_rule.primary",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Referencing using ID causes import to fail
 				ImportStateVerifyIgnore: []string{"firewall_policy", "project"},
 			},
 			{
-				Config: testAccComputeNetworkFirewallPolicyRule_secureTagsUpdate(context),
+				Config: testAccComputeRegionNetworkFirewallPolicyRule_secureTagsUpdate(context),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.primary", plancheck.ResourceActionUpdate),
+						plancheck.ExpectResourceAction("google_compute_region_network_firewall_policy_rule.primary", plancheck.ResourceActionUpdate),
 					},
 				},
 			},
 			{
-				ResourceName:      "google_compute_network_firewall_policy_rule.primary",
+				ResourceName:      "google_compute_region_network_firewall_policy_rule.primary",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Referencing using ID causes import to fail
@@ -226,51 +188,55 @@ func TestAccComputeNetworkFirewallPolicyRule_secureTags(t *testing.T) {
 	})
 }
 
-func testAccComputeNetworkFirewallPolicyRule_secureTags(context map[string]interface{}) string {
+func testAccComputeRegionNetworkFirewallPolicyRule_secureTags(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+resource "google_network_security_address_group" "basic_regional_networksecurity_address_group" {
   name        = "tf-test-address-%{random_suffix}"
   parent      = "projects/%{project_name}"
-  description = "Sample global networksecurity_address_group"
-  location    = "global"
+  description = "Sample regional networksecurity_address_group"
+  location    = "%{region}"
   items       = ["208.80.154.224/32"]
   type        = "IPV4"
   capacity    = 100
 }
 
-resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
+resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
   name        = "tf-test-policy-%{random_suffix}"
-  description = "Sample global network firewall policy"
+  description = "Sample regional network firewall policy"
   project     = "%{project_name}"
+  region      = "%{region}"
 }
 
-resource "google_compute_network_firewall_policy_rule" "primary" {
+resource "google_compute_region_network_firewall_policy_rule" "primary" {
   action          = "allow"
   description     = "This is a simple rule description"
   direction       = "INGRESS"
   disabled        = false
   enable_logging  = true
-  firewall_policy = google_compute_network_firewall_policy.basic_network_firewall_policy.name
+  firewall_policy = google_compute_region_network_firewall_policy.basic_regional_network_firewall_policy.name
   priority        = 1000
+  region          = "%{region}"
   tls_inspect     = false
   rule_name       = "tf-test-rule-%{random_suffix}"
   project         = "projects/%{project_name}"
 
+  target_service_accounts = ["%{service_acct}"]
+
   match {
     src_ip_ranges = ["10.100.0.1/32"]
-    src_fqdns = ["google.com"]
+    src_fqdns = ["example.com"]
     src_region_codes = ["US"]
     src_threat_intelligences = ["iplist-known-malicious-ips"]
-
-    src_secure_tags {
-      name = "tagValues/${google_tags_tag_value.basic_value.name}"
-    }
 
     layer4_configs {
       ip_protocol = "all"
     }
+
+    src_secure_tags {
+      name = "tagValues/${google_tags_tag_value.basic_value.name}"
+    }
     
-    src_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
+    src_address_groups = [google_network_security_address_group.basic_regional_networksecurity_address_group.id]
   }
 }
 
@@ -284,6 +250,7 @@ resource "google_tags_tag_key" "basic_key" {
   parent      = "organizations/%{org_id}"
   purpose     = "GCE_FIREWALL"
   short_name  = "tf-test-tagkey-%{random_suffix}"
+
   purpose_data = {
     network = "%{project_name}/${google_compute_network.basic_network.name}"
   }
@@ -294,35 +261,38 @@ resource "google_tags_tag_value" "basic_value" {
   parent      = "tagKeys/${google_tags_tag_key.basic_key.name}"
   short_name  = "tf-test-tagvalue-%{random_suffix}"
 }
+
 `, context)
 }
 
-func testAccComputeNetworkFirewallPolicyRule_secureTagsUpdate(context map[string]interface{}) string {
+func testAccComputeRegionNetworkFirewallPolicyRule_secureTagsUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+resource "google_network_security_address_group" "basic_regional_networksecurity_address_group" {
   name        = "tf-test-address-%{random_suffix}"
   parent      = "projects/%{project_name}"
-  description = "Sample global networksecurity_address_group"
-  location    = "global"
+  description = "Sample regional networksecurity_address_group. Update"
+  location    = "%{region}"
   items       = ["208.80.154.224/32"]
   type        = "IPV4"
   capacity    = 100
 }
 
-resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
+resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
   name        = "tf-test-policy-%{random_suffix}"
-  description = "Sample global network firewall policy"
+  description = "Sample regional network firewall policy"
   project     = "%{project_name}"
+  region      = "%{region}"
 }
 
-resource "google_compute_network_firewall_policy_rule" "primary" {
+resource "google_compute_region_network_firewall_policy_rule" "primary" {
   action          = "deny"
   description     = "This is an updated rule description"
   direction       = "EGRESS"
   disabled        = true
   enable_logging  = false
-  firewall_policy = google_compute_network_firewall_policy.basic_network_firewall_policy.id
+  firewall_policy = google_compute_region_network_firewall_policy.basic_regional_network_firewall_policy.id
   priority        = 1000
+  region          = "%{region}"
   tls_inspect     = false
   rule_name       = "tf-test-updated-rule-%{random_suffix}"
   project         = "projects/%{project_name}"
@@ -332,14 +302,14 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
     dest_fqdns = ["example.com"]
     dest_region_codes = ["US"]
     dest_threat_intelligences = ["iplist-known-malicious-ips"]
-    dest_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
+    dest_address_groups = [google_network_security_address_group.basic_regional_networksecurity_address_group.id]
 
     layer4_configs {
       ip_protocol = "tcp"
       ports       = ["123"]
     }
   }
-  
+
   target_secure_tags {
     name = "tagValues/${google_tags_tag_value.basic_value.name}"
   }
@@ -355,6 +325,7 @@ resource "google_tags_tag_key" "basic_key" {
   parent      = "organizations/%{org_id}"
   purpose     = "GCE_FIREWALL"
   short_name  = "tf-test-tagkey-%{random_suffix}"
+
   purpose_data = {
     network = "%{project_name}/${google_compute_network.basic_network.name}"
   }
@@ -365,113 +336,11 @@ resource "google_tags_tag_value" "basic_value" {
   parent      = "tagKeys/${google_tags_tag_key.basic_key.name}"
   short_name  = "tf-test-tagvalue-%{random_suffix}"
 }
+
 `, context)
 }
 
-func testAccComputeNetworkFirewallPolicyRule_securityProfileGroup_basic(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_compute_network" "network1" {
-  name                    = "tf-test-%{random_suffix}"
-  auto_create_subnetworks = false
-}
-
-resource "google_network_security_security_profile" "security_profile" {
-    name     = "tf-test-my-sp%{random_suffix}"
-    type     = "THREAT_PREVENTION"
-    parent   = "%{org_name}"
-    location = "global"
-}
-
-resource "google_network_security_security_profile_group" "security_profile_group" {
-    name                      = "tf-test-my-spg%{random_suffix}"
-    parent                    = "%{org_name}"
-    location                  = "global"
-    description               = "My security profile group."
-    threat_prevention_profile = google_network_security_security_profile.security_profile.id
-}
-
-resource "google_compute_network_firewall_policy" "fw_policy" {
-  name        = "tf-test-policy-%{random_suffix}"
-  description = "Resource created for Terraform acceptance testing"
-}
-
-resource "google_compute_network_firewall_policy_association" "fw_policy_a" {
-  name              = "tf-test-policy-a-%{random_suffix}"
-  attachment_target = google_compute_network.network1.id
-  firewall_policy   = google_compute_network_firewall_policy.fw_policy.id
-}
-
-resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
-  firewall_policy        = google_compute_network_firewall_policy.fw_policy.id
-  description            = "Resource created for Terraform acceptance testing"
-  priority               = 9000
-  enable_logging         = true
-  action                 = "apply_security_profile_group"
-  security_profile_group = "//networksecurity.googleapis.com/${google_network_security_security_profile_group.security_profile_group.id}"
-  direction              = "INGRESS"
-  disabled               = false
-  match {
-    layer4_configs {
-      ip_protocol = "tcp"
-      ports       = [80, 8080]
-    }
-    src_ip_ranges = ["11.100.0.1/32"]
-  }
-}
-`, context)
-}
-
-func testAccComputeNetworkFirewallPolicyRule_securityProfileGroup_update(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_network_security_security_profile" "security_profile" {
-    name     = "tf-test-my-sp%{random_suffix}"
-    type     = "THREAT_PREVENTION"
-    parent   = "%{org_name}"
-    location = "global"
-}
-
-resource "google_network_security_security_profile_group" "security_profile_group" {
-    name                      = "tf-test-my-spg%{random_suffix}"
-    parent                    = "%{org_name}"
-    location                  = "global"
-    description               = "My security profile group."
-    threat_prevention_profile = google_network_security_security_profile.security_profile.id
-}
-
-resource "google_network_security_security_profile_group" "security_profile_group_updated" {
-    name                      = "tf-test-my-spg-updated%{random_suffix}"
-    parent                    = "%{org_name}"
-    location                  = "global"
-    description               = "My updated security profile group."
-    threat_prevention_profile = google_network_security_security_profile.security_profile.id
-}
-
-resource "google_compute_network_firewall_policy" "fw_policy" {
-  name        = "tf-test-policy-%{random_suffix}"
-  description = "Resource created for Terraform acceptance testing"
-}
-
-resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
-  firewall_policy        = google_compute_network_firewall_policy.fw_policy.id
-  description            = "Resource created for Terraform acceptance testing"
-  priority               = 9000
-  enable_logging         = true
-  action                 = "apply_security_profile_group"
-  security_profile_group = "//networksecurity.googleapis.com/${google_network_security_security_profile_group.security_profile_group_updated.id}"
-  direction              = "INGRESS"
-  disabled               = false
-  match {
-    layer4_configs {
-      ip_protocol = "tcp"
-      ports       = [80, 8080]
-    }
-    src_ip_ranges = ["11.100.0.1/32"]
-  }
-}
-`, context)
-}
-
-func testAccComputeNetworkFirewallPolicyRule_start(context map[string]interface{}) string {
+func testAccComputeRegionNetworkFirewallPolicyRule_start(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "service_account1" {
   account_id = "tf-test-sa-%{random_suffix}"
@@ -491,29 +360,33 @@ resource "google_compute_network" "network2" {
   auto_create_subnetworks = false
 }
 
-resource "google_compute_network_firewall_policy" "fw_policy" {
+resource "google_compute_region_network_firewall_policy" "fw_policy" {
   name        = "tf-test-policy-%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
+  region      = "%{region}"
 }
 
 resource "google_network_security_address_group" "address_group" {
   name        = "tf-test-policy%{random_suffix}"
   parent      = "%{org_name}"
   description = "Sample global networksecurity_address_group"
-  location    = "global"
+  location    = "%{region}"
   items       = ["208.80.154.224/32"]
   type        = "IPV4"
   capacity    = 100
 }
 
-resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
-  firewall_policy = google_compute_network_firewall_policy.fw_policy.id
+resource "google_compute_region_network_firewall_policy_rule" "fw_policy_rule1" {
+  firewall_policy = google_compute_region_network_firewall_policy.fw_policy.id
   description     = "Resource created for Terraform acceptance testing"
   priority        = 9000
   enable_logging  = true
   action          = "allow"
   direction       = "EGRESS"
   disabled        = false
+  tls_inspect     = false
+  region          = "%{region}"
+
   match {
     layer4_configs {
       ip_protocol = "tcp"
@@ -529,7 +402,7 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
 `, context)
 }
 
-func testAccComputeNetworkFirewallPolicyRule_update(context map[string]interface{}) string {
+func testAccComputeRegionNetworkFirewallPolicyRule_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "service_account1" {
   account_id = "tf-test-sa-%{random_suffix}"
@@ -549,23 +422,24 @@ resource "google_compute_network" "network2" {
   auto_create_subnetworks = false
 }
 
-resource "google_compute_network_firewall_policy" "fw_policy" {
+resource "google_compute_region_network_firewall_policy" "fw_policy" {
   name        = "tf-test-policy-%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
+  region      = "%{region}"
 }
 
 resource "google_network_security_address_group" "address_group" {
   name        = "tf-test-policy%{random_suffix}"
   parent      = "%{org_name}"
   description = "Sample global networksecurity_address_group"
-  location    = "global"
+  location    = "%{region}"
   items       = ["208.80.154.224/32"]
   type        = "IPV4"
   capacity    = 100
 }
 
-resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
-  firewall_policy         = google_compute_network_firewall_policy.fw_policy.id
+resource "google_compute_region_network_firewall_policy_rule" "fw_policy_rule1" {
+  firewall_policy         = google_compute_region_network_firewall_policy.fw_policy.id
   description             = "Resource created for Terraform acceptance testing"
   priority                = 9000
   enable_logging          = true
@@ -573,7 +447,8 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
   direction               = "EGRESS"
   disabled                = false
   target_service_accounts = [google_service_account.service_account1.email]
-
+  tls_inspect             = false
+  region                  = "%{region}"
   match {
     layer4_configs {
       ip_protocol = "tcp"
@@ -594,7 +469,7 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
 `, context)
 }
 
-func testAccComputeNetworkFirewallPolicyRule_removeConfigs(context map[string]interface{}) string {
+func testAccComputeRegionNetworkFirewallPolicyRule_removeConfigs(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "service_account1" {
   account_id = "tf-test-sa-%{random_suffix}"
@@ -614,29 +489,32 @@ resource "google_compute_network" "network2" {
   auto_create_subnetworks = false
 }
 
-resource "google_compute_network_firewall_policy" "fw_policy" {
+resource "google_compute_region_network_firewall_policy" "fw_policy" {
   name        = "tf-test-policy-%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
+  region      = "%{region}"
 }
 
 resource "google_network_security_address_group" "address_group" {
   name        = "tf-test-policy%{random_suffix}"
   parent      = "%{org_name}"
   description = "Sample global networksecurity_address_group"
-  location    = "global"
+  location    = "%{region}"
   items       = ["208.80.154.224/32"]
   type        = "IPV4"
   capacity    = 100
 }
 
-resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
-  firewall_policy         = google_compute_network_firewall_policy.fw_policy.id
+resource "google_compute_region_network_firewall_policy_rule" "fw_policy_rule1" {
+  firewall_policy         = google_compute_region_network_firewall_policy.fw_policy.id
   description             = "Test description"
   priority                = 9000
   enable_logging          = false
   action                  = "deny"
   direction               = "INGRESS"
   disabled                = false
+  region                  = "%{region}"
+
   target_service_accounts = [
     google_service_account.service_account1.email,
     google_service_account.service_account2.email
@@ -656,42 +534,45 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
 `, context)
 }
 
-func testAccComputeNetworkFirewallPolicyRule_multiple(context map[string]interface{}) string {
+func testAccComputeRegionNetworkFirewallPolicyRule_multiple(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network1" {
   name                    = "tf-test-%{random_suffix}"
   auto_create_subnetworks = false
 }
 
-resource "google_compute_network_firewall_policy" "fw_policy" {
+resource "google_compute_region_network_firewall_policy" "fw_policy" {
   name        = "tf-test-policy-%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
+  region      = "%{region}"
 }
 
-resource "google_compute_network_firewall_policy_association" "fw_policy_a" {
+resource "google_compute_region_network_firewall_policy_association" "fw_policy_a" {
   name              = "tf-test-policy-a-%{random_suffix}"
   attachment_target = google_compute_network.network1.id
-  firewall_policy   = google_compute_network_firewall_policy.fw_policy.id
+  firewall_policy   = google_compute_region_network_firewall_policy.fw_policy.id
+  region            = "%{region}"
 }
 
 resource "google_network_security_address_group" "address_group" {
   name        = "tf-test-policy%{random_suffix}"
   parent      = "%{org_name}"
   description = "Sample global networksecurity_address_group"
-  location    = "global"
+  location    = "%{region}"
   items       = ["208.80.154.224/32"]
   type        = "IPV4"
   capacity    = 100
 }
 
-resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
-  firewall_policy = google_compute_network_firewall_policy.fw_policy.id
+resource "google_compute_region_network_firewall_policy_rule" "fw_policy_rule1" {
+  firewall_policy = google_compute_region_network_firewall_policy.fw_policy.id
   description     = "Resource created for Terraform acceptance testing"
   priority        = 9000
   enable_logging  = true
   action          = "allow"
   direction       = "EGRESS"
   disabled        = false
+  region          = "%{region}"
   match {
     layer4_configs {
       ip_protocol = "tcp"
@@ -705,14 +586,15 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
   }
 }
 
-resource "google_compute_network_firewall_policy_rule" "fw_policy_rule2" {
-  firewall_policy = google_compute_network_firewall_policy.fw_policy.id
+resource "google_compute_region_network_firewall_policy_rule" "fw_policy_rule2" {
+  firewall_policy = google_compute_region_network_firewall_policy.fw_policy.id
   description     = "Resource created for Terraform acceptance testing"
   priority        = 9001
   enable_logging  = false
   action          = "deny"
   direction       = "INGRESS"
   disabled        = false
+  region          = "%{region}"
   match {
     layer4_configs {
       ip_protocol = "tcp"
@@ -731,31 +613,33 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule2" {
 `, context)
 }
 
-func testAccComputeNetworkFirewallPolicyRule_multipleAdd(context map[string]interface{}) string {
+func testAccComputeRegionNetworkFirewallPolicyRule_multipleAdd(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_network_firewall_policy" "fw_policy" {
+resource "google_compute_region_network_firewall_policy" "fw_policy" {
   name        = "tf-test-policy-%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
+  region      = "%{region}"
 }
 
 resource "google_network_security_address_group" "address_group" {
   name        = "tf-test-policy%{random_suffix}"
   parent      = "%{org_name}"
   description = "Sample global networksecurity_address_group"
-  location    = "global"
+  location    = "%{region}"
   items       = ["208.80.154.224/32"]
   type        = "IPV4"
   capacity    = 100
 }
 
-resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
-  firewall_policy = google_compute_network_firewall_policy.fw_policy.id
+resource "google_compute_region_network_firewall_policy_rule" "fw_policy_rule1" {
+  firewall_policy = google_compute_region_network_firewall_policy.fw_policy.id
   description     = "Resource created for Terraform acceptance testing"
   priority        = 9000
   enable_logging  = true
   action          = "allow"
   direction       = "EGRESS"
   disabled        = false
+  region          = "%{region}"
   match {
     layer4_configs {
       ip_protocol = "tcp"
@@ -768,14 +652,15 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
   }
 }
 
-resource "google_compute_network_firewall_policy_rule" "fw_policy_rule2" {
-  firewall_policy = google_compute_network_firewall_policy.fw_policy.id
+resource "google_compute_region_network_firewall_policy_rule" "fw_policy_rule2" {
+  firewall_policy = google_compute_region_network_firewall_policy.fw_policy.id
   description     = "Resource created for Terraform acceptance testing"
   priority        = 9001
   enable_logging  = false
   action          = "deny"
   direction       = "INGRESS"
   disabled        = false
+  region          = "%{region}"
   match {
     layer4_configs {
       ip_protocol = "tcp"
@@ -792,14 +677,15 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule2" {
   }
 }
 
-resource "google_compute_network_firewall_policy_rule" "fw_policy_rule3" {
-  firewall_policy = google_compute_network_firewall_policy.fw_policy.id
+resource "google_compute_region_network_firewall_policy_rule" "fw_policy_rule3" {
+  firewall_policy = google_compute_region_network_firewall_policy.fw_policy.id
   description     = "Resource created for Terraform acceptance testing"
   priority        = 40
   enable_logging  = true
   action          = "allow"
   direction       = "INGRESS"
   disabled        = true
+  region          = "%{region}"
   match {
     layer4_configs {
       ip_protocol = "udp"
@@ -815,31 +701,33 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule3" {
 `, context)
 }
 
-func testAccComputeNetworkFirewallPolicyRule_multipleRemove(context map[string]interface{}) string {
+func testAccComputeRegionNetworkFirewallPolicyRule_multipleRemove(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_network_firewall_policy" "fw_policy" {
+resource "google_compute_region_network_firewall_policy" "fw_policy" {
   name        = "tf-test-policy-%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
+  region      = "%{region}"
 }
 
 resource "google_network_security_address_group" "address_group" {
   name        = "tf-test-policy%{random_suffix}"
   parent      = "%{org_name}"
   description = "Sample global networksecurity_address_group"
-  location    = "global"
+  location    = "%{region}"
   items       = ["208.80.154.224/32"]
   type        = "IPV4"
   capacity    = 100
 }
 
-resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
-  firewall_policy = google_compute_network_firewall_policy.fw_policy.id
+resource "google_compute_region_network_firewall_policy_rule" "fw_policy_rule1" {
+  firewall_policy = google_compute_region_network_firewall_policy.fw_policy.id
   description     = "Resource created for Terraform acceptance testing"
   priority        = 9000
   enable_logging  = true
   action          = "allow"
   direction       = "EGRESS"
   disabled        = false
+  region          = "%{region}"
   match {
     layer4_configs {
       ip_protocol = "tcp"
@@ -852,14 +740,15 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
   }
 }
 
-resource "google_compute_network_firewall_policy_rule" "fw_policy_rule3" {
-  firewall_policy = google_compute_network_firewall_policy.fw_policy.id
+resource "google_compute_region_network_firewall_policy_rule" "fw_policy_rule3" {
+  firewall_policy = google_compute_region_network_firewall_policy.fw_policy.id
   description     = "Resource created for Terraform acceptance testing"
   priority        = 40
   enable_logging  = true
   action          = "allow"
   direction       = "INGRESS"
   disabled        = true
+  region          = "%{region}"
   match {
     layer4_configs {
       ip_protocol = "udp"

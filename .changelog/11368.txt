@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: `google_compute_network_firewall_policy_rule` now uses MMv1 engine instead of DCL.
+```
+```release-note:enhancement
+compute: `google_compute_region_network_firewall_policy_rule` now uses MMv1 engine instead of DCL.
+```

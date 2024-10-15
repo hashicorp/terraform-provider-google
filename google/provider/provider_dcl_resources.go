@@ -46,8 +46,6 @@ var dclResources = map[string]*schema.Resource{
 	"google_compute_firewall_policy_rule":                       compute.ResourceComputeFirewallPolicyRule(),
 	"google_compute_network_firewall_policy_association":        compute.ResourceComputeNetworkFirewallPolicyAssociation(),
 	"google_compute_region_network_firewall_policy_association": compute.ResourceComputeRegionNetworkFirewallPolicyAssociation(),
-	"google_compute_network_firewall_policy_rule":               compute.ResourceComputeNetworkFirewallPolicyRule(),
-	"google_compute_region_network_firewall_policy_rule":        compute.ResourceComputeRegionNetworkFirewallPolicyRule(),
 	"google_container_aws_cluster":                              containeraws.ResourceContainerAwsCluster(),
 	"google_container_aws_node_pool":                            containeraws.ResourceContainerAwsNodePool(),
 	"google_container_azure_client":                             containerazure.ResourceContainerAzureClient(),
