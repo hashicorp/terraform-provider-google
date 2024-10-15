@@ -590,6 +590,12 @@ or serverless NEG as a backend.`,
 					},
 				},
 			},
+			"ip_address_selection_policy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"IPV4_ONLY", "PREFER_IPV6", "IPV6_ONLY", ""}),
+				Description:  `Specifies preference of traffic to the backend (from the proxy and from the client for proxyless gRPC). Possible values: ["IPV4_ONLY", "PREFER_IPV6", "IPV6_ONLY"]`,
+			},
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1182,6 +1188,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("iap"); ok || !reflect.DeepEqual(v, iapProp) {
 		obj["iap"] = iapProp
 	}
+	ipAddressSelectionPolicyProp, err := expandComputeRegionBackendServiceIpAddressSelectionPolicy(d.Get("ip_address_selection_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ip_address_selection_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipAddressSelectionPolicyProp)) && (ok || !reflect.DeepEqual(v, ipAddressSelectionPolicyProp)) {
+		obj["ipAddressSelectionPolicy"] = ipAddressSelectionPolicyProp
+	}
 	loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
 	if err != nil {
 		return err
@@ -1424,6 +1436,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	if err := d.Set("iap", flattenComputeRegionBackendServiceIap(res["iap"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
+	if err := d.Set("ip_address_selection_policy", flattenComputeRegionBackendServiceIpAddressSelectionPolicy(res["ipAddressSelectionPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
 	if err := d.Set("load_balancing_scheme", flattenComputeRegionBackendServiceLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
@@ -1554,6 +1569,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("iap"); ok || !reflect.DeepEqual(v, iapProp) {
 		obj["iap"] = iapProp
+	}
+	ipAddressSelectionPolicyProp, err := expandComputeRegionBackendServiceIpAddressSelectionPolicy(d.Get("ip_address_selection_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ip_address_selection_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ipAddressSelectionPolicyProp)) {
+		obj["ipAddressSelectionPolicy"] = ipAddressSelectionPolicyProp
 	}
 	loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
 	if err != nil {
@@ -2459,6 +2480,10 @@ func flattenComputeRegionBackendServiceIapOauth2ClientSecret(v interface{}, d *s
 }
 
 func flattenComputeRegionBackendServiceIapOauth2ClientSecretSha256(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceIpAddressSelectionPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3573,6 +3598,10 @@ func expandComputeRegionBackendServiceIapOauth2ClientSecret(v interface{}, d tpg
 }
 
 func expandComputeRegionBackendServiceIapOauth2ClientSecretSha256(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceIpAddressSelectionPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

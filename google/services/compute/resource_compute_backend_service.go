@@ -663,6 +663,12 @@ For internal load balancing, a URL to a HealthCheck resource must be specified i
 					},
 				},
 			},
+			"ip_address_selection_policy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"IPV4_ONLY", "PREFER_IPV6", "IPV6_ONLY", ""}),
+				Description:  `Specifies preference of traffic to the backend (from the proxy and from the client for proxyless gRPC). Possible values: ["IPV4_ONLY", "PREFER_IPV6", "IPV6_ONLY"]`,
+			},
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1416,6 +1422,12 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("iap"); ok || !reflect.DeepEqual(v, iapProp) {
 		obj["iap"] = iapProp
 	}
+	ipAddressSelectionPolicyProp, err := expandComputeBackendServiceIpAddressSelectionPolicy(d.Get("ip_address_selection_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ip_address_selection_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipAddressSelectionPolicyProp)) && (ok || !reflect.DeepEqual(v, ipAddressSelectionPolicyProp)) {
+		obj["ipAddressSelectionPolicy"] = ipAddressSelectionPolicyProp
+	}
 	loadBalancingSchemeProp, err := expandComputeBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
 	if err != nil {
 		return err
@@ -1721,6 +1733,9 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("iap", flattenComputeBackendServiceIap(res["iap"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
+	if err := d.Set("ip_address_selection_policy", flattenComputeBackendServiceIpAddressSelectionPolicy(res["ipAddressSelectionPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendService: %s", err)
+	}
 	if err := d.Set("load_balancing_scheme", flattenComputeBackendServiceLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
@@ -1872,6 +1887,12 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("iap"); ok || !reflect.DeepEqual(v, iapProp) {
 		obj["iap"] = iapProp
+	}
+	ipAddressSelectionPolicyProp, err := expandComputeBackendServiceIpAddressSelectionPolicy(d.Get("ip_address_selection_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ip_address_selection_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ipAddressSelectionPolicyProp)) {
+		obj["ipAddressSelectionPolicy"] = ipAddressSelectionPolicyProp
 	}
 	loadBalancingSchemeProp, err := expandComputeBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
 	if err != nil {
@@ -2864,6 +2885,10 @@ func flattenComputeBackendServiceIapOauth2ClientSecret(v interface{}, d *schema.
 }
 
 func flattenComputeBackendServiceIapOauth2ClientSecretSha256(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendServiceIpAddressSelectionPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4111,6 +4136,10 @@ func expandComputeBackendServiceIapOauth2ClientSecret(v interface{}, d tpgresour
 }
 
 func expandComputeBackendServiceIapOauth2ClientSecretSha256(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceIpAddressSelectionPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
