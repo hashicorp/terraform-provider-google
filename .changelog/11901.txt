@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `provisioned_throughput` field to `google_compute_instance_template` resource
+```
+```release-note:enhancement
+compute: added `provisioned_throughput` field to `google_compute_region_instance_template` resource
+```
