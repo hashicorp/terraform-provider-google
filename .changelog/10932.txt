@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_transcoder_job`
+```
+```release-note:new-resource
+`google_transcoder_job_template`
+```
