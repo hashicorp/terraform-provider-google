@@ -16,8 +16,6 @@ import (
 )
 
 func TestAccNetappBackupVault_NetappBackupVaultExample_update(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 	}

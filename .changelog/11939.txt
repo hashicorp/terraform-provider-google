@@ -1,0 +1,3 @@
+```release-note:bug
+netapp: block google_cloud_netapp_backup_vaults tests to run in parallel
+```

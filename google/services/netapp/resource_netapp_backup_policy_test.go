@@ -11,8 +11,6 @@ import (
 )
 
 func TestAccNetappBackupPolicy_NetappBackupPolicyFullExample_update(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 	}
@@ -57,7 +55,7 @@ func testAccNetappBackupPolicy_NetappBackupPolicyFullExample_basic(context map[s
 	return acctest.Nprintf(`
 resource "google_netapp_backup_policy" "test_backup_policy_full" {
   name          = "tf-test-test-backup-policy-full%{random_suffix}"
-  location = "us-central1"
+  location = "us-east4"
   daily_backup_limit   = 2
   weekly_backup_limit  = 0
   monthly_backup_limit = 0
@@ -70,7 +68,7 @@ func testAccNetappBackupPolicy_NetappBackupPolicyFullExample_updates(context map
 	return acctest.Nprintf(`
 resource "google_netapp_backup_policy" "test_backup_policy_full" {
   name          = "tf-test-test-backup-policy-full%{random_suffix}"
-  location = "us-central1"
+  location = "us-east4"
   daily_backup_limit   = 6
   weekly_backup_limit  = 4
   monthly_backup_limit = 3
@@ -88,7 +86,7 @@ func testAccNetappBackupPolicy_NetappBackupPolicyFullExample_disable(context map
 	return acctest.Nprintf(`
 resource "google_netapp_backup_policy" "test_backup_policy_full" {
   name          = "tf-test-test-backup-policy-full%{random_suffix}"
-  location = "us-central1"
+  location = "us-east4"
   daily_backup_limit   = 2
   weekly_backup_limit  = 1
   monthly_backup_limit = 1
