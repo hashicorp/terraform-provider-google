@@ -119,6 +119,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/storagetransfer"
 	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 	"github.com/hashicorp/terraform-provider-google/google/services/tpu"
+	"github.com/hashicorp/terraform-provider-google/google/services/transcoder"
 	"github.com/hashicorp/terraform-provider-google/google/services/vertexai"
 	"github.com/hashicorp/terraform-provider-google/google/services/vmwareengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"
@@ -439,9 +440,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 471
+// Generated resources: 473
 // Generated IAM resources: 261
-// Total generated resources: 732
+// Total generated resources: 734
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1129,6 +1130,8 @@ var generatedResources = map[string]*schema.Resource{
 	"google_tags_tag_value_iam_member":                                           tpgiamresource.ResourceIamMember(tags.TagsTagValueIamSchema, tags.TagsTagValueIamUpdaterProducer, tags.TagsTagValueIdParseFunc),
 	"google_tags_tag_value_iam_policy":                                           tpgiamresource.ResourceIamPolicy(tags.TagsTagValueIamSchema, tags.TagsTagValueIamUpdaterProducer, tags.TagsTagValueIdParseFunc),
 	"google_tpu_node":                                                            tpu.ResourceTPUNode(),
+	"google_transcoder_job":                                                      transcoder.ResourceTranscoderJob(),
+	"google_transcoder_job_template":                                             transcoder.ResourceTranscoderJobTemplate(),
 	"google_vertex_ai_dataset":                                                   vertexai.ResourceVertexAIDataset(),
 	"google_vertex_ai_deployment_resource_pool":                                  vertexai.ResourceVertexAIDeploymentResourcePool(),
 	"google_vertex_ai_endpoint":                                                  vertexai.ResourceVertexAIEndpoint(),

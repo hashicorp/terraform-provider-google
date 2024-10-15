@@ -180,6 +180,7 @@ type FrameworkProviderConfig struct {
 	StorageTransferBasePath          string
 	TagsBasePath                     string
 	TPUBasePath                      string
+	TranscoderBasePath               string
 	VertexAIBasePath                 string
 	VmwareengineBasePath             string
 	VPCAccessBasePath                string
@@ -341,6 +342,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.StorageTransferBasePath = data.StorageTransferCustomEndpoint.ValueString()
 	p.TagsBasePath = data.TagsCustomEndpoint.ValueString()
 	p.TPUBasePath = data.TPUCustomEndpoint.ValueString()
+	p.TranscoderBasePath = data.TranscoderCustomEndpoint.ValueString()
 	p.VertexAIBasePath = data.VertexAICustomEndpoint.ValueString()
 	p.VmwareengineBasePath = data.VmwareengineCustomEndpoint.ValueString()
 	p.VPCAccessBasePath = data.VPCAccessCustomEndpoint.ValueString()
@@ -1419,6 +1421,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.TPUBasePathKey])
 		if customEndpoint != nil {
 			data.TPUCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.TranscoderCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_TRANSCODER_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.TranscoderBasePathKey])
+		if customEndpoint != nil {
+			data.TranscoderCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.VertexAICustomEndpoint.IsNull() {

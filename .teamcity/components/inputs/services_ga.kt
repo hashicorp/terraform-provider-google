@@ -726,6 +726,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Tpuv2",
         "path" to "./google/services/tpuv2"
     ),
+    "transcoder" to mapOf(
+        "name" to "transcoder",
+        "displayName" to "Transcoder",
+        "path" to "./google/services/transcoder"
+    ),
     "vertexai" to mapOf(
         "name" to "vertexai",
         "displayName" to "Vertexai",

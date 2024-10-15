@@ -145,6 +145,7 @@ type ProviderModel struct {
 	StorageTransferCustomEndpoint          types.String `tfsdk:"storage_transfer_custom_endpoint"`
 	TagsCustomEndpoint                     types.String `tfsdk:"tags_custom_endpoint"`
 	TPUCustomEndpoint                      types.String `tfsdk:"tpu_custom_endpoint"`
+	TranscoderCustomEndpoint               types.String `tfsdk:"transcoder_custom_endpoint"`
 	VertexAICustomEndpoint                 types.String `tfsdk:"vertex_ai_custom_endpoint"`
 	VmwareengineCustomEndpoint             types.String `tfsdk:"vmwareengine_custom_endpoint"`
 	VPCAccessCustomEndpoint                types.String `tfsdk:"vpc_access_custom_endpoint"`
