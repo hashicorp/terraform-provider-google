@@ -8,6 +8,9 @@ description: |-
 
 Get information about an ExadataInfrastructure.
 
+For more information see the
+[API](https://cloud.google.com/oracle/database/docs/reference/rest/v1/projects.locations.cloudExadataInfrastructures).
+
 ## Example Usage
 
 ```hcl

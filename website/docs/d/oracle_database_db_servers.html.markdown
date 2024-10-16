@@ -8,6 +8,9 @@ description: |-
 
 List all DbServers of a Cloud Exdata Infrastructure.
 
+For more information see the
+[API](https://cloud.google.com/oracle/database/docs/reference/rest/v1/projects.locations.cloudExadataInfrastructures.dbServers).
+
 ## Example Usage
 
 ```hcl
@@ -25,17 +28,20 @@ The following arguments are supported:
 
 * `location` - (Required) The location of resource.
 
-- - -
 * `project` - (Optional) The project to which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `db_servers` - (Output) List of dbServers
+## Attributes reference
 
-<a name="nested_properties"></a> The `db_servers` block supports:
+The following attributes are exported:
+
+* `db_servers` - List of dbServers. Structure is [documented below](#nested_dbservers).
+
+<a name="nested_dbservers"></a> The `db_servers` block supports:
 
 * `display_name` - User friendly name for the resource.
 
-* `properties` - Various properties of the databse server.
+* `properties` - Various properties of the databse server. Structure is [documented below](#nested_properties).
 
 <a name="nested_properties"></a> The `properties` block supports:
 
@@ -57,7 +63,6 @@ The following arguments are supported:
 
 * `state` - The current state of the database server.
 <a name="nested_states"></a>Allowed values for `state` are:<br>
-`STATE_UNSPECIFIED` - Default unspecified value.<br>
 `CREATING` - Indicates that the resource is being created.<br>
 `AVAILABLE` - Indicates that the resource is available.<br>
 `UNAVAILABLE` - Indicates that the resource is unavailable.<br>
