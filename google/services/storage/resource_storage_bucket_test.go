@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -1545,6 +1546,147 @@ func TestAccStorageBucket_SoftDeletePolicy(t *testing.T) {
 			},
 		},
 	})
+}
+
+// testcase to create HNS bucket and
+// forcenew to recreate the bucket if HNS set to false
+func TestAccStorageBucket_basic_hns(t *testing.T) {
+	t.Parallel()
+
+	bucketName := acctest.TestBucketName(t)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucket_basic_hns(bucketName, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "hierarchical_namespace.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+			{
+				Config: testAccStorageBucket_basic_hns_with_data(bucketName, false),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+			{
+				Config: testAccStorageBucket_uniformBucketAccessOnly(bucketName, true),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_hns_force_destroy(t *testing.T) {
+	t.Parallel()
+
+	bucketName := acctest.TestBucketName(t)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucket_basic_hns_with_data(bucketName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketPutFolderItem(t, bucketName),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckStorageBucketPutFolderItem(t *testing.T, bucketName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+
+		data := bytes.NewBufferString("test")
+		dataReader := bytes.NewReader(data.Bytes())
+		folderName := fmt.Sprintf("tf-test/tf-test-folder-%d/", acctest.RandInt(t))
+		emptyfolderName := fmt.Sprintf("tf-test/tf-test-folder-%d/", acctest.RandInt(t))
+		object := &storage.Object{Name: folderName + "bucketDestroyTestFile"}
+
+		folder := storage.Folder{
+			Bucket: bucketName,
+			Name:   folderName,
+		}
+
+		emptyFolder := storage.Folder{
+			Bucket: bucketName,
+			Name:   emptyfolderName,
+		}
+
+		if res, err := config.NewStorageClient(config.UserAgent).Folders.Insert(bucketName, &folder).Recursive(true).Do(); err == nil {
+			log.Printf("[INFO] Created folder %v at location %v\n\n", res.Name, res.SelfLink)
+		} else {
+			return fmt.Errorf("Folders.Insert failed: %v", err)
+		}
+
+		// This needs to use Media(io.Reader) call, otherwise it does not go to /upload API and fails
+		if res, err := config.NewStorageClient(config.UserAgent).Objects.Insert(bucketName, object).Media(dataReader).Do(); err == nil {
+			log.Printf("[INFO] Created object %v at location %v\n\n", res.Name, res.SelfLink)
+		} else {
+			return fmt.Errorf("Objects.Insert failed: %v", err)
+		}
+
+		if res, err := config.NewStorageClient(config.UserAgent).Folders.Insert(bucketName, &emptyFolder).Recursive(true).Do(); err == nil {
+			log.Printf("[INFO] Created folder %v at location %v\n\n", res.Name, res.SelfLink)
+		} else {
+			return fmt.Errorf("Folders.Insert failed: %v", err)
+		}
+
+		return nil
+	}
+}
+
+func testAccStorageBucket_basic_hns(bucketName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "US"
+  uniform_bucket_level_access = true
+  hierarchical_namespace {
+    enabled = %t
+  }
+}
+`, bucketName, enabled)
+}
+
+func testAccStorageBucket_basic_hns_with_data(bucketName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "US"
+  uniform_bucket_level_access = true
+  hierarchical_namespace {
+    enabled = %t
+  }
+  force_destroy= true
+}
+`, bucketName, enabled)
 }
 
 func testAccCheckStorageBucketExists(t *testing.T, n string, bucketName string, bucket *storage.Bucket) resource.TestCheckFunc {
