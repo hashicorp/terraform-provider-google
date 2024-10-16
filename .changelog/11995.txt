@@ -1,0 +1,3 @@
+```release-note:bug
+essentialcontacts: fixed `google_essential_contacts_contact` import to include required parent field.
+```
