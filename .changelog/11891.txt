@@ -1,0 +1,3 @@
+```release-note:note
+provider: minor refactoring of how we run acceptance tests in VCR mode
+```
