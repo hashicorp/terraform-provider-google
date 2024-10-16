@@ -1,0 +1,3 @@
+```release-note: 
+storage: added 'hierarchical_namespace' to 'google_storage_bucket' resource
+```
