@@ -1,0 +1,3 @@
+```release-note:none
+fix cai_base_url values for some resources that have base urls that do not match their service domain name
+```
