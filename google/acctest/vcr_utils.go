@@ -349,7 +349,14 @@ func HandleVCRConfiguration(ctx context.Context, testName string, rndTripper htt
 		return pollInterval, rndTripper, diags
 	}
 	// Defines how VCR will match requests to responses.
-	rec.SetMatcher(func(r *http.Request, i cassette.Request) bool {
+	rec.SetMatcher(NewVcrMatcherFunc(ctx))
+
+	return pollInterval, rec, diags
+}
+
+// NewVcrMatcherFunc returns a function used for matching HTTP requests with data recorded in VCR cassettes
+func NewVcrMatcherFunc(ctx context.Context) func(r *http.Request, i cassette.Request) bool {
+	return func(r *http.Request, i cassette.Request) bool {
 		// Default matcher compares method and URL only
 		if !cassette.DefaultMatcher(r, i) {
 			return false
@@ -379,19 +386,17 @@ func HandleVCRConfiguration(ctx context.Context, testName string, rndTripper htt
 		if strings.Contains(contentType, "application/json") {
 			var reqJson, cassetteJson interface{}
 			if err := json.Unmarshal([]byte(reqBody), &reqJson); err != nil {
-				tflog.Debug(ctx, fmt.Sprintf("Failed to unmarshall request json: %v", err))
+				tflog.Debug(ctx, fmt.Sprintf("Failed to unmarshal request json: %v", err))
 				return false
 			}
 			if err := json.Unmarshal([]byte(i.Body), &cassetteJson); err != nil {
-				tflog.Debug(ctx, fmt.Sprintf("Failed to unmarshall cassette json: %v", err))
+				tflog.Debug(ctx, fmt.Sprintf("Failed to unmarshal cassette json: %v", err))
 				return false
 			}
 			return reflect.DeepEqual(reqJson, cassetteJson)
 		}
 		return false
-	})
-
-	return pollInterval, rec, diags
+	}
 }
 
 // MuxedProviders configures the providers, thus, if we want the providers to be configured
