@@ -159,9 +159,9 @@ func testAccCheckGoogleSqlDatabaseExists(t *testing.T, n string, database *sqlad
 
 		*database = *found
 
-				return nil
-			}
-		}
+		return nil
+	}
+}
 
 func testAccSqlDatabaseDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
@@ -199,7 +199,7 @@ func TestAccSqlDatabase_instanceWithActivationPolicy(t *testing.T) {
 		CheckDestroy:             testAccSqlDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testGoogleSqlDatabase_instanceWithActivationPolicy(instance_name, database_name , "ALWAYS"),
+				Config: testGoogleSqlDatabase_instanceWithActivationPolicy(instance_name, database_name, "ALWAYS"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlDatabaseExists(
 						t, "google_sql_database.database", &database),
@@ -243,9 +243,8 @@ resource "google_sql_database" "database" {
 	name     = "%s"
 	instance = google_sql_database_instance.instance.name
   }
-`, instance_name, activationPolicy, database_name,)
+`, instance_name, activationPolicy, database_name)
 }
-
 
 var testGoogleSqlDatabase_basic = `
 resource "google_sql_database_instance" "instance" {
