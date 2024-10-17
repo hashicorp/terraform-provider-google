@@ -264,6 +264,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_monitoring_app_engine_service":                 monitoring.DataSourceMonitoringServiceAppEngine(),
 	"google_monitoring_uptime_check_ips":                   monitoring.DataSourceGoogleMonitoringUptimeCheckIps(),
 	"google_netblock_ip_ranges":                            resourcemanager.DataSourceGoogleNetblockIpRanges(),
+	"google_oracle_database_autonomous_database":           oracledatabase.DataSourceOracleDatabaseAutonomousDatabase(),
 	"google_oracle_database_autonomous_databases":          oracledatabase.DataSourceOracleDatabaseAutonomousDatabases(),
 	"google_oracle_database_db_nodes":                      oracledatabase.DataSourceOracleDatabaseDbNodes(),
 	"google_oracle_database_db_servers":                    oracledatabase.DataSourceOracleDatabaseDbServers(),
