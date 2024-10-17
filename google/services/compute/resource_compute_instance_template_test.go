@@ -42,6 +42,7 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 					testAccCheckComputeInstanceTemplateMetadata(&instanceTemplate, "foo", "bar"),
 					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplate, "my_label", "foobar"),
 					testAccCheckComputeInstanceTemplateLacksShieldedVmConfig(&instanceTemplate),
+					resource.TestCheckResourceAttrSet("google_compute_instance_template.foobar", "creation_timestamp"),
 				),
 			},
 			{

@@ -779,6 +779,13 @@ be from 0 to 999,999,999 inclusive.`,
 				Description: `A special URI of the created resource that uniquely identifies this instance template.`,
 			},
 
+			"creation_timestamp": {
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
+			},
+
 			"service_account": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
@@ -1737,6 +1744,9 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	}
 	if err = d.Set("self_link_unique", fmt.Sprintf("%v?uniqueId=%v", instanceTemplate.SelfLink, instanceTemplate.Id)); err != nil {
 		return fmt.Errorf("Error setting self_link_unique: %s", err)
+	}
+	if err = d.Set("creation_timestamp", instanceTemplate.CreationTimestamp); err != nil {
+		return fmt.Errorf("Error setting creation_timestamp: %s", err)
 	}
 	if err = d.Set("name", instanceTemplate.Name); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)

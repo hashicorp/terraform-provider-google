@@ -73,6 +73,8 @@ The following arguments are supported:
 
 * `instance_id` - The server-assigned unique identifier of this instance.
 
+* `creation_timestamp` - Creation timestamp in RFC3339 text format.
+
 * `metadata_fingerprint` - The unique fingerprint of the metadata.
 
 * `self_link` - The URI of the created resource.

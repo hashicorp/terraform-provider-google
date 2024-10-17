@@ -1113,6 +1113,12 @@ be from 0 to 999,999,999 inclusive.`,
 				Description: `The server-assigned unique identifier of this instance.`,
 			},
 
+			"creation_timestamp": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
+			},
+
 			"label_fingerprint": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1698,6 +1704,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 	if err := d.Set("instance_id", fmt.Sprintf("%d", instance.Id)); err != nil {
 		return fmt.Errorf("Error setting instance_id: %s", err)
+	}
+	if err := d.Set("creation_timestamp", instance.CreationTimestamp); err != nil {
+		return fmt.Errorf("Error setting creation_timestamp: %s", err)
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)

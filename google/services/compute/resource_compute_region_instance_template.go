@@ -745,6 +745,13 @@ be from 0 to 999,999,999 inclusive.`,
 				Description: `The URI of the created resource.`,
 			},
 
+			"creation_timestamp": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The time at which the instance was created in RFC 3339 format.`,
+			},
+
 			"service_account": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
@@ -1235,6 +1242,9 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 	}
 	if err = d.Set("self_link", instanceTemplate["selfLink"]); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err := d.Set("creation_timestamp", instanceTemplate["creationTimestamp"]); err != nil {
+		return fmt.Errorf("Error setting creation_timestamp: %s", err)
 	}
 	if err = d.Set("name", instanceTemplate["name"]); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
