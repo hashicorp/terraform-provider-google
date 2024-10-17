@@ -159,9 +159,9 @@ func testAccCheckGoogleSqlDatabaseExists(t *testing.T, n string, database *sqlad
 
 		*database = *found
 
-		return nil
-	}
-}
+				return nil
+			}
+		}
 
 func testAccSqlDatabaseDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
@@ -184,6 +184,68 @@ func testAccSqlDatabaseDestroyProducer(t *testing.T) func(s *terraform.State) er
 		return nil
 	}
 }
+
+func TestAccSqlDatabase_instanceWithActivationPolicy(t *testing.T) {
+	t.Parallel()
+
+	var database sqladmin.Database
+
+	instance_name := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	database_name := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabase_instanceWithActivationPolicy(instance_name, database_name , "ALWAYS"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlDatabaseExists(
+						t, "google_sql_database.database", &database),
+				),
+			},
+			// Step 2: Update activation_policy to NEVER
+			{
+				Config: testGoogleSqlDatabase_instanceWithActivationPolicy(instance_name, database_name, "NEVER"),
+			},
+			// Step 3: Refresh to verify no errors
+			{
+				Config: testGoogleSqlDatabase_instanceWithActivationPolicy(instance_name, database_name, "NEVER"),
+			},
+			// Step 4: Update activation_policy to ALWAYS so that post-test destroy code is able to delete the google_sql_database resource
+			{
+				Config: testGoogleSqlDatabase_instanceWithActivationPolicy(instance_name, database_name, "ALWAYS"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlDatabaseExists(
+						t, "google_sql_database.database", &database),
+				),
+			},
+		},
+	})
+}
+
+func testGoogleSqlDatabase_instanceWithActivationPolicy(instance_name, database_name, activationPolicy string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "%s"
+  database_version = "MYSQL_5_7"
+  region          = "us-central1"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+    availability_type = "ZONAL"
+    activation_policy = "%s"
+  }
+}
+
+resource "google_sql_database" "database" {
+	name     = "%s"
+	instance = google_sql_database_instance.instance.name
+  }
+`, instance_name, activationPolicy, database_name,)
+}
+
 
 var testGoogleSqlDatabase_basic = `
 resource "google_sql_database_instance" "instance" {
