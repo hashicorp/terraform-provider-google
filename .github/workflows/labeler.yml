@@ -3,8 +3,6 @@ name: Issue Opened Triage
 on:
   issues:
     types: [opened]
-  schedule:
-        - cron: '0 7 * * *' # UTC 7AM (-7)-> 12AM PST
 
 jobs:
   triage:
