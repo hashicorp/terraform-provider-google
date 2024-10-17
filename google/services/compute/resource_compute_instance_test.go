@@ -184,6 +184,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 					testAccCheckComputeInstanceMetadata(&instance, "baz", "qux"),
 					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
 					resource.TestCheckResourceAttr("google_compute_instance.foobar", "current_status", "RUNNING"),
+					resource.TestCheckResourceAttrSet("google_compute_instance.foobar", "creation_timestamp"),
 
 					// by default, DeletionProtection is implicitly false. This should be false on any
 					// instance resource without an explicit deletion_protection = true declaration.

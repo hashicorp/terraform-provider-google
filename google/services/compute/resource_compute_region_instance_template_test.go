@@ -41,6 +41,7 @@ func TestAccComputeRegionInstanceTemplate_basic(t *testing.T) {
 					testAccCheckComputeRegionInstanceTemplateMetadata(&instanceTemplate, "foo", "bar"),
 					testAccCheckComputeRegionInstanceTemplateContainsLabel(&instanceTemplate, "my_label", "foobar"),
 					testAccCheckComputeRegionInstanceTemplateLacksShieldedVmConfig(&instanceTemplate),
+					resource.TestCheckResourceAttrSet("google_compute_region_instance_template.foobar", "creation_timestamp"),
 				),
 			},
 			{
