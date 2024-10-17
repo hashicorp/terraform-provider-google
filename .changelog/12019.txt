@@ -1,0 +1,3 @@
+```release-note:none
+provider: added `api_resource_type_kind` overrides to mmv1 resources
+```
