@@ -268,9 +268,11 @@ The following arguments are supported:
   Structure is [documented below](#nested_proxy_config).
 
 * `security_posture_config` -
-  (Optional)
+  (Optional, Deprecated)
   Enable/Disable Security Posture API features for the cluster.
   Structure is [documented below](#nested_security_posture_config).
+
+  ~> **Warning:** `security_posture_config` is deprecated and will be removed in a future major release.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
