@@ -3624,7 +3624,7 @@ resource "google_container_node_pool" "np" {
       count = 0
       type  = "nvidia-tesla-p100"
     }
-	machine_type = "n1-highmem-4"
+    machine_type = "n1-highmem-4"
   }
 }
 `, cluster, networkName, subnetworkName, np)
@@ -3657,7 +3657,7 @@ resource "google_container_node_pool" "np" {
       count = %d
       type  = "nvidia-tesla-p100"
     }
-	machine_type = "n1-highmem-4"
+    machine_type = "n1-highmem-4"
   }
 }
 `, cluster, networkName, subnetworkName, np, count)
