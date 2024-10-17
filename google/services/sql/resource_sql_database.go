@@ -234,6 +234,14 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	headers := make(http.Header)
+	instance := d.Get("instance").(string)
+	databaseInstance, err := config.NewSqlAdminClient(userAgent).Instances.Get(project, instance).Do()
+	if err != nil {
+		return err
+	}
+	if databaseInstance.Settings.ActivationPolicy != "ALWAYS" {
+		return nil
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",

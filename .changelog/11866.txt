@@ -1,0 +1,3 @@
+```release-note:none
+sql: updated `google_sql_database` and `google_sql_user` so they don't perform Read operations if their associated `google_sql_database_instance` has `activation_policy` set to "NEVER". This avoids triggering API errors while the instance is unavailable.
+```

@@ -328,6 +328,13 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	instance := d.Get("instance").(string)
 	name := d.Get("name").(string)
 	host := d.Get("host").(string)
+	databaseInstance, err := config.NewSqlAdminClient(userAgent).Instances.Get(project, instance).Do()
+	if err != nil {
+		return err
+	}
+	if databaseInstance.Settings.ActivationPolicy != "ALWAYS" {
+		return nil
+	}
 
 	var users *sqladmin.UsersListResponse
 	err = nil
@@ -344,11 +351,6 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var user *sqladmin.User
-	databaseInstance, err := config.NewSqlAdminClient(userAgent).Instances.Get(project, instance).Do()
-	if err != nil {
-		return err
-	}
-
 	for _, currentUser := range users.Items {
 		var username string
 		if !(strings.Contains(databaseInstance.DatabaseVersion, "POSTGRES") || currentUser.Type == "CLOUD_IAM_GROUP") {
