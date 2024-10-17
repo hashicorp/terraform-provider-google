@@ -2029,12 +2029,18 @@ func ResourceContainerCluster() *schema.Resource {
 // by only comparing the blocks with a positive count and ignoring those with count=0
 //
 // One quirk with this approach is that configs with mixed count=0 and count>0 accelerator blocks will
-// show a confusing diff if one of there are config changes that result in a legitimate diff as the count=0
+// show a confusing diff if there are config changes that result in a legitimate diff as the count=0
 // blocks will not be in state.
-func resourceNodeConfigEmptyGuestAccelerator(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+func resourceNodeConfigEmptyGuestAccelerator(_ context.Context, diff *schema.ResourceDiff, meta any) error {
 	old, new := diff.GetChange("node_config.0.guest_accelerator")
-	oList := old.([]interface{})
-	nList := new.([]interface{})
+	oList, ok := old.([]any)
+	if !ok {
+		return fmt.Errorf("type assertion failed, expected []any, got %T", old)
+	}
+	nList, ok := new.([]any)
+	if !ok {
+		return fmt.Errorf("type assertion failed, expected []any, got %T", new)
+	}
 
 	if len(nList) == len(oList) || len(nList) == 0 {
 		return nil
@@ -2044,9 +2050,12 @@ func resourceNodeConfigEmptyGuestAccelerator(_ context.Context, diff *schema.Res
 	// will be longer than the current state.
 	// this index tracks the location of positive count accelerator blocks
 	index := 0
-	for i, item := range nList {
-		accel := item.(map[string]interface{})
-		if accel["count"].(int) == 0 {
+	for _, item := range nList {
+		nAccel, ok := item.(map[string]any)
+		if !ok {
+			return fmt.Errorf("type assertion failed, expected []any, got %T", item)
+		}
+		if nAccel["count"].(int) == 0 {
 			hasAcceleratorWithEmptyCount = true
 			// Ignore any 'empty' accelerators because they aren't sent to the API
 			continue
@@ -2057,7 +2066,14 @@ func resourceNodeConfigEmptyGuestAccelerator(_ context.Context, diff *schema.Res
 			// This will prevent array index overruns
 			return nil
 		}
-		if !reflect.DeepEqual(nList[i], oList[index]) {
+		// Delete Optional + Computed field from old and new map.
+		oAccel, ok := oList[index].(map[string]any)
+		if !ok {
+			return fmt.Errorf("type assertion failed, expected []any, got %T", oList[index])
+		}
+		delete(nAccel, "gpu_driver_installation_config")
+		delete(oAccel, "gpu_driver_installation_config")
+		if !reflect.DeepEqual(oAccel, nAccel) {
 			return nil
 		}
 		index += 1
