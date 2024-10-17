@@ -13,6 +13,8 @@ on:
       dry_run:
         description: "Dry run (no changes will be made to issues)"
         type: boolean
+  schedule:
+        - cron: '0 7 * * *' # UTC 7AM (-7)-> 12AM PST
 
 jobs:
   backfill-tickets:
