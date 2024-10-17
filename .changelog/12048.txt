@@ -1,0 +1,3 @@
+```release-note:deprecation
+containerattached: deprecated `security_posture_config` field in `google_container_attached_cluster` resource
+```
