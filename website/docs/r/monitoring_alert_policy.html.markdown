@@ -895,6 +895,11 @@ The following arguments are supported:
   (Optional)
   If an alert policy that was active has no data for this long, any open incidents will close.
 
+* `notification_prompts` -
+  (Optional)
+  Control when notifications will be sent out.
+  Each value may be one of: `NOTIFICATION_PROMPT_UNSPECIFIED`, `OPENED`, `CLOSED`.
+
 * `notification_channel_strategy` -
   (Optional)
   Control over how the notification channels in `notification_channels`

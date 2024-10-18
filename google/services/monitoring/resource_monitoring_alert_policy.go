@@ -882,6 +882,15 @@ referenced in the notification_channels field of this AlertPolicy. The format is
 								},
 							},
 						},
+						"notification_prompts": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Control when notifications will be sent out. Possible values: ["NOTIFICATION_PROMPT_UNSPECIFIED", "OPENED", "CLOSED"]`,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: verify.ValidateEnum([]string{"NOTIFICATION_PROMPT_UNSPECIFIED", "OPENED", "CLOSED"}),
+							},
+						},
 						"notification_rate_limit": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -1994,6 +2003,8 @@ func flattenMonitoringAlertPolicyAlertStrategy(v interface{}, d *schema.Resource
 		flattenMonitoringAlertPolicyAlertStrategyNotificationRateLimit(original["notificationRateLimit"], d, config)
 	transformed["auto_close"] =
 		flattenMonitoringAlertPolicyAlertStrategyAutoClose(original["autoClose"], d, config)
+	transformed["notification_prompts"] =
+		flattenMonitoringAlertPolicyAlertStrategyNotificationPrompts(original["notificationPrompts"], d, config)
 	transformed["notification_channel_strategy"] =
 		flattenMonitoringAlertPolicyAlertStrategyNotificationChannelStrategy(original["notificationChannelStrategy"], d, config)
 	return []interface{}{transformed}
@@ -2016,6 +2027,10 @@ func flattenMonitoringAlertPolicyAlertStrategyNotificationRateLimitPeriod(v inte
 }
 
 func flattenMonitoringAlertPolicyAlertStrategyAutoClose(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicyAlertStrategyNotificationPrompts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2857,6 +2872,13 @@ func expandMonitoringAlertPolicyAlertStrategy(v interface{}, d tpgresource.Terra
 		transformed["autoClose"] = transformedAutoClose
 	}
 
+	transformedNotificationPrompts, err := expandMonitoringAlertPolicyAlertStrategyNotificationPrompts(original["notification_prompts"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNotificationPrompts); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["notificationPrompts"] = transformedNotificationPrompts
+	}
+
 	transformedNotificationChannelStrategy, err := expandMonitoringAlertPolicyAlertStrategyNotificationChannelStrategy(original["notification_channel_strategy"], d, config)
 	if err != nil {
 		return nil, err
@@ -2891,6 +2913,10 @@ func expandMonitoringAlertPolicyAlertStrategyNotificationRateLimitPeriod(v inter
 }
 
 func expandMonitoringAlertPolicyAlertStrategyAutoClose(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyAlertStrategyNotificationPrompts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
