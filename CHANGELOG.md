@@ -14,7 +14,6 @@ FEATURES:
 IMPROVEMENTS:
 * cloudfunctions: increased the timeouts to 20 minutes for `google_cloudfunctions_function` resource ([#19799](https://github.com/hashicorp/terraform-provider-google/pull/19799))
 * cloudrunv2: added `invoker_iam_disabled` field to `google_cloud_run_v2_service` ([#19833](https://github.com/hashicorp/terraform-provider-google/pull/19833))
-* compute: updated `google_compute_instance` documentation to disclose the current state of support on custom machine_types ([#19811](https://github.com/hashicorp/terraform-provider-google/pull/19811))
 * compute: made `google_compute_network_firewall_policy_rule` use MMv1 engine instead of DCL. ([#19862](https://github.com/hashicorp/terraform-provider-google/pull/19862))
 * compute: made `google_compute_region_network_firewall_policy_rule` use MMv1 engine instead of DCL. ([#19862](https://github.com/hashicorp/terraform-provider-google/pull/19862))
 * compute: added `ip_address_selection_policy` field to `google_compute_backend_service` and `google_compute_region_backend_service`. ([#19863](https://github.com/hashicorp/terraform-provider-google/pull/19863))
@@ -33,7 +32,7 @@ BUG FIXES:
 * bigquery: fixed a regression that caused `google_bigquery_dataset_iam_*` resources to attempt to set deleted IAM members, thereby triggering an API error ([#19857](https://github.com/hashicorp/terraform-provider-google/pull/19857))
 * compute: fixed an issue in `google_compute_backend_service` and `google_compute_region_backend_service` to allow sending `false` for `iap.enabled` ([#19795](https://github.com/hashicorp/terraform-provider-google/pull/19795))
 * container: `node_config.linux_config`, `node_config.workload_metadata_config` and `node_config.kubelet_config` will now successfully send empty messages to the API when `terraform plan` indicates they are being removed, rather than null, which caused an error. The sole reliable case is `node_config.linux_config` when the block is removed, where there will still be a permadiff, but the update request that's triggered will no longer error and other changes displayed in the plan should go through. ([#19842](https://github.com/hashicorp/terraform-provider-google/pull/19842))
-* pubsub: fixed permadiff with configuring an empty `retry_policy`. ([#19784](https://github.com/hashicorp/terraform-provider-google/pull/19784))
+* pubsub: fixed permadiff with configuring an empty `retry_policy` in `google_pubsub_subscription` ([#19784](https://github.com/hashicorp/terraform-provider-google/pull/19784))
 
 ## 5.44.2 (October 14, 2024)
 
