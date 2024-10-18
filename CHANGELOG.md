@@ -23,7 +23,7 @@ IMPROVEMENTS:
 * dialogflowcx: added `advanced_settings.logging_settings` and `advanced_settings.speech_settings` to `google_dialogflow_cx_agent` and `google_dialogflow_cx_flow` ([#19801](https://github.com/hashicorp/terraform-provider-google/pull/19801))
 * networkconnectivity: added `linked_producer_vpc_network` field to `google_network_connectivity_spoke` resource ([#19806](https://github.com/hashicorp/terraform-provider-google/pull/19806))
 * secretmanager: added `is_secret_data_base64` field to `google_secret_manager_secret_version` and `google_secret_manager_secret_version_access` datasources ([#19831](https://github.com/hashicorp/terraform-provider-google/pull/19831))
-* secretmanagerregional: added `is_secret_data_base64` field to `google_secret_manager_regional_secret_version` and `google_secret_manager_regional_secret_version_access` datasources ([#19831](https://github.com/hashicorp/terraform-provider-google/pull/19831))
+* secretmanager: added `is_secret_data_base64` field to `google_secret_manager_regional_secret_version` and `google_secret_manager_regional_secret_version_access` datasources ([#19831](https://github.com/hashicorp/terraform-provider-google/pull/19831))
 * spanner: added `kms_key_names` to `encryption_config` in `google_spanner_database` ([#19846](https://github.com/hashicorp/terraform-provider-google/pull/19846))
 * workstations: added `max_usable_workstations` field to `google_workstations_workstation_config` resource ([#19872](https://github.com/hashicorp/terraform-provider-google/pull/19872))
 * workstations: added field `allowed_ports` to `google_workstations_workstation_config` ([#19845](https://github.com/hashicorp/terraform-provider-google/pull/19845))
