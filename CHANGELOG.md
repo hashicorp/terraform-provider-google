@@ -1,5 +1,40 @@
 ## 6.8.0 (Unreleased)
 
+FEATURES:
+* **New Data Source:** `google_oracle_database_cloud_exadata_infrastructure` ([#19856](https://github.com/hashicorp/terraform-provider-google/pull/19856))
+* **New Data Source:** `google_oracle_database_cloud_vm_cluster` ([#19859](https://github.com/hashicorp/terraform-provider-google/pull/19859))
+* **New Data Source:** `google_oracle_database_db_nodes` ([#19871](https://github.com/hashicorp/terraform-provider-google/pull/19871))
+* **New Data Source:** `google_oracle_database_db_servers` ([#19823](https://github.com/hashicorp/terraform-provider-google/pull/19823))
+* **New Resource:** `google_oracle_database_autonomous_database` ([#19860](https://github.com/hashicorp/terraform-provider-google/pull/19860))
+* **New Resource:** `google_oracle_database_cloud_exadata_infrastructure` ([#19798](https://github.com/hashicorp/terraform-provider-google/pull/19798))
+* **New Resource:** `google_oracle_database_cloud_vm_cluster` ([#19837](https://github.com/hashicorp/terraform-provider-google/pull/19837))
+* **New Resource:** `google_transcoder_job_template` ([#19854](https://github.com/hashicorp/terraform-provider-google/pull/19854))
+* **New Resource:** `google_transcoder_job` ([#19854](https://github.com/hashicorp/terraform-provider-google/pull/19854))
+
+IMPROVEMENTS:
+* cloudfunctions: increased the timeouts to 20 minutes for `google_cloudfunctions_function` resource ([#19799](https://github.com/hashicorp/terraform-provider-google/pull/19799))
+* cloudrunv2: added `invoker_iam_disabled` field to `google_cloud_run_v2_service` ([#19833](https://github.com/hashicorp/terraform-provider-google/pull/19833))
+* compute: updated `google_compute_instance` documentation to disclose the current state of support on custom machine_types ([#19811](https://github.com/hashicorp/terraform-provider-google/pull/19811))
+* compute: made `google_compute_network_firewall_policy_rule` use MMv1 engine instead of DCL. ([#19862](https://github.com/hashicorp/terraform-provider-google/pull/19862))
+* compute: made `google_compute_region_network_firewall_policy_rule` use MMv1 engine instead of DCL. ([#19862](https://github.com/hashicorp/terraform-provider-google/pull/19862))
+* compute: added `ip_address_selection_policy` field to `google_compute_backend_service` and `google_compute_region_backend_service`. ([#19863](https://github.com/hashicorp/terraform-provider-google/pull/19863))
+* compute: added `provisioned_throughput` field to `google_compute_instance_template` resource ([#19852](https://github.com/hashicorp/terraform-provider-google/pull/19852))
+* compute: added `provisioned_throughput` field to `google_compute_region_instance_template` resource ([#19852](https://github.com/hashicorp/terraform-provider-google/pull/19852))
+* container: added support for additional values `KCP_CONNECTION`, and `KCP_SSHD`in `google_container_cluster.logging_config` ([#19812](https://github.com/hashicorp/terraform-provider-google/pull/19812))
+* dialogflowcx: added `advanced_settings.logging_settings` and `advanced_settings.speech_settings` to `google_dialogflow_cx_agent` and `google_dialogflow_cx_flow` ([#19801](https://github.com/hashicorp/terraform-provider-google/pull/19801))
+* networkconnectivity: added `linked_producer_vpc_network` field to `google_network_connectivity_spoke` resource ([#19806](https://github.com/hashicorp/terraform-provider-google/pull/19806))
+* secretmanager: added `is_secret_data_base64` field to `google_secret_manager_secret_version` and `google_secret_manager_secret_version_access` datasources ([#19831](https://github.com/hashicorp/terraform-provider-google/pull/19831))
+* secretmanagerregional: added `is_secret_data_base64` field to `google_secret_manager_regional_secret_version` and `google_secret_manager_regional_secret_version_access` datasources ([#19831](https://github.com/hashicorp/terraform-provider-google/pull/19831))
+* spanner: added `kmsKeyNames` to encryptionConfig of Database ([#19846](https://github.com/hashicorp/terraform-provider-google/pull/19846))
+* workstations: added `maxUsableWorkstations`  field to `WorkstationConfiguration` resource. ([#19872](https://github.com/hashicorp/terraform-provider-google/pull/19872))
+* workstations: added field `allowedPorts` to `google_workstations_workstation_config` ([#19845](https://github.com/hashicorp/terraform-provider-google/pull/19845))
+
+BUG FIXES:
+* bigquery: fixed a regression that caused `google_bigquery_dataset_iam_*` resources to attempt to set deleted IAM members, thereby triggering an API error ([#19857](https://github.com/hashicorp/terraform-provider-google/pull/19857))
+* compute: fixed an issue in `google_compute_backend_service` and `google_compute_region_backend_service` to allow sending `false` for `iap.enabled` ([#19795](https://github.com/hashicorp/terraform-provider-google/pull/19795))
+* container: `node_config.linux_config`, `node_config.workload_metadata_config` and `node_config.kubelet_config` will now successfully send empty messages to the API when `terraform plan` indicates they are being removed, rather than null, which caused an error. The sole reliable case is `node_config.linux_config` when the block is removed, where there will still be a permadiff, but the update request that's triggered will no longer error and other changes displayed in the plan should go through. ([#19842](https://github.com/hashicorp/terraform-provider-google/pull/19842))
+* pubsub: fixed permadiff with configuring an empty `retry_policy`. ([#19784](https://github.com/hashicorp/terraform-provider-google/pull/19784))
+
 ## 5.44.2 (October 14, 2024)
 
 Notes:
