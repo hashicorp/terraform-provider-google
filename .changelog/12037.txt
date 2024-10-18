@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed a crash in `google_container_node_pool` caused by an occasional nil pointer
+```

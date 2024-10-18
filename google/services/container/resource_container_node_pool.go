@@ -1195,11 +1195,13 @@ func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *c
 		nodePool["max_pods_per_node"] = np.MaxPodsConstraint.MaxPodsPerNode
 	}
 
-	nodePool["management"] = []map[string]interface{}{
-		{
-			"auto_repair":  np.Management.AutoRepair,
-			"auto_upgrade": np.Management.AutoUpgrade,
-		},
+	if np.Management != nil {
+		nodePool["management"] = []map[string]interface{}{
+			{
+				"auto_repair":  np.Management.AutoRepair,
+				"auto_upgrade": np.Management.AutoUpgrade,
+			},
+		}
 	}
 
 	if np.UpgradeSettings != nil {
