@@ -25,9 +25,9 @@ IMPROVEMENTS:
 * networkconnectivity: added `linked_producer_vpc_network` field to `google_network_connectivity_spoke` resource ([#19806](https://github.com/hashicorp/terraform-provider-google/pull/19806))
 * secretmanager: added `is_secret_data_base64` field to `google_secret_manager_secret_version` and `google_secret_manager_secret_version_access` datasources ([#19831](https://github.com/hashicorp/terraform-provider-google/pull/19831))
 * secretmanagerregional: added `is_secret_data_base64` field to `google_secret_manager_regional_secret_version` and `google_secret_manager_regional_secret_version_access` datasources ([#19831](https://github.com/hashicorp/terraform-provider-google/pull/19831))
-* spanner: added `kmsKeyNames` to encryptionConfig of Database ([#19846](https://github.com/hashicorp/terraform-provider-google/pull/19846))
-* workstations: added `maxUsableWorkstations`  field to `WorkstationConfiguration` resource. ([#19872](https://github.com/hashicorp/terraform-provider-google/pull/19872))
-* workstations: added field `allowedPorts` to `google_workstations_workstation_config` ([#19845](https://github.com/hashicorp/terraform-provider-google/pull/19845))
+* spanner: added `kms_key_names` to `encryption_config` in `google_spanner_database` ([#19846](https://github.com/hashicorp/terraform-provider-google/pull/19846))
+* workstations: added `max_usable_workstations` field to `google_workstations_workstation_config` resource ([#19872](https://github.com/hashicorp/terraform-provider-google/pull/19872))
+* workstations: added field `allowed_ports` to `google_workstations_workstation_config` ([#19845](https://github.com/hashicorp/terraform-provider-google/pull/19845))
 
 BUG FIXES:
 * bigquery: fixed a regression that caused `google_bigquery_dataset_iam_*` resources to attempt to set deleted IAM members, thereby triggering an API error ([#19857](https://github.com/hashicorp/terraform-provider-google/pull/19857))
