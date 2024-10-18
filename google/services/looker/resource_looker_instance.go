@@ -496,6 +496,15 @@ accurate to nanoseconds.`,
 				Description: `The time the instance was updated in RFC3339 UTC "Zulu" format,
 accurate to nanoseconds.`,
 			},
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Policy to determine if the cluster should be deleted forcefully.
+If setting deletion_policy = "FORCE", the Looker instance will be deleted regardless
+of its nested resources. If set to "DEFAULT", Looker instances that still have
+nested resources will return an error. Possible values: DEFAULT, FORCE`,
+				Default: "DEFAULT",
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -712,6 +721,12 @@ func resourceLookerInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("LookerInstance %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -1021,6 +1036,10 @@ func resourceLookerInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	headers := make(http.Header)
+	// Forcefully delete the Looker instance
+	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy == "FORCE" {
+		url = url + "?force=True"
+	}
 
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -1067,6 +1086,11 @@ func resourceLookerInstanceImport(d *schema.ResourceData, meta interface{}) ([]*
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

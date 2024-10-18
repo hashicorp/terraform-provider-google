@@ -1,0 +1,3 @@
+```release-note:enhancement
+looker: added `deletion_policy` to `google_looker_instance` to allow force-destroying instances with nested resources by setting `deletion_policy = FORCE` 
+```
