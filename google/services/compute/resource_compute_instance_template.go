@@ -1052,6 +1052,14 @@ be from 0 to 999,999,999 inclusive.`,
 					},
 				},
 			},
+
+			"key_revocation_action_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"NONE", "STOP", ""}, false),
+				Description:  `Action to be taken when a customer's encryption key is revoked. Supports "STOP" and "NONE", with "NONE" being the default.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -1381,6 +1389,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		AdvancedMachineFeatures:    expandAdvancedMachineFeatures(d),
 		ResourcePolicies:           resourcePolicies,
 		ReservationAffinity:        reservationAffinity,
+		KeyRevocationActionType:    d.Get("key_revocation_action_type").(string),
 	}
 
 	if _, ok := d.GetOk("effective_labels"); ok {
@@ -1776,6 +1785,9 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 
 	if err = d.Set("instance_description", instanceTemplate.Properties.Description); err != nil {
 		return fmt.Errorf("Error setting instance_description: %s", err)
+	}
+	if err = d.Set("key_revocation_action_type", instanceTemplate.Properties.KeyRevocationActionType); err != nil {
+		return fmt.Errorf("Error setting key_revocation_action_type: %s", err)
 	}
 	if err = d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)

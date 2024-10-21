@@ -1445,6 +1445,56 @@ func TestAccComputeInstanceTemplate_resourceManagerTags(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_keyRevocationActionType(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	context_1 := map[string]interface{}{
+		"instance_name":              fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"key_revocation_action_type": `"NONE"`,
+	}
+	context_2 := map[string]interface{}{
+		"instance_name":              context_1["instance_name"].(string),
+		"key_revocation_action_type": `"STOP"`,
+	}
+	context_3 := map[string]interface{}{
+		"instance_name":              context_1["instance_name"].(string),
+		"key_revocation_action_type": `""`,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_keyRevocationActionType(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "key_revocation_action_type", "NONE"),
+				),
+			},
+			{
+				Config: testAccComputeInstanceTemplate_keyRevocationActionType(context_2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "key_revocation_action_type", "STOP"),
+				),
+			},
+			{
+				Config: testAccComputeInstanceTemplate_keyRevocationActionType(context_3),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "key_revocation_action_type", ""),
+				),
+			},
+		},
+	})
+}
+
 func TestUnitComputeInstanceTemplate_IpCidrRangeDiffSuppress(t *testing.T) {
 	cases := map[string]struct {
 		Old, New           string
@@ -4005,6 +4055,33 @@ resource "google_compute_instance_template" "foobar" {
   network_interface {
     network = "default"
   }
+}
+`, context)
+}
+
+func testAccComputeInstanceTemplate_keyRevocationActionType(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "%{instance_name}"
+  machine_type = "e2-medium"
+
+  disk {
+	source_image = data.google_compute_image.my_image.self_link
+	auto_delete  = true
+	disk_size_gb = 10
+	boot         = true
+  }
+
+  network_interface {
+	network = "default"
+  }
+
+  key_revocation_action_type = %{key_revocation_action_type}
 }
 `, context)
 }
