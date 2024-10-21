@@ -35,4 +35,4 @@ The following attributes are exported:
 
 * `CloudExadataInfrastructures` - A list of ExadataInfrastructures.
 
-See [google_oracle_database_cloud_exadata_infrastructure](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_oracle_database_cloud_exadata_infrastructure#argument-reference) resource for details of the available attributes.
+See [google_oracle_database_cloud_exadata_infrastructure](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/oracle_database_cloud_exadata_infrastructure#argument-reference) resource for details of the available attributes.
