@@ -157,9 +157,6 @@ resource "google_container_attached_cluster" "primary" {
       namespace = "default"
     }
   }
-  security_posture_config {
-    vulnerability_mode = "VULNERABILITY_ENTERPRISE"
-  }
 }
 `, context)
 }
