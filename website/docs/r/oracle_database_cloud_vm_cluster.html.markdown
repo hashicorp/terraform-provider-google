@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "OracleDatabase"
+subcategory: "Oracle Database"
 description: |-
   A CloudVmCluster resource.
 ---
