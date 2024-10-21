@@ -41,6 +41,7 @@ type FrameworkProviderConfig struct {
 	ImpersonateServiceAccount                 types.String
 	ImpersonateServiceAccountDelegates        types.List
 	RequestReason                             types.String
+	RequestTimeout                            types.String
 	AddTerraformAttributionLabel              types.Bool
 	TerraformAttributionLabelAdditionStrategy types.String
 	// End temporary
@@ -355,6 +356,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.ImpersonateServiceAccount = data.ImpersonateServiceAccount
 	p.ImpersonateServiceAccountDelegates = data.ImpersonateServiceAccountDelegates
 	p.RequestReason = data.RequestReason
+	p.RequestTimeout = data.RequestTimeout
 	p.AddTerraformAttributionLabel = data.AddTerraformAttributionLabel
 	p.TerraformAttributionLabelAdditionStrategy = data.TerraformAttributionLabelAdditionStrategy
 	// End temporary

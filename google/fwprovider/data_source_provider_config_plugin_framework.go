@@ -217,7 +217,7 @@ func (d *GoogleProviderConfigPluginFrameworkDataSource) Read(ctx context.Context
 	data.Scopes = d.providerConfig.Scopes
 	data.UserProjectOverride = d.providerConfig.UserProjectOverride
 	data.RequestReason = d.providerConfig.RequestReason
-	// TODO(SarahFrench) - request_timeout
+	data.RequestTimeout = d.providerConfig.RequestTimeout
 	data.DefaultLabels = d.providerConfig.DefaultLabels
 	data.AddTerraformAttributionLabel = d.providerConfig.AddTerraformAttributionLabel
 	data.TerraformAttributionLabelAdditionStrategy = d.providerConfig.TerraformAttributionLabelAdditionStrategy
