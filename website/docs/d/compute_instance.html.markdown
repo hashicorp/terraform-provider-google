@@ -109,6 +109,8 @@ The following arguments are supported:
     encoded SHA-256 hash of the [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption) that protects this resource.
 
+* `key_revocation_action_type` - Action to be taken when a customer's encryption key is revoked.
+
 ---
 
 <a name="nested_boot_disk"></a>The `boot_disk` block supports:

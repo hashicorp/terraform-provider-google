@@ -3337,6 +3337,56 @@ func TestAccComputeInstance_proactiveAttributionLabel(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_keyRevocationActionType(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	context_1 := map[string]interface{}{
+		"instance_name":              fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"key_revocation_action_type": `"NONE"`,
+	}
+	context_2 := map[string]interface{}{
+		"instance_name":              context_1["instance_name"].(string),
+		"key_revocation_action_type": `"STOP"`,
+	}
+	context_3 := map[string]interface{}{
+		"instance_name":              context_1["instance_name"].(string),
+		"key_revocation_action_type": `""`,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_keyRevocationActionType(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "key_revocation_action_type", "NONE"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_keyRevocationActionType(context_2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "key_revocation_action_type", "STOP"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_keyRevocationActionType(context_3),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "key_revocation_action_type", ""),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -9075,4 +9125,31 @@ resource "google_compute_instance" "foobar" {
 
 }
 `, diskName, instanceName, machineType, zone, bootDiskInterface, allowStoppingForUpdate)
+}
+
+func testAccComputeInstance_keyRevocationActionType(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%{instance_name}"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+	initialize_params {
+	  image = data.google_compute_image.my_image.self_link
+	}
+  }
+
+  network_interface {
+	network = "default"
+  }
+
+  key_revocation_action_type = %{key_revocation_action_type}
+}
+`, context)
 }

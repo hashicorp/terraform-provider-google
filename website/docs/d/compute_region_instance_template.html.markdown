@@ -111,6 +111,8 @@ The following arguments are supported:
 
 * `confidential_instance_config` - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM. Structure is [documented below](#nested_confidential_instance_config)
 
+* `key_revocation_action_type` - Action to be taken when a customer's encryption key is revoked.
+
 <a name="nested_disk"></a>The `disk` block supports:
 
 * `auto_delete` - Whether or not the disk should be auto-deleted.
