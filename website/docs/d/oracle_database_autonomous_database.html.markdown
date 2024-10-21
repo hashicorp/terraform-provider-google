@@ -34,4 +34,4 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-See [google_oracle_database_autonomous_database](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_oracle_database_autonomous_database#argument-reference) resource for details of the available attributes.
+See [google_oracle_database_autonomous_database](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/oracle_database_autonomous_database#argument-reference) resource for details of the available attributes.
