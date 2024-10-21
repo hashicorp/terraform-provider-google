@@ -32,6 +32,8 @@ jobs:
     - name: Run backfill
       env:
         GITHUB_TOKEN: ${{github.token}}
+        SINCE: ${{ inputs.since || '1973-01-01' }}
+        DRY_RUN: ${{ contains(inputs.dry_run, 'true') }}
       run: |
         cd repo/tools/issue-labeler
-        go run . -backfill-date=${{inputs.since}} -backfill-dry-run=${{inputs.dry_run}} -logtostderr=true
+        go run . -backfill-date=${{env.SINCE}} -backfill-dry-run=${{env.DRY_RUN}} -logtostderr=true
