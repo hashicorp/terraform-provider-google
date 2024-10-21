@@ -21,12 +21,12 @@ func DataSourceGoogleComputeSecurityPolicy() *schema.Resource {
 	tpgresource.AddOptionalFieldsToSchema(dsSchema, "self_link")
 
 	return &schema.Resource{
-		Read:   dataSourceComputSecurityPolicyRead,
+		Read:   dataSourceComputeSecurityPolicyRead,
 		Schema: dsSchema,
 	}
 }
 
-func dataSourceComputSecurityPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	id := ""
 
