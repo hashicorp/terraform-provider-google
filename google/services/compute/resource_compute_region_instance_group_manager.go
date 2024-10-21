@@ -555,7 +555,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		UpdatePolicy:                expandRegionUpdatePolicy(d.Get("update_policy").([]interface{})),
 		InstanceLifecyclePolicy:     expandInstanceLifecyclePolicy(d.Get("instance_lifecycle_policy").([]interface{})),
 		AllInstancesConfig:          expandAllInstancesConfig(nil, d.Get("all_instances_config").([]interface{})),
-		DistributionPolicy:          expandDistributionPolicy(d),
+		DistributionPolicy:          expandDistributionPolicyForCreate(d),
 		StatefulPolicy:              expandStatefulPolicy(d),
 		// Force send TargetSize to allow size of 0.
 		ForceSendFields: []string{"TargetSize"},
@@ -815,7 +815,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 	}
 
 	if d.HasChange("distribution_policy_target_shape") {
-		updatedManager.DistributionPolicy = expandDistributionPolicy(d)
+		updatedManager.DistributionPolicy = expandDistributionPolicyForUpdate(d)
 		change = true
 	}
 
@@ -1027,24 +1027,39 @@ func flattenRegionUpdatePolicy(updatePolicy *compute.InstanceGroupManagerUpdateP
 	return results
 }
 
-func expandDistributionPolicy(d *schema.ResourceData) *compute.DistributionPolicy {
+func expandDistributionPolicyForUpdate(d *schema.ResourceData) *compute.DistributionPolicy {
+	dpts := d.Get("distribution_policy_target_shape").(string)
+	if dpts == "" {
+		return nil
+	}
+	// distributionPolicy.Zones is NOT updateable.
+	return &compute.DistributionPolicy{TargetShape: dpts}
+}
+
+func expandDistributionPolicyForCreate(d *schema.ResourceData) *compute.DistributionPolicy {
 	dpz := d.Get("distribution_policy_zones").(*schema.Set)
 	dpts := d.Get("distribution_policy_target_shape").(string)
 	if dpz.Len() == 0 && dpts == "" {
 		return nil
 	}
+	distributionPolicy := &compute.DistributionPolicy{}
 
-	distributionPolicyZoneConfigs := make([]*compute.DistributionPolicyZoneConfiguration, 0, dpz.Len())
-	for _, raw := range dpz.List() {
-		data := raw.(string)
-		distributionPolicyZoneConfig := compute.DistributionPolicyZoneConfiguration{
-			Zone: "zones/" + data,
+	if dpz.Len() > 0 {
+		distributionPolicyZoneConfigs := make([]*compute.DistributionPolicyZoneConfiguration, 0, dpz.Len())
+		for _, raw := range dpz.List() {
+			data := raw.(string)
+			distributionPolicyZoneConfig := compute.DistributionPolicyZoneConfiguration{
+				Zone: "zones/" + data,
+			}
+
+			distributionPolicyZoneConfigs = append(distributionPolicyZoneConfigs, &distributionPolicyZoneConfig)
 		}
-
-		distributionPolicyZoneConfigs = append(distributionPolicyZoneConfigs, &distributionPolicyZoneConfig)
+		distributionPolicy.Zones = distributionPolicyZoneConfigs
 	}
-
-	return &compute.DistributionPolicy{Zones: distributionPolicyZoneConfigs, TargetShape: dpts}
+	if dpts != "" {
+		distributionPolicy.TargetShape = dpts
+	}
+	return distributionPolicy
 }
 
 func flattenDistributionPolicy(distributionPolicy *compute.DistributionPolicy) []string {
