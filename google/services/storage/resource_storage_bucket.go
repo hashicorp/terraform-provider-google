@@ -963,18 +963,9 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	// Get the bucket and acl
 	bucket := d.Get("name").(string)
 
-	var res *storage.Bucket
 	// There seems to be some eventual consistency errors in some cases, so we want to check a few times
 	// to make sure it exists before moving on
-	err = transport_tpg.Retry(transport_tpg.RetryOptions{
-		RetryFunc: func() (operr error) {
-			var retryErr error
-			res, retryErr = config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
-			return retryErr
-		},
-		Timeout:              d.Timeout(schema.TimeoutRead),
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsNotFoundRetryableError("bucket read")},
-	})
+	res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
 
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Storage Bucket %q", d.Get("name").(string)))
