@@ -23,7 +23,7 @@ resource "google_artifact_registry_repository" "my_repo" {
 data "google_artifact_registry_docker_image" "my_image" {
   location      = google_artifact_registry_repository.my_repo.location
   repository_id = google_artifact_registry_repository.my_repo.repository_id
-  image         = "my-image:my-tag"
+  image_name    = "my-image:my-tag"
 }
 
 resource "google_cloud_run_v2_service" "default" {
