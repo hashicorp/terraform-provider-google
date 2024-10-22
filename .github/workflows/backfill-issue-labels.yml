@@ -13,6 +13,8 @@ on:
       dry_run:
         description: "Dry run (no changes will be made to issues)"
         type: boolean
+  schedule:
+        - cron: '0 7 * * *' # UTC 7AM (-7)-> 12AM PST
 
 jobs:
   backfill-tickets:
@@ -30,6 +32,8 @@ jobs:
     - name: Run backfill
       env:
         GITHUB_TOKEN: ${{github.token}}
+        SINCE: ${{ inputs.since || '1973-01-01' }}
+        DRY_RUN: ${{ contains(inputs.dry_run, 'true') }}
       run: |
         cd repo/tools/issue-labeler
-        go run . -backfill-date=${{inputs.since}} -backfill-dry-run=${{inputs.dry_run}} -logtostderr=true
+        go run . -backfill-date=${{env.SINCE}} -backfill-dry-run=${{env.DRY_RUN}} -logtostderr=true
