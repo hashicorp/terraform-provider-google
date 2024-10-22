@@ -3459,7 +3459,7 @@ resource "google_container_cluster" "cluster" {
 resource "google_container_node_pool" "with_upgrade_settings" {
   name = "%s"
   location = "us-central1"
-  cluster = "${google_container_cluster.cluster.name}"
+  cluster = google_container_cluster.cluster.name
   initial_node_count = 1
   %s
 }
@@ -3473,13 +3473,13 @@ data "google_container_engine_versions" "central1c" {
 }
 
 resource "google_container_cluster" "cluster" {
-  name               = "%s"
-  location           = "us-central1-c"
-  initial_node_count = 1
-  min_master_version = data.google_container_engine_versions.central1c.latest_master_version
+  name                = "%s"
+  location            = "us-central1-c"
+  initial_node_count  = 1
+  min_master_version  = data.google_container_engine_versions.central1c.latest_master_version
   deletion_protection = false
-  network    = "%s"
-  subnetwork    = "%s"
+  network             = "%s"
+  subnetwork          = "%s"
 }
 
 resource "google_container_node_pool" "np_with_gpu" {
@@ -3490,7 +3490,7 @@ resource "google_container_node_pool" "np_with_gpu" {
   initial_node_count = 1
 
   node_config {
-    machine_type = "a2-highgpu-1g"  // can't be e2 because of accelerator
+    machine_type = "a2-highgpu-1g" // can't be e2 because of accelerator
     disk_size_gb = 32
 
     oauth_scopes = [
@@ -3507,14 +3507,14 @@ resource "google_container_node_pool" "np_with_gpu" {
     image_type      = "COS_CONTAINERD"
 
     guest_accelerator {
-      type  = "nvidia-tesla-a100"
+      type               = "nvidia-tesla-a100"
       gpu_partition_size = "1g.5gb"
-      count = 1
-	  gpu_driver_installation_config {
-		gpu_driver_version = "LATEST"
-	  }
+      count              = 1
+      gpu_driver_installation_config {
+        gpu_driver_version = "LATEST"
+      }
       gpu_sharing_config {
-        gpu_sharing_strategy = "TIME_SHARING"
+        gpu_sharing_strategy       = "TIME_SHARING"
         max_shared_clients_per_gpu = 2
       }
     }
@@ -3730,12 +3730,12 @@ resource "google_container_node_pool" "np" {
 func testAccContainerNodePool_concurrentCreate(cluster, np1, np2, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 3
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 3
   deletion_protection = false
-  network    = "%s"
-  subnetwork    = "%s"
+  network             = "%s"
+  subnetwork          = "%s"
 }
 
 resource "google_container_node_pool" "np1" {
@@ -3746,11 +3746,11 @@ resource "google_container_node_pool" "np1" {
 }
 
 resource "google_container_node_pool" "np2" {
-	name               = "%s"
-	location           = "us-central1-a"
-	cluster            = google_container_cluster.cluster.name
-	initial_node_count = 2
-  }
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 2
+}
 `, cluster, networkName, subnetworkName, np1, np2)
 }
 
@@ -3796,20 +3796,20 @@ resource "google_compute_node_template" "soletenant-tmpl" {
 }
 
 resource "google_compute_node_group" "nodes" {
-  name        = "tf-test-soletenant-group"
-  zone        = "us-central1-a"
-  initial_size	= 1
+  name          = "tf-test-soletenant-group"
+  zone          = "us-central1-a"
+  initial_size  = 1
   node_template = google_compute_node_template.soletenant-tmpl.id
 }
 
 resource "google_container_cluster" "cluster" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 1
-  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  min_master_version  = data.google_container_engine_versions.central1a.latest_master_version
   deletion_protection = false
-  network    = "%s"
-  subnetwork    = "%s"
+  network             = "%s"
+  subnetwork          = "%s"
 }
 
 resource "google_container_node_pool" "with_sole_tenant_config" {
@@ -3818,14 +3818,14 @@ resource "google_container_node_pool" "with_sole_tenant_config" {
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 1
   node_config {
-       machine_type = "n1-standard-2"
-       sole_tenant_config {
-			node_affinity {
-				key = "compute.googleapis.com/node-group-name"
-				operator = "IN"
-				values = [google_compute_node_group.nodes.name]
-			}
-       }
+    machine_type = "n1-standard-2"
+    sole_tenant_config {
+      node_affinity {
+        key      = "compute.googleapis.com/node-group-name"
+        operator = "IN"
+        values   = [google_compute_node_group.nodes.name]
+      }
+    }
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
@@ -4151,13 +4151,13 @@ data "google_project" "project" {
 resource "google_project_iam_member" "tagHoldAdmin" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagHoldAdmin"
-  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
+  member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 }
 
 resource "google_project_iam_member" "tagUser1" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagUser"
-  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
+  member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 
   depends_on = [google_project_iam_member.tagHoldAdmin]
 }
@@ -4165,7 +4165,7 @@ resource "google_project_iam_member" "tagUser1" {
 resource "google_project_iam_member" "tagUser2" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagUser"
-  member = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
+  member  = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
 
   depends_on = [google_project_iam_member.tagHoldAdmin]
 }
@@ -4181,26 +4181,26 @@ resource "time_sleep" "wait_120_seconds" {
 }
 
 resource "google_tags_tag_key" "key1" {
-  parent = "projects/%[1]s"
-  short_name = "foobarbaz1-%[2]s"
+  parent      = "projects/%[1]s"
+  short_name  = "foobarbaz1-%[2]s"
   description = "For foo/bar1 resources"
-  purpose = "GCE_FIREWALL"
+  purpose     = "GCE_FIREWALL"
   purpose_data = {
     network = "%[1]s/%[4]s"
   }
 }
 
 resource "google_tags_tag_value" "value1" {
-  parent = "tagKeys/${google_tags_tag_key.key1.name}"
-  short_name = "foo1-%[2]s"
+  parent      = google_tags_tag_key.key1.id
+  short_name  = "foo1-%[2]s"
   description = "For foo1 resources"
 }
 
 resource "google_tags_tag_key" "key2" {
-  parent = "projects/%[1]s"
-  short_name = "foobarbaz2-%[2]s"
+  parent      = "projects/%[1]s"
+  short_name  = "foobarbaz2-%[2]s"
   description = "For foo/bar2 resources"
-  purpose = "GCE_FIREWALL"
+  purpose     = "GCE_FIREWALL"
   purpose_data = {
     network = "%[1]s/%[4]s"
   }
@@ -4209,8 +4209,8 @@ resource "google_tags_tag_key" "key2" {
 }
 
 resource "google_tags_tag_value" "value2" {
-  parent = "tagKeys/${google_tags_tag_key.key2.name}"
-  short_name = "foo2-%[2]s"
+  parent      = google_tags_tag_key.key2.id
+  short_name  = "foo2-%[2]s"
   description = "For foo2 resources"
 }
 
@@ -4227,7 +4227,7 @@ resource "google_container_cluster" "primary" {
   # separately managed node pools. So we create the smallest possible default
   # node pool and immediately delete it.
   remove_default_node_pool = true
-  initial_node_count = 1
+  initial_node_count       = 1
 
   deletion_protection = false
   network             = "%[4]s"
@@ -4243,19 +4243,19 @@ resource "google_container_cluster" "primary" {
 
 # Separately Managed Node Pool
 resource "google_container_node_pool" "primary_nodes" {
-  name       = google_container_cluster.primary.name
-  location   = "us-central1-a"
-  cluster    = google_container_cluster.primary.name
+  name     = google_container_cluster.primary.name
+  location = "us-central1-a"
+  cluster  = google_container_cluster.primary.name
 
-  version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
+  version    = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
   node_count = 1
 
   node_config {
-    machine_type    = "n1-standard-1"  // can't be e2 because of local-ssd
-    disk_size_gb    = 15
+    machine_type = "n1-standard-1" // can't be e2 because of local-ssd
+    disk_size_gb = 15
 
     resource_manager_tags = {
-      "tagKeys/${google_tags_tag_key.key1.name}" = "tagValues/${google_tags_tag_value.value1.name}"
+      (google_tags_tag_key.key1.id) = google_tags_tag_value.value1.id
     }
   }
 }
@@ -4271,13 +4271,13 @@ data "google_project" "project" {
 resource "google_project_iam_member" "tagHoldAdmin" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagHoldAdmin"
-  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
+  member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 }
 
 resource "google_project_iam_member" "tagUser1" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagUser"
-  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
+  member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 
   depends_on = [google_project_iam_member.tagHoldAdmin]
 }
@@ -4285,7 +4285,7 @@ resource "google_project_iam_member" "tagUser1" {
 resource "google_project_iam_member" "tagUser2" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagUser"
-  member = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
+  member  = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
 
   depends_on = [google_project_iam_member.tagHoldAdmin]
 }
@@ -4301,26 +4301,26 @@ resource "time_sleep" "wait_120_seconds" {
 }
 
 resource "google_tags_tag_key" "key1" {
-  parent = "projects/%[1]s"
-  short_name = "foobarbaz1-%[2]s"
+  parent      = "projects/%[1]s"
+  short_name  = "foobarbaz1-%[2]s"
   description = "For foo/bar1 resources"
-  purpose = "GCE_FIREWALL"
+  purpose     = "GCE_FIREWALL"
   purpose_data = {
     network = "%[1]s/%[4]s"
   }
 }
 
 resource "google_tags_tag_value" "value1" {
-  parent = "tagKeys/${google_tags_tag_key.key1.name}"
-  short_name = "foo1-%[2]s"
+  parent      = google_tags_tag_key.key1.id
+  short_name  = "foo1-%[2]s"
   description = "For foo1 resources"
 }
 
 resource "google_tags_tag_key" "key2" {
-  parent = "projects/%[1]s"
-  short_name = "foobarbaz2-%[2]s"
+  parent      = "projects/%[1]s"
+  short_name  = "foobarbaz2-%[2]s"
   description = "For foo/bar2 resources"
-  purpose = "GCE_FIREWALL"
+  purpose     = "GCE_FIREWALL"
   purpose_data = {
     network = "%[1]s/%[4]s"
   }
@@ -4329,8 +4329,8 @@ resource "google_tags_tag_key" "key2" {
 }
 
 resource "google_tags_tag_value" "value2" {
-  parent = "tagKeys/${google_tags_tag_key.key2.name}"
-  short_name = "foo2-%[2]s"
+  parent      = google_tags_tag_key.key2.id
+  short_name  = "foo2-%[2]s"
   description = "For foo2 resources"
 }
 
@@ -4347,7 +4347,7 @@ resource "google_container_cluster" "primary" {
   # separately managed node pools. So we create the smallest possible default
   # node pool and immediately delete it.
   remove_default_node_pool = true
-  initial_node_count = 1
+  initial_node_count       = 1
 
   deletion_protection = false
   network             = "%[4]s"
@@ -4363,20 +4363,20 @@ resource "google_container_cluster" "primary" {
 
 # Separately Managed Node Pool
 resource "google_container_node_pool" "primary_nodes" {
-  name       = google_container_cluster.primary.name
-  location   = "us-central1-a"
-  cluster    = google_container_cluster.primary.name
+  name     = google_container_cluster.primary.name
+  location = "us-central1-a"
+  cluster  = google_container_cluster.primary.name
 
-  version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
+  version    = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
   node_count = 1
 
   node_config {
-    machine_type    = "n1-standard-1"  // can't be e2 because of local-ssd
-    disk_size_gb    = 15
+    machine_type = "n1-standard-1" // can't be e2 because of local-ssd
+    disk_size_gb = 15
 
     resource_manager_tags = {
-      "tagKeys/${google_tags_tag_key.key1.name}" = "tagValues/${google_tags_tag_value.value1.name}"
-	  "tagKeys/${google_tags_tag_key.key2.name}" = "tagValues/${google_tags_tag_value.value2.name}"
+      (google_tags_tag_key.key1.id) = google_tags_tag_value.value1.id
+      (google_tags_tag_key.key2.id) = google_tags_tag_value.value2.id
     }
   }
 }
@@ -4392,13 +4392,13 @@ data "google_project" "project" {
 resource "google_project_iam_member" "tagHoldAdmin" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagHoldAdmin"
-  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
+  member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 }
 
 resource "google_project_iam_member" "tagUser1" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagUser"
-  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
+  member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 
   depends_on = [google_project_iam_member.tagHoldAdmin]
 }
@@ -4406,7 +4406,7 @@ resource "google_project_iam_member" "tagUser1" {
 resource "google_project_iam_member" "tagUser2" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagUser"
-  member = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
+  member  = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
 
   depends_on = [google_project_iam_member.tagHoldAdmin]
 }
@@ -4422,26 +4422,26 @@ resource "time_sleep" "wait_120_seconds" {
 }
 
 resource "google_tags_tag_key" "key1" {
-  parent = "projects/%[1]s"
-  short_name = "foobarbaz1-%[2]s"
+  parent      = "projects/%[1]s"
+  short_name  = "foobarbaz1-%[2]s"
   description = "For foo/bar1 resources"
-  purpose = "GCE_FIREWALL"
+  purpose     = "GCE_FIREWALL"
   purpose_data = {
     network = "%[1]s/%[4]s"
   }
 }
 
 resource "google_tags_tag_value" "value1" {
-  parent = "tagKeys/${google_tags_tag_key.key1.name}"
-  short_name = "foo1-%[2]s"
+  parent      = google_tags_tag_key.key1.id
+  short_name  = "foo1-%[2]s"
   description = "For foo1 resources"
 }
 
 resource "google_tags_tag_key" "key2" {
-  parent = "projects/%[1]s"
-  short_name = "foobarbaz2-%[2]s"
+  parent      = "projects/%[1]s"
+  short_name  = "foobarbaz2-%[2]s"
   description = "For foo/bar2 resources"
-  purpose = "GCE_FIREWALL"
+  purpose     = "GCE_FIREWALL"
   purpose_data = {
     network = "%[1]s/%[4]s"
   }
@@ -4450,8 +4450,8 @@ resource "google_tags_tag_key" "key2" {
 }
 
 resource "google_tags_tag_value" "value2" {
-  parent = "tagKeys/${google_tags_tag_key.key2.name}"
-  short_name = "foo2-%[2]s"
+  parent      = google_tags_tag_key.key2.id
+  short_name  = "foo2-%[2]s"
   description = "For foo2 resources"
 }
 
@@ -4468,7 +4468,7 @@ resource "google_container_cluster" "primary" {
   # separately managed node pools. So we create the smallest possible default
   # node pool and immediately delete it.
   remove_default_node_pool = true
-  initial_node_count = 1
+  initial_node_count       = 1
 
   deletion_protection = false
   network             = "%[4]s"
@@ -4484,16 +4484,16 @@ resource "google_container_cluster" "primary" {
 
 # Separately Managed Node Pool
 resource "google_container_node_pool" "primary_nodes" {
-  name       = google_container_cluster.primary.name
-  location   = "us-central1-a"
-  cluster    = google_container_cluster.primary.name
+  name     = google_container_cluster.primary.name
+  location = "us-central1-a"
+  cluster  = google_container_cluster.primary.name
 
-  version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
+  version    = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
   node_count = 1
 
   node_config {
-    machine_type    = "n1-standard-1"  // can't be e2 because of local-ssd
-    disk_size_gb    = 15
+    machine_type = "n1-standard-1" // can't be e2 because of local-ssd
+    disk_size_gb = 15
   }
 }
 `, projectID, randomSuffix, clusterName, networkName, subnetworkName)
@@ -4546,39 +4546,38 @@ func TestAccContainerNodePool_privateRegistry(t *testing.T) {
 
 func testAccContainerNodePool_privateRegistryEnabled(secretID, cluster, nodepool, network, subnetwork string) string {
 	return fmt.Sprintf(`
-data "google_project" "test_project" {
-	}
+data "google_project" "test_project" {}
 
 resource "google_secret_manager_secret" "secret-basic" {
-	secret_id     = "%s"
-	replication {
-		user_managed {
-		replicas {
-			location = "us-central1"
-		}
-		}
-	}
+  secret_id = "%s"
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
 }
 
 resource "google_secret_manager_secret_version" "secret-version-basic" {
-	secret = google_secret_manager_secret.secret-basic.id
-	secret_data = "dummypassword"
-  }
+  secret      = google_secret_manager_secret.secret-basic.id
+  secret_data = "dummypassword"
+}
 
 resource "google_secret_manager_secret_iam_member" "secret_iam" {
-	secret_id  = google_secret_manager_secret.secret-basic.id
-	role       = "roles/secretmanager.admin"
-	member     = "serviceAccount:${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
-	depends_on = [google_secret_manager_secret_version.secret-version-basic]
-  }
+  secret_id  = google_secret_manager_secret.secret-basic.id
+  role       = "roles/secretmanager.admin"
+  member     = "serviceAccount:${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
+  depends_on = [google_secret_manager_secret_version.secret-version-basic]
+}
 
 resource "google_container_cluster" "cluster" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 1
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
   deletion_protection = false
-  network    = "%s"
-  subnetwork    = "%s"
+  network             = "%s"
+  subnetwork          = "%s"
 }
 
 resource "google_container_node_pool" "np" {
@@ -4588,22 +4587,22 @@ resource "google_container_node_pool" "np" {
   initial_node_count = 1
 
   node_config {
-	oauth_scopes = [
+    oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform",
     ]
     machine_type = "n1-standard-8"
-    image_type = "COS_CONTAINERD"
+    image_type   = "COS_CONTAINERD"
     containerd_config {
       private_registry_access_config {
         enabled = true
         certificate_authority_domain_config {
-          fqdns = [ "my.custom.domain", "10.0.0.127:8888" ]
+          fqdns = ["my.custom.domain", "10.0.0.127:8888"]
           gcp_secret_manager_certificate_config {
             secret_uri = google_secret_manager_secret_version.secret-version-basic.name
           }
         }
         certificate_authority_domain_config {
-          fqdns = [ "10.1.2.32" ]
+          fqdns = ["10.1.2.32"]
           gcp_secret_manager_certificate_config {
             secret_uri = google_secret_manager_secret_version.secret-version-basic.name
           }
@@ -4646,9 +4645,9 @@ data "google_container_engine_versions" "central1a" {
 }
 
 resource "google_container_cluster" "cluster" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 3
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 3
   deletion_protection = false
 
   min_master_version = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
@@ -4666,14 +4665,14 @@ resource "google_container_node_pool" "np" {
 
   node_config {
     service_account = "default"
-    machine_type = "n1-standard-8"
+    machine_type    = "n1-standard-8"
 
     guest_accelerator {
       type  = "nvidia-tesla-t4"
       count = 1
       gpu_sharing_config {
-	    gpu_sharing_strategy = "TIME_SHARING"
-	    max_shared_clients_per_gpu = 3
+        gpu_sharing_strategy       = "TIME_SHARING"
+        max_shared_clients_per_gpu = 3
       }
     }
   }
@@ -4716,12 +4715,12 @@ func TestAccContainerNodePool_storagePools(t *testing.T) {
 func testAccContainerNodePool_storagePools(cluster, np, networkName, subnetworkName, storagePoolResourceName, location string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
-  name               = "%[1]s"
-  location           = "%[6]s"
-  initial_node_count = 1
+  name                = "%[1]s"
+  location            = "%[6]s"
+  initial_node_count  = 1
   deletion_protection = false
-  network    = "%[3]s"
-  subnetwork    = "%[4]s"
+  network             = "%[3]s"
+  subnetwork          = "%[4]s"
 }
 
 resource "google_container_node_pool" "np" {
@@ -4731,10 +4730,10 @@ resource "google_container_node_pool" "np" {
   initial_node_count = 1
 
   node_config {
-    machine_type = "c3-standard-4"
-    image_type = "COS_CONTAINERD"
+    machine_type  = "c3-standard-4"
+    image_type    = "COS_CONTAINERD"
     storage_pools = ["%[5]s"]
-	disk_type = "hyperdisk-balanced"
+    disk_type     = "hyperdisk-balanced"
   }
 }
 `, cluster, np, networkName, subnetworkName, storagePoolResourceName, location)
@@ -4788,14 +4787,15 @@ provider "google" {
   alias                 = "user-project-override"
   user_project_override = true
 }
+
 resource "google_container_cluster" "cluster" {
-  provider           = google.user-project-override
-  name               = "%[1]s"
-  location           = "%[6]s"
-  initial_node_count = 3
+  provider            = google.user-project-override
+  name                = "%[1]s"
+  location            = "%[6]s"
+  initial_node_count  = 3
   deletion_protection = false
-  network    = "%[3]s"
-  subnetwork    = "%[4]s"
+  network             = "%[3]s"
+  subnetwork          = "%[4]s"
 }
 
 resource "google_container_node_pool" "np" {
