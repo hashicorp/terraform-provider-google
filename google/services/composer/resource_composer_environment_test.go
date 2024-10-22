@@ -324,7 +324,7 @@ func TestAccComposerEnvironment_withWebServerConfig(t *testing.T) {
 func TestAccComposerEnvironment_withEncryptionConfigComposer1(t *testing.T) {
 	t.Parallel()
 
-	kms := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
+	kms := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-composer1-key1")
 	pid := envvar.GetTestProjectFromEnv()
 	grantServiceAgentsRole(t, "service-", allComposerServiceAgents(), "roles/cloudkms.cryptoKeyEncrypterDecrypter")
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
@@ -361,7 +361,7 @@ func TestAccComposerEnvironment_withEncryptionConfigComposer2(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	kms := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
+	kms := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-composer2-key1")
 	pid := envvar.GetTestProjectFromEnv()
 	grantServiceAgentsRole(t, "service-", allComposerServiceAgents(), "roles/cloudkms.cryptoKeyEncrypterDecrypter")
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
