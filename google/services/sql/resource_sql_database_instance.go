@@ -200,6 +200,7 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 						"data_cache_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
+							Computed:    true,
 							MaxItems:    1,
 							Description: `Data cache configurations.`,
 							Elem: &schema.Resource{
