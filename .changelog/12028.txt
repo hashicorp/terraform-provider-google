@@ -1,0 +1,3 @@
+```release-note: bug
+storage: removed retry on 404s during refresh for `google_storage_bucket`, preventing hanging when refreshing deleted buckets
+```
