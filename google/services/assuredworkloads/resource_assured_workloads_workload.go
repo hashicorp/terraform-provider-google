@@ -160,6 +160,15 @@ func ResourceAssuredWorkloadsWorkload() *schema.Resource {
 				Description: "Optional. Indicates whether the e-mail notification for a violation is enabled for a workload. This value will be by default True, and if not present will be considered as true. This should only be updated via updateWorkload call. Any Changes to this field during the createWorkload call will not be honored. This will always be true while creating the workload.",
 			},
 
+			"workload_options": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Used to specify certain options for a workload during workload creation - currently only supporting KAT Optionality for Regional Controls workloads.",
+				MaxItems:    1,
+				Elem:        AssuredWorkloadsWorkloadWorkloadOptionsSchema(),
+			},
+
 			"compliance_status": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -303,6 +312,19 @@ func AssuredWorkloadsWorkloadResourceSettingsSchema() *schema.Resource {
 	}
 }
 
+func AssuredWorkloadsWorkloadWorkloadOptionsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"kaj_enrollment_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Indicates type of KAJ enrollment for the workload. Currently, only specifiying KEY_ACCESS_TRANSPARENCY_OFF is implemented to not enroll in KAT-level KAJ enrollment for Regional Controls workloads. Possible values: KAJ_ENROLLMENT_TYPE_UNSPECIFIED, FULL_KAJ, EKM_ONLY, KEY_ACCESS_TRANSPARENCY_OFF",
+			},
+		},
+	}
+}
+
 func AssuredWorkloadsWorkloadComplianceStatusSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -402,6 +424,7 @@ func resourceAssuredWorkloadsWorkloadCreate(d *schema.ResourceData, meta interfa
 		ProvisionedResourcesParent:    dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:              expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		ViolationNotificationsEnabled: dcl.Bool(d.Get("violation_notifications_enabled").(bool)),
+		WorkloadOptions:               expandAssuredWorkloadsWorkloadWorkloadOptions(d.Get("workload_options")),
 	}
 
 	id, err := obj.ID()
@@ -470,6 +493,7 @@ func resourceAssuredWorkloadsWorkloadRead(d *schema.ResourceData, meta interface
 		ProvisionedResourcesParent:    dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:              expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		ViolationNotificationsEnabled: dcl.Bool(d.Get("violation_notifications_enabled").(bool)),
+		WorkloadOptions:               expandAssuredWorkloadsWorkloadWorkloadOptions(d.Get("workload_options")),
 		Name:                          dcl.StringOrNil(d.Get("name").(string)),
 	}
 
@@ -537,6 +561,9 @@ func resourceAssuredWorkloadsWorkloadRead(d *schema.ResourceData, meta interface
 	if err = d.Set("violation_notifications_enabled", res.ViolationNotificationsEnabled); err != nil {
 		return fmt.Errorf("error setting violation_notifications_enabled in state: %s", err)
 	}
+	if err = d.Set("workload_options", flattenAssuredWorkloadsWorkloadWorkloadOptions(res.WorkloadOptions)); err != nil {
+		return fmt.Errorf("error setting workload_options in state: %s", err)
+	}
 	if err = d.Set("compliance_status", flattenAssuredWorkloadsWorkloadComplianceStatus(res.ComplianceStatus)); err != nil {
 		return fmt.Errorf("error setting compliance_status in state: %s", err)
 	}
@@ -588,6 +615,7 @@ func resourceAssuredWorkloadsWorkloadUpdate(d *schema.ResourceData, meta interfa
 		ProvisionedResourcesParent:    dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:              expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		ViolationNotificationsEnabled: dcl.Bool(d.Get("violation_notifications_enabled").(bool)),
+		WorkloadOptions:               expandAssuredWorkloadsWorkloadWorkloadOptions(d.Get("workload_options")),
 		Name:                          dcl.StringOrNil(d.Get("name").(string)),
 	}
 	// Construct state hint from old values
@@ -606,6 +634,7 @@ func resourceAssuredWorkloadsWorkloadUpdate(d *schema.ResourceData, meta interfa
 		ProvisionedResourcesParent:    dcl.String(tpgdclresource.OldValue(d.GetChange("provisioned_resources_parent")).(string)),
 		ResourceSettings:              expandAssuredWorkloadsWorkloadResourceSettingsArray(tpgdclresource.OldValue(d.GetChange("resource_settings"))),
 		ViolationNotificationsEnabled: dcl.Bool(tpgdclresource.OldValue(d.GetChange("violation_notifications_enabled")).(bool)),
+		WorkloadOptions:               expandAssuredWorkloadsWorkloadWorkloadOptions(tpgdclresource.OldValue(d.GetChange("workload_options"))),
 		Name:                          dcl.StringOrNil(tpgdclresource.OldValue(d.GetChange("name")).(string)),
 	}
 	directive := tpgdclresource.UpdateDirective
@@ -660,6 +689,7 @@ func resourceAssuredWorkloadsWorkloadDelete(d *schema.ResourceData, meta interfa
 		ProvisionedResourcesParent:    dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:              expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		ViolationNotificationsEnabled: dcl.Bool(d.Get("violation_notifications_enabled").(bool)),
+		WorkloadOptions:               expandAssuredWorkloadsWorkloadWorkloadOptions(d.Get("workload_options")),
 		Name:                          dcl.StringOrNil(d.Get("name").(string)),
 	}
 
@@ -822,6 +852,32 @@ func flattenAssuredWorkloadsWorkloadResourceSettings(obj *assuredworkloads.Workl
 	}
 
 	return transformed
+
+}
+
+func expandAssuredWorkloadsWorkloadWorkloadOptions(o interface{}) *assuredworkloads.WorkloadWorkloadOptions {
+	if o == nil {
+		return assuredworkloads.EmptyWorkloadWorkloadOptions
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return assuredworkloads.EmptyWorkloadWorkloadOptions
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &assuredworkloads.WorkloadWorkloadOptions{
+		KajEnrollmentType: assuredworkloads.WorkloadWorkloadOptionsKajEnrollmentTypeEnumRef(obj["kaj_enrollment_type"].(string)),
+	}
+}
+
+func flattenAssuredWorkloadsWorkloadWorkloadOptions(obj *assuredworkloads.WorkloadWorkloadOptions) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"kaj_enrollment_type": obj.KajEnrollmentType,
+	}
+
+	return []interface{}{transformed}
 
 }
 
