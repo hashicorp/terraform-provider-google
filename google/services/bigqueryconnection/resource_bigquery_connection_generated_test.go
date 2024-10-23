@@ -112,7 +112,7 @@ resource "google_sql_database_instance" "instance" {
 		tier = "db-f1-micro"
 	}
 
-    deletion_protection  = "%{deletion_protection}"
+    deletion_protection  = %{deletion_protection}
 }
 
 resource "google_sql_database" "db" {
@@ -189,7 +189,7 @@ resource "google_sql_database_instance" "instance" {
 		tier = "db-f1-micro"
 	}
 
-    deletion_protection  = "%{deletion_protection}"
+    deletion_protection  = %{deletion_protection}
 }
 
 resource "google_sql_database" "db" {
@@ -506,7 +506,7 @@ resource "google_sql_database_instance" "instance" {
     tier = "db-f1-micro"
   }
 
-  deletion_protection  = "%{deletion_protection}"
+  deletion_protection  = %{deletion_protection}
 }
 
 resource "google_sql_database" "db" {

@@ -66,7 +66,7 @@ resource "google_privateca_certificate_authority" "default" {
   pool = "%{pool_name}"
   certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
   location = "%{pool_location}"
-  deletion_protection = "%{deletion_protection}"
+  deletion_protection = %{deletion_protection}
   config {
     subject_config {
       subject {
@@ -189,7 +189,7 @@ resource "google_privateca_certificate_authority" "default" {
   pool = "%{pool_name}"
   certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}-sub"
   location = "%{pool_location}"
-  deletion_protection = "%{deletion_protection}"
+  deletion_protection = %{deletion_protection}
   subordinate_config {
     certificate_authority = google_privateca_certificate_authority.root-ca.name
   }
@@ -277,7 +277,7 @@ resource "google_privateca_certificate_authority" "default" {
   pool = "%{pool_name}"
   certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
   location = "%{pool_location}"
-  deletion_protection = "%{deletion_protection}"
+  deletion_protection = %{deletion_protection}
   config {
     subject_config {
       subject {

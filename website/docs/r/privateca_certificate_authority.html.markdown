@@ -48,7 +48,7 @@ resource "google_privateca_certificate_authority" "default" {
   pool = "ca-pool"
   certificate_authority_id = "my-certificate-authority"
   location = "us-central1"
-  deletion_protection = "true"
+  deletion_protection = true
   config {
     subject_config {
       subject {
@@ -147,7 +147,7 @@ resource "google_privateca_certificate_authority" "default" {
   pool = "ca-pool"
   certificate_authority_id = "my-certificate-authority-sub"
   location = "us-central1"
-  deletion_protection = "true"
+  deletion_protection = true
   subordinate_config {
     certificate_authority = google_privateca_certificate_authority.root-ca.name
   }
@@ -222,7 +222,7 @@ resource "google_privateca_certificate_authority" "default" {
   pool = "ca-pool"
   certificate_authority_id = "my-certificate-authority"
   location = "us-central1"
-  deletion_protection = "true"
+  deletion_protection = true
   key_spec {
     cloud_kms_key_version = "projects/keys-project/locations/us-central1/keyRings/key-ring/cryptoKeys/crypto-key/cryptoKeyVersions/1"
   }
@@ -285,7 +285,7 @@ resource "google_privateca_certificate_authority" "default" {
   pool = "ca-pool"
   certificate_authority_id = "my-certificate-authority"
   location = "us-central1"
-  deletion_protection = "true"
+  deletion_protection = true
   config {
     subject_config {
       subject {

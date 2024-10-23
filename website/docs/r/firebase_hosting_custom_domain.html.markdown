@@ -92,7 +92,7 @@ resource "google_cloud_run_v2_service" "default" {
     }
   }
 
-  deletion_protection = "true"
+  deletion_protection = true
 }
 
 resource "google_firebase_hosting_version" "default" {
