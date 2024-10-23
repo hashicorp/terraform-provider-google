@@ -88,6 +88,7 @@ func TestAccComputeNetworkFirewallPolicyRule_multipleRules(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
+		"project_name":  envvar.GetTestProjectFromEnv(),
 		"org_name":      fmt.Sprintf("organizations/%s", envvar.GetTestOrgFromEnv(t)),
 	}
 
@@ -733,9 +734,21 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule2" {
 
 func testAccComputeNetworkFirewallPolicyRule_multipleAdd(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_compute_network" "network1" {
+  name                    = "tf-test-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
 resource "google_compute_network_firewall_policy" "fw_policy" {
   name        = "tf-test-policy-%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
+}
+
+resource "google_compute_network_firewall_policy_association" "fw_policy_a" {
+  name              = "tf-test-policy-a-%{random_suffix}"
+  project           = "projects/%{project_name}"
+  attachment_target = google_compute_network.network1.id
+  firewall_policy   = google_compute_network_firewall_policy.fw_policy.id
 }
 
 resource "google_network_security_address_group" "address_group" {
@@ -817,9 +830,21 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule3" {
 
 func testAccComputeNetworkFirewallPolicyRule_multipleRemove(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_compute_network" "network1" {
+  name                    = "tf-test-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
 resource "google_compute_network_firewall_policy" "fw_policy" {
   name        = "tf-test-policy-%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
+}
+
+resource "google_compute_network_firewall_policy_association" "fw_policy_a" {
+  name              = "tf-test-policy-a-%{random_suffix}"
+  project           = "%{project_name}"
+  attachment_target = google_compute_network.network1.id
+  firewall_policy   = google_compute_network_firewall_policy.fw_policy.id
 }
 
 resource "google_network_security_address_group" "address_group" {
