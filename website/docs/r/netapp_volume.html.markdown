@@ -414,11 +414,9 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_mount_options).
 
 * `zone` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Specifies the active zone for regional volume.
 
 * `replica_zone` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Specifies the replica zone for regional volume.
 
 * `cold_tier_size_gib` -
