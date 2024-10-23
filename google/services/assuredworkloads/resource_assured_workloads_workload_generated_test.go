@@ -55,7 +55,7 @@ func TestAccAssuredWorkloadsWorkload_BasicHandWritten(t *testing.T) {
 				ResourceName:            "google_assured_workloads_workload.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent", "partner_services_billing_account", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "workload_options", "provisioned_resources_parent", "partner_services_billing_account", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccAssuredWorkloadsWorkload_BasicHandWrittenUpdate0(context),
@@ -64,7 +64,7 @@ func TestAccAssuredWorkloadsWorkload_BasicHandWritten(t *testing.T) {
 				ResourceName:            "google_assured_workloads_workload.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent", "partner_services_billing_account", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "workload_options", "provisioned_resources_parent", "partner_services_billing_account", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -91,7 +91,7 @@ func TestAccAssuredWorkloadsWorkload_FullHandWritten(t *testing.T) {
 				ResourceName:            "google_assured_workloads_workload.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent", "partner_services_billing_account", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "workload_options", "provisioned_resources_parent", "partner_services_billing_account", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -109,6 +109,9 @@ resource "google_assured_workloads_workload" "primary" {
   provisioned_resources_parent = google_folder.folder1.name
   organization = "%{org_id}"
   location = "us-central1"
+  workload_options {
+    kaj_enrollment_type = "KEY_ACCESS_TRANSPARENCY_OFF"
+  }
   resource_settings {
     resource_type = "CONSUMER_FOLDER"
     display_name = "folder-display-name"

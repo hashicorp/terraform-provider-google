@@ -55,6 +55,10 @@ resource "google_assured_workloads_workload" "primary" {
 
   violation_notifications_enabled = true
 
+  workload_options {
+    kaj_enrollment_type = "KEY_ACCESS_TRANSPARENCY_OFF"
+  }
+
   labels = {
     label-one = "value-one"
   }
@@ -207,6 +211,10 @@ Please refer to the field `effective_labels` for all of the labels present on th
   (Optional)
   Optional. Indicates whether the e-mail notification for a violation is enabled for a workload. This value will be by default True, and if not present will be considered as true. This should only be updated via updateWorkload call. Any Changes to this field during the createWorkload call will not be honored. This will always be true while creating the workload.
   
+* `workload_options` -
+  (Optional)
+  Optional. Used to specify certain options for a workload during workload creation - currently only supporting KAT Optionality for Regional Controls workloads.
+  
 
 
 The `kms_settings` block supports:
@@ -246,6 +254,12 @@ The `resource_settings` block supports:
 * `resource_type` -
   (Optional)
   Indicates the type of resource. This field should be specified to correspond the id to the right project type (CONSUMER_PROJECT or ENCRYPTION_KEYS_PROJECT) Possible values: RESOURCE_TYPE_UNSPECIFIED, CONSUMER_PROJECT, ENCRYPTION_KEYS_PROJECT, KEYRING, CONSUMER_FOLDER
+    
+The `workload_options` block supports:
+    
+* `kaj_enrollment_type` -
+  (Optional)
+  Indicates type of KAJ enrollment for the workload. Currently, only specifiying KEY_ACCESS_TRANSPARENCY_OFF is implemented to not enroll in KAT-level KAJ enrollment for Regional Controls workloads. Possible values: KAJ_ENROLLMENT_TYPE_UNSPECIFIED, FULL_KAJ, EKM_ONLY, KEY_ACCESS_TRANSPARENCY_OFF
     
 ## Attributes Reference
 
