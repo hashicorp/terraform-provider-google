@@ -112,7 +112,7 @@ resource "google_dataproc_metastore_service" "default" {
     location            = "us-central1"
     port                = 9080
     tier                = "DEVELOPER"
-    deletion_protection = "%{deletion_protection}"
+    deletion_protection = %{deletion_protection}
   
     maintenance_window {
       hour_of_day = 2
@@ -127,7 +127,6 @@ resource "google_dataproc_metastore_service" "default" {
       env = "test"
     }
   }
-  
 `, context)
 }
 
