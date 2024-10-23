@@ -1,0 +1,3 @@
+```release-note:enhancement
+filestore: Migrated `protocol` property for `google_filestore_instance` from Beta to GA
+```
