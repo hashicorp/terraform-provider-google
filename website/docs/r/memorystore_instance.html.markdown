@@ -114,6 +114,7 @@ resource "google_memorystore_instance" "instance-full" {
   }
   engine_version              = "VALKEY_7_2"
   deletion_protection_enabled = false
+  mode = "CLUSTER"
   persistence_config {
     mode = "RDB"
     rdb_config {
@@ -309,6 +310,14 @@ The following arguments are supported:
   (Optional)
   Optional. If set to true deletion of the instance will fail.
 
+* `mode` -
+  (Optional)
+  Optional. Standalone or cluster. 
+   Possible values:
+   CLUSTER
+  STANDALONE
+  Possible values are: `CLUSTER`, `STANDALONE`.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -418,6 +427,9 @@ In addition to the arguments listed above, the following computed attributes are
   Represents configuration for nodes of the instance.
   Structure is [documented below](#nested_node_config).
 
+* `endpoints` -
+  Endpoints for the instance.
+
 * `psc_auto_connections` -
   Output only. User inputs and resource details of the auto-created PSC connections.
   Structure is [documented below](#nested_psc_auto_connections).
@@ -495,6 +507,29 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Output only. The consumer network where the IP address resides, in the form of
   projects/{project_id}/global/networks/{network_id}.
+
+* `service_attachment` -
+  (Output)
+  Output only. The service attachment which is the target of the PSC connection, in the form of projects/{project-id}/regions/{region}/serviceAttachments/{service-attachment-id}.
+
+* `psc_connection_status` -
+  (Output)
+  Output Only. The status of the PSC connection: whether a connection exists and ACTIVE or it no longer exists. 
+   Possible values:
+   ACTIVE 
+   NOT_FOUND
+
+* `connection_type` -
+  (Output)
+  Output Only. Type of a PSC Connection. 
+   Possible values:
+   CONNECTION_TYPE_DISCOVERY 
+   CONNECTION_TYPE_PRIMARY 
+   CONNECTION_TYPE_READER
+
+* `port` -
+  (Output)
+  Output only. Ports of the exposed endpoint.
 
 ## Timeouts
 
