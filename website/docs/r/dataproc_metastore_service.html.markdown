@@ -291,6 +291,7 @@ resource "google_storage_bucket" "bucket" {
 
 ```hcl
 resource "google_dataproc_metastore_service" "test_resource" {
+  provider = google-beta
   service_id = "test-service"
   location   = "us-central1"
 
@@ -322,6 +323,7 @@ resource "google_dataproc_metastore_service" "test_resource" {
 
 ```hcl
 resource "google_dataproc_metastore_service" "test_resource" {
+  provider = google-beta
   service_id = "test-service"
   location   = "us-central1"
 
@@ -354,6 +356,7 @@ resource "google_dataproc_metastore_service" "test_resource" {
 
 ```hcl
 resource "google_dataproc_metastore_service" "test_resource" {
+  provider = google-beta
   service_id = "test-service"
   location   = "us-central1"
 
