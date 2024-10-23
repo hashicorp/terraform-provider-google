@@ -1,0 +1,6 @@
+```release-note:enhancement
+netapp: promoted `zone` and `replica_zone` fields to GA in `google_netapp_storage_pool` resource
+```
+```release-note:enhancement
+netapp: promoted `zone` and `replica_zone` fields to GA in `google_netapp_volume` resource
+```
