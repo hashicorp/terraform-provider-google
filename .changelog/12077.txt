@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: removed the client-side default of `ENTERPRISE` for `edition` in `google_sql_database_instance` so that `edition` is determined by the API when unset. This will cause new instances to use `ENTERPRISE_PLUS` as the default for POSTGRES_16.
+```
