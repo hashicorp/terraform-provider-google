@@ -1,0 +1,3 @@
+```release-note:enhancement
+networksecurity: promoted `tls_inspection_policy` field in `google_network_security_gateway_security_policy` to GA
+```
