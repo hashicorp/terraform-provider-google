@@ -7954,7 +7954,6 @@ resource "google_container_cluster" "with_pco_disabled" {
     network    = google_compute_network.container_network.name
     subnetwork = google_compute_subnetwork.container_subnetwork.name
 
-    min_master_version = "1.27"
     initial_node_count = 1
     datapath_provider = "ADVANCED_DATAPATH"
 
@@ -9269,14 +9268,16 @@ func testAccContainerCluster_autopilot_net_admin(name, networkName, subnetworkNa
 resource "google_container_cluster" "primary" {
   name             = "%s"
   location         = "us-central1"
+
+  network          = "%s"
+  subnetwork       = "%s"
+
   enable_autopilot = true
   allow_net_admin  = %t
-  min_master_version = 1.27
+
   deletion_protection = false
-  network    = "%s"
-  subnetwork    = "%s"
 }
-`, name, enabled, networkName, subnetworkName)
+`, name, networkName, subnetworkName, enabled)
 }
 
 func TestAccContainerCluster_customPlacementPolicy(t *testing.T) {
