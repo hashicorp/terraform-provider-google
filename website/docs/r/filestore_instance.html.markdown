@@ -105,7 +105,6 @@ resource "google_filestore_instance" "instance" {
 
 ```hcl
 resource "google_filestore_instance" "instance" {
-  provider = google-beta
   name     = "test-instance"
   location = "us-central1"
   tier     = "ENTERPRISE"
@@ -278,7 +277,7 @@ The following arguments are supported:
   A description of the instance.
 
 * `protocol` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Either NFSv3, for using NFS version 3 as file sharing protocol,
   or NFSv4.1, for using NFS version 4.1 as file sharing protocol.
   NFSv4.1 can be used with HIGH_SCALE_SSD, ZONAL, REGIONAL and ENTERPRISE.

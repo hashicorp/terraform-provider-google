@@ -256,6 +256,17 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description:  `The name of the location of the instance. This can be a region for ENTERPRISE tier instances.`,
 				ExactlyOneOf: []string{},
 			},
+			"protocol": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"NFS_V3", "NFS_V4_1", ""}),
+				Description: `Either NFSv3, for using NFS version 3 as file sharing protocol,
+or NFSv4.1, for using NFS version 4.1 as file sharing protocol.
+NFSv4.1 can be used with HIGH_SCALE_SSD, ZONAL, REGIONAL and ENTERPRISE.
+The default is NFSv3. Default value: "NFS_V3" Possible values: ["NFS_V3", "NFS_V4_1"]`,
+				Default: "NFS_V3",
+			},
 			"zone": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -319,6 +330,12 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("tier"); !tpgresource.IsEmptyValue(reflect.ValueOf(tierProp)) && (ok || !reflect.DeepEqual(v, tierProp)) {
 		obj["tier"] = tierProp
+	}
+	protocolProp, err := expandFilestoreInstanceProtocol(d.Get("protocol"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("protocol"); !tpgresource.IsEmptyValue(reflect.ValueOf(protocolProp)) && (ok || !reflect.DeepEqual(v, protocolProp)) {
+		obj["protocol"] = protocolProp
 	}
 	fileSharesProp, err := expandFilestoreInstanceFileShares(d.Get("file_shares"), d, config)
 	if err != nil {
@@ -491,6 +508,9 @@ func resourceFilestoreInstanceRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("tier", flattenFilestoreInstanceTier(res["tier"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("protocol", flattenFilestoreInstanceProtocol(res["protocol"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("labels", flattenFilestoreInstanceLabels(res["labels"], d, config)); err != nil {
@@ -732,6 +752,14 @@ func flattenFilestoreInstanceTier(v interface{}, d *schema.ResourceData, config 
 	return v
 }
 
+func flattenFilestoreInstanceProtocol(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
+		return "NFS_V3"
+	}
+
+	return v
+}
+
 func flattenFilestoreInstanceLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -947,6 +975,10 @@ func expandFilestoreInstanceDescription(v interface{}, d tpgresource.TerraformRe
 }
 
 func expandFilestoreInstanceTier(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFilestoreInstanceProtocol(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
