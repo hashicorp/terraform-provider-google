@@ -30,10 +30,12 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccApphubApplication_applicationBasicExample(t *testing.T) {
+func TestAccApphubApplication_apphubApplicationBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"location":      "us-east1",
+		"scope_type":    "REGIONAL",
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -43,7 +45,7 @@ func TestAccApphubApplication_applicationBasicExample(t *testing.T) {
 		CheckDestroy:             testAccCheckApphubApplicationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApphubApplication_applicationBasicExample(context),
+				Config: testAccApphubApplication_apphubApplicationBasicExample(context),
 			},
 			{
 				ResourceName:            "google_apphub_application.example",
@@ -55,19 +57,58 @@ func TestAccApphubApplication_applicationBasicExample(t *testing.T) {
 	})
 }
 
-func testAccApphubApplication_applicationBasicExample(context map[string]interface{}) string {
+func testAccApphubApplication_apphubApplicationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_apphub_application" "example" {
-  location = "us-east1"
+  location = "%{location}"
   application_id = "tf-test-example-application%{random_suffix}"
   scope {
-    type = "REGIONAL"
+    type = "%{scope_type}"
   }
 }
 `, context)
 }
 
-func TestAccApphubApplication_applicationFullExample(t *testing.T) {
+func TestAccApphubApplication_apphubApplicationGlobalBasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"location":      "global",
+		"scope_type":    "GLOBAL",
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApphubApplicationDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccApphubApplication_apphubApplicationGlobalBasicExample(context),
+			},
+			{
+				ResourceName:            "google_apphub_application.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"application_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccApphubApplication_apphubApplicationGlobalBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_apphub_application" "example" {
+  location = "%{location}"
+  application_id = "tf-test-example-application%{random_suffix}"
+  scope {
+    type = "%{scope_type}"
+  }
+}
+`, context)
+}
+
+func TestAccApphubApplication_apphubApplicationFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -80,7 +121,7 @@ func TestAccApphubApplication_applicationFullExample(t *testing.T) {
 		CheckDestroy:             testAccCheckApphubApplicationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApphubApplication_applicationFullExample(context),
+				Config: testAccApphubApplication_apphubApplicationFullExample(context),
 			},
 			{
 				ResourceName:            "google_apphub_application.example2",
@@ -92,7 +133,7 @@ func TestAccApphubApplication_applicationFullExample(t *testing.T) {
 	})
 }
 
-func testAccApphubApplication_applicationFullExample(context map[string]interface{}) string {
+func testAccApphubApplication_apphubApplicationFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_apphub_application" "example2" {
   location = "us-east1"
