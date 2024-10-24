@@ -314,6 +314,53 @@ func TestAccSpannerInstance_basicWithAutoscalingUsingNodeConfigUpdate(t *testing
 	})
 }
 
+func TestAccSpannerInstance_basicWithAsymmetricAutoscalingConfigsUpdate(t *testing.T) {
+	displayName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerInstance_main(displayName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.main", "state"),
+				),
+			},
+			{
+				ResourceName:            "google_spanner_instance.main",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccSpannerInstance_basicWithAsymmetricAutoscalingConfigsUpdate(displayName, 1, 10),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.main", "state"),
+				),
+			},
+			{
+				ResourceName:            "google_spanner_instance.main",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccSpannerInstance_basicWithAsymmetricAutoscalingConfigsUpdate(displayName, 3, 5),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.main", "state"),
+				),
+			},
+			{
+				ResourceName:            "google_spanner_instance.main",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func testAccSpannerInstance_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_spanner_instance" "basic" {
@@ -321,7 +368,7 @@ resource "google_spanner_instance" "basic" {
   config       = "regional-us-central1"
   display_name = "%s-dname"
   num_nodes    = 1
-  edition      = "ENTERPRISE" 
+  edition      = "ENTERPRISE"
 }
 `, name, name)
 }
@@ -459,4 +506,64 @@ resource "google_spanner_instance" "basic" {
   edition      = "ENTERPRISE"
 }
 `, name, name, maxNodes, minNodes, cupUtilizationPercent, storageUtilizationPercent)
+}
+
+func testAccSpannerInstance_main(name string) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "main" {
+  name         = "%s"
+  config       = "nam-eur-asia3"
+  display_name = "%s"
+  num_nodes    = 1
+  edition      = "ENTERPRISE_PLUS"
+}
+`, name, name)
+}
+
+func testAccSpannerInstance_basicWithAsymmetricAutoscalingConfigsUpdate(name string, minNodes, maxNodes int) string {
+	return fmt.Sprintf(`
+provider "google" {
+  alias                 = "user-project-override"
+  user_project_override = true
+}
+
+resource "google_spanner_instance" "main" {
+  provider     = google.user-project-override
+  name         = "%s"
+  config       = "nam-eur-asia3"
+  display_name =  "%s"
+  autoscaling_config {
+    autoscaling_limits {
+      max_nodes = 3
+      min_nodes = 1
+    }
+    autoscaling_targets {
+      high_priority_cpu_utilization_percent = 75
+      storage_utilization_percent           = 90
+    }
+    asymmetric_autoscaling_options {
+      replica_selection {
+        location = "europe-west1"
+      }
+      overrides {
+        autoscaling_limits {
+          min_nodes = 3
+          max_nodes = 30
+        }
+      }
+    }
+    asymmetric_autoscaling_options {
+      replica_selection {
+        location = "asia-east1"
+      }
+      overrides {
+        autoscaling_limits {
+          min_nodes = %d
+          max_nodes = %d
+        }
+      }
+    }
+  }
+  edition = "ENTERPRISE_PLUS"
+}`, name, name, minNodes, maxNodes)
 }
