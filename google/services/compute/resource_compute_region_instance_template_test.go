@@ -59,13 +59,20 @@ func TestAccComputeRegionInstanceTemplate_imageShorthand(t *testing.T) {
 
 	var instanceTemplate compute.InstanceTemplate
 
+	context := map[string]interface{}{
+		"template":        "tf-test-instance-template-" + acctest.RandString(t, 10),
+		"image":           "tf-test-compute-image-" + acctest.RandString(t, 10),
+		"bucket":          "tf-test-compute-image-bucket-" + acctest.RandString(t, 10),
+		"disk_image_path": "./test-fixtures/raw-disk-image.tar.gz",
+	}
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRegionInstanceTemplate_imageShorthand(acctest.RandString(t, 10)),
+				Config: testAccComputeRegionInstanceTemplate_imageShorthand(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionInstanceTemplateExists(
 						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
@@ -891,14 +898,14 @@ func TestAccComputeRegionInstanceTemplate_nictype_update(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRegionInstanceTemplate_nictype(instanceTemplateName, instanceTemplateName, "GVNIC"),
+				Config: testAccComputeRegionInstanceTemplate_nictype(instanceTemplateName, "GVNIC"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionInstanceTemplateExists(
 						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
 				),
 			},
 			{
-				Config: testAccComputeRegionInstanceTemplate_nictype(instanceTemplateName, instanceTemplateName, "VIRTIO_NET"),
+				Config: testAccComputeRegionInstanceTemplate_nictype(instanceTemplateName, "VIRTIO_NET"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionInstanceTemplateExists(
 						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
@@ -1723,14 +1730,26 @@ resource "google_compute_region_instance_template" "foobar" {
 `, suffix)
 }
 
-func testAccComputeRegionInstanceTemplate_imageShorthand(suffix string) string {
-	return fmt.Sprintf(`
+func testAccComputeRegionInstanceTemplate_imageShorthand(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "%{bucket}"
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "object" {
+  name   = "raw-disk-image.tar.gz"
+  bucket = google_storage_bucket.bucket.name
+  source = "%{disk_image_path}"
+}
+
 resource "google_compute_image" "foobar" {
-  name        = "tf-test-%s"
+  name        = "%{image}"
   description = "description-test"
   family      = "family-test"
   raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
+    source = "https://${google_storage_bucket.bucket.name}.storage.googleapis.com/${google_storage_bucket_object.object.name}"
   }
   labels = {
     my-label    = "my-label-value"
@@ -1741,7 +1760,7 @@ resource "google_compute_image" "foobar" {
 }
 
 resource "google_compute_region_instance_template" "foobar" {
-  name           = "tf-test-instance-template-%s"
+  name           = "%{template}"
   region      = "us-central1"
   machine_type   = "e2-medium"
   can_ip_forward = false
@@ -1774,7 +1793,7 @@ resource "google_compute_region_instance_template" "foobar" {
     my_label = "foobar"
   }
 }
-`, suffix, suffix)
+`, context)
 }
 
 func testAccComputeRegionInstanceTemplate_preemptible(suffix string) string {
@@ -3063,25 +3082,11 @@ resource "google_compute_resource_policy" "foo" {
 `, suffix, policyName)
 }
 
-func testAccComputeRegionInstanceTemplate_nictype(image, instance, nictype string) string {
+func testAccComputeRegionInstanceTemplate_nictype(instance, nictype string) string {
 	return fmt.Sprintf(`
-resource "google_compute_image" "example" {
-	name = "%s"
-	raw_disk {
-		source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-	}
-
-	guest_os_features {
-		type = "SECURE_BOOT"
-	}
-
-	guest_os_features {
-		type = "MULTI_IP_SUBNET"
-	}
-
-	guest_os_features {
-		type = "GVNIC"
-	}
+data "google_compute_image" "example" {
+  family  = "debian-12"
+  project = "debian-cloud"
 }
 
 resource "google_compute_region_instance_template" "foobar" {
@@ -3092,7 +3097,7 @@ resource "google_compute_region_instance_template" "foobar" {
 	tags           = ["foo", "bar"]
 
 	disk {
-		source_image = google_compute_image.example.name
+		source_image = data.google_compute_image.example.self_link
 		auto_delete  = true
 		boot         = true
 	}
@@ -3119,7 +3124,7 @@ resource "google_compute_region_instance_template" "foobar" {
 		my_label = "foobar"
 	}
 }
-`, image, instance, nictype)
+`, instance, nictype)
 }
 
 func testAccComputeRegionInstanceTemplate_queueCount(instanceTemplateName string) string {
