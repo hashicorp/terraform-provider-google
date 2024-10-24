@@ -242,7 +242,9 @@ data "google_provider_config_sdk" "default" {}
 // - If user_project_override = false : the apply fails as the API is disabled in project-1
 // - If user_project_override = true : the apply succeeds as X-Goog-User-Project will reference project-2, where API is enabled
 func testAccProviderUserProjectOverride(t *testing.T) {
-	// Parallel fine-grained resource creation
+	// Test cannot run in VCR mode due to use of aliases
+	// See: https://github.com/hashicorp/terraform-provider-google/issues/20019
+	// And also due to the resources made out of band in acctest.SetupProjectsAndGetAccessToken
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
@@ -288,7 +290,9 @@ func testAccProviderUserProjectOverride(t *testing.T) {
 // Do the same thing as TestAccProviderUserProjectOverride, but using a resource that gets its project via
 // a reference to a different resource instead of a project field.
 func testAccProviderIndirectUserProjectOverride(t *testing.T) {
-	// Parallel fine-grained resource creation
+	// Test cannot run in VCR mode due to use of aliases
+	// See: https://github.com/hashicorp/terraform-provider-google/issues/20019
+	// And also due to the resources made out of band in acctest.SetupProjectsAndGetAccessToken
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 

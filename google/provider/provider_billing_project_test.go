@@ -142,8 +142,8 @@ func testAccSdkProvider_billing_project_emptyStringValidation(t *testing.T) {
 }
 
 func testAccSdkProvider_billing_project_useWithAndWithoutUserProjectOverride(t *testing.T) {
-	// Test does interact with APIs but experienced errors when run in VCR mode
-	// See: https://github.com/GoogleCloudPlatform/magic-modules/pull/11610#discussion_r1783271457
+	// Test cannot run in VCR mode due to use of aliases
+	// See: https://github.com/hashicorp/terraform-provider-google/issues/20019
 	acctest.SkipIfVcr(t)
 
 	randomString := acctest.RandString(t, 10)
@@ -188,8 +188,8 @@ func testAccSdkProvider_billing_project_useWithAndWithoutUserProjectOverride(t *
 }
 
 func testAccSdkProvider_billing_project_affectedByClientLibraryEnv(t *testing.T) {
-	// Test does interact with APIs but experienced errors when run in VCR mode
-	// See: https://github.com/GoogleCloudPlatform/magic-modules/pull/11610#issuecomment-2432649993
+	// Test cannot run in VCR mode due to use of aliases
+	// See: https://github.com/hashicorp/terraform-provider-google/issues/20019
 	acctest.SkipIfVcr(t)
 
 	randomString := acctest.RandString(t, 10)
@@ -263,6 +263,13 @@ resource "google_project" "project" {
   billing_account = "%{billing_account}"
   deletion_policy = "DELETE"
 }
+
+resource "google_project_service" "serviceusage" {
+  project  = google_project.project.project_id
+  service  = "serviceusage.googleapis.com"
+
+  disable_on_destroy = false # Need it enabled in the project when the test disables services in post-test cleanup
+}
 `, context)
 }
 
@@ -295,16 +302,6 @@ resource "google_pubsub_topic" "example-resource-in" {
 // the PubSub API. This allows the second apply step to succeed in a test, if needed.
 func testAccSdkProvider_billing_project_useBillingProject_setupWithApiEnabled(context map[string]interface{}) string {
 	return testAccSdkProvider_billing_project_useBillingProject_setup(context) + acctest.Nprintf(`
-# Needed for post test cleanup
-  resource "google_project_service" "serviceusage" {
-  project  = google_project.project.project_id
-  service  = "serviceusage.googleapis.com"
-
-  depends_on = [
-    google_project_service.pubsub,
-    google_project_service.cloudresourcemanager
-  ]
-}
 
 # Needed for test steps to apply without error
 resource "google_project_service" "pubsub" {
