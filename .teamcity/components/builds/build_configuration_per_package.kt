@@ -7,6 +7,7 @@
 
 package builds
 
+import ArtifactRules
 import DefaultBuildTimeoutDuration
 import DefaultParallelism
 import generated.ServiceParallelism
@@ -74,6 +75,7 @@ class PackageDetails(private val packageName: String, private val displayName: S
                 downloadTerraformBinary()
                 runAcceptanceTests()
                 saveArtifactsToGCS()
+                archiveArtifactsIfOverLimit() // Must be after push to GCS step, as this step impacts debug log files
             }
 
             features {
@@ -98,7 +100,7 @@ class PackageDetails(private val packageName: String, private val displayName: S
                 workingDirectory(path)
             }
 
-            artifactRules = "%teamcity.build.checkoutDir%/debug*.txt"
+            artifactRules = ArtifactRules
 
             failureConditions {
                 errorMessage = true
