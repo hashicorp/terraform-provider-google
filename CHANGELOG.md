@@ -1,11 +1,8 @@
 ## 6.9.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* Schedule daily run for backfill labeler ([#19887](https://github.com/hashicorp/terraform-provider-google/pull/19887))
-* Update CHANGELOG on main to include v6.8.0 ([#19941](https://github.com/hashicorp/terraform-provider-google/pull/19941))
-* storage: added 'hierarchical_namespace' to 'google_storage_bucket' resource ([#19882](https://github.com/hashicorp/terraform-provider-google/pull/19882))
 NOTES:
 * provider: minor refactoring of how we run acceptance tests in VCR mode ([#19879](https://github.com/hashicorp/terraform-provider-google/pull/19879))
+
 DEPRECATIONS:
 * containerattached: deprecated `security_posture_config` field in `google_container_attached_cluster` resource ([#19912](https://github.com/hashicorp/terraform-provider-google/pull/19912))
 
@@ -25,13 +22,12 @@ IMPROVEMENTS:
 * compute: added `key_revocation_action_type` to `google_compute_instance` and related resources ([#19952](https://github.com/hashicorp/terraform-provider-google/pull/19952))
 * looker: added `deletion_policy` to `google_looker_instance` to allow force-destroying instances with nested resources by setting `deletion_policy = FORCE` ([#19924](https://github.com/hashicorp/terraform-provider-google/pull/19924))
 * monitoring: added `alert_strategy.notification_prompts` field to `google_monitoring_alert_policy` ([#19928](https://github.com/hashicorp/terraform-provider-google/pull/19928))
+* storage: added `hierarchical_namespace` to `google_storage_bucket` resource ([#19882](https://github.com/hashicorp/terraform-provider-google/pull/19882))
 * sql: removed the client-side default of `ENTERPRISE` for `edition` in `google_sql_database_instance` so that `edition` is determined by the API when unset. This will cause new instances to use `ENTERPRISE_PLUS` as the default for POSTGRES_16. ([#19977](https://github.com/hashicorp/terraform-provider-google/pull/19977))
 * vmwareengine: added `autoscaling_settings` to `google_vmwareengine_cluster` resource ([#19962](https://github.com/hashicorp/terraform-provider-google/pull/19962))
-* workstations: added `maxUsableWorkstations`  field to `WorkstationConfiguration` resource. ([#19872](https://github.com/hashicorp/terraform-provider-google/pull/19872))
+* workstations: added `max_usable_workstations` field to `google_workstations_workstation_config` resource. ([#19872](https://github.com/hashicorp/terraform-provider-google/pull/19872))
 
 BUG FIXES:
-* artifactregistry: fixed an argument in the `google_artifact_registry_docker_image` data source example ([#19961](https://github.com/hashicorp/terraform-provider-google/pull/19961))
-* composer: fixed documentation of `google_composer_environment` timeouts ([#19965](https://github.com/hashicorp/terraform-provider-google/pull/19965))
 * compute: fixed an issue where immutable `distribution_zones` was incorrectly sent to the API when updating `distribution_policy_target_shape` in `google_compute_region_instance_group_manager` resource ([#19949](https://github.com/hashicorp/terraform-provider-google/pull/19949))
 * container: fixed a crash in `google_container_node_pool` caused by an occasional nil pointer ([#19922](https://github.com/hashicorp/terraform-provider-google/pull/19922))
 * essentialcontacts: fixed `google_essential_contacts_contact` import to include required parent field. ([#19877](https://github.com/hashicorp/terraform-provider-google/pull/19877))
