@@ -7,6 +7,7 @@
 
 package builds
 
+import ArtifactRules
 import DefaultBuildTimeoutDuration
 import DefaultParallelism
 import jetbrains.buildServer.configs.kotlin.BuildType
@@ -77,7 +78,7 @@ class VcrDetails(private val providerName: String, private val buildId: String, 
                 workingDirectory(path)
             }
 
-            artifactRules = "%teamcity.build.checkoutDir%/debug*.txt"
+            artifactRules = ArtifactRules
 
             failureConditions {
                 errorMessage = true
