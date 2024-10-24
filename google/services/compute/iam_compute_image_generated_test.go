@@ -330,12 +330,23 @@ func TestAccComputeImageIamPolicyGenerated_withCondition(t *testing.T) {
 
 func testAccComputeImageIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-example-disk%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-  }
+  source_disk = google_compute_disk.persistent.id
 }
 
 resource "google_compute_image_iam_member" "foo" {
@@ -349,12 +360,23 @@ resource "google_compute_image_iam_member" "foo" {
 
 func testAccComputeImageIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-example-disk%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-  }
+  source_disk = google_compute_disk.persistent.id
 }
 
 data "google_iam_policy" "foo" {
@@ -382,12 +404,23 @@ data "google_compute_image_iam_policy" "foo" {
 
 func testAccComputeImageIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-example-disk%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-  }
+  source_disk = google_compute_disk.persistent.id
 }
 
 data "google_iam_policy" "foo" {
@@ -403,12 +436,23 @@ resource "google_compute_image_iam_policy" "foo" {
 
 func testAccComputeImageIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-example-disk%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-  }
+  source_disk = google_compute_disk.persistent.id
 }
 
 resource "google_compute_image_iam_binding" "foo" {
@@ -422,12 +466,23 @@ resource "google_compute_image_iam_binding" "foo" {
 
 func testAccComputeImageIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-example-disk%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-  }
+  source_disk = google_compute_disk.persistent.id
 }
 
 resource "google_compute_image_iam_binding" "foo" {
@@ -441,12 +496,23 @@ resource "google_compute_image_iam_binding" "foo" {
 
 func testAccComputeImageIamBinding_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-example-disk%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-  }
+  source_disk = google_compute_disk.persistent.id
 }
 
 resource "google_compute_image_iam_binding" "foo" {
@@ -465,12 +531,23 @@ resource "google_compute_image_iam_binding" "foo" {
 
 func testAccComputeImageIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-example-disk%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-  }
+  source_disk = google_compute_disk.persistent.id
 }
 
 resource "google_compute_image_iam_binding" "foo" {
@@ -509,12 +586,23 @@ resource "google_compute_image_iam_binding" "foo3" {
 
 func testAccComputeImageIamMember_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-example-disk%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-  }
+  source_disk = google_compute_disk.persistent.id
 }
 
 resource "google_compute_image_iam_member" "foo" {
@@ -533,12 +621,23 @@ resource "google_compute_image_iam_member" "foo" {
 
 func testAccComputeImageIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-example-disk%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-  }
+  source_disk = google_compute_disk.persistent.id
 }
 
 resource "google_compute_image_iam_member" "foo" {
@@ -577,12 +676,23 @@ resource "google_compute_image_iam_member" "foo3" {
 
 func testAccComputeImageIamPolicy_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-example-disk%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-  }
+  source_disk = google_compute_disk.persistent.id
 }
 
 data "google_iam_policy" "foo" {

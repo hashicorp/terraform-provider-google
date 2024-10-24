@@ -1764,14 +1764,14 @@ func TestAccComputeInstance_nictype_update(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstance_nictype(instanceName, instanceName, "GVNIC"),
+				Config: testAccComputeInstance_nictype(instanceName, "GVNIC"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
 				),
 			},
 			{
-				Config: testAccComputeInstance_nictype(instanceName, instanceName, "VIRTIO_NET"),
+				Config: testAccComputeInstance_nictype(instanceName, "VIRTIO_NET"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
@@ -6843,25 +6843,11 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 `, instance, network, subnetwork)
 }
 
-func testAccComputeInstance_nictype(image, instance, nictype string) string {
+func testAccComputeInstance_nictype(instance, nictype string) string {
 	return fmt.Sprintf(`
-resource "google_compute_image" "example" {
-	name = "%s"
-	raw_disk {
-		source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-	}
-
-	guest_os_features {
-		type = "SECURE_BOOT"
-	}
-
-	guest_os_features {
-		type = "MULTI_IP_SUBNET"
-	}
-
-	guest_os_features {
-		type = "GVNIC"
-	}
+data "google_compute_image" "example" {
+  family  = "debian-12"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
@@ -6875,7 +6861,7 @@ resource "google_compute_instance" "foobar" {
 
   boot_disk {
     initialize_params {
-	  image = google_compute_image.example.id
+	  image = data.google_compute_image.example.self_link
     }
   }
 
@@ -6895,7 +6881,7 @@ resource "google_compute_instance" "foobar" {
     my_other_key = "my_other_value"
   }
 }
-`, image, instance, nictype)
+`, instance, nictype)
 }
 
 func testAccComputeInstance_guestAccelerator(instance string, count uint8) string {
