@@ -264,7 +264,7 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
     src_threat_intelligences = ["iplist-known-malicious-ips"]
 
     src_secure_tags {
-      name = "tagValues/${google_tags_tag_value.basic_value.name}"
+      name = google_tags_tag_value.basic_value.id
     }
 
     layer4_configs {
@@ -292,7 +292,7 @@ resource "google_tags_tag_key" "basic_key" {
 
 resource "google_tags_tag_value" "basic_value" {
   description = "For valuename resources."
-  parent      = "tagKeys/${google_tags_tag_key.basic_key.name}"
+  parent      = google_tags_tag_key.basic_key.id
   short_name  = "tf-test-tagvalue-%{random_suffix}"
 }
 `, context)
@@ -342,7 +342,7 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
   }
   
   target_secure_tags {
-    name = "tagValues/${google_tags_tag_value.basic_value.name}"
+    name = google_tags_tag_value.basic_value.id
   }
 }
 
@@ -363,7 +363,7 @@ resource "google_tags_tag_key" "basic_key" {
 
 resource "google_tags_tag_value" "basic_value" {
   description = "For valuename resources."
-  parent      = "tagKeys/${google_tags_tag_key.basic_key.name}"
+  parent      = google_tags_tag_key.basic_key.id
   short_name  = "tf-test-tagvalue-%{random_suffix}"
 }
 `, context)
