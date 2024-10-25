@@ -172,12 +172,18 @@ func TestValidateRFC1035Name(t *testing.T) {
 		{TestName: "valid lower bound", Min: 12, Max: 30, Value: "a-valid-name"},
 		{TestName: "valid upper bound", Min: 6, Max: 12, Value: "a-valid-name"},
 		{TestName: "valid with numbers", Min: 6, Max: 30, Value: "valid000-name"},
+		{TestName: "valid shortest", Min: 1, Max: 63, Value: "a"},
+		{TestName: "valid longest", Min: 1, Max: 63, Value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
 		{TestName: "must start with a letter", Min: 6, Max: 10, Value: "0invalid", ExpectError: true},
 		{TestName: "cannot end with a dash", Min: 6, Max: 10, Value: "invalid-", ExpectError: true},
 		{TestName: "too short", Min: 6, Max: 10, Value: "short", ExpectError: true},
 		{TestName: "too long", Min: 6, Max: 10, Value: "toolooooong", ExpectError: true},
-		{TestName: "min too small", Min: 1, Max: 10, Value: "", ExpectError: true},
+		{TestName: "min too small", Min: 0, Max: 10, Value: "", ExpectError: true},
 		{TestName: "min < max", Min: 6, Max: 5, Value: "", ExpectError: true},
+		{TestName: "min < max", Min: 6, Max: 5, Value: "", ExpectError: true},
+		{TestName: "invalid smallest possible w/ higher limit", Min: 2, Max: 63, Value: "a", ExpectError: true},
+		{TestName: "invalid smallest possible hyphen", Min: 1, Max: 1, Value: "-", ExpectError: true},
+		{TestName: "invalid smallest possible ends with hyphen", Min: 2, Max: 63, Value: "a-", ExpectError: true},
 	}
 
 	for _, c := range cases {

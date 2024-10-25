@@ -24,7 +24,7 @@ const (
 
 	SubnetworkLinkRegex = "projects/(" + ProjectRegex + ")/regions/(" + RegionRegex + ")/subnetworks/(" + SubnetworkRegex + ")$"
 
-	RFC1035NameTemplate = "[a-z](?:[-a-z0-9]{%d,%d}[a-z0-9])"
+	RFC1035NameTemplate = "[a-z]([-a-z0-9]%v[a-z0-9])?"
 	CloudIoTIdRegex     = "^[a-zA-Z][-a-zA-Z0-9._+~%]{2,254}$"
 
 	// Format of default Compute service accounts created by Google
@@ -43,7 +43,7 @@ var (
 	// The first and last characters have different restrictions, than
 	// the middle characters. The middle characters length must be between
 	// 4 and 28 since the first and last character are excluded.
-	ServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, 4, 28)
+	ServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, "{4,28}")
 
 	ServiceAccountLinkRegexPrefix = "projects/" + ProjectRegexWildCard + "/serviceAccounts/"
 	PossibleServiceAccountNames   = []string{
@@ -56,7 +56,7 @@ var (
 	ServiceAccountKeyNameRegex = ServiceAccountLinkRegexPrefix + "(.+)/keys/(.+)"
 
 	// Format of service accounts created through the API
-	CreatedServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, 4, 28) + "@" + ProjectNameInDNSFormRegex + "\\.iam\\.gserviceaccount\\.com$"
+	CreatedServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, "{4,28}") + "@" + ProjectNameInDNSFormRegex + "\\.iam\\.gserviceaccount\\.com$"
 
 	// Format of service-created service account
 	// examples are:
@@ -196,19 +196,26 @@ func ValidateRFC3339Time(v interface{}, k string) (warnings []string, errors []e
 }
 
 func ValidateRFC1035Name(min, max int) schema.SchemaValidateFunc {
-	if min < 2 || max < min {
-		return func(i interface{}, k string) (s []string, errors []error) {
-			if min < 2 {
-				errors = append(errors, fmt.Errorf("min must be at least 2. Got: %d", min))
-			}
-			if max < min {
-				errors = append(errors, fmt.Errorf("max must greater than min. Got [%d, %d]", min, max))
-			}
-			return
+	return func(i interface{}, k string) (s []string, errors []error) {
+		value := i.(string)
+		re := fmt.Sprintf("^"+RFC1035NameTemplate+"$", "*")
+		if min < 1 {
+			errors = append(errors, fmt.Errorf("min must be at least 1. Got: %d", min))
 		}
-	}
+		if max < min {
+			errors = append(errors, fmt.Errorf("max must greater than min. Got [%d, %d]", min, max))
+		}
 
-	return ValidateRegexp(fmt.Sprintf("^"+RFC1035NameTemplate+"$", min-2, max-2))
+		if len(value) < min || len(value) > max {
+			errors = append(errors, fmt.Errorf("%q (%q) must be between %d and %d characters long", k, value, min, max))
+		}
+
+		if !regexp.MustCompile(re).MatchString(value) {
+			errors = append(errors, fmt.Errorf("%q (%q) must match regex %q", k, value, re))
+		}
+
+		return
+	}
 }
 
 func ValidateIpCidrRange(v interface{}, k string) (warnings []string, errors []error) {
