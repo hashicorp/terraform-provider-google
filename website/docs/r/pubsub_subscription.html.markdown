@@ -178,31 +178,15 @@ resource "google_pubsub_subscription" "example" {
   bigquery_config {
     table = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
   }
-
-  depends_on = [google_project_iam_member.viewer, google_project_iam_member.editor]
 }
 
-data "google_project" "project" {
-}
-
-resource "google_project_iam_member" "viewer" {
-  project = data.google_project.project.project_id
-  role   = "roles/bigquery.metadataViewer"
-  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
-}
-
-resource "google_project_iam_member" "editor" {
-  project = data.google_project.project.project_id
-  role   = "roles/bigquery.dataEditor"
-  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
-}
+data "google_project" "project" {}
 
 resource "google_bigquery_dataset" "test" {
   dataset_id = "example_dataset"
 }
 
 resource "google_bigquery_table" "test" {
-  deletion_protection = false
   table_id   = "example_table"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -216,6 +200,8 @@ resource "google_bigquery_table" "test" {
   }
 ]
 EOF
+
+  deletion_protection = false
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -239,31 +225,15 @@ resource "google_pubsub_subscription" "example" {
     table = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
     use_table_schema = true
   }
-
-  depends_on = [google_project_iam_member.viewer, google_project_iam_member.editor]
 }
 
-data "google_project" "project" {
-}
-
-resource "google_project_iam_member" "viewer" {
-  project = data.google_project.project.project_id
-  role   = "roles/bigquery.metadataViewer"
-  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
-}
-
-resource "google_project_iam_member" "editor" {
-  project = data.google_project.project.project_id
-  role   = "roles/bigquery.dataEditor"
-  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
-}
+data "google_project" "project" {}
 
 resource "google_bigquery_dataset" "test" {
   dataset_id = "example_dataset"
 }
 
 resource "google_bigquery_table" "test" {
-  deletion_protection = false
   table_id   = "example_table"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -277,6 +247,8 @@ resource "google_bigquery_table" "test" {
   }
 ]
 EOF
+
+  deletion_protection = false
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
