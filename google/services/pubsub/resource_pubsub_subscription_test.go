@@ -209,6 +209,9 @@ func TestAccPubsubSubscriptionBigQuery_update(t *testing.T) {
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscriptionBigQuery_basic(dataset, table, topic, subscriptionShort, false, ""),
@@ -240,10 +243,17 @@ func TestAccPubsubSubscriptionBigQuery_serviceAccount(t *testing.T) {
 	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
 	subscriptionShort := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(t, 10))
 
+	if acctest.BootstrapPSARoles(t, "service-", "gcp-sa-pubsub", []string{"roles/bigquery.dataEditor", "roles/bigquery.metadataViewer"}) {
+		t.Fatal("Stopping the test because roles were added to IAM policy.")
+	}
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscriptionBigQuery_basic(dataset, table, topic, subscriptionShort, false, "bq-test-sa"),
@@ -683,40 +693,44 @@ resource "google_service_account" "bq_write_service_account" {
 }
 
 resource "google_project_iam_member" "viewer" {
-	project = data.google_project.project.project_id
-	role   = "roles/bigquery.metadataViewer"
-	member = "serviceAccount:${google_service_account.bq_write_service_account.email}"
+  project = data.google_project.project.project_id
+  role    = "roles/bigquery.metadataViewer"
+  member  = "serviceAccount:${google_service_account.bq_write_service_account.email}"
 }
 
 resource "google_project_iam_member" "editor" {
-	project = data.google_project.project.project_id
-	role   = "roles/bigquery.dataEditor"
-	member = "serviceAccount:${google_service_account.bq_write_service_account.email}"
+  project = data.google_project.project.project_id
+  role    = "roles/bigquery.dataEditor"
+  member  = "serviceAccount:${google_service_account.bq_write_service_account.email}"
 }`, serviceAccountId)
 		serviceAccountEmailField = "service_account_email = google_service_account.bq_write_service_account.email"
 	} else {
 		serviceAccountResource = fmt.Sprintf(`
 resource "google_project_iam_member" "viewer" {
-	project = data.google_project.project.project_id
-	role   = "roles/bigquery.metadataViewer"
-	member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+  project = data.google_project.project.project_id
+  role    = "roles/bigquery.metadataViewer"
+  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
 }
 
 resource "google_project_iam_member" "editor" {
-	project = data.google_project.project.project_id
-	role   = "roles/bigquery.dataEditor"
-	member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+  project = data.google_project.project.project_id
+  role    = "roles/bigquery.dataEditor"
+  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
 }
 	`)
 	}
 
 	return fmt.Sprintf(`
-data "google_project" "project" { }
+data "google_project" "project" {}
+
+resource "time_sleep" "wait_30_seconds" {
+  create_duration = "30s"
+}
 
 %s
 
 resource "google_bigquery_dataset" "test" {
-	dataset_id = "%s"
+  dataset_id = "%s"
 }
 
 resource "google_bigquery_table" "test" {
@@ -747,12 +761,13 @@ resource "google_pubsub_subscription" "foo" {
   bigquery_config {
     table = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
     use_table_schema = %t
-		%s
+    %s
   }
 
   depends_on = [
     google_project_iam_member.viewer,
-    google_project_iam_member.editor
+    google_project_iam_member.editor,
+    time_sleep.wait_30_seconds,
   ]
 }
 	`, serviceAccountResource, dataset, table, topic, subscription, useTableSchema, serviceAccountEmailField)

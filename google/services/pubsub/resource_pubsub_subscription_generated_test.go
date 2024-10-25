@@ -239,7 +239,8 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"policy_changed": acctest.BootstrapPSARoles(t, "service-", "gcp-sa-pubsub", []string{"roles/bigquery.dataEditor", "roles/bigquery.metadataViewer"}),
+		"random_suffix":  acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -273,31 +274,15 @@ resource "google_pubsub_subscription" "example" {
   bigquery_config {
     table = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
   }
-
-  depends_on = [google_project_iam_member.viewer, google_project_iam_member.editor]
 }
 
-data "google_project" "project" {
-}
-
-resource "google_project_iam_member" "viewer" {
-  project = data.google_project.project.project_id
-  role   = "roles/bigquery.metadataViewer"
-  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
-}
-
-resource "google_project_iam_member" "editor" {
-  project = data.google_project.project.project_id
-  role   = "roles/bigquery.dataEditor"
-  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
-}
+data "google_project" "project" {}
 
 resource "google_bigquery_dataset" "test" {
   dataset_id = "tf_test_example_dataset%{random_suffix}"
 }
 
 resource "google_bigquery_table" "test" {
-  deletion_protection = false
   table_id   = "tf_test_example_table%{random_suffix}"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -311,6 +296,8 @@ resource "google_bigquery_table" "test" {
   }
 ]
 EOF
+
+  deletion_protection = false
 }
 `, context)
 }
@@ -319,7 +306,8 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqTableSchemaExample(t *tes
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"policy_changed": acctest.BootstrapPSARoles(t, "service-", "gcp-sa-pubsub", []string{"roles/bigquery.dataEditor", "roles/bigquery.metadataViewer"}),
+		"random_suffix":  acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -354,31 +342,15 @@ resource "google_pubsub_subscription" "example" {
     table = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
     use_table_schema = true
   }
-
-  depends_on = [google_project_iam_member.viewer, google_project_iam_member.editor]
 }
 
-data "google_project" "project" {
-}
-
-resource "google_project_iam_member" "viewer" {
-  project = data.google_project.project.project_id
-  role   = "roles/bigquery.metadataViewer"
-  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
-}
-
-resource "google_project_iam_member" "editor" {
-  project = data.google_project.project.project_id
-  role   = "roles/bigquery.dataEditor"
-  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
-}
+data "google_project" "project" {}
 
 resource "google_bigquery_dataset" "test" {
   dataset_id = "tf_test_example_dataset%{random_suffix}"
 }
 
 resource "google_bigquery_table" "test" {
-  deletion_protection = false
   table_id   = "tf_test_example_table%{random_suffix}"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -392,6 +364,8 @@ resource "google_bigquery_table" "test" {
   }
 ]
 EOF
+
+  deletion_protection = false
 }
 `, context)
 }
