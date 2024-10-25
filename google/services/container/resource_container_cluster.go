@@ -98,12 +98,6 @@ var (
 		"private_cluster_config.0.master_global_access_config",
 	}
 
-	forceNewClusterNodeConfigFields = []string{
-		"labels",
-		"workload_metadata_config",
-		"resource_manager_tags",
-	}
-
 	suppressDiffForAutopilot = schema.SchemaDiffSuppressFunc(func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 		if v, _ := d.Get("enable_autopilot").(bool); v {
 			return true
@@ -119,19 +113,6 @@ var (
 		return false
 	})
 )
-
-// This uses the node pool nodeConfig schema but sets
-// node-pool-only updatable fields to ForceNew
-func clusterSchemaNodeConfig() *schema.Schema {
-	nodeConfigSch := schemaNodeConfig()
-	schemaMap := nodeConfigSch.Elem.(*schema.Resource).Schema
-	for _, k := range forceNewClusterNodeConfigFields {
-		if sch, ok := schemaMap[k]; ok {
-			tpgresource.ChangeFieldSchemaToForceNew(sch)
-		}
-	}
-	return nodeConfigSch
-}
 
 // Defines default nodel pool settings for the entire cluster. These settings are
 // overridden if specified on the specific NodePool object.
@@ -1334,7 +1315,7 @@ func ResourceContainerCluster() *schema.Resource {
 				},
 			},
 
-			"node_config": clusterSchemaNodeConfig(),
+			"node_config": schemaNodeConfig(),
 
 			"node_pool": {
 				Type:     schema.TypeList,
@@ -3536,133 +3517,15 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if d.HasChange("node_config") {
-		if d.HasChange("node_config.0.image_type") {
-			it := d.Get("node_config.0.image_type").(string)
-			req := &container.UpdateClusterRequest{
-				Update: &container.ClusterUpdate{
-					DesiredImageType: it,
-				},
-			}
 
-			updateF := func() error {
-				name := containerClusterFullName(project, location, clusterName)
-				clusterUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Update(name, req)
-				if config.UserProjectOverride {
-					clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
-				}
-				op, err := clusterUpdateCall.Do()
-				if err != nil {
-					return err
-				}
+		defaultPool := "default-pool"
 
-				// Wait until it's updated
-				return ContainerOperationWait(config, op, project, location, "updating GKE image type", userAgent, d.Timeout(schema.TimeoutUpdate))
-			}
-
-			// Call update serially.
-			if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
-				return err
-			}
-
-			log.Printf("[INFO] GKE cluster %s: image type has been updated to %s", d.Id(), it)
+		nodePoolInfo, err := extractNodePoolInformationFromCluster(d, config, clusterName)
+		if err != nil {
+			return err
 		}
 
-		if d.HasChange("node_config.0.kubelet_config") {
-
-			defaultPool := "default-pool"
-
-			timeout := d.Timeout(schema.TimeoutCreate)
-
-			nodePoolInfo, err := extractNodePoolInformationFromCluster(d, config, clusterName)
-			if err != nil {
-				return err
-			}
-
-			// Acquire write-lock on nodepool.
-			npLockKey := nodePoolInfo.nodePoolLockKey(defaultPool)
-
-			// Still should be further consolidated / DRYed up
-			// See b/361634104
-			it := d.Get("node_config.0.kubelet_config")
-
-			// While we're getting the value from fields in
-			// node_config.kubelet_config, the actual setting that needs to be
-			// updated is on the default nodepool.
-			req := &container.UpdateNodePoolRequest{
-				Name:          defaultPool,
-				KubeletConfig: expandKubeletConfig(it),
-			}
-
-			updateF := func() error {
-				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(defaultPool), req)
-				if config.UserProjectOverride {
-					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
-				}
-				op, err := clusterNodePoolsUpdateCall.Do()
-				if err != nil {
-					return err
-				}
-
-				// Wait until it's updated
-				return ContainerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location,
-					"updating GKE node pool kubelet_config", userAgent, timeout)
-			}
-
-			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
-				return err
-			}
-
-			log.Printf("[INFO] GKE cluster %s: kubelet_config updated", d.Id())
-		}
-
-		if d.HasChange("node_config.0.gcfs_config") {
-
-			defaultPool := "default-pool"
-
-			timeout := d.Timeout(schema.TimeoutCreate)
-
-			nodePoolInfo, err := extractNodePoolInformationFromCluster(d, config, clusterName)
-			if err != nil {
-				return err
-			}
-
-			// Acquire write-lock on nodepool.
-			npLockKey := nodePoolInfo.nodePoolLockKey(defaultPool)
-
-			gcfsEnabled := d.Get("node_config.0.gcfs_config.0.enabled").(bool)
-
-			// While we're getting the value from the drepcated field in
-			// node_config.kubelet_config, the actual setting that needs to be updated
-			// is on the default nodepool.
-			req := &container.UpdateNodePoolRequest{
-				Name: defaultPool,
-				GcfsConfig: &container.GcfsConfig{
-					Enabled: gcfsEnabled,
-				},
-			}
-
-			updateF := func() error {
-				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(defaultPool), req)
-				if config.UserProjectOverride {
-					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
-				}
-				op, err := clusterNodePoolsUpdateCall.Do()
-				if err != nil {
-					return err
-				}
-
-				// Wait until it's updated
-				return ContainerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location,
-					"updating GKE node pool gcfs_config", userAgent, timeout)
-			}
-
-			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
-				return err
-			}
-
-			log.Printf("[INFO] GKE cluster %s: %s setting for gcfs_config updated to %t", d.Id(), defaultPool, gcfsEnabled)
-		}
-
+		nodePoolNodeConfigUpdate(d, config, nodePoolInfo, "", defaultPool, d.Timeout(schema.TimeoutUpdate))
 	}
 
 	if d.HasChange("notification_config") {
