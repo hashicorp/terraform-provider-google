@@ -4028,8 +4028,8 @@ resource "google_tags_tag_key" "key" {
 }
 
 resource "google_tags_tag_value" "value" {
-  parent = "tagKeys/${google_tags_tag_key.key.name}"
-  short_name = "foo%{random_suffix}"
+  parent      = google_tags_tag_key.key.id
+  short_name  = "foo%{random_suffix}"
   description = "For foo resources."
 }
 
@@ -4049,12 +4049,12 @@ resource "google_compute_instance_template" "foobar" {
     boot         = true
 
     resource_manager_tags = {
-      "tagKeys/${google_tags_tag_key.key.name}" = "tagValues/${google_tags_tag_value.value.name}"
+      (google_tags_tag_key.key.id) = google_tags_tag_value.value.id
     }
   }
 
   resource_manager_tags = {
-    "tagKeys/${google_tags_tag_key.key.name}" = "tagValues/${google_tags_tag_value.value.name}"
+    (google_tags_tag_key.key.id) = google_tags_tag_value.value.id
   }
 
   network_interface {
