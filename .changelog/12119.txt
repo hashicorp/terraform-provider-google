@@ -1,0 +1,3 @@
+```release-note: bug
+accesscontextmanager: Fixed permadiff for perimeter ingress / egress rule resources
+```
