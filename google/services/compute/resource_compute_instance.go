@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -387,10 +388,11 @@ func ResourceComputeInstance() *schema.Resource {
 			},
 
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The name of the instance. One of name or self_link must be provided.`,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateRFC1035Name(1, 63),
+				Description:  `The name of the instance. One of name or self_link must be provided.`,
 			},
 
 			"network_interface": {
