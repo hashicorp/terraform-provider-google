@@ -1222,7 +1222,6 @@ be from 0 to 999,999,999 inclusive.`,
 				},
 				suppressEmptyGuestAcceleratorDiff,
 			),
-			desiredStatusDiff,
 			validateSubnetworkProject,
 			forceNewIfNetworkIPNotUpdatable,
 			tpgresource.SetLabelsDiff,
@@ -1399,10 +1398,34 @@ func getAllStatusBut(status string) []string {
 	return computeInstanceStatus
 }
 
-func waitUntilInstanceHasDesiredStatus(config *transport_tpg.Config, d *schema.ResourceData) error {
-	desiredStatus := d.Get("desired_status").(string)
+func changeInstanceStatusOnCreation(config *transport_tpg.Config, d *schema.ResourceData, project, zone, status, userAgent string) error {
+	var op *compute.Operation
+	var err error
+	if status == "TERMINATED" {
+		op, err = config.NewComputeClient(userAgent).Instances.Stop(project, zone, d.Get("name").(string)).Do()
+	} else if status == "SUSPENDED" {
+		op, err = config.NewComputeClient(userAgent).Instances.Suspend(project, zone, d.Get("name").(string)).Do()
+	}
+	if err != nil {
+		return fmt.Errorf("Error changing instance status after creation: %s", err)
+	}
 
-	if desiredStatus != "" {
+	waitErr := ComputeOperationWaitTime(config, op, project, "changing instance status", userAgent, d.Timeout(schema.TimeoutCreate))
+	if waitErr != nil {
+		d.SetId("")
+		return waitErr
+	}
+
+	err = waitUntilInstanceHasDesiredStatus(config, d, status)
+	if err != nil {
+		return fmt.Errorf("Error waiting for status: %s", err)
+	}
+
+	return nil
+}
+
+func waitUntilInstanceHasDesiredStatus(config *transport_tpg.Config, d *schema.ResourceData, status string) error {
+	if status != "" {
 		stateRefreshFunc := func() (interface{}, string, error) {
 			instance, err := getInstance(config, d)
 			if err != nil || instance == nil {
@@ -1413,9 +1436,9 @@ func waitUntilInstanceHasDesiredStatus(config *transport_tpg.Config, d *schema.R
 		}
 		stateChangeConf := retry.StateChangeConf{
 			Delay:      5 * time.Second,
-			Pending:    getAllStatusBut(desiredStatus),
+			Pending:    getAllStatusBut(status),
 			Refresh:    stateRefreshFunc,
-			Target:     []string{desiredStatus},
+			Target:     []string{status},
 			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			MinTimeout: 2 * time.Second,
 		}
@@ -1423,7 +1446,7 @@ func waitUntilInstanceHasDesiredStatus(config *transport_tpg.Config, d *schema.R
 
 		if err != nil {
 			return fmt.Errorf(
-				"Error waiting for instance to reach desired status %s: %s", desiredStatus, err)
+				"Error waiting for instance to reach desired status %s: %s", status, err)
 		}
 	}
 
@@ -1476,9 +1499,18 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return waitErr
 	}
 
-	err = waitUntilInstanceHasDesiredStatus(config, d)
+	err = waitUntilInstanceHasDesiredStatus(config, d, "RUNNING")
 	if err != nil {
 		return fmt.Errorf("Error waiting for status: %s", err)
+	}
+
+	if val, ok := d.GetOk("desired_status"); ok {
+		if val.(string) != "RUNNING" {
+			err = changeInstanceStatusOnCreation(config, d, project, zone.Name, val.(string), userAgent)
+			if err != nil {
+				return fmt.Errorf("Error changing instance status after creation: %s", err)
+			}
+		}
 	}
 
 	return resourceComputeInstanceRead(d, meta)
@@ -2739,25 +2771,6 @@ func suppressEmptyGuestAcceleratorDiff(_ context.Context, d *schema.ResourceDiff
 		if err := d.Clear("guest_accelerator"); err != nil {
 			return err
 		}
-	}
-
-	return nil
-}
-
-// return an error if the desired_status field is set to a value other than RUNNING on Create.
-func desiredStatusDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
-	// when creating an instance, name is not set
-	oldName, _ := diff.GetChange("name")
-
-	if oldName == nil || oldName == "" {
-		_, newDesiredStatus := diff.GetChange("desired_status")
-
-		if newDesiredStatus == nil || newDesiredStatus == "" {
-			return nil
-		} else if newDesiredStatus != "RUNNING" {
-			return fmt.Errorf("When creating an instance, desired_status can only accept RUNNING value")
-		}
-		return nil
 	}
 
 	return nil
