@@ -2198,11 +2198,22 @@ func TestAccComputeInstance_enableDisplay(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_desiredStatusOnCreation(t *testing.T) {
+func TestAccComputeInstance_desiredStatusTerminatedOnCreation(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	context_1 := map[string]interface{}{
+		"instance_name":  fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"zone":           "us-central1-a",
+		"desired_status": "TERMINATED",
+	}
+
+	context_2 := map[string]interface{}{
+		"instance_name":  context_1["instance_name"],
+		"zone":           context_1["zone"],
+		"desired_status": "RUNNING",
+	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -2210,15 +2221,57 @@ func TestAccComputeInstance_desiredStatusOnCreation(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-medium", "TERMINATED", false),
-				ExpectError: regexp.MustCompile("When creating an instance, desired_status can only accept RUNNING value"),
+				Config: testAccComputeInstance_desiredStatusOnCreation(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatus(&instance, context_1["desired_status"].(string)),
+				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-medium", "RUNNING", false),
+				Config: testAccComputeInstance_desiredStatusOnCreation(context_2),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasStatus(&instance, "RUNNING"),
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatus(&instance, context_2["desired_status"].(string)),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_desiredStatusSuspendedOnCreation(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+
+	context_1 := map[string]interface{}{
+		"instance_name":  fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"zone":           "us-central1-a",
+		"desired_status": "SUSPENDED",
+	}
+
+	context_2 := map[string]interface{}{
+		"instance_name":  context_1["instance_name"],
+		"zone":           context_1["zone"],
+		"desired_status": "RUNNING",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_desiredStatusOnCreation(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatus(&instance, context_1["desired_status"].(string)),
+				),
+			},
+			{
+				Config: testAccComputeInstance_desiredStatusOnCreation(context_2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatus(&instance, context_2["desired_status"].(string)),
 				),
 			},
 		},
@@ -8210,6 +8263,33 @@ resource "google_compute_instance" "foobar" {
 	}
 }
 `, instance)
+}
+
+func testAccComputeInstance_desiredStatusOnCreation(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name           = "%{instance_name}"
+	machine_type   = "e2-medium"
+	zone           = "%{zone}"
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	desired_status = "%{desired_status}"
+}
+`, context)
 }
 
 func testAccComputeInstance_resourcePolicyCollocate(instance, suffix string) string {
