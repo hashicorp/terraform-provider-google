@@ -59,6 +59,7 @@ type FrameworkProviderConfig struct {
 	DefaultLabels              types.Map
 
 	// paths for client setup
+	IAMCredentialsBasePath           string // TODO: This will be removed once we resove the muxing issues
 	AccessApprovalBasePath           string
 	AccessContextManagerBasePath     string
 	ActiveDirectoryBasePath          string
@@ -219,6 +220,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 
 	// Setup Base Paths for clients
 	// Generated products
+	p.IAMCredentialsBasePath = data.IamCredentialsCustomEndpoint.ValueString() // TODO: This will be removed once we resove the muxing issues
 	p.AccessApprovalBasePath = data.AccessApprovalCustomEndpoint.ValueString()
 	p.AccessContextManagerBasePath = data.AccessContextManagerCustomEndpoint.ValueString()
 	p.ActiveDirectoryBasePath = data.ActiveDirectoryCustomEndpoint.ValueString()
