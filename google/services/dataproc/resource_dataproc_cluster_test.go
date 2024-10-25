@@ -75,8 +75,8 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 					// Default behaviour is for Dataproc to autogen or autodiscover a config bucket
 					resource.TestCheckResourceAttrSet("google_dataproc_cluster.basic", "cluster_config.0.bucket"),
 
-					// Default behavior is for Dataproc to not use only internal IP addresses
-					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.internal_ip_only", "false"),
+					// Default behavior as of 2.2+ is for clusters to disallow external IPs by default
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.internal_ip_only", "true"),
 
 					// Expect 1 master instances with computed values
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.master_config.#", "1"),
@@ -170,6 +170,7 @@ func TestAccDataprocCluster_withAccelerators(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.accelerated_cluster", &cluster),
 					testAccCheckDataprocClusterAccelerator(&cluster, project, 1, 1),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.accelerated_cluster", "cluster_config.0.gce_cluster_config.0.internal_ip_only", "false"),
 				),
 			},
 		},
@@ -1421,6 +1422,7 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
     }
 
     gce_cluster_config {
+      internal_ip_only = false
       subnetwork = "%s"
       zone = "%s"
     }
