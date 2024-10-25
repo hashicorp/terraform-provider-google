@@ -22,6 +22,8 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"slices"
+	"sort"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -30,6 +32,48 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
+
+func AccessContextManagerServicePerimeterEgressPolicyEgressToResourcesDiffSupressFunc(_, _, _ string, d *schema.ResourceData) bool {
+	old, new := d.GetChange("egress_to.0.resources")
+
+	oldResources, err := tpgresource.InterfaceSliceToStringSlice(old)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert config value: %s", err)
+		return false
+	}
+
+	newResources, err := tpgresource.InterfaceSliceToStringSlice(new)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert config value: %s", err)
+		return false
+	}
+
+	sort.Strings(oldResources)
+	sort.Strings(newResources)
+
+	return slices.Equal(oldResources, newResources)
+}
+
+func AccessContextManagerServicePerimeterEgressPolicyIngressToResourcesDiffSupressFunc(_, _, _ string, d *schema.ResourceData) bool {
+	old, new := d.GetChange("ingress_to.0.resources")
+
+	oldResources, err := tpgresource.InterfaceSliceToStringSlice(old)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert config value: %s", err)
+		return false
+	}
+
+	newResources, err := tpgresource.InterfaceSliceToStringSlice(new)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert config value: %s", err)
+		return false
+	}
+
+	sort.Strings(oldResources)
+	sort.Strings(newResources)
+
+	return slices.Equal(oldResources, newResources)
+}
 
 func ResourceAccessContextManagerServicePerimeterEgressPolicy() *schema.Resource {
 	return &schema.Resource{
@@ -172,9 +216,10 @@ field set to '*' will allow all methods AND permissions for all services.`,
 							},
 						},
 						"resources": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeList,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: AccessContextManagerServicePerimeterEgressPolicyEgressToResourcesDiffSupressFunc,
 							Description: `A list of resources, currently only projects in the form
 'projects/<projectnumber>', that match this to stanza. A request matches
 if it contains a resource in this list. If * is specified for resources,
@@ -497,7 +542,29 @@ func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(v int
 	return []interface{}{transformed}
 }
 func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	rawConfigValue := d.Get("egress_to.0.resources")
+
+	// Convert config value to []string
+	configValue, err := tpgresource.InterfaceSliceToStringSlice(rawConfigValue)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert config value: %s", err)
+		return v
+	}
+
+	// Convert v to []string
+	apiStringValue, err := tpgresource.InterfaceSliceToStringSlice(v)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert API value: %s", err)
+		return v
+	}
+
+	sortedStrings, err := tpgresource.SortStringsByConfigOrder(configValue, apiStringValue)
+	if err != nil {
+		log.Printf("[ERROR] Could not sort API response value: %s", err)
+		return v
+	}
+
+	return sortedStrings
 }
 
 func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToExternalResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
