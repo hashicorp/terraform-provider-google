@@ -974,6 +974,7 @@ func (p *FrameworkProvider) Configure(ctx context.Context, req provider.Configur
 	// implemented using the plugin-framework. The resources' Configure functions receive this data in the ConfigureRequest argument.
 	resp.DataSourceData = &p.FrameworkProviderConfig
 	resp.ResourceData = &p.FrameworkProviderConfig
+	resp.EphemeralResourceData = &p.FrameworkProviderConfig
 }
 
 // DataSources defines the data sources implemented in the provider.
