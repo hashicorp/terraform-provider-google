@@ -124,6 +124,38 @@ func TestAccComputeSecurityPolicy_update(t *testing.T) {
 	})
 }
 
+func TestAccComputeSecurityPolicyRule_securityPolicyDefaultRule(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicyRule_securityPolicyDefaultRuleDeny(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule_default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicyRule_securityPolicyDefaultRuleAllow(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule_default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeSecurityPolicy_withAdvancedOptionsConfig(t *testing.T) {
 	t.Parallel()
 
@@ -687,6 +719,52 @@ resource "google_compute_security_policy" "policy" {
   }
 }
 `, spName)
+}
+
+func testAccComputeSecurityPolicyRule_securityPolicyDefaultRuleDeny(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "default" {
+  name        = "tf-test%{random_suffix}"
+  description = "basic global security policy"
+  type        = "CLOUD_ARMOR"
+}
+
+resource "google_compute_security_policy_rule" "policy_rule_default" {
+  security_policy = google_compute_security_policy.default.name
+  description     = "default rule"
+  action          = "deny"
+  priority        = "2147483647"
+  match {
+    versioned_expr = "SRC_IPS_V1"
+    config {
+      src_ip_ranges = ["*"]
+    }
+  }
+}
+`, context)
+}
+
+func testAccComputeSecurityPolicyRule_securityPolicyDefaultRuleAllow(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "default" {
+  name        = "tf-test%{random_suffix}"
+  description = "basic global security policy"
+  type        = "CLOUD_ARMOR"
+}
+
+resource "google_compute_security_policy_rule" "policy_rule_default" {
+  security_policy = google_compute_security_policy.default.name
+  description     = "default rule"
+  action          = "allow"
+  priority        = "2147483647"
+  match {
+    versioned_expr = "SRC_IPS_V1"
+    config {
+      src_ip_ranges = ["*"]
+    }
+  }
+}
+`, context)
 }
 
 func testAccComputeSecurityPolicy_withRuleExpr(spName string) string {

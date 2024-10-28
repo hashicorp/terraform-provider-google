@@ -1,0 +1,6 @@
+```release-note:bug
+compute: fixed unable to create default rule when using `google_compute_region_security_policy_rule` resource (beta)
+```
+```release-note:bug
+compute: fixed unable to create default rule when using `google_compute_security_policy_rule` resource
+```
