@@ -23,7 +23,7 @@ import vcs_roots.ModularMagicianVCSRootBeta
 import vcs_roots.ModularMagicianVCSRootGa
 
 const val featureBranchEphemeralResources = "FEATURE-BRANCH-ephemeral-resource"
-const val EphemeralResourcesTfCoreVersion = "1.10.0-alpha20240926" // TODO - update with correct release
+const val EphemeralResourcesTfCoreVersion = "1.10.0-alpha20241023"
 
 // featureBranchEphemeralResourcesSubProject creates a project just for testing ephemeral resources.
 // We know that all ephemeral resources we're adding are part of the Resource Manager service, so we only include those builds.
