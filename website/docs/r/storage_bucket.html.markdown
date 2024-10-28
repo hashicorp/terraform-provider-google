@@ -171,7 +171,7 @@ The following arguments are supported:
 
 * `soft_delete_policy` -  (Optional, Computed) The bucket's soft delete policy, which defines the period of time that soft-deleted objects will be retained, and cannot be permanently deleted. If the block is not provided, Server side value will be kept which means removal of block won't generate any terraform change. Structure is [documented below](#nested_soft_delete_policy).
 
-* `hierarchical_namespace` -  (Optional, ForceNew) The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is [documented below](#nested_hierarchical_namespace).
+* `hierarchical_namespace` -  (Optional, ForceNew) The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is [documented below](#nested_hierarchical_namespace). To use this configuration, `uniform_bucket_level_access` must be enabled on bucket.
 
 <a name="nested_lifecycle_rule"></a>The `lifecycle_rule` block supports:
 
@@ -287,8 +287,7 @@ The following arguments are supported:
 
 <a name="nested_hierarchical_namespace"></a>The `hierarchical_namespace` block supports:
 
-* `enabled` - (Optional) Enable hierarchical namespace for the bucket. 
-To use this flag, you must also use --uniform-bucket-level-access
+* `enabled` - (Required) Enables hierarchical namespace for the bucket.
 
 
 ## Attributes Reference
