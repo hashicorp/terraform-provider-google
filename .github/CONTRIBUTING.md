@@ -31,12 +31,6 @@ TF_LOG=TRACE make testacc TEST=./google TESTARGS='-sweep=us-central1 -sweep-run=
 ```
 ## Maintainer-specific information
 
-### Reviewing / Merging Code
-
-When reviewing/merging code, roughly follow the guidelines set in the
-[Maintainer's Etiquette](https://github.com/hashicorp/terraform/blob/master/docs/maintainer-etiquette.md)
-guide. One caveat is that they're fairly old and apply primarily to HashiCorp employees, but the general guidance about merging / changelogs is still relevant.
-
 ### Upstreaming community PRs to Magic Modules
 
 We recommend that the majority of contributors contribute directly to [Magic Modules](https://github.com/googleCloudPlatform/magic-modules/) rather than directly to this repo, as we're much more able to run automated tests against PRs in that repository. If a contributor is unable to contribute to that repository but can contribute here, we're able to semi-automatically upstream changes with the following after conducting a primary review in this repo:
