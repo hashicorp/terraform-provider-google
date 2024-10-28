@@ -544,7 +544,6 @@ resource "google_gke_hub_feature" "feature" {
   location = "global"
   fleet_default_member_config {
     configmanagement {
-      version = "1.19.2"
       management = "MANAGEMENT_AUTOMATIC"
       config_sync {
         prevent_drift = true
