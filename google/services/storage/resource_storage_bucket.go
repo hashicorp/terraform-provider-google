@@ -557,14 +557,14 @@ func ResourceStorageBucket() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: hierachicalNamespaceDiffSuppress,
-				Description:      `The bucket's HNS support, which defines bucket can organize folders in logical file system structure`,
+				Description:      `The bucket's HNS configuration, which defines bucket can organize folders in logical file system structure.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
 							Type:        schema.TypeBool,
 							Required:    true,
 							ForceNew:    true,
-							Description: `Set this enabled flag to true when folders with logical files structure. Default value is false.`,
+							Description: `Set this field true to organize bucket with logical file system structure.`,
 						},
 					},
 				},
