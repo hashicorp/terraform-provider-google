@@ -1,8 +1,5 @@
 ## 6.9.0 (Unreleased)
 
-NOTES:
-* provider: minor refactoring of how we run acceptance tests in VCR mode ([#19879](https://github.com/hashicorp/terraform-provider-google/pull/19879))
-
 DEPRECATIONS:
 * containerattached: deprecated `security_posture_config` field in `google_container_attached_cluster` resource ([#19912](https://github.com/hashicorp/terraform-provider-google/pull/19912))
 
