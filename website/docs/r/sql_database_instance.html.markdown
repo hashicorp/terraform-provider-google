@@ -449,7 +449,12 @@ The optional `settings.password_validation_policy` subblock for instances declar
 * `enable_password_policy` - Enables or disable the password validation policy.
 
 The optional `replica_configuration` block must have `master_instance_name` set
-to work, cannot be updated, and supports:
+to work, cannot be updated and supports:
+
+-> **Note:** `replica_configuration` field is not meant to be used if the master
+instance is a source representation instance. The configuration provided by this
+field can be set on the source representation instance directly. If this field
+is present when the master instance is a source representation instance, `dump_file_path` must be provided.
 
 * `ca_certificate` - (Optional) PEM representation of the trusted CA's x509
     certificate.
@@ -464,7 +469,8 @@ to work, cannot be updated, and supports:
     between connect retries. MySQL's default is 60 seconds.
 
 * `dump_file_path` - (Optional) Path to a SQL file in GCS from which replica
-    instances are created. Format is `gs://bucket/filename`.
+    instances are created. Format is `gs://bucket/filename`. Note, if the master
+    instance is a source representation instance this field must be present.
 
 * `failover_target` - (Optional) Specifies if the replica is the failover target.
     If the field is set to true the replica will be designated as a failover replica.
