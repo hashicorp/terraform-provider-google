@@ -57,6 +57,11 @@ resource "google_compute_security_policy_rule" "policy_rule" {
   preview         = true
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=security_policy_rule_default_rule&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Security Policy Rule Default Rule
 
 
@@ -67,15 +72,10 @@ resource "google_compute_security_policy" "default" {
   type        = "CLOUD_ARMOR"
 }
 
-# A default rule is generated when creating the security_policy resource, import is needed to patch it
-# import {
-#   id = "projects//global/securityPolicies/policyruletest/priority/2147483647"
-#   to = google_compute_security_policy_rule.default_rule
-# }
 resource "google_compute_security_policy_rule" "default_rule" {
   security_policy = google_compute_security_policy.default.name
   description     = "default rule"
-  action          = "allow"
+  action          = "deny"
   priority        = "2147483647"
   match {
     versioned_expr = "SRC_IPS_V1"
