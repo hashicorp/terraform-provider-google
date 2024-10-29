@@ -99,6 +99,17 @@ Only IPv4 is supported. This IP address can be either from
 your on-premise gateway or another Cloud provider's VPN gateway,
 it cannot be an IP address from Google Compute Engine.`,
 						},
+						"ipv6_address": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `IPv6 address of the interface in the external VPN gateway. This IPv6
+address can be either from your on-premise gateway or another Cloud
+provider's VPN gateway, it cannot be an IP address from Google Compute
+Engine. Must specify an IPv6 address (not IPV4-mapped) using any format
+described in RFC 4291 (e.g. 2001:db8:0:0:2d9:51:0:0). The output format
+is RFC 5952 format (e.g. 2001:db8::2d9:51:0:0).`,
+						},
 					},
 				},
 			},
@@ -520,8 +531,9 @@ func flattenComputeExternalVpnGatewayInterface(v interface{}, d *schema.Resource
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"id":         flattenComputeExternalVpnGatewayInterfaceId(original["id"], d, config),
-			"ip_address": flattenComputeExternalVpnGatewayInterfaceIpAddress(original["ipAddress"], d, config),
+			"id":           flattenComputeExternalVpnGatewayInterfaceId(original["id"], d, config),
+			"ip_address":   flattenComputeExternalVpnGatewayInterfaceIpAddress(original["ipAddress"], d, config),
+			"ipv6_address": flattenComputeExternalVpnGatewayInterfaceIpv6Address(original["ipv6Address"], d, config),
 		})
 	}
 	return transformed
@@ -544,6 +556,10 @@ func flattenComputeExternalVpnGatewayInterfaceId(v interface{}, d *schema.Resour
 }
 
 func flattenComputeExternalVpnGatewayInterfaceIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeExternalVpnGatewayInterfaceIpv6Address(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -606,6 +622,13 @@ func expandComputeExternalVpnGatewayInterface(v interface{}, d tpgresource.Terra
 			transformed["ipAddress"] = transformedIpAddress
 		}
 
+		transformedIpv6Address, err := expandComputeExternalVpnGatewayInterfaceIpv6Address(original["ipv6_address"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIpv6Address); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ipv6Address"] = transformedIpv6Address
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -616,6 +639,10 @@ func expandComputeExternalVpnGatewayInterfaceId(v interface{}, d tpgresource.Ter
 }
 
 func expandComputeExternalVpnGatewayInterfaceIpAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeExternalVpnGatewayInterfaceIpv6Address(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
