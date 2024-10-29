@@ -193,6 +193,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_compute_instance_group_manager":                compute.DataSourceGoogleComputeInstanceGroupManager(),
 	"google_compute_instance_serial_port":                  compute.DataSourceGoogleComputeInstanceSerialPort(),
 	"google_compute_instance_template":                     compute.DataSourceGoogleComputeInstanceTemplate(),
+	"google_compute_instance_guest_attributes":             compute.DataSourceGoogleComputeInstanceGuestAttributes(),
 	"google_compute_lb_ip_ranges":                          compute.DataSourceGoogleComputeLbIpRanges(),
 	"google_compute_machine_types":                         compute.DataSourceGoogleComputeMachineTypes(),
 	"google_compute_network":                               compute.DataSourceGoogleComputeNetwork(),
