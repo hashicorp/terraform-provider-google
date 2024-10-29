@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `header_action` and `redirect_options` fields  to `google_compute_security_policy_rule` resource
+```

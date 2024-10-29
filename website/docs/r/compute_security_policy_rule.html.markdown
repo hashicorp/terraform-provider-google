@@ -192,6 +192,16 @@ The following arguments are supported:
   Must be specified if the action is "rate_based_ban" or "throttle". Cannot be specified for any other actions.
   Structure is [documented below](#nested_rate_limit_options).
 
+* `redirect_options` -
+  (Optional)
+  Parameters defining the redirect action. Cannot be specified for any other actions. This field is only supported in Global Security Policies of type CLOUD_ARMOR.
+  Structure is [documented below](#nested_redirect_options).
+
+* `header_action` -
+  (Optional)
+  Optional, additional actions that are performed on headers. This field is only supported in Global Security Policies of type CLOUD_ARMOR.
+  Structure is [documented below](#nested_header_action).
+
 * `preview` -
   (Optional)
   If set to true, the specified action is not enforced.
@@ -479,6 +489,34 @@ The following arguments are supported:
 * `interval_sec` -
   (Optional)
   Interval over which the threshold is computed.
+
+<a name="nested_redirect_options"></a>The `redirect_options` block supports:
+
+* `type` -
+  (Optional)
+  Type of the redirect action.
+
+* `target` -
+  (Optional)
+  Target for the redirect action. This is required if the type is EXTERNAL_302 and cannot be specified for GOOGLE_RECAPTCHA.
+
+<a name="nested_header_action"></a>The `header_action` block supports:
+
+* `request_headers_to_adds` -
+  (Optional)
+  The list of request headers to add or overwrite if they're already present.
+  Structure is [documented below](#nested_request_headers_to_adds).
+
+
+<a name="nested_request_headers_to_adds"></a>The `request_headers_to_adds` block supports:
+
+* `header_name` -
+  (Optional)
+  The name of the header to set.
+
+* `header_value` -
+  (Optional)
+  The value to set the named header to.
 
 ## Attributes Reference
 
