@@ -168,7 +168,7 @@ func TestAccBigQueryDataset_withProvider5(t *testing.T) {
 		CheckDestroy: testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:            testAccBigQueryDataset_withoutLabels(datasetID),
+				Config:            testAccBigQueryDataset_withoutLabelsV4(datasetID),
 				ExternalProviders: oldVersion,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckNoResourceAttr("google_bigquery_dataset.test", "labels.%"),
@@ -500,6 +500,19 @@ provider "google" {
   add_terraform_attribution_label = false
 }
 
+resource "google_bigquery_dataset" "test" {
+  dataset_id                      = "%s"
+  friendly_name                   = "foo"
+  description                     = "This is a foo description"
+  location                        = "EU"
+  default_partition_expiration_ms = 3600000
+  default_table_expiration_ms     = 3600000
+}
+`, datasetID)
+}
+
+func testAccBigQueryDataset_withoutLabelsV4(datasetID string) string {
+	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id                      = "%s"
   friendly_name                   = "foo"
