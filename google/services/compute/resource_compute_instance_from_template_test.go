@@ -1210,7 +1210,7 @@ func testAccComputeInstanceFromTemplate_confidentialInstanceConfigNoConfigTdx(te
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image2" {
   family  = "ubuntu-2204-lts"
-  project = "tdx-guest-images"
+  project = "ubuntu-os-cloud"
 }
 
 resource "google_compute_disk" "foobar2" {

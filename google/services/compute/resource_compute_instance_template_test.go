@@ -3380,7 +3380,7 @@ func testAccComputeInstanceTemplateConfidentialInstanceConfigEnableTdx(suffix st
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image3" {
   family  = "ubuntu-2204-lts"
-  project = "tdx-guest-images"
+  project = "ubuntu-os-cloud"
 }
 
 resource "google_compute_instance_template" "foobar5" {
