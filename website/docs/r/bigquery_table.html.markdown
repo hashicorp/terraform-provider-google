@@ -182,14 +182,6 @@ The following arguments are supported:
     parent organization or project resource for this tag key. Tag value is
     expected to be the short name, for example "Production".
 
-* `allow_resource_tags_on_deletion` - (Optional) If set to true, it allows table
-    deletion when there are still resource tags attached. The default value is
-    false.
-
-    ~>**Warning:** `allow_resource_tags_on_deletion` is deprecated and will be
-      removed in a future major release. The default behavior will be allowing
-      the presence of resource tags on deletion after the next major release.
-
 <a name="nested_external_data_configuration"></a>The `external_data_configuration` block supports:
 
 * `autodetect` - (Required) - Let BigQuery try to autodetect the schema
