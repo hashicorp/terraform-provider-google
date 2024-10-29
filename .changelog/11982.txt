@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `interface.ipv6-address` field in `google_compute_external_vpn_gateway` resource
+```
