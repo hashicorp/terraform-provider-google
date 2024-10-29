@@ -173,8 +173,8 @@ func ResourceGKEHub2Feature() *schema.Resource {
 															"version": {
 																Type:        schema.TypeString,
 																Optional:    true,
-																Deprecated:  "The `configmanagement.config_sync.oci.version` field is deprecated and will be removed in a future major release. Please use `configmanagement.version` field to specify the version of ACM installed instead.",
-																Description: `Version of ACM installed`,
+																Deprecated:  "The `configmanagement.config_sync.oci.version` field is deprecated and will be removed in a future major release. Please use `configmanagement.version` field to specify the version of Config Sync installed instead.",
+																Description: `Version of Config Sync installed`,
 															},
 														},
 													},
@@ -201,7 +201,7 @@ func ResourceGKEHub2Feature() *schema.Resource {
 									"version": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: `Version of ACM installed`,
+										Description: `Version of Config Sync installed`,
 									},
 								},
 							},
