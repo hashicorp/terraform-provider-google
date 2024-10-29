@@ -6479,7 +6479,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-2" // Nested Virt isn't supported on E2 and N2Ds https://cloud.google.com/compute/docs/instances/nested-virtualization/overview#restrictions and https://cloud.google.com/compute/docs/instances/disabling-smt#limitations
+  machine_type = "c4-standard-2"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -6507,7 +6507,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-2" // Nested Virt isn't supported on E2 and N2Ds https://cloud.google.com/compute/docs/instances/nested-virtualization/overview#restrictions and https://cloud.google.com/compute/docs/instances/disabling-smt#limitations
+  machine_type = "c4-standard-2"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -6520,9 +6520,10 @@ resource "google_compute_instance" "foobar" {
     network = "default"
   }
   advanced_machine_features {
-	threads_per_core = 1
-	enable_nested_virtualization = true
-	visible_core_count = 1
+    enable_nested_virtualization = true
+    threads_per_core             = 1
+    turbo_mode                   = "ALL_CORE_MAX"
+    visible_core_count           = 1
   }
   allow_stopping_for_update = true
 }
