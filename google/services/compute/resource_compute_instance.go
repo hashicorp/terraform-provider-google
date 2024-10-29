@@ -52,6 +52,13 @@ func IpCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 }
 
 var (
+	advancedMachineFeaturesKeys = []string{
+		"advanced_machine_features.0.enable_nested_virtualization",
+		"advanced_machine_features.0.threads_per_core",
+		"advanced_machine_features.0.turbo_mode",
+		"advanced_machine_features.0.visible_core_count",
+	}
+
 	bootDiskKeys = []string{
 		"boot_disk.0.auto_delete",
 		"boot_disk.0.device_name",
@@ -1027,19 +1034,26 @@ be from 0 to 999,999,999 inclusive.`,
 						"enable_nested_virtualization": {
 							Type:         schema.TypeBool,
 							Optional:     true,
-							AtLeastOneOf: []string{"advanced_machine_features.0.enable_nested_virtualization", "advanced_machine_features.0.threads_per_core"},
+							AtLeastOneOf: advancedMachineFeaturesKeys,
 							Description:  `Whether to enable nested virtualization or not.`,
 						},
 						"threads_per_core": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							AtLeastOneOf: []string{"advanced_machine_features.0.enable_nested_virtualization", "advanced_machine_features.0.threads_per_core"},
+							AtLeastOneOf: advancedMachineFeaturesKeys,
 							Description:  `The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.`,
+						},
+						"turbo_mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: advancedMachineFeaturesKeys,
+							Description:  `Turbo frequency mode to use for the instance. Currently supported modes is "ALL_CORE_MAX".`,
+							ValidateFunc: validation.StringInSlice([]string{"ALL_CORE_MAX"}, false),
 						},
 						"visible_core_count": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							AtLeastOneOf: []string{"advanced_machine_features.0.enable_nested_virtualization", "advanced_machine_features.0.threads_per_core", "advanced_machine_features.0.visible_core_count"},
+							AtLeastOneOf: advancedMachineFeaturesKeys,
 							Description:  `The number of physical cores to expose to an instance. Multiply by the number of threads per core to compute the total number of virtual CPUs to expose to the instance. If unset, the number of cores is inferred from the instance\'s nominal CPU count and the underlying platform\'s SMT width.`,
 						},
 					},

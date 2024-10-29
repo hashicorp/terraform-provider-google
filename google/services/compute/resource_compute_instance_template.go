@@ -912,6 +912,12 @@ be from 0 to 999,999,999 inclusive.`,
 							ForceNew:    true,
 							Description: `The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.`,
 						},
+						"turbo_mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Turbo frequency mode to use for the instance. Currently supported modes is "ALL_CORE_MAX".`,
+							ValidateFunc: validation.StringInSlice([]string{"ALL_CORE_MAX"}, false),
+						},
 						"visible_core_count": {
 							Type:        schema.TypeInt,
 							Optional:    true,

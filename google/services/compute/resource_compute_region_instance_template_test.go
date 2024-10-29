@@ -2943,8 +2943,8 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_region_instance_template" "foobar" {
   name         = "tf-test-instance-template-%s"
-  region      = "us-central1"
-  machine_type = "n2-standard-2" // Nested Virt isn't supported on E2 and N2Ds https://cloud.google.com/compute/docs/instances/nested-virtualization/overview#restrictions and https://cloud.google.com/compute/docs/instances/disabling-smt#limitations
+  region       = "us-central1"
+  machine_type = "c2-standard-2"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -2957,9 +2957,10 @@ resource "google_compute_region_instance_template" "foobar" {
   }
 
   advanced_machine_features {
-	threads_per_core = 1
 	enable_nested_virtualization = true
-	visible_core_count = 1
+	threads_per_core             = 1
+	turbo_mode                   = "ALL_CORE_MAX"
+	visible_core_count           = 1
   }
 
   scheduling {
