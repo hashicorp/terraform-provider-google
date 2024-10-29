@@ -3,9 +3,10 @@
 package networkconnectivity_test
 
 import (
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"testing"
 )
 
 func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBasicExample_update(t *testing.T) {
@@ -15,6 +16,8 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBa
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
+	resourceName := "google_network_connectivity_internal_range.default"
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -22,18 +25,44 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBa
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBasicExample_full(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						resourceName, "description", "Test internal range"),
+					resource.TestCheckResourceAttr(
+						resourceName, "target_cidr_range.0", "192.168.0.0/24"),
+					resource.TestCheckResourceAttr(
+						resourceName, "prefix_length", "24"),
+					resource.TestCheckResourceAttr(
+						resourceName, "overlaps.0", "OVERLAP_ROUTE_RANGE"),
+					resource.TestCheckResourceAttr(
+						resourceName, "labels.label-a", "b"),
+				),
 			},
 			{
-				ResourceName:            "google_network_connectivity_internal_range.default",
+				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "network", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBasicExample_update(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						resourceName, "description", "Updated description"),
+					resource.TestCheckResourceAttr(
+						resourceName, "target_cidr_range.0", "192.168.0.0/24"),
+					resource.TestCheckResourceAttr(
+						resourceName, "prefix_length", "24"),
+					resource.TestCheckResourceAttr(
+						resourceName, "overlaps.0", "OVERLAP_ROUTE_RANGE"),
+					resource.TestCheckResourceAttr(
+						resourceName, "overlaps.1", "OVERLAP_EXISTING_SUBNET_RANGE"),
+					resource.TestCheckResourceAttr(
+						resourceName, "labels.label-b", "c"),
+				),
 			},
 			{
-				ResourceName:            "google_network_connectivity_internal_range.default",
+				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "network", "labels", "terraform_labels"},
@@ -47,10 +76,10 @@ func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBa
 resource "google_network_connectivity_internal_range" "default" {
   name    = "basic%{random_suffix}"
   description = "Test internal range"
-  network = google_compute_network.default.self_link
+  network = google_compute_network.default.name
   usage   = "FOR_VPC"
   peering = "FOR_SELF"
-  target_cidr_range = ["10.0.0.0/8"]
+  target_cidr_range = ["192.168.0.0/24"]
   prefix_length = 24
   overlaps = ["OVERLAP_ROUTE_RANGE"]
   
@@ -69,13 +98,13 @@ resource "google_compute_network" "default" {
 func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBasicExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "updated-internal-range%{random_suffix}"
-  description = "Update internal range"
-  network = google_compute_network.default.self_link
+  name    = "basic%{random_suffix}"
+  description = "Updated description"
+  network = google_compute_network.default.name
   usage   = "FOR_VPC"
-  peering = "NOT_SHARED"
-  target_cidr_range = ["192.168.0.0/16"]
-  prefix_length = 22
+  peering = "FOR_SELF"
+  target_cidr_range = ["192.168.0.0/24"]
+  prefix_length = 24
   overlaps = ["OVERLAP_ROUTE_RANGE", "OVERLAP_EXISTING_SUBNET_RANGE"]
   
   labels  = {
@@ -97,6 +126,8 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesEx
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
+	resourceName := "google_network_connectivity_internal_range.default"
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -104,21 +135,33 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesEx
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesExternalRangesExample_full(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						resourceName, "description", "Test internal range for resources outside the VPC"),
+					resource.TestCheckResourceAttr(
+						resourceName, "ip_cidr_range", "192.16.0.0/24"),
+				),
 			},
 			{
-				ResourceName:            "google_network_connectivity_internal_range.default",
+				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "network", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "network", "labels", "terraform_labels", "usage"},
 			},
 			{
 				Config: testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesExternalRangesExample_update(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						resourceName, "description", "Updated description"),
+					resource.TestCheckResourceAttr(
+						resourceName, "ip_cidr_range", "192.16.0.0/16"),
+				),
 			},
 			{
-				ResourceName:            "google_network_connectivity_internal_range.default",
+				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "network", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "network", "labels", "terraform_labels", "usage"},
 			},
 		},
 	})
@@ -129,10 +172,10 @@ func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesEx
 resource "google_network_connectivity_internal_range" "default" {
   name    = "basic%{random_suffix}"
   description = "Test internal range for resources outside the VPC"
-  network = google_compute_network.default.self_link
+  network = google_compute_network.default.name
   usage   = "EXTERNAL_TO_VPC"
   peering = "FOR_SELF"
-  ip_cidr_range = "192.16.0.0/16"
+  ip_cidr_range = "192.16.0.0/24"
 }
 
 resource "google_compute_network" "default" {
@@ -145,12 +188,12 @@ resource "google_compute_network" "default" {
 func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesExternalRangesExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "updated-internal-range%{random_suffix}"
-  description = "Update internal range"
-  network = google_compute_network.default.self_link
-  usage   = "FOR_VPC"
+  name    = "basic%{random_suffix}"
+  description = "Updated description"
+  network = google_compute_network.default.name
+  usage   = "EXTERNAL_TO_VPC"
   peering = "FOR_SELF"
-  ip_cidr_range = "10.0.0.0/24"
+  ip_cidr_range = "192.16.0.0/16"
 }
 
 resource "google_compute_network" "default" {
