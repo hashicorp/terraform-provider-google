@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `external_catalog_dataset_options` fields to `google_bigquery_dataset` resource (beta)
+```

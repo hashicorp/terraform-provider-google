@@ -219,6 +219,31 @@ resource "google_bigquery_dataset" "dataset" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_dataset_external_catalog_dataset_options&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Dataset External Catalog Dataset Options
+
+
+```hcl
+resource "google_bigquery_dataset" "dataset" {
+  provider = google-beta
+
+  dataset_id    = "example_dataset"
+  friendly_name = "test"
+  description   = "This is a test description"
+  location      = "US"
+
+  external_catalog_dataset_options {
+    parameters = {
+      "dataset_owner" = "test_dataset_owner"
+    }
+    default_storage_location_uri = "gs://test_dataset/tables"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -345,6 +370,12 @@ The following arguments are supported:
   ID of the parent organization or project resource for this tag key. Tag value is expected
   to be the short name, for example "Production". See [Tag definitions](/iam/docs/tags-access-control#definitions)
   for more details.
+
+* `external_catalog_dataset_options` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Options defining open source compatible datasets living in the BigQuery catalog. Contains
+  metadata of open source database, schema or namespace represented by the current dataset.
+  Structure is [documented below](#nested_external_catalog_dataset_options).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -488,6 +519,18 @@ destroying the resource will fail if tables are present.
   Describes the Cloud KMS encryption key that will be used to protect destination
   BigQuery table. The BigQuery Service Account associated with your project requires
   access to this encryption key.
+
+<a name="nested_external_catalog_dataset_options"></a>The `external_catalog_dataset_options` block supports:
+
+* `parameters` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A map of key value pairs defining the parameters and properties of the open source schema.
+  Maximum size of 2Mib.
+
+* `default_storage_location_uri` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The storage location URI for all tables in the dataset. Equivalent to hive metastore's
+  database locationUri. Maximum length of 1024 characters.
 
 ## Attributes Reference
 
