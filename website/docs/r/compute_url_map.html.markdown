@@ -735,8 +735,8 @@ resource "google_compute_url_map" "urlmap" {
 
   default_custom_error_response_policy {
     error_response_rule {
-      match_response_codes = ["5xx"] # All 5xx responses will be catched
-      path = "/*"
+      match_response_codes = ["5xx"] # Catch all 5xx responses
+      path = "/internal_error.html" # Serve /internal_error.html from error service
       override_response_code = 502
     }
     error_service = google_compute_backend_bucket.error.id
@@ -753,26 +753,26 @@ resource "google_compute_url_map" "urlmap" {
 
     default_custom_error_response_policy {
       error_response_rule {
-        match_response_codes = ["4xx", "5xx"] # All 4xx and 5xx responses will be catched on path login
-        path = "/login"
+        match_response_codes = ["4xx", "5xx"] # Catch all 4xx and 5xx responses
+        path = "/login_error.html" # Serve /login_error.html from the error service
         override_response_code = 404
       }
       error_response_rule {
-        match_response_codes = ["503"] # Only a 503 response will be catched on path example
-        path = "/example"
+        match_response_codes = ["503"] # Catch only 503 responses
+        path = "/bad_gateway.html" # Serve /bad_gateway.html from the error service
         override_response_code = 502
       }
       error_service = google_compute_backend_bucket.error.id
     }
 
     path_rule {
-      paths   = ["/*"]
+      paths   = ["/private/*"]
       service = google_compute_backend_service.example.id
 
       custom_error_response_policy {
         error_response_rule {
-          match_response_codes = ["4xx"]
-          path = "/register"
+          match_response_codes = ["4xx"] # Catch all 4xx responses under /private/*
+          path = "/login.html" # Serve /login.html from the error service
           override_response_code = 401
         }
         error_service = google_compute_backend_bucket.error.id
