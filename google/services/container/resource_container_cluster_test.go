@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/container"
+	cloudkms "google.golang.org/api/cloudkms/v1"
 )
 
 func TestAccContainerCluster_basic(t *testing.T) {
@@ -4924,6 +4925,310 @@ resource "google_container_cluster" "with_security_posture_config" {
   subnetwork    = "%s"
 }
 `, resource_name, networkName, subnetworkName)
+}
+
+func TestAccContainerCluster_WithCPAFeatures(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", suffix)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	// Bootstrap KMS keys and needed IAM role.
+	diskKey := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "control-plane-disk-encryption")
+	signingKey := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ASYMMETRIC_SIGN", "us-central1", "rs256-service-account-signing")
+	backupKey := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "etcd-backups")
+
+	// Here, we are granting the container engine service agent permissions on
+	// *ALL* Cloud KMS keys in the project.  A more realistic usage would be to
+	// grant the service agent the necessary roles only on the individual keys
+	// we have created.
+	roles := []string{
+		"roles/container.cloudKmsKeyUser",
+		"roles/privateca.certificateManager",
+		"roles/cloudkms.cryptoKeyEncrypterDecrypter",
+	}
+	if acctest.BootstrapPSARoles(t, "service-", "container-engine-robot", roles) {
+		t.Fatal("Stopping the test because a role was added to the policy.")
+	}
+
+	// Find an active cryptoKeyVersion on the signing key.
+	var signingCryptoKeyVersion *cloudkms.CryptoKeyVersion
+	for _, ckv := range signingKey.CryptoKeyVersions {
+		if ckv.State == "ENABLED" && ckv.Algorithm == "RSA_SIGN_PKCS1_4096_SHA256" {
+			signingCryptoKeyVersion = ckv
+		}
+	}
+	if signingCryptoKeyVersion == nil {
+		t.Fatal("Didn't find an appropriate cryptoKeyVersion to use as the service account signing key")
+	}
+
+	context := map[string]interface{}{
+		"resource_name":            clusterName,
+		"networkName":              networkName,
+		"subnetworkName":           subnetworkName,
+		"disk_key":                 diskKey.CryptoKey.Name,
+		"backup_key":               backupKey.CryptoKey.Name,
+		"signing_cryptokeyversion": signingCryptoKeyVersion.Name,
+		"random_suffix":            suffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// We are only supporting CPA features on create for now.
+				Config: testAccContainerCluster_EnableCPAFeatures(context),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_cpa_features",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_EnableCPAFeatures(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_privateca_ca_pool" "cluster_ca" {
+  name = "tf-test-cluster-ca-%{random_suffix}"
+  location = "us-central1"
+  tier = "DEVOPS"
+}
+
+resource "google_privateca_ca_pool" "etcd_api_ca" {
+  name = "tf-test-etcd-api-ca-%{random_suffix}"
+  location = "us-central1"
+  tier = "DEVOPS"
+}
+
+resource "google_privateca_ca_pool" "etcd_peer_ca" {
+  name = "tf-test-etcd-peer-%{random_suffix}"
+  location = "us-central1"
+  tier = "DEVOPS"
+}
+
+resource "google_privateca_ca_pool" "aggregation_ca" {
+  name = "tf-test-aggregation-ca-%{random_suffix}"
+  location = "us-central1"
+  tier = "DEVOPS"
+}
+
+resource "google_privateca_certificate_authority" "cluster_ca" {
+  certificate_authority_id = "my-authority"
+  location                 = "us-central1"
+  pool                     = google_privateca_ca_pool.cluster_ca.name
+  type = "SELF_SIGNED"
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+
+  config {
+    subject_config {
+      subject {
+        country_code        = "us"
+        organization        = "google"
+        organizational_unit = "enterprise"
+        locality            = "mountain view"
+        province            = "california"
+        street_address      = "1600 amphitheatre parkway"
+        postal_code         = "94109"
+        common_name         = "my-certificate-authority"
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign  = true
+        }
+        extended_key_usage {
+          server_auth = true
+          client_auth = true
+        }
+      }
+    }
+  }
+
+  // Disable CA deletion related safe checks for easier cleanup.
+  deletion_protection                    = false
+  skip_grace_period                      = true
+  ignore_active_certificates_on_deletion = true
+}
+
+resource "google_privateca_certificate_authority" "etcd_api_ca" {
+  certificate_authority_id = "my-authority"
+  location                 = "us-central1"
+  pool                     = google_privateca_ca_pool.etcd_api_ca.name
+  type = "SELF_SIGNED"
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+
+  config {
+    subject_config {
+      subject {
+        country_code        = "us"
+        organization        = "google"
+        organizational_unit = "enterprise"
+        locality            = "mountain view"
+        province            = "california"
+        street_address      = "1600 amphitheatre parkway"
+        postal_code         = "94109"
+        common_name         = "my-certificate-authority"
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign  = true
+        }
+        extended_key_usage {
+          server_auth = true
+          client_auth = true
+        }
+      }
+    }
+  }
+  // Disable CA deletion related safe checks for easier cleanup.
+  deletion_protection                    = false
+  skip_grace_period                      = true
+  ignore_active_certificates_on_deletion = true
+}
+
+resource "google_privateca_certificate_authority" "etcd_peer_ca" {
+  certificate_authority_id = "my-authority"
+  location                 = "us-central1"
+  pool                     = google_privateca_ca_pool.etcd_peer_ca.name
+  type = "SELF_SIGNED"
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+
+  config {
+    subject_config {
+      subject {
+        country_code        = "us"
+        organization        = "google"
+        organizational_unit = "enterprise"
+        locality            = "mountain view"
+        province            = "california"
+        street_address      = "1600 amphitheatre parkway"
+        postal_code         = "94109"
+        common_name         = "my-certificate-authority"
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign  = true
+        }
+        extended_key_usage {
+          server_auth = true
+          client_auth = true
+        }
+      }
+    }
+  }
+  // Disable CA deletion related safe checks for easier cleanup.
+  deletion_protection                    = false
+  skip_grace_period                      = true
+  ignore_active_certificates_on_deletion = true
+}
+
+resource "google_privateca_certificate_authority" "aggregation_ca" {
+  certificate_authority_id = "my-authority"
+  location                 = "us-central1"
+  pool                     = google_privateca_ca_pool.aggregation_ca.name
+  type = "SELF_SIGNED"
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+  config {
+    subject_config {
+      subject {
+        country_code        = "us"
+        organization        = "google"
+        organizational_unit = "enterprise"
+        locality            = "mountain view"
+        province            = "california"
+        street_address      = "1600 amphitheatre parkway"
+        postal_code         = "94109"
+        common_name         = "my-certificate-authority"
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign  = true
+        }
+        extended_key_usage {
+          server_auth = true
+          client_auth = true
+        }
+      }
+    }
+  }
+
+  // Disable CA deletion related safe checks for easier cleanup.
+  deletion_protection                    = false
+  skip_grace_period                      = true
+  ignore_active_certificates_on_deletion = true
+}
+
+resource "google_container_cluster" "with_cpa_features" {
+  name               = "%{resource_name}"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  release_channel {
+    channel = "RAPID"
+  }
+  user_managed_keys_config {
+		cluster_ca = google_privateca_ca_pool.cluster_ca.id
+		etcd_api_ca = google_privateca_ca_pool.etcd_api_ca.id
+		etcd_peer_ca = google_privateca_ca_pool.etcd_peer_ca.id
+		aggregation_ca = google_privateca_ca_pool.aggregation_ca.id
+		control_plane_disk_encryption_key = "%{disk_key}"
+		gkeops_etcd_backup_encryption_key = "%{backup_key}"
+
+		service_account_signing_keys = [
+			"%{signing_cryptokeyversion}",
+		]
+		service_account_verification_keys = [
+			"%{signing_cryptokeyversion}",
+		]
+  }
+  deletion_protection = false
+  network    = "%{networkName}"
+  subnetwork    = "%{subnetworkName}"
+	depends_on = [
+		google_privateca_ca_pool.cluster_ca,
+		google_privateca_ca_pool.etcd_api_ca,
+		google_privateca_ca_pool.etcd_peer_ca,
+		google_privateca_ca_pool.aggregation_ca,
+	]
+}
+`, context)
 }
 
 func TestAccContainerCluster_autopilot_minimal(t *testing.T) {
