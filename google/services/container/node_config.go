@@ -1863,6 +1863,42 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 			}
 		}
 
+		if d.HasChange(prefix + "node_config.0.containerd_config") {
+			if _, ok := d.GetOk(prefix + "node_config.0.containerd_config"); ok {
+				req := &container.UpdateNodePoolRequest{
+					Name:             name,
+					ContainerdConfig: expandContainerdConfig(d.Get(prefix + "node_config.0.containerd_config")),
+				}
+				if req.ContainerdConfig == nil {
+					req.ContainerdConfig = &container.ContainerdConfig{}
+					req.ForceSendFields = []string{"ContainerdConfig"}
+				}
+				updateF := func() error {
+					clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+					if config.UserProjectOverride {
+						clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+					}
+					op, err := clusterNodePoolsUpdateCall.Do()
+					if err != nil {
+						return err
+					}
+
+					// Wait until it's updated
+					return ContainerOperationWait(config, op,
+						nodePoolInfo.project,
+						nodePoolInfo.location,
+						"updating GKE node pool containerd_config", userAgent,
+						timeout)
+				}
+
+				if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+					return err
+				}
+
+				log.Printf("[INFO] Updated containerd_config for node pool %s", name)
+			}
+		}
+
 		if d.HasChange("node_config.0.disk_size_gb") ||
 			d.HasChange("node_config.0.disk_type") ||
 			d.HasChange("node_config.0.machine_type") ||
