@@ -1185,6 +1185,7 @@ var generatedResources = map[string]*schema.Resource{
 var handwrittenResources = map[string]*schema.Resource{
 	// ####### START handwritten resources ###########
 	"google_app_engine_application":                 appengine.ResourceAppEngineApplication(),
+	"google_apigee_api":                             apigee.ResourceApigeeApi(),
 	"google_apigee_sharedflow":                      apigee.ResourceApigeeSharedFlow(),
 	"google_apigee_sharedflow_deployment":           apigee.ResourceApigeeSharedFlowDeployment(),
 	"google_apigee_flowhook":                        apigee.ResourceApigeeFlowhook(),
