@@ -39,9 +39,6 @@ func resourcePrivateCaCACustomDiff(_ context.Context, diff *schema.ResourceDiff,
 		_, new := diff.GetChange("desired_state")
 
 		if tpgresource.IsNewResource(diff) {
-			if diff.Get("type").(string) == "SUBORDINATE" {
-				return fmt.Errorf("`desired_state` can not be specified when creating a SUBORDINATE CA")
-			}
 			if new.(string) != "STAGED" && new.(string) != "ENABLED" {
 				return fmt.Errorf("`desired_state` can only be set to `STAGED` or `ENABLED` when creating a new CA")
 			}
@@ -1004,7 +1001,6 @@ func resourcePrivatecaCertificateAuthorityCreate(d *schema.ResourceData, meta in
 
 	// Enable the CA if `desired_state` is unspecified or specified as `ENABLED`.
 	if p, ok := d.GetOk("desired_state"); !ok || p.(string) == "ENABLED" {
-		// Skip enablement on SUBORDINATE CA for backward compatible.
 		if staged {
 			if err := enableCA(config, d, project, billingProject, userAgent); err != nil {
 				return fmt.Errorf("Error enabling CertificateAuthority: %v", err)
