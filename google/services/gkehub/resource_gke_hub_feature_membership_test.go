@@ -190,12 +190,6 @@ resource "google_gke_hub_feature_membership" "feature_member_2" {
         secret_type = "none"
       }
     }
-    policy_controller {
-      enabled = true
-      audit_interval_seconds = "10"
-      exemptable_namespaces = ["asdf", "1234"]
-      template_library_installed = true
-    }
   }
 }
 `, context)
@@ -229,12 +223,6 @@ resource "google_gke_hub_feature_membership" "feature_member_2" {
         secret_type = "none"
       }
     }
-    policy_controller {
-      enabled = true
-      audit_interval_seconds = "9"
-      exemptable_namespaces = ["different", "1234"]
-      template_library_installed = true
-    }
     hierarchy_controller {
       enable_hierarchical_resource_quota = true
       enable_pod_tree_labels = false
@@ -258,12 +246,6 @@ resource "google_gke_hub_feature_membership" "feature_member_3" {
         secret_type = "none"
       }
     }
-    policy_controller {
-      enabled = false
-      audit_interval_seconds = "100"
-      exemptable_namespaces = ["onetwothree", "fourfive"]
-      template_library_installed = true
-    }
     hierarchy_controller {
       enable_hierarchical_resource_quota = false
       enable_pod_tree_labels = true
@@ -279,15 +261,6 @@ resource "google_gke_hub_feature_membership" "feature_member_4" {
   membership = google_gke_hub_membership.membership_fourth.membership_id
   configmanagement {
     version = "1.18.2"
-    policy_controller {
-      enabled = true
-      audit_interval_seconds = "100"
-      template_library_installed = true
-      mutation_enabled = true
-      monitoring {
-        backends = ["CLOUD_MONITORING", "PROMETHEUS"]
-      }
-    }
   }
 }
 `, context)
@@ -313,12 +286,6 @@ resource "google_gke_hub_feature_membership" "feature_member_3" {
   membership = google_gke_hub_membership.membership_third.membership_id
   configmanagement {
     version = "1.18.2"
-    policy_controller {
-      enabled = true
-      audit_interval_seconds = "100"
-      exemptable_namespaces = ["onetwothree", "fourfive"]
-      template_library_installed = true
-    }
   }
 }
 `, context)
@@ -442,14 +409,6 @@ resource "google_gke_hub_feature_membership" "feature_member" {
         sync_wait_secs = "30"
       }
     }
-    policy_controller {
-      enabled = true
-      audit_interval_seconds = "100"
-      exemptable_namespaces = ["onetwothree", "fourfive"]
-      template_library_installed = true
-      referential_rules_enabled = true
-      log_denies_enabled = true
-    }
   }
 }
 `, context)
@@ -506,14 +465,6 @@ resource "google_gke_hub_feature_membership" "feature_member" {
         sync_wait_secs = "30"
       }
       prevent_drift = true
-    }
-    policy_controller {
-      enabled = true
-      audit_interval_seconds = "100"
-      exemptable_namespaces = ["onetwothree", "fourfive"]
-      template_library_installed = true
-      referential_rules_enabled = true
-      log_denies_enabled = true
     }
   }
 }
@@ -669,14 +620,6 @@ resource "google_gke_hub_feature_membership" "feature_member" {
       }
       prevent_drift = true
     }
-    policy_controller {
-      enabled = true
-      audit_interval_seconds = "100"
-      exemptable_namespaces = ["onetwothree", "fourfive"]
-      template_library_installed = true
-      referential_rules_enabled = true
-      log_denies_enabled = true
-    }
   }
 }
 `, context)
@@ -719,14 +662,6 @@ resource "google_gke_hub_feature_membership" "feature_member" {
       }
       prevent_drift = true
     }
-    policy_controller {
-      enabled = true
-      audit_interval_seconds = "100"
-      exemptable_namespaces = ["onetwothree", "fourfive"]
-      template_library_installed = true
-      referential_rules_enabled = true
-      log_denies_enabled = true
-    }
   }
 }
 `, context)
@@ -757,14 +692,6 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   membership = google_gke_hub_membership.membership_acmoci.membership_id
   configmanagement {
     version = "1.18.2"
-    policy_controller {
-      enabled = true
-      audit_interval_seconds = "100"
-      exemptable_namespaces = ["onetwothree", "fourfive"]
-      template_library_installed = true
-      referential_rules_enabled = true
-      log_denies_enabled = true
-    }
   }
 }
 `, context)
