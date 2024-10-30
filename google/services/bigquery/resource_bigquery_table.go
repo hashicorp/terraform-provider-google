@@ -1905,6 +1905,19 @@ type TableReference struct {
 }
 
 func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error {
+	// If only client-side fields were modified, short-circuit the Update function to avoid sending an update API request.
+	clientSideFields := map[string]bool{"deletion_protection": true}
+	clientSideOnly := true
+	for field := range ResourceBigQueryTable().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		return resourceBigQueryTableRead(d, meta)
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
