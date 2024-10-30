@@ -4516,7 +4516,7 @@ func TestAccContainerNodePool_privateRegistry(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_privateRegistryEnabled(secretID, cluster, nodepool, networkName, subnetworkName),
+				Config: testAccContainerNodePool_privateRegistryEnabled(secretID, cluster, nodepool, networkName, subnetworkName, "custom.example.com"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_container_node_pool.np",
@@ -4532,7 +4532,7 @@ func TestAccContainerNodePool_privateRegistry(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"google_container_node_pool.np",
 						"node_config.0.containerd_config.0.private_registry_access_config.0.certificate_authority_domain_config.0.fqdns.0",
-						"my.custom.domain",
+						"custom.example.com",
 					),
 					// Second CA config
 					resource.TestCheckResourceAttr(
@@ -4542,11 +4542,35 @@ func TestAccContainerNodePool_privateRegistry(t *testing.T) {
 					),
 				),
 			},
+			{
+				// Make sure in-place updates work
+				Config: testAccContainerNodePool_privateRegistryEnabled(secretID, cluster, nodepool, networkName, subnetworkName, "foo.example.org"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np",
+						"node_config.0.containerd_config.0.private_registry_access_config.0.certificate_authority_domain_config.0.fqdns.0",
+						"foo.example.org",
+					),
+				),
+			},
+			{
+				Config: testAccContainerNodePool_privateRegistryDisabled(secretID, cluster, nodepool, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+			},
 		},
 	})
 }
 
-func testAccContainerNodePool_privateRegistryEnabled(secretID, cluster, nodepool, network, subnetwork string) string {
+func testAccContainerNodePool_privateRegistryEnabled(secretID, cluster, nodepool, network, subnetwork, customDomain string) string {
 	return fmt.Sprintf(`
 data "google_project" "test_project" {}
 
@@ -4592,13 +4616,12 @@ resource "google_container_node_pool" "np" {
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform",
     ]
-    machine_type = "n1-standard-8"
     image_type   = "COS_CONTAINERD"
     containerd_config {
       private_registry_access_config {
         enabled = true
         certificate_authority_domain_config {
-          fqdns = ["my.custom.domain", "10.0.0.127:8888"]
+          fqdns = ["%s", "10.0.0.127:8888"]
           gcp_secret_manager_certificate_config {
             secret_uri = google_secret_manager_secret_version.secret-version-basic.name
           }
@@ -4609,6 +4632,64 @@ resource "google_container_node_pool" "np" {
             secret_uri = google_secret_manager_secret_version.secret-version-basic.name
           }
         }
+      }
+    }
+  }
+}
+`, secretID, cluster, network, subnetwork, nodepool, customDomain)
+}
+
+func testAccContainerNodePool_privateRegistryDisabled(secretID, cluster, nodepool, network, subnetwork string) string {
+	return fmt.Sprintf(`
+# Leave these unneeded resources in-place so we don't show a deletion in the plan
+data "google_project" "test_project" {}
+
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "%s"
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-basic" {
+  secret      = google_secret_manager_secret.secret-basic.id
+  secret_data = "dummypassword"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret_iam" {
+  secret_id  = google_secret_manager_secret.secret-basic.id
+  role       = "roles/secretmanager.admin"
+  member     = "serviceAccount:${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
+  depends_on = [google_secret_manager_secret_version.secret-version-basic]
+}
+
+resource "google_container_cluster" "cluster" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
+    image_type   = "COS_CONTAINERD"
+    containerd_config {
+      private_registry_access_config {
+        enabled = false
       }
     }
   }
