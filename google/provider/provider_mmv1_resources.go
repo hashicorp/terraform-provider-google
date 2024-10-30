@@ -299,6 +299,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_service_accounts":                              resourcemanager.DataSourceGoogleServiceAccounts(),
 	"google_site_verification_token":                       siteverification.DataSourceSiteVerificationToken(),
 	"google_sourcerepo_repository":                         sourcerepo.DataSourceGoogleSourceRepoRepository(),
+	"google_spanner_database":                              spanner.DataSourceSpannerDatabase(),
 	"google_spanner_instance":                              spanner.DataSourceSpannerInstance(),
 	"google_sql_ca_certs":                                  sql.DataSourceGoogleSQLCaCerts(),
 	"google_sql_tiers":                                     sql.DataSourceGoogleSQLTiers(),
