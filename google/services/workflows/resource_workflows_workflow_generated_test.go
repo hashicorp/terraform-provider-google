@@ -68,6 +68,7 @@ resource "google_workflows_workflow" "example" {
   user_env_vars = {
     url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam"
   }
+  deletion_protection = false
   source_contents = <<-EOF
   # This is a sample workflow. You can replace it with your source code.
   #

@@ -45,6 +45,7 @@ resource "google_workflows_workflow" "example" {
   user_env_vars = {
     url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam"
   }
+  deletion_protection = false
   source_contents = <<-EOF
   # This is a sample workflow, feel free to replace it with your source code
   #
@@ -86,6 +87,126 @@ resource "google_workflows_workflow" "example" {
   user_env_vars = {
     url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam"
   }
+  deletion_protection = false
+  source_contents = <<-EOF
+  # This is a sample workflow, feel free to replace it with your source code
+  #
+  # This workflow does the following:
+  # - reads current time and date information from an external API and stores
+  #   the response in CurrentDateTime variable
+  # - retrieves a list of Wikipedia articles related to the day of the week
+  #   from CurrentDateTime
+  # - returns the list of articles as an output of the workflow
+  # FYI, In terraform you need to escape the $$ or it will cause errors.
+
+  - getCurrentTime:
+      call: http.get
+      args:
+          url: $${sys.get_env("url")}
+      result: CurrentDateTime
+  - readWikipedia:
+      call: http.get
+      args:
+          url: https:/fi.wikipedia.org/w/api.php
+          query:
+              action: opensearch
+              search: $${CurrentDateTime.body.dayOfTheWeek}
+      result: WikiResult
+  - returnOutput:
+      return: $${WikiResult.body[1]}
+EOF
+}
+`, name)
+}
+
+func TestAccWorkflowsWorkflow_UpdateDeletionProtectionFalseToTrue(t *testing.T) {
+	// Custom test written to test diffs
+	t.Parallel()
+
+	workflowName := fmt.Sprintf("tf-test-acc-workflow-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckWorkflowsWorkflowDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWorkflowsWorkflow_Basic_DeletionProtectionFalse(workflowName),
+			},
+			{
+				Config: testAccWorkflowsWorkflow_Basic_DeletionProtectionTrue(workflowName),
+			},
+			{
+				Config: testAccWorkflowsWorkflow_Basic_DeletionProtectionFalse(workflowName),
+			},
+		},
+	})
+}
+
+func TestAccWorkflowsWorkflow_UpdateDeletionProtectionTrueToFalse(t *testing.T) {
+	// Custom test written to test diffs
+	t.Parallel()
+
+	workflowName := fmt.Sprintf("tf-test-acc-workflow-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckWorkflowsWorkflowDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWorkflowsWorkflow_Basic_DeletionProtectionTrue(workflowName),
+			},
+			{
+				Config: testAccWorkflowsWorkflow_Basic_DeletionProtectionFalse(workflowName),
+			},
+		},
+	})
+}
+
+func testAccWorkflowsWorkflow_Basic_DeletionProtectionFalse(name string) string {
+	return fmt.Sprintf(`
+resource "google_workflows_workflow" "example" {
+  name           = "%s"
+  region         = "us-central1"
+  deletion_protection = false
+  source_contents = <<-EOF
+  # This is a sample workflow, feel free to replace it with your source code
+  #
+  # This workflow does the following:
+  # - reads current time and date information from an external API and stores
+  #   the response in CurrentDateTime variable
+  # - retrieves a list of Wikipedia articles related to the day of the week
+  #   from CurrentDateTime
+  # - returns the list of articles as an output of the workflow
+  # FYI, In terraform you need to escape the $$ or it will cause errors.
+
+  - getCurrentTime:
+      call: http.get
+      args:
+          url: $${sys.get_env("url")}
+      result: CurrentDateTime
+  - readWikipedia:
+      call: http.get
+      args:
+          url: https://en.wikipedia.org/w/api.php
+          query:
+              action: opensearch
+              search: $${CurrentDateTime.body.dayOfTheWeek}
+      result: WikiResult
+  - returnOutput:
+      return: $${WikiResult.body[1]}
+EOF
+}
+`, name)
+}
+
+func testAccWorkflowsWorkflow_Basic_DeletionProtectionTrue(name string) string {
+	return fmt.Sprintf(`
+resource "google_workflows_workflow" "example" {
+  name           = "%s"
+  region         = "us-central1"
+  deletion_protection = true
   source_contents = <<-EOF
   # This is a sample workflow, feel free to replace it with your source code
   #
@@ -190,6 +311,7 @@ resource "google_workflows_workflow" "example" {
   name          = "%s"
   region        = "us-central1"
   description   = "Magic"
+  deletion_protection = false
   crypto_key_name = "%s"
   source_contents = <<-EOF
   # This is a sample workflow, feel free to replace it with your source code

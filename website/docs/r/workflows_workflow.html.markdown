@@ -54,6 +54,7 @@ resource "google_workflows_workflow" "example" {
   user_env_vars = {
     url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam"
   }
+  deletion_protection = false
   source_contents = <<-EOF
   # This is a sample workflow. You can replace it with your source code.
   #
@@ -145,6 +146,13 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the workflow. Defaults to true.
+When a`terraform destroy` or `terraform apply` would delete the workflow,
+the command will fail if this field is not set to false in Terraform state.
+When the field is set to true or unset in Terraform state, a `terraform apply`
+or `terraform destroy` that would delete the workflow will fail.
+When the field is set to false, deleting the workflow is allowed.
 
 * `name_prefix` - (Optional) Creates a unique name beginning with the
  specified prefix. If this and name are unspecified, a random value is chosen for the name.
