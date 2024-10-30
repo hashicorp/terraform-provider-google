@@ -21,8 +21,6 @@ description: |-
 
 A Google Cloud Memorystore instance.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -35,7 +33,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_memorystore_instance" "instance-basic" {
-  provider    = google-beta
   instance_id = "basic-instance"
   shard_count = 3
   desired_psc_auto_connections {
@@ -54,7 +51,6 @@ resource "google_memorystore_instance" "instance-basic" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  provider      = google-beta
   name          = "my-policy"
   location      = "us-central1"
   service_class = "gcp-memorystore"
@@ -66,7 +62,6 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  provider      = google-beta
   name          = "my-subnet"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
@@ -74,13 +69,11 @@ resource "google_compute_subnetwork" "producer_subnet" {
 }
 
 resource "google_compute_network" "producer_net" {
-  provider                = google-beta
   name                    = "my-network"
   auto_create_subnetworks = false
 }
 
 data "google_project" "project" {
-  provider = google-beta
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -93,7 +86,6 @@ data "google_project" "project" {
 
 ```hcl
 resource "google_memorystore_instance" "instance-full" {
-  provider    = google-beta
   instance_id = "full-instance"
   shard_count = 3
   desired_psc_auto_connections {
@@ -135,7 +127,6 @@ resource "google_memorystore_instance" "instance-full" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  provider      = google-beta
   name          = "my-policy"
   location      = "us-central1"
   service_class = "gcp-memorystore"
@@ -147,7 +138,6 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  provider      = google-beta
   name          = "my-subnet"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
@@ -155,13 +145,11 @@ resource "google_compute_subnetwork" "producer_subnet" {
 }
 
 resource "google_compute_network" "producer_net" {
-  provider                = google-beta
   name                    = "my-network"
   auto_create_subnetworks = false
 }
 
 data "google_project" "project" {
-  provider = google-beta
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -174,7 +162,6 @@ data "google_project" "project" {
 
 ```hcl
 resource "google_memorystore_instance" "instance-persistence-aof" {
-  provider    = google-beta
   instance_id = "aof-instance"
   shard_count = 3
   desired_psc_auto_connections {
@@ -198,7 +185,6 @@ resource "google_memorystore_instance" "instance-persistence-aof" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  provider      = google-beta
   name          = "my-policy"
   location      = "us-central1"
   service_class = "gcp-memorystore"
@@ -210,7 +196,6 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  provider      = google-beta
   name          = "my-subnet"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
@@ -218,13 +203,11 @@ resource "google_compute_subnetwork" "producer_subnet" {
 }
 
 resource "google_compute_network" "producer_net" {
-  provider                = google-beta
   name                    = "my-network"
   auto_create_subnetworks = false
 }
 
 data "google_project" "project" {
-  provider = google-beta
 }
 ```
 
