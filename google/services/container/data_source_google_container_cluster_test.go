@@ -26,13 +26,7 @@ func TestAccContainerClusterDatasource_zonal(t *testing.T) {
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_container_cluster.kubes",
 						"google_container_cluster.kubes",
-						// Remove once https://github.com/hashicorp/terraform/issues/21347 is fixed.
-						map[string]struct{}{
-							"enable_autopilot":             {},
-							"enable_tpu":                   {},
-							"pod_security_policy_config.#": {},
-							"deletion_protection":          {},
-						},
+						map[string]struct{}{"deletion_protection": {}},
 					),
 				),
 			},
@@ -56,13 +50,9 @@ func TestAccContainerClusterDatasource_regional(t *testing.T) {
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_container_cluster.kubes",
 						"google_container_cluster.kubes",
-						// Remove once https://github.com/hashicorp/terraform/issues/21347 is fixed.
 						map[string]struct{}{
-							"enable_autopilot":             {},
-							"enable_tpu":                   {},
-							"pod_security_policy_config.#": {},
-							"deletion_protection":          {},
-							"resource_labels.%":            {},
+							"deletion_protection": {},
+							"resource_labels.%":   {},
 						},
 					),
 				),
@@ -77,10 +67,11 @@ resource "google_container_cluster" "kubes" {
   name               = "tf-test-cluster-%s"
   location           = "us-central1-a"
   initial_node_count = 1
-  deletion_protection = false
-  network    = "%s"
-  subnetwork    = "%s"
 
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
 }
 
 data "google_container_cluster" "kubes" {
@@ -96,12 +87,13 @@ resource "google_container_cluster" "kubes" {
   name               = "tf-test-cluster-%s"
   location           = "us-central1"
   initial_node_count = 1
-  deletion_protection = false
-  network    = "%s"
-  subnetwork    = "%s"
   resource_labels = {
     created-by = "terraform"
   }
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
 }
 
 data "google_container_cluster" "kubes" {
