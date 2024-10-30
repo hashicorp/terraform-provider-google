@@ -42,6 +42,7 @@ var SharedCryptoKey = map[string]string{
 type BootstrappedKMS struct {
 	*cloudkms.KeyRing
 	*cloudkms.CryptoKey
+	CryptoKeyVersions []*cloudkms.CryptoKeyVersion
 }
 
 func BootstrapKMSKey(t *testing.T) BootstrappedKMS {
@@ -79,6 +80,7 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 		return BootstrappedKMS{
 			&cloudkms.KeyRing{},
 			&cloudkms.CryptoKey{},
+			nil,
 		}
 	}
 
@@ -113,8 +115,8 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			algos := map[string]string{
 				"ENCRYPT_DECRYPT":    "GOOGLE_SYMMETRIC_ENCRYPTION",
-				"ASYMMETRIC_SIGN":    "RSA_SIGN_PKCS1_4096_SHA512",
-				"ASYMMETRIC_DECRYPT": "RSA_DECRYPT_OAEP_4096_SHA512",
+				"ASYMMETRIC_SIGN":    "RSA_SIGN_PKCS1_4096_SHA256",
+				"ASYMMETRIC_DECRYPT": "RSA_DECRYPT_OAEP_4096_SHA256",
 			}
 			template := cloudkms.CryptoKeyVersionTemplate{
 				Algorithm: algos[purpose],
@@ -140,9 +142,16 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 		t.Fatalf("Unable to bootstrap KMS key. CryptoKey is nil!")
 	}
 
+	// TODO(b/372305432): Use the pagination properly.
+	ckvResp, err := kmsClient.Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions.List(keyName).Do()
+	if err != nil {
+		t.Fatalf("Unable to list cryptoKeyVersions: %v", err)
+	}
+
 	return BootstrappedKMS{
 		keyRing,
 		cryptoKey,
+		ckvResp.CryptoKeyVersions,
 	}
 }
 
