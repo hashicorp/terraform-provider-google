@@ -84,6 +84,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/logging"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/looker"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/memcache"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/memorystore"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/migrationcenter"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/mlengine"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/monitoring"
