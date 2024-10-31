@@ -392,7 +392,6 @@ func TestAccRegionInstanceGroupManager_stateful(t *testing.T) {
 		},
 	})
 }
-
 func TestAccRegionInstanceGroupManager_APISideListRecordering(t *testing.T) {
 	t.Parallel()
 
