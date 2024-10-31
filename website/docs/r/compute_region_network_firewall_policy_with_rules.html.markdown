@@ -57,7 +57,7 @@ resource "google_compute_region_network_firewall_policy_with_rules" "region-netw
       dest_address_groups = [google_network_security_address_group.address_group_1.id]
     }
     target_secure_tag {
-      name = "tagValues/${google_tags_tag_value.secure_tag_value_1.name}"
+      name = google_tags_tag_value.secure_tag_value_1.id
     }
   }
   rule {
@@ -77,7 +77,7 @@ resource "google_compute_region_network_firewall_policy_with_rules" "region-netw
         src_threat_intelligences = ["iplist-known-malicious-ips", "iplist-public-clouds"]
         src_address_groups = [google_network_security_address_group.address_group_1.id]
         src_secure_tag {
-          name = "tagValues/${google_tags_tag_value.secure_tag_value_1.name}"
+          name = google_tags_tag_value.secure_tag_value_1.id
         }
       }
       disabled = true
@@ -87,7 +87,7 @@ resource "google_compute_region_network_firewall_policy_with_rules" "region-netw
 resource "google_network_security_address_group" "address_group_1" {
   provider  = google-beta 
   name        = "tf-address-group"
-  parent      = "projects/${data.google_project.project.name}"
+  parent      = data.google_project.project.id
   description = "Regional address group"
   location    = "us-west2"
   items       = ["208.80.154.224/32"]
@@ -96,9 +96,9 @@ resource "google_network_security_address_group" "address_group_1" {
 }
 
 resource "google_tags_tag_key" "secure_tag_key_1" {
-  provider   = google-beta 
+  provider    = google-beta
   description = "Tag key"
-  parent      = "projects/${data.google_project.project.name}"
+  parent      = data.google_project.project.id
   purpose     = "GCE_FIREWALL"
   short_name  = "tf-tag-key"
   purpose_data = {
@@ -107,9 +107,9 @@ resource "google_tags_tag_key" "secure_tag_key_1" {
 }
 
 resource "google_tags_tag_value" "secure_tag_value_1" {
-  provider   = google-beta 
+  provider    = google-beta
   description = "Tag value"
-  parent      = "tagKeys/${google_tags_tag_key.secure_tag_key_1.name}"
+  parent      = google_tags_tag_key.secure_tag_key_1.id
   short_name  = "tf-tag-value"
 }
 ```

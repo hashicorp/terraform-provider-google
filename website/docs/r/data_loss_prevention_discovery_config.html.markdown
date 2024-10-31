@@ -64,100 +64,100 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 
 ```hcl
 resource "google_data_loss_prevention_discovery_config" "actions" {
-	parent = "projects/my-project-name/locations/us"
-    location = "us"
-    status = "RUNNING"
+  parent   = "projects/my-project-name/locations/us"
+  location = "us"
+  status   = "RUNNING"
 
-    targets {
-        big_query_target {
-            filter {
-                other_tables {}
-            }
-        }
+  targets {
+    big_query_target {
+      filter {
+        other_tables {}
+      }
     }
-    actions {
-        export_data {
-            profile_table {
-                project_id = "project"
-                dataset_id = "dataset"
-                table_id = "table"
-            }
-        }
+  }
+  actions {
+    export_data {
+      profile_table {
+        project_id = "project"
+        dataset_id = "dataset"
+        table_id   = "table"
+      }
     }
-    actions { 
-        pub_sub_notification {
-            topic = "projects/%{project}/topics/${google_pubsub_topic.actions.name}"
-            event = "NEW_PROFILE"
-            pubsub_condition {
-                expressions {
-                    logical_operator = "OR"
-                    conditions {
-                        minimum_sensitivity_score = "HIGH"
-                    }
-                }
-            }
-            detail_of_message = "TABLE_PROFILE"
+  }
+  actions {
+    pub_sub_notification {
+      topic = "projects/%{project}/topics/${google_pubsub_topic.actions.name}"
+      event = "NEW_PROFILE"
+      pubsub_condition {
+        expressions {
+          logical_operator = "OR"
+          conditions {
+            minimum_sensitivity_score = "HIGH"
+          }
         }
+      }
+      detail_of_message = "TABLE_PROFILE"
     }
-    actions {
-        tag_resources {
-            tag_conditions {
-                tag {
-                    namespaced_value = "123456/environment/prod"
-                }
-                sensitivity_score {
-                    score = "SENSITIVITY_HIGH"
-                }
-            }
-            tag_conditions {
-                tag {
-                    namespaced_value = "123456/environment/test"
-                }
-                sensitivity_score {
-                    score = "SENSITIVITY_LOW"
-                }
-            }
-            profile_generations_to_tag = ["PROFILE_GENERATION_NEW", "PROFILE_GENERATION_UPDATE"]
-            lower_data_risk_to_low = true
+  }
+  actions {
+    tag_resources {
+      tag_conditions {
+        tag {
+          namespaced_value = "123456/environment/prod"
         }
+        sensitivity_score {
+          score = "SENSITIVITY_HIGH"
+        }
+      }
+      tag_conditions {
+        tag {
+          namespaced_value = "123456/environment/test"
+        }
+        sensitivity_score {
+          score = "SENSITIVITY_LOW"
+        }
+      }
+      profile_generations_to_tag = ["PROFILE_GENERATION_NEW", "PROFILE_GENERATION_UPDATE"]
+      lower_data_risk_to_low     = true
     }
-    inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"] 
+  }
+  inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"]
 }
 
 resource "google_pubsub_topic" "actions" {
-    name = "fake-topic"
+  name = "fake-topic"
 }
 
 resource "google_data_loss_prevention_inspect_template" "basic" {
-	parent = "projects/my-project-name"
-	description = "My description"
-	display_name = "display_name"
+  parent      = "projects/my-project-name"
+  description = "My description"
+  display_name = "display_name"
 
-	inspect_config {
-		info_types {
-			name = "EMAIL_ADDRESS"
-		}
+  inspect_config {
+    info_types {
+      name = "EMAIL_ADDRESS"
     }
+  }
 }
 
 data "google_project" "project" {
-	project_id = "%{project}"
+  project_id = "%{project}"
 }
 
 resource "google_tags_tag_key" "tag_key" {
-	parent = "projects/${data.google_project.project.number}"
-	short_name = "environment"
+  parent     = data.google_project.project.id
+  short_name = "environment"
 }
 
 resource "google_tags_tag_value" "tag_value" {
-	parent = "tagKeys/${google_tags_tag_key.tag_key.name}"
-	short_name = "prod"
+  parent     = google_tags_tag_key.tag_key.id
+  short_name = "prod"
 }
 
 resource "google_project_iam_member" "tag_role" {
-    project = "%{project}"
-    role    = "roles/resourcemanager.tagUser"
-    member = "serviceAccount:service-${data.google_project.project.number}@dlp-api.iam.gserviceaccount.com"
+  project = "%{project}"
+  role    = "roles/resourcemanager.tagUser"
+  member  = "serviceAccount:service-${data.google_project.project.number}@dlp-api.iam.gserviceaccount.com"
 }
 ```
 ## Example Usage - Dlp Discovery Config Org Running
