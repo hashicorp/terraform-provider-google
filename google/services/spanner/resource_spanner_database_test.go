@@ -518,3 +518,131 @@ resource "google_spanner_database" "database" {
 }
 `, context)
 }
+
+func TestAccSpannerDatabase_cmek(t *testing.T) {
+	t.Parallel()
+
+	// Handle bootstrapping out of band so we don't need beta provider, and for consistency with mrcmek test
+	if acctest.BootstrapPSARole(t, "service-", "gcp-sa-spanner", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+		t.Fatal("Stopping the test because a role was added to the policy.")
+	}
+
+	// Make the keys outside of Terraform so that a) the project isn't littered with a key from each run and b) so that VCR
+	// can work.
+	kmsKey := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "europe-west1", "tf-test-cmek-test-key-europe-west1")
+
+	context := map[string]interface{}{
+		"key_name":      kmsKey.CryptoKey.Name,
+		"key_ring_name": kmsKey.KeyRing.Name,
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerDatabaseDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerDatabase_cmek(context),
+			},
+			{
+				ResourceName:            "google_spanner_database.database",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ddl", "deletion_protection", "encryption_config.0.kms_key_names"},
+			},
+		},
+	})
+}
+
+func testAccSpannerDatabase_cmek(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_spanner_instance" "main" {
+  name         = "tf-test-%{random_suffix}"
+  display_name = "main-instance1"
+
+  config           = "regional-europe-west1"
+  processing_units = 200
+}
+
+resource "google_spanner_database" "database" {
+  instance = google_spanner_instance.main.name
+  name     = "tf-test-cmek-db%{random_suffix}"
+  ddl = [
+    "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
+    "CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)",
+  ]
+
+  encryption_config {
+    kms_key_name = "%{key_name}"
+  }
+
+  deletion_protection = false
+}
+`, context)
+}
+
+func TestAccSpannerDatabase_mrcmek(t *testing.T) {
+	t.Parallel()
+
+	kms1 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-mr-cmek-test-key-us-central1")
+	kms2 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-mr-cmek-test-key-us-east1")
+	kms3 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east4", "tf-mr-cmek-test-key-us-east4")
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"key_ring1":     kms1.KeyRing.Name,
+		"key_name1":     kms1.CryptoKey.Name,
+		"key_ring2":     kms2.KeyRing.Name,
+		"key_name2":     kms2.CryptoKey.Name,
+		"key_ring3":     kms3.KeyRing.Name,
+		"key_name3":     kms3.CryptoKey.Name,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerDatabaseDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerDatabase_mrcmek(context),
+			},
+			{
+				ResourceName:            "google_spanner_database.database",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ddl", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccSpannerDatabase_mrcmek(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_spanner_instance" "main" {
+  name         = "tf-test-%{random_suffix}"
+  display_name = "Terraform test"
+
+  config           = "nam3"
+  processing_units = 200
+}
+
+resource "google_spanner_database" "database" {
+  instance = google_spanner_instance.main.name
+  name     = "tf-test-mrcmek-db%{random_suffix}"
+  ddl = [
+    "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
+    "CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)",
+  ]
+
+  encryption_config {
+    kms_key_names = [
+      "%{key_name1}",
+      "%{key_name2}",
+      "%{key_name3}",
+    ]
+  }
+
+  deletion_protection = false
+}
+`, context)
+}
