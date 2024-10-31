@@ -792,8 +792,7 @@ resource "google_bigquery_dataset" "test" {
 
 func testAccBigQueryDataset_bigqueryDatasetResourceTags_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_project" "project" {
-}
+data "google_project" "project" {}
 
 resource "google_tags_tag_key" "tag_key1" {
   parent     = data.google_project.project.id

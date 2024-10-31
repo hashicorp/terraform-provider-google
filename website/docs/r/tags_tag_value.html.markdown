@@ -33,14 +33,14 @@ To get more information about TagValue, see:
 
 ```hcl
 resource "google_tags_tag_key" "key" {
-	parent = "organizations/123456789"
-	short_name = "keyname"
+	parent      = "organizations/123456789"
+	short_name  = "keyname"
 	description = "For keyname resources."
 }
 
 resource "google_tags_tag_value" "value" {
-	parent = "tagKeys/${google_tags_tag_key.key.name}"
-	short_name = "valuename"
+	parent      = google_tags_tag_key.key.id
+	short_name  = "valuename"
 	description = "For valuename resources."
 }
 ```
