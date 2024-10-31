@@ -1,0 +1,3 @@
+```release-note:enhancement
+firestore: allowed single field indexes to support `__name__ DESC` indexes in `google_firestore_index` resources
+```
