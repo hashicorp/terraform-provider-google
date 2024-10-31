@@ -159,7 +159,7 @@ The following arguments are supported:
 
 * `notification_config` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_notification_config).
 
 * `stream_configs` -

@@ -153,7 +153,7 @@ In addition to the arguments listed above, the following computed attributes are
   The time when the VPN connection was last updated.
 
 * `details` -
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_details).
 
 * `terraform_labels` -

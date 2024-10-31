@@ -163,14 +163,14 @@ the instance.`,
 									"overrides": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: `A nested object resource`,
+										Description: `A nested object resource.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"autoscaling_limits": {
 													Type:        schema.TypeList,
 													Required:    true,
-													Description: `A nested object resource`,
+													Description: `A nested object resource.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
@@ -193,7 +193,7 @@ the instance.`,
 									"replica_selection": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: `A nested object resource`,
+										Description: `A nested object resource.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{

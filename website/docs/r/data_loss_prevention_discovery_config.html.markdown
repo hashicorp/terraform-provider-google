@@ -532,7 +532,7 @@ The following arguments are supported:
 
 * `org_config` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_org_config).
 
 * `inspect_templates` -
