@@ -469,7 +469,7 @@ Example: 192.168.0.1`,
 						"manual_lb_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `A nested object resource`,
+							Description: `A nested object resource.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -485,7 +485,7 @@ Example: 192.168.0.1`,
 						"metal_lb_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `A nested object resource`,
+							Description: `A nested object resource.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -659,7 +659,7 @@ set this flag.`,
 						"island_mode_cidr": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `A nested object resource`,
+							Description: `A nested object resource.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{

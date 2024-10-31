@@ -277,7 +277,7 @@ https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver
 						"manual_lb_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `A nested object resource`,
+							Description: `A nested object resource.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -323,7 +323,7 @@ on the node resource.`,
 						"island_mode_cidr": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `A nested object resource`,
+							Description: `A nested object resource.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{

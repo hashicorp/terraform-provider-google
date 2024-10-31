@@ -474,32 +474,32 @@ The following arguments are supported:
 
 * `http_health_check` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_http_health_check).
 
 * `https_health_check` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_https_health_check).
 
 * `tcp_health_check` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_tcp_health_check).
 
 * `ssl_health_check` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_ssl_health_check).
 
 * `http2_health_check` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_http2_health_check).
 
 * `grpc_health_check` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_grpc_health_check).
 
 * `log_config` -

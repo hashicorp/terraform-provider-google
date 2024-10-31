@@ -249,12 +249,12 @@ This must be set to true if you created a backup manually in the console.
 
 * `replica_selection` -
   (Required)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_replica_selection).
 
 * `overrides` -
   (Required)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_overrides).
 
 
@@ -268,7 +268,7 @@ This must be set to true if you created a backup manually in the console.
 
 * `autoscaling_limits` -
   (Required)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_autoscaling_limits).
 
 

@@ -109,7 +109,7 @@ The following arguments are supported:
 
 * `encryption_spec` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_encryption_spec).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
