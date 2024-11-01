@@ -210,10 +210,16 @@ An empty value now means UTILIZATION.
 
 ### `guest_accelerator = []` is no longer valid configuration
 
-To explicitly set an empty list of objects, set `guest_accelerator.count = 0`.
+[Argument syntax](https://developer.hashicorp.com/terraform/language/syntax/configuration#arguments) is no longer supported for this field,
+in favor of [block syntax](https://developer.hashicorp.com/terraform/language/syntax/configuration#blocks).
+For configurations using argument syntax dynamically with variables, it is recommended to use
+[dynamic blocks](https://developer.hashicorp.com/terraform/language/expressions/dynamic-blocks) instead.
 
-Previously, to explicitly set `guest_accelerator` as an empty list of objects, the specific configuration `guest_accelerator = []` was necessary.
-This was to maintain compatability in behavior between Terraform versions 0.11 and 0.12 using a special setting ["attributes as blocks"](https://developer.hashicorp.com/terraform/language/attr-as-blocks).
+By default, omitting `guest_accelerator` will lead to Terraform defaulting to the API's value.
+To explicitly set an empty `guest_accelerator` list, define a `guest_accelerator` block with `guest_accelerator.count = 0`.
+This is necessary to mirror the previous behavior of `guest_accelerator = []` in 5.X.
+
+Argument syntax was previously enabled to maintain compatability in behavior between Terraform versions 0.11 and 0.12 using a special setting ["attributes as blocks"](https://developer.hashicorp.com/terraform/language/attr-as-blocks).
 This special setting causes other breakages so it is now removed, with setting `guest_accelerator.count = 0` available as an alternative form of empty `guest_accelerator` object.
 
 ### `guest_accelerator.gpu_driver_installation_config = []` and `guest_accelerator.gpu_sharing_config = []` are no longer valid configuration
