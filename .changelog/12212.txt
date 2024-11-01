@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: increased `google_compute_security_policy` timeouts from 20 minutes to 30 minutes
+```
