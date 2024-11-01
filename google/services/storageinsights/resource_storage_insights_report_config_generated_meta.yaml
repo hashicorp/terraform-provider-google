@@ -1,0 +1,5 @@
+resource: 'google_storage_insights_report_config'
+generation_type: 'mmv1'
+api_service_name: 'storageinsights.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'ReportConfig'

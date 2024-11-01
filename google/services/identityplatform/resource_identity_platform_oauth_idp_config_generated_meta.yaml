@@ -1,0 +1,5 @@
+resource: 'google_identity_platform_oauth_idp_config'
+generation_type: 'mmv1'
+api_service_name: 'identitytoolkit.googleapis.com'
+api_version: 'v2'
+api_resource_type_kind: 'OauthIdpConfig'

@@ -1,0 +1,5 @@
+resource: 'google_biglake_catalog'
+generation_type: 'mmv1'
+api_service_name: 'biglake.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Catalog'

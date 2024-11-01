@@ -1,0 +1,5 @@
+resource: 'google_discovery_engine_chat_engine'
+generation_type: 'mmv1'
+api_service_name: 'discoveryengine.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Engine'
