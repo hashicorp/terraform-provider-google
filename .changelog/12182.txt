@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a diff based on server-side reordering of `match.src_address_groups` and `match.dest_address_groups` in `google_compute_network_firewall_policy_rule`
+```
