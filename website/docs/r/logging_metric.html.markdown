@@ -368,7 +368,7 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Metric can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_logging_metric.default {{project}} {{name}}
+$ terraform import google_logging_metric.default "{{project}} {{name}}"
 $ terraform import google_logging_metric.default {{name}}
 ```
 

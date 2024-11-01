@@ -157,7 +157,7 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), AppleApp can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_firebase_apple_app.default {{project}} projects/{{project}}/iosApps/{{app_id}}
+$ terraform import google_firebase_apple_app.default "{{project}} projects/{{project}}/iosApps/{{app_id}}"
 $ terraform import google_firebase_apple_app.default projects/{{project}}/iosApps/{{app_id}}
 $ terraform import google_firebase_apple_app.default {{project}}/{{project}}/{{app_id}}
 $ terraform import google_firebase_apple_app.default iosApps/{{app_id}}

@@ -384,6 +384,8 @@ This resource provides the following
 
 AuthConfig can be imported using any of these accepted formats:
 
+* `{{project}}/{{name}}`
+* `{{project}} {{name}}`
 * `{{name}}`
 
 
@@ -391,7 +393,7 @@ In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashico
 
 ```tf
 import {
-  id = "{{name}}"
+  id = "{{project}}/{{name}}"
   to = google_integrations_auth_config.default
 }
 ```
@@ -399,6 +401,8 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), AuthConfig can be imported using one of the formats above. For example:
 
 ```
+$ terraform import google_integrations_auth_config.default {{project}}/{{name}}
+$ terraform import google_integrations_auth_config.default "{{project}} {{name}}"
 $ terraform import google_integrations_auth_config.default {{name}}
 ```
 
