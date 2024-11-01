@@ -111,6 +111,7 @@ type FrameworkProviderConfig struct {
 	DataPipelineBasePath             string
 	DataplexBasePath                 string
 	DataprocBasePath                 string
+	DataprocGdcBasePath              string
 	DataprocMetastoreBasePath        string
 	DatastreamBasePath               string
 	DeploymentManagerBasePath        string
@@ -274,6 +275,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.DataPipelineBasePath = data.DataPipelineCustomEndpoint.ValueString()
 	p.DataplexBasePath = data.DataplexCustomEndpoint.ValueString()
 	p.DataprocBasePath = data.DataprocCustomEndpoint.ValueString()
+	p.DataprocGdcBasePath = data.DataprocGdcCustomEndpoint.ValueString()
 	p.DataprocMetastoreBasePath = data.DataprocMetastoreCustomEndpoint.ValueString()
 	p.DatastreamBasePath = data.DatastreamCustomEndpoint.ValueString()
 	p.DeploymentManagerBasePath = data.DeploymentManagerCustomEndpoint.ValueString()
@@ -865,6 +867,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.DataprocBasePathKey])
 		if customEndpoint != nil {
 			data.DataprocCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.DataprocGdcCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_DATAPROC_GDC_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DataprocGdcBasePathKey])
+		if customEndpoint != nil {
+			data.DataprocGdcCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DataprocMetastoreCustomEndpoint.IsNull() {

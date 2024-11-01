@@ -296,6 +296,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Dataproc",
         "path" to "./google-beta/services/dataproc"
     ),
+    "dataprocgdc" to mapOf(
+        "name" to "dataprocgdc",
+        "displayName" to "Dataproc on GDC",
+        "path" to "./google-beta/services/dataprocgdc"
+    ),
     "dataprocmetastore" to mapOf(
         "name" to "dataprocmetastore",
         "displayName" to "Dataprocmetastore",

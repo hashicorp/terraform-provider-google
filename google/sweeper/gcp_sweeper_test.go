@@ -53,6 +53,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/datapipeline"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dataplex"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dataproc"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/dataprocgdc"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dataprocmetastore"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/datastream"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/deploymentmanager"

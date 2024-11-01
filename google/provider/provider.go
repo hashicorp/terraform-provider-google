@@ -380,6 +380,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"dataproc_gdc_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"dataproc_metastore_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1003,6 +1008,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.DataPipelineBasePath = d.Get("data_pipeline_custom_endpoint").(string)
 	config.DataplexBasePath = d.Get("dataplex_custom_endpoint").(string)
 	config.DataprocBasePath = d.Get("dataproc_custom_endpoint").(string)
+	config.DataprocGdcBasePath = d.Get("dataproc_gdc_custom_endpoint").(string)
 	config.DataprocMetastoreBasePath = d.Get("dataproc_metastore_custom_endpoint").(string)
 	config.DatastreamBasePath = d.Get("datastream_custom_endpoint").(string)
 	config.DeploymentManagerBasePath = d.Get("deployment_manager_custom_endpoint").(string)

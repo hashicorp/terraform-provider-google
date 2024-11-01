@@ -77,6 +77,7 @@ type ProviderModel struct {
 	DataPipelineCustomEndpoint             types.String `tfsdk:"data_pipeline_custom_endpoint"`
 	DataplexCustomEndpoint                 types.String `tfsdk:"dataplex_custom_endpoint"`
 	DataprocCustomEndpoint                 types.String `tfsdk:"dataproc_custom_endpoint"`
+	DataprocGdcCustomEndpoint              types.String `tfsdk:"dataproc_gdc_custom_endpoint"`
 	DataprocMetastoreCustomEndpoint        types.String `tfsdk:"dataproc_metastore_custom_endpoint"`
 	DatastreamCustomEndpoint               types.String `tfsdk:"datastream_custom_endpoint"`
 	DeploymentManagerCustomEndpoint        types.String `tfsdk:"deployment_manager_custom_endpoint"`

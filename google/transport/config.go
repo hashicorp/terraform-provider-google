@@ -235,6 +235,7 @@ type Config struct {
 	DataPipelineBasePath             string
 	DataplexBasePath                 string
 	DataprocBasePath                 string
+	DataprocGdcBasePath              string
 	DataprocMetastoreBasePath        string
 	DatastreamBasePath               string
 	DeploymentManagerBasePath        string
@@ -378,6 +379,7 @@ const DataLossPreventionBasePathKey = "DataLossPrevention"
 const DataPipelineBasePathKey = "DataPipeline"
 const DataplexBasePathKey = "Dataplex"
 const DataprocBasePathKey = "Dataproc"
+const DataprocGdcBasePathKey = "DataprocGdc"
 const DataprocMetastoreBasePathKey = "DataprocMetastore"
 const DatastreamBasePathKey = "Datastream"
 const DeploymentManagerBasePathKey = "DeploymentManager"
@@ -515,6 +517,7 @@ var DefaultBasePaths = map[string]string{
 	DataPipelineBasePathKey:             "https://datapipelines.googleapis.com/v1/",
 	DataplexBasePathKey:                 "https://dataplex.googleapis.com/v1/",
 	DataprocBasePathKey:                 "https://dataproc.googleapis.com/v1/",
+	DataprocGdcBasePathKey:              "https://dataprocgdc.googleapis.com/v1/",
 	DataprocMetastoreBasePathKey:        "https://metastore.googleapis.com/v1/",
 	DatastreamBasePathKey:               "https://datastream.googleapis.com/v1/",
 	DeploymentManagerBasePathKey:        "https://www.googleapis.com/deploymentmanager/v2/",
@@ -910,6 +913,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("dataproc_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_DATAPROC_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[DataprocBasePathKey]))
+	}
+	if d.Get("dataproc_gdc_custom_endpoint") == "" {
+		d.Set("dataproc_gdc_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_DATAPROC_GDC_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[DataprocGdcBasePathKey]))
 	}
 	if d.Get("dataproc_metastore_custom_endpoint") == "" {
 		d.Set("dataproc_metastore_custom_endpoint", MultiEnvDefault([]string{
@@ -2250,6 +2258,7 @@ func ConfigureBasePaths(c *Config) {
 	c.DataPipelineBasePath = DefaultBasePaths[DataPipelineBasePathKey]
 	c.DataplexBasePath = DefaultBasePaths[DataplexBasePathKey]
 	c.DataprocBasePath = DefaultBasePaths[DataprocBasePathKey]
+	c.DataprocGdcBasePath = DefaultBasePaths[DataprocGdcBasePathKey]
 	c.DataprocMetastoreBasePath = DefaultBasePaths[DataprocMetastoreBasePathKey]
 	c.DatastreamBasePath = DefaultBasePaths[DatastreamBasePathKey]
 	c.DeploymentManagerBasePath = DefaultBasePaths[DeploymentManagerBasePathKey]

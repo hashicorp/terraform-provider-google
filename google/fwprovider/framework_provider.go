@@ -430,6 +430,12 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					transport_tpg.CustomEndpointValidator(),
 				},
 			},
+			"dataproc_gdc_custom_endpoint": &schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					transport_tpg.CustomEndpointValidator(),
+				},
+			},
 			"dataproc_metastore_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
