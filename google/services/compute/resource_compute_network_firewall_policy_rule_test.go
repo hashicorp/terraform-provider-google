@@ -142,6 +142,41 @@ func TestAccComputeNetworkFirewallPolicyRule_multipleRules(t *testing.T) {
 	})
 }
 
+func TestAccComputeNetworkFirewallPolicyRule_addressGroupOrder(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"project":       envvar.GetTestProjectFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetworkFirewallPolicyRule_addressGroupOrder(context),
+			},
+			{
+				ResourceName:      "google_compute_network_firewall_policy_rule.src_test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Referencing using ID causes import to fail
+				// Client-side reordering doesn't work with no state, so ignore on import
+				ImportStateVerifyIgnore: []string{"firewall_policy", "match.0.src_address_groups"},
+			},
+			{
+				ResourceName:      "google_compute_network_firewall_policy_rule.dest_test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Referencing using ID causes import to fail
+				// Client-side reordering doesn't work with no state, so ignore on import
+				ImportStateVerifyIgnore: []string{"firewall_policy", "match.0.dest_address_groups"},
+			},
+		},
+	})
+}
+
 func TestAccComputeNetworkFirewallPolicyRule_securityProfileGroup_update(t *testing.T) {
 	t.Parallel()
 
@@ -896,5 +931,74 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule3" {
     src_threat_intelligences = ["iplist-known-malicious-ips"]
   }
 }
+`, context)
+}
+
+func testAccComputeNetworkFirewallPolicyRule_addressGroupOrder(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network_firewall_policy" "policy" {
+  name = "tf-test-policy-%{random_suffix}"
+  description = "Resource created for Terraform acceptance testing"
+}
+
+resource "google_network_security_address_group" "add-group1" {
+  name        = "tf-test-group-1-%{random_suffix}"
+  parent      = "projects/%{project}"
+  location    = "global"
+  type        = "IPV4"
+  capacity    = "10"
+  items       = ["10.0.1.1/32"]
+}
+resource "google_network_security_address_group" "add-group2" {
+  name        = "tf-test-group-2-%{random_suffix}"
+  parent      = "projects/%{project}"
+  location    = "global"
+  type        = "IPV4"
+  capacity    = "10"
+  items       = ["10.0.2.2/32"]
+}
+resource "google_network_security_address_group" "add-group3" {
+  name        = "tf-test-group-3-%{random_suffix}"
+  parent      = "projects/%{project}"
+  location    = "global"
+  type        = "IPV4"
+  capacity    = "10"
+  items       = ["10.0.3.3/32"]
+}
+
+resource "google_compute_network_firewall_policy_rule" "src_test" {
+  firewall_policy         = google_compute_network_firewall_policy.policy.id
+  action                  = "allow"
+  priority                = 1000
+  description             = "Testing address group order issue"
+  direction               = "INGRESS"
+  enable_logging          = true
+  match {
+    src_address_groups = [google_network_security_address_group.add-group2.id,
+                          google_network_security_address_group.add-group1.id]
+    dest_ip_ranges     = ["192.168.2.0/24", "10.0.3.4/32"]
+    layer4_configs {
+      ip_protocol = "all"
+    }
+  }
+}
+
+resource "google_compute_network_firewall_policy_rule" "dest_test" {
+  firewall_policy         = google_compute_network_firewall_policy.policy.id
+  action                  = "allow"
+  priority                = 1100
+  description             = "Testing address group order issue"
+  direction               = "EGRESS"
+  enable_logging          = true
+  match {
+    dest_address_groups = [google_network_security_address_group.add-group3.id,
+                           google_network_security_address_group.add-group2.id]
+    src_ip_ranges       = ["192.168.2.0/24", "10.0.3.4/32"]
+    layer4_configs {
+      ip_protocol = "all"
+    }
+  }
+}
+
 `, context)
 }

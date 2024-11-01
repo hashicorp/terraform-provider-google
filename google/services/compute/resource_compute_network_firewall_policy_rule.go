@@ -874,11 +874,55 @@ func flattenComputeNetworkFirewallPolicyRuleMatchSrcSecureTagsState(v interface{
 }
 
 func flattenComputeNetworkFirewallPolicyRuleMatchDestAddressGroups(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	rawConfigValue := d.Get("match.0.dest_address_groups")
+
+	// Convert config value to []string
+	configValue, err := tpgresource.InterfaceSliceToStringSlice(rawConfigValue)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert config value: %s", err)
+		return v
+	}
+
+	// Convert v to []string
+	apiStringValue, err := tpgresource.InterfaceSliceToStringSlice(v)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert API value: %s", err)
+		return v
+	}
+
+	sortedStrings, err := tpgresource.SortStringsByConfigOrder(configValue, apiStringValue)
+	if err != nil {
+		log.Printf("[ERROR] Could not sort API response value: %s", err)
+		return v
+	}
+
+	return sortedStrings
 }
 
 func flattenComputeNetworkFirewallPolicyRuleMatchSrcAddressGroups(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	rawConfigValue := d.Get("match.0.src_address_groups")
+
+	// Convert config value to []string
+	configValue, err := tpgresource.InterfaceSliceToStringSlice(rawConfigValue)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert config value: %s", err)
+		return v
+	}
+
+	// Convert v to []string
+	apiStringValue, err := tpgresource.InterfaceSliceToStringSlice(v)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert API value: %s", err)
+		return v
+	}
+
+	sortedStrings, err := tpgresource.SortStringsByConfigOrder(configValue, apiStringValue)
+	if err != nil {
+		log.Printf("[ERROR] Could not sort API response value: %s", err)
+		return v
+	}
+
+	return sortedStrings
 }
 
 func flattenComputeNetworkFirewallPolicyRuleMatchSrcFqdns(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
