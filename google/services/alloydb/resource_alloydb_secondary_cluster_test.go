@@ -13,8 +13,6 @@ import (
 // The cluster creation should succeed with minimal number of arguments
 func TestAccAlloydbCluster_secondaryClusterMandatoryFields(t *testing.T) {
 	t.Parallel()
-	// https://github.com/hashicorp/terraform-provider-google/issues/16231
-	acctest.SkipIfVcr(t)
 	context := map[string]interface{}{
 		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydbinstance-network-config-1"),
 		"random_suffix": acctest.RandString(t, 10),
@@ -153,9 +151,6 @@ data "google_compute_network" "default" {
 // Validation test to ensure proper error is raised if secondary_config field is provided but no cluster_type is specified.
 func TestAccAlloydbCluster_secondaryClusterDefinedSecondaryConfigButMissingClusterTypeSecondary(t *testing.T) {
 	t.Parallel()
-
-	// Unskip in https://github.com/hashicorp/terraform-provider-google/issues/16231
-	acctest.SkipIfVcr(t)
 
 	context := map[string]interface{}{
 		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydbinstance-network-config-1"),
