@@ -171,7 +171,7 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), WebApp can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_firebase_web_app.default {{project}} projects/{{project}}/webApps/{{app_id}}
+$ terraform import google_firebase_web_app.default "{{project}} projects/{{project}}/webApps/{{app_id}}"
 $ terraform import google_firebase_web_app.default projects/{{project}}/webApps/{{app_id}}
 $ terraform import google_firebase_web_app.default {{project}}/{{project}}/{{app_id}}
 $ terraform import google_firebase_web_app.default webApps/{{app_id}}
