@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_backup_dr_backup_plan`
+```
+```release-note:new-datasource
+`google_backup_dr_backup_plan`
+```
