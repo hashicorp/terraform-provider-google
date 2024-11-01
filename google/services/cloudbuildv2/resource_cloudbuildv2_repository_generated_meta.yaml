@@ -1,0 +1,5 @@
+resource: 'google_cloudbuildv2_repository'
+generation_type: 'mmv1'
+api_service_name: 'cloudbuild.googleapis.com'
+api_version: 'v2'
+api_resource_type_kind: 'Repository'

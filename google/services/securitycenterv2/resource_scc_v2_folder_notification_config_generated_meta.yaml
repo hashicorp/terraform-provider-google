@@ -1,0 +1,5 @@
+resource: 'google_scc_v2_folder_notification_config'
+generation_type: 'mmv1'
+api_service_name: 'securitycenter.googleapis.com'
+api_version: 'v2'
+api_resource_type_kind: 'NotificationConfig'
