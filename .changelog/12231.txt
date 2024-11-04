@@ -1,0 +1,3 @@
+```release-note:none
+tgc: fixed a panic in storageClient when running tfplan2cai converter in offline mode
+```
