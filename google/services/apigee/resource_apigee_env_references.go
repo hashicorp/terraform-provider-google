@@ -34,6 +34,7 @@ func ResourceApigeeEnvReferences() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApigeeEnvReferencesCreate,
 		Read:   resourceApigeeEnvReferencesRead,
+		Update: resourceApigeeEnvReferencesUpdate,
 		Delete: resourceApigeeEnvReferencesDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -42,6 +43,7 @@ func ResourceApigeeEnvReferences() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(1 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(1 * time.Minute),
 		},
 
@@ -62,7 +64,6 @@ in the format 'organizations/{{org_name}}/environments/{{env_name}}'.`,
 			"refers": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Required. The id of the resource to which this reference refers. Must be the id of a resource that exists in the parent environment and is of the given resourceType.`,
 			},
 			"resource_type": {
@@ -201,6 +202,74 @@ func resourceApigeeEnvReferencesRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	return nil
+}
+
+func resourceApigeeEnvReferencesUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	obj := make(map[string]interface{})
+	nameProp, err := expandApigeeEnvReferencesName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
+	descriptionProp, err := expandApigeeEnvReferencesDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
+	resourceTypeProp, err := expandApigeeEnvReferencesResourceType(d.Get("resource_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("resource_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, resourceTypeProp)) {
+		obj["resourceType"] = resourceTypeProp
+	}
+	refersProp, err := expandApigeeEnvReferencesRefers(d.Get("refers"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("refers"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, refersProp)) {
+		obj["refers"] = refersProp
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating EnvReferences %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PUT",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error updating EnvReferences %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating EnvReferences %q: %#v", d.Id(), res)
+	}
+
+	return resourceApigeeEnvReferencesRead(d, meta)
 }
 
 func resourceApigeeEnvReferencesDelete(d *schema.ResourceData, meta interface{}) error {
