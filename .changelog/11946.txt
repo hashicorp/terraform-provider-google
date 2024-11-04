@@ -1,0 +1,6 @@
+```release-note:bug
+compute: fixed permadiff on the `preconfigured_waf_config` field for `google_compute_security_policy` resource
+```
+```release-note:enhancement
+compute: added `preconfigured_waf_config` field  to `google_compute_security_policy` resource (ga)
+```

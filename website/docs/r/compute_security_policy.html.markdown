@@ -229,7 +229,7 @@ The following arguments are supported:
 * `match` - (Required) A match condition that incoming traffic is evaluated against.
     If it evaluates to true, the corresponding `action` is enforced. Structure is [documented below](#nested_match).
 
-* `preconfigured_waf_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Preconfigured WAF configuration to be applied for the rule. If the rule does not evaluate preconfigured WAF rules, i.e., if `evaluatePreconfiguredWaf()` is not used, this field will have no effect. Structure is [documented below](#nested_preconfigured_waf_config).
+* `preconfigured_waf_config` - (Optional) Preconfigured WAF configuration to be applied for the rule. If the rule does not evaluate preconfigured WAF rules, i.e., if `evaluatePreconfiguredWaf()` is not used, this field will have no effect. Structure is [documented below](#nested_preconfigured_waf_config).
 
 * `description` - (Optional) An optional description of this rule. Max size is 64.
 
