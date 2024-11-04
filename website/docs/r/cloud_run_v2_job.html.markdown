@@ -320,11 +320,9 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
 
 ```hcl
 resource "google_cloud_run_v2_job" "default" {
-  provider = google-beta
   name     = "cloudrun-job"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
   template {
     template {
       containers {
@@ -581,7 +579,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_cloud_sql_instance).
 
 * `empty_dir` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Ephemeral storage used as a shared volume.
   Structure is [documented below](#nested_empty_dir).
 

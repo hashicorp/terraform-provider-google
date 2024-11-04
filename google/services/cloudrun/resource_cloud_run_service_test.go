@@ -1108,3 +1108,59 @@ resource "google_cloud_run_service" "default" {
 }
 `, name, project)
 }
+
+func TestAccCloudRunService_emptyDirVolume(t *testing.T) {
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunService_cloudRunServiceWithEmptyDirVolume(name, project),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunService_cloudRunServiceWithEmptyDirVolume(name, project string) string {
+	return fmt.Sprintf(`
+resource "google_cloud_run_service" "default" {
+  name     = "%s"
+  location = "us-central1"
+
+  metadata {
+    namespace = "%s"
+    annotations = {
+      generated-by = "magic-modules"
+    }
+  }
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+        volume_mounts {
+          name = "vol1"
+          mount_path = "/mnt/vol1"
+        }
+      }
+      volumes {
+        name = "vol1"
+        empty_dir { size_limit = "256Mi" }
+      }
+    }
+  }
+
+}
+`, name, project)
+}

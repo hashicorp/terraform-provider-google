@@ -480,6 +480,76 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
 `, context)
 }
 
+func TestAccCloudRunV2Service_cloudrunv2ServiceMulticontainerExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2ServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceMulticontainerExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceMulticontainerExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-service%{random_suffix}"
+  location = "us-central1"
+  deletion_protection = false
+  ingress = "INGRESS_TRAFFIC_ALL"
+  template {
+    containers {
+      name = "hello-1"
+      ports {
+        container_port = 8080
+      }
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      depends_on = ["hello-2"]
+      volume_mounts {
+        name = "empty-dir-volume"
+        mount_path = "/mnt"
+      }
+    }
+    containers {
+      name = "hello-2"
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      env {
+        name = "PORT"
+        value = "8081"
+      }
+      startup_probe {
+        http_get {
+          port = 8081
+        }
+      }
+    }
+    volumes {
+      name = "empty-dir-volume"
+      empty_dir {
+        medium = "MEMORY"
+        size_limit = "256Mi"
+      }
+    }
+  }
+}
+`, context)
+}
+
 func TestAccCloudRunV2Service_cloudrunv2ServiceMountGcsExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()

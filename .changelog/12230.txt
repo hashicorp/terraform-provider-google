@@ -1,0 +1,6 @@
+```release-note:enhancement
+cloudrun: promoted `empty_dir` field in `google_cloud_run_service` to GA
+```
+```release-note:enhancement
+cloudrunv2: promoted `empty_dir` field in `google_cloud_run_v2_service` and `google_cloud_run_v2_job` to GA
+```
