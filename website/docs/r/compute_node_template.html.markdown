@@ -96,6 +96,31 @@ resource "google_compute_node_template" "template" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=node_template_disks&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Node Template Disks
+
+
+```hcl
+data "google_compute_node_types" "central1a" {
+  zone     = "us-central1-a"
+}
+
+resource "google_compute_node_template" "template" {
+  name      = "soletenant-with-disks"
+  region    = "us-central1"
+  node_type = "n2-node-80-640"
+
+  disks {
+    disk_count   = 16
+    disk_size_gb = 375
+    disk_type    = "local-ssd"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -150,6 +175,12 @@ The following arguments are supported:
   Default value is `NONE`.
   Possible values are: `ENABLED`, `NONE`.
 
+* `disks` -
+  (Optional)
+  List of the type, size and count of disks attached to the
+  node template
+  Structure is [documented below](#nested_disks).
+
 * `region` -
   (Optional)
   Region where nodes using the node template will be created.
@@ -201,6 +232,20 @@ The following arguments are supported:
   (Optional)
   Full or partial URL of the accelerator type resource to expose
   to this node template.
+
+<a name="nested_disks"></a>The `disks` block supports:
+
+* `disk_count` -
+  (Optional)
+  Specifies the number of such disks.
+
+* `disk_type` -
+  (Optional)
+  Specifies the desired disk type on the node. This disk type must be a local storage type (e.g.: local-ssd). Note that for nodeTemplates, this should be the name of the disk type and not its URL.
+
+* `disk_size_gb` -
+  (Optional)
+  Specifies the size of the disk in base-2 GB.
 
 ## Attributes Reference
 
