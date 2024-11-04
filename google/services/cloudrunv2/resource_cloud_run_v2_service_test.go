@@ -272,6 +272,7 @@ resource "google_cloud_run_v2_service" "default" {
       gcs {
         bucket = "gcp-public-data-landsat"
         read_only = true
+
       }
     }
     containers {
