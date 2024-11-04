@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_network_management_vpc_flow_logs_config` (beta)
+```
