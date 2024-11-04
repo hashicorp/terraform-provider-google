@@ -1,0 +1,3 @@
+```release-note:none
+docs: added documentation for `custom_learned_ip_ranges` and `custom_learned_route_priority` fields in `google_compute_router_peer` resource
+```

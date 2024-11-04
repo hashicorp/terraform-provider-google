@@ -154,7 +154,7 @@ IP address is provided without a subnet mask, it is interpreted as, for IPv4, a 
 						"range": {
 							Type:     schema.TypeString,
 							Required: true,
-							Description: `The IP range to advertise. The value must be a
+							Description: `The IP range to learn. The value must be a
 CIDR-formatted string.`,
 						},
 					},
