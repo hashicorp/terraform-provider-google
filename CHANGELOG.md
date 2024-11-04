@@ -1,4 +1,37 @@
-## 6.9.0 (Unreleased)
+## 6.10.0 (Unreleased)
+
+## 6.9.0 (October 28, 2024)
+
+DEPRECATIONS:
+* containerattached: deprecated `security_posture_config` field in `google_container_attached_cluster` resource ([#19912](https://github.com/hashicorp/terraform-provider-google/pull/19912))
+
+FEATURES:
+* **New Data Source:** `google_oracle_database_autonomous_database` ([#19903](https://github.com/hashicorp/terraform-provider-google/pull/19903))
+* **New Data Source:** `google_oracle_database_autonomous_databases` ([#19901](https://github.com/hashicorp/terraform-provider-google/pull/19901))
+* **New Data Source:** `google_oracle_database_cloud_exadata_infrastructures` ([#19884](https://github.com/hashicorp/terraform-provider-google/pull/19884))
+* **New Data Source:** `google_oracle_database_cloud_vm_clusters` ([#19900](https://github.com/hashicorp/terraform-provider-google/pull/19900))
+* **New Resource:** `google_apigee_app_group` ([#19921](https://github.com/hashicorp/terraform-provider-google/pull/19921))
+* **New Resource:** `google_apigee_developer` ([#19911](https://github.com/hashicorp/terraform-provider-google/pull/19911))
+* **New Resource:** `google_network_connectivity_group` ([#19902](https://github.com/hashicorp/terraform-provider-google/pull/19902))
+
+IMPROVEMENTS:
+* compute: `google_compute_network_firewall_policy_association` now uses MMv1 engine instead of DCL. ([#19976](https://github.com/hashicorp/terraform-provider-google/pull/19976))
+* compute: `google_compute_region_network_firewall_policy_association` now uses MMv1 engine instead of DCL. ([#19976](https://github.com/hashicorp/terraform-provider-google/pull/19976))
+* compute: added `creation_timestamp` field to `google_compute_instance`, `google_compute_instance_template`, `google_compute_region_instance_template` ([#19906](https://github.com/hashicorp/terraform-provider-google/pull/19906))
+* compute: added `key_revocation_action_type` to `google_compute_instance` and related resources ([#19952](https://github.com/hashicorp/terraform-provider-google/pull/19952))
+* looker: added `deletion_policy` to `google_looker_instance` to allow force-destroying instances with nested resources by setting `deletion_policy = FORCE` ([#19924](https://github.com/hashicorp/terraform-provider-google/pull/19924))
+* monitoring: added `alert_strategy.notification_prompts` field to `google_monitoring_alert_policy` ([#19928](https://github.com/hashicorp/terraform-provider-google/pull/19928))
+* storage: added `hierarchical_namespace` to `google_storage_bucket` resource ([#19882](https://github.com/hashicorp/terraform-provider-google/pull/19882))
+* sql: removed the client-side default of `ENTERPRISE` for `edition` in `google_sql_database_instance` so that `edition` is determined by the API when unset. This will cause new instances to use `ENTERPRISE_PLUS` as the default for POSTGRES_16. ([#19977](https://github.com/hashicorp/terraform-provider-google/pull/19977))
+* vmwareengine: added `autoscaling_settings` to `google_vmwareengine_cluster` resource ([#19962](https://github.com/hashicorp/terraform-provider-google/pull/19962))
+* workstations: added `max_usable_workstations` field to `google_workstations_workstation_config` resource. ([#19872](https://github.com/hashicorp/terraform-provider-google/pull/19872))
+
+BUG FIXES:
+* compute: fixed an issue where immutable `distribution_zones` was incorrectly sent to the API when updating `distribution_policy_target_shape` in `google_compute_region_instance_group_manager` resource ([#19949](https://github.com/hashicorp/terraform-provider-google/pull/19949))
+* container: fixed a crash in `google_container_node_pool` caused by an occasional nil pointer ([#19922](https://github.com/hashicorp/terraform-provider-google/pull/19922))
+* essentialcontacts: fixed `google_essential_contacts_contact` import to include required parent field. ([#19877](https://github.com/hashicorp/terraform-provider-google/pull/19877))
+* sql: made `google_sql_database_instance.0.settings.0.data_cache_config` accept server-side changes when unset. When unset, no diffs will be created when instances change in `edition` and the feature is enabled or disabled as a result. ([#19972](https://github.com/hashicorp/terraform-provider-google/pull/19972))
+* storage: removed retry on 404s during refresh for `google_storage_bucket`, preventing hanging when refreshing deleted buckets ([#19964](https://github.com/hashicorp/terraform-provider-google/pull/19964))
 
 ## 6.8.0 (October 21, 2024)
 
