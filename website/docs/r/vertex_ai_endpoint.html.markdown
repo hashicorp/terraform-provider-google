@@ -45,6 +45,17 @@ resource "google_vertex_ai_endpoint" "endpoint" {
   encryption_spec {
     kms_key_name = "kms-name"
   }
+  predict_request_response_logging_config {
+    bigquery_destination {
+      output_uri = "bq://${data.google_project.project.project_id}.${google_bigquery_dataset.bq_dataset.dataset_id}.request_response_logging"
+    }
+    enabled       = true
+    sampling_rate = 0.1
+  }
+  traffic_split = jsonencode({
+    "12345" = 100
+  })
+
   depends_on   = [
     google_service_networking_connection.vertex_vpc_connection
   ]
@@ -72,6 +83,66 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
   crypto_key_id = "kms-name"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-aiplatform.iam.gserviceaccount.com"
+}
+
+resource "google_bigquery_dataset" "bq_dataset" {
+  dataset_id                 = "some_dataset"
+  friendly_name              = "logging dataset"
+  description                = "This is a dataset that requests are logged to"
+  location                   = "US"
+  delete_contents_on_destroy = true
+}
+
+data "google_project" "project" {}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_endpoint_private_service_connect&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Endpoint Private Service Connect
+
+
+```hcl
+resource "google_vertex_ai_endpoint" "endpoint" {
+  name         = "endpoint-name%{random_suffix}"
+  display_name = "sample-endpoint"
+  description  = "A sample vertex endpoint"
+  location     = "us-central1"
+  region       = "us-central1"
+  labels       = {
+    label-one = "value-one"
+  }
+  private_service_connect_config {
+    enable_private_service_connect = true
+    project_allowlist = [
+      "${data.google_project.project.project_id}"
+    ]
+    enable_secure_private_service_connect = false
+  }
+}
+
+data "google_project" "project" {}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_endpoint_dedicated_endpoint&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Endpoint Dedicated Endpoint
+
+
+```hcl
+resource "google_vertex_ai_endpoint" "endpoint" {
+  name         = "endpoint-name%{random_suffix}"
+  display_name = "sample-endpoint"
+  description  = "A sample vertex endpoint"
+  location     = "us-central1"
+  region       = "us-central1"
+  labels       = {
+    label-one = "value-one"
+  }
+  dedicated_endpoint_enabled = true
 }
 
 data "google_project" "project" {}
@@ -102,6 +173,16 @@ The following arguments are supported:
   (Optional)
   The description of the Endpoint.
 
+* `traffic_split` -
+  (Optional)
+  A map from a DeployedModel's id to the percentage of this Endpoint's traffic that should be forwarded to that DeployedModel.
+  If a DeployedModel's id is not listed in this map, then it receives no traffic.
+  The traffic percentage values must add up to 100, or map must be empty if the Endpoint is to not accept any traffic at a moment.
+  ~> **Note:** The `traffic_split` setting only applies after a model has been deployed to the endpoint. Re-applying a `google_vertex_ai_endpoint`
+  resource without updating the `traffic_split` post-deployment may lead to your deployed `traffic_split` being lost; see
+  the `deployModel` [example](https://cloud.google.com/vertex-ai/docs/general/deployment#deploy_a_model_to_an_endpoint) and
+  [documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.endpoints/deployModel) for details.
+
 * `labels` -
   (Optional)
   The labels with user-defined metadata to organize your Endpoints. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels.
@@ -115,7 +196,21 @@ The following arguments are supported:
 
 * `network` -
   (Optional)
-  The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks) to which the Endpoint should be peered. Private services access must already be configured for the network. If left unspecified, the Endpoint is not peered with any network. Only one of the fields, network or enable_private_service_connect, can be set. [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert): `projects/{project}/global/networks/{network}`. Where `{project}` is a project number, as in `12345`, and `{network}` is network name.
+  The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks) to which the Endpoint should be peered. Private services access must already be configured for the network. If left unspecified, the Endpoint is not peered with any network. Only one of the fields, network or enable_private_service_connect, can be set. [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert): `projects/{project}/global/networks/{network}`. Where `{project}` is a project number, as in `12345`, and `{network}` is network name. Only one of the fields, `network` or `privateServiceConnectConfig`, can be set.
+
+* `private_service_connect_config` -
+  (Optional)
+  Configuration for private service connect. `network` and `privateServiceConnectConfig` are mutually exclusive.
+  Structure is [documented below](#nested_private_service_connect_config).
+
+* `predict_request_response_logging_config` -
+  (Optional)
+  Configures the request-response logging for online prediction.
+  Structure is [documented below](#nested_predict_request_response_logging_config).
+
+* `dedicated_endpoint_enabled` -
+  (Optional)
+  If true, the endpoint will be exposed through a dedicated DNS [Endpoint.dedicated_endpoint_dns]. Your request to the dedicated DNS will be isolated from other users' traffic and will have better performance and reliability. Note: Once you enabled dedicated endpoint, you won't be able to send request to the shared DNS {region}-aiplatform.googleapis.com. The limitation will be removed soon.
 
 * `region` -
   (Optional)
@@ -130,6 +225,42 @@ The following arguments are supported:
 * `kms_key_name` -
   (Required)
   Required. The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource. Has the form: `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`. The key needs to be in the same region as where the compute resource is created.
+
+<a name="nested_private_service_connect_config"></a>The `private_service_connect_config` block supports:
+
+* `enable_private_service_connect` -
+  (Required)
+  Required. If true, expose the IndexEndpoint via private service connect.
+
+* `project_allowlist` -
+  (Optional)
+  A list of Projects from which the forwarding rule will target the service attachment.
+
+* `enable_secure_private_service_connect` -
+  (Optional)
+  If set to true, enable secure private service connect with IAM authorization. Otherwise, private service connect will be done without authorization. Note latency will be slightly increased if authorization is enabled.
+
+<a name="nested_predict_request_response_logging_config"></a>The `predict_request_response_logging_config` block supports:
+
+* `enabled` -
+  (Optional)
+  If logging is enabled or not.
+
+* `sampling_rate` -
+  (Optional)
+  Percentage of requests to be logged, expressed as a fraction in range(0,1]
+
+* `bigquery_destination` -
+  (Optional)
+  BigQuery table for logging. If only given a project, a new dataset will be created with name `logging_<endpoint-display-name>_<endpoint-id>` where will be made BigQuery-dataset-name compatible (e.g. most special characters will become underscores). If no table name is given, a new table will be created with name `request_response_logging`
+  Structure is [documented below](#nested_bigquery_destination).
+
+
+<a name="nested_bigquery_destination"></a>The `bigquery_destination` block supports:
+
+* `output_uri` -
+  (Optional)
+  BigQuery URI to a project or table, up to 2000 characters long. When only the project is specified, the Dataset and Table is created. When the full table reference is specified, the Dataset must exist and table must not exist. Accepted forms: - BigQuery path. For example: `bq://projectId` or `bq://projectId.bqDatasetId` or `bq://projectId.bqDatasetId.bqTableId`.
 
 ## Attributes Reference
 
@@ -152,6 +283,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `model_deployment_monitoring_job` -
   Output only. Resource name of the Model Monitoring job associated with this Endpoint if monitoring is enabled by CreateModelDeploymentMonitoringJob. Format: `projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}`
+
+* `dedicated_endpoint_dns` -
+  Output only. DNS of the dedicated endpoint. Will only be populated if dedicatedEndpointEnabled is true. Format: `https://{endpointId}.{region}-{projectNumber}.prediction.vertexai.goog`.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
