@@ -312,6 +312,7 @@ than 255 UTF-8 encoded bytes.`,
 				Type:        schema.TypeList,
 				Computed:    true,
 				Optional:    true,
+				Deprecated:  "`security_posture_config` is deprecated and will be removed in a future major release.",
 				Description: `Enable/Disable Security Posture API features for the cluster.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{

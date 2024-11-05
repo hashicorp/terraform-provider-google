@@ -189,7 +189,6 @@ resource "google_container_aws_node_pool" "primary" {
   project = "my-project-name"
 }
 
-
 ```
 ## Example Usage - basic_enum_aws_cluster
 A basic example of a containeraws node pool with lowercase enums

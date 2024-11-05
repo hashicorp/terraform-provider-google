@@ -31,7 +31,7 @@ func TestAccDialogflowCXAgent_update(t *testing.T) {
 				ResourceName:            "google_dialogflow_cx_agent.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"git_integration_settings.0.github_settings.0.access_token"},
+				ImportStateVerifyIgnore: []string{"git_integration_settings.0.github_settings.0.access_token", "enable_stackdriver_logging", "advanced_settings.0.logging_settings"},
 			},
 			{
 				Config: testAccDialogflowCXAgent_full(context),
@@ -40,7 +40,7 @@ func TestAccDialogflowCXAgent_update(t *testing.T) {
 				ResourceName:            "google_dialogflow_cx_agent.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"git_integration_settings.0.github_settings.0.access_token"},
+				ImportStateVerifyIgnore: []string{"git_integration_settings.0.github_settings.0.access_token", "enable_stackdriver_logging", "advanced_settings.0.logging_settings"},
 			},
 			{
 				Config: testAccDialogflowCXAgent_removeSettings(context),
@@ -49,7 +49,7 @@ func TestAccDialogflowCXAgent_update(t *testing.T) {
 				ResourceName:            "google_dialogflow_cx_agent.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"git_integration_settings.0.github_settings.0.access_token"},
+				ImportStateVerifyIgnore: []string{"git_integration_settings.0.github_settings.0.access_token", "enable_stackdriver_logging", "advanced_settings.0.logging_settings"},
 			},
 		},
 	})
@@ -94,10 +94,25 @@ func testAccDialogflowCXAgent_full(context map[string]interface{}) string {
 			audio_export_gcs_destination {
 				uri = "${google_storage_bucket.bucket.url}/prefix-"
 			}
+			speech_settings {
+				endpointer_sensitivity        = 30
+				no_speech_timeout             = "3.500s"
+				use_timeout_based_endpointing = true
+				models = {
+				name : "wrench"
+				mass : "1.3kg"
+				count : "3"
+				}
+			}
 			dtmf_settings {
-				enabled = true
-				max_digits = 1
+				enabled      = true
+				max_digits   = 1
 				finish_digit = "#"
+			}
+			logging_settings {
+				enable_stackdriver_logging     = true
+				enable_interaction_logging     = true
+				enable_consent_based_redaction = true
 			}
 		}
 		git_integration_settings {

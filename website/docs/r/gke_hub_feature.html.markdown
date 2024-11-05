@@ -45,7 +45,6 @@ resource "google_gke_hub_membership" "membership" {
       resource_link = "//container.googleapis.com/${google_container_cluster.cluster.id}"
     }
   }
-  description = "Membership"
 }
 
 resource "google_gke_hub_feature" "feature" {
@@ -478,7 +477,7 @@ The following arguments are supported:
 
 * `version` -
   (Optional)
-  Version of ACM installed
+  Version of Config Sync installed
 
 * `management` -
   (Optional)
@@ -574,9 +573,9 @@ The following arguments are supported:
 
 * `version` -
   (Optional, Deprecated)
-  Version of ACM installed
+  Version of Config Sync installed
 
-  ~> **Warning:** The `configmanagement.config_sync.oci.version` field is deprecated and will be removed in a future major release. Please use `configmanagement.version` field to specify the version of ACM installed instead.
+  ~> **Warning:** The `configmanagement.config_sync.oci.version` field is deprecated and will be removed in a future major release. Please use `configmanagement.version` field to specify the version of Config Sync installed instead.
 
 <a name="nested_policycontroller"></a>The `policycontroller` block supports:
 

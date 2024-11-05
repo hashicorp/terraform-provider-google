@@ -16,8 +16,6 @@ import (
 )
 
 func TestAccNetappBackupVault_NetappBackupVaultExample_update(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 	}
@@ -52,7 +50,7 @@ func testAccNetappBackupVault_NetappBackupVaultExample_basic(context map[string]
 	return acctest.Nprintf(`
 resource "google_netapp_backup_vault" "test_backup_vault" {
   name = "tf-test-test-backup-vault%{random_suffix}"
-  location = "us-central1"
+  location = "us-east4"
 }
 `, context)
 }
@@ -61,7 +59,7 @@ func testAccNetappBackupVault_NetappBackupVaultExample_update(context map[string
 	return acctest.Nprintf(`
 resource "google_netapp_backup_vault" "test_backup_vault" {
   name = "tf-test-test-backup-vault%{random_suffix}"
-  location = "us-central1"
+  location = "us-east4"
   description = "Terraform created vault"
   labels = { 
     "creator": "testuser",

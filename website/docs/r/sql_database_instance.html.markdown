@@ -377,9 +377,9 @@ Specifying a network enables private IP.
 At least `ipv4_enabled` must be enabled or a `private_network` must be configured.
 This setting can be updated, but it cannot be removed after it is set.
 
-* `ssl_mode` - (Optional) Specify how SSL connection should be enforced in DB connections.
+* `ssl_mode` - (Optional) Specify how SSL connection should be enforced in DB connections. Supported values are `ALLOW_UNENCRYPTED_AND_ENCRYPTED`, `ENCRYPTED_ONLY`, and `TRUSTED_CLIENT_CERTIFICATE_REQUIRED` (not supported for SQL Server). See [API reference doc](https://cloud.google.com/sql/docs/postgres/admin-api/rest/v1/instances#ipconfiguration) for details.
 
-* `server_ca_mode` - (Optional) Specify how the server certificate's Certificate Authority is hosted. Supported value is `GOOGLE_MANAGED_INTERNAL_CA`.
+* `server_ca_mode` - (Optional) Specify how the server certificate's Certificate Authority is hosted. Supported values are `GOOGLE_MANAGED_INTERNAL_CA` and `GOOGLE_MANAGED_CAS_CA`.
 
 * `allocated_ip_range` - (Optional) The name of the allocated ip range for the private ip CloudSQL instance. For example: "google-managed-services-default". If set, the instance ip will be created in the allocated range. The range name must comply with [RFC 1035](https://datatracker.ietf.org/doc/html/rfc1035). Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])?.
 
@@ -449,7 +449,12 @@ The optional `settings.password_validation_policy` subblock for instances declar
 * `enable_password_policy` - Enables or disable the password validation policy.
 
 The optional `replica_configuration` block must have `master_instance_name` set
-to work, cannot be updated, and supports:
+to work, cannot be updated and supports:
+
+-> **Note:** `replica_configuration` field is not meant to be used if the master
+instance is a source representation instance. The configuration provided by this
+field can be set on the source representation instance directly. If this field
+is present when the master instance is a source representation instance, `dump_file_path` must be provided.
 
 * `ca_certificate` - (Optional) PEM representation of the trusted CA's x509
     certificate.
@@ -464,7 +469,8 @@ to work, cannot be updated, and supports:
     between connect retries. MySQL's default is 60 seconds.
 
 * `dump_file_path` - (Optional) Path to a SQL file in GCS from which replica
-    instances are created. Format is `gs://bucket/filename`.
+    instances are created. Format is `gs://bucket/filename`. Note, if the master
+    instance is a source representation instance this field must be present.
 
 * `failover_target` - (Optional) Specifies if the replica is the failover target.
     If the field is set to true the replica will be designated as a failover replica.

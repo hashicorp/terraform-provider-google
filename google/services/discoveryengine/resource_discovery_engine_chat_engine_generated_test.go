@@ -96,6 +96,66 @@ resource "google_discovery_engine_chat_engine" "primary" {
 `, context)
 }
 
+func TestAccDiscoveryEngineChatEngine_discoveryengineChatEngineExistingDialogflowAgentExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDiscoveryEngineChatEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDiscoveryEngineChatEngine_discoveryengineChatEngineExistingDialogflowAgentExample(context),
+			},
+			{
+				ResourceName:            "google_discovery_engine_chat_engine.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"chat_engine_config", "collection_id", "engine_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccDiscoveryEngineChatEngine_discoveryengineChatEngineExistingDialogflowAgentExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_store" "test_data_store" {
+  location                    = "global"
+  data_store_id               = "tf-test-data-store%{random_suffix}"
+  display_name                = "Structured datastore"
+  industry_vertical           = "GENERIC"
+  content_config              = "NO_CONTENT"
+  solution_types              = ["SOLUTION_TYPE_CHAT"]
+}
+
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name = "dialogflowcx-agent"
+  location = "global"
+  default_language_code = "en"
+  time_zone = "America/Los_Angeles"
+}
+
+resource "google_discovery_engine_chat_engine" "primary" {
+  engine_id = "tf-test-chat-engine-id%{random_suffix}"
+  collection_id = "default_collection"
+  location = google_discovery_engine_data_store.test_data_store.location
+  display_name = "Chat engine"
+  industry_vertical = "GENERIC"
+  data_store_ids = [google_discovery_engine_data_store.test_data_store.data_store_id]
+  common_config {
+    company_name = "test-company"
+  }
+  chat_engine_config {
+    dialogflow_agent_to_link = google_dialogflow_cx_agent.agent.id
+  }
+}
+`, context)
+}
+
 func testAccCheckDiscoveryEngineChatEngineDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

@@ -372,6 +372,54 @@ resource "google_compute_subnetwork" "default" {
 `, context)
 }
 
+func TestAccComputeRegionBackendService_regionBackendServiceIpAddressSelectionPolicyExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_regionBackendServiceIpAddressSelectionPolicyExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "network", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionBackendService_regionBackendServiceIpAddressSelectionPolicyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_backend_service" "default" {
+  name                            = "tf-test-region-service%{random_suffix}"
+  region                          = "us-central1"
+  health_checks                   = [google_compute_region_health_check.health_check.id]
+
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol              = "HTTP"
+  ip_address_selection_policy = "IPV6_ONLY"
+}
+
+resource "google_compute_region_health_check" "health_check" {
+  name               = "tf-test-rbs-health-check%{random_suffix}"
+  region             = "us-central1"
+
+  tcp_health_check {
+    port = 80
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeRegionBackendServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

@@ -4,7 +4,7 @@ description: |-
   Ensures that a member:role pairing does not exist in a project's IAM policy.
 ---
 
-# google_project_iam\member_remove
+# google_project_iam_member_remove
 
 Ensures that a member:role pairing does not exist in a project's IAM policy. 
 

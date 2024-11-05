@@ -198,6 +198,15 @@ The following arguments are supported:
   your on-premise gateway or another Cloud provider's VPN gateway,
   it cannot be an IP address from Google Compute Engine.
 
+* `ipv6_address` -
+  (Optional)
+  IPv6 address of the interface in the external VPN gateway. This IPv6
+  address can be either from your on-premise gateway or another Cloud
+  provider's VPN gateway, it cannot be an IP address from Google Compute
+  Engine. Must specify an IPv6 address (not IPV4-mapped) using any format
+  described in RFC 4291 (e.g. 2001:db8:0:0:2d9:51:0:0). The output format
+  is RFC 5952 format (e.g. 2001:db8::2d9:51:0:0).
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

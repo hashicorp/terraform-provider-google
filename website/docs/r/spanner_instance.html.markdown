@@ -202,6 +202,11 @@ This must be set to true if you created a backup manually in the console.
   and outages due to abrupt scale-in events
   Structure is [documented below](#nested_autoscaling_targets).
 
+* `asymmetric_autoscaling_options` -
+  (Optional)
+  Asymmetric autoscaling options for specific replicas.
+  Structure is [documented below](#nested_asymmetric_autoscaling_options).
+
 
 <a name="nested_autoscaling_limits"></a>The `autoscaling_limits` block supports:
 
@@ -239,6 +244,43 @@ This must be set to true if you created a backup manually in the console.
   Specifies the target storage utilization percentage that the autoscaler
   should be trying to achieve for the instance.
   This number is on a scale from 0 (no utilization) to 100 (full utilization).
+
+<a name="nested_asymmetric_autoscaling_options"></a>The `asymmetric_autoscaling_options` block supports:
+
+* `replica_selection` -
+  (Required)
+  A nested object resource.
+  Structure is [documented below](#nested_replica_selection).
+
+* `overrides` -
+  (Required)
+  A nested object resource.
+  Structure is [documented below](#nested_overrides).
+
+
+<a name="nested_replica_selection"></a>The `replica_selection` block supports:
+
+* `location` -
+  (Required)
+  The location of the replica to apply asymmetric autoscaling options.
+
+<a name="nested_overrides"></a>The `overrides` block supports:
+
+* `autoscaling_limits` -
+  (Required)
+  A nested object resource.
+  Structure is [documented below](#nested_autoscaling_limits).
+
+
+<a name="nested_autoscaling_limits"></a>The `autoscaling_limits` block supports:
+
+* `min_nodes` -
+  (Required)
+  The minimum number of nodes for this specific replica.
+
+* `max_nodes` -
+  (Required)
+  The maximum number of nodes for this specific replica.
 
 ## Attributes Reference
 

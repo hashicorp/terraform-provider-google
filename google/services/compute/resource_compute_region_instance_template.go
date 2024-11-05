@@ -152,7 +152,15 @@ func ResourceComputeRegionInstanceTemplate() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Computed:    true,
-							Description: `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. Values must be between 10,000 and 120,000. For more details, see the [Extreme persistent disk documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk).`,
+							Description: `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. For more details, see the [Extreme persistent disk documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk) or the [Hyperdisk documentation](https://cloud.google.com/compute/docs/disks/hyperdisks) depending on the selected disk_type.`,
+						},
+
+						"provisioned_throughput": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `Indicates how much throughput to provision for the disk, in MB/s. This sets the amount of data that can be read or written from the disk per second. Values must greater than or equal to 1. For more details, see the [Hyperdisk documentation](https://cloud.google.com/compute/docs/disks/hyperdisks).`,
 						},
 
 						"resource_manager_tags": {
@@ -737,6 +745,13 @@ be from 0 to 999,999,999 inclusive.`,
 				Description: `The URI of the created resource.`,
 			},
 
+			"creation_timestamp": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The time at which the instance was created in RFC 3339 format.`,
+			},
+
 			"service_account": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
@@ -832,9 +847,10 @@ be from 0 to 999,999,999 inclusive.`,
 							Optional: true,
 							ForceNew: true,
 							Description: `
-								Specifies which confidential computing technology to use.
-								This could be one of the following values: SEV, SEV_SNP.
-								If SEV_SNP, min_cpu_platform = "AMD Milan" is currently required.`,
+								The confidential computing technology the instance uses.
+								SEV is an AMD feature. TDX is an Intel feature. One of the following
+								values is required: SEV, SEV_SNP, TDX. If SEV_SNP, min_cpu_platform =
+								"AMD Milan" is currently required.`,
 							AtLeastOneOf: []string{"confidential_instance_config.0.enable_confidential_compute", "confidential_instance_config.0.confidential_instance_type"},
 						},
 					},
@@ -861,6 +877,12 @@ be from 0 to 999,999,999 inclusive.`,
 							Computed:    false,
 							ForceNew:    true,
 							Description: `The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.`,
+						},
+						"turbo_mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Turbo frequency mode to use for the instance. Currently supported modes is "ALL_CORE_MAX".`,
+							ValidateFunc: validation.StringInSlice([]string{"ALL_CORE_MAX"}, false),
 						},
 						"visible_core_count": {
 							Type:        schema.TypeInt,
@@ -1002,6 +1024,14 @@ be from 0 to 999,999,999 inclusive.`,
 					},
 				},
 			},
+
+			"key_revocation_action_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"NONE", "STOP", ""}, false),
+				Description:  `Action to be taken when a customer's encryption key is revoked. Supports "STOP" and "NONE", with "NONE" being the default.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -1071,6 +1101,7 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 		AdvancedMachineFeatures:    expandAdvancedMachineFeatures(d),
 		ResourcePolicies:           resourcePolicies,
 		ReservationAffinity:        reservationAffinity,
+		KeyRevocationActionType:    d.Get("key_revocation_action_type").(string),
 	}
 
 	if _, ok := d.GetOk("effective_labels"); ok {
@@ -1227,6 +1258,9 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 	if err = d.Set("self_link", instanceTemplate["selfLink"]); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
+	if err := d.Set("creation_timestamp", instanceTemplate["creationTimestamp"]); err != nil {
+		return fmt.Errorf("Error setting creation_timestamp: %s", err)
+	}
 	if err = d.Set("name", instanceTemplate["name"]); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
@@ -1255,6 +1289,9 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 
 	if err = d.Set("instance_description", instanceProperties.Description); err != nil {
 		return fmt.Errorf("Error setting instance_description: %s", err)
+	}
+	if err = d.Set("key_revocation_action_type", instanceProperties.KeyRevocationActionType); err != nil {
+		return fmt.Errorf("Error setting key_revocation_action_type: %s", err)
 	}
 	if err = d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)

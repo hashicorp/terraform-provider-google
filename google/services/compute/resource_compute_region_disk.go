@@ -89,7 +89,7 @@ character, which cannot be a dash.`,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
-				Description:      `A nested object resource`,
+				Description:      `A nested object resource.`,
 				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

@@ -196,7 +196,7 @@ must be in the same location.`,
 						"storage_filters": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `A nested object resource`,
+							Description: `A nested object resource.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{

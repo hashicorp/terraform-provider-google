@@ -413,6 +413,20 @@ The following arguments are supported:
   Leave this field blank to advertise no custom IP ranges.
   Structure is [documented below](#nested_advertised_ip_ranges).
 
+* `custom_learned_route_priority` -
+  (Optional)
+  The user-defined custom learned route priority for a BGP session.
+  This value is applied to all custom learned route ranges for the session.
+  You can choose a value from 0 to 65335. If you don't provide a value,
+  Google Cloud assigns a priority of 100 to the ranges.
+
+* `custom_learned_ip_ranges` -
+  (Optional)
+  The custom learned route IP address range. Must be a valid CIDR-formatted prefix.
+  If an IP address is provided without a subnet mask, it is interpreted as, for IPv4,
+  a /32 singular IP address range, and, for IPv6, /128.
+  Structure is [documented below](#nested_custom_learned_ip_ranges).
+
 * `bfd` -
   (Optional)
   BFD configuration for the BGP peering.
@@ -493,6 +507,13 @@ The following arguments are supported:
 * `description` -
   (Optional)
   User-specified description for the IP range.
+
+<a name="nested_custom_learned_ip_ranges"></a>The `custom_learned_ip_ranges` block supports:
+
+* `range` -
+  (Required)
+  The IP range to learn. The value must be a
+  CIDR-formatted string.
 
 <a name="nested_bfd"></a>The `bfd` block supports:
 

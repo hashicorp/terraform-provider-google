@@ -106,6 +106,10 @@ var PapDescriptionEnvVars = []string{
 	"GOOGLE_PUBLIC_AVERTISED_PREFIX_DESCRIPTION",
 }
 
+var ImpersonateServiceAccountEnvVars = []string{
+	"GOOGLE_IMPERSONATE_SERVICE_ACCOUNT",
+}
+
 // AccTestPreCheck ensures at least one of the project env variables is set.
 func GetTestProjectNumberFromEnv() string {
 	return transport_tpg.MultiEnvSearch(ProjectNumberEnvVars)
@@ -138,6 +142,10 @@ func GetTestRegionFromEnv() string {
 
 func GetTestZoneFromEnv() string {
 	return transport_tpg.MultiEnvSearch(ZoneEnvVars)
+}
+
+func GetTestImpersonateServiceAccountFromEnv() string {
+	return transport_tpg.MultiEnvSearch(ImpersonateServiceAccountEnvVars)
 }
 
 func GetTestCustIdFromEnv(t *testing.T) string {

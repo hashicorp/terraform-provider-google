@@ -251,6 +251,12 @@ The default value is 'global'.`,
 For example: 'projects/*/global/networks/network-1'.
 Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY'.`,
 			},
+			"routing_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"NEXT_HOP_ROUTING_MODE", ""}),
+				Description:  `The routing mode of the Gateway. This field is configurable only for gateways of type SECURE_WEB_GATEWAY. This field is required for gateways of type SECURE_WEB_GATEWAY. Possible values: ["NEXT_HOP_ROUTING_MODE"]`,
+			},
 			"scope": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -387,6 +393,12 @@ func resourceNetworkServicesGatewayCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("certificate_urls"); !tpgresource.IsEmptyValue(reflect.ValueOf(certificateUrlsProp)) && (ok || !reflect.DeepEqual(v, certificateUrlsProp)) {
 		obj["certificateUrls"] = certificateUrlsProp
+	}
+	routingModeProp, err := expandNetworkServicesGatewayRoutingMode(d.Get("routing_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("routing_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(routingModeProp)) && (ok || !reflect.DeepEqual(v, routingModeProp)) {
+		obj["routingMode"] = routingModeProp
 	}
 	labelsProp, err := expandNetworkServicesGatewayEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -541,6 +553,9 @@ func resourceNetworkServicesGatewayRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("certificate_urls", flattenNetworkServicesGatewayCertificateUrls(res["certificateUrls"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Gateway: %s", err)
 	}
+	if err := d.Set("routing_mode", flattenNetworkServicesGatewayRoutingMode(res["routingMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Gateway: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetworkServicesGatewayTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Gateway: %s", err)
 	}
@@ -591,6 +606,12 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("certificate_urls"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, certificateUrlsProp)) {
 		obj["certificateUrls"] = certificateUrlsProp
 	}
+	routingModeProp, err := expandNetworkServicesGatewayRoutingMode(d.Get("routing_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("routing_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, routingModeProp)) {
+		obj["routingMode"] = routingModeProp
+	}
 	labelsProp, err := expandNetworkServicesGatewayEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -623,6 +644,10 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 		updateMask = append(updateMask, "certificateUrls")
 	}
 
+	if d.HasChange("routing_mode") {
+		updateMask = append(updateMask, "routingMode")
+	}
+
 	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")
 	}
@@ -635,6 +660,7 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 	if d.Get("type") == "SECURE_WEB_GATEWAY" {
 		obj["name"] = d.Get("name")
 		obj["type"] = d.Get("type")
+		obj["routingMode"] = d.Get("routingMode")
 	}
 
 	// err == nil indicates that the billing_project value was found
@@ -836,6 +862,10 @@ func flattenNetworkServicesGatewayCertificateUrls(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenNetworkServicesGatewayRoutingMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkServicesGatewayTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -892,6 +922,10 @@ func expandNetworkServicesGatewayGatewaySecurityPolicy(v interface{}, d tpgresou
 }
 
 func expandNetworkServicesGatewayCertificateUrls(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesGatewayRoutingMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

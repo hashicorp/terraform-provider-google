@@ -49,7 +49,7 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowBasicExample(t *testing.T) {
 				ResourceName:            "google_dialogflow_cx_flow.basic_flow",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "advanced_settings.0.logging_settings", "parent"},
 			},
 		},
 	})
@@ -141,7 +141,7 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowFullExample(t *testing.T) {
 				ResourceName:            "google_dialogflow_cx_flow.basic_flow",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "parent"},
 			},
 		},
 	})
@@ -424,10 +424,25 @@ resource "google_dialogflow_cx_flow" "basic_flow" {
     audio_export_gcs_destination {
       uri = "${google_storage_bucket.bucket.url}/prefix-"
     }
+    speech_settings {
+      endpointer_sensitivity        = 30
+      no_speech_timeout             = "3.500s"
+      use_timeout_based_endpointing = true
+      models = {
+        name : "wrench"
+        mass : "1.3kg"
+        count : "3"
+      }
+    }
     dtmf_settings {
       enabled      = true
       max_digits   = 1
       finish_digit = "#"
+    }
+    logging_settings {
+      enable_stackdriver_logging     = true
+      enable_interaction_logging     = true
+      enable_consent_based_redaction = true
     }
   }
 } 
@@ -453,7 +468,7 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowDefaultStartFlowExample(t *testing.
 				ResourceName:            "google_dialogflow_cx_flow.default_start_flow",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "parent"},
 			},
 		},
 	})

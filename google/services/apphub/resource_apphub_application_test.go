@@ -3,6 +3,7 @@
 package apphub_test
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -23,7 +24,7 @@ func TestAccApphubApplication_applicationUpdateFull(t *testing.T) {
 		CheckDestroy:             testAccCheckApphubApplicationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApphubApplication_applicationFullExample(context),
+				Config: testAccApphubApplication_apphubApplicationFullExample(context),
 			},
 			{
 				ResourceName:            "google_apphub_application.example2",
@@ -206,6 +207,56 @@ resource "google_apphub_application" "example2" {
 		  display_name =  "Charlie%{random_suffix}"
 		  email        =  "charlie@google.com%{random_suffix}"
 		}
+  }
+}
+`, context)
+}
+
+func TestAccApphubApplication_invalidConfigFails(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApphubApplicationDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccApphubApplication_applicationInvalidConfig1(context),
+				ExpectError: regexp.MustCompile("Error validating location global with REGIONAL scope type"),
+			},
+			{
+				Config:      testAccApphubApplication_applicationInvalidConfig2(context),
+				ExpectError: regexp.MustCompile("Error validating location us-east1 with GLOBAL scope type"),
+			},
+		},
+	})
+}
+
+func testAccApphubApplication_applicationInvalidConfig1(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+resource "google_apphub_application" "invalid_example" {
+  location = "global"
+  application_id = "tf-test-invalid-example-application%{random_suffix}"
+  scope {
+    type = "REGIONAL"
+  }
+}
+`, context)
+}
+
+func testAccApphubApplication_applicationInvalidConfig2(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+resource "google_apphub_application" "invalid_example" {
+  location = "us-east1"
+  application_id = "tf-test-invalid-example-application%{random_suffix}"
+  scope {
+    type = "GLOBAL"
   }
 }
 `, context)

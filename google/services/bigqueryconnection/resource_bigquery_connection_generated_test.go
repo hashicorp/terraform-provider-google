@@ -112,7 +112,7 @@ resource "google_sql_database_instance" "instance" {
 		tier = "db-f1-micro"
 	}
 
-    deletion_protection  = "%{deletion_protection}"
+    deletion_protection  = %{deletion_protection}
 }
 
 resource "google_sql_database" "db" {
@@ -189,7 +189,7 @@ resource "google_sql_database_instance" "instance" {
 		tier = "db-f1-micro"
 	}
 
-    deletion_protection  = "%{deletion_protection}"
+    deletion_protection  = %{deletion_protection}
 }
 
 resource "google_sql_database" "db" {
@@ -468,13 +468,12 @@ resource "google_dataproc_cluster" "basic" {
 `, context)
 }
 
-func TestAccBigqueryConnectionConnection_bigqueryConnectionKmsExample(t *testing.T) {
+func TestAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"deletion_protection": false,
 		"kms_key_name":        acctest.BootstrapKMSKey(t).CryptoKey.Name,
-		"policyChanged":       acctest.BootstrapPSARole(t, "bq-", "bigquery-encryption", "roles/cloudkms.cryptoKeyEncrypterDecrypter"),
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
@@ -484,7 +483,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionKmsExample(t *testing
 		CheckDestroy:             testAccCheckBigqueryConnectionConnectionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigqueryConnectionConnection_bigqueryConnectionKmsExample(context),
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekExample(context),
 			},
 			{
 				ResourceName:            "google_bigquery_connection.bq-connection-cmek",
@@ -496,54 +495,55 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionKmsExample(t *testing
 	})
 }
 
-func testAccBigqueryConnectionConnection_bigqueryConnectionKmsExample(context map[string]interface{}) string {
+func testAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_sql_database_instance" "instance" {
-    name             = "tf-test-my-database-instance%{random_suffix}"
-    database_version = "POSTGRES_11"
-    region           = "us-central1"
-    settings {
-		tier = "db-f1-micro"
-	}
+  name             = "tf-test-my-database-instance%{random_suffix}"
+  region           = "us-central1"
 
-    deletion_protection  = "%{deletion_protection}"
+  database_version = "POSTGRES_11"
+  settings {
+    tier = "db-f1-micro"
+  }
+
+  deletion_protection  = %{deletion_protection}
 }
 
 resource "google_sql_database" "db" {
-    instance = google_sql_database_instance.instance.name
-    name     = "db"
+  instance = google_sql_database_instance.instance.name
+  name     = "db"
 }
 
 resource "google_sql_user" "user" {
-    name = "user%{random_suffix}"
-    instance = google_sql_database_instance.instance.name
-    password = "tf-test-my-password%{random_suffix}"
+  name = "user%{random_suffix}"
+  instance = google_sql_database_instance.instance.name
+  password = "tf-test-my-password%{random_suffix}"
 }
 
 data "google_bigquery_default_service_account" "bq_sa" {}
 
-data "google_project" "project" {}
-
-resource "google_project_iam_member" "key_sa_user" {
-  project       = data.google_project.project.project_id
+resource "google_kms_crypto_key_iam_member" "key_sa_user" {
+  crypto_key_id = "%{kms_key_name}"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:${data.google_bigquery_default_service_account.bq_sa.email}"
 }
 
 resource "google_bigquery_connection" "bq-connection-cmek" {
-    friendly_name = "👋"
-    description   = "a riveting description"
-    location      = "US"
-    kms_key_name  = "%{kms_key_name}"
-    cloud_sql {
-        instance_id = google_sql_database_instance.instance.connection_name
-        database    = google_sql_database.db.name
-        type        = "POSTGRES"
-        credential {
-          username = google_sql_user.user.name
-          password = google_sql_user.user.password
-        }
+  friendly_name = "👋"
+  description   = "a riveting description"
+  location      = "US"
+  kms_key_name  = "%{kms_key_name}"
+  cloud_sql {
+    instance_id = google_sql_database_instance.instance.connection_name
+    database    = google_sql_database.db.name
+    type        = "POSTGRES"
+    credential {
+      username = google_sql_user.user.name
+      password = google_sql_user.user.password
     }
+  }
+
+  depends_on = [google_kms_crypto_key_iam_member.key_sa_user]
 }
 `, context)
 }

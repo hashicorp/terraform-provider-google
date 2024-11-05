@@ -1,0 +1,5 @@
+resource: 'google_network_security_security_profile'
+generation_type: 'mmv1'
+api_service_name: 'networksecurity.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'SecurityProfile'

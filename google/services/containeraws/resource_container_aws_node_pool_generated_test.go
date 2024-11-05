@@ -286,7 +286,6 @@ resource "google_container_aws_node_pool" "primary" {
   project = "%{project_name}"
 }
 
-
 `, context)
 }
 
@@ -452,7 +451,6 @@ resource "google_container_aws_node_pool" "primary" {
 
   project = "%{project_name}"
 }
-
 
 `, context)
 }

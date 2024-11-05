@@ -21,8 +21,6 @@ description: |-
 
 A Google Cloud Memorystore instance.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -35,7 +33,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_memorystore_instance" "instance-basic" {
-  provider    = google-beta
   instance_id = "basic-instance"
   shard_count = 3
   desired_psc_auto_connections {
@@ -54,7 +51,6 @@ resource "google_memorystore_instance" "instance-basic" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  provider      = google-beta
   name          = "my-policy"
   location      = "us-central1"
   service_class = "gcp-memorystore"
@@ -66,7 +62,6 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  provider      = google-beta
   name          = "my-subnet"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
@@ -74,13 +69,11 @@ resource "google_compute_subnetwork" "producer_subnet" {
 }
 
 resource "google_compute_network" "producer_net" {
-  provider                = google-beta
   name                    = "my-network"
   auto_create_subnetworks = false
 }
 
 data "google_project" "project" {
-  provider = google-beta
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -93,7 +86,6 @@ data "google_project" "project" {
 
 ```hcl
 resource "google_memorystore_instance" "instance-full" {
-  provider    = google-beta
   instance_id = "full-instance"
   shard_count = 3
   desired_psc_auto_connections {
@@ -114,6 +106,7 @@ resource "google_memorystore_instance" "instance-full" {
   }
   engine_version              = "VALKEY_7_2"
   deletion_protection_enabled = false
+  mode = "CLUSTER"
   persistence_config {
     mode = "RDB"
     rdb_config {
@@ -134,7 +127,6 @@ resource "google_memorystore_instance" "instance-full" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  provider      = google-beta
   name          = "my-policy"
   location      = "us-central1"
   service_class = "gcp-memorystore"
@@ -146,7 +138,6 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  provider      = google-beta
   name          = "my-subnet"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
@@ -154,13 +145,11 @@ resource "google_compute_subnetwork" "producer_subnet" {
 }
 
 resource "google_compute_network" "producer_net" {
-  provider                = google-beta
   name                    = "my-network"
   auto_create_subnetworks = false
 }
 
 data "google_project" "project" {
-  provider = google-beta
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -173,7 +162,6 @@ data "google_project" "project" {
 
 ```hcl
 resource "google_memorystore_instance" "instance-persistence-aof" {
-  provider    = google-beta
   instance_id = "aof-instance"
   shard_count = 3
   desired_psc_auto_connections {
@@ -197,7 +185,6 @@ resource "google_memorystore_instance" "instance-persistence-aof" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  provider      = google-beta
   name          = "my-policy"
   location      = "us-central1"
   service_class = "gcp-memorystore"
@@ -209,7 +196,6 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  provider      = google-beta
   name          = "my-subnet"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
@@ -217,13 +203,11 @@ resource "google_compute_subnetwork" "producer_subnet" {
 }
 
 resource "google_compute_network" "producer_net" {
-  provider                = google-beta
   name                    = "my-network"
   auto_create_subnetworks = false
 }
 
 data "google_project" "project" {
-  provider = google-beta
 }
 ```
 
@@ -308,6 +292,14 @@ The following arguments are supported:
 * `deletion_protection_enabled` -
   (Optional)
   Optional. If set to true deletion of the instance will fail.
+
+* `mode` -
+  (Optional)
+  Optional. Standalone or cluster. 
+   Possible values:
+   CLUSTER
+  STANDALONE
+  Possible values are: `CLUSTER`, `STANDALONE`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -418,6 +410,9 @@ In addition to the arguments listed above, the following computed attributes are
   Represents configuration for nodes of the instance.
   Structure is [documented below](#nested_node_config).
 
+* `endpoints` -
+  Endpoints for the instance.
+
 * `psc_auto_connections` -
   Output only. User inputs and resource details of the auto-created PSC connections.
   Structure is [documented below](#nested_psc_auto_connections).
@@ -495,6 +490,29 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Output only. The consumer network where the IP address resides, in the form of
   projects/{project_id}/global/networks/{network_id}.
+
+* `service_attachment` -
+  (Output)
+  Output only. The service attachment which is the target of the PSC connection, in the form of projects/{project-id}/regions/{region}/serviceAttachments/{service-attachment-id}.
+
+* `psc_connection_status` -
+  (Output)
+  Output Only. The status of the PSC connection: whether a connection exists and ACTIVE or it no longer exists. 
+   Possible values:
+   ACTIVE 
+   NOT_FOUND
+
+* `connection_type` -
+  (Output)
+  Output Only. Type of a PSC Connection. 
+   Possible values:
+   CONNECTION_TYPE_DISCOVERY 
+   CONNECTION_TYPE_PRIMARY 
+   CONNECTION_TYPE_READER
+
+* `port` -
+  (Output)
+  Output only. Ports of the exposed endpoint.
 
 ## Timeouts
 

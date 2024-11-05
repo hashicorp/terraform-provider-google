@@ -895,6 +895,11 @@ The following arguments are supported:
   (Optional)
   If an alert policy that was active has no data for this long, any open incidents will close.
 
+* `notification_prompts` -
+  (Optional)
+  Control when notifications will be sent out.
+  Each value may be one of: `NOTIFICATION_PROMPT_UNSPECIFIED`, `OPENED`, `CLOSED`.
+
 * `notification_channel_strategy` -
   (Optional)
   Control over how the notification channels in `notification_channels`
@@ -1000,6 +1005,8 @@ This resource provides the following
 
 AlertPolicy can be imported using any of these accepted formats:
 
+* `{{project}}/{{name}}`
+* `{{project}} {{name}}`
 * `{{name}}`
 
 
@@ -1007,7 +1014,7 @@ In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashico
 
 ```tf
 import {
-  id = "{{name}}"
+  id = "{{project}}/{{name}}"
   to = google_monitoring_alert_policy.default
 }
 ```
@@ -1015,6 +1022,8 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), AlertPolicy can be imported using one of the formats above. For example:
 
 ```
+$ terraform import google_monitoring_alert_policy.default {{project}}/{{name}}
+$ terraform import google_monitoring_alert_policy.default "{{project}} {{name}}"
 $ terraform import google_monitoring_alert_policy.default {{name}}
 ```
 

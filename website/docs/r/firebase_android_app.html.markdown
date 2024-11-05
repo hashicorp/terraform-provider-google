@@ -167,7 +167,7 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), AndroidApp can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_firebase_android_app.default {{project}} projects/{{project}}/androidApps/{{app_id}}
+$ terraform import google_firebase_android_app.default "{{project}} projects/{{project}}/androidApps/{{app_id}}"
 $ terraform import google_firebase_android_app.default projects/{{project}}/androidApps/{{app_id}}
 $ terraform import google_firebase_android_app.default {{project}}/{{project}}/{{app_id}}
 $ terraform import google_firebase_android_app.default androidApps/{{app_id}}

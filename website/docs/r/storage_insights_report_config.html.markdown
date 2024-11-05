@@ -196,7 +196,7 @@ The following arguments are supported:
 
 * `storage_filters` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_storage_filters).
 
 * `storage_destination_options` -

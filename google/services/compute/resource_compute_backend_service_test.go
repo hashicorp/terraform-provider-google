@@ -148,6 +148,39 @@ func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
 	})
 }
 
+func TestAccComputeBackendService_updateIAPEnabled(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_withIAPEnabled(
+					serviceName, 10),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withIAPDisabled(
+					serviceName, 10),
+			},
+			{
+				ResourceName:            "google_compute_backend_service.lipsum",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
+			},
+		},
+	})
+}
+
 func TestAccComputeBackendService_updatePreservesOptionalParameters(t *testing.T) {
 	t.Parallel()
 
@@ -1219,6 +1252,40 @@ resource "google_compute_http_health_check" "default" {
   timeout_sec        = 1
 }
 `, serviceName, timeout, igName, itName, checkName)
+}
+
+func testAccComputeBackendService_withIAPEnabled(
+	serviceName string, timeout int64) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "lipsum" {
+  name        = "%s"
+  description = "Hello World 1234"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = %v
+
+  iap {
+    enabled = true
+  }
+}
+`, serviceName, timeout)
+}
+
+func testAccComputeBackendService_withIAPDisabled(
+	serviceName string, timeout int64) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "lipsum" {
+  name        = "%s"
+  description = "Hello World 1234"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = %v
+
+  iap {
+    enabled = false
+  }
+}
+`, serviceName, timeout)
 }
 
 func testAccComputeBackendService_withSessionAffinity(serviceName, checkName, description, affinityName string) string {

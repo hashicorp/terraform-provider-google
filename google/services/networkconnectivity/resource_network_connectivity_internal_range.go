@@ -77,8 +77,8 @@ func ResourceNetworkConnectivityInternalRange() *schema.Resource {
 			"usage": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"FOR_VPC", "EXTERNAL_TO_VPC"}),
-				Description:  `The type of usage set for this InternalRange. Possible values: ["FOR_VPC", "EXTERNAL_TO_VPC"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"FOR_VPC", "EXTERNAL_TO_VPC", "FOR_MIGRATION"}),
+				Description:  `The type of usage set for this InternalRange. Possible values: ["FOR_VPC", "EXTERNAL_TO_VPC", "FOR_MIGRATION"]`,
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -100,6 +100,33 @@ func ResourceNetworkConnectivityInternalRange() *schema.Resource {
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"migration": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Specification for migration with source and target resource names.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"source": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `Resource path as an URI of the source resource, for example a subnet.
+The project for the source resource should match the project for the
+InternalRange.
+An example /projects/{project}/regions/{region}/subnetworks/{subnet}`,
+						},
+						"target": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `Resource path of the target resource. The target project can be
+different, as in the cases when migrating to peer networks. The resource
+may not exist yet.
+For example /projects/{project}/regions/{region}/subnetworks/{subnet}`,
+						},
+					},
+				},
 			},
 			"overlaps": {
 				Type:        schema.TypeList,
@@ -214,6 +241,12 @@ func resourceNetworkConnectivityInternalRangeCreate(d *schema.ResourceData, meta
 		return err
 	} else if v, ok := d.GetOkExists("overlaps"); !tpgresource.IsEmptyValue(reflect.ValueOf(overlapsProp)) && (ok || !reflect.DeepEqual(v, overlapsProp)) {
 		obj["overlaps"] = overlapsProp
+	}
+	migrationProp, err := expandNetworkConnectivityInternalRangeMigration(d.Get("migration"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("migration"); !tpgresource.IsEmptyValue(reflect.ValueOf(migrationProp)) && (ok || !reflect.DeepEqual(v, migrationProp)) {
+		obj["migration"] = migrationProp
 	}
 	labelsProp, err := expandNetworkConnectivityInternalRangeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -348,6 +381,9 @@ func resourceNetworkConnectivityInternalRangeRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
 	if err := d.Set("overlaps", flattenNetworkConnectivityInternalRangeOverlaps(res["overlaps"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err := d.Set("migration", flattenNetworkConnectivityInternalRangeMigration(res["migration"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenNetworkConnectivityInternalRangeTerraformLabels(res["labels"], d, config)); err != nil {
@@ -661,6 +697,29 @@ func flattenNetworkConnectivityInternalRangeOverlaps(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenNetworkConnectivityInternalRangeMigration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["source"] =
+		flattenNetworkConnectivityInternalRangeMigrationSource(original["source"], d, config)
+	transformed["target"] =
+		flattenNetworkConnectivityInternalRangeMigrationTarget(original["target"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkConnectivityInternalRangeMigrationSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityInternalRangeMigrationTarget(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkConnectivityInternalRangeTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -709,6 +768,40 @@ func expandNetworkConnectivityInternalRangeTargetCidrRange(v interface{}, d tpgr
 }
 
 func expandNetworkConnectivityInternalRangeOverlaps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivityInternalRangeMigration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSource, err := expandNetworkConnectivityInternalRangeMigrationSource(original["source"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["source"] = transformedSource
+	}
+
+	transformedTarget, err := expandNetworkConnectivityInternalRangeMigrationTarget(original["target"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["target"] = transformedTarget
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkConnectivityInternalRangeMigrationSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivityInternalRangeMigrationTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

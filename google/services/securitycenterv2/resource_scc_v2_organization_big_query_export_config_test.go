@@ -67,6 +67,7 @@ resource "google_bigquery_dataset" "default" {
   location                    = "US"
   default_table_expiration_ms = 3600000
   default_partition_expiration_ms = null
+  delete_contents_on_destroy  = true
 
   labels = {
     env = "default"
@@ -79,7 +80,7 @@ resource "google_bigquery_dataset" "default" {
 
 resource "time_sleep" "wait_1_minute" {
 	depends_on = [google_bigquery_dataset.default]
-	create_duration = "3m"
+	create_duration = "6m"
 }
 
 resource "google_scc_v2_organization_scc_big_query_export" "default" {
@@ -111,6 +112,7 @@ resource "google_bigquery_dataset" "default" {
   location                    = "US"
   default_table_expiration_ms = 3600000
   default_partition_expiration_ms = null
+  delete_contents_on_destroy  = true
 
   labels = {
     env = "default"

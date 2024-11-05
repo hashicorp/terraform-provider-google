@@ -71,7 +71,7 @@ func ResourceHealthcareDataset() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `A nested object resource`,
+				Description: `A nested object resource.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

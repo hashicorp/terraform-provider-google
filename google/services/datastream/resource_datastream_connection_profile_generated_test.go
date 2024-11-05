@@ -154,7 +154,7 @@ resource "google_sql_database_instance" "instance" {
         }
     }
 
-    deletion_protection  = "%{deletion_protection}"
+    deletion_protection  = %{deletion_protection}
 }
 
 resource "google_sql_database" "db" {

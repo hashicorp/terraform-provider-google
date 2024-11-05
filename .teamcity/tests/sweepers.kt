@@ -8,9 +8,9 @@
 package tests
 
 import ProjectSweeperName
-import ServiceSweeperName
 import ServiceSweeperCronName
 import ServiceSweeperManualName
+import ServiceSweeperName
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.triggers.ScheduleTrigger
@@ -136,7 +136,7 @@ class SweeperTests {
 
         // Find Project sweeper project's build
         val projectSweeperProject = getSubProject(root, projectSweeperProjectName)
-        val projectSweeper: BuildType = getBuildFromProject(projectSweeperProject!!, ProjectSweeperName)
+        val projectSweeper: BuildType = getBuildFromProject(projectSweeperProject, ProjectSweeperName)
         
         // Check only one schedule trigger is on the builds in question
         assertTrue(sweeperGa.triggers.items.size == 1)

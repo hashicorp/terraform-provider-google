@@ -208,7 +208,7 @@ func (d *GoogleProviderConfigPluginFrameworkDataSource) Read(ctx context.Context
 	data.Credentials = d.providerConfig.Credentials
 	data.AccessToken = d.providerConfig.AccessToken
 	data.ImpersonateServiceAccount = d.providerConfig.ImpersonateServiceAccount
-	// TODO(SarahFrench) - impersonate_service_account_delegates
+	data.ImpersonateServiceAccountDelegates = d.providerConfig.ImpersonateServiceAccountDelegates
 	data.Project = d.providerConfig.Project
 	data.Region = d.providerConfig.Region
 	data.BillingProject = d.providerConfig.BillingProject
@@ -216,11 +216,11 @@ func (d *GoogleProviderConfigPluginFrameworkDataSource) Read(ctx context.Context
 	data.UniverseDomain = d.providerConfig.UniverseDomain
 	data.Scopes = d.providerConfig.Scopes
 	data.UserProjectOverride = d.providerConfig.UserProjectOverride
-	// TODO(SarahFrench) - request_reason
-	// TODO(SarahFrench) - request_timeout
+	data.RequestReason = d.providerConfig.RequestReason
+	data.RequestTimeout = d.providerConfig.RequestTimeout
 	data.DefaultLabels = d.providerConfig.DefaultLabels
-	// TODO(SarahFrench) - add_terraform_attribution_label
-	// TODO(SarahFrench) - terraform_attribution_label_addition_strategy
+	data.AddTerraformAttributionLabel = d.providerConfig.AddTerraformAttributionLabel
+	data.TerraformAttributionLabelAdditionStrategy = d.providerConfig.TerraformAttributionLabelAdditionStrategy
 
 	// Warn users against using this data source
 	resp.Diagnostics.Append(diag.NewWarningDiagnostic(

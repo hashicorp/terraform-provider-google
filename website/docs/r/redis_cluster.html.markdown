@@ -418,7 +418,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `update_info` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_update_info).
 
 

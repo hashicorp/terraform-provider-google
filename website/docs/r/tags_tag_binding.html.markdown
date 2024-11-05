@@ -33,27 +33,28 @@ To get more information about TagBinding, see:
 
 ```hcl
 resource "google_project" "project" {
-	project_id = "project_id"
-	name       = "project_id"
-	org_id     = "123456789"
-	deletion_policy = "DELETE"
+  project_id = "project_id"
+  name       = "project_id"
+  org_id     = "123456789"
+
+  deletion_policy = "DELETE"
 }
 
 resource "google_tags_tag_key" "key" {
-	parent = "organizations/123456789"
-	short_name = "keyname"
-	description = "For keyname resources."
+  parent      = "organizations/123456789"
+  short_name  = "keyname"
+  description = "For keyname resources."
 }
 
 resource "google_tags_tag_value" "value" {
-	parent = "tagKeys/${google_tags_tag_key.key.name}"
-	short_name = "valuename"
-	description = "For valuename resources."
+  parent      = google_tags_tag_key.key.id
+  short_name  = "valuename"
+  description = "For valuename resources."
 }
 
 resource "google_tags_tag_binding" "binding" {
-	parent = "//cloudresourcemanager.googleapis.com/projects/${google_project.project.number}"
-	tag_value = "tagValues/${google_tags_tag_value.value.name}"
+  parent    = "//cloudresourcemanager.googleapis.com/projects/${google_project.project.number}"
+  tag_value = google_tags_tag_value.value.id
 }
 ```
 

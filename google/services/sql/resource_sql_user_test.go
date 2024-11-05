@@ -326,6 +326,65 @@ func TestAccSqlUser_mysqlPasswordPolicy(t *testing.T) {
 	})
 }
 
+func TestAccSqlUser_instanceWithActivationPolicy(t *testing.T) {
+	// Multiple fine-grained resources
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	instance := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlUserDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlUser_instanceWithActivationPolicy(instance, "ALWAYS"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user"),
+				),
+			},
+			// Step 2: Update activation_policy to NEVER
+			{
+				Config: testGoogleSqlUser_instanceWithActivationPolicy(instance, "NEVER"),
+			},
+			// Step 3: Refresh to verify no errors
+			{
+				Config: testGoogleSqlUser_instanceWithActivationPolicy(instance, "NEVER"),
+			},
+			// Step 4: Update activation_policy to ALWAYS so that post-test destroy code is able to delete the google_sql_user resource
+			{
+				Config: testGoogleSqlUser_instanceWithActivationPolicy(instance, "ALWAYS"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user"),
+				),
+			},
+		},
+	})
+}
+
+func testGoogleSqlUser_instanceWithActivationPolicy(instance, activationPolicy string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "%s"
+  database_version = "MYSQL_5_7"
+  region          = "us-central1"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+    availability_type = "ZONAL"
+    activation_policy = "%s"
+  }
+}
+
+resource "google_sql_user" "user" {
+	name     = "admin"
+	instance = google_sql_database_instance.instance.name
+	password = "password"
+  }
+`, instance, activationPolicy)
+}
+
 func testGoogleSqlUser_mysql(instance, password string) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {

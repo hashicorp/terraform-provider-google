@@ -112,7 +112,7 @@ resource "google_sql_database_instance" "instance" {
         }
     }
 
-    deletion_protection  = "true"
+    deletion_protection  = true
 }
 
 resource "google_sql_database" "db" {
@@ -214,7 +214,7 @@ resource "google_sql_database_instance" "instance" {
         }
     }
 
-    deletion_protection  = "true"
+    deletion_protection  = true
 }
 
 resource "google_sql_database" "db" {
@@ -255,7 +255,7 @@ resource "google_sql_database_instance" "instance" {
     database_version    = "SQLSERVER_2019_STANDARD"
     region              = "us-central1"
     root_password       = "root-password"
-    deletion_protection = "true"
+    deletion_protection = true
 
     settings {
         tier = "db-custom-2-4096"

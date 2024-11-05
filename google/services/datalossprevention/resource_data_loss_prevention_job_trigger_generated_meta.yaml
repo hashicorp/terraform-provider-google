@@ -1,0 +1,5 @@
+resource: 'google_data_loss_prevention_job_trigger'
+generation_type: 'mmv1'
+api_service_name: 'dlp.googleapis.com'
+api_version: 'v2'
+api_resource_type_kind: 'JobTrigger'

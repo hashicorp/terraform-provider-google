@@ -48,7 +48,7 @@ resource "google_privateca_certificate_authority" "default" {
   pool = "ca-pool"
   certificate_authority_id = "my-certificate-authority"
   location = "us-central1"
-  deletion_protection = "true"
+  deletion_protection = true
   config {
     subject_config {
       subject {
@@ -147,7 +147,7 @@ resource "google_privateca_certificate_authority" "default" {
   pool = "ca-pool"
   certificate_authority_id = "my-certificate-authority-sub"
   location = "us-central1"
-  deletion_protection = "true"
+  deletion_protection = true
   subordinate_config {
     certificate_authority = google_privateca_certificate_authority.root-ca.name
   }
@@ -222,7 +222,7 @@ resource "google_privateca_certificate_authority" "default" {
   pool = "ca-pool"
   certificate_authority_id = "my-certificate-authority"
   location = "us-central1"
-  deletion_protection = "true"
+  deletion_protection = true
   key_spec {
     cloud_kms_key_version = "projects/keys-project/locations/us-central1/keyRings/key-ring/cryptoKeys/crypto-key/cryptoKeyVersions/1"
   }
@@ -270,11 +270,6 @@ resource "google_privateca_certificate_authority" "default" {
   ]
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=privateca_certificate_authority_custom_ski&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Privateca Certificate Authority Custom Ski
 
 
@@ -285,7 +280,7 @@ resource "google_privateca_certificate_authority" "default" {
   pool = "ca-pool"
   certificate_authority_id = "my-certificate-authority"
   location = "us-central1"
-  deletion_protection = "true"
+  deletion_protection = true
   config {
     subject_config {
       subject {

@@ -28,6 +28,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"google.golang.org/api/googleapi"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -49,6 +50,50 @@ func resourceSourceRepoRepositoryPubSubConfigsHash(v interface{}) int {
 	}
 
 	return tpgresource.Hashcode(buf.String())
+}
+
+func resourceSourceRepoRepositoryPollRead(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*transport_tpg.Config)
+		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+		if err != nil {
+			return nil, err
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos")
+		if err != nil {
+			return nil, err
+		}
+
+		billingProject := ""
+
+		project, err := tpgresource.GetProject(d, config)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching project for Repository: %s", err)
+		}
+		billingProject = project
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		// Confirm the source repository exists
+		headers := make(http.Header)
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Headers:   headers,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}
 }
 
 func ResourceSourceRepoRepository() *schema.Resource {
@@ -122,6 +167,12 @@ If unspecified, it defaults to the compute engine default service account.`,
 				Computed:    true,
 				Description: `URL to clone the repository from Google Cloud Source Repositories.`,
 			},
+			"create_ignore_already_exists": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    false,
+				Description: `If set to true, skip repository creation if a repository with the same name already exists.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -185,8 +236,38 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 		Headers:   headers,
 	})
 	if err != nil {
-		return fmt.Errorf("Error creating Repository: %s", err)
+		gerr, ok := err.(*googleapi.Error)
+		alreadyExists := ok && gerr.Code == 409 && d.Get("create_ignore_already_exists").(bool)
+		if alreadyExists {
+			log.Printf("[DEBUG] Calling get Repository after already exists error")
+			res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: userAgent,
+				Headers:   headers,
+			})
+			if err != nil {
+				return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SourceRepoRepository %q", d.Id()))
+			}
+		} else {
+			return fmt.Errorf("Error creating Repository: %s", err)
+		}
 	}
+
+	// We poll until the resource is found due to eventual consistency issue
+	// on part of the api https://cloud.google.com/iam/docs/overview#consistency
+	err = transport_tpg.PollingWaitTime(resourceSourceRepoRepositoryPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating Source Repository", d.Timeout(schema.TimeoutCreate), 1)
+
+	if err != nil {
+		return err
+	}
+
+	// We can't guarantee complete consistency even after polling,
+	// so sleep for some additional time to reduce the likelihood of
+	// eventual consistency failures.
+	time.Sleep(10 * time.Second)
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/repos/{{name}}")

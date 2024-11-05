@@ -300,6 +300,11 @@ The following arguments are supported:
   A fully-qualified Certificates URL reference. The proxy presents a Certificate (selected based on SNI) when establishing a TLS connection.
   This feature only applies to gateways of type 'SECURE_WEB_GATEWAY'.
 
+* `routing_mode` -
+  (Optional)
+  The routing mode of the Gateway. This field is configurable only for gateways of type SECURE_WEB_GATEWAY. This field is required for gateways of type SECURE_WEB_GATEWAY.
+  Possible values are: `NEXT_HOP_ROUTING_MODE`.
+
 * `location` -
   (Optional)
   The location of the gateway.

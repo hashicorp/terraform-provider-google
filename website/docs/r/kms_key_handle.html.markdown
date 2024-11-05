@@ -42,7 +42,7 @@ To get more information about KeyHandle, see:
 # Create Folder in GCP Organization
 resource "google_folder" "autokms_folder" {
   provider     = google-beta
-  display_name = "folder-example"
+  display_name = "my-folder"
   parent       = "organizations/123456789"
   deletion_protection = false
 }
@@ -61,8 +61,8 @@ resource "google_project" "key_project" {
 # Create the resource project
 resource "google_project" "resource_project" {
   provider        = google-beta
-  project_id      = "resources"
-  name            = "resources"
+  project_id      = "res-proj"
+  name            = "res-proj"
   folder_id       = google_folder.autokms_folder.folder_id
   billing_account = "000000-0000000-0000000-000000"
   depends_on      = [google_folder.autokms_folder]
@@ -130,7 +130,7 @@ resource "time_sleep" "wait_autokey_config" {
 resource "google_kms_key_handle" "example-keyhandle" {
   provider               = google-beta
   project                = google_project.resource_project.project_id
-  name                   = "example-key-handle" 
+  name                   = "tf-test-key-handle"
   location               = "global"
   resource_type_selector = "storage.googleapis.com/Bucket"
   depends_on             = [time_sleep.wait_autokey_config]

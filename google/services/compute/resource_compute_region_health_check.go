@@ -84,7 +84,7 @@ you create the resource.`,
 				Type:             schema.TypeList,
 				Optional:         true,
 				DiffSuppressFunc: portDiffSuppress,
-				Description:      `A nested object resource`,
+				Description:      `A nested object resource.`,
 				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -150,7 +150,7 @@ consecutive successes. The default value is 2.`,
 				Type:             schema.TypeList,
 				Optional:         true,
 				DiffSuppressFunc: portDiffSuppress,
-				Description:      `A nested object resource`,
+				Description:      `A nested object resource.`,
 				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -229,7 +229,7 @@ can only be ASCII.`,
 				Type:             schema.TypeList,
 				Optional:         true,
 				DiffSuppressFunc: portDiffSuppress,
-				Description:      `A nested object resource`,
+				Description:      `A nested object resource.`,
 				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -308,7 +308,7 @@ can only be ASCII.`,
 				Type:             schema.TypeList,
 				Optional:         true,
 				DiffSuppressFunc: portDiffSuppress,
-				Description:      `A nested object resource`,
+				Description:      `A nested object resource.`,
 				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -414,7 +414,7 @@ If it is not provided, the provider region is used.`,
 				Type:             schema.TypeList,
 				Optional:         true,
 				DiffSuppressFunc: portDiffSuppress,
-				Description:      `A nested object resource`,
+				Description:      `A nested object resource.`,
 				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -486,7 +486,7 @@ can only be ASCII.`,
 				Type:             schema.TypeList,
 				Optional:         true,
 				DiffSuppressFunc: portDiffSuppress,
-				Description:      `A nested object resource`,
+				Description:      `A nested object resource.`,
 				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

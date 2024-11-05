@@ -52,12 +52,23 @@ To get more information about Image, see:
 
 
 ```hcl
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "example-disk"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "example-image"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-  }
+  source_disk = google_compute_disk.persistent.id
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -69,19 +80,42 @@ resource "google_compute_image" "example" {
 
 
 ```hcl
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "example-disk"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "example-image"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
+  source_disk = google_compute_disk.persistent.id
+
+  guest_os_features {
+    type = "UEFI_COMPATIBLE"
   }
 
   guest_os_features {
-    type = "SECURE_BOOT"
+    type = "VIRTIO_SCSI_MULTIQUEUE"
   }
 
   guest_os_features {
-    type = "MULTI_IP_SUBNET"
+    type = "GVNIC"
+  }
+
+  guest_os_features {
+    type = "SEV_CAPABLE"
+  }
+
+  guest_os_features {
+    type = "SEV_LIVE_MIGRATABLE_V2"
   }
 }
 ```
@@ -94,12 +128,23 @@ resource "google_compute_image" "example" {
 
 
 ```hcl
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "example-disk"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "example-sl-image"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-  }
+  source_disk = google_compute_disk.persistent.id
   storage_locations = ["us-central1"]
 }
 ```

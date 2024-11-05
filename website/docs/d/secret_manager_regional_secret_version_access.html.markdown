@@ -7,7 +7,7 @@ description: |-
 
 # google_secret_manager_regional_secret_version_access
 
-Get the value from a Secret Manager regional secret version. This is similar to the [google_secret_manager_regional_secret_version](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/secret_manager_regional_secret_version) datasource, but it only requires the [Secret Manager Secret Accessor](https://cloud.google.com/secret-manager/docs/access-control#secretmanager.secretAccessor) role. For more information see the [official documentation](https://cloud.google.com/secret-manager/docs/regional-secrets-overview) and [API](https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets.versions/access).
+Get the value from a Secret Manager regional secret version. This is similar to the [google_secret_manager_regional_secret_version](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/secret_manager_regional_secret_version) datasource, but it only requires the [Secret Manager Secret Accessor](https://cloud.google.com/secret-manager/docs/access-control#secretmanager.secretAccessor) role. For more information see the [official documentation](https://cloud.google.com/secret-manager/docs/regional-secrets-overview) and [API](https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.locations.secrets.versions/access).
 
 ## Example Usage
 
@@ -33,6 +33,9 @@ The following arguments are supported:
 
 - `version` - (Optional) The version of the regional secret to get. If it
     is not provided, the latest version is retrieved.
+
+- `is_secret_data_base64` - (Optional) If set to 'true', the secret data is
+    expected to be base64-encoded string.
 
 ## Attributes Reference
 

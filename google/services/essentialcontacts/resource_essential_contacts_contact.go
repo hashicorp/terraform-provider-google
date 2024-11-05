@@ -334,6 +334,13 @@ func resourceEssentialContactsContactImport(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
+	// Split resource name into tokens
+	nameTokens := strings.SplitAfterN(d.Id(), "/", 3)
+
+	if err := d.Set("parent", nameTokens[0]+strings.Trim(nameTokens[1], "/")); err != nil {
+		return nil, fmt.Errorf("error getting parent for the contact : %s", err)
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 

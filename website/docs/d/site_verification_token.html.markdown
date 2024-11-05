@@ -1,3 +1,4 @@
+---
 subcategory: "Site Verification"
 description: |-
   A verification token is used to demonstrate ownership of a website or domain.

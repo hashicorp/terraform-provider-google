@@ -43,6 +43,10 @@ func DataSourceGoogleServiceAccount() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"disabled": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -85,6 +89,9 @@ func dataSourceGoogleServiceAccountRead(d *schema.ResourceData, meta interface{}
 	}
 	if err := d.Set("member", "serviceAccount:"+sa.Email); err != nil {
 		return fmt.Errorf("Error setting member: %s", err)
+	}
+	if err := d.Set("disabled", sa.Disabled); err != nil {
+		return fmt.Errorf("Error setting disabled: %s", err)
 	}
 
 	return nil

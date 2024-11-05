@@ -32,11 +32,8 @@ func TestAccDataSourceSecretManagerSecrets_basic(t *testing.T) {
 						"data.google_secret_manager_secrets.foo",
 						"google_secret_manager_secret.foo",
 						map[string]struct{}{
-							"id":               {},
-							"project":          {},
-							"effective_labels": {},
-							"labels":           {},
-							"terraform_labels": {},
+							"id":      {},
+							"project": {},
 						},
 					),
 				),
@@ -61,6 +58,16 @@ resource "google_secret_manager_secret" "foo" {
       }
     }
   }
+
+  labels = {
+    label = "my-label"
+  }
+
+  annotations = {
+    key1 = "value1"
+  }
+
+  version_destroy_ttl = "360000s"
 }
 
 data "google_secret_manager_secrets" "foo" {
@@ -91,11 +98,8 @@ func TestAccDataSourceSecretManagerSecrets_filter(t *testing.T) {
 						"google_secret_manager_secret.foo",
 						"google_secret_manager_secret.bar",
 						map[string]struct{}{
-							"id":               {},
-							"project":          {},
-							"effective_labels": {},
-							"labels":           {},
-							"terraform_labels": {},
+							"id":      {},
+							"project": {},
 						},
 					),
 				),
@@ -120,6 +124,14 @@ resource "google_secret_manager_secret" "foo" {
       }
     }
   }
+
+  labels = {
+    label = "my-label"
+  }
+
+  annotations = {
+    key1 = "value1"
+  }
 }
 
 resource "google_secret_manager_secret" "bar" {
@@ -131,6 +143,14 @@ resource "google_secret_manager_secret" "bar" {
         location = "us-east5"
       }
     }
+  }
+
+  labels = {
+    label= "my-label2"
+  }
+
+  annotations = {
+    key1 = "value1" 
   }
 }
 

@@ -73,6 +73,8 @@ The following arguments are supported:
 
 * `instance_id` - The server-assigned unique identifier of this instance.
 
+* `creation_timestamp` - Creation timestamp in RFC3339 text format.
+
 * `metadata_fingerprint` - The unique fingerprint of the metadata.
 
 * `self_link` - The URI of the created resource.
@@ -107,6 +109,8 @@ The following arguments are supported:
     encoded SHA-256 hash of the [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption) that protects this resource.
 
+* `key_revocation_action_type` - Action to be taken when a customer's encryption key is revoked.
+
 ---
 
 <a name="nested_boot_disk"></a>The `boot_disk` block supports:
@@ -139,7 +143,7 @@ The following arguments are supported:
 
 <a name="nested_attached_disk"></a>The `attached_disk` block supports:
 
-* `source` - The name or self_link of the disk attached to this instance.
+* `source` - The self_link of the disk attached to this instance.
 
 * `device_name` - Name with which the attached disk is accessible
     under `/dev/disk/by-id/`

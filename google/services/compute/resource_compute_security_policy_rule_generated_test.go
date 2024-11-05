@@ -79,6 +79,68 @@ resource "google_compute_security_policy_rule" "policy_rule" {
 `, context)
 }
 
+func TestAccComputeSecurityPolicyRule_securityPolicyRuleDefaultRuleExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicyRule_securityPolicyRuleDefaultRuleExample(context),
+			},
+			{
+				ResourceName:            "google_compute_security_policy_rule.policy_rule",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"security_policy"},
+			},
+		},
+	})
+}
+
+func testAccComputeSecurityPolicyRule_securityPolicyRuleDefaultRuleExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "default" {
+  name        = "policyruletest%{random_suffix}"
+  description = "basic global security policy"
+  type        = "CLOUD_ARMOR"
+}
+
+resource "google_compute_security_policy_rule" "default_rule" {
+  security_policy = google_compute_security_policy.default.name
+  description     = "default rule"
+  action          = "deny"
+  priority        = "2147483647"
+  match {
+    versioned_expr = "SRC_IPS_V1"
+    config {
+      src_ip_ranges = ["*"]
+    }
+  }
+}
+
+resource "google_compute_security_policy_rule" "policy_rule" {
+  security_policy = google_compute_security_policy.default.name
+  description     = "new rule"
+  priority        = 100
+  match {
+    versioned_expr = "SRC_IPS_V1"
+    config {
+      src_ip_ranges = ["10.10.0.0/16"]
+    }
+  }
+  action          = "allow"
+  preview         = true
+}
+`, context)
+}
+
 func TestAccComputeSecurityPolicyRule_securityPolicyRuleMultipleRulesExample(t *testing.T) {
 	t.Parallel()
 

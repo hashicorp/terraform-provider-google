@@ -132,7 +132,7 @@ resource "google_sql_database_instance" "instance" {
     tier = "db-f1-micro"
   }
 
-  deletion_protection  = "true"
+  deletion_protection  = true
 }
 ```
 ## Example Usage - Cloud Run Service Noauth
@@ -851,7 +851,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_secret).
 
 * `empty_dir` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Ephemeral storage which can be backed by real disks (HD, SSD), network storage or memory (i.e. tmpfs). For now only in memory (tmpfs) is supported. It is ephemeral in the sense that when the sandbox is taken down, the data is destroyed with it (it does not persist across sandbox runs).
   Structure is [documented below](#nested_empty_dir).
 

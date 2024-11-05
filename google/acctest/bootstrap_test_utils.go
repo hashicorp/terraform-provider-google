@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"maps"
 	"os"
 	"strings"
 	"testing"
@@ -41,6 +42,7 @@ var SharedCryptoKey = map[string]string{
 type BootstrappedKMS struct {
 	*cloudkms.KeyRing
 	*cloudkms.CryptoKey
+	CryptoKeyVersions []*cloudkms.CryptoKeyVersion
 }
 
 func BootstrapKMSKey(t *testing.T) BootstrappedKMS {
@@ -78,6 +80,7 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 		return BootstrappedKMS{
 			&cloudkms.KeyRing{},
 			&cloudkms.CryptoKey{},
+			nil,
 		}
 	}
 
@@ -112,8 +115,8 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			algos := map[string]string{
 				"ENCRYPT_DECRYPT":    "GOOGLE_SYMMETRIC_ENCRYPTION",
-				"ASYMMETRIC_SIGN":    "RSA_SIGN_PKCS1_4096_SHA512",
-				"ASYMMETRIC_DECRYPT": "RSA_DECRYPT_OAEP_4096_SHA512",
+				"ASYMMETRIC_SIGN":    "RSA_SIGN_PKCS1_4096_SHA256",
+				"ASYMMETRIC_DECRYPT": "RSA_DECRYPT_OAEP_4096_SHA256",
 			}
 			template := cloudkms.CryptoKeyVersionTemplate{
 				Algorithm: algos[purpose],
@@ -139,9 +142,16 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 		t.Fatalf("Unable to bootstrap KMS key. CryptoKey is nil!")
 	}
 
+	// TODO(b/372305432): Use the pagination properly.
+	ckvResp, err := kmsClient.Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions.List(keyName).Do()
+	if err != nil {
+		t.Fatalf("Unable to list cryptoKeyVersions: %v", err)
+	}
+
 	return BootstrappedKMS{
 		keyRing,
 		cryptoKey,
+		ckvResp.CryptoKeyVersions,
 	}
 }
 
@@ -157,7 +167,7 @@ func getOrCreateServiceAccount(config *transport_tpg.Config, project, serviceAcc
 
 	sa, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Get(name).Do()
 	if err != nil && !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
-		return nil, err
+		return nil, fmt.Errorf("encountered a non-404 error when looking for bootstrapped service account %s: %w", name, err)
 	}
 
 	if sa == nil {
@@ -172,7 +182,7 @@ func getOrCreateServiceAccount(config *transport_tpg.Config, project, serviceAcc
 		}
 		sa, err = config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Create("projects/"+project, r).Do()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error when creating bootstrapped service account %s: %w", name, err)
 		}
 	}
 
@@ -739,10 +749,11 @@ func BootstrapConfig(t *testing.T) *transport_tpg.Config {
 	}
 
 	config := &transport_tpg.Config{
-		Credentials: envvar.GetTestCredsFromEnv(),
-		Project:     envvar.GetTestProjectFromEnv(),
-		Region:      envvar.GetTestRegionFromEnv(),
-		Zone:        envvar.GetTestZoneFromEnv(),
+		Credentials:               envvar.GetTestCredsFromEnv(),
+		ImpersonateServiceAccount: envvar.GetTestImpersonateServiceAccountFromEnv(),
+		Project:                   envvar.GetTestProjectFromEnv(),
+		Region:                    envvar.GetTestRegionFromEnv(),
+		Zone:                      envvar.GetTestZoneFromEnv(),
 	}
 
 	transport_tpg.ConfigureBasePaths(config)
@@ -912,7 +923,25 @@ func BootstrapSharedCaPoolInLocation(t *testing.T, location string) string {
 	return poolName
 }
 
+func BootstrapSubnetForDataprocBatches(t *testing.T, subnetName string, networkName string) string {
+	subnetOptions := map[string]interface{}{
+		"privateIpGoogleAccess": true,
+	}
+	return BootstrapSubnetWithOverrides(t, subnetName, networkName, subnetOptions)
+}
+
 func BootstrapSubnet(t *testing.T, subnetName string, networkName string) string {
+	return BootstrapSubnetWithOverrides(t, subnetName, networkName, make(map[string]interface{}))
+}
+
+func BootstrapSubnetWithFirewallForDataprocBatches(t *testing.T, testId string, subnetName string) string {
+	networkName := BootstrapSharedTestNetwork(t, testId)
+	subnetworkName := BootstrapSubnetForDataprocBatches(t, subnetName, networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, subnetName, networkName)
+	return subnetworkName
+}
+
+func BootstrapSubnetWithOverrides(t *testing.T, subnetName string, networkName string, subnetOptions map[string]interface{}) string {
 	projectID := envvar.GetTestProjectFromEnv()
 	region := envvar.GetTestRegionFromEnv()
 
@@ -934,11 +963,15 @@ func BootstrapSubnet(t *testing.T, subnetName string, networkName string) string
 		networkUrl := fmt.Sprintf("%sprojects/%s/global/networks/%s", config.ComputeBasePath, projectID, networkName)
 		url := fmt.Sprintf("%sprojects/%s/regions/%s/subnetworks", config.ComputeBasePath, projectID, region)
 
-		subnetObj := map[string]interface{}{
+		defaultSubnetObj := map[string]interface{}{
 			"name":        subnetName,
 			"region ":     region,
 			"network":     networkUrl,
 			"ipCidrRange": "10.77.0.0/20",
+		}
+
+		if len(subnetOptions) != 0 {
+			maps.Copy(defaultSubnetObj, subnetOptions)
 		}
 
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -947,7 +980,7 @@ func BootstrapSubnet(t *testing.T, subnetName string, networkName string) string
 			Project:   projectID,
 			RawURL:    url,
 			UserAgent: config.UserAgent,
-			Body:      subnetObj,
+			Body:      defaultSubnetObj,
 			Timeout:   4 * time.Minute,
 		})
 
@@ -1210,13 +1243,13 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 		Timeout: 5 * time.Minute,
 	})
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error creating 'project-1' with project id %s: %w", pid, err)
 	}
 
 	// Wait for the operation to complete
 	opAsMap, err := tpgresource.ConvertToMap(op)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error in ConvertToMap while creating 'project-1' with project id %s: %w", pid, err)
 	}
 
 	waitErr := resourcemanager.ResourceManagerOperationWaitTime(config, opAsMap, "creating project", config.UserAgent, 5*time.Minute)
@@ -1229,7 +1262,7 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 	}
 	_, err = config.NewBillingClient(config.UserAgent).Projects.UpdateBillingInfo(resourcemanager.PrefixedProject(pid), ba).Do()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error updating billing info for 'project-1' with project id %s: %w", pid, err)
 	}
 
 	p2 := fmt.Sprintf("%s-2", pid)
@@ -1244,7 +1277,7 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 		Timeout: 5 * time.Minute,
 	})
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error creating 'project-2' with project id %s: %w", p2, err)
 	}
 
 	// Wait for the operation to complete
@@ -1260,7 +1293,7 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 
 	_, err = config.NewBillingClient(config.UserAgent).Projects.UpdateBillingInfo(resourcemanager.PrefixedProject(p2), ba).Do()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error updating billing info for 'project-2' with project id %s: %w", p2, err)
 	}
 
 	// Enable the appropriate service in project-2 only
@@ -1272,14 +1305,14 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 
 	_, err = suService.Services.BatchEnable(fmt.Sprintf("projects/%s", p2), serviceReq).Do()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error batch enabling services in 'project-2' with project id %s: %w", p2, err)
 	}
 
 	// Enable the test runner to create service accounts and get an access token on behalf of
 	// the project 1 service account
 	curEmail, err := transport_tpg.GetCurrentUserEmail(config, config.UserAgent)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error getting current user email: %w", err)
 	}
 
 	proj1SATokenCreator := &cloudresourcemanager.Binding{
@@ -1301,7 +1334,7 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 			},
 		}).Do()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error getting IAM policy for 'project-1' with project id %s: %w", pid, err)
 	}
 
 	p.Bindings = tpgiamresource.MergeBindings(append(p.Bindings, bindings...))
@@ -1311,15 +1344,18 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 			UpdateMask: "bindings,etag,auditConfigs",
 		}).Do()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error setting IAM policy for 'project-1' with project id %s: %w", pid, err)
 	}
 
 	// Create a service account for project-1
 	serviceAccountEmail := serviceAccountPrefix + service
 	sa1, err := getOrCreateServiceAccount(config, pid, serviceAccountEmail)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error creating service account %s in 'project-1' with project id %s: %w", serviceAccountEmail, pid, err)
 	}
+	// Setting IAM policies sometimes fails due to the service account not being created yet
+	// Wait a minute to ensure we can use it.
+	time.Sleep(1 * time.Minute)
 
 	// Add permissions to service accounts
 
@@ -1354,7 +1390,7 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 			},
 		}).Do()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error getting IAM policy for 'project-2' with project id %s: %w", p2, err)
 	}
 
 	p.Bindings = tpgiamresource.MergeBindings(append(p.Bindings, bindings...))
@@ -1364,7 +1400,7 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 			UpdateMask: "bindings,etag,auditConfigs",
 		}).Do()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error setting IAM policy for 'project-2' with project id %s: %w", p2, err)
 	}
 
 	// The token creator IAM API call returns success long before the policy is
@@ -1378,7 +1414,7 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 	}
 	atResp, err := iamCredsService.Projects.ServiceAccounts.GenerateAccessToken(fmt.Sprintf("projects/-/serviceAccounts/%s", sa1.Email), tokenRequest).Do()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error generating access token for service account %s: %w", sa1.Email, err)
 	}
 
 	accessToken := atResp.AccessToken

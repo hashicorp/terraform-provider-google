@@ -5,9 +5,9 @@
 
 // This file is maintained in the GoogleCloudPlatform/magic-modules repository and copied into the downstream provider repositories. Any changes to this file in the downstream will be overwritten.
 
-import projects.googleCloudRootProject
 import builds.AllContextParameters
 import jetbrains.buildServer.configs.kotlin.*
+import projects.googleCloudRootProject
 
 version = "2024.03"
 

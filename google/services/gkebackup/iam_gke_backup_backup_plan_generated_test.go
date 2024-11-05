@@ -152,7 +152,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
-  deletion_protection  = "%{deletion_protection}"
+  deletion_protection  = %{deletion_protection}
   network       = "%{network_name}"
   subnetwork    = "%{subnetwork_name}"
 }
@@ -192,7 +192,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
-  deletion_protection  = "%{deletion_protection}"
+  deletion_protection  = %{deletion_protection}
   network       = "%{network_name}"
   subnetwork    = "%{subnetwork_name}"
 }
@@ -247,7 +247,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
-  deletion_protection  = "%{deletion_protection}"
+  deletion_protection  = %{deletion_protection}
   network       = "%{network_name}"
   subnetwork    = "%{subnetwork_name}"
 }
@@ -289,7 +289,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
-  deletion_protection  = "%{deletion_protection}"
+  deletion_protection  = %{deletion_protection}
   network       = "%{network_name}"
   subnetwork    = "%{subnetwork_name}"
 }
@@ -329,7 +329,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
-  deletion_protection  = "%{deletion_protection}"
+  deletion_protection  = %{deletion_protection}
   network       = "%{network_name}"
   subnetwork    = "%{subnetwork_name}"
 }

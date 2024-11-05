@@ -235,6 +235,7 @@ type Config struct {
 	DataPipelineBasePath             string
 	DataplexBasePath                 string
 	DataprocBasePath                 string
+	DataprocGdcBasePath              string
 	DataprocMetastoreBasePath        string
 	DatastreamBasePath               string
 	DeploymentManagerBasePath        string
@@ -266,6 +267,7 @@ type Config struct {
 	LoggingBasePath                  string
 	LookerBasePath                   string
 	MemcacheBasePath                 string
+	MemorystoreBasePath              string
 	MigrationCenterBasePath          string
 	MLEngineBasePath                 string
 	MonitoringBasePath               string
@@ -275,6 +277,7 @@ type Config struct {
 	NetworkSecurityBasePath          string
 	NetworkServicesBasePath          string
 	NotebooksBasePath                string
+	OracleDatabaseBasePath           string
 	OrgPolicyBasePath                string
 	OSConfigBasePath                 string
 	OSLoginBasePath                  string
@@ -304,6 +307,7 @@ type Config struct {
 	StorageTransferBasePath          string
 	TagsBasePath                     string
 	TPUBasePath                      string
+	TranscoderBasePath               string
 	VertexAIBasePath                 string
 	VmwareengineBasePath             string
 	VPCAccessBasePath                string
@@ -375,6 +379,7 @@ const DataLossPreventionBasePathKey = "DataLossPrevention"
 const DataPipelineBasePathKey = "DataPipeline"
 const DataplexBasePathKey = "Dataplex"
 const DataprocBasePathKey = "Dataproc"
+const DataprocGdcBasePathKey = "DataprocGdc"
 const DataprocMetastoreBasePathKey = "DataprocMetastore"
 const DatastreamBasePathKey = "Datastream"
 const DeploymentManagerBasePathKey = "DeploymentManager"
@@ -406,6 +411,7 @@ const KMSBasePathKey = "KMS"
 const LoggingBasePathKey = "Logging"
 const LookerBasePathKey = "Looker"
 const MemcacheBasePathKey = "Memcache"
+const MemorystoreBasePathKey = "Memorystore"
 const MigrationCenterBasePathKey = "MigrationCenter"
 const MLEngineBasePathKey = "MLEngine"
 const MonitoringBasePathKey = "Monitoring"
@@ -415,6 +421,7 @@ const NetworkManagementBasePathKey = "NetworkManagement"
 const NetworkSecurityBasePathKey = "NetworkSecurity"
 const NetworkServicesBasePathKey = "NetworkServices"
 const NotebooksBasePathKey = "Notebooks"
+const OracleDatabaseBasePathKey = "OracleDatabase"
 const OrgPolicyBasePathKey = "OrgPolicy"
 const OSConfigBasePathKey = "OSConfig"
 const OSLoginBasePathKey = "OSLogin"
@@ -444,6 +451,7 @@ const StorageInsightsBasePathKey = "StorageInsights"
 const StorageTransferBasePathKey = "StorageTransfer"
 const TagsBasePathKey = "Tags"
 const TPUBasePathKey = "TPU"
+const TranscoderBasePathKey = "Transcoder"
 const VertexAIBasePathKey = "VertexAI"
 const VmwareengineBasePathKey = "Vmwareengine"
 const VPCAccessBasePathKey = "VPCAccess"
@@ -509,6 +517,7 @@ var DefaultBasePaths = map[string]string{
 	DataPipelineBasePathKey:             "https://datapipelines.googleapis.com/v1/",
 	DataplexBasePathKey:                 "https://dataplex.googleapis.com/v1/",
 	DataprocBasePathKey:                 "https://dataproc.googleapis.com/v1/",
+	DataprocGdcBasePathKey:              "https://dataprocgdc.googleapis.com/v1/",
 	DataprocMetastoreBasePathKey:        "https://metastore.googleapis.com/v1/",
 	DatastreamBasePathKey:               "https://datastream.googleapis.com/v1/",
 	DeploymentManagerBasePathKey:        "https://www.googleapis.com/deploymentmanager/v2/",
@@ -540,6 +549,7 @@ var DefaultBasePaths = map[string]string{
 	LoggingBasePathKey:                  "https://logging.googleapis.com/v2/",
 	LookerBasePathKey:                   "https://looker.googleapis.com/v1/",
 	MemcacheBasePathKey:                 "https://memcache.googleapis.com/v1/",
+	MemorystoreBasePathKey:              "https://memorystore.googleapis.com/v1/",
 	MigrationCenterBasePathKey:          "https://migrationcenter.googleapis.com/v1/",
 	MLEngineBasePathKey:                 "https://ml.googleapis.com/v1/",
 	MonitoringBasePathKey:               "https://monitoring.googleapis.com/",
@@ -549,6 +559,7 @@ var DefaultBasePaths = map[string]string{
 	NetworkSecurityBasePathKey:          "https://networksecurity.googleapis.com/v1/",
 	NetworkServicesBasePathKey:          "https://networkservices.googleapis.com/v1/",
 	NotebooksBasePathKey:                "https://notebooks.googleapis.com/v1/",
+	OracleDatabaseBasePathKey:           "https://oracledatabase.googleapis.com/v1/",
 	OrgPolicyBasePathKey:                "https://orgpolicy.googleapis.com/v2/",
 	OSConfigBasePathKey:                 "https://osconfig.googleapis.com/v1/",
 	OSLoginBasePathKey:                  "https://oslogin.googleapis.com/v1/",
@@ -578,6 +589,7 @@ var DefaultBasePaths = map[string]string{
 	StorageTransferBasePathKey:          "https://storagetransfer.googleapis.com/v1/",
 	TagsBasePathKey:                     "https://cloudresourcemanager.googleapis.com/v3/",
 	TPUBasePathKey:                      "https://tpu.googleapis.com/v1/",
+	TranscoderBasePathKey:               "https://transcoder.googleapis.com/v1/",
 	VertexAIBasePathKey:                 "https://{{region}}-aiplatform.googleapis.com/v1/",
 	VmwareengineBasePathKey:             "https://vmwareengine.googleapis.com/v1/",
 	VPCAccessBasePathKey:                "https://vpcaccess.googleapis.com/v1/",
@@ -902,6 +914,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 			"GOOGLE_DATAPROC_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[DataprocBasePathKey]))
 	}
+	if d.Get("dataproc_gdc_custom_endpoint") == "" {
+		d.Set("dataproc_gdc_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_DATAPROC_GDC_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[DataprocGdcBasePathKey]))
+	}
 	if d.Get("dataproc_metastore_custom_endpoint") == "" {
 		d.Set("dataproc_metastore_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_DATAPROC_METASTORE_CUSTOM_ENDPOINT",
@@ -1057,6 +1074,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 			"GOOGLE_MEMCACHE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[MemcacheBasePathKey]))
 	}
+	if d.Get("memorystore_custom_endpoint") == "" {
+		d.Set("memorystore_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_MEMORYSTORE_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[MemorystoreBasePathKey]))
+	}
 	if d.Get("migration_center_custom_endpoint") == "" {
 		d.Set("migration_center_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_MIGRATION_CENTER_CUSTOM_ENDPOINT",
@@ -1101,6 +1123,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("notebooks_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_NOTEBOOKS_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[NotebooksBasePathKey]))
+	}
+	if d.Get("oracle_database_custom_endpoint") == "" {
+		d.Set("oracle_database_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_ORACLE_DATABASE_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[OracleDatabaseBasePathKey]))
 	}
 	if d.Get("org_policy_custom_endpoint") == "" {
 		d.Set("org_policy_custom_endpoint", MultiEnvDefault([]string{
@@ -1246,6 +1273,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("tpu_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_TPU_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[TPUBasePathKey]))
+	}
+	if d.Get("transcoder_custom_endpoint") == "" {
+		d.Set("transcoder_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_TRANSCODER_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[TranscoderBasePathKey]))
 	}
 	if d.Get("vertex_ai_custom_endpoint") == "" {
 		d.Set("vertex_ai_custom_endpoint", MultiEnvDefault([]string{
@@ -2226,6 +2258,7 @@ func ConfigureBasePaths(c *Config) {
 	c.DataPipelineBasePath = DefaultBasePaths[DataPipelineBasePathKey]
 	c.DataplexBasePath = DefaultBasePaths[DataplexBasePathKey]
 	c.DataprocBasePath = DefaultBasePaths[DataprocBasePathKey]
+	c.DataprocGdcBasePath = DefaultBasePaths[DataprocGdcBasePathKey]
 	c.DataprocMetastoreBasePath = DefaultBasePaths[DataprocMetastoreBasePathKey]
 	c.DatastreamBasePath = DefaultBasePaths[DatastreamBasePathKey]
 	c.DeploymentManagerBasePath = DefaultBasePaths[DeploymentManagerBasePathKey]
@@ -2257,6 +2290,7 @@ func ConfigureBasePaths(c *Config) {
 	c.LoggingBasePath = DefaultBasePaths[LoggingBasePathKey]
 	c.LookerBasePath = DefaultBasePaths[LookerBasePathKey]
 	c.MemcacheBasePath = DefaultBasePaths[MemcacheBasePathKey]
+	c.MemorystoreBasePath = DefaultBasePaths[MemorystoreBasePathKey]
 	c.MigrationCenterBasePath = DefaultBasePaths[MigrationCenterBasePathKey]
 	c.MLEngineBasePath = DefaultBasePaths[MLEngineBasePathKey]
 	c.MonitoringBasePath = DefaultBasePaths[MonitoringBasePathKey]
@@ -2266,6 +2300,7 @@ func ConfigureBasePaths(c *Config) {
 	c.NetworkSecurityBasePath = DefaultBasePaths[NetworkSecurityBasePathKey]
 	c.NetworkServicesBasePath = DefaultBasePaths[NetworkServicesBasePathKey]
 	c.NotebooksBasePath = DefaultBasePaths[NotebooksBasePathKey]
+	c.OracleDatabaseBasePath = DefaultBasePaths[OracleDatabaseBasePathKey]
 	c.OrgPolicyBasePath = DefaultBasePaths[OrgPolicyBasePathKey]
 	c.OSConfigBasePath = DefaultBasePaths[OSConfigBasePathKey]
 	c.OSLoginBasePath = DefaultBasePaths[OSLoginBasePathKey]
@@ -2295,6 +2330,7 @@ func ConfigureBasePaths(c *Config) {
 	c.StorageTransferBasePath = DefaultBasePaths[StorageTransferBasePathKey]
 	c.TagsBasePath = DefaultBasePaths[TagsBasePathKey]
 	c.TPUBasePath = DefaultBasePaths[TPUBasePathKey]
+	c.TranscoderBasePath = DefaultBasePaths[TranscoderBasePathKey]
 	c.VertexAIBasePath = DefaultBasePaths[VertexAIBasePathKey]
 	c.VmwareengineBasePath = DefaultBasePaths[VmwareengineBasePathKey]
 	c.VPCAccessBasePath = DefaultBasePaths[VPCAccessBasePathKey]

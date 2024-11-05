@@ -149,6 +149,81 @@ func TestAccComputeFirewallPolicyRule_securityProfileGroup_update(t *testing.T) 
 	})
 }
 
+func TestAccComputeFirewallPolicyRule_basic(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"org_name":      fmt.Sprintf("organizations/%s", envvar.GetTestOrgFromEnv(t)),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeFirewallPolicyRule_basic(context),
+			},
+			{
+				ResourceName:      "google_compute_firewall_policy_rule.fw_policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Referencing using ID causes import to fail
+				ImportStateVerifyIgnore: []string{"firewall_policy"},
+			},
+		},
+	})
+}
+
+func testAccComputeFirewallPolicyRule_basic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "folder" {
+  display_name = "tf-test-folder-%{random_suffix}"
+  parent       = "%{org_name}"
+  deletion_protection = false
+}
+
+resource "google_compute_firewall_policy" "fw_policy" {
+  parent      = google_folder.folder.name
+  short_name  = "tf-test-policy-%{random_suffix}"
+  description = "Resource created for Terraform acceptance testing"
+}
+
+resource "google_network_security_address_group" "address_group" {
+  name        = "tf-test-policy-%{random_suffix}"
+  parent      = "%{org_name}"
+  description = "Sample global networksecurity_address_group"
+  location    = "global"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
+resource "google_compute_firewall_policy_rule" "fw_policy_rule" {
+  firewall_policy = google_compute_firewall_policy.fw_policy.id
+  description     = "Resource created for Terraform acceptance testing"
+  priority        = 9000
+  enable_logging  = true
+  action          = "allow"
+  direction       = "EGRESS"
+  disabled        = false
+  tls_inspect     = false
+
+  match {
+    layer4_configs {
+      ip_protocol = "tcp"
+      ports       = [80, 8080]
+    }
+    dest_ip_ranges            = ["11.100.0.1/32"]
+    dest_fqdns                = ["google.com"]
+    dest_region_codes         = ["US"]
+    dest_threat_intelligences = ["iplist-known-malicious-ips"]
+    dest_address_groups       = [google_network_security_address_group.address_group.id]
+  }
+}
+`, context)
+}
+
 func testAccComputeFirewallPolicyRule_securityProfileGroup_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_folder" "folder" {
@@ -366,13 +441,14 @@ resource "google_network_security_address_group" "address_group" {
 }
 
 resource "google_compute_firewall_policy_rule" "fw_policy_rule1" {
-  firewall_policy         = google_compute_firewall_policy.fw_policy.id
-  description             = "Resource created for Terraform acceptance testing"
-  priority                = 9000
-  enable_logging          = true
-  action                  = "allow"
-  direction               = "EGRESS"
-  disabled                = false
+  firewall_policy = google_compute_firewall_policy.fw_policy.id
+  description     = "Resource created for Terraform acceptance testing"
+  priority        = 9000
+  enable_logging  = true
+  action          = "allow"
+  direction       = "EGRESS"
+  disabled        = false
+
   target_service_accounts = [google_service_account.service_account.email]
   target_resources        = [
     google_compute_network.network1.self_link,
@@ -442,13 +518,14 @@ resource "google_network_security_address_group" "address_group" {
 }
 
 resource "google_compute_firewall_policy_rule" "fw_policy_rule1" {
-  firewall_policy         = google_compute_firewall_policy.fw_policy.id
-  description             = "Test description"
-  priority                = 9000
-  enable_logging          = false
-  action                  = "deny"
-  direction               = "INGRESS"
-  disabled                = true
+  firewall_policy = google_compute_firewall_policy.fw_policy.id
+  description     = "Test description"
+  priority        = 9000
+  enable_logging  = false
+  action          = "deny"
+  direction       = "INGRESS"
+  disabled        = false
+
   target_resources        = [google_compute_network.network1.self_link]
   target_service_accounts = [
     google_service_account.service_account.email,

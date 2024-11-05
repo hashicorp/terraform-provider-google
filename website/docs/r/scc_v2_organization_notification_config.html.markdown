@@ -145,15 +145,14 @@ This resource provides the following
 
 OrganizationNotificationConfig can be imported using any of these accepted formats:
 
-* `organizations/{{organization}}/locations/{{location}}/notificationConfigs/{{name}}`
-* `{{organization}}/{{location}}/{{name}}`
+* `{{name}}`
 
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import OrganizationNotificationConfig using one of the formats above. For example:
 
 ```tf
 import {
-  id = "organizations/{{organization}}/locations/{{location}}/notificationConfigs/{{name}}"
+  id = "{{name}}"
   to = google_scc_v2_organization_notification_config.default
 }
 ```
@@ -161,6 +160,5 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), OrganizationNotificationConfig can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_scc_v2_organization_notification_config.default organizations/{{organization}}/locations/{{location}}/notificationConfigs/{{name}}
-$ terraform import google_scc_v2_organization_notification_config.default {{organization}}/{{location}}/{{name}}
+$ terraform import google_scc_v2_organization_notification_config.default {{name}}
 ```

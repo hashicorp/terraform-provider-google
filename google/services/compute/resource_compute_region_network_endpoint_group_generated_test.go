@@ -191,7 +191,7 @@ resource "google_compute_region_network_endpoint_group" "appengine_neg" {
 
 resource "google_app_engine_flexible_app_version" "appengine_neg" {
   version_id = "v1"
-  service    = "appengine-network-endpoint-group"
+  service    = "tf-test-appengine-neg%{random_suffix}"
   runtime    = "nodejs"
   flexible_runtime_settings {
     operating_system = "ubuntu22"
@@ -245,6 +245,7 @@ resource "google_app_engine_flexible_app_version" "appengine_neg" {
 resource "google_storage_bucket" "appengine_neg" {
   name     = "tf-test-appengine-neg%{random_suffix}"
   location = "US"
+  uniform_bucket_level_access = true
 }
 
 resource "google_storage_bucket_object" "appengine_neg" {
@@ -505,55 +506,6 @@ resource "google_compute_region_network_endpoint_group" "region_network_endpoint
 
 resource "google_compute_network" "default" {
   name                    = "network%{random_suffix}"
-}
-`, context)
-}
-
-func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPortmapExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPortmapExample(context),
-			},
-			{
-				ResourceName:            "google_compute_region_network_endpoint_group.region_network_endpoint_group_portmap",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
-			},
-		},
-	})
-}
-
-func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPortmapExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_compute_region_network_endpoint_group" "region_network_endpoint_group_portmap" {
-  name                  = "tf-test-portmap-neg%{random_suffix}"
-  region                = "us-central1"
-  network               = google_compute_network.default.id
-  subnetwork            = google_compute_subnetwork.default.id
-
-  network_endpoint_type = "GCE_VM_IP_PORTMAP"
-}
-
-resource "google_compute_network" "default" {
-  name                    = "network%{random_suffix}"
-}
-
-resource "google_compute_subnetwork" "default" {
-  name          = "subnetwork%{random_suffix}"
-  ip_cidr_range = "10.0.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.default.id
 }
 `, context)
 }

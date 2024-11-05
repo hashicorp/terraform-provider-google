@@ -63,6 +63,43 @@ resource "google_compute_network" "vpc_network" {
   network_firewall_policy_enforcement_order = "BEFORE_CLASSIC_FIREWALL"
 }
 ```
+## Example Usage - Network Bgp Best Path Selection Mode
+
+
+```hcl
+resource "google_compute_network" "vpc_network" {
+  provider                                  = google-beta
+  project                                   = "my-project-name"
+  name                                      = "vpc-network"
+  routing_mode                              = "GLOBAL"
+}
+```
+## Example Usage - Network Bgp Best Path Selection Mode Standard
+
+
+```hcl
+resource "google_compute_network" "vpc_network" {
+  provider                                  = google-beta
+  project                                   = "my-project-name"
+  name                                      = "vpc-network"
+  routing_mode                              = "GLOBAL"
+  bgp_best_path_selection_mode              = "STANDARD"
+}
+```
+## Example Usage - Network Bgp Best Path Selection Mode Standard Custom Fields
+
+
+```hcl
+resource "google_compute_network" "vpc_network" {
+  provider                                  = google-beta
+  project                                   = "my-project-name"
+  name                                      = "vpc-network"
+  routing_mode                              = "GLOBAL"
+  bgp_best_path_selection_mode              = "STANDARD"
+  bgp_always_compare_med                    = true
+  bgp_inter_region_cost                     = "ADD_COST_TO_MED"
+}
+```
 
 ## Argument Reference
 
@@ -104,6 +141,21 @@ The following arguments are supported:
   this network's cloud routers will advertise routes with all
   subnetworks of this network, across regions.
   Possible values are: `REGIONAL`, `GLOBAL`.
+
+* `bgp_best_path_selection_mode` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The BGP best selection algorithm to be employed. MODE can be LEGACY or STANDARD.
+  Possible values are: `LEGACY`, `STANDARD`.
+
+* `bgp_always_compare_med` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Enables/disables the comparison of MED across routes with different Neighbor ASNs.
+  This value can only be set if the --bgp-best-path-selection-mode is STANDARD
+
+* `bgp_inter_region_cost` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Choice of the behavior of inter-regional cost and MED in the BPS algorithm.
+  Possible values are: `DEFAULT`, `ADD_COST_TO_MED`.
 
 * `mtu` -
   (Optional)

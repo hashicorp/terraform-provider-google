@@ -4,7 +4,7 @@ description: |-
   Get a global forwarding rule within GCE.
 ---
 
-# google_compute_global_\forwarding_rule
+# google_compute_global_forwarding_rule
 
 Get a global forwarding rule within GCE from its name.
 
