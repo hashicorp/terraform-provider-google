@@ -1,0 +1,3 @@
+```release-note:none
+gkehub: fixed failures for TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample
+```

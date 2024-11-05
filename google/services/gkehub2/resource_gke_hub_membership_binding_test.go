@@ -116,6 +116,10 @@ resource "google_gke_hub_membership" "example" {
   depends_on = [google_container_cluster.primary]
 }
 
+resource "google_gke_hub_scope" "example" {
+  scope_id = "tf-test-scope%{random_suffix}"
+}
+
 resource "google_gke_hub_scope" "example2" {
   scope_id = "tf-test-scope2%{random_suffix}"
 }
