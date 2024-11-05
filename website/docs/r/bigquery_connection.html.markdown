@@ -66,7 +66,7 @@ resource "google_sql_database_instance" "instance" {
 		tier = "db-f1-micro"
 	}
 
-    deletion_protection  = "true"
+    deletion_protection  = true
 }
 
 resource "google_sql_database" "db" {
@@ -117,7 +117,7 @@ resource "google_sql_database_instance" "instance" {
 		tier = "db-f1-micro"
 	}
 
-    deletion_protection  = "true"
+    deletion_protection  = true
 }
 
 resource "google_sql_database" "db" {
@@ -279,60 +279,61 @@ resource "google_dataproc_cluster" "basic" {
  }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_connection_kms&open_in_editor=main.tf" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_connection_sql_with_cmek&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Bigquery Connection Kms
+## Example Usage - Bigquery Connection Sql With Cmek
 
 
 ```hcl
 resource "google_sql_database_instance" "instance" {
-    name             = "my-database-instance"
-    database_version = "POSTGRES_11"
-    region           = "us-central1"
-    settings {
-		tier = "db-f1-micro"
-	}
+  name             = "my-database-instance"
+  region           = "us-central1"
 
-    deletion_protection  = "true"
+  database_version = "POSTGRES_11"
+  settings {
+    tier = "db-f1-micro"
+  }
+
+  deletion_protection  = true
 }
 
 resource "google_sql_database" "db" {
-    instance = google_sql_database_instance.instance.name
-    name     = "db"
+  instance = google_sql_database_instance.instance.name
+  name     = "db"
 }
 
 resource "google_sql_user" "user" {
-    name = "user"
-    instance = google_sql_database_instance.instance.name
-    password = "tf-test-my-password%{random_suffix}"
+  name = "user"
+  instance = google_sql_database_instance.instance.name
+  password = "tf-test-my-password%{random_suffix}"
 }
 
 data "google_bigquery_default_service_account" "bq_sa" {}
 
-data "google_project" "project" {}
-
-resource "google_project_iam_member" "key_sa_user" {
-  project       = data.google_project.project.project_id
+resource "google_kms_crypto_key_iam_member" "key_sa_user" {
+  crypto_key_id = "projects/project/locations/us-central1/keyRings/us-central1/cryptoKeys/bq-key"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:${data.google_bigquery_default_service_account.bq_sa.email}"
 }
 
 resource "google_bigquery_connection" "bq-connection-cmek" {
-    friendly_name = "👋"
-    description   = "a riveting description"
-    location      = "US"
-    kms_key_name  = "projects/project/locations/us-central1/keyRings/us-central1/cryptoKeys/bq-key"
-    cloud_sql {
-        instance_id = google_sql_database_instance.instance.connection_name
-        database    = google_sql_database.db.name
-        type        = "POSTGRES"
-        credential {
-          username = google_sql_user.user.name
-          password = google_sql_user.user.password
-        }
+  friendly_name = "👋"
+  description   = "a riveting description"
+  location      = "US"
+  kms_key_name  = "projects/project/locations/us-central1/keyRings/us-central1/cryptoKeys/bq-key"
+  cloud_sql {
+    instance_id = google_sql_database_instance.instance.connection_name
+    database    = google_sql_database.db.name
+    type        = "POSTGRES"
+    credential {
+      username = google_sql_user.user.name
+      password = google_sql_user.user.password
     }
+  }
+
+  depends_on = [google_kms_crypto_key_iam_member.key_sa_user]
 }
 ```
 

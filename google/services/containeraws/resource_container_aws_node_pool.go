@@ -125,6 +125,7 @@ func ResourceContainerAwsNodePool() *schema.Resource {
 
 			"kubelet_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: "The kubelet configuration for the node pool.",
@@ -1134,11 +1135,11 @@ func flattenContainerAwsNodePoolMaxPodsConstraint(obj *containeraws.NodePoolMaxP
 
 func expandContainerAwsNodePoolKubeletConfig(o interface{}) *containeraws.NodePoolKubeletConfig {
 	if o == nil {
-		return containeraws.EmptyNodePoolKubeletConfig
+		return nil
 	}
 	objArr := o.([]interface{})
 	if len(objArr) == 0 || objArr[0] == nil {
-		return containeraws.EmptyNodePoolKubeletConfig
+		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &containeraws.NodePoolKubeletConfig{

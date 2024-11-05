@@ -79,6 +79,53 @@ func TestAccComputeSecurityPolicy_withRuleExpr(t *testing.T) {
 	})
 }
 
+func TestAccComputeSecurityPolicy_withPreconfiguredWafConfig(t *testing.T) {
+	t.Parallel()
+
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicy_withPreconfiguredWafConfig(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicy_withPreconfiguredWafConfig_update(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicy_withPreconfiguredWafConfig_clear(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicy_withPreconfiguredWafConfig_removed(spName),
+			},
+			{
+				ResourceName:            "google_compute_security_policy.policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"rule.1.preconfigured_waf_config.#", "rule.1.preconfigured_waf_config.0.%"}, // API will still return a empty object
+			},
+		},
+	})
+}
+
 func TestAccComputeSecurityPolicy_update(t *testing.T) {
 	t.Parallel()
 
@@ -117,6 +164,38 @@ func TestAccComputeSecurityPolicy_update(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeSecurityPolicyRule_securityPolicyDefaultRule(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicyRule_securityPolicyDefaultRuleDeny(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule_default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicyRule_securityPolicyDefaultRuleAllow(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule_default",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -689,6 +768,52 @@ resource "google_compute_security_policy" "policy" {
 `, spName)
 }
 
+func testAccComputeSecurityPolicyRule_securityPolicyDefaultRuleDeny(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "default" {
+  name        = "tf-test%{random_suffix}"
+  description = "basic global security policy"
+  type        = "CLOUD_ARMOR"
+}
+
+resource "google_compute_security_policy_rule" "policy_rule_default" {
+  security_policy = google_compute_security_policy.default.name
+  description     = "default rule"
+  action          = "deny"
+  priority        = "2147483647"
+  match {
+    versioned_expr = "SRC_IPS_V1"
+    config {
+      src_ip_ranges = ["*"]
+    }
+  }
+}
+`, context)
+}
+
+func testAccComputeSecurityPolicyRule_securityPolicyDefaultRuleAllow(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "default" {
+  name        = "tf-test%{random_suffix}"
+  description = "basic global security policy"
+  type        = "CLOUD_ARMOR"
+}
+
+resource "google_compute_security_policy_rule" "policy_rule_default" {
+  security_policy = google_compute_security_policy.default.name
+  description     = "default rule"
+  action          = "allow"
+  priority        = "2147483647"
+  match {
+    versioned_expr = "SRC_IPS_V1"
+    config {
+      src_ip_ranges = ["*"]
+    }
+  }
+}
+`, context)
+}
+
 func testAccComputeSecurityPolicy_withRuleExpr(spName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_security_policy" "policy" {
@@ -718,6 +843,197 @@ resource "google_compute_security_policy" "policy" {
 			}
 		}
 		preview = true
+	}
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_withPreconfiguredWafConfig(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+	name = "%s"
+
+	rule {
+		action   = "allow"
+		priority = "2147483647"
+		match {
+			versioned_expr = "SRC_IPS_V1"
+			config {
+				src_ip_ranges = ["*"]
+			}
+		}
+		description = "default rule"
+	}
+
+	rule {
+		action   = "deny"
+		priority = "1000"
+		match {
+			expr {
+				expression = "evaluatePreconfiguredWaf('sqli-stable')"
+			}
+		}
+		preconfigured_waf_config {
+			exclusion {
+				request_cookie {
+					operator = "EQUALS_ANY"
+				}
+				request_header {
+					operator = "EQUALS"
+					value    = "Referer"
+				}
+				request_uri {
+					operator = "STARTS_WITH"
+					value    = "/admin"
+				}
+				request_query_param {
+					operator = "EQUALS"
+					value    = "password"
+				}
+				request_query_param {
+					operator = "STARTS_WITH"
+					value    = "freeform"
+				}
+				target_rule_set = "sqli-stable"
+			}
+			exclusion {
+				request_query_param {
+					operator = "CONTAINS"
+					value    = "password"
+				}
+				request_query_param {
+					operator = "STARTS_WITH"
+					value    = "freeform"
+				}
+				target_rule_set = "xss-stable"
+			}
+		}
+		preview = false
+	}
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_withPreconfiguredWafConfig_update(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+	name = "%s"
+
+	rule {
+		action   = "allow"
+		priority = "2147483647"
+		match {
+			versioned_expr = "SRC_IPS_V1"
+			config {
+				src_ip_ranges = ["*"]
+			}
+		}
+		description = "default rule"
+	}
+
+	rule {
+		action   = "deny"
+		priority = "1000"
+		match {
+			expr {
+				expression = "evaluatePreconfiguredWaf('rce-stable') || evaluatePreconfiguredWaf('xss-stable')"
+			}
+		}
+		preconfigured_waf_config {
+			exclusion {
+				request_uri {
+					operator = "STARTS_WITH"
+					value    = "/admin"
+				}
+				target_rule_set = "rce-stable"
+			}
+			exclusion {
+				request_query_param {
+					operator = "CONTAINS"
+					value    = "password"
+				}
+				request_query_param {
+					operator = "STARTS_WITH"
+					value    = "freeform"
+				}
+				request_query_param {
+					operator = "EQUALS"
+					value    = "description"
+				}
+				target_rule_set = "xss-stable"
+				target_rule_ids = [
+					"owasp-crs-v030001-id941330-xss",
+					"owasp-crs-v030001-id941340-xss",
+				]
+			}
+		}
+		preview = false
+	}
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_withPreconfiguredWafConfig_clear(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+	name = "%s"
+
+	rule {
+		action   = "allow"
+		priority = "2147483647"
+		match {
+			versioned_expr = "SRC_IPS_V1"
+			config {
+				src_ip_ranges = ["*"]
+			}
+		}
+		description = "default rule"
+	}
+
+	rule {
+		action   = "deny"
+		priority = "1000"
+		match {
+			expr {
+				expression = "evaluatePreconfiguredWaf('rce-stable') || evaluatePreconfiguredWaf('xss-stable')"
+			}
+		}
+		preconfigured_waf_config {
+			// ensure empty waf config //
+		}
+		preview = false
+	}
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_withPreconfiguredWafConfig_removed(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+	name = "%s"
+
+	rule {
+		action   = "allow"
+		priority = "2147483647"
+		match {
+			versioned_expr = "SRC_IPS_V1"
+			config {
+				src_ip_ranges = ["*"]
+			}
+		}
+		description = "default rule"
+	}
+
+	rule {
+		action   = "deny"
+		priority = "1000"
+		match {
+			expr {
+				expression = "evaluatePreconfiguredWaf('rce-stable') || evaluatePreconfiguredWaf('xss-stable')"
+			}
+		}
+		// remove waf config field to test if last step wont cause a permadiff //
+		preview = false
 	}
 }
 `, spName)

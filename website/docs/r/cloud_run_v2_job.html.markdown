@@ -163,7 +163,7 @@ resource "google_sql_database_instance" "instance" {
     tier = "db-f1-micro"
   }
 
-  deletion_protection  = "true"
+  deletion_protection  = true
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -320,11 +320,9 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
 
 ```hcl
 resource "google_cloud_run_v2_job" "default" {
-  provider = google-beta
   name     = "cloudrun-job"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
   template {
     template {
       containers {
@@ -581,7 +579,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_cloud_sql_instance).
 
 * `empty_dir` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Ephemeral storage used as a shared volume.
   Structure is [documented below](#nested_empty_dir).
 
@@ -653,6 +651,11 @@ The following arguments are supported:
 * `read_only` -
   (Optional)
   If true, mount this volume as read-only in all mounts. If false, mount this volume as read-write.
+
+* `mount_options` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A list of flags to pass to the gcsfuse command for configuring this volume.
+  Flags should be passed without leading dashes.
 
 <a name="nested_nfs"></a>The `nfs` block supports:
 

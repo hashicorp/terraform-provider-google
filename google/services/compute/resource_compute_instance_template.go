@@ -171,7 +171,15 @@ func ResourceComputeInstanceTemplate() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Computed:    true,
-							Description: `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. Values must be between 10,000 and 120,000. For more details, see the [Extreme persistent disk documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk).`,
+							Description: `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. For more details, see the [Extreme persistent disk documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk) or the [Hyperdisk documentation](https://cloud.google.com/compute/docs/disks/hyperdisks) depending on the selected disk_type.`,
+						},
+
+						"provisioned_throughput": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `Indicates how much throughput to provision for the disk, in MB/s. This sets the amount of data that can be read or written from the disk per second. Values must greater than or equal to 1. For more details, see the [Hyperdisk documentation](https://cloud.google.com/compute/docs/disks/hyperdisks).`,
 						},
 
 						"resource_manager_tags": {
@@ -771,6 +779,13 @@ be from 0 to 999,999,999 inclusive.`,
 				Description: `A special URI of the created resource that uniquely identifies this instance template.`,
 			},
 
+			"creation_timestamp": {
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
+			},
+
 			"service_account": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
@@ -869,7 +884,7 @@ be from 0 to 999,999,999 inclusive.`,
 								The confidential computing technology the instance uses.
 								SEV is an AMD feature. TDX is an Intel feature. One of the following
 								values is required: SEV, SEV_SNP, TDX. If SEV_SNP, min_cpu_platform =
-								"AMD Milan" is currently required. TDX is only available in beta.`,
+								"AMD Milan" is currently required.`,
 							AtLeastOneOf: []string{"confidential_instance_config.0.enable_confidential_compute", "confidential_instance_config.0.confidential_instance_type"},
 						},
 					},
@@ -896,6 +911,12 @@ be from 0 to 999,999,999 inclusive.`,
 							Computed:    false,
 							ForceNew:    true,
 							Description: `The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.`,
+						},
+						"turbo_mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Turbo frequency mode to use for the instance. Currently supported modes is "ALL_CORE_MAX".`,
+							ValidateFunc: validation.StringInSlice([]string{"ALL_CORE_MAX"}, false),
 						},
 						"visible_core_count": {
 							Type:        schema.TypeInt,
@@ -1036,6 +1057,14 @@ be from 0 to 999,999,999 inclusive.`,
 						},
 					},
 				},
+			},
+
+			"key_revocation_action_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"NONE", "STOP", ""}, false),
+				Description:  `Action to be taken when a customer's encryption key is revoked. Supports "STOP" and "NONE", with "NONE" being the default.`,
 			},
 		},
 		UseJSONNumber: true,
@@ -1181,7 +1210,7 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 		}
 		if v, ok := d.GetOk(prefix + ".source"); ok {
 			disk.Source = v.(string)
-			conflicts := []string{"disk_size_gb", "disk_name", "disk_type", "provisioned_iops", "source_image", "source_snapshot", "labels"}
+			conflicts := []string{"disk_size_gb", "disk_name", "disk_type", "provisioned_iops", "provisioned_throughput", "source_image", "source_snapshot", "labels"}
 			for _, conflict := range conflicts {
 				if _, ok := d.GetOk(prefix + "." + conflict); ok {
 					return nil, fmt.Errorf("Cannot use `source` with any of the fields in %s", conflicts)
@@ -1203,6 +1232,9 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 			}
 			if v, ok := d.GetOk(prefix + ".provisioned_iops"); ok {
 				disk.InitializeParams.ProvisionedIops = int64(v.(int))
+			}
+			if v, ok := d.GetOk(prefix + ".provisioned_throughput"); ok {
+				disk.InitializeParams.ProvisionedThroughput = int64(v.(int))
 			}
 			if _, ok := d.GetOk(prefix + ".resource_manager_tags"); ok {
 				disk.InitializeParams.ResourceManagerTags = tpgresource.ExpandStringMap(d, prefix+".resource_manager_tags")
@@ -1363,6 +1395,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		AdvancedMachineFeatures:    expandAdvancedMachineFeatures(d),
 		ResourcePolicies:           resourcePolicies,
 		ReservationAffinity:        reservationAffinity,
+		KeyRevocationActionType:    d.Get("key_revocation_action_type").(string),
 	}
 
 	if _, ok := d.GetOk("effective_labels"); ok {
@@ -1416,12 +1449,13 @@ func resourceComputeInstanceTemplateUpdate(d *schema.ResourceData, meta interfac
 }
 
 type diskCharacteristics struct {
-	mode            string
-	diskType        string
-	diskSizeGb      string
-	autoDelete      bool
-	sourceImage     string
-	provisionedIops string
+	mode                  string
+	diskType              string
+	diskSizeGb            string
+	autoDelete            bool
+	sourceImage           string
+	provisionedIops       string
+	provisionedThroughput string
 }
 
 func diskCharacteristicsFromMap(m map[string]interface{}) diskCharacteristics {
@@ -1457,6 +1491,12 @@ func diskCharacteristicsFromMap(m map[string]interface{}) diskCharacteristics {
 		dc.provisionedIops = fmt.Sprintf("%v", v)
 	}
 
+	if v := m["provisioned_throughput"]; v != nil {
+		// Terraform and GCP return ints as different types (int vs int64), so just
+		// use strings to compare for simplicity.
+		dc.provisionedThroughput = fmt.Sprintf("%v", v)
+	}
+
 	return dc
 }
 
@@ -1480,6 +1520,7 @@ func flattenDisk(disk *compute.AttachedDisk, configDisk map[string]any, defaultP
 		}
 		diskMap["disk_type"] = disk.InitializeParams.DiskType
 		diskMap["provisioned_iops"] = disk.InitializeParams.ProvisionedIops
+		diskMap["provisioned_throughput"] = disk.InitializeParams.ProvisionedThroughput
 		diskMap["disk_name"] = disk.InitializeParams.DiskName
 		diskMap["labels"] = disk.InitializeParams.Labels
 		// The API does not return a disk size value for scratch disks. They are largely only one size,
@@ -1719,6 +1760,9 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	if err = d.Set("self_link_unique", fmt.Sprintf("%v?uniqueId=%v", instanceTemplate.SelfLink, instanceTemplate.Id)); err != nil {
 		return fmt.Errorf("Error setting self_link_unique: %s", err)
 	}
+	if err = d.Set("creation_timestamp", instanceTemplate.CreationTimestamp); err != nil {
+		return fmt.Errorf("Error setting creation_timestamp: %s", err)
+	}
 	if err = d.Set("name", instanceTemplate.Name); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
@@ -1747,6 +1791,9 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 
 	if err = d.Set("instance_description", instanceTemplate.Properties.Description); err != nil {
 		return fmt.Errorf("Error setting instance_description: %s", err)
+	}
+	if err = d.Set("key_revocation_action_type", instanceTemplate.Properties.KeyRevocationActionType); err != nil {
+		return fmt.Errorf("Error setting key_revocation_action_type: %s", err)
 	}
 	if err = d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)

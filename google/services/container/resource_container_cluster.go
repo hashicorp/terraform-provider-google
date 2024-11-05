@@ -88,6 +88,7 @@ var (
 		"addons_config.0.gcs_fuse_csi_driver_config",
 		"addons_config.0.stateful_ha_config",
 		"addons_config.0.ray_operator_config",
+		"addons_config.0.parallelstore_csi_driver_config",
 	}
 
 	privateClusterConfigKeys = []string{
@@ -96,12 +97,6 @@ var (
 		"private_cluster_config.0.master_ipv4_cidr_block",
 		"private_cluster_config.0.private_endpoint_subnetwork",
 		"private_cluster_config.0.master_global_access_config",
-	}
-
-	forceNewClusterNodeConfigFields = []string{
-		"labels",
-		"workload_metadata_config",
-		"resource_manager_tags",
 	}
 
 	suppressDiffForAutopilot = schema.SchemaDiffSuppressFunc(func(k, oldValue, newValue string, d *schema.ResourceData) bool {
@@ -119,19 +114,6 @@ var (
 		return false
 	})
 )
-
-// This uses the node pool nodeConfig schema but sets
-// node-pool-only updatable fields to ForceNew
-func clusterSchemaNodeConfig() *schema.Schema {
-	nodeConfigSch := schemaNodeConfig()
-	schemaMap := nodeConfigSch.Elem.(*schema.Resource).Schema
-	for _, k := range forceNewClusterNodeConfigFields {
-		if sch, ok := schemaMap[k]; ok {
-			tpgresource.ChangeFieldSchemaToForceNew(sch)
-		}
-	}
-	return nodeConfigSch
-}
 
 // Defines default nodel pool settings for the entire cluster. These settings are
 // overridden if specified on the specific NodePool object.
@@ -438,6 +420,22 @@ func ResourceContainerCluster() *schema.Resource {
 							AtLeastOneOf: addonsConfigKeys,
 							MaxItems:     1,
 							Description:  `The status of the GCS Fuse CSI driver addon, which allows the usage of gcs bucket as volumes. Defaults to disabled; set enabled = true to enable.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+								},
+							},
+						},
+						"parallelstore_csi_driver_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     1,
+							Description:  `The status of the Parallelstore CSI driver addon, which allows the usage of Parallelstore instances as volumes. Defaults to disabled; set enabled = true to enable.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -952,10 +950,10 @@ func ResourceContainerCluster() *schema.Resource {
 						"enable_components": {
 							Type:        schema.TypeList,
 							Required:    true,
-							Description: `GKE components exposing logs. Valid values include SYSTEM_COMPONENTS, APISERVER, CONTROLLER_MANAGER, SCHEDULER, and WORKLOADS.`,
+							Description: `GKE components exposing logs. Valid values include SYSTEM_COMPONENTS, APISERVER, CONTROLLER_MANAGER, KCP_CONNECTION, KCP_SSHD, SCHEDULER, and WORKLOADS.`,
 							Elem: &schema.Schema{
 								Type:         schema.TypeString,
-								ValidateFunc: validation.StringInSlice([]string{"SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER", "WORKLOADS"}, false),
+								ValidateFunc: validation.StringInSlice([]string{"SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "KCP_CONNECTION", "KCP_SSHD", "SCHEDULER", "WORKLOADS"}, false),
 							},
 						},
 					},
@@ -1334,7 +1332,7 @@ func ResourceContainerCluster() *schema.Resource {
 				},
 			},
 
-			"node_config": clusterSchemaNodeConfig(),
+			"node_config": schemaNodeConfig(),
 
 			"node_pool": {
 				Type:     schema.TypeList,
@@ -2020,6 +2018,62 @@ func ResourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
+			"user_managed_keys_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `The custom keys configuration of the cluster.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cluster_ca": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The Certificate Authority Service caPool to use for the cluster CA in this cluster.`,
+						},
+						"etcd_api_ca": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The Certificate Authority Service caPool to use for the etcd API CA in this cluster.`,
+						},
+						"etcd_peer_ca": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The Certificate Authority Service caPool to use for the etcd peer CA in this cluster.`,
+						},
+						"aggregation_ca": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The Certificate Authority Service caPool to use for the aggreation CA in this cluster.`,
+						},
+						"service_account_signing_keys": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: `The Cloud KMS cryptoKeyVersions to use for signing service account JWTs issued by this cluster.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"service_account_verification_keys": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: `The Cloud KMS cryptoKeyVersions to use for verifying service account JWTs issued by this cluster.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"control_plane_disk_encryption_key": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The Cloud KMS cryptoKey to use for Confidential Hyperdisk on the control plane nodes.`,
+						},
+						"gkeops_etcd_backup_encryption_key": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Resource path of the Cloud KMS cryptoKey to use for encryption of internal etcd backups.`,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -2029,12 +2083,18 @@ func ResourceContainerCluster() *schema.Resource {
 // by only comparing the blocks with a positive count and ignoring those with count=0
 //
 // One quirk with this approach is that configs with mixed count=0 and count>0 accelerator blocks will
-// show a confusing diff if one of there are config changes that result in a legitimate diff as the count=0
+// show a confusing diff if there are config changes that result in a legitimate diff as the count=0
 // blocks will not be in state.
-func resourceNodeConfigEmptyGuestAccelerator(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+func resourceNodeConfigEmptyGuestAccelerator(_ context.Context, diff *schema.ResourceDiff, meta any) error {
 	old, new := diff.GetChange("node_config.0.guest_accelerator")
-	oList := old.([]interface{})
-	nList := new.([]interface{})
+	oList, ok := old.([]any)
+	if !ok {
+		return fmt.Errorf("type assertion failed, expected []any, got %T", old)
+	}
+	nList, ok := new.([]any)
+	if !ok {
+		return fmt.Errorf("type assertion failed, expected []any, got %T", new)
+	}
 
 	if len(nList) == len(oList) || len(nList) == 0 {
 		return nil
@@ -2044,9 +2104,12 @@ func resourceNodeConfigEmptyGuestAccelerator(_ context.Context, diff *schema.Res
 	// will be longer than the current state.
 	// this index tracks the location of positive count accelerator blocks
 	index := 0
-	for i, item := range nList {
-		accel := item.(map[string]interface{})
-		if accel["count"].(int) == 0 {
+	for _, item := range nList {
+		nAccel, ok := item.(map[string]any)
+		if !ok {
+			return fmt.Errorf("type assertion failed, expected []any, got %T", item)
+		}
+		if nAccel["count"].(int) == 0 {
 			hasAcceleratorWithEmptyCount = true
 			// Ignore any 'empty' accelerators because they aren't sent to the API
 			continue
@@ -2057,7 +2120,14 @@ func resourceNodeConfigEmptyGuestAccelerator(_ context.Context, diff *schema.Res
 			// This will prevent array index overruns
 			return nil
 		}
-		if !reflect.DeepEqual(nList[i], oList[index]) {
+		// Delete Optional + Computed field from old and new map.
+		oAccel, ok := oList[index].(map[string]any)
+		if !ok {
+			return fmt.Errorf("type assertion failed, expected []any, got %T", oList[index])
+		}
+		delete(nAccel, "gpu_driver_installation_config")
+		delete(oAccel, "gpu_driver_installation_config")
+		if !reflect.DeepEqual(oAccel, nAccel) {
 			return nil
 		}
 		index += 1
@@ -2293,6 +2363,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("fleet"); ok {
 		cluster.Fleet = expandFleet(v)
+	}
+
+	if v, ok := d.GetOk("user_managed_keys_config"); ok {
+		cluster.UserManagedKeysConfig = expandUserManagedKeysConfig(v)
 	}
 
 	if err := validateNodePoolAutoConfig(cluster); err != nil {
@@ -2776,6 +2850,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("fleet", flattenFleet(cluster.Fleet)); err != nil {
 		return err
 	}
+	if err := d.Set("user_managed_keys_config", flattenUserManagedKeysConfig(cluster.UserManagedKeysConfig)); err != nil {
+		return err
+	}
 	if err := d.Set("enable_k8s_beta_apis", flattenEnableK8sBetaApis(cluster.EnableK8sBetaApis)); err != nil {
 		return err
 	}
@@ -3147,6 +3224,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
 				DesiredEnableCiliumClusterwideNetworkPolicy: enabled,
+				ForceSendFields: []string{"DesiredEnableCiliumClusterwideNetworkPolicy"},
 			},
 		}
 		updateF := updateFunc(req, "updating cilium clusterwide network policy")
@@ -3519,133 +3597,15 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if d.HasChange("node_config") {
-		if d.HasChange("node_config.0.image_type") {
-			it := d.Get("node_config.0.image_type").(string)
-			req := &container.UpdateClusterRequest{
-				Update: &container.ClusterUpdate{
-					DesiredImageType: it,
-				},
-			}
 
-			updateF := func() error {
-				name := containerClusterFullName(project, location, clusterName)
-				clusterUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Update(name, req)
-				if config.UserProjectOverride {
-					clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
-				}
-				op, err := clusterUpdateCall.Do()
-				if err != nil {
-					return err
-				}
+		defaultPool := "default-pool"
 
-				// Wait until it's updated
-				return ContainerOperationWait(config, op, project, location, "updating GKE image type", userAgent, d.Timeout(schema.TimeoutUpdate))
-			}
-
-			// Call update serially.
-			if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
-				return err
-			}
-
-			log.Printf("[INFO] GKE cluster %s: image type has been updated to %s", d.Id(), it)
+		nodePoolInfo, err := extractNodePoolInformationFromCluster(d, config, clusterName)
+		if err != nil {
+			return err
 		}
 
-		if d.HasChange("node_config.0.kubelet_config") {
-
-			defaultPool := "default-pool"
-
-			timeout := d.Timeout(schema.TimeoutCreate)
-
-			nodePoolInfo, err := extractNodePoolInformationFromCluster(d, config, clusterName)
-			if err != nil {
-				return err
-			}
-
-			// Acquire write-lock on nodepool.
-			npLockKey := nodePoolInfo.nodePoolLockKey(defaultPool)
-
-			// Still should be further consolidated / DRYed up
-			// See b/361634104
-			it := d.Get("node_config.0.kubelet_config")
-
-			// While we're getting the value from fields in
-			// node_config.kubelet_config, the actual setting that needs to be
-			// updated is on the default nodepool.
-			req := &container.UpdateNodePoolRequest{
-				Name:          defaultPool,
-				KubeletConfig: expandKubeletConfig(it),
-			}
-
-			updateF := func() error {
-				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(defaultPool), req)
-				if config.UserProjectOverride {
-					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
-				}
-				op, err := clusterNodePoolsUpdateCall.Do()
-				if err != nil {
-					return err
-				}
-
-				// Wait until it's updated
-				return ContainerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location,
-					"updating GKE node pool kubelet_config", userAgent, timeout)
-			}
-
-			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
-				return err
-			}
-
-			log.Printf("[INFO] GKE cluster %s: kubelet_config updated", d.Id())
-		}
-
-		if d.HasChange("node_config.0.gcfs_config") {
-
-			defaultPool := "default-pool"
-
-			timeout := d.Timeout(schema.TimeoutCreate)
-
-			nodePoolInfo, err := extractNodePoolInformationFromCluster(d, config, clusterName)
-			if err != nil {
-				return err
-			}
-
-			// Acquire write-lock on nodepool.
-			npLockKey := nodePoolInfo.nodePoolLockKey(defaultPool)
-
-			gcfsEnabled := d.Get("node_config.0.gcfs_config.0.enabled").(bool)
-
-			// While we're getting the value from the drepcated field in
-			// node_config.kubelet_config, the actual setting that needs to be updated
-			// is on the default nodepool.
-			req := &container.UpdateNodePoolRequest{
-				Name: defaultPool,
-				GcfsConfig: &container.GcfsConfig{
-					Enabled: gcfsEnabled,
-				},
-			}
-
-			updateF := func() error {
-				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(defaultPool), req)
-				if config.UserProjectOverride {
-					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
-				}
-				op, err := clusterNodePoolsUpdateCall.Do()
-				if err != nil {
-					return err
-				}
-
-				// Wait until it's updated
-				return ContainerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location,
-					"updating GKE node pool gcfs_config", userAgent, timeout)
-			}
-
-			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
-				return err
-			}
-
-			log.Printf("[INFO] GKE cluster %s: %s setting for gcfs_config updated to %t", d.Id(), defaultPool, gcfsEnabled)
-		}
-
+		nodePoolNodeConfigUpdate(d, config, nodePoolInfo, "", defaultPool, d.Timeout(schema.TimeoutUpdate))
 	}
 
 	if d.HasChange("notification_config") {
@@ -4001,6 +3961,20 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		log.Printf("[INFO] GKE cluster %s fleet config has been updated", d.Id())
+	}
+
+	if d.HasChange("user_managed_keys_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				UserManagedKeysConfig: expandUserManagedKeysConfig(d.Get("user_managed_keys_config")),
+			},
+		}
+		updateF := updateFunc(req, "updating GKE cluster user managed keys config.")
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s user managed key config has been updated to %#v", d.Id(), req.Update.UserManagedKeysConfig)
 	}
 
 	if d.HasChange("enable_k8s_beta_apis") {
@@ -4428,6 +4402,14 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 				Enabled:         loggingConfig["enabled"].(bool),
 				ForceSendFields: []string{"Enabled"},
 			}
+		}
+	}
+
+	if v, ok := config["parallelstore_csi_driver_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.ParallelstoreCsiDriverConfig = &container.ParallelstoreCsiDriverConfig{
+			Enabled:         addon["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
 		}
 	}
 
@@ -5181,6 +5163,32 @@ func expandFleet(configured interface{}) *container.Fleet {
 	}
 }
 
+func expandUserManagedKeysConfig(configured interface{}) *container.UserManagedKeysConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	config := l[0].(map[string]interface{})
+	umkc := &container.UserManagedKeysConfig{
+		ClusterCa:                     config["cluster_ca"].(string),
+		EtcdApiCa:                     config["etcd_api_ca"].(string),
+		EtcdPeerCa:                    config["etcd_peer_ca"].(string),
+		AggregationCa:                 config["aggregation_ca"].(string),
+		ControlPlaneDiskEncryptionKey: config["control_plane_disk_encryption_key"].(string),
+		GkeopsEtcdBackupEncryptionKey: config["gkeops_etcd_backup_encryption_key"].(string),
+	}
+	if v, ok := config["service_account_signing_keys"]; ok {
+		sk := v.(*schema.Set)
+		umkc.ServiceAccountSigningKeys = tpgresource.ConvertStringSet(sk)
+	}
+	if v, ok := config["service_account_verification_keys"]; ok {
+		vk := v.(*schema.Set)
+		umkc.ServiceAccountVerificationKeys = tpgresource.ConvertStringSet(vk)
+	}
+	return umkc
+}
+
 func expandEnableK8sBetaApis(configured interface{}, enabledAPIs []string) *container.K8sBetaAPIConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -5509,6 +5517,13 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 			result["ray_operator_config"].([]map[string]any)[0]["ray_cluster_monitoring_config"] = []map[string]interface{}{{
 				"enabled": rayConfig.RayClusterMonitoringConfig.Enabled,
 			}}
+		}
+	}
+	if c.ParallelstoreCsiDriverConfig != nil {
+		result["parallelstore_csi_driver_config"] = []map[string]interface{}{
+			{
+				"enabled": c.ParallelstoreCsiDriverConfig.Enabled,
+			},
 		}
 	}
 
@@ -6013,6 +6028,27 @@ func flattenFleet(c *container.Fleet) []map[string]interface{} {
 			"pre_registered":      c.PreRegistered,
 		},
 	}
+}
+
+func flattenUserManagedKeysConfig(c *container.UserManagedKeysConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	f := map[string]interface{}{
+		"cluster_ca":                        c.ClusterCa,
+		"etcd_api_ca":                       c.EtcdApiCa,
+		"etcd_peer_ca":                      c.EtcdPeerCa,
+		"aggregation_ca":                    c.AggregationCa,
+		"control_plane_disk_encryption_key": c.ControlPlaneDiskEncryptionKey,
+		"gkeops_etcd_backup_encryption_key": c.GkeopsEtcdBackupEncryptionKey,
+	}
+	if len(c.ServiceAccountSigningKeys) != 0 {
+		f["service_account_signing_keys"] = schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(c.ServiceAccountSigningKeys))
+	}
+	if len(c.ServiceAccountVerificationKeys) != 0 {
+		f["service_account_verification_keys"] = schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(c.ServiceAccountVerificationKeys))
+	}
+	return []map[string]interface{}{f}
 }
 
 func flattenEnableK8sBetaApis(c *container.K8sBetaAPIConfig) []map[string]interface{} {

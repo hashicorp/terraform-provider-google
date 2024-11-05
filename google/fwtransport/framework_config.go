@@ -36,9 +36,14 @@ import (
 type FrameworkProviderConfig struct {
 	// Temporary, as we'll replace use of FrameworkProviderConfig with transport_tpg.Config soon
 	// transport_tpg.Config has a the fields below, hence these changes are needed
-	Credentials               types.String
-	AccessToken               types.String
-	ImpersonateServiceAccount types.String
+	Credentials                               types.String
+	AccessToken                               types.String
+	ImpersonateServiceAccount                 types.String
+	ImpersonateServiceAccountDelegates        types.List
+	RequestReason                             types.String
+	RequestTimeout                            types.String
+	AddTerraformAttributionLabel              types.Bool
+	TerraformAttributionLabelAdditionStrategy types.String
 	// End temporary
 
 	BillingProject             types.String
@@ -107,6 +112,7 @@ type FrameworkProviderConfig struct {
 	DataPipelineBasePath             string
 	DataplexBasePath                 string
 	DataprocBasePath                 string
+	DataprocGdcBasePath              string
 	DataprocMetastoreBasePath        string
 	DatastreamBasePath               string
 	DeploymentManagerBasePath        string
@@ -138,6 +144,7 @@ type FrameworkProviderConfig struct {
 	LoggingBasePath                  string
 	LookerBasePath                   string
 	MemcacheBasePath                 string
+	MemorystoreBasePath              string
 	MigrationCenterBasePath          string
 	MLEngineBasePath                 string
 	MonitoringBasePath               string
@@ -147,6 +154,7 @@ type FrameworkProviderConfig struct {
 	NetworkSecurityBasePath          string
 	NetworkServicesBasePath          string
 	NotebooksBasePath                string
+	OracleDatabaseBasePath           string
 	OrgPolicyBasePath                string
 	OSConfigBasePath                 string
 	OSLoginBasePath                  string
@@ -176,6 +184,7 @@ type FrameworkProviderConfig struct {
 	StorageTransferBasePath          string
 	TagsBasePath                     string
 	TPUBasePath                      string
+	TranscoderBasePath               string
 	VertexAIBasePath                 string
 	VmwareengineBasePath             string
 	VPCAccessBasePath                string
@@ -268,6 +277,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.DataPipelineBasePath = data.DataPipelineCustomEndpoint.ValueString()
 	p.DataplexBasePath = data.DataplexCustomEndpoint.ValueString()
 	p.DataprocBasePath = data.DataprocCustomEndpoint.ValueString()
+	p.DataprocGdcBasePath = data.DataprocGdcCustomEndpoint.ValueString()
 	p.DataprocMetastoreBasePath = data.DataprocMetastoreCustomEndpoint.ValueString()
 	p.DatastreamBasePath = data.DatastreamCustomEndpoint.ValueString()
 	p.DeploymentManagerBasePath = data.DeploymentManagerCustomEndpoint.ValueString()
@@ -299,6 +309,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.LoggingBasePath = data.LoggingCustomEndpoint.ValueString()
 	p.LookerBasePath = data.LookerCustomEndpoint.ValueString()
 	p.MemcacheBasePath = data.MemcacheCustomEndpoint.ValueString()
+	p.MemorystoreBasePath = data.MemorystoreCustomEndpoint.ValueString()
 	p.MigrationCenterBasePath = data.MigrationCenterCustomEndpoint.ValueString()
 	p.MLEngineBasePath = data.MLEngineCustomEndpoint.ValueString()
 	p.MonitoringBasePath = data.MonitoringCustomEndpoint.ValueString()
@@ -308,6 +319,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.NetworkSecurityBasePath = data.NetworkSecurityCustomEndpoint.ValueString()
 	p.NetworkServicesBasePath = data.NetworkServicesCustomEndpoint.ValueString()
 	p.NotebooksBasePath = data.NotebooksCustomEndpoint.ValueString()
+	p.OracleDatabaseBasePath = data.OracleDatabaseCustomEndpoint.ValueString()
 	p.OrgPolicyBasePath = data.OrgPolicyCustomEndpoint.ValueString()
 	p.OSConfigBasePath = data.OSConfigCustomEndpoint.ValueString()
 	p.OSLoginBasePath = data.OSLoginCustomEndpoint.ValueString()
@@ -337,6 +349,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.StorageTransferBasePath = data.StorageTransferCustomEndpoint.ValueString()
 	p.TagsBasePath = data.TagsCustomEndpoint.ValueString()
 	p.TPUBasePath = data.TPUCustomEndpoint.ValueString()
+	p.TranscoderBasePath = data.TranscoderCustomEndpoint.ValueString()
 	p.VertexAIBasePath = data.VertexAICustomEndpoint.ValueString()
 	p.VmwareengineBasePath = data.VmwareengineCustomEndpoint.ValueString()
 	p.VPCAccessBasePath = data.VPCAccessCustomEndpoint.ValueString()
@@ -347,6 +360,11 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.Credentials = data.Credentials
 	p.AccessToken = data.AccessToken
 	p.ImpersonateServiceAccount = data.ImpersonateServiceAccount
+	p.ImpersonateServiceAccountDelegates = data.ImpersonateServiceAccountDelegates
+	p.RequestReason = data.RequestReason
+	p.RequestTimeout = data.RequestTimeout
+	p.AddTerraformAttributionLabel = data.AddTerraformAttributionLabel
+	p.TerraformAttributionLabelAdditionStrategy = data.TerraformAttributionLabelAdditionStrategy
 	// End temporary
 
 	// Copy values from the ProviderModel struct containing data about the provider configuration (present only when responsing to ConfigureProvider rpc calls)
@@ -853,6 +871,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 			data.DataprocCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
+	if data.DataprocGdcCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_DATAPROC_GDC_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DataprocGdcBasePathKey])
+		if customEndpoint != nil {
+			data.DataprocGdcCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
 	if data.DataprocMetastoreCustomEndpoint.IsNull() {
 		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DATAPROC_METASTORE_CUSTOM_ENDPOINT",
@@ -1101,6 +1127,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 			data.MemcacheCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
+	if data.MemorystoreCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_MEMORYSTORE_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.MemorystoreBasePathKey])
+		if customEndpoint != nil {
+			data.MemorystoreCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
 	if data.MigrationCenterCustomEndpoint.IsNull() {
 		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_MIGRATION_CENTER_CUSTOM_ENDPOINT",
@@ -1171,6 +1205,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.NotebooksBasePathKey])
 		if customEndpoint != nil {
 			data.NotebooksCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.OracleDatabaseCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_ORACLE_DATABASE_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.OracleDatabaseBasePathKey])
+		if customEndpoint != nil {
+			data.OracleDatabaseCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.OrgPolicyCustomEndpoint.IsNull() {
@@ -1403,6 +1445,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.TPUBasePathKey])
 		if customEndpoint != nil {
 			data.TPUCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.TranscoderCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_TRANSCODER_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.TranscoderBasePathKey])
+		if customEndpoint != nil {
+			data.TranscoderCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.VertexAICustomEndpoint.IsNull() {

@@ -6,8 +6,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
-
 	"time"
 
 	"github.com/hashicorp/errwrap"
@@ -21,6 +21,16 @@ import (
 
 	"google.golang.org/api/compute/v1"
 )
+
+// IsEmptyValue does not consider a empty PreconfiguredWafConfig object as empty so we check it's nested values
+func preconfiguredWafConfigIsEmptyValue(config *compute.SecurityPolicyRulePreconfiguredWafConfig) bool {
+	if tpgresource.IsEmptyValue(reflect.ValueOf(config.Exclusions)) &&
+		tpgresource.IsEmptyValue(reflect.ValueOf(config.ForceSendFields)) &&
+		tpgresource.IsEmptyValue(reflect.ValueOf(config.NullFields)) {
+		return true
+	}
+	return false
+}
 
 func ResourceComputeSecurityPolicy() *schema.Resource {
 	return &schema.Resource{
@@ -37,9 +47,9 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 		),
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Minute),
-			Update: schema.DefaultTimeout(20 * time.Minute),
-			Delete: schema.DefaultTimeout(20 * time.Minute),
+			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -194,6 +204,54 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 								},
 							},
 							Description: `A match condition that incoming traffic is evaluated against. If it evaluates to true, the corresponding action is enforced.`,
+						},
+
+						"preconfigured_waf_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"exclusion": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"request_header": resourceComputeSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParamsSchema(
+													`Request header whose value will be excluded from inspection during preconfigured WAF evaluation.`,
+												),
+
+												"request_cookie": resourceComputeSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParamsSchema(
+													`Request cookie whose value will be excluded from inspection during preconfigured WAF evaluation.`,
+												),
+
+												"request_uri": resourceComputeSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParamsSchema(
+													`Request URI from the request line to be excluded from inspection during preconfigured WAF evaluation. When specifying this field, the query or fragment part should be excluded.`,
+												),
+
+												"request_query_param": resourceComputeSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParamsSchema(
+													`Request query parameter whose value will be excluded from inspection during preconfigured WAF evaluation.  Note that the parameter can be in the query string or in the POST body.`,
+												),
+
+												"target_rule_set": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Target WAF rule set to apply the preconfigured WAF exclusion.`,
+												},
+
+												"target_rule_ids": {
+													Type:        schema.TypeSet,
+													Optional:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
+													Description: `A list of target rule IDs under the WAF rule set to apply the preconfigured WAF exclusion. If omitted, it refers to all the rule IDs under the WAF rule set.`,
+												},
+											},
+										},
+										Description: `An exclusion to apply during preconfigured WAF evaluation.`,
+									},
+								},
+							},
+							Description: `Preconfigured WAF configuration to be applied for the rule. If the rule does not evaluate preconfigured WAF rules, i.e., if evaluatePreconfiguredWaf() is not used, this field will have no effect.`,
 						},
 
 						"description": {
@@ -490,6 +548,29 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 	}
 }
 
+func resourceComputeSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParamsSchema(description string) *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"operator": {
+					Type:         schema.TypeString,
+					Required:     true,
+					ValidateFunc: validation.StringInSlice([]string{"EQUALS", "STARTS_WITH", "ENDS_WITH", "CONTAINS", "EQUALS_ANY"}, false),
+					Description:  `You can specify an exact match or a partial match by using a field operator and a field value. Available options: EQUALS: The operator matches if the field value equals the specified value. STARTS_WITH: The operator matches if the field value starts with the specified value. ENDS_WITH: The operator matches if the field value ends with the specified value. CONTAINS: The operator matches if the field value contains the specified value. EQUALS_ANY: The operator matches if the field value is any value.`,
+				},
+				"value": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: `A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation. The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.`,
+				},
+			},
+		},
+		Description: description,
+	}
+}
+
 func rulesCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, _ interface{}) error {
 	_, n := diff.GetChange("rule")
 	nSet := n.(*schema.Set)
@@ -598,7 +679,7 @@ func resourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("type", securityPolicy.Type); err != nil {
 		return fmt.Errorf("Error setting type: %s", err)
 	}
-	if err := d.Set("rule", flattenSecurityPolicyRules(securityPolicy.Rules)); err != nil {
+	if err := d.Set("rule", flattenSecurityPolicyRules(securityPolicy.Rules, d)); err != nil {
 		return err
 	}
 	if err := d.Set("fingerprint", securityPolicy.Fingerprint); err != nil {
@@ -797,15 +878,16 @@ func expandSecurityPolicyRules(configured []interface{}) []*compute.SecurityPoli
 func expandSecurityPolicyRule(raw interface{}) *compute.SecurityPolicyRule {
 	data := raw.(map[string]interface{})
 	return &compute.SecurityPolicyRule{
-		Description:      data["description"].(string),
-		Priority:         int64(data["priority"].(int)),
-		Action:           data["action"].(string),
-		Preview:          data["preview"].(bool),
-		Match:            expandSecurityPolicyMatch(data["match"].([]interface{})),
-		RateLimitOptions: expandSecurityPolicyRuleRateLimitOptions(data["rate_limit_options"].([]interface{})),
-		RedirectOptions:  expandSecurityPolicyRuleRedirectOptions(data["redirect_options"].([]interface{})),
-		HeaderAction:     expandSecurityPolicyRuleHeaderAction(data["header_action"].([]interface{})),
-		ForceSendFields:  []string{"Description", "Preview"},
+		Description:            data["description"].(string),
+		Priority:               int64(data["priority"].(int)),
+		Action:                 data["action"].(string),
+		Preview:                data["preview"].(bool),
+		Match:                  expandSecurityPolicyMatch(data["match"].([]interface{})),
+		PreconfiguredWafConfig: expandSecurityPolicyPreconfiguredWafConfig(data["preconfigured_waf_config"].([]interface{})),
+		RateLimitOptions:       expandSecurityPolicyRuleRateLimitOptions(data["rate_limit_options"].([]interface{})),
+		RedirectOptions:        expandSecurityPolicyRuleRedirectOptions(data["redirect_options"].([]interface{})),
+		HeaderAction:           expandSecurityPolicyRuleHeaderAction(data["header_action"].([]interface{})),
+		ForceSendFields:        []string{"Description", "Preview"},
 	}
 }
 
@@ -885,18 +967,66 @@ func expandSecurityPolicyMatchExprOptionsRecaptchaOptions(recaptchaOptions []int
 	}
 }
 
-func flattenSecurityPolicyRules(rules []*compute.SecurityPolicyRule) []map[string]interface{} {
+func expandSecurityPolicyPreconfiguredWafConfig(configured []interface{}) *compute.SecurityPolicyRulePreconfiguredWafConfig {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	data := configured[0].(map[string]interface{})
+	return &compute.SecurityPolicyRulePreconfiguredWafConfig{
+		Exclusions: expandSecurityPolicyRulePreconfiguredWafConfigExclusions(data["exclusion"].([]interface{})),
+	}
+}
+
+func expandSecurityPolicyRulePreconfiguredWafConfigExclusions(configured []interface{}) []*compute.SecurityPolicyRulePreconfiguredWafConfigExclusion {
+	exclusions := make([]*compute.SecurityPolicyRulePreconfiguredWafConfigExclusion, 0, len(configured))
+	for _, raw := range configured {
+		exclusions = append(exclusions, expandSecurityPolicyRulePreconfiguredWafConfigExclusion(raw))
+	}
+	return exclusions
+}
+
+func expandSecurityPolicyRulePreconfiguredWafConfigExclusion(raw interface{}) *compute.SecurityPolicyRulePreconfiguredWafConfigExclusion {
+	data := raw.(map[string]interface{})
+	return &compute.SecurityPolicyRulePreconfiguredWafConfigExclusion{
+		RequestHeadersToExclude:     expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_header"].([]interface{})),
+		RequestCookiesToExclude:     expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_cookie"].([]interface{})),
+		RequestUrisToExclude:        expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_uri"].([]interface{})),
+		RequestQueryParamsToExclude: expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_query_param"].([]interface{})),
+		TargetRuleSet:               data["target_rule_set"].(string),
+		TargetRuleIds:               tpgresource.ConvertStringArr(data["target_rule_ids"].(*schema.Set).List()),
+	}
+}
+
+func expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(configured []interface{}) []*compute.SecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams {
+	params := make([]*compute.SecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams, 0, len(configured))
+	for _, raw := range configured {
+		params = append(params, expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParam(raw))
+	}
+	return params
+}
+
+func expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParam(raw interface{}) *compute.SecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams {
+	data := raw.(map[string]interface{})
+	return &compute.SecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams{
+		Op:  data["operator"].(string),
+		Val: data["value"].(string),
+	}
+}
+
+func flattenSecurityPolicyRules(rules []*compute.SecurityPolicyRule, d *schema.ResourceData) []map[string]interface{} {
 	rulesSchema := make([]map[string]interface{}, 0, len(rules))
 	for _, rule := range rules {
 		data := map[string]interface{}{
-			"description":        rule.Description,
-			"priority":           rule.Priority,
-			"action":             rule.Action,
-			"preview":            rule.Preview,
-			"match":              flattenMatch(rule.Match),
-			"rate_limit_options": flattenSecurityPolicyRuleRateLimitOptions(rule.RateLimitOptions),
-			"redirect_options":   flattenSecurityPolicyRedirectOptions(rule.RedirectOptions),
-			"header_action":      flattenSecurityPolicyRuleHeaderAction(rule.HeaderAction),
+			"description":              rule.Description,
+			"priority":                 rule.Priority,
+			"action":                   rule.Action,
+			"preview":                  rule.Preview,
+			"match":                    flattenMatch(rule.Match),
+			"preconfigured_waf_config": flattenPreconfiguredWafConfig(rule.PreconfiguredWafConfig, d, int(rule.Priority)),
+			"rate_limit_options":       flattenSecurityPolicyRuleRateLimitOptions(rule.RateLimitOptions),
+			"redirect_options":         flattenSecurityPolicyRedirectOptions(rule.RedirectOptions),
+			"header_action":            flattenSecurityPolicyRuleHeaderAction(rule.HeaderAction),
 		}
 		rulesSchema = append(rulesSchema, data)
 	}
@@ -969,6 +1099,65 @@ func flattenMatchExpr(match *compute.SecurityPolicyRuleMatcher) []map[string]int
 	}
 
 	return []map[string]interface{}{data}
+}
+
+func flattenPreconfiguredWafConfig(config *compute.SecurityPolicyRulePreconfiguredWafConfig, d *schema.ResourceData, rulePriority int) []map[string]interface{} {
+	if config == nil {
+		return nil
+	}
+
+	// We find the current value for this field in the config and check if its empty, then check if the API is returning a empty non-null value
+	if schemaRules, ok := d.GetOk("rule"); ok {
+		for _, itemRaw := range schemaRules.(*schema.Set).List() {
+			if itemRaw == nil {
+				continue
+			}
+			item := itemRaw.(map[string]interface{})
+
+			schemaPriority := item["priority"].(int)
+			if rulePriority == schemaPriority {
+				if preconfiguredWafConfigIsEmptyValue(config) && tpgresource.IsEmptyValue(reflect.ValueOf(item["preconfigured_waf_config"])) {
+					return nil
+				}
+				break
+			}
+		}
+	}
+
+	data := map[string]interface{}{
+		"exclusion": flattenPreconfiguredWafConfigExclusions(config.Exclusions),
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenPreconfiguredWafConfigExclusions(exclusions []*compute.SecurityPolicyRulePreconfiguredWafConfigExclusion) []map[string]interface{} {
+	exclusionsSchema := make([]map[string]interface{}, 0, len(exclusions))
+	for _, exclusion := range exclusions {
+		data := map[string]interface{}{
+			"request_header":      flattenPreconfiguredWafConfigExclusionField(exclusion.RequestHeadersToExclude),
+			"request_cookie":      flattenPreconfiguredWafConfigExclusionField(exclusion.RequestCookiesToExclude),
+			"request_uri":         flattenPreconfiguredWafConfigExclusionField(exclusion.RequestUrisToExclude),
+			"request_query_param": flattenPreconfiguredWafConfigExclusionField(exclusion.RequestQueryParamsToExclude),
+			"target_rule_set":     exclusion.TargetRuleSet,
+			"target_rule_ids":     schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(exclusion.TargetRuleIds)),
+		}
+
+		exclusionsSchema = append(exclusionsSchema, data)
+	}
+	return exclusionsSchema
+}
+
+func flattenPreconfiguredWafConfigExclusionField(fieldParams []*compute.SecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams) []map[string]interface{} {
+	fieldSchema := make([]map[string]interface{}, 0, len(fieldParams))
+	for _, field := range fieldParams {
+		data := map[string]interface{}{
+			"operator": &field.Op,
+			"value":    &field.Val,
+		}
+		fieldSchema = append(fieldSchema, data)
+	}
+	return fieldSchema
 }
 
 func expandSecurityPolicyAdvancedOptionsConfig(configured []interface{}) *compute.SecurityPolicyAdvancedOptionsConfig {

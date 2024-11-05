@@ -165,7 +165,7 @@ resource "google_sql_database_instance" "instance" {
     tier = "db-f1-micro"
   }
 
-  deletion_protection  = "true"
+  deletion_protection  = true
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -385,11 +385,9 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
 
 ```hcl
 resource "google_cloud_run_v2_service" "default" {
-  provider = google-beta
   name     = "cloudrun-service"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
   ingress = "INGRESS_TRAFFIC_ALL"
   template {
     containers {
@@ -565,6 +563,31 @@ resource "time_sleep" "wait_for_mesh" {
 resource "google_network_services_mesh" "mesh" {
   provider = google-beta
   name     = "network-services-mesh"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_service_invokeriam&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Service Invokeriam
+
+
+```hcl
+resource "google_cloud_run_v2_service" "default" {
+  provider = google-beta
+  name     = "cloudrun-service"
+  location = "us-central1"
+  deletion_protection = false
+  invoker_iam_disabled = true
+  description = "The serving URL of this service will not perform any IAM check when invoked"
+  ingress = "INGRESS_TRAFFIC_ALL"
+  
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
 }
 ```
 
@@ -1017,7 +1040,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_cloud_sql_instance).
 
 * `empty_dir` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Ephemeral storage used as a shared volume.
   Structure is [documented below](#nested_empty_dir).
 
@@ -1089,6 +1112,11 @@ The following arguments are supported:
 * `read_only` -
   (Optional)
   If true, mount the GCS bucket as read-only
+
+* `mount_options` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A list of flags to pass to the gcsfuse command for configuring this volume.
+  Flags should be passed without leading dashes.
 
 <a name="nested_nfs"></a>The `nfs` block supports:
 
@@ -1184,6 +1212,10 @@ The following arguments are supported:
   (Optional)
   Specifies how to distribute traffic over a collection of Revisions belonging to the Service. If traffic is empty or not provided, defaults to 100% traffic to the latest Ready Revision.
   Structure is [documented below](#nested_traffic).
+
+* `invoker_iam_disabled` -
+  (Optional)
+  Disables IAM permission check for run.routes.invoke for callers of this service. This feature is available by invitation only. For more information, visit https://cloud.google.com/run/docs/securing/managing-access#invoker_check.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

@@ -1,0 +1,5 @@
+resource: 'google_network_services_gateway'
+generation_type: 'mmv1'
+api_service_name: 'networkservices.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Gateway'

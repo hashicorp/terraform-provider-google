@@ -1197,7 +1197,7 @@ resource "time_sleep" "wait_iam_roles_%[3]s" {
 		google_project_iam_member.artifact_registry_writer_%[3]s,
 		google_project_iam_member.log_writer_%[3]s,
 	]
-	create_duration  = "60s"
+	create_duration  = "120s"
 }
 
 resource "google_cloudfunctions_function" "function" {

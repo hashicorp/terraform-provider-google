@@ -47,6 +47,11 @@ func DataSourceSecretManagerRegionalRegionalSecretVersionAccess() *schema.Resour
 				Computed:  true,
 				Sensitive: true,
 			},
+			"is_secret_data_base64": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 	}
 }
@@ -150,11 +155,17 @@ func dataSourceSecretManagerRegionalRegionalSecretVersionAccessRead(d *schema.Re
 	}
 
 	data := resp["payload"].(map[string]interface{})
-	secretData, err := base64.StdEncoding.DecodeString(data["data"].(string))
-	if err != nil {
-		return fmt.Errorf("error decoding secret manager regional secret version data: %s", err.Error())
+	var secretData string
+	if d.Get("is_secret_data_base64").(bool) {
+		secretData = data["data"].(string)
+	} else {
+		payloadData, err := base64.StdEncoding.DecodeString(data["data"].(string))
+		if err != nil {
+			return fmt.Errorf("error decoding secret manager regional secret version data: %s", err.Error())
+		}
+		secretData = string(payloadData)
 	}
-	if err := d.Set("secret_data", string(secretData)); err != nil {
+	if err := d.Set("secret_data", secretData); err != nil {
 		return fmt.Errorf("error setting secret_data: %s", err)
 	}
 

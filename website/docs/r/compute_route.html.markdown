@@ -327,6 +327,18 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `next_hop_network` -
   URL to a Network that should handle matching packets.
+
+* `next_hop_origin` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Indicates the origin of the route. Can be IGP (Interior Gateway Protocol), EGP (Exterior Gateway Protocol), or INCOMPLETE.
+
+* `next_hop_med` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Multi-Exit Discriminator, a BGP route metric that indicates the desirability of a particular route in a network.
+
+* `next_hop_inter_region_cost` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Internal fixed region-to-region cost that Google Cloud calculates based on factors such as network performance, distance, and available bandwidth between regions.
 * `self_link` - The URI of the created resource.
 
 

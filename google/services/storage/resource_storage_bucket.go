@@ -551,6 +551,24 @@ func ResourceStorageBucket() *schema.Resource {
 					},
 				},
 			},
+			"hierarchical_namespace": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: hierachicalNamespaceDiffSuppress,
+				Description:      `The bucket's HNS configuration, which defines bucket can organize folders in logical file system structure.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Set this field true to organize bucket with logical file system structure.`,
+						},
+					},
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -696,6 +714,10 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	if v, ok := d.GetOk("soft_delete_policy"); ok {
 		sb.SoftDeletePolicy = expandBucketSoftDeletePolicy(v.([]interface{}))
+	}
+
+	if v, ok := d.GetOk("hierarchical_namespace"); ok {
+		sb.HierarchicalNamespace = expandBucketHierachicalNamespace(v.([]interface{}))
 	}
 
 	var res *storage.Bucket
@@ -941,18 +963,9 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	// Get the bucket and acl
 	bucket := d.Get("name").(string)
 
-	var res *storage.Bucket
 	// There seems to be some eventual consistency errors in some cases, so we want to check a few times
 	// to make sure it exists before moving on
-	err = transport_tpg.Retry(transport_tpg.RetryOptions{
-		RetryFunc: func() (operr error) {
-			var retryErr error
-			res, retryErr = config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
-			return retryErr
-		},
-		Timeout:              d.Timeout(schema.TimeoutRead),
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsNotFoundRetryableError("bucket read")},
-	})
+	res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
 
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Storage Bucket %q", d.Get("name").(string)))
@@ -1291,6 +1304,38 @@ func flattenBucketSoftDeletePolicy(softDeletePolicy *storage.BucketSoftDeletePol
 	policy := map[string]interface{}{
 		"retention_duration_seconds": softDeletePolicy.RetentionDurationSeconds,
 		"effective_time":             softDeletePolicy.EffectiveTime,
+	}
+	policies = append(policies, policy)
+	return policies
+}
+
+func expandBucketHierachicalNamespace(configured interface{}) *storage.BucketHierarchicalNamespace {
+	configuredHierachicalNamespace := configured.([]interface{})
+	if len(configuredHierachicalNamespace) == 0 {
+		return nil
+	}
+	configuredHierachicalNamespacePolicy := configuredHierachicalNamespace[0].(map[string]interface{})
+	hierachicalNamespacePolicy := &storage.BucketHierarchicalNamespace{
+		Enabled: (configuredHierachicalNamespacePolicy["enabled"].(bool)),
+	}
+	hierachicalNamespacePolicy.ForceSendFields = append(hierachicalNamespacePolicy.ForceSendFields, "Enabled")
+	return hierachicalNamespacePolicy
+}
+
+func flattenBucketHierarchicalNamespacePolicy(hierachicalNamespacePolicy *storage.BucketHierarchicalNamespace) []map[string]interface{} {
+	policies := make([]map[string]interface{}, 0, 1)
+	if hierachicalNamespacePolicy == nil {
+		// a null object returned from the API is equivalent to a block with enabled = false
+		// to handle this consistently, always write a null response as a hydrated block with false
+		defaultPolicy := map[string]interface{}{
+			"enabled": false,
+		}
+
+		policies = append(policies, defaultPolicy)
+		return policies
+	}
+	policy := map[string]interface{}{
+		"enabled": hierachicalNamespacePolicy.Enabled,
 	}
 	policies = append(policies, policy)
 	return policies
@@ -1887,6 +1932,9 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 	if err := d.Set("soft_delete_policy", flattenBucketSoftDeletePolicy(res.SoftDeletePolicy)); err != nil {
 		return fmt.Errorf("Error setting soft_delete_policy: %s", err)
 	}
+	if err := d.Set("hierarchical_namespace", flattenBucketHierarchicalNamespacePolicy(res.HierarchicalNamespace)); err != nil {
+		return fmt.Errorf("Error setting hierarchical namespace: %s", err)
+	}
 	if res.IamConfiguration != nil && res.IamConfiguration.UniformBucketLevelAccess != nil {
 		if err := d.Set("uniform_bucket_level_access", res.IamConfiguration.UniformBucketLevelAccess.Enabled); err != nil {
 			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
@@ -1915,4 +1963,15 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 
 	d.SetId(res.Id)
 	return nil
+}
+
+func hierachicalNamespaceDiffSuppress(k, old, new string, r *schema.ResourceData) bool {
+	if k == "hierarchical_namespace.#" && old == "1" && new == "0" {
+		o, _ := r.GetChange("hierarchical_namespace.0.enabled")
+		if !o.(bool) {
+			return true
+		}
+	}
+
+	return false
 }

@@ -57,6 +57,11 @@ resource "google_compute_security_policy_rule" "policy_rule" {
   preview         = true
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=security_policy_rule_default_rule&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Security Policy Rule Default Rule
 
 
@@ -67,15 +72,10 @@ resource "google_compute_security_policy" "default" {
   type        = "CLOUD_ARMOR"
 }
 
-# A default rule is generated when creating the security_policy resource, import is needed to patch it
-# import {
-#   id = "projects//global/securityPolicies/policyruletest/priority/2147483647"
-#   to = google_compute_security_policy_rule.default_rule
-# }
 resource "google_compute_security_policy_rule" "default_rule" {
   security_policy = google_compute_security_policy.default.name
   description     = "default rule"
-  action          = "allow"
+  action          = "deny"
   priority        = "2147483647"
   match {
     versioned_expr = "SRC_IPS_V1"
@@ -191,6 +191,16 @@ The following arguments are supported:
   (Optional)
   Must be specified if the action is "rate_based_ban" or "throttle". Cannot be specified for any other actions.
   Structure is [documented below](#nested_rate_limit_options).
+
+* `redirect_options` -
+  (Optional)
+  Parameters defining the redirect action. Cannot be specified for any other actions. This field is only supported in Global Security Policies of type CLOUD_ARMOR.
+  Structure is [documented below](#nested_redirect_options).
+
+* `header_action` -
+  (Optional)
+  Optional, additional actions that are performed on headers. This field is only supported in Global Security Policies of type CLOUD_ARMOR.
+  Structure is [documented below](#nested_header_action).
 
 * `preview` -
   (Optional)
@@ -479,6 +489,34 @@ The following arguments are supported:
 * `interval_sec` -
   (Optional)
   Interval over which the threshold is computed.
+
+<a name="nested_redirect_options"></a>The `redirect_options` block supports:
+
+* `type` -
+  (Optional)
+  Type of the redirect action.
+
+* `target` -
+  (Optional)
+  Target for the redirect action. This is required if the type is EXTERNAL_302 and cannot be specified for GOOGLE_RECAPTCHA.
+
+<a name="nested_header_action"></a>The `header_action` block supports:
+
+* `request_headers_to_adds` -
+  (Optional)
+  The list of request headers to add or overwrite if they're already present.
+  Structure is [documented below](#nested_request_headers_to_adds).
+
+
+<a name="nested_request_headers_to_adds"></a>The `request_headers_to_adds` block supports:
+
+* `header_name` -
+  (Optional)
+  The name of the header to set.
+
+* `header_value` -
+  (Optional)
+  The value to set the named header to.
 
 ## Attributes Reference
 

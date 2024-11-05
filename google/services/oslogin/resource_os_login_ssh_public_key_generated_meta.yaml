@@ -1,0 +1,5 @@
+resource: 'google_os_login_ssh_public_key'
+generation_type: 'mmv1'
+api_service_name: 'oslogin.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'SshPublicKey'

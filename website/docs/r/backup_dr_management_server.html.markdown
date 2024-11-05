@@ -60,10 +60,6 @@ resource "google_backup_dr_management_server" "ms-console" {
   location = "us-central1"
   name     = "ms-console"
   type     = "BACKUP_RESTORE" 
-  networks {
-    network      = google_compute_network.default.id
-    peering_mode = "PRIVATE_SERVICE_ACCESS"
-  }
   depends_on = [ google_service_networking_connection.default ]
 }
 ```
@@ -73,11 +69,6 @@ resource "google_backup_dr_management_server" "ms-console" {
 The following arguments are supported:
 
 
-* `networks` -
-  (Required)
-  Network details to create management server (management console).
-  Structure is [documented below](#nested_networks).
-
 * `location` -
   (Required)
   The location for the management server (management console)
@@ -85,6 +76,24 @@ The following arguments are supported:
 * `name` -
   (Required)
   The name of management server (management console)
+
+
+- - -
+
+
+* `type` -
+  (Optional)
+  The type of management server (management console).
+  Default value is `BACKUP_RESTORE`.
+  Possible values are: `BACKUP_RESTORE`.
+
+* `networks` -
+  (Optional)
+  Network details to create management server (management console).
+  Structure is [documented below](#nested_networks).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
 
 
 <a name="nested_networks"></a>The `networks` block supports:
@@ -98,19 +107,6 @@ The following arguments are supported:
   Type of Network peeringMode
   Default value is `PRIVATE_SERVICE_ACCESS`.
   Possible values are: `PRIVATE_SERVICE_ACCESS`.
-
-- - -
-
-
-* `type` -
-  (Optional)
-  The type of management server (management console).
-  Default value is `BACKUP_RESTORE`.
-  Possible values are: `BACKUP_RESTORE`.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

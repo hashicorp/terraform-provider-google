@@ -4,7 +4,7 @@ description: |-
   User workloads ConfigMap used by Airflow tasks that run with Kubernetes Executor or KubernetesPodOperator.
 ---
 
-# google\_composer\_user\_workloads\_config\_map
+# google_composer_user_workloads_config_map
 
 Provides access to Kubernetes ConfigMap configuration for a given project, region and Composer Environment.
 

@@ -71,7 +71,7 @@ resource "google_dataproc_metastore_service" "default" {
     location            = "us-central1"
     port                = 9080
     tier                = "DEVELOPER"
-    deletion_protection = "true"
+    deletion_protection = true
   
     maintenance_window {
       hour_of_day = 2
@@ -86,7 +86,6 @@ resource "google_dataproc_metastore_service" "default" {
       env = "test"
     }
   }
-  
 ```
 ## Example Usage - Dataproc Metastore Service Cmek Example
 
@@ -291,6 +290,7 @@ resource "google_storage_bucket" "bucket" {
 
 ```hcl
 resource "google_dataproc_metastore_service" "test_resource" {
+  provider = google-beta
   service_id = "test-service"
   location   = "us-central1"
 
@@ -322,6 +322,7 @@ resource "google_dataproc_metastore_service" "test_resource" {
 
 ```hcl
 resource "google_dataproc_metastore_service" "test_resource" {
+  provider = google-beta
   service_id = "test-service"
   location   = "us-central1"
 
@@ -354,6 +355,7 @@ resource "google_dataproc_metastore_service" "test_resource" {
 
 ```hcl
 resource "google_dataproc_metastore_service" "test_resource" {
+  provider = google-beta
   service_id = "test-service"
   location   = "us-central1"
 

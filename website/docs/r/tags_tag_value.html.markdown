@@ -33,14 +33,14 @@ To get more information about TagValue, see:
 
 ```hcl
 resource "google_tags_tag_key" "key" {
-	parent = "organizations/123456789"
-	short_name = "keyname"
+	parent      = "organizations/123456789"
+	short_name  = "keyname"
 	description = "For keyname resources."
 }
 
 resource "google_tags_tag_value" "value" {
-	parent = "tagKeys/${google_tags_tag_key.key.name}"
-	short_name = "valuename"
+	parent      = google_tags_tag_key.key.id
+	short_name  = "valuename"
 	description = "For valuename resources."
 }
 ```
@@ -57,7 +57,7 @@ The following arguments are supported:
 * `short_name` -
   (Required)
   Input only. User-assigned short name for TagValue. The short name should be unique for TagValues within the same parent TagKey.
-  The short name must be 63 characters or less, beginning and ending with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between.
+  The short name can have a maximum length of 256 characters. The permitted character set for the shortName includes all UTF-8 encoded Unicode characters except single quotes ('), double quotes ("), backslashes (\\), and forward slashes (/).
 
 
 - - -

@@ -247,7 +247,7 @@ resource "google_datastream_connection_profile" "source" {
 
     postgresql_profile {
         hostname = "hostname"
-        port     = 3306
+        port     = 5432
         username = "user"
         password = "pass"
         database = "postgres"
@@ -425,7 +425,7 @@ resource "google_sql_database_instance" "instance" {
     database_version    = "SQLSERVER_2019_STANDARD"
     region              = "us-central1"
     root_password       = "root-password"
-    deletion_protection = "true"
+    deletion_protection = true
 
     settings {
         tier = "db-custom-2-4096"
@@ -533,7 +533,7 @@ resource "google_sql_database_instance" "instance" {
     database_version    = "SQLSERVER_2019_STANDARD"
     region              = "us-central1"
     root_password       = "root-password"
-    deletion_protection = "true"
+    deletion_protection = true
 
     settings {
         tier = "db-custom-2-4096"

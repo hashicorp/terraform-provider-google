@@ -7,9 +7,12 @@
 
 package builds
 
+import ArtifactRules
 import DefaultBuildTimeoutDuration
 import DefaultParallelism
 import jetbrains.buildServer.configs.kotlin.BuildType
+import jetbrains.buildServer.configs.kotlin.failureConditions.BuildFailureOnText
+import jetbrains.buildServer.configs.kotlin.failureConditions.failOnText
 import jetbrains.buildServer.configs.kotlin.sharedResources
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 import replaceCharsId
@@ -100,11 +103,20 @@ class SweeperDetails(private val sweeperName: String, private val parentProjectN
                 workingDirectory(path)
             }
 
-            artifactRules = "%teamcity.build.checkoutDir%/debug*.txt"
+            artifactRules = ArtifactRules
 
             failureConditions {
                 errorMessage = true
                 executionTimeoutMin = buildTimeout
+
+                // Stop builds if the branch does not exist
+                failOnText {
+                  conditionType = BuildFailureOnText.ConditionType.CONTAINS
+                  pattern = "which does not correspond to any branch monitored by the build VCS roots"
+                  failureMessage = "Error: The branch %teamcity.build.branch% does not exist"
+                  reverse = false
+                  stopBuildOnFailure = true
+                }
             }
 
         }

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
@@ -35,6 +36,11 @@ func TestAccComputeNetworkFirewallPolicyRule_update(t *testing.T) {
 			},
 			{
 				Config: testAccComputeNetworkFirewallPolicyRule_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule1",
@@ -45,6 +51,11 @@ func TestAccComputeNetworkFirewallPolicyRule_update(t *testing.T) {
 			},
 			{
 				Config: testAccComputeNetworkFirewallPolicyRule_removeConfigs(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule1",
@@ -55,6 +66,11 @@ func TestAccComputeNetworkFirewallPolicyRule_update(t *testing.T) {
 			},
 			{
 				Config: testAccComputeNetworkFirewallPolicyRule_start(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule1",
@@ -68,12 +84,11 @@ func TestAccComputeNetworkFirewallPolicyRule_update(t *testing.T) {
 }
 
 func TestAccComputeNetworkFirewallPolicyRule_multipleRules(t *testing.T) {
-	// Currently failing
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
+		"project_name":  envvar.GetTestProjectFromEnv(),
 		"org_name":      fmt.Sprintf("organizations/%s", envvar.GetTestOrgFromEnv(t)),
 	}
 
@@ -100,6 +115,11 @@ func TestAccComputeNetworkFirewallPolicyRule_multipleRules(t *testing.T) {
 			},
 			{
 				Config: testAccComputeNetworkFirewallPolicyRule_multipleAdd(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule3",
@@ -110,6 +130,48 @@ func TestAccComputeNetworkFirewallPolicyRule_multipleRules(t *testing.T) {
 			},
 			{
 				Config: testAccComputeNetworkFirewallPolicyRule_multipleRemove(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
+						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule2", plancheck.ResourceActionDestroy),
+						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule3", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+		},
+	})
+}
+
+func TestAccComputeNetworkFirewallPolicyRule_addressGroupOrder(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"project":       envvar.GetTestProjectFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetworkFirewallPolicyRule_addressGroupOrder(context),
+			},
+			{
+				ResourceName:      "google_compute_network_firewall_policy_rule.src_test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Referencing using ID causes import to fail
+				// Client-side reordering doesn't work with no state, so ignore on import
+				ImportStateVerifyIgnore: []string{"firewall_policy", "match.0.src_address_groups"},
+			},
+			{
+				ResourceName:      "google_compute_network_firewall_policy_rule.dest_test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Referencing using ID causes import to fail
+				// Client-side reordering doesn't work with no state, so ignore on import
+				ImportStateVerifyIgnore: []string{"firewall_policy", "match.0.dest_address_groups"},
 			},
 		},
 	})
@@ -139,6 +201,11 @@ func TestAccComputeNetworkFirewallPolicyRule_securityProfileGroup_update(t *test
 			},
 			{
 				Config: testAccComputeNetworkFirewallPolicyRule_securityProfileGroup_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.fw_policy_rule1", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule1",
@@ -149,6 +216,192 @@ func TestAccComputeNetworkFirewallPolicyRule_securityProfileGroup_update(t *test
 			},
 		},
 	})
+}
+
+func TestAccComputeNetworkFirewallPolicyRule_secureTags(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"service_acct":  envvar.GetTestServiceAccountFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkFirewallPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetworkFirewallPolicyRule_secureTags(context),
+			},
+			{
+				ResourceName:      "google_compute_network_firewall_policy_rule.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Referencing using ID causes import to fail
+				ImportStateVerifyIgnore: []string{"firewall_policy", "project"},
+			},
+			{
+				Config: testAccComputeNetworkFirewallPolicyRule_secureTagsUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_network_firewall_policy_rule.primary", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_network_firewall_policy_rule.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Referencing using ID causes import to fail
+				ImportStateVerifyIgnore: []string{"firewall_policy", "project"},
+			},
+		},
+	})
+}
+
+func testAccComputeNetworkFirewallPolicyRule_secureTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  name        = "tf-test-address-%{random_suffix}"
+  parent      = "projects/%{project_name}"
+  description = "Sample global networksecurity_address_group"
+  location    = "global"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
+resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
+  name        = "tf-test-policy-%{random_suffix}"
+  description = "Sample global network firewall policy"
+  project     = "%{project_name}"
+}
+
+resource "google_compute_network_firewall_policy_rule" "primary" {
+  action          = "allow"
+  description     = "This is a simple rule description"
+  direction       = "INGRESS"
+  disabled        = false
+  enable_logging  = true
+  firewall_policy = google_compute_network_firewall_policy.basic_network_firewall_policy.name
+  priority        = 1000
+  tls_inspect     = false
+  rule_name       = "tf-test-rule-%{random_suffix}"
+  project         = "projects/%{project_name}"
+
+  match {
+    src_ip_ranges = ["10.100.0.1/32"]
+    src_fqdns = ["google.com"]
+    src_region_codes = ["US"]
+    src_threat_intelligences = ["iplist-known-malicious-ips"]
+
+    src_secure_tags {
+      name = google_tags_tag_value.basic_value.id
+    }
+
+    layer4_configs {
+      ip_protocol = "all"
+    }
+    
+    src_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
+  }
+}
+
+resource "google_compute_network" "basic_network" {
+  name = "tf-test-network-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_tags_tag_key" "basic_key" {
+  description = "For keyname resources."
+  parent      = "organizations/%{org_id}"
+  purpose     = "GCE_FIREWALL"
+  short_name  = "tf-test-tagkey-%{random_suffix}"
+  purpose_data = {
+    network = "%{project_name}/${google_compute_network.basic_network.name}"
+  }
+}
+
+resource "google_tags_tag_value" "basic_value" {
+  description = "For valuename resources."
+  parent      = google_tags_tag_key.basic_key.id
+  short_name  = "tf-test-tagvalue-%{random_suffix}"
+}
+`, context)
+}
+
+func testAccComputeNetworkFirewallPolicyRule_secureTagsUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  name        = "tf-test-address-%{random_suffix}"
+  parent      = "projects/%{project_name}"
+  description = "Sample global networksecurity_address_group"
+  location    = "global"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
+resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
+  name        = "tf-test-policy-%{random_suffix}"
+  description = "Sample global network firewall policy"
+  project     = "%{project_name}"
+}
+
+resource "google_compute_network_firewall_policy_rule" "primary" {
+  action          = "deny"
+  description     = "This is an updated rule description"
+  direction       = "EGRESS"
+  disabled        = true
+  enable_logging  = false
+  firewall_policy = google_compute_network_firewall_policy.basic_network_firewall_policy.id
+  priority        = 1000
+  tls_inspect     = false
+  rule_name       = "tf-test-updated-rule-%{random_suffix}"
+  project         = "projects/%{project_name}"
+
+  match {
+    dest_ip_ranges = ["0.0.0.0/0"]
+    dest_fqdns = ["example.com"]
+    dest_region_codes = ["US"]
+    dest_threat_intelligences = ["iplist-known-malicious-ips"]
+    dest_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
+
+    layer4_configs {
+      ip_protocol = "tcp"
+      ports       = ["123"]
+    }
+  }
+  
+  target_secure_tags {
+    name = google_tags_tag_value.basic_value.id
+  }
+}
+
+resource "google_compute_network" "basic_network" {
+  name = "tf-test-network-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_tags_tag_key" "basic_key" {
+  description = "For keyname resources."
+  parent      = "organizations/%{org_id}"
+  purpose     = "GCE_FIREWALL"
+  short_name  = "tf-test-tagkey-%{random_suffix}"
+  purpose_data = {
+    network = "%{project_name}/${google_compute_network.basic_network.name}"
+  }
+}
+
+resource "google_tags_tag_value" "basic_value" {
+  description = "For valuename resources."
+  parent      = google_tags_tag_key.basic_key.id
+  short_name  = "tf-test-tagvalue-%{random_suffix}"
+}
+`, context)
 }
 
 func testAccComputeNetworkFirewallPolicyRule_securityProfileGroup_basic(context map[string]interface{}) string {
@@ -206,11 +459,6 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
 
 func testAccComputeNetworkFirewallPolicyRule_securityProfileGroup_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_network" "network1" {
-  name                    = "tf-test-%{random_suffix}"
-  auto_create_subnetworks = false
-}
-
 resource "google_network_security_security_profile" "security_profile" {
     name     = "tf-test-my-sp%{random_suffix}"
     type     = "THREAT_PREVENTION"
@@ -237,12 +485,6 @@ resource "google_network_security_security_profile_group" "security_profile_grou
 resource "google_compute_network_firewall_policy" "fw_policy" {
   name        = "tf-test-policy-%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
-}
-
-resource "google_compute_network_firewall_policy_association" "fw_policy_a" {
-  name              = "tf-test-policy-a-%{random_suffix}"
-  attachment_target = google_compute_network.network1.id
-  firewall_policy   = google_compute_network_firewall_policy.fw_policy.id
 }
 
 resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
@@ -430,7 +672,7 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
   enable_logging          = false
   action                  = "deny"
   direction               = "INGRESS"
-  disabled                = true
+  disabled                = false
   target_service_accounts = [
     google_service_account.service_account1.email,
     google_service_account.service_account2.email
@@ -527,9 +769,21 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule2" {
 
 func testAccComputeNetworkFirewallPolicyRule_multipleAdd(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_compute_network" "network1" {
+  name                    = "tf-test-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
 resource "google_compute_network_firewall_policy" "fw_policy" {
   name        = "tf-test-policy-%{random_suffix}"
-  description = "Description Update"
+  description = "Resource created for Terraform acceptance testing"
+}
+
+resource "google_compute_network_firewall_policy_association" "fw_policy_a" {
+  name              = "tf-test-policy-a-%{random_suffix}"
+  project           = "projects/%{project_name}"
+  attachment_target = google_compute_network.network1.id
+  firewall_policy   = google_compute_network_firewall_policy.fw_policy.id
 }
 
 resource "google_network_security_address_group" "address_group" {
@@ -611,9 +865,21 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule3" {
 
 func testAccComputeNetworkFirewallPolicyRule_multipleRemove(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_compute_network" "network1" {
+  name                    = "tf-test-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
 resource "google_compute_network_firewall_policy" "fw_policy" {
   name        = "tf-test-policy-%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
+}
+
+resource "google_compute_network_firewall_policy_association" "fw_policy_a" {
+  name              = "tf-test-policy-a-%{random_suffix}"
+  project           = "%{project_name}"
+  attachment_target = google_compute_network.network1.id
+  firewall_policy   = google_compute_network_firewall_policy.fw_policy.id
 }
 
 resource "google_network_security_address_group" "address_group" {
@@ -665,5 +931,74 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule3" {
     src_threat_intelligences = ["iplist-known-malicious-ips"]
   }
 }
+`, context)
+}
+
+func testAccComputeNetworkFirewallPolicyRule_addressGroupOrder(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network_firewall_policy" "policy" {
+  name = "tf-test-policy-%{random_suffix}"
+  description = "Resource created for Terraform acceptance testing"
+}
+
+resource "google_network_security_address_group" "add-group1" {
+  name        = "tf-test-group-1-%{random_suffix}"
+  parent      = "projects/%{project}"
+  location    = "global"
+  type        = "IPV4"
+  capacity    = "10"
+  items       = ["10.0.1.1/32"]
+}
+resource "google_network_security_address_group" "add-group2" {
+  name        = "tf-test-group-2-%{random_suffix}"
+  parent      = "projects/%{project}"
+  location    = "global"
+  type        = "IPV4"
+  capacity    = "10"
+  items       = ["10.0.2.2/32"]
+}
+resource "google_network_security_address_group" "add-group3" {
+  name        = "tf-test-group-3-%{random_suffix}"
+  parent      = "projects/%{project}"
+  location    = "global"
+  type        = "IPV4"
+  capacity    = "10"
+  items       = ["10.0.3.3/32"]
+}
+
+resource "google_compute_network_firewall_policy_rule" "src_test" {
+  firewall_policy         = google_compute_network_firewall_policy.policy.id
+  action                  = "allow"
+  priority                = 1000
+  description             = "Testing address group order issue"
+  direction               = "INGRESS"
+  enable_logging          = true
+  match {
+    src_address_groups = [google_network_security_address_group.add-group2.id,
+                          google_network_security_address_group.add-group1.id]
+    dest_ip_ranges     = ["192.168.2.0/24", "10.0.3.4/32"]
+    layer4_configs {
+      ip_protocol = "all"
+    }
+  }
+}
+
+resource "google_compute_network_firewall_policy_rule" "dest_test" {
+  firewall_policy         = google_compute_network_firewall_policy.policy.id
+  action                  = "allow"
+  priority                = 1100
+  description             = "Testing address group order issue"
+  direction               = "EGRESS"
+  enable_logging          = true
+  match {
+    dest_address_groups = [google_network_security_address_group.add-group3.id,
+                           google_network_security_address_group.add-group2.id]
+    src_ip_ranges       = ["192.168.2.0/24", "10.0.3.4/32"]
+    layer4_configs {
+      ip_protocol = "all"
+    }
+  }
+}
+
 `, context)
 }

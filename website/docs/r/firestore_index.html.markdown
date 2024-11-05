@@ -139,6 +139,31 @@ resource "google_firestore_index" "my-index" {
   }
 }
 ```
+## Example Usage - Firestore Index Name Descending
+
+
+```hcl
+resource "google_firestore_database" "database" {
+  project     = "my-project-name"
+  name        = "database-id"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "DELETE_PROTECTION_DISABLED"
+  deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_index" "my-index" {
+  project     = "my-project-name"
+  database   = google_firestore_database.database.name
+  collection = "atestcollection"
+
+  fields {
+    field_path = "__name__"
+    order      = "DESCENDING"
+  }
+}
+```
 
 ## Argument Reference
 

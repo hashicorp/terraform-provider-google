@@ -4,6 +4,7 @@ package bigquery_test
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -80,6 +81,67 @@ resource "google_bigquery_job" "job" {
   }
 
   location = "%{location}"
+}
+`, context)
+}
+
+func TestAccBigQueryJob_validationErrors(t *testing.T) {
+	t.Parallel()
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"project":       envvar.GetTestProjectFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryJob_missingProjectId(context),
+				ExpectError: regexp.MustCompile(
+					`(?s)Invalid BigQuery job destination_table configuration\. You must either:.*Missing or empty projectId`,
+				),
+			},
+			{
+				Config: testAccBigQueryJob_missingDatasetId(context),
+				ExpectError: regexp.MustCompile(
+					`(?s)Invalid BigQuery job destination_table configuration\. You must either:.*Missing or empty datasetId`,
+				),
+			},
+		},
+	})
+}
+
+func testAccBigQueryJob_missingProjectId(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_job" "job" {
+  job_id     = "tf-test-job-%{random_suffix}"
+
+  query {
+    query = "SELECT state FROM [lookerdata:cdc.project_tycho_reports]"
+    destination_table {
+      dataset_id = "example_dataset"
+      table_id   = "example_table"
+      # project_id intentionally omitted
+    }
+  }
+}
+`, context)
+}
+
+func testAccBigQueryJob_missingDatasetId(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_job" "job" {
+  job_id     = "tf-test-job-%{random_suffix}"
+
+  query {
+    query = "SELECT state FROM [lookerdata:cdc.project_tycho_reports]"
+    destination_table {
+      project_id = "%{project}"
+      table_id   = "example_table"
+      # dataset_id intentionally omitted
+    }
+  }
 }
 `, context)
 }

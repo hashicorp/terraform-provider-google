@@ -296,6 +296,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Dataproc",
         "path" to "./google/services/dataproc"
     ),
+    "dataprocgdc" to mapOf(
+        "name" to "dataprocgdc",
+        "displayName" to "Dataproc on GDC",
+        "path" to "./google/services/dataprocgdc"
+    ),
     "dataprocmetastore" to mapOf(
         "name" to "dataprocmetastore",
         "displayName" to "Dataprocmetastore",
@@ -541,6 +546,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Notebooks",
         "path" to "./google/services/notebooks"
     ),
+    "oracledatabase" to mapOf(
+        "name" to "oracledatabase",
+        "displayName" to "OracleDatabase",
+        "path" to "./google/services/oracledatabase"
+    ),
     "orgpolicy" to mapOf(
         "name" to "orgpolicy",
         "displayName" to "Orgpolicy",
@@ -720,6 +730,11 @@ var ServicesListGa = mapOf(
         "name" to "tpuv2",
         "displayName" to "Tpuv2",
         "path" to "./google/services/tpuv2"
+    ),
+    "transcoder" to mapOf(
+        "name" to "transcoder",
+        "displayName" to "Transcoder",
+        "path" to "./google/services/transcoder"
     ),
     "vertexai" to mapOf(
         "name" to "vertexai",

@@ -18,6 +18,7 @@
 package vertexai
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -27,6 +28,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -72,6 +75,12 @@ func ResourceVertexAIEndpoint() *schema.Resource {
 				ForceNew:    true,
 				Description: `The resource name of the Endpoint. The name must be numeric with no leading zeros and can be at most 10 digits.`,
 			},
+			"dedicated_endpoint_enabled": {
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Description:   `If true, the endpoint will be exposed through a dedicated DNS [Endpoint.dedicated_endpoint_dns]. Your request to the dedicated DNS will be isolated from other users' traffic and will have better performance and reliability. Note: Once you enabled dedicated endpoint, you won't be able to send request to the shared DNS {region}-aiplatform.googleapis.com. The limitation will be removed soon.`,
+				ConflictsWith: []string{"private_service_connect_config"},
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -104,10 +113,76 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"network": {
-				Type:        schema.TypeString,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				Description:   `The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks) to which the Endpoint should be peered. Private services access must already be configured for the network. If left unspecified, the Endpoint is not peered with any network. Only one of the fields, network or enable_private_service_connect, can be set. [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert): 'projects/{project}/global/networks/{network}'. Where '{project}' is a project number, as in '12345', and '{network}' is network name. Only one of the fields, 'network' or 'privateServiceConnectConfig', can be set.`,
+				ConflictsWith: []string{"private_service_connect_config"},
+			},
+			"predict_request_response_logging_config": {
+				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
-				Description: `The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks) to which the Endpoint should be peered. Private services access must already be configured for the network. If left unspecified, the Endpoint is not peered with any network. Only one of the fields, network or enable_private_service_connect, can be set. [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert): 'projects/{project}/global/networks/{network}'. Where '{project}' is a project number, as in '12345', and '{network}' is network name.`,
+				Description: `Configures the request-response logging for online prediction.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"bigquery_destination": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `BigQuery table for logging. If only given a project, a new dataset will be created with name 'logging_<endpoint-display-name>_<endpoint-id>' where will be made BigQuery-dataset-name compatible (e.g. most special characters will become underscores). If no table name is given, a new table will be created with name 'request_response_logging'`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"output_uri": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `BigQuery URI to a project or table, up to 2000 characters long. When only the project is specified, the Dataset and Table is created. When the full table reference is specified, the Dataset must exist and table must not exist. Accepted forms: - BigQuery path. For example: 'bq://projectId' or 'bq://projectId.bqDatasetId' or 'bq://projectId.bqDatasetId.bqTableId'.`,
+									},
+								},
+							},
+						},
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If logging is enabled or not.`,
+						},
+						"sampling_rate": {
+							Type:        schema.TypeFloat,
+							Optional:    true,
+							Description: `Percentage of requests to be logged, expressed as a fraction in range(0,1]`,
+						},
+					},
+				},
+			},
+			"private_service_connect_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration for private service connect. 'network' and 'privateServiceConnectConfig' are mutually exclusive.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_private_service_connect": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Required. If true, expose the IndexEndpoint via private service connect.`,
+						},
+						"enable_secure_private_service_connect": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If set to true, enable secure private service connect with IAM authorization. Otherwise, private service connect will be done without authorization. Note latency will be slightly increased if authorization is enabled.`,
+						},
+						"project_allowlist": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `A list of Projects from which the forwarding rule will target the service attachment.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+				ConflictsWith: []string{"network", "dedicated_endpoint_enabled"},
 			},
 			"region": {
 				Type:        schema.TypeString,
@@ -115,10 +190,29 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				ForceNew:    true,
 				Description: `The region for the resource`,
 			},
+			"traffic_split": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringIsJSON,
+				StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+				Description: `A map from a DeployedModel's id to the percentage of this Endpoint's traffic that should be forwarded to that DeployedModel.
+If a DeployedModel's id is not listed in this map, then it receives no traffic.
+The traffic percentage values must add up to 100, or map must be empty if the Endpoint is to not accept any traffic at a moment.
+
+~> **Note:** The 'traffic_split' setting only applies after a model has been deployed to the endpoint. Re-applying a 'google_vertex_ai_endpoint'
+resource without updating the 'traffic_split' post-deployment may lead to your deployed 'traffic_split' being lost; see
+the 'deployModel' [example](https://cloud.google.com/vertex-ai/docs/general/deployment#deploy_a_model_to_an_endpoint) and
+[documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.endpoints/deployModel) for details.`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Output only. Timestamp when this Endpoint was created.`,
+			},
+			"dedicated_endpoint_dns": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. DNS of the dedicated endpoint. Will only be populated if dedicatedEndpointEnabled is true. Format: 'https://{endpointId}.{region}-{projectNumber}.prediction.vertexai.goog'.`,
 			},
 			"deployed_models": {
 				Type:        schema.TypeList,
@@ -343,6 +437,12 @@ func resourceVertexAIEndpointCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	trafficSplitProp, err := expandVertexAIEndpointTrafficSplit(d.Get("traffic_split"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("traffic_split"); !tpgresource.IsEmptyValue(reflect.ValueOf(trafficSplitProp)) && (ok || !reflect.DeepEqual(v, trafficSplitProp)) {
+		obj["trafficSplit"] = trafficSplitProp
+	}
 	encryptionSpecProp, err := expandVertexAIEndpointEncryptionSpec(d.Get("encryption_spec"), d, config)
 	if err != nil {
 		return err
@@ -354,6 +454,24 @@ func resourceVertexAIEndpointCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
+	}
+	privateServiceConnectConfigProp, err := expandVertexAIEndpointPrivateServiceConnectConfig(d.Get("private_service_connect_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("private_service_connect_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(privateServiceConnectConfigProp)) && (ok || !reflect.DeepEqual(v, privateServiceConnectConfigProp)) {
+		obj["privateServiceConnectConfig"] = privateServiceConnectConfigProp
+	}
+	predictRequestResponseLoggingConfigProp, err := expandVertexAIEndpointPredictRequestResponseLoggingConfig(d.Get("predict_request_response_logging_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("predict_request_response_logging_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(predictRequestResponseLoggingConfigProp)) && (ok || !reflect.DeepEqual(v, predictRequestResponseLoggingConfigProp)) {
+		obj["predictRequestResponseLoggingConfig"] = predictRequestResponseLoggingConfigProp
+	}
+	dedicatedEndpointEnabledProp, err := expandVertexAIEndpointDedicatedEndpointEnabled(d.Get("dedicated_endpoint_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dedicated_endpoint_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(dedicatedEndpointEnabledProp)) && (ok || !reflect.DeepEqual(v, dedicatedEndpointEnabledProp)) {
+		obj["dedicatedEndpointEnabled"] = dedicatedEndpointEnabledProp
 	}
 	labelsProp, err := expandVertexAIEndpointEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -479,6 +597,9 @@ func resourceVertexAIEndpointRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("deployed_models", flattenVertexAIEndpointDeployedModels(res["deployedModels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Endpoint: %s", err)
 	}
+	if err := d.Set("traffic_split", flattenVertexAIEndpointTrafficSplit(res["trafficSplit"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
 	if err := d.Set("labels", flattenVertexAIEndpointLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Endpoint: %s", err)
 	}
@@ -494,7 +615,19 @@ func resourceVertexAIEndpointRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("network", flattenVertexAIEndpointNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Endpoint: %s", err)
 	}
+	if err := d.Set("private_service_connect_config", flattenVertexAIEndpointPrivateServiceConnectConfig(res["privateServiceConnectConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
 	if err := d.Set("model_deployment_monitoring_job", flattenVertexAIEndpointModelDeploymentMonitoringJob(res["modelDeploymentMonitoringJob"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err := d.Set("predict_request_response_logging_config", flattenVertexAIEndpointPredictRequestResponseLoggingConfig(res["predictRequestResponseLoggingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err := d.Set("dedicated_endpoint_enabled", flattenVertexAIEndpointDedicatedEndpointEnabled(res["dedicatedEndpointEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err := d.Set("dedicated_endpoint_dns", flattenVertexAIEndpointDedicatedEndpointDns(res["dedicatedEndpointDns"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Endpoint: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenVertexAIEndpointTerraformLabels(res["labels"], d, config)); err != nil {
@@ -535,6 +668,30 @@ func resourceVertexAIEndpointUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	trafficSplitProp, err := expandVertexAIEndpointTrafficSplit(d.Get("traffic_split"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("traffic_split"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, trafficSplitProp)) {
+		obj["trafficSplit"] = trafficSplitProp
+	}
+	privateServiceConnectConfigProp, err := expandVertexAIEndpointPrivateServiceConnectConfig(d.Get("private_service_connect_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("private_service_connect_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, privateServiceConnectConfigProp)) {
+		obj["privateServiceConnectConfig"] = privateServiceConnectConfigProp
+	}
+	predictRequestResponseLoggingConfigProp, err := expandVertexAIEndpointPredictRequestResponseLoggingConfig(d.Get("predict_request_response_logging_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("predict_request_response_logging_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, predictRequestResponseLoggingConfigProp)) {
+		obj["predictRequestResponseLoggingConfig"] = predictRequestResponseLoggingConfigProp
+	}
+	dedicatedEndpointEnabledProp, err := expandVertexAIEndpointDedicatedEndpointEnabled(d.Get("dedicated_endpoint_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dedicated_endpoint_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dedicatedEndpointEnabledProp)) {
+		obj["dedicatedEndpointEnabled"] = dedicatedEndpointEnabledProp
+	}
 	labelsProp, err := expandVertexAIEndpointEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -557,6 +714,22 @@ func resourceVertexAIEndpointUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("traffic_split") {
+		updateMask = append(updateMask, "trafficSplit")
+	}
+
+	if d.HasChange("private_service_connect_config") {
+		updateMask = append(updateMask, "privateServiceConnectConfig")
+	}
+
+	if d.HasChange("predict_request_response_logging_config") {
+		updateMask = append(updateMask, "predictRequestResponseLoggingConfig")
+	}
+
+	if d.HasChange("dedicated_endpoint_enabled") {
+		updateMask = append(updateMask, "dedicatedEndpointEnabled")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -966,6 +1139,18 @@ func flattenVertexAIEndpointDeployedModelsEnableContainerLogging(v interface{}, 
 	return v
 }
 
+func flattenVertexAIEndpointTrafficSplit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
 func flattenVertexAIEndpointLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1010,7 +1195,86 @@ func flattenVertexAIEndpointNetwork(v interface{}, d *schema.ResourceData, confi
 	return v
 }
 
+func flattenVertexAIEndpointPrivateServiceConnectConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enable_private_service_connect"] =
+		flattenVertexAIEndpointPrivateServiceConnectConfigEnablePrivateServiceConnect(original["enablePrivateServiceConnect"], d, config)
+	transformed["project_allowlist"] =
+		flattenVertexAIEndpointPrivateServiceConnectConfigProjectAllowlist(original["projectAllowlist"], d, config)
+	transformed["enable_secure_private_service_connect"] =
+		flattenVertexAIEndpointPrivateServiceConnectConfigEnableSecurePrivateServiceConnect(original["enableSecurePrivateServiceConnect"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIEndpointPrivateServiceConnectConfigEnablePrivateServiceConnect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointPrivateServiceConnectConfigProjectAllowlist(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointPrivateServiceConnectConfigEnableSecurePrivateServiceConnect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenVertexAIEndpointModelDeploymentMonitoringJob(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointPredictRequestResponseLoggingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenVertexAIEndpointPredictRequestResponseLoggingConfigEnabled(original["enabled"], d, config)
+	transformed["sampling_rate"] =
+		flattenVertexAIEndpointPredictRequestResponseLoggingConfigSamplingRate(original["samplingRate"], d, config)
+	transformed["bigquery_destination"] =
+		flattenVertexAIEndpointPredictRequestResponseLoggingConfigBigqueryDestination(original["bigqueryDestination"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIEndpointPredictRequestResponseLoggingConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointPredictRequestResponseLoggingConfigSamplingRate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointPredictRequestResponseLoggingConfigBigqueryDestination(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["output_uri"] =
+		flattenVertexAIEndpointPredictRequestResponseLoggingConfigBigqueryDestinationOutputUri(original["outputUri"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIEndpointPredictRequestResponseLoggingConfigBigqueryDestinationOutputUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointDedicatedEndpointEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointDedicatedEndpointDns(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1041,6 +1305,18 @@ func expandVertexAIEndpointDescription(v interface{}, d tpgresource.TerraformRes
 	return v, nil
 }
 
+func expandVertexAIEndpointTrafficSplit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	m := make(map[string]interface{})
+	if err := json.Unmarshal(b, &m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func expandVertexAIEndpointEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -1065,6 +1341,119 @@ func expandVertexAIEndpointEncryptionSpecKmsKeyName(v interface{}, d tpgresource
 }
 
 func expandVertexAIEndpointNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointPrivateServiceConnectConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnablePrivateServiceConnect, err := expandVertexAIEndpointPrivateServiceConnectConfigEnablePrivateServiceConnect(original["enable_private_service_connect"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnablePrivateServiceConnect); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enablePrivateServiceConnect"] = transformedEnablePrivateServiceConnect
+	}
+
+	transformedProjectAllowlist, err := expandVertexAIEndpointPrivateServiceConnectConfigProjectAllowlist(original["project_allowlist"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectAllowlist); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["projectAllowlist"] = transformedProjectAllowlist
+	}
+
+	transformedEnableSecurePrivateServiceConnect, err := expandVertexAIEndpointPrivateServiceConnectConfigEnableSecurePrivateServiceConnect(original["enable_secure_private_service_connect"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableSecurePrivateServiceConnect); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableSecurePrivateServiceConnect"] = transformedEnableSecurePrivateServiceConnect
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIEndpointPrivateServiceConnectConfigEnablePrivateServiceConnect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointPrivateServiceConnectConfigProjectAllowlist(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointPrivateServiceConnectConfigEnableSecurePrivateServiceConnect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointPredictRequestResponseLoggingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandVertexAIEndpointPredictRequestResponseLoggingConfigEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	transformedSamplingRate, err := expandVertexAIEndpointPredictRequestResponseLoggingConfigSamplingRate(original["sampling_rate"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSamplingRate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["samplingRate"] = transformedSamplingRate
+	}
+
+	transformedBigqueryDestination, err := expandVertexAIEndpointPredictRequestResponseLoggingConfigBigqueryDestination(original["bigquery_destination"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBigqueryDestination); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bigqueryDestination"] = transformedBigqueryDestination
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIEndpointPredictRequestResponseLoggingConfigEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointPredictRequestResponseLoggingConfigSamplingRate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointPredictRequestResponseLoggingConfigBigqueryDestination(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedOutputUri, err := expandVertexAIEndpointPredictRequestResponseLoggingConfigBigqueryDestinationOutputUri(original["output_uri"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOutputUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["outputUri"] = transformedOutputUri
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIEndpointPredictRequestResponseLoggingConfigBigqueryDestinationOutputUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointDedicatedEndpointEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

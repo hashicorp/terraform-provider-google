@@ -144,6 +144,43 @@ resource "google_compute_subnetwork" "default" {
   network       = google_compute_network.default.id
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_internal_ranges_migration&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Connectivity Internal Ranges Migration
+
+
+```hcl
+resource "google_network_connectivity_internal_range" "default" {
+  name          = "migration"
+  description   = "Test internal range"
+  network       = google_compute_network.default.self_link
+  usage         = "FOR_MIGRATION"
+  peering       = "FOR_SELF"
+  ip_cidr_range = "10.1.0.0/16"
+  migration {
+    source = google_compute_subnetwork.source.self_link
+    target = "projects/${data.google_project.target_project.project_id}/regions/us-central1/subnetworks/target-subnet"
+  }
+}
+
+resource "google_compute_network" "default" {
+  name                    = "internal-ranges"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "source" {
+  name          = "source-subnet"
+  ip_cidr_range = "10.1.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.name
+}
+
+data "google_project" "target_project" {
+}
+```
 
 ## Argument Reference
 
@@ -161,7 +198,7 @@ The following arguments are supported:
 * `usage` -
   (Required)
   The type of usage set for this InternalRange.
-  Possible values are: `FOR_VPC`, `EXTERNAL_TO_VPC`.
+  Possible values are: `FOR_VPC`, `EXTERNAL_TO_VPC`, `FOR_MIGRATION`.
 
 * `peering` -
   (Required)
@@ -202,9 +239,30 @@ The following arguments are supported:
   Optional. Types of resources that are allowed to overlap with the current internal range.
   Each value may be one of: `OVERLAP_ROUTE_RANGE`, `OVERLAP_EXISTING_SUBNET_RANGE`.
 
+* `migration` -
+  (Optional)
+  Specification for migration with source and target resource names.
+  Structure is [documented below](#nested_migration).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_migration"></a>The `migration` block supports:
+
+* `source` -
+  (Required)
+  Resource path as an URI of the source resource, for example a subnet.
+  The project for the source resource should match the project for the
+  InternalRange.
+  An example /projects/{project}/regions/{region}/subnetworks/{subnet}
+
+* `target` -
+  (Required)
+  Resource path of the target resource. The target project can be
+  different, as in the cases when migrating to peer networks. The resource
+  may not exist yet.
+  For example /projects/{project}/regions/{region}/subnetworks/{subnet}
 
 ## Attributes Reference
 

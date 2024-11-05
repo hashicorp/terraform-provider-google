@@ -300,6 +300,42 @@ resource "google_compute_health_check" "health_check" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=backend_service_stateful_session_affinity&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Stateful Session Affinity
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  provider = google-beta
+
+  name                  = "backend-service"
+  health_checks         = [google_compute_health_check.health_check.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  locality_lb_policy    = "RING_HASH"
+  session_affinity      = "STRONG_COOKIE_AFFINITY"
+  
+  strong_session_affinity_cookie {
+     ttl {
+       seconds = 11
+       nanos   = 1111
+     }
+     name = "mycookie"
+   }   
+}
+
+resource "google_compute_health_check" "health_check" {
+  provider = google-beta
+
+  name = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=backend_service_network_endpoint&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -357,6 +393,21 @@ resource "google_compute_health_check" "default" {
   http_health_check {
     port = 80
   }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=backend_service_ip_address_selection_policy&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Ip Address Selection Policy
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  name = "backend-service"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  ip_address_selection_policy = "IPV6_ONLY"
 }
 ```
 
@@ -456,6 +507,11 @@ The following arguments are supported:
   (Optional)
   Settings for enabling Cloud Identity Aware Proxy
   Structure is [documented below](#nested_iap).
+
+* `ip_address_selection_policy` -
+  (Optional)
+  Specifies preference of traffic to the backend (from the proxy and from the client for proxyless gRPC).
+  Possible values are: `IPV4_ONLY`, `PREFER_IPV6`, `IPV6_ONLY`.
 
 * `load_balancing_scheme` -
   (Optional)
@@ -567,7 +623,12 @@ The following arguments are supported:
   (Optional)
   Type of session affinity to use. The default is NONE. Session affinity is
   not applicable if the protocol is UDP.
-  Possible values are: `NONE`, `CLIENT_IP`, `CLIENT_IP_PORT_PROTO`, `CLIENT_IP_PROTO`, `GENERATED_COOKIE`, `HEADER_FIELD`, `HTTP_COOKIE`.
+  Possible values are: `NONE`, `CLIENT_IP`, `CLIENT_IP_PORT_PROTO`, `CLIENT_IP_PROTO`, `GENERATED_COOKIE`, `HEADER_FIELD`, `HTTP_COOKIE`, `STRONG_COOKIE_AFFINITY`.
+
+* `strong_session_affinity_cookie` -
+  (Optional)
+  Describes the HTTP cookie used for stateful session affinity. This field is applicable and required if the sessionAffinity is set to STRONG_COOKIE_AFFINITY.
+  Structure is [documented below](#nested_strong_session_affinity_cookie).
 
 * `timeout_sec` -
   (Optional)
@@ -1138,6 +1199,36 @@ The following arguments are supported:
   (Optional)
   The name of the cloud region of your origin. This is a free-form field with the name of the region your cloud uses to host your origin.
   For example, "us-east-1" for AWS or "us-ashburn-1" for OCI.
+
+<a name="nested_strong_session_affinity_cookie"></a>The `strong_session_affinity_cookie` block supports:
+
+* `ttl` -
+  (Optional)
+  Lifetime of the cookie.
+  Structure is [documented below](#nested_ttl).
+
+* `name` -
+  (Optional)
+  Name of the cookie.
+
+* `path` -
+  (Optional)
+  Path to set for the cookie.
+
+
+<a name="nested_ttl"></a>The `ttl` block supports:
+
+* `seconds` -
+  (Required)
+  Span of time at a resolution of a second.
+  Must be from 0 to 315,576,000,000 inclusive.
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond
+  resolution. Durations less than one second are represented
+  with a 0 seconds field and a positive nanos field. Must
+  be from 0 to 999,999,999 inclusive.
 
 <a name="nested_log_config"></a>The `log_config` block supports:
 

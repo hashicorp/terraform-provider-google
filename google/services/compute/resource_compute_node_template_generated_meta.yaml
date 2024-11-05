@@ -1,0 +1,5 @@
+resource: 'google_compute_node_template'
+generation_type: 'mmv1'
+api_service_name: 'compute.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'NodeTemplate'

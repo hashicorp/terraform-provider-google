@@ -220,7 +220,7 @@ The following arguments are supported:
 
 * `parser_config` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_parser_config).
 
 * `labels` -
@@ -246,7 +246,7 @@ The following arguments are supported:
 
 * `notification_config` -
   (Optional, Deprecated)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_notification_config).
 
   ~> **Warning:** `notification_config` is deprecated and will be removed in a future major release. Use `notification_configs` instead.

@@ -250,7 +250,7 @@ The following arguments are supported:
 
 * `async_primary_disk` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_async_primary_disk).
 
 * `guest_os_features` -

@@ -111,7 +111,7 @@ resource "google_container_cluster" "cluster-1" {
     cluster_secondary_range_name  = google_compute_subnetwork.subnetwork-1.secondary_ip_range[0].range_name
     services_secondary_range_name = google_compute_subnetwork.subnetwork-1.secondary_ip_range[1].range_name
   }
-  deletion_protection  = "%{deletion_protection}"
+  deletion_protection  = %{deletion_protection}
 }
 
 resource "google_dns_response_policy" "example-response-policy" {

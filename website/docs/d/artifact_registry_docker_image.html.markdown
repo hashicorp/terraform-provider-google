@@ -4,7 +4,7 @@ description: |-
   Get information about a Docker Image within a Google Artifact Registry Repository.
 ---
 
-# google\_artifact\_registry\_docker\_image
+# google_artifact_registry_docker_image
 
 This data source fetches information from a provided Artifact Registry repository, including the fully qualified name and URI for an image, based on a the latest version of image name and optional digest or tag.
 
@@ -23,7 +23,7 @@ resource "google_artifact_registry_repository" "my_repo" {
 data "google_artifact_registry_docker_image" "my_image" {
   location      = google_artifact_registry_repository.my_repo.location
   repository_id = google_artifact_registry_repository.my_repo.repository_id
-  image         = "my-image:my-tag"
+  image_name    = "my-image:my-tag"
 }
 
 resource "google_cloud_run_v2_service" "default" {

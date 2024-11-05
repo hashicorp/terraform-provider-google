@@ -205,6 +205,7 @@ group. You can specify one or more values. For more information, see the [offici
 
 * `params` - (Optional [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Input only additional params for instance group manager creation. Structure is [documented below](#nested_params). For more information, see [API](https://cloud.google.com/compute/docs/reference/rest/beta/instanceGroupManagers/insert).
 
+* `instance_flexibility_policy` - (Optional [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The flexibility policy for managed instance group. Instance flexibility allows managed instance group to create VMs from multiple types of machines. Instance flexibility configuration on managed instance group overrides instance template configuration. Structure is [documented below](#nested_instance_flexibility_policy).
 - - -
 
 The `standby_policy` block supports:
@@ -262,7 +263,35 @@ instance_lifecycle_policy {
 * `default_action_on_failure` - (Optional), Default behavior for all instance or health check failures. Valid options are: `REPAIR`, `DO_NOTHING`. If `DO_NOTHING` then instances will not be repaired. If `REPAIR` (default), then failed instances will be repaired.
 
 - - -
+<a name="nested_instance_flexibility_policy"></a>The `instance_flexibility_policy` block supports:
 
+```hcl
+instance_flexibility_policy {
+  instance_selections {
+    name = "instance_selection_name"
+    rank = 1
+    machine_types = ["n1-standard-16"]
+  }
+}
+```
+
+* `instance_selections` - (Optional), Named instance selections configuring properties that the group will use when creating new VMs. One can specify multiple instance selection to allow managed instance group to create VMs from multiple types of machines, based on preference and availability. Structure is [documented below](#nested_instance_selections).
+- - -
+<a name="nested_instance_selections"></a>The `instance_selections` block supports:
+
+```hcl
+instance_selections {
+  name = "instance_selection_name"
+  rank = 1
+  machine_types = ["n1-standard-1", "n1-standard-16"]
+}
+```
+
+* `name` - (Required), Name of the instance selection, e.g. instance_selection_with_n1_machines_types. Instance selection names must be unique within the flexibility policy.
+* `rank` - (Optional), Preference of this instance selection. Lower number means higher preference. Managed instance group will first try to create a VM based on the machine-type with lowest rank and fallback to next rank based on availability. Machine types and instance selections with the same rank have the same preference.
+* `machine_types` - (Required), A list of full machine-type names, e.g. "n1-standard-16".
+
+- - -
 <a name="nested_all_instances_config"></a>The `all_instances_config` block supports:
 
 ```hcl

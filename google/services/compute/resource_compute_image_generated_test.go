@@ -57,12 +57,23 @@ func TestAccComputeImage_imageBasicExample(t *testing.T) {
 
 func testAccComputeImage_imageBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-example-disk%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-  }
+  source_disk = google_compute_disk.persistent.id
 }
 `, context)
 }
@@ -94,19 +105,42 @@ func TestAccComputeImage_imageGuestOsExample(t *testing.T) {
 
 func testAccComputeImage_imageGuestOsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-example-disk%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
+  source_disk = google_compute_disk.persistent.id
+
+  guest_os_features {
+    type = "UEFI_COMPATIBLE"
   }
 
   guest_os_features {
-    type = "SECURE_BOOT"
+    type = "VIRTIO_SCSI_MULTIQUEUE"
   }
 
   guest_os_features {
-    type = "MULTI_IP_SUBNET"
+    type = "GVNIC"
+  }
+
+  guest_os_features {
+    type = "SEV_CAPABLE"
+  }
+
+  guest_os_features {
+    type = "SEV_LIVE_MIGRATABLE_V2"
   }
 }
 `, context)
@@ -139,12 +173,23 @@ func TestAccComputeImage_imageBasicStorageLocationExample(t *testing.T) {
 
 func testAccComputeImage_imageBasicStorageLocationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-example-disk%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
 resource "google_compute_image" "example" {
   name = "tf-test-example-sl-image%{random_suffix}"
 
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
-  }
+  source_disk = google_compute_disk.persistent.id
   storage_locations = ["us-central1"]
 }
 `, context)

@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -51,6 +52,13 @@ func IpCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 }
 
 var (
+	advancedMachineFeaturesKeys = []string{
+		"advanced_machine_features.0.enable_nested_virtualization",
+		"advanced_machine_features.0.threads_per_core",
+		"advanced_machine_features.0.turbo_mode",
+		"advanced_machine_features.0.visible_core_count",
+	}
+
 	bootDiskKeys = []string{
 		"boot_disk.0.auto_delete",
 		"boot_disk.0.device_name",
@@ -310,6 +318,7 @@ func ResourceComputeInstance() *schema.Resource {
 										Elem:             &schema.Schema{Type: schema.TypeString},
 										Optional:         true,
 										ForceNew:         true,
+										Computed:         true,
 										AtLeastOneOf:     initializeParamsKeys,
 										DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 										MaxItems:         1,
@@ -386,10 +395,11 @@ func ResourceComputeInstance() *schema.Resource {
 			},
 
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The name of the instance. One of name or self_link must be provided.`,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateRFC1035Name(1, 63),
+				Description:  `The name of the instance. One of name or self_link must be provided.`,
 			},
 
 			"network_interface": {
@@ -1024,19 +1034,26 @@ be from 0 to 999,999,999 inclusive.`,
 						"enable_nested_virtualization": {
 							Type:         schema.TypeBool,
 							Optional:     true,
-							AtLeastOneOf: []string{"advanced_machine_features.0.enable_nested_virtualization", "advanced_machine_features.0.threads_per_core"},
+							AtLeastOneOf: advancedMachineFeaturesKeys,
 							Description:  `Whether to enable nested virtualization or not.`,
 						},
 						"threads_per_core": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							AtLeastOneOf: []string{"advanced_machine_features.0.enable_nested_virtualization", "advanced_machine_features.0.threads_per_core"},
+							AtLeastOneOf: advancedMachineFeaturesKeys,
 							Description:  `The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.`,
+						},
+						"turbo_mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: advancedMachineFeaturesKeys,
+							Description:  `Turbo frequency mode to use for the instance. Currently supported modes is "ALL_CORE_MAX".`,
+							ValidateFunc: validation.StringInSlice([]string{"ALL_CORE_MAX"}, false),
 						},
 						"visible_core_count": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							AtLeastOneOf: []string{"advanced_machine_features.0.enable_nested_virtualization", "advanced_machine_features.0.threads_per_core", "advanced_machine_features.0.visible_core_count"},
+							AtLeastOneOf: advancedMachineFeaturesKeys,
 							Description:  `The number of physical cores to expose to an instance. Multiply by the number of threads per core to compute the total number of virtual CPUs to expose to the instance. If unset, the number of cores is inferred from the instance\'s nominal CPU count and the underlying platform\'s SMT width.`,
 						},
 					},
@@ -1064,7 +1081,7 @@ be from 0 to 999,999,999 inclusive.`,
 								The confidential computing technology the instance uses.
 								SEV is an AMD feature. TDX is an Intel feature. One of the following
 								values is required: SEV, SEV_SNP, TDX. If SEV_SNP, min_cpu_platform =
-								"AMD Milan" is currently required. TDX is only available in beta.`,
+								"AMD Milan" is currently required.`,
 							AtLeastOneOf: []string{"confidential_instance_config.0.enable_confidential_compute", "confidential_instance_config.0.confidential_instance_type"},
 						},
 					},
@@ -1110,6 +1127,12 @@ be from 0 to 999,999,999 inclusive.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The server-assigned unique identifier of this instance.`,
+			},
+
+			"creation_timestamp": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 
 			"label_fingerprint": {
@@ -1197,6 +1220,14 @@ be from 0 to 999,999,999 inclusive.`,
 					},
 				},
 			},
+
+			"key_revocation_action_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"STOP", "NONE", ""}, false),
+				Description:  `Action to be taken when a customer's encryption key is revoked. Supports "STOP" and "NONE", with "NONE" being the default.`,
+			},
 		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
@@ -1207,7 +1238,6 @@ be from 0 to 999,999,999 inclusive.`,
 				},
 				suppressEmptyGuestAcceleratorDiff,
 			),
-			desiredStatusDiff,
 			validateSubnetworkProject,
 			forceNewIfNetworkIPNotUpdatable,
 			tpgresource.SetLabelsDiff,
@@ -1358,6 +1388,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		DisplayDevice:              expandDisplayDevice(d),
 		ResourcePolicies:           tpgresource.ConvertStringArr(d.Get("resource_policies").([]interface{})),
 		ReservationAffinity:        reservationAffinity,
+		KeyRevocationActionType:    d.Get("key_revocation_action_type").(string),
 	}, nil
 }
 
@@ -1383,10 +1414,34 @@ func getAllStatusBut(status string) []string {
 	return computeInstanceStatus
 }
 
-func waitUntilInstanceHasDesiredStatus(config *transport_tpg.Config, d *schema.ResourceData) error {
-	desiredStatus := d.Get("desired_status").(string)
+func changeInstanceStatusOnCreation(config *transport_tpg.Config, d *schema.ResourceData, project, zone, status, userAgent string) error {
+	var op *compute.Operation
+	var err error
+	if status == "TERMINATED" {
+		op, err = config.NewComputeClient(userAgent).Instances.Stop(project, zone, d.Get("name").(string)).Do()
+	} else if status == "SUSPENDED" {
+		op, err = config.NewComputeClient(userAgent).Instances.Suspend(project, zone, d.Get("name").(string)).Do()
+	}
+	if err != nil {
+		return fmt.Errorf("Error changing instance status after creation: %s", err)
+	}
 
-	if desiredStatus != "" {
+	waitErr := ComputeOperationWaitTime(config, op, project, "changing instance status", userAgent, d.Timeout(schema.TimeoutCreate))
+	if waitErr != nil {
+		d.SetId("")
+		return waitErr
+	}
+
+	err = waitUntilInstanceHasDesiredStatus(config, d, status)
+	if err != nil {
+		return fmt.Errorf("Error waiting for status: %s", err)
+	}
+
+	return nil
+}
+
+func waitUntilInstanceHasDesiredStatus(config *transport_tpg.Config, d *schema.ResourceData, status string) error {
+	if status != "" {
 		stateRefreshFunc := func() (interface{}, string, error) {
 			instance, err := getInstance(config, d)
 			if err != nil || instance == nil {
@@ -1397,9 +1452,9 @@ func waitUntilInstanceHasDesiredStatus(config *transport_tpg.Config, d *schema.R
 		}
 		stateChangeConf := retry.StateChangeConf{
 			Delay:      5 * time.Second,
-			Pending:    getAllStatusBut(desiredStatus),
+			Pending:    getAllStatusBut(status),
 			Refresh:    stateRefreshFunc,
-			Target:     []string{desiredStatus},
+			Target:     []string{status},
 			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			MinTimeout: 2 * time.Second,
 		}
@@ -1407,7 +1462,7 @@ func waitUntilInstanceHasDesiredStatus(config *transport_tpg.Config, d *schema.R
 
 		if err != nil {
 			return fmt.Errorf(
-				"Error waiting for instance to reach desired status %s: %s", desiredStatus, err)
+				"Error waiting for instance to reach desired status %s: %s", status, err)
 		}
 	}
 
@@ -1460,9 +1515,18 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return waitErr
 	}
 
-	err = waitUntilInstanceHasDesiredStatus(config, d)
+	err = waitUntilInstanceHasDesiredStatus(config, d, "RUNNING")
 	if err != nil {
 		return fmt.Errorf("Error waiting for status: %s", err)
+	}
+
+	if val, ok := d.GetOk("desired_status"); ok {
+		if val.(string) != "RUNNING" {
+			err = changeInstanceStatusOnCreation(config, d, project, zone.Name, val.(string), userAgent)
+			if err != nil {
+				return fmt.Errorf("Error changing instance status after creation: %s", err)
+			}
+		}
 	}
 
 	return resourceComputeInstanceRead(d, meta)
@@ -1698,6 +1762,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("instance_id", fmt.Sprintf("%d", instance.Id)); err != nil {
 		return fmt.Errorf("Error setting instance_id: %s", err)
 	}
+	if err := d.Set("creation_timestamp", instance.CreationTimestamp); err != nil {
+		return fmt.Errorf("Error setting creation_timestamp: %s", err)
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
@@ -1729,6 +1796,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 	if err := d.Set("reservation_affinity", flattenReservationAffinity(instance.ReservationAffinity)); err != nil {
 		return fmt.Errorf("Error setting reservation_affinity: %s", err)
+	}
+	if err := d.Set("key_revocation_action_type", instance.KeyRevocationActionType); err != nil {
+		return fmt.Errorf("Error setting key_revocation_action_type: %s", err)
 	}
 
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instance.Name))
@@ -2717,25 +2787,6 @@ func suppressEmptyGuestAcceleratorDiff(_ context.Context, d *schema.ResourceDiff
 		if err := d.Clear("guest_accelerator"); err != nil {
 			return err
 		}
-	}
-
-	return nil
-}
-
-// return an error if the desired_status field is set to a value other than RUNNING on Create.
-func desiredStatusDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
-	// when creating an instance, name is not set
-	oldName, _ := diff.GetChange("name")
-
-	if oldName == nil || oldName == "" {
-		_, newDesiredStatus := diff.GetChange("desired_status")
-
-		if newDesiredStatus == nil || newDesiredStatus == "" {
-			return nil
-		} else if newDesiredStatus != "RUNNING" {
-			return fmt.Errorf("When creating an instance, desired_status can only accept RUNNING value")
-		}
-		return nil
 	}
 
 	return nil

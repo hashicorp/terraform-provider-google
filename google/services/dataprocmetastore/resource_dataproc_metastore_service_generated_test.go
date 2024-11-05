@@ -112,7 +112,7 @@ resource "google_dataproc_metastore_service" "default" {
     location            = "us-central1"
     port                = 9080
     tier                = "DEVELOPER"
-    deletion_protection = "%{deletion_protection}"
+    deletion_protection = %{deletion_protection}
   
     maintenance_window {
       hour_of_day = 2
@@ -127,7 +127,6 @@ resource "google_dataproc_metastore_service" "default" {
       env = "test"
     }
   }
-  
 `, context)
 }
 
@@ -577,160 +576,6 @@ resource "google_dataproc_metastore_service" "backup" {
 resource "google_storage_bucket" "bucket" {
   name     = "backup%{random_suffix}"
   location = "us-central1"
-}
-`, context)
-}
-
-func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMaxScalingFactorExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMaxScalingFactorExample(context),
-			},
-			{
-				ResourceName:            "google_dataproc_metastore_service.test_resource",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
-			},
-		},
-	})
-}
-
-func testAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMaxScalingFactorExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_dataproc_metastore_service" "test_resource" {
-  service_id = "tf-test-test-service%{random_suffix}"
-  location   = "us-central1"
-
-  # DPMS 2 requires SPANNER database type, and does not require
-  # a maintenance window.
-  database_type = "SPANNER"
-
-  hive_metastore_config {
-    version           = "3.1.2"
-  }
-
-  scaling_config {
-    autoscaling_config {
-      autoscaling_enabled = true
-      limit_config {
-        max_scaling_factor = 1.0
-      }
-    }
-  }
-}
-`, context)
-}
-
-func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinAndMaxScalingFactorExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinAndMaxScalingFactorExample(context),
-			},
-			{
-				ResourceName:            "google_dataproc_metastore_service.test_resource",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
-			},
-		},
-	})
-}
-
-func testAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinAndMaxScalingFactorExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_dataproc_metastore_service" "test_resource" {
-  service_id = "tf-test-test-service%{random_suffix}"
-  location   = "us-central1"
-
-  # DPMS 2 requires SPANNER database type, and does not require
-  # a maintenance window.
-  database_type = "SPANNER"
-
-  hive_metastore_config {
-    version           = "3.1.2"
-  }
-
-  scaling_config {
-    autoscaling_config {
-      autoscaling_enabled = true
-      limit_config {
-        min_scaling_factor = 0.1
-        max_scaling_factor = 1.0
-      }
-    }
-  }
-}
-`, context)
-}
-
-func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinScalingFactorExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinScalingFactorExample(context),
-			},
-			{
-				ResourceName:            "google_dataproc_metastore_service.test_resource",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
-			},
-		},
-	})
-}
-
-func testAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinScalingFactorExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_dataproc_metastore_service" "test_resource" {
-  service_id = "tf-test-test-service%{random_suffix}"
-  location   = "us-central1"
-
-  # DPMS 2 requires SPANNER database type, and does not require
-  # a maintenance window.
-  database_type = "SPANNER"
-
-  hive_metastore_config {
-    version           = "3.1.2"
-  }
-
-  scaling_config {
-    autoscaling_config {
-      autoscaling_enabled = true
-      limit_config {
-        min_scaling_factor = 0.1
-      }
-    }
-  }
 }
 `, context)
 }

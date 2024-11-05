@@ -168,7 +168,7 @@ func TestAccBigQueryDataset_withProvider5(t *testing.T) {
 		CheckDestroy: testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:            testAccBigQueryDataset_withoutLabels(datasetID),
+				Config:            testAccBigQueryDataset_withoutLabelsV4(datasetID),
 				ExternalProviders: oldVersion,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckNoResourceAttr("google_bigquery_dataset.test", "labels.%"),
@@ -455,7 +455,6 @@ func TestAccBigQueryDataset_bigqueryDatasetResourceTags_update(t *testing.T) {
 		},
 	})
 }
-
 func testAccAddTable(t *testing.T, datasetID string, tableID string) resource.TestCheckFunc {
 	// Not actually a check, but adds a table independently of terraform
 	return func(s *terraform.State) error {
@@ -500,6 +499,19 @@ provider "google" {
   add_terraform_attribution_label = false
 }
 
+resource "google_bigquery_dataset" "test" {
+  dataset_id                      = "%s"
+  friendly_name                   = "foo"
+  description                     = "This is a foo description"
+  location                        = "EU"
+  default_partition_expiration_ms = 3600000
+  default_table_expiration_ms     = 3600000
+}
+`, datasetID)
+}
+
+func testAccBigQueryDataset_withoutLabelsV4(datasetID string) string {
+	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id                      = "%s"
   friendly_name                   = "foo"
@@ -780,26 +792,25 @@ resource "google_bigquery_dataset" "test" {
 
 func testAccBigQueryDataset_bigqueryDatasetResourceTags_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_project" "project" {
-}
+data "google_project" "project" {}
 
 resource "google_tags_tag_key" "tag_key1" {
-  parent = "projects/${data.google_project.project.number}"
+  parent     = data.google_project.project.id
   short_name = "tf_test_tag_key1%{random_suffix}"
 }
 
 resource "google_tags_tag_value" "tag_value1" {
-  parent = "tagKeys/${google_tags_tag_key.tag_key1.name}"
+  parent = google_tags_tag_key.tag_key1.id
   short_name = "tf_test_tag_value1%{random_suffix}"
 }
 
 resource "google_tags_tag_key" "tag_key2" {
-  parent = "projects/${data.google_project.project.number}"
+  parent     = data.google_project.project.id
   short_name = "tf_test_tag_key2%{random_suffix}"
 }
 
 resource "google_tags_tag_value" "tag_value2" {
-  parent = "tagKeys/${google_tags_tag_key.tag_key2.name}"
+  parent     = google_tags_tag_key.tag_key2.id
   short_name = "tf_test_tag_value2%{random_suffix}"
 }
 
@@ -810,8 +821,8 @@ resource "google_bigquery_dataset" "dataset" {
   location                    = "EU"
 
   resource_tags = {
-    "${data.google_project.project.project_id}/${google_tags_tag_key.tag_key1.short_name}" = "${google_tags_tag_value.tag_value1.short_name}"
-    "${data.google_project.project.project_id}/${google_tags_tag_key.tag_key2.short_name}" = "${google_tags_tag_value.tag_value2.short_name}"
+    (google_tags_tag_key.tag_key1.namespaced_name) = google_tags_tag_value.tag_value1.short_name
+    (google_tags_tag_key.tag_key2.namespaced_name) = google_tags_tag_value.tag_value2.short_name
   }
 }
 `, context)
@@ -823,22 +834,22 @@ data "google_project" "project" {
 }
 
 resource "google_tags_tag_key" "tag_key1" {
-  parent = "projects/${data.google_project.project.number}"
+  parent     = data.google_project.project.id
   short_name = "tf_test_tag_key1%{random_suffix}"
 }
 
 resource "google_tags_tag_value" "tag_value1" {
-  parent = "tagKeys/${google_tags_tag_key.tag_key1.name}"
+  parent     = google_tags_tag_key.tag_key1.id
   short_name = "tf_test_tag_value1%{random_suffix}"
 }
 
 resource "google_tags_tag_key" "tag_key2" {
-  parent = "projects/${data.google_project.project.number}"
+  parent     = data.google_project.project.id
   short_name = "tf_test_tag_key2%{random_suffix}"
 }
 
 resource "google_tags_tag_value" "tag_value2" {
-  parent = "tagKeys/${google_tags_tag_key.tag_key2.name}"
+  parent     = google_tags_tag_key.tag_key2.id
   short_name = "tf_test_tag_value2%{random_suffix}"
 }
 
@@ -849,6 +860,46 @@ resource "google_bigquery_dataset" "dataset" {
   location                    = "EU"
 
   resource_tags = {
+  }
+}
+`, context)
+}
+
+func testAccBigQueryDataset_externalCatalogDatasetOptions_basic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "dataset" {
+  provider = google-beta
+
+  dataset_id    = "dataset%{random_suffix}"
+  friendly_name = "test"
+  description   = "This is a test description"
+  location      = "US"
+
+  external_catalog_dataset_options {
+    parameters = {
+      "dataset_owner" = "dataset_owner"
+    }
+    default_storage_location_uri = "gs://test_dataset/tables"
+  }
+}
+`, context)
+}
+
+func testAccBigQueryDataset_externalCatalogDatasetOptions_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "dataset" {
+  provider = google-beta
+
+  dataset_id    = "dataset%{random_suffix}"
+  friendly_name = "test"
+  description   = "This is a test description"
+  location      = "US"
+
+  external_catalog_dataset_options {
+    parameters = {
+      "new_dataset_owner" = "new_dataset_owner"
+    }
+    default_storage_location_uri = "gs://new_test_dataset/new_tables"
   }
 }
 `, context)

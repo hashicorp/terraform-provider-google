@@ -107,7 +107,7 @@ specified as the last field, it will be added automatically with the same
 direction as that of the last field defined. If the final field in a
 composite index is not directional, the '__name__' will be ordered
 '"ASCENDING"' (unless explicitly specified otherwise).`,
-				MinItems: 2,
+				MinItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"array_config": {

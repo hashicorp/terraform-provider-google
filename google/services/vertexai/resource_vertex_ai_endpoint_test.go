@@ -4,14 +4,10 @@ package vertexai_test
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccVertexAIEndpoint_vertexAiEndpointNetwork(t *testing.T) {
@@ -66,6 +62,13 @@ resource "google_vertex_ai_endpoint" "endpoint" {
   encryption_spec {
     kms_key_name = "%{kms_key_name}"
   }
+  predict_request_response_logging_config {
+    bigquery_destination {
+      output_uri = "bq://${data.google_project.project.project_id}.${google_bigquery_dataset.bq_dataset.dataset_id}.request_response_logging"
+    }
+    enabled       = true
+    sampling_rate = 0.1
+  }
 
   depends_on = [google_kms_crypto_key_iam_member.crypto_key]
 }
@@ -78,6 +81,14 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
   crypto_key_id = "%{kms_key_name}"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-aiplatform.iam.gserviceaccount.com"
+}
+
+resource "google_bigquery_dataset" "bq_dataset" {
+  dataset_id                 = "some_dataset%{endpoint_name}"
+  friendly_name              = "logging dataset"
+  description                = "This is a dataset that requests are logged to"
+  location                   = "US"
+  delete_contents_on_destroy = true
 }
 
 data "google_project" "project" {}
@@ -115,43 +126,4 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
 
 data "google_project" "project" {}
 `, context)
-}
-
-func testAccCheckVertexAIEndpointDestroyProducer(t *testing.T) func(s *terraform.State) error {
-	return func(s *terraform.State) error {
-		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "google_vertex_ai_endpoint" {
-				continue
-			}
-			if strings.HasPrefix(name, "data.") {
-				continue
-			}
-
-			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{VertexAIBasePath}}projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
-			if err != nil {
-				return err
-			}
-
-			billingProject := ""
-
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
-
-			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "GET",
-				Project:   billingProject,
-				RawURL:    url,
-				UserAgent: config.UserAgent,
-			})
-			if err == nil {
-				return fmt.Errorf("VertexAIEndpoint still exists at %s", url)
-			}
-		}
-
-		return nil
-	}
 }

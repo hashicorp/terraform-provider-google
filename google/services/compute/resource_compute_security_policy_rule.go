@@ -90,6 +90,35 @@ Rules are evaluated from highest to lowest priority where 0 is the highest prior
 				Optional:    true,
 				Description: `An optional description of this resource. Provide this property when you create the resource.`,
 			},
+			"header_action": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Optional, additional actions that are performed on headers. This field is only supported in Global Security Policies of type CLOUD_ARMOR.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"request_headers_to_adds": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The list of request headers to add or overwrite if they're already present.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"header_name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The name of the header to set.`,
+									},
+									"header_value": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The value to set the named header to.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"match": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -473,6 +502,26 @@ Valid options are deny(STATUS), where valid values for STATUS are 403, 404, 429,
 					},
 				},
 			},
+			"redirect_options": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Parameters defining the redirect action. Cannot be specified for any other actions. This field is only supported in Global Security Policies of type CLOUD_ARMOR.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"target": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Target for the redirect action. This is required if the type is EXTERNAL_302 and cannot be specified for GOOGLE_RECAPTCHA.`,
+						},
+						"type": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Type of the redirect action.`,
+						},
+					},
+				},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -528,6 +577,18 @@ func resourceComputeSecurityPolicyRuleCreate(d *schema.ResourceData, meta interf
 	} else if v, ok := d.GetOkExists("rate_limit_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(rateLimitOptionsProp)) && (ok || !reflect.DeepEqual(v, rateLimitOptionsProp)) {
 		obj["rateLimitOptions"] = rateLimitOptionsProp
 	}
+	redirectOptionsProp, err := expandComputeSecurityPolicyRuleRedirectOptions(d.Get("redirect_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("redirect_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(redirectOptionsProp)) && (ok || !reflect.DeepEqual(v, redirectOptionsProp)) {
+		obj["redirectOptions"] = redirectOptionsProp
+	}
+	headerActionProp, err := expandComputeSecurityPolicyRuleHeaderAction(d.Get("header_action"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("header_action"); !tpgresource.IsEmptyValue(reflect.ValueOf(headerActionProp)) && (ok || !reflect.DeepEqual(v, headerActionProp)) {
+		obj["headerAction"] = headerActionProp
+	}
 	previewProp, err := expandComputeSecurityPolicyRulePreview(d.Get("preview"), d, config)
 	if err != nil {
 		return err
@@ -555,6 +616,17 @@ func resourceComputeSecurityPolicyRuleCreate(d *schema.ResourceData, meta interf
 	}
 
 	headers := make(http.Header)
+	// We can't Create a default rule since one is automatically created with the policy
+	rulePriority, ok := d.GetOk("priority")
+
+	if ok && rulePriority.(int) == 2147483647 {
+		log.Printf("[WARN] SecurityPolicyRule represents a default rule, will attempt an Update instead")
+		newUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/securityPolicies/{{security_policy}}/patchRule?priority={{priority}}")
+		if err != nil {
+			return err
+		}
+		url = newUrl
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -651,6 +723,12 @@ func resourceComputeSecurityPolicyRuleRead(d *schema.ResourceData, meta interfac
 	if err := d.Set("rate_limit_options", flattenComputeSecurityPolicyRuleRateLimitOptions(res["rateLimitOptions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
 	}
+	if err := d.Set("redirect_options", flattenComputeSecurityPolicyRuleRedirectOptions(res["redirectOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
+	}
+	if err := d.Set("header_action", flattenComputeSecurityPolicyRuleHeaderAction(res["headerAction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
+	}
 	if err := d.Set("preview", flattenComputeSecurityPolicyRulePreview(res["preview"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
 	}
@@ -710,6 +788,18 @@ func resourceComputeSecurityPolicyRuleUpdate(d *schema.ResourceData, meta interf
 	} else if v, ok := d.GetOkExists("rate_limit_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rateLimitOptionsProp)) {
 		obj["rateLimitOptions"] = rateLimitOptionsProp
 	}
+	redirectOptionsProp, err := expandComputeSecurityPolicyRuleRedirectOptions(d.Get("redirect_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("redirect_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, redirectOptionsProp)) {
+		obj["redirectOptions"] = redirectOptionsProp
+	}
+	headerActionProp, err := expandComputeSecurityPolicyRuleHeaderAction(d.Get("header_action"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("header_action"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, headerActionProp)) {
+		obj["headerAction"] = headerActionProp
+	}
 	previewProp, err := expandComputeSecurityPolicyRulePreview(d.Get("preview"), d, config)
 	if err != nil {
 		return err
@@ -756,6 +846,14 @@ func resourceComputeSecurityPolicyRuleUpdate(d *schema.ResourceData, meta interf
 			"rateLimitOptions.enforceOnKeyConfigs",
 			"rateLimitOptions.banThreshold",
 			"rateLimitOptions.banDurationSec")
+	}
+
+	if d.HasChange("redirect_options") {
+		updateMask = append(updateMask, "redirectOptions")
+	}
+
+	if d.HasChange("header_action") {
+		updateMask = append(updateMask, "headerAction")
 	}
 
 	if d.HasChange("preview") {
@@ -832,6 +930,13 @@ func resourceComputeSecurityPolicyRuleDelete(d *schema.ResourceData, meta interf
 	}
 
 	headers := make(http.Header)
+	// The default rule of a Security Policy cannot be removed
+	rulePriority, ok := d.GetOk("priority")
+
+	if ok && rulePriority.(int) == 2147483647 {
+		log.Printf("[WARN] SecurityPolicyRule represents a default rule, skipping Delete request")
+		return nil
+	}
 
 	log.Printf("[DEBUG] Deleting SecurityPolicyRule %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -1358,6 +1463,69 @@ func flattenComputeSecurityPolicyRuleRateLimitOptionsBanDurationSec(v interface{
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeSecurityPolicyRuleRedirectOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["type"] =
+		flattenComputeSecurityPolicyRuleRedirectOptionsType(original["type"], d, config)
+	transformed["target"] =
+		flattenComputeSecurityPolicyRuleRedirectOptionsTarget(original["target"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeSecurityPolicyRuleRedirectOptionsType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeSecurityPolicyRuleRedirectOptionsTarget(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeSecurityPolicyRuleHeaderAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["request_headers_to_adds"] =
+		flattenComputeSecurityPolicyRuleHeaderActionRequestHeadersToAdds(original["requestHeadersToAdds"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeSecurityPolicyRuleHeaderActionRequestHeadersToAdds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"header_name":  flattenComputeSecurityPolicyRuleHeaderActionRequestHeadersToAddsHeaderName(original["headerName"], d, config),
+			"header_value": flattenComputeSecurityPolicyRuleHeaderActionRequestHeadersToAddsHeaderValue(original["headerValue"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeSecurityPolicyRuleHeaderActionRequestHeadersToAddsHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeSecurityPolicyRuleHeaderActionRequestHeadersToAddsHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenComputeSecurityPolicyRulePreview(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1982,6 +2150,96 @@ func expandComputeSecurityPolicyRuleRateLimitOptionsBanThresholdIntervalSec(v in
 }
 
 func expandComputeSecurityPolicyRuleRateLimitOptionsBanDurationSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRedirectOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedType, err := expandComputeSecurityPolicyRuleRedirectOptionsType(original["type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["type"] = transformedType
+	}
+
+	transformedTarget, err := expandComputeSecurityPolicyRuleRedirectOptionsTarget(original["target"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["target"] = transformedTarget
+	}
+
+	return transformed, nil
+}
+
+func expandComputeSecurityPolicyRuleRedirectOptionsType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRedirectOptionsTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleHeaderAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRequestHeadersToAdds, err := expandComputeSecurityPolicyRuleHeaderActionRequestHeadersToAdds(original["request_headers_to_adds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequestHeadersToAdds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["requestHeadersToAdds"] = transformedRequestHeadersToAdds
+	}
+
+	return transformed, nil
+}
+
+func expandComputeSecurityPolicyRuleHeaderActionRequestHeadersToAdds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedHeaderName, err := expandComputeSecurityPolicyRuleHeaderActionRequestHeadersToAddsHeaderName(original["header_name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["headerName"] = transformedHeaderName
+		}
+
+		transformedHeaderValue, err := expandComputeSecurityPolicyRuleHeaderActionRequestHeadersToAddsHeaderValue(original["header_value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedHeaderValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["headerValue"] = transformedHeaderValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeSecurityPolicyRuleHeaderActionRequestHeadersToAddsHeaderName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleHeaderActionRequestHeadersToAddsHeaderValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

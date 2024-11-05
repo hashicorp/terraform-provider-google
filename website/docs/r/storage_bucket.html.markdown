@@ -103,6 +103,20 @@ resource "google_storage_bucket" "auto-expire" {
 }
 ```
 
+## Example Usage - Enabling hierarchical namespace
+
+```hcl
+resource "google_storage_bucket" "auto-expire" {
+  name          = "hns-enabled-bucket"
+  location      = "US"
+  force_destroy = true
+
+  hierarchical_namespace = {
+    enabled = true
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -156,6 +170,8 @@ The following arguments are supported:
 * `custom_placement_config` - (Optional) The bucket's custom location configuration, which specifies the individual regions that comprise a dual-region bucket. If the bucket is designated a single or multi-region, the parameters are empty. Structure is [documented below](#nested_custom_placement_config).
 
 * `soft_delete_policy` -  (Optional, Computed) The bucket's soft delete policy, which defines the period of time that soft-deleted objects will be retained, and cannot be permanently deleted. If the block is not provided, Server side value will be kept which means removal of block won't generate any terraform change. Structure is [documented below](#nested_soft_delete_policy).
+
+* `hierarchical_namespace` -  (Optional, ForceNew) The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is [documented below](#nested_hierarchical_namespace). To use this configuration, `uniform_bucket_level_access` must be enabled on bucket.
 
 <a name="nested_lifecycle_rule"></a>The `lifecycle_rule` block supports:
 
@@ -268,6 +284,11 @@ The following arguments are supported:
 * `retention_duration_seconds` - (Optional, Default: 604800) The duration in seconds that soft-deleted objects in the bucket will be retained and cannot be permanently deleted. Default value is 604800. The value must be in between 604800(7 days) and 7776000(90 days). **Note**: To disable the soft delete policy on a bucket, This field must be set to 0.
 
 * `effective_time` - (Computed) Server-determined value that indicates the time from which the policy, or one with a greater retention, was effective. This value is in RFC 3339 format.
+
+<a name="nested_hierarchical_namespace"></a>The `hierarchical_namespace` block supports:
+
+* `enabled` - (Required) Enables hierarchical namespace for the bucket.
+
 
 ## Attributes Reference
 

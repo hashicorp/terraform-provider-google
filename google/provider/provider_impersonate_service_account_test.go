@@ -147,7 +147,6 @@ provider "google" {
 }
 
 data "google_provider_config_sdk" "default" {}
-
 `, context)
 }
 
@@ -156,7 +155,6 @@ data "google_provider_config_sdk" "default" {}
 func testAccSdkProvider_impersonate_service_account_inEnvsOnly(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_provider_config_sdk" "default" {}
-
 `, context)
 }
 

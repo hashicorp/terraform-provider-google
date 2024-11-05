@@ -91,6 +91,35 @@ to this node template.`,
 				ForceNew:    true,
 				Description: `An optional textual description of the resource.`,
 			},
+			"disks": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `List of the type, size and count of disks attached to the
+node template`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_count": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies the number of such disks.`,
+						},
+						"disk_size_gb": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies the size of the disk in base-2 GB.`,
+						},
+						"disk_type": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies the desired disk type on the node. This disk type must be a local storage type (e.g.: local-ssd). Note that for nodeTemplates, this should be the name of the disk type and not its URL.`,
+						},
+					},
+				},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -263,6 +292,12 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("cpu_overcommit_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(cpuOvercommitTypeProp)) && (ok || !reflect.DeepEqual(v, cpuOvercommitTypeProp)) {
 		obj["cpuOvercommitType"] = cpuOvercommitTypeProp
 	}
+	disksProp, err := expandComputeNodeTemplateDisks(d.Get("disks"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disks"); !tpgresource.IsEmptyValue(reflect.ValueOf(disksProp)) && (ok || !reflect.DeepEqual(v, disksProp)) {
+		obj["disks"] = disksProp
+	}
 	regionProp, err := expandComputeNodeTemplateRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
@@ -393,6 +428,9 @@ func resourceComputeNodeTemplateRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
 	if err := d.Set("cpu_overcommit_type", flattenComputeNodeTemplateCpuOvercommitType(res["cpuOvercommitType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	if err := d.Set("disks", flattenComputeNodeTemplateDisks(res["disks"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
 	if err := d.Set("region", flattenComputeNodeTemplateRegion(res["region"], d, config)); err != nil {
@@ -592,6 +630,64 @@ func flattenComputeNodeTemplateCpuOvercommitType(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenComputeNodeTemplateDisks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"disk_count":   flattenComputeNodeTemplateDisksDiskCount(original["diskCount"], d, config),
+			"disk_type":    flattenComputeNodeTemplateDisksDiskType(original["diskType"], d, config),
+			"disk_size_gb": flattenComputeNodeTemplateDisksDiskSizeGb(original["diskSizeGb"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeNodeTemplateDisksDiskCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeNodeTemplateDisksDiskType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeNodeTemplateDisksDiskSizeGb(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeNodeTemplateRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -728,6 +824,54 @@ func expandComputeNodeTemplateAcceleratorsAcceleratorType(v interface{}, d tpgre
 }
 
 func expandComputeNodeTemplateCpuOvercommitType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeTemplateDisks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedDiskCount, err := expandComputeNodeTemplateDisksDiskCount(original["disk_count"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDiskCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["diskCount"] = transformedDiskCount
+		}
+
+		transformedDiskType, err := expandComputeNodeTemplateDisksDiskType(original["disk_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDiskType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["diskType"] = transformedDiskType
+		}
+
+		transformedDiskSizeGb, err := expandComputeNodeTemplateDisksDiskSizeGb(original["disk_size_gb"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDiskSizeGb); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["diskSizeGb"] = transformedDiskSizeGb
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeNodeTemplateDisksDiskCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeTemplateDisksDiskType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeTemplateDisksDiskSizeGb(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -350,7 +350,7 @@ The following arguments are supported:
 
 * `island_mode_cidr` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_island_mode_cidr).
 
 * `advanced_networking` -
@@ -508,12 +508,12 @@ The following arguments are supported:
 
 * `metal_lb_config` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_metal_lb_config).
 
 * `manual_lb_config` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_manual_lb_config).
 
 * `bgp_lb_config` -

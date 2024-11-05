@@ -679,11 +679,19 @@ func flattenNestedBigQueryDatasetAccessRole(v interface{}, d *schema.ResourceDat
 }
 
 func flattenNestedBigQueryDatasetAccessUserByEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return nil
+	}
+
+	return strings.ToLower(v.(string))
 }
 
 func flattenNestedBigQueryDatasetAccessGroupByEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return nil
+	}
+
+	return strings.ToLower(v.(string))
 }
 
 func flattenNestedBigQueryDatasetAccessDomain(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

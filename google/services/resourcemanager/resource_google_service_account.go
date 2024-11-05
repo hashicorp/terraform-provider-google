@@ -154,7 +154,8 @@ func resourceGoogleServiceAccountCreate(d *schema.ResourceData, meta interface{}
 
 	// We poll until the resource is found due to eventual consistency issue
 	// on part of the api https://cloud.google.com/iam/docs/overview#consistency
-	err = transport_tpg.PollingWaitTime(resourceServiceAccountPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating Service Account", d.Timeout(schema.TimeoutCreate), 1)
+	// IAM API returns 403 when the queried SA is not found, so we must ignore both 404 & 403 errors
+	err = transport_tpg.PollingWaitTime(resourceServiceAccountPollRead(d, meta), transport_tpg.PollCheckForExistenceWith403, "Creating Service Account", d.Timeout(schema.TimeoutCreate), 1)
 
 	if err != nil {
 		return err

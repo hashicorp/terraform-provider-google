@@ -67,7 +67,7 @@ resource "google_container_cluster" "primary" {
   name               = "tf-test-basic-cluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
-  deletion_protection  = "%{deletion_protection}"
+  deletion_protection  = %{deletion_protection}
   network       = "%{network_name}"
   subnetwork    = "%{subnetwork_name}"
 }

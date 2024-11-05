@@ -137,7 +137,7 @@ resource "google_compute_region_network_endpoint_group" "appengine_neg" {
 
 resource "google_app_engine_flexible_app_version" "appengine_neg" {
   version_id = "v1"
-  service    = "appengine-network-endpoint-group"
+  service    = "appengine-neg"
   runtime    = "nodejs"
   flexible_runtime_settings {
     operating_system = "ubuntu22"
@@ -191,6 +191,7 @@ resource "google_app_engine_flexible_app_version" "appengine_neg" {
 resource "google_storage_bucket" "appengine_neg" {
   name     = "appengine-neg"
   location = "US"
+  uniform_bucket_level_access = true
 }
 
 resource "google_storage_bucket_object" "appengine_neg" {
@@ -369,10 +370,12 @@ resource "google_compute_region_network_endpoint_group" "region_network_endpoint
   subnetwork            = google_compute_subnetwork.default.id
 
   network_endpoint_type = "GCE_VM_IP_PORTMAP"
+  provider              = google-beta
 }
 
 resource "google_compute_network" "default" {
   name                    = "network"
+  provider              = google-beta
 }
 
 resource "google_compute_subnetwork" "default" {
@@ -380,6 +383,7 @@ resource "google_compute_subnetwork" "default" {
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.default.id
+  provider              = google-beta
 }
 ```
 

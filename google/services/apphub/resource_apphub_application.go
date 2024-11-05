@@ -18,6 +18,7 @@
 package apphub
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -32,6 +33,24 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
+
+func apphubApplicationCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	if diff.HasChange("location") || diff.HasChange("scope.0.type") {
+		location := diff.Get("location")
+		scope_type := diff.Get("scope.0.type")
+
+		if scope_type == "GLOBAL" {
+			if location != "global" {
+				return fmt.Errorf("Error validating location %s with %s scope type", location, scope_type)
+			}
+		} else {
+			if location == "global" {
+				return fmt.Errorf("Error validating location %s with %s scope type", location, scope_type)
+			}
+		}
+	}
+	return nil
+}
 
 func ResourceApphubApplication() *schema.Resource {
 	return &schema.Resource{
@@ -51,6 +70,7 @@ func ResourceApphubApplication() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			apphubApplicationCustomizeDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -77,10 +97,11 @@ func ResourceApphubApplication() *schema.Resource {
 						"type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"REGIONAL"}),
+							ValidateFunc: verify.ValidateEnum([]string{"REGIONAL", "GLOBAL"}),
 							Description: `Required. Scope Type. 
  Possible values:
-REGIONAL Possible values: ["REGIONAL"]`,
+REGIONAL
+GLOBAL Possible values: ["REGIONAL", "GLOBAL"]`,
 						},
 					},
 				},

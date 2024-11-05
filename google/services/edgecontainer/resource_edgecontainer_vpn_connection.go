@@ -130,7 +130,7 @@ This is empty if NAT is not used.`,
 			"details": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: `A nested object resource`,
+				Description: `A nested object resource.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cloud_router": {

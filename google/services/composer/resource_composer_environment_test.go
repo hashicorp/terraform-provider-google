@@ -324,7 +324,7 @@ func TestAccComposerEnvironment_withWebServerConfig(t *testing.T) {
 func TestAccComposerEnvironment_withEncryptionConfigComposer1(t *testing.T) {
 	t.Parallel()
 
-	kms := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
+	kms := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-composer1-key1")
 	pid := envvar.GetTestProjectFromEnv()
 	grantServiceAgentsRole(t, "service-", allComposerServiceAgents(), "roles/cloudkms.cryptoKeyEncrypterDecrypter")
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
@@ -361,7 +361,7 @@ func TestAccComposerEnvironment_withEncryptionConfigComposer2(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	kms := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
+	kms := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-composer2-key1")
 	pid := envvar.GetTestProjectFromEnv()
 	grantServiceAgentsRole(t, "service-", allComposerServiceAgents(), "roles/cloudkms.cryptoKeyEncrypterDecrypter")
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
@@ -851,6 +851,9 @@ func TestAccComposer1Environment_withNodeConfig(t *testing.T) {
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposer1Environment_nodeCfg(envName, network, subnetwork, serviceAccount),
@@ -2383,7 +2386,7 @@ resource "google_composer_environment" "test" {
       image_version = "composer-1-airflow-2"
     }
   }
-  depends_on = [google_project_iam_member.composer-worker]
+  depends_on = [time_sleep.wait_3_minutes]
 }
 
 resource "google_compute_network" "test" {
@@ -2396,6 +2399,11 @@ resource "google_compute_subnetwork" "test" {
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.test.self_link
+}
+
+resource "time_sleep" "wait_3_minutes" {
+	depends_on = [google_project_iam_member.composer-worker]
+	create_duration = "3m"
 }
 
 resource "google_service_account" "test" {

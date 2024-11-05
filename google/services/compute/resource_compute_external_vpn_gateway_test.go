@@ -67,3 +67,42 @@ resource "google_compute_external_vpn_gateway" "external_gateway" {
 }
 `, suffix, key, value)
 }
+
+func TestAccComputeExternalVPNGateway_insertIpv6Address(t *testing.T) {
+	t.Parallel()
+
+	rnd := acctest.RandString(t, 10)
+	resourceName := "google_compute_external_vpn_gateway.external_gateway"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: computeExternalVPNGatewayIpv6AddressConfig(rnd, "2001:db8:abcd:1234:5678:90ab:cdef:1234"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "interface.0.ipv6_address", "2001:db8:abcd:1234:5678:90ab:cdef:1234"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func computeExternalVPNGatewayIpv6AddressConfig(suffix, ipv6_address string) string {
+	return fmt.Sprintf(`
+resource "google_compute_external_vpn_gateway" "external_gateway" {
+  name            = "tf-test-external-gateway-%s"
+  redundancy_type = "SINGLE_IP_INTERNALLY_REDUNDANT"
+  description     = "An externally managed VPN gateway"
+  interface {
+    id           = 0
+    ipv6_address = "%s"
+  }
+}
+`, suffix, ipv6_address)
+}

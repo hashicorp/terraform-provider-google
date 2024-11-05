@@ -291,7 +291,7 @@ The following arguments are supported:
 
 * `max_scaled_down_replicas` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_max_scaled_down_replicas).
 
 * `time_window_sec` -
@@ -316,7 +316,7 @@ The following arguments are supported:
 
 * `max_scaled_in_replicas` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_max_scaled_in_replicas).
 
 * `time_window_sec` -

@@ -46,6 +46,7 @@ resource "google_looker_instance" "looker-instance" {
     client_id = "my-client-id"
     client_secret = "my-client-secret"
   }
+  deletion_policy = "DEFAULT"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -250,6 +251,26 @@ resource "google_looker_instance" "looker-instance" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=looker_instance_force_delete&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Looker Instance Force Delete
+
+
+```hcl
+resource "google_looker_instance" "looker-instance" {
+  name              = "my-instance"
+  platform_edition  = "LOOKER_CORE_STANDARD_ANNUAL"
+  region            = "us-central1"
+  oauth_config {
+    client_id = "my-client-id"
+    client_secret = "my-client-secret"
+  }
+  deletion_policy = "FORCE"
+}
+```
 
 ## Argument Reference
 
@@ -359,6 +380,11 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_policy` - (Optional) Policy to determine if the cluster should be deleted forcefully.
+If setting deletion_policy = "FORCE", the Looker instance will be deleted regardless
+of its nested resources. If set to "DEFAULT", Looker instances that still have
+nested resources will return an error. Possible values: DEFAULT, FORCE
 
 
 <a name="nested_admin_settings"></a>The `admin_settings` block supports:

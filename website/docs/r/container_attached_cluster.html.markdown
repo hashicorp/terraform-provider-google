@@ -118,9 +118,6 @@ resource "google_container_attached_cluster" "primary" {
       namespace = "default"
     }
   }
-  security_posture_config {
-    vulnerability_mode = "VULNERABILITY_ENTERPRISE"
-  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -268,9 +265,11 @@ The following arguments are supported:
   Structure is [documented below](#nested_proxy_config).
 
 * `security_posture_config` -
-  (Optional)
+  (Optional, Deprecated)
   Enable/Disable Security Posture API features for the cluster.
   Structure is [documented below](#nested_security_posture_config).
+
+  ~> **Warning:** `security_posture_config` is deprecated and will be removed in a future major release.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

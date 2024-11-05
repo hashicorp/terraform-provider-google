@@ -248,6 +248,39 @@ func TestAccComputeRegionBackendService_withBackendAndIAP(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionBackendService_updateIAPEnabled(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("foo-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_withIAPEnabled(
+					serviceName, 10),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionBackendService_withIAPDisabled(
+					serviceName, 10),
+			},
+			{
+				ResourceName:            "google_compute_region_backend_service.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
+			},
+		},
+	})
+}
+
 func TestAccComputeRegionBackendService_UDPFailOverPolicyUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -785,6 +818,44 @@ resource "google_compute_health_check" "zero" {
   }
 }
 `, serviceName, drainingTimeout, checkName)
+}
+
+func testAccComputeRegionBackendService_withIAPEnabled(
+	serviceName string, timeout int64) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_backend_service" "foobar" {
+  name        = "%s"
+  description = "Hello World 1234"
+  port_name   = "http"
+  protocol    = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  region      = "us-central1"
+  timeout_sec = %v
+
+  iap {
+    enabled = true
+  }
+}
+`, serviceName, timeout)
+}
+
+func testAccComputeRegionBackendService_withIAPDisabled(
+	serviceName string, timeout int64) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_backend_service" "foobar" {
+  name        = "%s"
+  description = "Hello World 1234"
+  port_name   = "http"
+  protocol    = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  region      = "us-central1"
+  timeout_sec = %v
+
+  iap {
+    enabled = false
+  }
+}
+`, serviceName, timeout)
 }
 
 func testAccComputeRegionBackendService_ilbBasicwithIAP(serviceName, checkName string) string {

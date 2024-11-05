@@ -42,7 +42,13 @@ func TestAccComputeImage_update(t *testing.T) {
 
 	var image compute.Image
 
-	name := "image-test-" + acctest.RandString(t, 10)
+	context := map[string]interface{}{
+		"name":            "image-test-" + acctest.RandString(t, 10),
+		"disk_image_path": "./test-fixtures/raw-disk-image.tar.gz",
+		"bucket_one":      "tf-test-compute-image-bucket-" + acctest.RandString(t, 10),
+		"bucket_two":      "tf-test-compute-image-bucket-" + acctest.RandString(t, 10),
+	}
+
 	// Only labels supports an update
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -50,7 +56,7 @@ func TestAccComputeImage_update(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeImageDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeImage_basic(name),
+				Config: testAccComputeImage_basic(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
 						t, "google_compute_image.foobar", &image),
@@ -58,7 +64,7 @@ func TestAccComputeImage_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccComputeImage_update(name),
+				Config: testAccComputeImage_update(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
 						t, "google_compute_image.foobar", &image),
@@ -356,20 +362,32 @@ resource "google_compute_image" "foobar" {
 `, name, name, family)
 }
 
-func testAccComputeImage_basic(name string) string {
-	return fmt.Sprintf(`
+func testAccComputeImage_basic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_storage_bucket" "bucket_one" {
+  name     = "%{bucket_one}"
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "object" {
+  name   = "raw-disk-image.tar.gz"
+  bucket = google_storage_bucket.bucket_one.name
+  source = "%{disk_image_path}"
+}
+
 resource "google_compute_image" "foobar" {
-  name        = "%s"
+  name        = "%{name}"
   description = "description-test"
   family      = "family-test"
   raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
+    source = "https://${google_storage_bucket.bucket_one.name}.storage.googleapis.com/${google_storage_bucket_object.object.name}"
   }
   labels = {
     my-label    = "my-label-value"
   }
 }
-`, name)
+`, context)
 }
 
 func testAccComputeImage_license(name string) string {
@@ -400,21 +418,33 @@ resource "google_compute_image" "foobar" {
 `, name, name)
 }
 
-func testAccComputeImage_update(name string) string {
-	return fmt.Sprintf(`
+func testAccComputeImage_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_storage_bucket" "bucket_two" {
+  name     = "%{bucket_two}"
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "object" {
+  name   = "raw-disk-image.tar.gz"
+  bucket = google_storage_bucket.bucket_two.name
+  source = "%{disk_image_path}"
+}
+
 resource "google_compute_image" "foobar" {
-  name        = "%s"
+  name        = "%{name}"
   description = "description-test"
   family      = "family-test"
   raw_disk {
-    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
+    source = "https://${google_storage_bucket.bucket_two.name}.storage.googleapis.com/${google_storage_bucket_object.object.name}"
   }
   labels = {
     empty-label = "oh-look-theres-a-label-now"
     new-field   = "only-shows-up-when-updated"
   }
 }
-`, name)
+`, context)
 }
 
 func testAccComputeImage_basedondisk(diskName, imageName string) string {

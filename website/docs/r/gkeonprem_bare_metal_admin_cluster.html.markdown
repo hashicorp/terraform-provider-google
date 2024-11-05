@@ -280,7 +280,7 @@ The following arguments are supported:
 
 * `island_mode_cidr` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_island_mode_cidr).
 
 
@@ -407,7 +407,7 @@ The following arguments are supported:
 
 * `manual_lb_config` -
   (Optional)
-  A nested object resource
+  A nested object resource.
   Structure is [documented below](#nested_manual_lb_config).
 
 

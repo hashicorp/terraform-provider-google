@@ -495,11 +495,12 @@ locals {
 }
 
 resource "google_bigquery_table" "source" {
-  deletion_protection = false
   count = local.count
 
   dataset_id = google_bigquery_dataset.source[count.index].dataset_id
   table_id   = "tf_test_job_copy%{random_suffix}_${count.index}_table"
+
+  deletion_protection = false
 
   schema = <<EOF
 [
@@ -560,7 +561,7 @@ EOF
     kms_key_name = google_kms_crypto_key.crypto_key.id
   }
 
-  depends_on = ["google_project_iam_member.encrypt_role"]
+  depends_on = ["google_kms_crypto_key_iam_member.encrypt_role"]
 }
 
 resource "google_bigquery_dataset" "dest" {
@@ -584,8 +585,8 @@ data "google_project" "project" {
   project_id = "%{project}"
 }
 
-resource "google_project_iam_member" "encrypt_role" {
-  project = data.google_project.project.project_id
+resource "google_kms_crypto_key_iam_member" "encrypt_role" {
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
   role = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member = "serviceAccount:bq-${data.google_project.project.number}@bigquery-encryption.iam.gserviceaccount.com"
 }
@@ -617,7 +618,7 @@ resource "google_bigquery_job" "job" {
     }
   }
 
-  depends_on = ["google_project_iam_member.encrypt_role"]
+  depends_on = ["google_kms_crypto_key_iam_member.encrypt_role"]
 }
 `, context)
 }
@@ -721,7 +722,7 @@ EOF
     kms_key_name = google_kms_crypto_key.crypto_key.id
   }
 
-  depends_on = ["google_project_iam_member.encrypt_role"]
+  depends_on = ["google_kms_crypto_key_iam_member.encrypt_role"]
 }
 
 resource "google_bigquery_dataset" "dest" {
@@ -745,8 +746,8 @@ data "google_project" "project" {
   project_id = "%{project}"
 }
 
-resource "google_project_iam_member" "encrypt_role" {
-  project = data.google_project.project.project_id
+resource "google_kms_crypto_key_iam_member" "encrypt_role" {
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
   role = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member = "serviceAccount:bq-${data.google_project.project.number}@bigquery-encryption.iam.gserviceaccount.com"
 }
@@ -772,7 +773,7 @@ resource "google_bigquery_job" "job" {
     }
   }
 
-  depends_on = ["google_project_iam_member.encrypt_role"]
+  depends_on = ["google_kms_crypto_key_iam_member.encrypt_role"]
 }
 `, context)
 }

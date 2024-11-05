@@ -361,6 +361,102 @@ func TestAccComputeSecurityPolicyRule_modifyExprOptions(t *testing.T) {
 	})
 }
 
+func TestAccComputeSecurityPolicyRule_withRedirectOptionsUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicyRule_withRedirectOptionsRecaptcha(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicyRule_withRedirectOptionsExternal(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeSecurityPolicyRule_withHeadAction(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"sp_name":      fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"header_name":  fmt.Sprintf("tf-test-header-name-%s", acctest.RandString(t, 10)),
+		"header_value": fmt.Sprintf("tf-test-header-value-%s", acctest.RandString(t, 10)),
+	}
+
+	contextUpdate := map[string]interface{}{
+		"sp_name":      context["sp_name"],
+		"header_name":  fmt.Sprintf("tf-test-header-name-update-%s", acctest.RandString(t, 10)),
+		"header_value": fmt.Sprintf("tf-test-header-value-update-%s", acctest.RandString(t, 10)),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicyRule_withoutHeadAction(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicyRule_withHeadAction(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicyRule_withHeadAction(contextUpdate),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicyRule_withMultipleHeaders(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicyRule_withoutHeadAction(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeSecurityPolicyRule_preBasicUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_security_policy" "default" {
@@ -1046,6 +1142,139 @@ resource "google_compute_security_policy_rule" "policy_rule" {
           "placeholder-recaptcha-session-site-key-1"
         ]
       }
+    }
+  }
+}
+`, context)
+}
+
+func testAccComputeSecurityPolicyRule_withRedirectOptionsRecaptcha(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "default" {
+  name        = "tf-test%{random_suffix}"
+  description = "basic global security policy"
+}
+
+resource "google_compute_security_policy_rule" "policy_rule" {
+  security_policy = google_compute_security_policy.default.name
+  action          = "redirect"
+  priority        = "100"
+  match {
+    versioned_expr = "SRC_IPS_V1"
+    config {
+      src_ip_ranges = ["*"]
+    }
+  }
+  redirect_options {
+    type = "GOOGLE_RECAPTCHA"
+  }
+}
+`, context)
+}
+
+func testAccComputeSecurityPolicyRule_withRedirectOptionsExternal(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "default" {
+  name        = "tf-test%{random_suffix}"
+  description = "basic global security policy"
+}
+
+resource "google_compute_security_policy_rule" "policy_rule" {
+  security_policy = google_compute_security_policy.default.name
+  action          = "redirect"
+  priority        = "100"
+  match {
+    versioned_expr = "SRC_IPS_V1"
+    config {
+      src_ip_ranges = ["*"]
+    }
+  }
+  redirect_options {
+    type = "EXTERNAL_302"
+    target = "https://example.com"
+  }
+}
+`, context)
+}
+
+func testAccComputeSecurityPolicyRule_withoutHeadAction(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "default" {
+  name        = "%{sp_name}"
+  description = "basic global security policy"
+}
+
+resource "google_compute_security_policy_rule" "policy_rule" {
+  security_policy = google_compute_security_policy.default.name
+  action   = "allow"
+  priority = "1000"
+  match {
+    expr {
+      expression = "request.path.matches(\"/login.html\") && token.recaptcha_session.score < 0.2"
+    }
+  }
+}
+`, context)
+}
+
+func testAccComputeSecurityPolicyRule_withHeadAction(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "default" {
+  name        = "%{sp_name}"
+  description = "basic global security policy"
+}
+
+resource "google_compute_security_policy_rule" "policy_rule" {
+  security_policy = google_compute_security_policy.default.name
+  action   = "allow"
+  priority = "1000"
+  match {
+    expr {
+      expression = "request.path.matches(\"/login.html\") && token.recaptcha_session.score < 0.2"
+    }
+  }
+
+  header_action {
+    request_headers_to_adds {
+      header_name  = "%{header_name}"
+      header_value = "%{header_value}"
+    }
+  }
+}
+`, context)
+}
+
+func testAccComputeSecurityPolicyRule_withMultipleHeaders(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "default" {
+  name        = "%{sp_name}"
+  description = "basic global security policy"
+}
+
+resource "google_compute_security_policy_rule" "policy_rule" {
+  security_policy = google_compute_security_policy.default.name
+  action   = "allow"
+  priority = "1000"
+  match {
+    expr {
+      expression = "request.path.matches(\"/login.html\") && token.recaptcha_session.score < 0.2"
+    }
+  }
+
+  header_action {
+    request_headers_to_adds {
+      header_name  = "reCAPTCHA-Warning"
+      header_value = "high"
+    }
+
+    request_headers_to_adds {
+      header_name  = "X-Hello"
+      header_value = "World"
+    }
+
+    request_headers_to_adds {
+      header_name  = "X-Resource"
+      header_value = "test"
     }
   }
 }
