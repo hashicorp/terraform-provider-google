@@ -89,13 +89,11 @@ Creating, updating, or deleting target servers. Possible values: ["DEPLOYMENT_TY
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Description of the environment.`,
 			},
 			"display_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Display name of the environment.`,
 			},
 			"forward_proxy_uri": {
@@ -340,6 +338,18 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	billingProject := ""
 
 	obj := make(map[string]interface{})
+	displayNameProp, err := expandApigeeEnvironmentDisplayName(d.Get("display_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+		obj["displayName"] = displayNameProp
+	}
+	descriptionProp, err := expandApigeeEnvironmentDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
 	nodeConfigProp, err := expandApigeeEnvironmentNodeConfig(d.Get("node_config"), d, config)
 	if err != nil {
 		return err
@@ -367,6 +377,14 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Updating Environment %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 	updateMask := []string{}
+
+	if d.HasChange("display_name") {
+		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("description") {
+		updateMask = append(updateMask, "description")
+	}
 
 	if d.HasChange("node_config") {
 		updateMask = append(updateMask, "nodeConfig")
