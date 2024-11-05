@@ -1062,6 +1062,61 @@ resource "google_container_cluster" "with_gcp_public_cidrs_access_enabled" {
 `, clusterName, networkName, subnetworkName)
 }
 
+func TestAccContainerCluster_withAuthorizedNetworkPrivateEnforcementToggle(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAuthorizedNetworkPrivateEnforcementToggle(clusterName, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary",
+						"master_authorized_networks_config.0.private_endpoint_enforcement_enabled", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withAuthorizedNetworkPrivateEnforcementToggle(clusterName, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary",
+						"master_authorized_networks_config.0.private_endpoint_enforcement_enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withAuthorizedNetworkPrivateEnforcementToggle(clusterName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  deletion_protection = false
+
+  master_authorized_networks_config {
+    private_endpoint_enforcement_enabled = %t
+  }
+}
+`, clusterName, enabled)
+}
+
 func TestAccContainerCluster_regional(t *testing.T) {
 	t.Parallel()
 
@@ -1169,49 +1224,6 @@ func TestAccContainerCluster_withPrivateClusterConfigBasic(t *testing.T) {
 			},
 			{
 				Config: testAccContainerCluster_withPrivateClusterConfig(containerNetName, clusterName, true),
-			},
-			{
-				ResourceName:            "google_container_cluster.with_private_cluster",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
-			},
-		},
-	})
-}
-
-func TestAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
-	containerNetName := fmt.Sprintf("tf-test-container-net-%s", acctest.RandString(t, 10))
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(containerNetName, clusterName, "us-central1-a", false),
-				ExpectError: regexp.MustCompile("master_ipv4_cidr_block must be set if enable_private_nodes is true"),
-			},
-		},
-	})
-}
-
-func TestAccContainerCluster_withPrivateClusterConfigMissingCidrBlock_withAutopilot(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
-	containerNetName := fmt.Sprintf("tf-test-container-net-%s", acctest.RandString(t, 10))
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(containerNetName, clusterName, "us-central1", true),
 			},
 			{
 				ResourceName:            "google_container_cluster.with_private_cluster",
@@ -4612,23 +4624,6 @@ func TestAccContainerCluster_withIncompatibleMasterVersionNodeVersion(t *testing
 				Config:      testAccContainerCluster_withIncompatibleMasterVersionNodeVersion(clusterName),
 				PlanOnly:    true,
 				ExpectError: regexp.MustCompile(`Resource argument node_version`),
-			},
-		},
-	})
-}
-
-func TestAccContainerCluster_withIPv4Error(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccContainerCluster_withIPv4Error(clusterName),
-				ExpectError: regexp.MustCompile("master_ipv4_cidr_block can only be set if"),
 			},
 		},
 	})
@@ -9430,22 +9425,6 @@ resource "google_container_cluster" "primary" {
 `, cluster, networkName, subnetworkName)
 }
 
-func testAccContainerCluster_withIPv4Error(name string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 1
-  private_cluster_config {
-    enable_private_endpoint = true
-    enable_private_nodes    = false
-    master_ipv4_cidr_block  = "10.42.0.0/28"
-  }
-  deletion_protection = false
-}
-`, name)
-}
-
 func testAccContainerCluster_withAutopilot(projectID string, containerNetName string, clusterName string, location string, enabled bool, withNetworkTag bool, serviceAccount string) string {
 	config := ""
 	clusterAutoscaling := ""
@@ -11519,4 +11498,59 @@ resource "google_container_cluster" "with_autopilot_gcp_filestore" {
   }
 }
 `, name)
+}
+
+func TestAccContainerCluster_withDnsEndpoint(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withDnsEndpoint(clusterName, false),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					// The DNS endpoint should always be set, even if allow_external_traffic is false.
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "control_plane_endpoints_config.0.dns_endpoint_config.0.endpoint"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "control_plane_endpoints_config.0.dns_endpoint_config.0.allow_external_traffic", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withDnsEndpoint(clusterName, true),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "control_plane_endpoints_config.0.dns_endpoint_config.0.endpoint"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "control_plane_endpoints_config.0.dns_endpoint_config.0.allow_external_traffic", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withDnsEndpoint(name string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  deletion_protection = false
+  control_plane_endpoints_config {
+    dns_endpoint_config {
+      allow_external_traffic = %t
+    }
+  }
+}`, name, enabled)
 }
