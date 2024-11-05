@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: added in-place update of `google_apigee_environment` resource
+```
