@@ -300,6 +300,9 @@ region are guaranteed to support the same version.
     [Google Groups for GKE](https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-access-control#groups-setup-gsuite) feature.
     Structure is [documented below](#nested_authenticator_groups_config).
 
+* `control_plane_endpoints_config` - (Optional) Configuration for all of the cluster's control plane endpoints.
+    Structure is [documented below](#nested_control_plane_endpoints_config).
+
 * `private_cluster_config` - (Optional) Configuration for [private clusters](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters),
 clusters with private nodes. Structure is [documented below](#nested_private_cluster_config).
 
@@ -817,6 +820,8 @@ The `master_authorized_networks_config.cidr_blocks` block supports:
 
 * `display_name` - (Optional) Field for users to identify CIDR blocks.
 
+* `private_endpoint_enforcement_enabled` - (Optional) Whether authorized networks is enforced on the private endpoint or not.
+
 <a name="nested_network_policy"></a>The `network_policy` block supports:
 
 * `provider` - (Optional) The selected network policy provider. Defaults to PROVIDER_UNSPECIFIED.
@@ -1165,6 +1170,16 @@ notification_config {
 <a name="nested_secret_manager_config"></a>The `secret_manager_config` block supports:
 
 * `enabled` (Required) - Enable the Secret Manager add-on for this cluster.
+
+<a name="nested_control_plane_endpoints_config"></a>The `control_plane_endpoints_config` block supports:
+
+* `dns_endpoint_config` - (Optional) DNS endpoint configuration.
+
+The `control_plane_endpoints_config.dns_endpoint_config` block supports:
+
+* `endpoint` - (Output) The cluster's DNS endpoint.
+
+* `allow_external_traffic` - (Optional) Controls whether user traffic is allowed over this endpoint. Note that GCP-managed services may still use the endpoint even if this is false.
 
 <a name="nested_private_cluster_config"></a>The `private_cluster_config` block supports:
 
