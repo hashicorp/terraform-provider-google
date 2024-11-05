@@ -1,0 +1,3 @@
+```release-note:bug
+looker: made `oauth_config` a required field in `google_looker_instance`, as creating this resource without that field always triggers an API error
+```
