@@ -281,6 +281,21 @@ The following arguments are supported:
   (Required)
   The ID of the instance or a fully qualified identifier for the instance.
 
+* `oauth_config` -
+  (Required)
+  Looker Instance OAuth login settings.
+  Structure is [documented below](#nested_oauth_config).
+
+
+<a name="nested_oauth_config"></a>The `oauth_config` block supports:
+
+* `client_id` -
+  (Required)
+  The client ID for the Oauth config.
+
+* `client_secret` -
+  (Required)
+  The client secret for the Oauth config.
 
 - - -
 
@@ -319,11 +334,6 @@ The following arguments are supported:
   your instance to be restarted during updates, which will temporarily
   disrupt service.
   Structure is [documented below](#nested_maintenance_window).
-
-* `oauth_config` -
-  (Optional)
-  Looker Instance OAuth login settings.
-  Structure is [documented below](#nested_oauth_config).
 
 * `platform_edition` -
   (Optional)
@@ -518,16 +528,6 @@ nested resources will return an error. Possible values: DEFAULT, FORCE
 * `nanos` -
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
-
-<a name="nested_oauth_config"></a>The `oauth_config` block supports:
-
-* `client_id` -
-  (Required)
-  The client ID for the Oauth config.
-
-* `client_secret` -
-  (Required)
-  The client secret for the Oauth config.
 
 <a name="nested_psc_config"></a>The `psc_config` block supports:
 

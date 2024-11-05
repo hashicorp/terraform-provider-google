@@ -63,6 +63,26 @@ func ResourceLookerInstance() *schema.Resource {
 				ValidateFunc: verify.ValidateRegexp(`^[a-z][a-z0-9-]{0,61}[a-z0-9]$`),
 				Description:  `The ID of the instance or a fully qualified identifier for the instance.`,
 			},
+			"oauth_config": {
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: `Looker Instance OAuth login settings.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"client_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The client ID for the Oauth config.`,
+						},
+						"client_secret": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The client secret for the Oauth config.`,
+						},
+					},
+				},
+			},
 			"admin_settings": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -311,26 +331,6 @@ disrupt service.`,
 									},
 								},
 							},
-						},
-					},
-				},
-			},
-			"oauth_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `Looker Instance OAuth login settings.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"client_id": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The client ID for the Oauth config.`,
-						},
-						"client_secret": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The client secret for the Oauth config.`,
 						},
 					},
 				},
