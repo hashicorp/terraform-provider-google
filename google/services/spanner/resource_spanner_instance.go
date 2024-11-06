@@ -283,6 +283,15 @@ This number is on a scale from 0 (no utilization) to 100 (full utilization).`,
 				},
 				ExactlyOneOf: []string{"num_nodes", "processing_units", "autoscaling_config"},
 			},
+			"default_backup_schedule_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"NONE", "AUTOMATIC", ""}),
+				Description: `Controls the default backup behavior for new databases within the instance.
+Note that 'AUTOMATIC' is not permitted for free instances, as backups and backup schedules are not allowed for free instances.
+if unset or NONE, no default backup schedule will be created for new databases within the instance. Possible values: ["NONE", "AUTOMATIC"]`,
+			},
 			"edition": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -402,6 +411,12 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("edition"); !tpgresource.IsEmptyValue(reflect.ValueOf(editionProp)) && (ok || !reflect.DeepEqual(v, editionProp)) {
 		obj["edition"] = editionProp
+	}
+	defaultBackupScheduleTypeProp, err := expandSpannerInstanceDefaultBackupScheduleType(d.Get("default_backup_schedule_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_backup_schedule_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultBackupScheduleTypeProp)) && (ok || !reflect.DeepEqual(v, defaultBackupScheduleTypeProp)) {
+		obj["defaultBackupScheduleType"] = defaultBackupScheduleTypeProp
 	}
 	labelsProp, err := expandSpannerInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -585,6 +600,9 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("edition", flattenSpannerInstanceEdition(res["edition"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("default_backup_schedule_type", flattenSpannerInstanceDefaultBackupScheduleType(res["defaultBackupScheduleType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenSpannerInstanceTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -640,6 +658,12 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("edition"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, editionProp)) {
 		obj["edition"] = editionProp
+	}
+	defaultBackupScheduleTypeProp, err := expandSpannerInstanceDefaultBackupScheduleType(d.Get("default_backup_schedule_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_backup_schedule_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultBackupScheduleTypeProp)) {
+		obj["defaultBackupScheduleType"] = defaultBackupScheduleTypeProp
 	}
 	labelsProp, err := expandSpannerInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -1125,6 +1149,10 @@ func flattenSpannerInstanceEdition(v interface{}, d *schema.ResourceData, config
 	return v
 }
 
+func flattenSpannerInstanceDefaultBackupScheduleType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenSpannerInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1406,6 +1434,10 @@ func expandSpannerInstanceEdition(v interface{}, d tpgresource.TerraformResource
 	return v, nil
 }
 
+func expandSpannerInstanceDefaultBackupScheduleType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandSpannerInstanceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -1447,6 +1479,9 @@ func resourceSpannerInstanceUpdateEncoder(d *schema.ResourceData, meta interface
 	updateMask := make([]string, 0)
 	if d.HasChange("edition") {
 		updateMask = append(updateMask, "edition")
+	}
+	if d.HasChange("default_backup_schedule_type") {
+		updateMask = append(updateMask, "defaultBackupScheduleType")
 	}
 	if d.HasChange("num_nodes") {
 		updateMask = append(updateMask, "nodeCount")
