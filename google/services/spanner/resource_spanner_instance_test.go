@@ -321,6 +321,7 @@ resource "google_spanner_instance" "basic" {
   config       = "regional-us-central1"
   display_name = "%s-dname"
   num_nodes    = 1
+  default_backup_schedule_type = "NONE"
 }
 `, name, name)
 }
@@ -412,6 +413,7 @@ resource "google_spanner_instance" "basic" {
       storage_utilization_percent           = %v
     }
   }
+  default_backup_schedule_type = "AUTOMATIC"
 }
 `, name, name, maxProcessingUnits, minProcessingUnits, cupUtilizationPercent, storageUtilizationPercent)
 }

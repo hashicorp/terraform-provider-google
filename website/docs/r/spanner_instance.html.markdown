@@ -43,6 +43,7 @@ resource "google_spanner_instance" "example" {
   config       = "regional-us-central1"
   display_name = "Test Spanner Instance"
   num_nodes    = 2
+  default_backup_schedule_type = "AUTOMATIC"
   labels = {
     "foo" = "bar"
   }
@@ -170,6 +171,13 @@ The following arguments are supported:
   OUTPUT_ONLY fields and reflect the current compute capacity allocated to
   the instance.
   Structure is [documented below](#nested_autoscaling_config).
+
+* `default_backup_schedule_type` -
+  (Optional)
+  Controls the default backup behavior for new databases within the instance.
+  Note that `AUTOMATIC` is not permitted for free instances, as backups and backup schedules are not allowed for free instances.
+  if unset or NONE, no default backup schedule will be created for new databases within the instance.
+  Possible values are: `NONE`, `AUTOMATIC`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
