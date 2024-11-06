@@ -156,6 +156,153 @@ resource "google_compute_network" "producer_net" {
   auto_create_subnetworks = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=redis_cluster_rdb&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Cluster Rdb
+
+
+```hcl
+resource "google_redis_cluster" "cluster-rdb" {
+  name           = "rdb-cluster"
+  shard_count    = 3
+  psc_configs {
+    network = google_compute_network.producer_net.id
+  }
+  region = "us-central1"
+  replica_count = 0
+  node_type = "REDIS_SHARED_CORE_NANO"
+  transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
+  authorization_mode = "AUTH_MODE_DISABLED"
+  redis_configs = {
+    maxmemory-policy	= "volatile-ttl"
+  }
+  deletion_protection_enabled = true
+
+  zone_distribution_config {
+    mode = "MULTI_ZONE"
+  }
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
+  persistence_config { 
+    mode = "RDB"
+    rdb_config {
+      rdb_snapshot_period = "ONE_HOUR"
+      rdb_snapshot_start_time = "2024-10-02T15:01:23Z"
+    }
+  }
+  depends_on = [
+    google_network_connectivity_service_connection_policy.default
+  ]
+}
+
+resource "google_network_connectivity_service_connection_policy" "default" {
+  name = "mypolicy"
+  location = "us-central1"
+  service_class = "gcp-memorystore-redis"
+  description   = "my basic service connection policy"
+  network = google_compute_network.producer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "producer_subnet" {
+  name          = "mysubnet"
+  ip_cidr_range = "10.0.0.248/29"
+  region        = "us-central1"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_network" "producer_net" {
+  name                    = "mynetwork"
+  auto_create_subnetworks = false
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=redis_cluster_aof&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Cluster Aof
+
+
+```hcl
+resource "google_redis_cluster" "cluster-aof" {
+  name           = "aof-cluster"
+  shard_count    = 3
+  psc_configs {
+    network = google_compute_network.producer_net.id
+  }
+  region = "us-central1"
+  replica_count = 0
+  node_type = "REDIS_SHARED_CORE_NANO"
+  transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
+  authorization_mode = "AUTH_MODE_DISABLED"
+  redis_configs = {
+    maxmemory-policy	= "volatile-ttl"
+  }
+  deletion_protection_enabled = true
+
+  zone_distribution_config {
+    mode = "MULTI_ZONE"
+  }
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
+  persistence_config { 
+    mode = "AOF"
+    aof_config {
+      append_fsync = "EVERYSEC"
+    }
+  }
+  depends_on = [
+    google_network_connectivity_service_connection_policy.default
+  ]
+}
+
+resource "google_network_connectivity_service_connection_policy" "default" {
+  name = "mypolicy"
+  location = "us-central1"
+  service_class = "gcp-memorystore-redis"
+  description   = "my basic service connection policy"
+  network = google_compute_network.producer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "producer_subnet" {
+  name          = "mysubnet"
+  ip_cidr_range = "10.0.0.248/29"
+  region        = "us-central1"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_network" "producer_net" {
+  name                    = "mynetwork"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 
@@ -230,6 +377,11 @@ The following arguments are supported:
   Please check Memorystore documentation for the list of supported parameters:
   https://cloud.google.com/memorystore/docs/cluster/supported-instance-configurations
 
+* `persistence_config` -
+  (Optional)
+  Persistence config (RDB, AOF) for the cluster.
+  Structure is [documented below](#nested_persistence_config).
+
 * `maintenance_policy` -
   (Optional)
   Maintenance policy for a cluster
@@ -254,6 +406,54 @@ The following arguments are supported:
 * `zone` -
   (Optional)
   Immutable. The zone for single zone Memorystore Redis cluster.
+
+<a name="nested_persistence_config"></a>The `persistence_config` block supports:
+
+* `mode` -
+  (Optional)
+  Optional. Controls whether Persistence features are enabled. If not provided, the existing value will be used.
+  - DISABLED: 	Persistence (both backup and restore) is disabled for the cluster.
+  - RDB: RDB based Persistence is enabled.
+  - AOF: AOF based Persistence is enabled.
+  Possible values are: `PERSISTENCE_MODE_UNSPECIFIED`, `DISABLED`, `RDB`, `AOF`.
+
+* `rdb_config` -
+  (Optional)
+  RDB configuration. This field will be ignored if mode is not RDB.
+  Structure is [documented below](#nested_rdb_config).
+
+* `aof_config` -
+  (Optional)
+  AOF configuration. This field will be ignored if mode is not AOF.
+  Structure is [documented below](#nested_aof_config).
+
+
+<a name="nested_rdb_config"></a>The `rdb_config` block supports:
+
+* `rdb_snapshot_period` -
+  (Optional)
+  Optional. Available snapshot periods for scheduling.
+  - ONE_HOUR:	Snapshot every 1 hour.
+  - SIX_HOURS:	Snapshot every 6 hours.
+  - TWELVE_HOURS:	Snapshot every 12 hours.
+  - TWENTY_FOUR_HOURS:	Snapshot every 24 hours.
+  Possible values are: `SNAPSHOT_PERIOD_UNSPECIFIED`, `ONE_HOUR`, `SIX_HOURS`, `TWELVE_HOURS`, `TWENTY_FOUR_HOURS`.
+
+* `rdb_snapshot_start_time` -
+  (Optional)
+  The time that the first snapshot was/will be attempted, and to which
+  future snapshots will be aligned.
+  If not provided, the current time will be used.
+
+<a name="nested_aof_config"></a>The `aof_config` block supports:
+
+* `append_fsync` -
+  (Optional)
+  Optional. Available fsync modes.
+  - NO - Do not explicilty call fsync(). Rely on OS defaults.
+  - EVERYSEC - Call fsync() once per second in a background thread. A balance between performance and durability.
+  - ALWAYS - Call fsync() for earch write command.
+  Possible values are: `APPEND_FSYNC_UNSPECIFIED`, `NO`, `EVERYSEC`, `ALWAYS`.
 
 <a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
 
