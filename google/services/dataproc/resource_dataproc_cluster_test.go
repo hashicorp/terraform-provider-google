@@ -1657,6 +1657,12 @@ resource "google_dataproc_cluster" "basic" {
   region = "us-central1"
 
   cluster_config {
+    master_config {
+      machine_type = "n1-standard-2"
+    }
+    worker_config {
+      machine_type = "n1-standard-2"
+    }
     software_config {
       image_version = "2.0.35-debian10"
     }
