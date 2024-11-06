@@ -234,7 +234,9 @@ includes an up-to-date reference of supported versions.
     is not provided, the provider project is used.
 
 * `replica_configuration` - (Optional) The configuration for replication. The
-    configuration is detailed below. Valid only for MySQL instances.
+    configuration is detailed below. 
+
+* `replica_names` - (Optional, Computed) List of replica names. Can be updated.
 
 * `root_password` - (Optional) Initial root password. Can be updated. Required for MS SQL Server.
 
@@ -451,10 +453,14 @@ The optional `settings.password_validation_policy` subblock for instances declar
 The optional `replica_configuration` block must have `master_instance_name` set
 to work, cannot be updated and supports:
 
--> **Note:** `replica_configuration` field is not meant to be used if the master
+~> **Note:** `replica_configuration` field is not meant to be used if the master
 instance is a source representation instance. The configuration provided by this
 field can be set on the source representation instance directly. If this field
 is present when the master instance is a source representation instance, `dump_file_path` must be provided.
+
+* `cascadable_replica` - (Optional) Specifies if the replica is a cascadable replica. If true, instance must be in different region from primary.
+
+  ~> **NOTE:** Only supported for SQL Server database.
 
 * `ca_certificate` - (Optional) PEM representation of the trusted CA's x509
     certificate.
@@ -577,6 +583,38 @@ performing filtering in a Terraform config.
 * `server_ca_cert.0.expiration_time` - Expiration time of the CA Cert.
 
 * `server_ca_cert.0.sha1_fingerprint` - SHA Fingerprint of the CA Cert.
+
+## Switchover (SQL Server Only)
+Users can perform a switchover on any direct `cascadable` replica by following the steps below.
+
+  ~>**WARNING:** Failure to follow these steps can lead to data loss (You will be warned during plan stage). To prevent data loss during a switchover, please verify your plan with the checklist below.
+
+For a more in-depth walkthrough with example code, see the [Switchover Guide](../guides/sql_instance_switchover.html.markdown)
+
+### Steps to Invoke Switchover
+
+Create a `cascadable` replica in a different region from the primary (`cascadable_replica` is set to true in `replica_configuration`)
+
+#### Invoking switchover in the replica resource:
+1. Change instance_type from `READ_REPLICA_INSTANCE` to `CLOUD_SQL_INSTANCE`
+2. Remove `master_instance_name`
+3. Remove `replica_configuration`
+4. Add current primary's name to the replica's `replica_names` list
+
+#### Updating the primary resource:
+1. Change `instance_type` from `CLOUD_SQL_INSTANCE` to `READ_REPLICA_INSTANCE`
+2. Set `master_instance_name` to the original replica (which will be primary after switchover)
+3. Set `replica_configuration` and set `cascadable_replica` to `true`
+4. Remove original replica from `replica_names`
+
+    ~> **NOTE**: Do **not** delete the replica_names field, even if it has no replicas remaining. Set replica_names = [ ] to indicate it having no replicas.
+
+#### Plan and verify that:
+- `terraform plan` outputs **"0 to add, 0 to destroy"**
+- `terraform plan` does not say **"must be replaced"** for any resource
+- Every resource **"will be updated in-place"**
+- Only the 2 instances involved in switchover have planned changes
+- (Recommended) Use `deletion_protection` on instances as a safety measure
 
 ## Timeouts
 
