@@ -75,6 +75,14 @@ func AccessContextManagerServicePerimeterEgressPolicyIngressToResourcesDiffSupre
 	return slices.Equal(oldResources, newResources)
 }
 
+func AccessContextManagerServicePerimeterEgressPolicyIdentityTypeDiffSupressFunc(_, old, new string, _ *schema.ResourceData) bool {
+	if old == "" && new == "IDENTITY_TYPE_UNSPECIFIED" {
+		return true
+	}
+
+	return old == new
+}
+
 func ResourceAccessContextManagerServicePerimeterEgressPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAccessContextManagerServicePerimeterEgressPolicyCreate,
@@ -114,10 +122,11 @@ represent individual user or service account only.`,
 							},
 						},
 						"identity_type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ForceNew:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT", ""}),
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							ValidateFunc:     verify.ValidateEnum([]string{"ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT", ""}),
+							DiffSuppressFunc: AccessContextManagerServicePerimeterIdentityTypeDiffSupressFunc,
 							Description: `Specifies the type of identities that are allowed access to outside the
 perimeter. If left unspecified, then members of 'identities' field will
 be allowed access. Possible values: ["ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT"]`,
