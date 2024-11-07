@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
 	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -27,9 +28,10 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces
 var (
-	_ provider.Provider               = &FrameworkProvider{}
-	_ provider.ProviderWithMetaSchema = &FrameworkProvider{}
-	_ provider.ProviderWithFunctions  = &FrameworkProvider{}
+	_ provider.Provider                       = &FrameworkProvider{}
+	_ provider.ProviderWithMetaSchema         = &FrameworkProvider{}
+	_ provider.ProviderWithFunctions          = &FrameworkProvider{}
+	_ provider.ProviderWithEphemeralResources = &FrameworkProvider{}
 )
 
 // New is a helper function to simplify provider server and testing implementation.
@@ -1002,6 +1004,7 @@ func (p *FrameworkProvider) Configure(ctx context.Context, req provider.Configur
 	// implemented using the plugin-framework. The resources' Configure functions receive this data in the ConfigureRequest argument.
 	resp.DataSourceData = &p.FrameworkProviderConfig
 	resp.ResourceData = &p.FrameworkProviderConfig
+	resp.EphemeralResourceData = &p.FrameworkProviderConfig
 }
 
 // DataSources defines the data sources implemented in the provider.
@@ -1026,5 +1029,12 @@ func (p *FrameworkProvider) Functions(_ context.Context) []func() function.Funct
 		functions.NewRegionFromIdFunction,
 		functions.NewRegionFromZoneFunction,
 		functions.NewZoneFromIdFunction,
+	}
+}
+
+// EphemeralResources defines the resources that are of ephemeral type implemented in the provider.
+func (p *FrameworkProvider) EphemeralResources(_ context.Context) []func() ephemeral.EphemeralResource {
+	return []func() ephemeral.EphemeralResource{
+		resourcemanager.GoogleEphemeralServiceAccountKey,
 	}
 }

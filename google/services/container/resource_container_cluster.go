@@ -54,12 +54,6 @@ var (
 				Computed:    true,
 				Description: `Whether Kubernetes master is accessible via Google Compute Engine Public IPs.`,
 			},
-			"private_endpoint_enforcement_enabled": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Computed:    true,
-				Description: `Whether authorized networks is enforced on the private endpoint or not. Defaults to false.`,
-			},
 		},
 	}
 	cidrBlockConfig = &schema.Resource{
@@ -1565,40 +1559,6 @@ func ResourceContainerCluster() *schema.Resource {
 				ConflictsWith: []string{"enable_autopilot"},
 			},
 
-			"control_plane_endpoints_config": {
-				Type:        schema.TypeList,
-				MaxItems:    1,
-				Computed:    true,
-				Optional:    true,
-				Description: `Configuration for all of the cluster's control plane endpoints. Currently supports only DNS endpoint configuration, IP endpoint configuration is available in private_cluster_config.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"dns_endpoint_config": {
-							Type:        schema.TypeList,
-							MaxItems:    1,
-							Optional:    true,
-							Computed:    true,
-							Description: `DNS endpoint configuration.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"endpoint": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
-										Description: `The cluster's DNS endpoint.`,
-									},
-									"allow_external_traffic": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: `Controls whether user traffic is allowed over this endpoint. Note that GCP-managed services may still use the endpoint even if this is false.`,
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-
 			"private_cluster_config": {
 				Type:             schema.TypeList,
 				MaxItems:         1,
@@ -2232,13 +2192,13 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	cluster := &container.Cluster{
-		Name:                        clusterName,
-		InitialNodeCount:            int64(d.Get("initial_node_count").(int)),
-		MaintenancePolicy:           expandMaintenancePolicy(d, meta),
-		ControlPlaneEndpointsConfig: expandControlPlaneEndpointsConfig(d),
-		InitialClusterVersion:       d.Get("min_master_version").(string),
-		ClusterIpv4Cidr:             d.Get("cluster_ipv4_cidr").(string),
-		Description:                 d.Get("description").(string),
+		Name:                           clusterName,
+		InitialNodeCount:               int64(d.Get("initial_node_count").(int)),
+		MaintenancePolicy:              expandMaintenancePolicy(d, meta),
+		MasterAuthorizedNetworksConfig: expandMasterAuthorizedNetworksConfig(d.Get("master_authorized_networks_config"), d),
+		InitialClusterVersion:          d.Get("min_master_version").(string),
+		ClusterIpv4Cidr:                d.Get("cluster_ipv4_cidr").(string),
+		Description:                    d.Get("description").(string),
 		LegacyAbac: &container.LegacyAbac{
 			Enabled:         d.Get("enable_legacy_abac").(bool),
 			ForceSendFields: []string{"Enabled"},
@@ -2269,7 +2229,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			DnsConfig:                            expandDnsConfig(d.Get("dns_config")),
 			GatewayApiConfig:                     expandGatewayApiConfig(d.Get("gateway_api_config")),
 			EnableMultiNetworking:                d.Get("enable_multi_networking").(bool),
-			DefaultEnablePrivateNodes:            expandDefaultEnablePrivateNodes(d),
 		},
 		MasterAuth:           expandMasterAuth(d.Get("master_auth")),
 		NotificationConfig:   expandNotificationConfig(d.Get("notification_config")),
@@ -2362,8 +2321,8 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.AuthenticatorGroupsConfig = expandAuthenticatorGroupsConfig(v)
 	}
 
-	if v, ok := d.GetOk("private_cluster_config.0.master_ipv4_cidr_block"); ok {
-		cluster.PrivateClusterConfig = expandPrivateClusterConfigMasterIpv4CidrBlock(v, cluster)
+	if v, ok := d.GetOk("private_cluster_config"); ok {
+		cluster.PrivateClusterConfig = expandPrivateClusterConfig(v)
 	}
 
 	if v, ok := d.GetOk("vertical_pod_autoscaling"); ok {
@@ -2411,6 +2370,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if err := validateNodePoolAutoConfig(cluster); err != nil {
+		return err
+	}
+
+	if err := validatePrivateClusterConfig(cluster); err != nil {
 		return err
 	}
 
@@ -2698,11 +2661,8 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("master_auth", flattenMasterAuth(cluster.MasterAuth)); err != nil {
 		return err
 	}
-	if cluster.ControlPlaneEndpointsConfig != nil &&
-		cluster.ControlPlaneEndpointsConfig.IpEndpointsConfig != nil {
-		if err := d.Set("master_authorized_networks_config", flattenMasterAuthorizedNetworksConfig(cluster.ControlPlaneEndpointsConfig.IpEndpointsConfig.AuthorizedNetworksConfig)); err != nil {
-			return err
-		}
+	if err := d.Set("master_authorized_networks_config", flattenMasterAuthorizedNetworksConfig(cluster.MasterAuthorizedNetworksConfig)); err != nil {
+		return err
 	}
 	if err := d.Set("initial_node_count", cluster.InitialNodeCount); err != nil {
 		return fmt.Errorf("Error setting initial_node_count: %s", err)
@@ -2833,11 +2793,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	if err := d.Set("control_plane_endpoints_config", flattenControlPlaneEndpointsConfig(cluster.ControlPlaneEndpointsConfig)); err != nil {
-		return err
-	}
-
-	if err := d.Set("private_cluster_config", flattenPrivateClusterConfig(cluster.ControlPlaneEndpointsConfig, cluster.PrivateClusterConfig, cluster.NetworkConfig)); err != nil {
+	if err := d.Set("private_cluster_config", flattenPrivateClusterConfig(cluster.PrivateClusterConfig)); err != nil {
 		return err
 	}
 
@@ -2969,39 +2925,19 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	// The ClusterUpdate object that we use for most of these updates only allows updating one field at a time,
 	// so we have to make separate calls for each field that we want to update. The order here is fairly arbitrary-
 	// if the order of updating fields does matter, it is called out explicitly.
-	if d.HasChange("control_plane_endpoints_config") ||
-		d.HasChange("master_authorized_networks_config") ||
-		d.HasChange("private_cluster_config.0.enable_private_endpoint") ||
-		d.HasChange("private_cluster_config.0.master_global_access_config") {
+	if d.HasChange("master_authorized_networks_config") {
+		c := d.Get("master_authorized_networks_config")
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
-				DesiredControlPlaneEndpointsConfig: expandControlPlaneEndpointsConfig(d),
+				DesiredMasterAuthorizedNetworksConfig: expandMasterAuthorizedNetworksConfig(c, d),
 			},
 		}
 
-		updateF := updateFunc(req, "updating GKE control plane endpoints config")
+		updateF := updateFunc(req, "updating GKE cluster master authorized networks")
 		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
 			return err
 		}
-		log.Printf("[INFO] GKE cluster %s control plane endpoints config has been updated", d.Id())
-	}
-
-	if d.HasChange("network_config") || d.HasChange("private_cluster_config.0.enable_private_nodes") {
-		enabled := expandDefaultEnablePrivateNodes(d)
-		req := &container.UpdateClusterRequest{
-			Update: &container.ClusterUpdate{
-				DesiredDefaultEnablePrivateNodes: enabled,
-				ForceSendFields:                  []string{"DesiredDefaultEnablePrivateNodes"},
-			},
-		}
-
-		updateF := updateFunc(req, "updating default enable private nodes")
-		// Call update serially.
-		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
-			return err
-		}
-
-		log.Printf("[INFO] GKE cluster %s's default enable private nodes has been updated to %v", d.Id(), enabled)
+		log.Printf("[INFO] GKE cluster %s master authorized networks config has been updated", d.Id())
 	}
 
 	if d.HasChange("addons_config") {
@@ -3070,6 +3006,44 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s's autopilot workload policy config allow_net_admin has been set to %v", d.Id(), allowed)
+	}
+
+	if d.HasChange("private_cluster_config.0.enable_private_endpoint") {
+		enabled := d.Get("private_cluster_config.0.enable_private_endpoint").(bool)
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredEnablePrivateEndpoint: enabled,
+				ForceSendFields:              []string{"DesiredEnablePrivateEndpoint"},
+			},
+		}
+
+		updateF := updateFunc(req, "updating enable private endpoint")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's enable private endpoint has been updated to %v", d.Id(), enabled)
+	}
+
+	if d.HasChange("private_cluster_config") && d.HasChange("private_cluster_config.0.master_global_access_config") {
+		config := d.Get("private_cluster_config.0.master_global_access_config")
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredPrivateClusterConfig: &container.PrivateClusterConfig{
+					MasterGlobalAccessConfig: expandPrivateClusterConfigMasterGlobalAccessConfig(config),
+					ForceSendFields:          []string{"MasterGlobalAccessConfig"},
+				},
+			},
+		}
+
+		updateF := updateFunc(req, "updating master global access config")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's master global access config has been updated to %v", d.Id(), config)
 	}
 
 	if d.HasChange("binary_authorization") {
@@ -4889,48 +4863,32 @@ func expandMasterAuth(configured interface{}) *container.MasterAuth {
 	return result
 }
 
-func expandMasterAuthorizedNetworksConfig(d *schema.ResourceData) *container.MasterAuthorizedNetworksConfig {
-	v := d.Get("master_authorized_networks_config").([]interface{})
-	if len(v) == 0 {
-		// TF doesn't have an explicit enabled field for authorized networks, it is assumed to be enabled based
-		// on whether the master_authorized_networks_conifg is present at all. The GKE API pays attention to the
-		// field presence of authorized_networks_config, so it's important to explicitly include enabled = false
-		// to allow disabling this during updates.
+func expandMasterAuthorizedNetworksConfig(configured interface{}, d *schema.ResourceData) *container.MasterAuthorizedNetworksConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 {
 		return &container.MasterAuthorizedNetworksConfig{
 			Enabled: false,
 		}
 	}
-
 	result := &container.MasterAuthorizedNetworksConfig{
 		Enabled: true,
 	}
-	if v, ok := d.GetOk("master_authorized_networks_config.0.cidr_blocks"); ok {
-		result.CidrBlocks = expandManCidrBlocks(v)
-	}
-	if v, ok := d.GetOkExists("master_authorized_networks_config.0.gcp_public_cidrs_access_enabled"); ok {
-		result.GcpPublicCidrsAccessEnabled = v.(bool)
-		result.ForceSendFields = append(result.ForceSendFields, "GcpPublicCidrsAccessEnabled")
-	}
-	if v, ok := d.GetOkExists("master_authorized_networks_config.0.private_endpoint_enforcement_enabled"); ok {
-		result.PrivateEndpointEnforcementEnabled = v.(bool)
-		result.ForceSendFields = append(result.ForceSendFields, "PrivateEndpointEnforcementEnabled")
-	}
-	return result
-}
-
-func expandManCidrBlocks(configured interface{}) []*container.CidrBlock {
-	config, ok := configured.(*schema.Set)
-	if !ok {
-		return nil
-	}
-	cidrBlocks := config.List()
-	result := make([]*container.CidrBlock, 0)
-	for _, v := range cidrBlocks {
-		cidrBlock := v.(map[string]interface{})
-		result = append(result, &container.CidrBlock{
-			CidrBlock:   cidrBlock["cidr_block"].(string),
-			DisplayName: cidrBlock["display_name"].(string),
-		})
+	if config, ok := l[0].(map[string]interface{}); ok {
+		if _, ok := config["cidr_blocks"]; ok {
+			cidrBlocks := config["cidr_blocks"].(*schema.Set).List()
+			result.CidrBlocks = make([]*container.CidrBlock, 0)
+			for _, v := range cidrBlocks {
+				cidrBlock := v.(map[string]interface{})
+				result.CidrBlocks = append(result.CidrBlocks, &container.CidrBlock{
+					CidrBlock:   cidrBlock["cidr_block"].(string),
+					DisplayName: cidrBlock["display_name"].(string),
+				})
+			}
+		}
+		if v, ok := d.GetOkExists("master_authorized_networks_config.0.gcp_public_cidrs_access_enabled"); ok {
+			result.GcpPublicCidrsAccessEnabled = v.(bool)
+			result.ForceSendFields = []string{"GcpPublicCidrsAccessEnabled"}
+		}
 	}
 	return result
 }
@@ -4974,60 +4932,31 @@ func isEnablePDCSI(cluster *container.Cluster) bool {
 	return cluster.AddonsConfig.GcePersistentDiskCsiDriverConfig.Enabled
 }
 
-// Most of the contents of PrivateClusterConfig have been deprecated in the underlying API and replaced by ControlPlaneEndpointsConfig.
-// This function primarily handles the sole remaining undeprecated field, master_ipv4_cidr_block.
-// Unfortunately, since the private_cluster_config.enable_private_nodes proto field is not marked optional, we can't just leave it
-// unset, as that would implicitly use the value false, and it must match the value of network_config.default_enable_private_nodes.
-// This function is intended to be called only during cluster creation, after the network_config field is been configured.
-// This is possible because master_ipv4_cidr_block is immutable.
-func expandPrivateClusterConfigMasterIpv4CidrBlock(configured interface{}, c *container.Cluster) *container.PrivateClusterConfig {
-	v := configured.(string)
-
+func expandPrivateClusterConfig(configured interface{}) *container.PrivateClusterConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
 	return &container.PrivateClusterConfig{
-		MasterIpv4CidrBlock: v,
-		EnablePrivateNodes:  c.NetworkConfig.DefaultEnablePrivateNodes,
-		ForceSendFields:     []string{"MasterIpv4CidrBlock"},
+		EnablePrivateEndpoint:     config["enable_private_endpoint"].(bool),
+		EnablePrivateNodes:        config["enable_private_nodes"].(bool),
+		MasterIpv4CidrBlock:       config["master_ipv4_cidr_block"].(string),
+		MasterGlobalAccessConfig:  expandPrivateClusterConfigMasterGlobalAccessConfig(config["master_global_access_config"]),
+		PrivateEndpointSubnetwork: config["private_endpoint_subnetwork"].(string),
+		ForceSendFields:           []string{"EnablePrivateEndpoint", "EnablePrivateNodes", "MasterIpv4CidrBlock", "MasterGlobalAccessConfig"},
 	}
 }
 
-func expandDefaultEnablePrivateNodes(d *schema.ResourceData) bool {
-	b, ok := d.GetOk("private_cluster_config.0.enable_private_nodes")
-	if ok {
-		v, _ := b.(bool)
-		return v
+func expandPrivateClusterConfigMasterGlobalAccessConfig(configured interface{}) *container.PrivateClusterMasterGlobalAccessConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
 	}
-	return false
-}
-
-func expandControlPlaneEndpointsConfig(d *schema.ResourceData) *container.ControlPlaneEndpointsConfig {
-	dns := &container.DNSEndpointConfig{}
-	if v := d.Get("control_plane_endpoints_config.0.dns_endpoint_config.0.allow_external_traffic"); v != nil {
-		dns.AllowExternalTraffic = v.(bool)
-		dns.ForceSendFields = []string{"AllowExternalTraffic"}
-	}
-
-	ip := &container.IPEndpointsConfig{
-		// There isn't yet a config field to disable IP endpoints, so this is hardcoded to be enabled for the time being.
-		Enabled:         true,
+	config := l[0].(map[string]interface{})
+	return &container.PrivateClusterMasterGlobalAccessConfig{
+		Enabled:         config["enabled"].(bool),
 		ForceSendFields: []string{"Enabled"},
-	}
-	if v := d.Get("private_cluster_config.0.enable_private_endpoint"); v != nil {
-		ip.EnablePublicEndpoint = !v.(bool)
-		ip.ForceSendFields = append(ip.ForceSendFields, "EnablePublicEndpoint")
-	}
-	if v := d.Get("private_cluster_config.0.private_endpoint_subnetwork"); v != nil {
-		ip.PrivateEndpointSubnetwork = v.(string)
-		ip.ForceSendFields = append(ip.ForceSendFields, "PrivateEndpointSubnetwork")
-	}
-	if v := d.Get("private_cluster_config.0.master_global_access_config.0.enabled"); v != nil {
-		ip.GlobalAccess = v.(bool)
-		ip.ForceSendFields = append(ip.ForceSendFields, "GlobalAccess")
-	}
-	ip.AuthorizedNetworksConfig = expandMasterAuthorizedNetworksConfig(d)
-
-	return &container.ControlPlaneEndpointsConfig{
-		DnsEndpointConfig: dns,
-		IpEndpointsConfig: ip,
 	}
 }
 
@@ -5626,58 +5555,33 @@ func flattenAuthenticatorGroupsConfig(c *container.AuthenticatorGroupsConfig) []
 	}
 }
 
-func flattenControlPlaneEndpointsConfig(c *container.ControlPlaneEndpointsConfig) []map[string]interface{} {
+func flattenPrivateClusterConfig(c *container.PrivateClusterConfig) []map[string]interface{} {
 	if c == nil {
 		return nil
 	}
 	return []map[string]interface{}{
 		{
-			"dns_endpoint_config": flattenDnsEndpointConfig(c.DnsEndpointConfig),
+			"enable_private_endpoint":     c.EnablePrivateEndpoint,
+			"enable_private_nodes":        c.EnablePrivateNodes,
+			"master_ipv4_cidr_block":      c.MasterIpv4CidrBlock,
+			"master_global_access_config": flattenPrivateClusterConfigMasterGlobalAccessConfig(c.MasterGlobalAccessConfig),
+			"peering_name":                c.PeeringName,
+			"private_endpoint":            c.PrivateEndpoint,
+			"private_endpoint_subnetwork": c.PrivateEndpointSubnetwork,
+			"public_endpoint":             c.PublicEndpoint,
 		},
 	}
 }
 
-func flattenDnsEndpointConfig(dns *container.DNSEndpointConfig) []map[string]interface{} {
-	if dns == nil {
-		return nil
-	}
+// Like most GKE blocks, this is not returned from the API at all when false. This causes trouble
+// for users who've set enabled = false in config as they will get a permadiff. Always setting the
+// field resolves that. We can assume if it was not returned, it's false.
+func flattenPrivateClusterConfigMasterGlobalAccessConfig(c *container.PrivateClusterMasterGlobalAccessConfig) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"endpoint":               dns.Endpoint,
-			"allow_external_traffic": dns.AllowExternalTraffic,
+			"enabled": c != nil && c.Enabled,
 		},
 	}
-}
-
-// Most of PrivateClusterConfig has moved to ControlPlaneEndpointsConfig.
-func flattenPrivateClusterConfig(cpec *container.ControlPlaneEndpointsConfig, pcc *container.PrivateClusterConfig, nc *container.NetworkConfig) []map[string]interface{} {
-	if cpec == nil && pcc == nil && nc == nil {
-		return nil
-	}
-
-	r := map[string]interface{}{}
-	if cpec != nil {
-		// Note the change in semantics from private to public endpoint.
-		r["enable_private_endpoint"] = !cpec.IpEndpointsConfig.EnablePublicEndpoint
-		r["private_endpoint"] = cpec.IpEndpointsConfig.PrivateEndpoint
-		r["private_endpoint_subnetwork"] = cpec.IpEndpointsConfig.PrivateEndpointSubnetwork
-		r["public_endpoint"] = cpec.IpEndpointsConfig.PublicEndpoint
-		r["master_global_access_config"] = []map[string]interface{}{
-			{
-				"enabled": cpec.IpEndpointsConfig.GlobalAccess,
-			},
-		}
-	}
-	// This is the only field that is canonically still in the PrivateClusterConfig message.
-	if pcc != nil {
-		r["peering_name"] = pcc.PeeringName
-		r["master_ipv4_cidr_block"] = pcc.MasterIpv4CidrBlock
-	}
-	if nc != nil {
-		r["enable_private_nodes"] = nc.DefaultEnablePrivateNodes
-	}
-
-	return []map[string]interface{}{r}
 }
 
 func flattenVerticalPodAutoscaling(c *container.VerticalPodAutoscaling) []map[string]interface{} {
@@ -5993,7 +5897,6 @@ func flattenMasterAuthorizedNetworksConfig(c *container.MasterAuthorizedNetworks
 	}
 	result["cidr_blocks"] = schema.NewSet(schema.HashResource(cidrBlockConfig), cidrBlocks)
 	result["gcp_public_cidrs_access_enabled"] = c.GcpPublicCidrsAccessEnabled
-	result["private_endpoint_enforcement_enabled"] = c.PrivateEndpointEnforcementEnabled
 	return []map[string]interface{}{result}
 }
 
@@ -6376,6 +6279,24 @@ func containerClusterPrivateClusterConfigSuppress(k, old, new string, d *schema.
 		return (hasMasterCidr && new == "" && old != "") || tpgresource.CompareSelfLinkOrResourceName(k, old, new, d)
 	}
 	return false
+}
+
+func validatePrivateClusterConfig(cluster *container.Cluster) error {
+	if cluster == nil || cluster.PrivateClusterConfig == nil {
+		return nil
+	}
+	if !cluster.PrivateClusterConfig.EnablePrivateNodes && len(cluster.PrivateClusterConfig.MasterIpv4CidrBlock) > 0 {
+		return fmt.Errorf("master_ipv4_cidr_block can only be set if enable_private_nodes is true")
+	}
+	if cluster.PrivateClusterConfig.EnablePrivateNodes && len(cluster.PrivateClusterConfig.MasterIpv4CidrBlock) == 0 {
+		if len(cluster.PrivateClusterConfig.PrivateEndpointSubnetwork) > 0 {
+			return nil
+		}
+		if cluster.Autopilot == nil || !cluster.Autopilot.Enabled {
+			return fmt.Errorf("master_ipv4_cidr_block must be set if enable_private_nodes is true")
+		}
+	}
+	return nil
 }
 
 // Autopilot clusters have preconfigured defaults: https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview#comparison.

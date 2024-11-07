@@ -441,11 +441,6 @@ var ServicesListGa = mapOf(
         "displayName" to "Iam2",
         "path" to "./google/services/iam2"
     ),
-    "iam3" to mapOf(
-        "name" to "iam3",
-        "displayName" to "Iam3",
-        "path" to "./google/services/iam3"
-    ),
     "iambeta" to mapOf(
         "name" to "iambeta",
         "displayName" to "Iambeta",

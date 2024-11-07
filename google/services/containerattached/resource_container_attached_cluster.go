@@ -1193,30 +1193,27 @@ func flattenContainerAttachedClusterErrorsMessage(v interface{}, d *schema.Resou
 }
 
 // The custom expander transforms input into something like this:
-//
-//	authorization {
-//	   admin_users [
-//	     { username = "user1" },
-//	     { username = "user2" }
-//	   ]
-//	   admin_groups [
-//	     { group = "group1" },
-//	     { group = "group2" },
-//	   ]
-//	}
-//
+// authorization {
+//    admin_users [
+//      { username = "user1" },
+//      { username = "user2" }
+//    ]
+//    admin_groups [
+//      { group = "group1" },
+//      { group = "group2" },
+//    ]
+// }
 // The custom flattener transforms input back into something like this:
-//
-//	authorization {
-//	   admin_users = [
-//	     "user1",
-//	     "user2"
-//	   ]
-//	   admin_groups = [
-//	     "group1",
-//	     "group2"
-//	   ],
-//	}
+// authorization {
+//    admin_users = [
+//      "user1",
+//      "user2"
+//    ]
+//    admin_groups = [
+//      "group1",
+//      "group2"
+//    ],
+// }
 func flattenContainerAttachedClusterAuthorization(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil || len(v.(map[string]interface{})) == 0 {
 		return nil

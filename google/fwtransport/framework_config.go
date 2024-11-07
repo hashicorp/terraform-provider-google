@@ -64,6 +64,7 @@ type FrameworkProviderConfig struct {
 	DefaultLabels              types.Map
 
 	// paths for client setup
+	IAMCredentialsBasePath           string // TODO: This will be removed once we resove the muxing issues
 	AccessApprovalBasePath           string
 	AccessContextManagerBasePath     string
 	ActiveDirectoryBasePath          string
@@ -132,6 +133,7 @@ type FrameworkProviderConfig struct {
 	GKEHub2BasePath                  string
 	GkeonpremBasePath                string
 	HealthcareBasePath               string
+	IAMBasePath                      string
 	IAM2BasePath                     string
 	IAMBetaBasePath                  string
 	IAMWorkforcePoolBasePath         string
@@ -228,6 +230,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 
 	// Setup Base Paths for clients
 	// Generated products
+	p.IAMCredentialsBasePath = data.IamCredentialsCustomEndpoint.ValueString() // TODO: This will be removed once we resove the muxing issues
 	p.AccessApprovalBasePath = data.AccessApprovalCustomEndpoint.ValueString()
 	p.AccessContextManagerBasePath = data.AccessContextManagerCustomEndpoint.ValueString()
 	p.ActiveDirectoryBasePath = data.ActiveDirectoryCustomEndpoint.ValueString()
@@ -296,6 +299,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.GKEHub2BasePath = data.GKEHub2CustomEndpoint.ValueString()
 	p.GkeonpremBasePath = data.GkeonpremCustomEndpoint.ValueString()
 	p.HealthcareBasePath = data.HealthcareCustomEndpoint.ValueString()
+	p.IAMBasePath = data.IAMCustomEndpoint.ValueString()
 	p.IAM2BasePath = data.IAM2CustomEndpoint.ValueString()
 	p.IAMBetaBasePath = data.IAMBetaCustomEndpoint.ValueString()
 	p.IAMWorkforcePoolBasePath = data.IAMWorkforcePoolCustomEndpoint.ValueString()
