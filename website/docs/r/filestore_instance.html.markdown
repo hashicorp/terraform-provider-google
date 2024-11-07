@@ -304,6 +304,12 @@ The following arguments are supported:
   (Optional)
   The reason for enabling deletion protection.
 
+* `performance_config` -
+  (Optional)
+  Performance configuration for the instance. If not provided,
+  the default performance settings will be used.
+  Structure is [documented below](#nested_performance_config).
+
 * `zone` -
   (Optional, Deprecated)
   The name of the Filestore zone of the instance.
@@ -317,6 +323,39 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_performance_config"></a>The `performance_config` block supports:
+
+* `iops_per_tb` -
+  (Optional)
+  The instance provisioned IOPS will change dynamically
+  based on the capacity of the instance.
+  Structure is [documented below](#nested_iops_per_tb).
+
+* `fixed_iops` -
+  (Optional)
+  The instance will have a fixed provisioned IOPS value,
+  which will remain constant regardless of instance
+  capacity.
+  Structure is [documented below](#nested_fixed_iops).
+
+
+<a name="nested_iops_per_tb"></a>The `iops_per_tb` block supports:
+
+* `max_iops_per_tb` -
+  (Optional)
+  The instance max IOPS will be calculated by multiplying
+  the capacity of the instance (TB) by max_iops_per_tb,
+  and rounding to the nearest 1000. The instance max IOPS
+  will be changed dynamically based on the instance
+  capacity.
+
+<a name="nested_fixed_iops"></a>The `fixed_iops` block supports:
+
+* `max_iops` -
+  (Optional)
+  The number of IOPS to provision for the instance.
+  max_iops must be in multiple of 1000.
 
 ## Attributes Reference
 
