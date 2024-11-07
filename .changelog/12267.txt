@@ -1,0 +1,3 @@
+```release-note: bug
+accesscontextmanager: fixed comparison of `identity_type` in `ingress_from` and `egress_from` when the `IDENTITY_TYPE_UNSPECIFIED` is set
+```

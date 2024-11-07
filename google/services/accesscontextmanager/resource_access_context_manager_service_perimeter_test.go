@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/accesscontextmanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -410,4 +411,59 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
   use_explicit_dry_run_spec = true
 }
 `, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName, perimeterTitleName)
+}
+
+type IdentityTypeDiffSupressFuncDiffSuppressTestCase struct {
+	Name     string
+	AreEqual bool
+	Before   string
+	After    string
+}
+
+var identityTypeDiffSuppressTestCases = []IdentityTypeDiffSupressFuncDiffSuppressTestCase{
+	{
+		AreEqual: false,
+		Before:   "A",
+		After:    "B",
+	},
+	{
+		AreEqual: true,
+		Before:   "A",
+		After:    "A",
+	},
+	{
+		AreEqual: false,
+		Before:   "",
+		After:    "A",
+	},
+	{
+		AreEqual: false,
+		Before:   "A",
+		After:    "",
+	},
+	{
+		AreEqual: true,
+		Before:   "",
+		After:    "IDENTITY_TYPE_UNSPECIFIED",
+	},
+	{
+		AreEqual: false,
+		Before:   "IDENTITY_TYPE_UNSPECIFIED",
+		After:    "",
+	},
+}
+
+func TestUnitAccessContextManagerServicePerimeter_identityTypeDiff(t *testing.T) {
+	for _, tc := range identityTypeDiffSuppressTestCases {
+		tc.Test(t)
+	}
+}
+
+func (tc *IdentityTypeDiffSupressFuncDiffSuppressTestCase) Test(t *testing.T) {
+	actual := accesscontextmanager.AccessContextManagerServicePerimeterIdentityTypeDiffSupressFunc("", tc.Before, tc.After, nil)
+	if actual != tc.AreEqual {
+		t.Errorf(
+			"Unexpected difference found. Before: \"%s\", after: \"%s\", actual: %t, expected: %t",
+			tc.Before, tc.After, actual, tc.AreEqual)
+	}
 }
