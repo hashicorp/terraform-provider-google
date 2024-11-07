@@ -1,6 +1,6 @@
 ## 6.11.0 (Unreleased)
 
-## 6.10.0 (November 11, 2024)
+## 6.10.0 (November 4, 2024)
 
 FEATURES:
 * **New Data Source:** `google_compute_instance_guest_attributes` ([#20095](https://github.com/hashicorp/terraform-provider-google/pull/20095))
