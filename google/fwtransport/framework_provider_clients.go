@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"google.golang.org/api/dns/v1"
+	"google.golang.org/api/iam/v1"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 	"google.golang.org/api/option"
 
@@ -50,4 +51,18 @@ func (p *FrameworkProviderConfig) NewIamCredentialsClient(userAgent string) *iam
 	clientIamCredentials.BasePath = iamCredentialsClientBasePath
 
 	return clientIamCredentials
+}
+
+func (p *FrameworkProviderConfig) NewIamClient(userAgent string) *iam.Service {
+	iamClientBasePath := transport_tpg.RemoveBasePathVersion(p.IAMBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud IAM client for path %s", iamClientBasePath)
+	clientIAM, err := iam.NewService(p.Context, option.WithHTTPClient(p.Client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client iam: %s", err)
+		return nil
+	}
+	clientIAM.UserAgent = userAgent
+	clientIAM.BasePath = iamClientBasePath
+
+	return clientIAM
 }
