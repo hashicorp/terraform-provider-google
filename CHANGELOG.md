@@ -25,6 +25,7 @@ IMPROVEMENTS:
 * container: added `user_managed_keys_config` field to `google_container_cluster` resource. ([#20105](https://github.com/hashicorp/terraform-provider-google/pull/20105))
 * firestore: allowed single field indexes to support `__name__ DESC` indexes in `google_firestore_index` resources ([#20124](https://github.com/hashicorp/terraform-provider-google/pull/20124))
 * privateca: added support for sub-CA to be activated into STAGED state ([#20103](https://github.com/hashicorp/terraform-provider-google/pull/20103))
+* spanner: added `default_backup_schedule_type` field to  `google_spanner_instance` ([#20213](https://github.com/hashicorp/terraform-provider-google/pull/20213))
 * vertexai: added `traffic_split`, `private_service_connect_config`, `predict_request_response_logging_config`, `dedicated_endpoint_enabled`, and `dedicated_endpoint_dns` fields to `google_vertex_ai_endpoint` resource ([#20179](https://github.com/hashicorp/terraform-provider-google/pull/20179))
 * workflows: added `deletion_protection` field to `google_workflows_workflow` resource ([#20106](https://github.com/hashicorp/terraform-provider-google/pull/20106))
 
