@@ -52,40 +52,28 @@ resource "google_privateca_certificate_authority" "default" {
   config {
     subject_config {
       subject {
-        organization = "HashiCorp"
+        organization = "ACME"
         common_name = "my-certificate-authority"
-      }
-      subject_alt_name {
-        dns_names = ["hashicorp.com"]
       }
     }
     x509_config {
       ca_options {
+        # is_ca *MUST* be true for certificate authorities
         is_ca = true
-        max_issuer_path_length = 10
       }
       key_usage {
         base_key_usage {
-          digital_signature = true
-          content_commitment = true
-          key_encipherment = false
-          data_encipherment = true
-          key_agreement = true
+          # cert_sign and crl_sign *MUST* be true for certificate authorities
           cert_sign = true
           crl_sign = true
-          decipher_only = true
         }
         extended_key_usage {
-          server_auth = true
-          client_auth = false
-          email_protection = true
-          code_signing = true
-          time_stamping = true
         }
       }
     }
   }
-  lifetime = "86400s"
+  # valid for 10 years
+  lifetime = "${10 * 365 * 24 * 3600}s"
   key_spec {
     algorithm = "RSA_PKCS1_4096_SHA256"
   }
@@ -107,11 +95,8 @@ resource "google_privateca_certificate_authority" "root-ca" {
   config {
     subject_config {
       subject {
-        organization = "HashiCorp"
+        organization = "ACME"
         common_name = "my-certificate-authority"
-      }
-      subject_alt_name {
-        dns_names = ["hashicorp.com"]
       }
     }
     x509_config {
@@ -126,7 +111,6 @@ resource "google_privateca_certificate_authority" "root-ca" {
           crl_sign = true
         }
         extended_key_usage {
-          server_auth = false
         }
       }
     }
@@ -154,43 +138,33 @@ resource "google_privateca_certificate_authority" "default" {
   config {
     subject_config {
       subject {
-        organization = "HashiCorp"
+        organization = "ACME"
         common_name = "my-subordinate-authority"
-      }
-      subject_alt_name {
-        dns_names = ["hashicorp.com"]
       }
     }
     x509_config {
       ca_options {
         is_ca = true
-        # Force the sub CA to only issue leaf certs
-        max_issuer_path_length = 0
+        # Force the sub CA to only issue leaf certs.
+        # Use e.g.
+        #    max_issuer_path_length = 1
+        # if you need to chain more subordinates.
+        zero_max_issuer_path_length = true
       }
       key_usage {
         base_key_usage {
-          digital_signature = true
-          content_commitment = true
-          key_encipherment = false
-          data_encipherment = true
-          key_agreement = true
           cert_sign = true
           crl_sign = true
-          decipher_only = true
         }
         extended_key_usage {
-          server_auth = true
-          client_auth = false
-          email_protection = true
-          code_signing = true
-          time_stamping = true
         }
       }
     }
   }
-  lifetime = "86400s"
+  # valid for 5 years
+  lifetime = "${5 * 365 * 24 * 3600}s"
   key_spec {
-    algorithm = "RSA_PKCS1_4096_SHA256"
+    algorithm = "RSA_PKCS1_2048_SHA256"
   }
   type = "SUBORDINATE"
 }
@@ -238,7 +212,6 @@ resource "google_privateca_certificate_authority" "default" {
       ca_options {
         # is_ca *MUST* be true for certificate authorities
         is_ca = true
-        max_issuer_path_length = 10
       }
       key_usage {
         base_key_usage {
@@ -247,7 +220,6 @@ resource "google_privateca_certificate_authority" "default" {
           crl_sign = true
         }
         extended_key_usage {
-          server_auth = false
         }
       }
       name_constraints {
@@ -284,11 +256,8 @@ resource "google_privateca_certificate_authority" "default" {
   config {
     subject_config {
       subject {
-        organization = "HashiCorp"
+        organization = "ACME"
         common_name = "my-certificate-authority"
-      }
-      subject_alt_name {
-        dns_names = ["hashicorp.com"]
       }
     }
     subject_key_id {
@@ -297,30 +266,19 @@ resource "google_privateca_certificate_authority" "default" {
     x509_config {
       ca_options {
         is_ca = true
-        max_issuer_path_length = 10
       }
       key_usage {
         base_key_usage {
-          digital_signature = true
-          content_commitment = true
-          key_encipherment = false
-          data_encipherment = true
-          key_agreement = true
           cert_sign = true
           crl_sign = true
-          decipher_only = true
         }
         extended_key_usage {
-          server_auth = true
-          client_auth = false
-          email_protection = true
-          code_signing = true
-          time_stamping = true
         }
       }
     }
   }
-  lifetime = "86400s"
+  # valid for 10 years
+  lifetime = "${10 * 365 * 24 * 3600}s"
   key_spec {
     cloud_kms_key_version = "projects/keys-project/locations/us-central1/keyRings/key-ring/cryptoKeys/crypto-key/cryptoKeyVersions/1"
   }
