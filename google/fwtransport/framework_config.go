@@ -142,6 +142,7 @@ type FrameworkProviderConfig struct {
 	KMSBasePath                      string
 	LoggingBasePath                  string
 	LookerBasePath                   string
+	ManagedKafkaBasePath             string
 	MemcacheBasePath                 string
 	MemorystoreBasePath              string
 	MigrationCenterBasePath          string
@@ -306,6 +307,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.KMSBasePath = data.KMSCustomEndpoint.ValueString()
 	p.LoggingBasePath = data.LoggingCustomEndpoint.ValueString()
 	p.LookerBasePath = data.LookerCustomEndpoint.ValueString()
+	p.ManagedKafkaBasePath = data.ManagedKafkaCustomEndpoint.ValueString()
 	p.MemcacheBasePath = data.MemcacheCustomEndpoint.ValueString()
 	p.MemorystoreBasePath = data.MemorystoreCustomEndpoint.ValueString()
 	p.MigrationCenterBasePath = data.MigrationCenterCustomEndpoint.ValueString()
@@ -1115,6 +1117,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.LookerBasePathKey])
 		if customEndpoint != nil {
 			data.LookerCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.ManagedKafkaCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_MANAGED_KAFKA_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ManagedKafkaBasePathKey])
+		if customEndpoint != nil {
+			data.ManagedKafkaCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.MemcacheCustomEndpoint.IsNull() {

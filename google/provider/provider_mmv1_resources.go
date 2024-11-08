@@ -81,6 +81,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/services/logging"
 	"github.com/hashicorp/terraform-provider-google/google/services/looker"
+	"github.com/hashicorp/terraform-provider-google/google/services/managedkafka"
 	"github.com/hashicorp/terraform-provider-google/google/services/memcache"
 	"github.com/hashicorp/terraform-provider-google/google/services/memorystore"
 	"github.com/hashicorp/terraform-provider-google/google/services/migrationcenter"
@@ -452,9 +453,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 485
+// Generated resources: 487
 // Generated IAM resources: 261
-// Total generated resources: 746
+// Total generated resources: 748
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -967,6 +968,8 @@ var generatedResources = map[string]*schema.Resource{
 	"google_logging_metric":                                                      logging.ResourceLoggingMetric(),
 	"google_logging_organization_settings":                                       logging.ResourceLoggingOrganizationSettings(),
 	"google_looker_instance":                                                     looker.ResourceLookerInstance(),
+	"google_managed_kafka_cluster":                                               managedkafka.ResourceManagedKafkaCluster(),
+	"google_managed_kafka_topic":                                                 managedkafka.ResourceManagedKafkaTopic(),
 	"google_memcache_instance":                                                   memcache.ResourceMemcacheInstance(),
 	"google_memorystore_instance":                                                memorystore.ResourceMemorystoreInstance(),
 	"google_migration_center_group":                                              migrationcenter.ResourceMigrationCenterGroup(),
