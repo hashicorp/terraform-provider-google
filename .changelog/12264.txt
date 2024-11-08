@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_managed_kafka_cluster` and `google_managed_kafka_topic` (ga)
+```
