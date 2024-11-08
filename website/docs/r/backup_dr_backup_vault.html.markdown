@@ -44,6 +44,7 @@ resource "google_backup_dr_backup_vault" "backup-vault-test" {
     annotations2 = "baz1"
   }
   force_update = "true"
+  access_restriction = "WITHIN_ORGANIZATION"
   ignore_inactive_datasources = "true"
   ignore_backup_plan_references = "true"
   allow_missing = "true"
@@ -91,6 +92,12 @@ The following arguments are supported:
   Stores small amounts of arbitrary data. 
   **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
   Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
+* `access_restriction` -
+  (Optional)
+  Access restriction for the backup vault. Default value is `WITHIN_ORGANIZATION` if not provided during creation.
+  Default value is `WITHIN_ORGANIZATION`.
+  Possible values are: `ACCESS_RESTRICTION_UNSPECIFIED`, `WITHIN_PROJECT`, `WITHIN_ORGANIZATION`, `UNRESTRICTED`, `WITHIN_ORG_BUT_UNRESTRICTED_FOR_BA`.
 
 * `force_update` -
   (Optional)
