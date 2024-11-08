@@ -1,0 +1,3 @@
+```release-note:none
+composer: update doc - in-place upgrade for minor and patch versions is in GA starting from 5.28.0
+```
