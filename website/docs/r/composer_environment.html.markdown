@@ -1030,8 +1030,7 @@ The following arguments are supported:
   version number or 'latest'.
   The Apache Airflow portion of the image version is a full semantic version that points to one of the
   supported Apache Airflow versions, or an alias in the form of only major or major.minor versions specified.
-  **Important**: In-place upgrade is only available using `google-beta` provider. It's because updating the
-  `image_version` is still in beta. Using `google-beta` provider, you can upgrade in-place between minor or
+  **Important**: In-place upgrade is only available between minor or
   patch versions of Cloud Composer or Apache Airflow. For example, you can upgrade your environment from
   `composer-1.16.x` to `composer-1.17.x`, or from `airflow-2.1.x` to `airflow-2.2.x`. You cannot upgrade between
   major Cloud Composer or Apache Airflow versions (from `1.x.x` to `2.x.x`). To do so, create a new environment.
@@ -1461,7 +1460,10 @@ The following arguments are supported:
   `composer-(([0-9]+)(\.[0-9]+\.[0-9]+(-preview\.[0-9]+)?)?|latest)-airflow-(([0-9]+)((\.[0-9]+)(\.[0-9]+)?)?(-build\.[0-9]+)?)`
   Example: composer-3-airflow-2.6.3-build.4
 
-  **Important**: In-place upgrade for Composer 3 is not yet supported.
+  **Important**: In-place upgrade in Composer 3 is only available between minor or patch versions of Apache Airflow.
+  You can also upgrade to a different Airflow build within the same version by specifying the build number.
+  For example, you can upgrade your environment from composer-3-airflow-2.6.x to composer-3-airflow-2.9.x,
+  or from composer-3-airflow-2.9.3-build.4 to composer-3-airflow-2.9.3-build.5.
 
 * `cloud_data_lineage_integration` -
   (Optional, Cloud Composer environments in versions composer-2.1.2-airflow-*.*.* and later)
