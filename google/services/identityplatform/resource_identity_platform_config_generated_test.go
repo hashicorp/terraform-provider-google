@@ -208,3 +208,66 @@ resource "google_identity_platform_config" "default" {
 }
 `, context)
 }
+
+func TestAccIdentityPlatformConfig_identityPlatformConfigWithFalseValuesExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIdentityPlatformConfig_identityPlatformConfigWithFalseValuesExample(context),
+			},
+			{
+				ResourceName:            "google_identity_platform_config.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"client.0.api_key", "client.0.firebase_subdomain"},
+			},
+		},
+	})
+}
+
+func testAccIdentityPlatformConfig_identityPlatformConfigWithFalseValuesExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_project" "default" {
+  project_id = "tf-test-my-project-2%{random_suffix}"
+  name       = "tf-test-my-project-2%{random_suffix}"
+  org_id     = "%{org_id}"
+  billing_account =  "%{billing_acct}"
+  deletion_policy = "DELETE"
+  labels = {
+    firebase = "enabled"
+  }
+}
+
+resource "google_project_service" "identitytoolkit" {
+  project = google_project.default.project_id
+  service = "identitytoolkit.googleapis.com"
+}
+
+resource "google_identity_platform_config" "default" {
+  project = google_project.default.project_id
+  autodelete_anonymous_users = false
+  sign_in {
+   
+    anonymous {
+        enabled = false
+    }
+    email {
+        enabled = false
+    }
+    phone_number {
+        enabled = false
+    }
+  }
+}
+`, context)
+}

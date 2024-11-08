@@ -840,49 +840,47 @@ func flattenIdentityPlatformConfigSignIn(v interface{}, d *schema.ResourceData, 
 	return []interface{}{transformed}
 }
 func flattenIdentityPlatformConfigSignInEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
-	transformed["enabled"] =
-		flattenIdentityPlatformConfigSignInEmailEnabled(original["enabled"], d, config)
-	transformed["password_required"] =
-		flattenIdentityPlatformConfigSignInEmailPasswordRequired(original["passwordRequired"], d, config)
-	return []interface{}{transformed}
-}
-func flattenIdentityPlatformConfigSignInEmailEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
 
-func flattenIdentityPlatformConfigSignInEmailPasswordRequired(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		transformed["enabled"] = false
+	} else {
+		original := v.(map[string]interface{})
+
+		if original["enabled"] == nil {
+			transformed["enabled"] = false
+		} else {
+			transformed["enabled"] = original["enabled"]
+		}
+
+		if original["passwordRequired"] != nil {
+			transformed["password_required"] = original["passwordRequired"]
+		}
+	}
+
+	return []interface{}{transformed}
 }
 
 func flattenIdentityPlatformConfigSignInPhoneNumber(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
-	transformed["enabled"] =
-		flattenIdentityPlatformConfigSignInPhoneNumberEnabled(original["enabled"], d, config)
-	transformed["test_phone_numbers"] =
-		flattenIdentityPlatformConfigSignInPhoneNumberTestPhoneNumbers(original["testPhoneNumbers"], d, config)
-	return []interface{}{transformed}
-}
-func flattenIdentityPlatformConfigSignInPhoneNumberEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
 
-func flattenIdentityPlatformConfigSignInPhoneNumberTestPhoneNumbers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		transformed["enabled"] = false
+	} else {
+		original := v.(map[string]interface{})
+
+		if original["enabled"] == nil {
+			transformed["enabled"] = false
+		} else {
+			transformed["enabled"] = original["enabled"]
+		}
+
+		if original["testPhoneNumbers"] != nil {
+			transformed["test_phone_numbers"] = original["testPhoneNumbers"]
+		}
+	}
+
+	return []interface{}{transformed}
 }
 
 func flattenIdentityPlatformConfigSignInAnonymous(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
