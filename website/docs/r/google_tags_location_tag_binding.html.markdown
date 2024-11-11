@@ -20,27 +20,27 @@ To bind a tag to a Cloud Run service:
 
 ```hcl
 resource "google_project" "project" {
-	project_id = "project_id"
-	name       = "project_id"
-	org_id     = "123456789"
+  project_id = "project_id"
+  name       = "project_id"
+  org_id     = "123456789"
 }
 
 resource "google_tags_tag_key" "key" {
-	parent      = "organizations/123456789"
-	short_name  = "keyname"
-	description = "For keyname resources."
+  parent      = "organizations/123456789"
+  short_name  = "keyname"
+  description = "For keyname resources."
 }
 
 resource "google_tags_tag_value" "value" {
-	parent      = "tagKeys/${google_tags_tag_key.key.name}"
-	short_name  = "valuename"
-	description = "For valuename resources."
+  parent      = google_tags_tag_key.key.id
+  short_name  = "valuename"
+  description = "For valuename resources."
 }
 
 resource "google_tags_location_tag_binding" "binding" {
-	parent    = "//run.googleapis.com/projects/${data.google_project.project.number}/locations/${google_cloud_run_service.default.location}/services/${google_cloud_run_service.default.name}"
-	tag_value = "tagValues/${google_tags_tag_value.value.name}"
-	location  = "us-central1"
+  parent    = "//run.googleapis.com/projects/${data.google_project.project.number}/locations/${google_cloud_run_service.default.location}/services/${google_cloud_run_service.default.name}"
+  tag_value = google_tags_tag_value.value.id
+  location  = "us-central1"
 }
 ```
 
@@ -48,27 +48,27 @@ resource "google_tags_location_tag_binding" "binding" {
 
 ```hcl
 resource "google_project" "project" {
-	project_id = "project_id"
-	name       = "project_id"
-	org_id     = "123456789"
+  project_id = "project_id"
+  name       = "project_id"
+  org_id     = "123456789"
 }
 
 resource "google_tags_tag_key" "key" {
-	parent      = "organizations/123456789"
-	short_name  = "keyname"
-	description = "For keyname resources."
+  parent      = "organizations/123456789"
+  short_name  = "keyname"
+  description = "For keyname resources."
 }
 
 resource "google_tags_tag_value" "value" {
-	parent      = "tagKeys/${google_tags_tag_key.key.name}"
-	short_name  = "valuename"
-	description = "For valuename resources."
+  parent      = google_tags_tag_key.key.id
+  short_name  = "valuename"
+  description = "For valuename resources."
 }
 
 resource "google_tags_location_tag_binding" "binding" {
-	parent    = "//compute.googleapis.com/projects/${google_project.project.number}/zones/us-central1-a/instances/${google_compute_instance.instance.instance_id}"
-	tag_value = "tagValues/${google_tags_tag_value.value.name}"
-	location  = "us-central1-a"
+  parent    = "//compute.googleapis.com/projects/${google_project.project.number}/zones/us-central1-a/instances/${google_compute_instance.instance.instance_id}"
+  tag_value = google_tags_tag_value.value.id
+  location  = "us-central1-a"
 }
 ```
 
