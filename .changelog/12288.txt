@@ -1,0 +1,3 @@
+```release-note:bug
+accesscontextmanager: Fix permadiff in perimeter ingress / egress rules when there are duplicate resources in the rules
+```
