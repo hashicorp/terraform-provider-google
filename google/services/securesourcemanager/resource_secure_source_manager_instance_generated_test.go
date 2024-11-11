@@ -656,6 +656,50 @@ resource "google_dns_record_set" "ssm_instance_git_record" {
 `, context)
 }
 
+func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceWorkforceIdentityFederationExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"prevent_destroy": false,
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecureSourceManagerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecureSourceManagerInstance_secureSourceManagerInstanceWorkforceIdentityFederationExample(context),
+			},
+			{
+				ResourceName:            "google_secure_source_manager_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccSecureSourceManagerInstance_secureSourceManagerInstanceWorkforceIdentityFederationExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secure_source_manager_instance" "default" {
+    location = "us-central1"
+    instance_id = "tf-test-my-instance%{random_suffix}"
+
+    workforce_identity_federation_config {
+      enabled = true
+    }
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "%{prevent_destroy}"
+    }
+}
+`, context)
+}
+
 func testAccCheckSecureSourceManagerInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
