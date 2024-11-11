@@ -1,4 +1,12 @@
-## 5.44.2 (Unreleased)
+## 5.45.0 (Unreleased)
+
+NOTES:
+* 5.45.0 is a backport release, responding to a new Spanner feature that may result in creation of unwanted backups for users. The changes in this release will be available in 6.11.0 and users upgrading to 6.X should upgrade to that version or higher.
+
+IMPROVEMENTS:
+* spanner: added `default_backup_schedule_type` field to  `google_spanner_instance` ([#20213](https://github.com/hashicorp/terraform-provider-google/pull/20213))
+
+## 5.44.2 (October 14, 2024)
 
 Notes:
 * 5.44.2 is a backport release, responding to a GKE rollout that created permadiffs for many users. The changes in this release will be available in 6.7.0 and users upgrading to 6.X should upgrade to that version or higher.
