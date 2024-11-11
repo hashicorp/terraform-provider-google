@@ -556,28 +556,29 @@ func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo
 }
 func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	rawConfigValue := d.Get("egress_to.0.resources")
-
 	// Convert config value to []string
 	configValue, err := tpgresource.InterfaceSliceToStringSlice(rawConfigValue)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert config value: %s", err)
 		return v
 	}
+	sortedConfigValue := append([]string{}, configValue...)
+	sort.Strings(sortedConfigValue)
 
 	// Convert v to []string
-	apiStringValue, err := tpgresource.InterfaceSliceToStringSlice(v)
+	apiValue, err := tpgresource.InterfaceSliceToStringSlice(v)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert API value: %s", err)
 		return v
 	}
+	sortedApiValue := append([]string{}, apiValue...)
+	sort.Strings(sortedApiValue)
 
-	sortedStrings, err := tpgresource.SortStringsByConfigOrder(configValue, apiStringValue)
-	if err != nil {
-		log.Printf("[ERROR] Could not sort API response value: %s", err)
-		return v
+	if slices.Equal(sortedApiValue, sortedConfigValue) {
+		return configValue
 	}
 
-	return sortedStrings
+	return apiValue
 }
 
 func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToExternalResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
