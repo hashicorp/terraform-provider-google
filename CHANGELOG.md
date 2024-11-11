@@ -3,6 +3,9 @@
 NOTES:
 * compute: migrated `google_compute_firewall_policy_rule` from DCL engine to MMv1 engine. ([#20160](https://github.com/hashicorp/terraform-provider-google/pull/20160))
 
+BREAKING CHANGES:
+* looker: made `oauth_config` a required field in `google_looker_instance`, as creating this resource without that field always triggers an API error ([#20196](https://github.com/hashicorp/terraform-provider-google/pull/20196))
+
 FEATURES:
 * **New Data Source:** `google_spanner_database` ([#20114](https://github.com/hashicorp/terraform-provider-google/pull/20114))
 * **New Resource:** `google_apigee_api` ([#20113](https://github.com/hashicorp/terraform-provider-google/pull/20113))
@@ -33,7 +36,6 @@ BUG FIXES:
 * compute: fixed a diff based on server-side reordering of `match.src_address_groups` and `match.dest_address_groups` in `google_compute_network_firewall_policy_rule` ([#20148](https://github.com/hashicorp/terraform-provider-google/pull/20148))
 * compute: fixed permadiff on the `preconfigured_waf_config` field for `google_compute_security_policy` resource ([#20183](https://github.com/hashicorp/terraform-provider-google/pull/20183))
 * container: fixed in-place updates for `node_config.containerd_config` in `google_container_cluster` and `google_container_node_pool` ([#20112](https://github.com/hashicorp/terraform-provider-google/pull/20112))
-* looker: made `oauth_config` a required field in `google_looker_instance`, as creating this resource without that field always triggers an API error ([#20196](https://github.com/hashicorp/terraform-provider-google/pull/20196))
 
 ## 6.10.0 (November 4, 2024)
 
