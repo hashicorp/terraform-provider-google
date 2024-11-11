@@ -143,6 +143,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_access_approval_folder_service_account":        accessapproval.DataSourceAccessApprovalFolderServiceAccount(),
 	"google_access_approval_organization_service_account":  accessapproval.DataSourceAccessApprovalOrganizationServiceAccount(),
 	"google_access_approval_project_service_account":       accessapproval.DataSourceAccessApprovalProjectServiceAccount(),
+	"google_access_context_manager_access_policy":          accesscontextmanager.DataSourceAccessContextManagerAccessPolicy(),
 	"google_active_folder":                                 resourcemanager.DataSourceGoogleActiveFolder(),
 	"google_alloydb_locations":                             alloydb.DataSourceAlloydbLocations(),
 	"google_alloydb_supported_database_flags":              alloydb.DataSourceAlloydbSupportedDatabaseFlags(),
