@@ -1321,6 +1321,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `uri` -
   The main URI in which this Service is serving traffic.
 
+* `urls` -
+  All URLs serving traffic for this Service.
+
 * `reconciling` -
   Returns true if the Service is currently being acted upon by the system to bring it into the desired state.
   When a new Service is created, or an existing one is updated, Cloud Run will asynchronously perform all necessary steps to bring the Service to the desired serving state. This process is called reconciliation. While reconciliation is in process, observedGeneration, latest_ready_revison, trafficStatuses, and uri will have transient values that might mismatch the intended state: Once reconciliation is over (and this field is false), there are two possible outcomes: reconciliation succeeded and the serving state matches the Service, or there was an error, and reconciliation failed. This state can be found in terminalCondition.state.
