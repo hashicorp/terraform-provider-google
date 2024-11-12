@@ -1,0 +1,3 @@
+```release-note:note
+Remove release note for migrating `google_compute_firewall_association` from DCL to mmv1.
+```
