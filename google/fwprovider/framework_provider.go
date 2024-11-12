@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/functions"
 	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
 	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
+	"github.com/hashicorp/terraform-provider-google/google/fwvalidators"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/version"
 
@@ -76,8 +77,8 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					stringvalidator.ConflictsWith(path.Expressions{
 						path.MatchRoot("access_token"),
 					}...),
-					CredentialsValidator(),
-					NonEmptyStringValidator(),
+					fwvalidators.CredentialsValidator(),
+					fwvalidators.NonEmptyStringValidator(),
 				},
 			},
 			"access_token": schema.StringAttribute{
@@ -86,13 +87,13 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					stringvalidator.ConflictsWith(path.Expressions{
 						path.MatchRoot("credentials"),
 					}...),
-					NonEmptyStringValidator(),
+					fwvalidators.NonEmptyStringValidator(),
 				},
 			},
 			"impersonate_service_account": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					NonEmptyStringValidator(),
+					fwvalidators.NonEmptyStringValidator(),
 				},
 			},
 			"impersonate_service_account_delegates": schema.ListAttribute{
@@ -102,25 +103,25 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 			"project": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					NonEmptyStringValidator(),
+					fwvalidators.NonEmptyStringValidator(),
 				},
 			},
 			"billing_project": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					NonEmptyStringValidator(),
+					fwvalidators.NonEmptyStringValidator(),
 				},
 			},
 			"region": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					NonEmptyStringValidator(),
+					fwvalidators.NonEmptyStringValidator(),
 				},
 			},
 			"zone": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					NonEmptyStringValidator(),
+					fwvalidators.NonEmptyStringValidator(),
 				},
 			},
 			"scopes": schema.ListAttribute{
@@ -966,7 +967,7 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 						"send_after": schema.StringAttribute{
 							Optional: true,
 							Validators: []validator.String{
-								NonNegativeDurationValidator(),
+								fwvalidators.NonNegativeDurationValidator(),
 							},
 						},
 						"enable_batching": schema.BoolAttribute{
