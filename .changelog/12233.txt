@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed permadiff on attempted `type` field updates in `google_computer_security_policy`, updating this field will now force recreation of the resource
+```
