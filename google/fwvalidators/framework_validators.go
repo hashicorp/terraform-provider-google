@@ -1,11 +1,12 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-package fwprovider
+package fwvalidators
 
 import (
 	"context"
 	"fmt"
 	"os"
+	"regexp"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -116,4 +117,94 @@ func (v nonEmptyStringValidator) ValidateString(ctx context.Context, request val
 
 func NonEmptyStringValidator() validator.String {
 	return nonEmptyStringValidator{}
+}
+
+// Define the possible service account name patterns
+var ServiceAccountEmailPatterns = []string{
+	`^.+@.+\.iam\.gserviceaccount\.com$`,                     // Standard IAM service account
+	`^.+@developer\.gserviceaccount\.com$`,                   // Legacy developer service account
+	`^.+@appspot\.gserviceaccount\.com$`,                     // App Engine service account
+	`^.+@cloudservices\.gserviceaccount\.com$`,               // Google Cloud services service account
+	`^.+@cloudbuild\.gserviceaccount\.com$`,                  // Cloud Build service account
+	`^service-[0-9]+@.+-compute\.iam\.gserviceaccount\.com$`, // Compute Engine service account
+}
+
+// Create a custom validator for service account names
+type ServiceAccountEmailValidator struct{}
+
+func (v ServiceAccountEmailValidator) Description(ctx context.Context) string {
+	return "value must be a valid service account email address"
+}
+
+func (v ServiceAccountEmailValidator) MarkdownDescription(ctx context.Context) string {
+	return v.Description(ctx)
+}
+
+func (v ServiceAccountEmailValidator) ValidateString(ctx context.Context, req validator.StringRequest, resp *validator.StringResponse) {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
+		return
+	}
+
+	value := req.ConfigValue.ValueString()
+
+	// Check for empty string
+	if value == "" {
+		resp.Diagnostics.AddError("Invalid Service Account Name", "Service account name must not be empty")
+		return
+	}
+
+	valid := false
+	for _, pattern := range ServiceAccountEmailPatterns {
+		if matched, _ := regexp.MatchString(pattern, value); matched {
+			valid = true
+			break
+		}
+	}
+
+	if !valid {
+		resp.Diagnostics.AddAttributeError(
+			req.Path,
+			"Invalid Service Account Name",
+			"Service account name must match one of the expected patterns for Google service accounts",
+		)
+	}
+}
+
+// Create a custom validator for duration
+type BoundedDuration struct {
+	MinDuration time.Duration
+	MaxDuration time.Duration
+}
+
+func (v BoundedDuration) Description(ctx context.Context) string {
+	return fmt.Sprintf("value must be a valid duration string between %v and %v", v.MinDuration, v.MaxDuration)
+}
+
+func (v BoundedDuration) MarkdownDescription(ctx context.Context) string {
+	return v.Description(ctx)
+}
+
+func (v BoundedDuration) ValidateString(ctx context.Context, req validator.StringRequest, resp *validator.StringResponse) {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
+		return
+	}
+
+	value := req.ConfigValue.ValueString()
+	duration, err := time.ParseDuration(value)
+	if err != nil {
+		resp.Diagnostics.AddAttributeError(
+			req.Path,
+			"Invalid Duration Format",
+			"Duration must be a valid duration string (e.g., '3600s', '1h')",
+		)
+		return
+	}
+
+	if duration < v.MinDuration || duration > v.MaxDuration {
+		resp.Diagnostics.AddAttributeError(
+			req.Path,
+			"Invalid Duration",
+			fmt.Sprintf("Duration must be between %v and %v", v.MinDuration, v.MaxDuration),
+		)
+	}
 }
