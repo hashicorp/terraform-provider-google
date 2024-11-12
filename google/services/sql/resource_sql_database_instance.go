@@ -491,6 +491,25 @@ is set to true. Defaults to ZONAL.`,
 													Set:         schema.HashString,
 													Description: `List of consumer projects that are allow-listed for PSC connections to this instance. This instance can be connected to with PSC from any network in these projects. Each consumer project in this list may be represented by a project number (numeric) or by a project id (alphanumeric).`,
 												},
+												"psc_auto_connections": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"consumer_service_project_id": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The project ID of consumer service project of this consumer endpoint.`,
+															},
+															"consumer_network": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The consumer network of this consumer endpoint. This must be a resource path that includes both the host project and the network name. The consumer host project of this network might be different from the consumer service project.`,
+															},
+														},
+													},
+													Description: `A comma-separated list of networks or a comma-separated list of network-project pairs. Each project in this list is represented by a project number (numeric) or by a project ID (alphanumeric). This allows Private Service Connect connections to be created automatically for the specified networks.`,
+												},
 											},
 										},
 									},
@@ -1439,12 +1458,30 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 	}
 }
 
+func expandPscAutoConnectionConfig(configured []interface{}) []*sqladmin.PscAutoConnectionConfig {
+	pscAutoConnections := make([]*sqladmin.PscAutoConnectionConfig, 0, len(configured))
+
+	for _, _flag := range configured {
+		if _flag == nil {
+			continue
+		}
+		_entry := _flag.(map[string]interface{})
+
+		pscAutoConnections = append(pscAutoConnections, &sqladmin.PscAutoConnectionConfig{
+			ConsumerNetwork: _entry["consumer_network"].(string),
+			ConsumerProject: _entry["consumer_service_project_id"].(string),
+		})
+	}
+	return pscAutoConnections
+}
+
 func expandPscConfig(configured []interface{}) *sqladmin.PscConfig {
 	for _, _pscConfig := range configured {
 		_entry := _pscConfig.(map[string]interface{})
 		return &sqladmin.PscConfig{
 			PscEnabled:              _entry["psc_enabled"].(bool),
 			AllowedConsumerProjects: tpgresource.ConvertStringArr(_entry["allowed_consumer_projects"].(*schema.Set).List()),
+			PscAutoConnections:      expandPscAutoConnectionConfig(_entry["psc_auto_connections"].([]interface{})),
 		}
 	}
 
@@ -2344,10 +2381,26 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema
 	return []map[string]interface{}{data}
 }
 
+func flattenPscAutoConnections(pscAutoConnections []*sqladmin.PscAutoConnectionConfig) []map[string]interface{} {
+	flags := make([]map[string]interface{}, 0, len(pscAutoConnections))
+
+	for _, flag := range pscAutoConnections {
+		data := map[string]interface{}{
+			"consumer_network":            flag.ConsumerNetwork,
+			"consumer_service_project_id": flag.ConsumerProject,
+		}
+
+		flags = append(flags, data)
+	}
+
+	return flags
+}
+
 func flattenPscConfigs(pscConfig *sqladmin.PscConfig) interface{} {
 	data := map[string]interface{}{
 		"psc_enabled":               pscConfig.PscEnabled,
 		"allowed_consumer_projects": schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(pscConfig.AllowedConsumerProjects)),
+		"psc_auto_connections":      flattenPscAutoConnections(pscConfig.PscAutoConnections),
 	}
 
 	return []map[string]interface{}{data}
