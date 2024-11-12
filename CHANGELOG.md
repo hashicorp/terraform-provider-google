@@ -1,4 +1,11 @@
-## 6.11.0 (Unreleased)
+## 6.11.1 (Unreleased)
+
+BUG FIXES:
+* container: fixed diff on `google_container_cluster.user_managed_keys_config` field for resources that had not set it.
+* container: marked `google_container_cluster.user_managed_keys_config` as immutable because it can't be updated in place.
+
+
+## 6.11.0 (Nov 11, 2024)
 
 NOTES:
 * compute: migrated `google_compute_firewall_policy_rule` from DCL engine to MMv1 engine. ([#20160](https://github.com/hashicorp/terraform-provider-google/pull/20160))
