@@ -2061,6 +2061,7 @@ func ResourceContainerCluster() *schema.Resource {
 			"user_managed_keys_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				ForceNew:    true,
 				MaxItems:    1,
 				Description: `The custom keys configuration of the cluster.`,
 				Elem: &schema.Resource{
@@ -3987,20 +3988,6 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		log.Printf("[INFO] GKE cluster %s fleet config has been updated", d.Id())
-	}
-
-	if d.HasChange("user_managed_keys_config") {
-		req := &container.UpdateClusterRequest{
-			Update: &container.ClusterUpdate{
-				UserManagedKeysConfig: expandUserManagedKeysConfig(d.Get("user_managed_keys_config")),
-			},
-		}
-		updateF := updateFunc(req, "updating GKE cluster user managed keys config.")
-		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
-			return err
-		}
-
-		log.Printf("[INFO] GKE cluster %s user managed key config has been updated to %#v", d.Id(), req.Update.UserManagedKeysConfig)
 	}
 
 	if d.HasChange("enable_k8s_beta_apis") {
@@ -6139,11 +6126,22 @@ func flattenUserManagedKeysConfig(c *container.UserManagedKeysConfig) []map[stri
 		"control_plane_disk_encryption_key": c.ControlPlaneDiskEncryptionKey,
 		"gkeops_etcd_backup_encryption_key": c.GkeopsEtcdBackupEncryptionKey,
 	}
+	allEmpty := true
+	for _, v := range f {
+		if v.(string) != "" {
+			allEmpty = false
+		}
+	}
 	if len(c.ServiceAccountSigningKeys) != 0 {
 		f["service_account_signing_keys"] = schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(c.ServiceAccountSigningKeys))
+		allEmpty = false
 	}
 	if len(c.ServiceAccountVerificationKeys) != 0 {
 		f["service_account_verification_keys"] = schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(c.ServiceAccountVerificationKeys))
+		allEmpty = false
+	}
+	if allEmpty {
+		return nil
 	}
 	return []map[string]interface{}{f}
 }
