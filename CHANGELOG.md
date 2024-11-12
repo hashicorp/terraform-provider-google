@@ -1,5 +1,11 @@
 ## 6.12.0 (Unreleased)
 
+## 6.11.1 (November 12, 2024)
+
+BUG FIXES:
+* container: fixed diff on `google_container_cluster.user_managed_keys_config` field for resources that had not set it. ([#20314](https://github.com/hashicorp/terraform-provider-google/pull/20314))
+* container: marked `google_container_cluster.user_managed_keys_config` as immutable because it can't be updated in place. ([#20314](https://github.com/hashicorp/terraform-provider-google/pull/20314))
+
 ## 6.11.0 (November 11, 2024)
 
 NOTES:
