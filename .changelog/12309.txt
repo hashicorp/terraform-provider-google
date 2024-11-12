@@ -1,0 +1,6 @@
+```release-note:bug
+container: fixed diff on `google_container_cluster.user_managed_keys_config` field for resources that had not set it. (patch release)
+```
+```release-note:bug
+container: marked `google_container_cluster.user_managed_keys_config` as immutable because it can't be updated in place. (patch release)
+```

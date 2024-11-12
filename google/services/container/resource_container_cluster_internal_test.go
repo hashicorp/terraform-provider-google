@@ -5,8 +5,11 @@ package container
 import (
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+
+	"google.golang.org/api/container/v1"
 )
 
 func TestContainerClusterEnableK8sBetaApisCustomizeDiff(t *testing.T) {
@@ -206,5 +209,163 @@ func TestContainerCluster_NodeVersionCustomizeDiff(t *testing.T) {
 		if !tc.ExpectError && err != nil {
 			t.Errorf("%s failed, found unexpected error: %s", tn, err)
 		}
+	}
+}
+
+func TestContainerCluster_flattenUserManagedKeysConfig(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name   string
+		config *container.UserManagedKeysConfig
+		want   []map[string]interface{}
+	}{
+		{
+			name: "nil",
+		},
+		{
+			name:   "empty",
+			config: &container.UserManagedKeysConfig{},
+		},
+		{
+			name: "cluster_ca",
+			config: &container.UserManagedKeysConfig{
+				ClusterCa: "value",
+			},
+			want: []map[string]interface{}{
+				{
+					"cluster_ca":                        "value",
+					"etcd_api_ca":                       "",
+					"etcd_peer_ca":                      "",
+					"aggregation_ca":                    "",
+					"control_plane_disk_encryption_key": "",
+					"gkeops_etcd_backup_encryption_key": "",
+				},
+			},
+		},
+		{
+			name: "etcd_api_ca",
+			config: &container.UserManagedKeysConfig{
+				EtcdApiCa: "value",
+			},
+			want: []map[string]interface{}{
+				{
+					"cluster_ca":                        "",
+					"etcd_api_ca":                       "value",
+					"etcd_peer_ca":                      "",
+					"aggregation_ca":                    "",
+					"control_plane_disk_encryption_key": "",
+					"gkeops_etcd_backup_encryption_key": "",
+				},
+			},
+		},
+		{
+			name: "etcd_peer_ca",
+			config: &container.UserManagedKeysConfig{
+				EtcdPeerCa: "value",
+			},
+			want: []map[string]interface{}{
+				{
+					"cluster_ca":                        "",
+					"etcd_api_ca":                       "",
+					"etcd_peer_ca":                      "value",
+					"aggregation_ca":                    "",
+					"control_plane_disk_encryption_key": "",
+					"gkeops_etcd_backup_encryption_key": "",
+				},
+			},
+		},
+		{
+			name: "aggregation_ca",
+			config: &container.UserManagedKeysConfig{
+				AggregationCa: "value",
+			},
+			want: []map[string]interface{}{
+				{
+					"cluster_ca":                        "",
+					"etcd_api_ca":                       "",
+					"etcd_peer_ca":                      "",
+					"aggregation_ca":                    "value",
+					"control_plane_disk_encryption_key": "",
+					"gkeops_etcd_backup_encryption_key": "",
+				},
+			},
+		},
+		{
+			name: "control_plane_disk_encryption_key",
+			config: &container.UserManagedKeysConfig{
+				ControlPlaneDiskEncryptionKey: "value",
+			},
+			want: []map[string]interface{}{
+				{
+					"cluster_ca":                        "",
+					"etcd_api_ca":                       "",
+					"etcd_peer_ca":                      "",
+					"aggregation_ca":                    "",
+					"control_plane_disk_encryption_key": "value",
+					"gkeops_etcd_backup_encryption_key": "",
+				},
+			},
+		},
+		{
+			name: "gkeops_etcd_backup_encryption_key",
+			config: &container.UserManagedKeysConfig{
+				GkeopsEtcdBackupEncryptionKey: "value",
+			},
+			want: []map[string]interface{}{
+				{
+					"cluster_ca":                        "",
+					"etcd_api_ca":                       "",
+					"etcd_peer_ca":                      "",
+					"aggregation_ca":                    "",
+					"control_plane_disk_encryption_key": "",
+					"gkeops_etcd_backup_encryption_key": "value",
+				},
+			},
+		},
+		{
+			name: "service_account_signing_keys",
+			config: &container.UserManagedKeysConfig{
+				ServiceAccountSigningKeys: []string{"value"},
+			},
+			want: []map[string]interface{}{
+				{
+					"cluster_ca":                        "",
+					"etcd_api_ca":                       "",
+					"etcd_peer_ca":                      "",
+					"aggregation_ca":                    "",
+					"control_plane_disk_encryption_key": "",
+					"gkeops_etcd_backup_encryption_key": "",
+					"service_account_signing_keys":      schema.NewSet(schema.HashString, []interface{}{"value"}),
+				},
+			},
+		},
+		{
+			name: "service_account_verification_keys",
+			config: &container.UserManagedKeysConfig{
+				ServiceAccountVerificationKeys: []string{"value"},
+			},
+			want: []map[string]interface{}{
+				{
+					"cluster_ca":                        "",
+					"etcd_api_ca":                       "",
+					"etcd_peer_ca":                      "",
+					"aggregation_ca":                    "",
+					"control_plane_disk_encryption_key": "",
+					"gkeops_etcd_backup_encryption_key": "",
+					"service_account_verification_keys": schema.NewSet(schema.HashString, []interface{}{"value"}),
+				},
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got := flattenUserManagedKeysConfig(tc.config)
+			if diff := cmp.Diff(got, tc.want); diff != "" {
+				t.Errorf("flattenUserManagedKeysConfig(%s) returned unexpected diff. +got, -want:\n%s", tc.name, diff)
+			}
+		})
 	}
 }
