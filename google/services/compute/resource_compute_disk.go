@@ -402,6 +402,28 @@ See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encr
 							Description: `The service account used for the encryption request for the given KMS key.
 If absent, the Compute Engine Service Agent service account is used.`,
 						},
+						"write_only": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: `Ephemeral write-only attributes`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"raw_key": {
+										Type:      schema.TypeString,
+										Optional:  true,
+										ForceNew:  true,
+										WriteOnly: true,
+									},
+									"rsa_encrypted_key": {
+										Type:      schema.TypeString,
+										Optional:  true,
+										ForceNew:  true,
+										WriteOnly: true,
+									},
+								},
+							},
+						},
 						"raw_key": {
 							Type:     schema.TypeString,
 							Optional: true,
