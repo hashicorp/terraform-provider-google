@@ -4775,7 +4775,8 @@ func TestAccContainerCluster_withFleetConfig(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
-				Config:      testAccContainerCluster_withFleetConfig(clusterName, "random-project", networkName, subnetworkName),
+				// This project must exist, though no permissions are needed on it.
+				Config:      testAccContainerCluster_withFleetConfig(clusterName, "tdx-guest-images", networkName, subnetworkName),
 				ExpectError: regexp.MustCompile(`changing existing fleet host project is not supported`),
 			},
 			{
