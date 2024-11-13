@@ -200,7 +200,6 @@ func ProviderDCLConfigure(d *schema.ResourceData, config *Config) interface{} {
 	config.CloudResourceManagerBasePath = "https://cloudresourcemanager.googleapis.com/"
 	config.EventarcBasePath = "https://eventarc.googleapis.com/v1/"
 	config.FirebaserulesBasePath = "https://firebaserules.googleapis.com/v1/"
-	config.GKEHubFeatureBasePath = "https://gkehub.googleapis.com/v1beta1/"
 	config.RecaptchaEnterpriseBasePath = "https://recaptchaenterprise.googleapis.com/v1/"
 
 	return config

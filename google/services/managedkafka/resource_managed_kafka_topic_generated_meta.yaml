@@ -1,0 +1,5 @@
+resource: 'google_managed_kafka_topic'
+generation_type: 'mmv1'
+api_service_name: 'managedkafka.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Topic'

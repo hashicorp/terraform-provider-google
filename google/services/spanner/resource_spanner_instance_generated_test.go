@@ -63,6 +63,7 @@ resource "google_spanner_instance" "example" {
   display_name = "Test Spanner Instance"
   num_nodes    = 2
   edition      = "STANDARD"
+  default_backup_schedule_type = "AUTOMATIC"
   labels = {
     "foo" = "bar"
   }

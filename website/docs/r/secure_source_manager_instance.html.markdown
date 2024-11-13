@@ -540,6 +540,29 @@ resource "google_dns_record_set" "ssm_instance_git_record" {
   rrdatas = [google_compute_forwarding_rule.fw_rule_service_attachment.ip_address]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_instance_workforce_identity_federation&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Secure Source Manager Instance Workforce Identity Federation
+
+
+```hcl
+resource "google_secure_source_manager_instance" "default" {
+    location = "us-central1"
+    instance_id = "my-instance"
+
+    workforce_identity_federation_config {
+      enabled = true
+    }
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "true"
+    }
+}
+```
 
 ## Argument Reference
 
@@ -574,6 +597,12 @@ The following arguments are supported:
   Private settings for private instance.
   Structure is [documented below](#nested_private_config).
 
+* `workforce_identity_federation_config` -
+  (Optional)
+  Configuration for Workforce Identity Federation to support third party identity provider.
+  If unset, defaults to the Google OIDC IdP.
+  Structure is [documented below](#nested_workforce_identity_federation_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -595,6 +624,12 @@ The following arguments are supported:
 * `ssh_service_attachment` -
   (Output)
   Service Attachment for SSH, resource is in the format of `projects/{project}/regions/{region}/serviceAttachments/{service_attachment}`.
+
+<a name="nested_workforce_identity_federation_config"></a>The `workforce_identity_federation_config` block supports:
+
+* `enabled` -
+  (Required)
+  'Whether Workforce Identity Federation is enabled.'
 
 ## Attributes Reference
 

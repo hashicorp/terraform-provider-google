@@ -78,7 +78,7 @@ func dataSourceSecretManagerRegionalRegionalSecretVersionAccessRead(d *schema.Re
 		if dProject, ok := d.Get("project").(string); !ok {
 			return fmt.Errorf("wrong type for project (%T), expected string", d.Get("project"))
 		} else if dProject != "" && dProject != project {
-			return fmt.Errorf("project field value (%s) does not match project of secret (%s).", d.Get("project").(string), project)
+			return fmt.Errorf("project field value (%s) does not match project of secret (%s).", dProject, project)
 		}
 		if dLocation, ok := d.Get("location").(string); !ok {
 			return fmt.Errorf("wrong type for location (%T), expected string", d.Get("location"))

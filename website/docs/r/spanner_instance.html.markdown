@@ -44,6 +44,7 @@ resource "google_spanner_instance" "example" {
   display_name = "Test Spanner Instance"
   num_nodes    = 2
   edition      = "STANDARD"
+  default_backup_schedule_type = "AUTOMATIC"
   labels = {
     "foo" = "bar"
   }
@@ -176,6 +177,13 @@ The following arguments are supported:
   (Optional)
   The edition selected for this instance. Different editions provide different capabilities at different price points.
   Possible values are: `EDITION_UNSPECIFIED`, `STANDARD`, `ENTERPRISE`, `ENTERPRISE_PLUS`.
+
+* `default_backup_schedule_type` -
+  (Optional)
+  Controls the default backup behavior for new databases within the instance.
+  Note that `AUTOMATIC` is not permitted for free instances, as backups and backup schedules are not allowed for free instances.
+  if unset or NONE, no default backup schedule will be created for new databases within the instance.
+  Possible values are: `NONE`, `AUTOMATIC`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

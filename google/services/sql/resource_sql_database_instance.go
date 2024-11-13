@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"slices"
 	"strings"
 	"time"
 
@@ -91,6 +92,7 @@ var (
 	}
 
 	replicaConfigurationKeys = []string{
+		"replica_configuration.0.cascadable_replica",
 		"replica_configuration.0.ca_certificate",
 		"replica_configuration.0.client_certificate",
 		"replica_configuration.0.client_key",
@@ -138,7 +140,13 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
 			customdiff.ForceNewIfChange("settings.0.disk_size", compute.IsDiskShrinkage),
-			customdiff.ForceNewIfChange("master_instance_name", isMasterInstanceNameSet),
+			customdiff.ForceNewIf("master_instance_name", func(_ context.Context, d *schema.ResourceDiff, meta interface{}) bool {
+				// If we set master but this is not the new master of a switchover, require replacement and warn user.
+				return !isSwitchoverFromOldPrimarySide(d)
+			}),
+			customdiff.ForceNewIf("replica_configuration.0.cascadable_replica", func(_ context.Context, d *schema.ResourceDiff, meta interface{}) bool {
+				return !isSwitchoverFromOldPrimarySide(d)
+			}),
 			customdiff.IfValueChange("instance_type", isReplicaPromoteRequested, checkPromoteConfigurationsAndUpdateDiff),
 			privateNetworkCustomizeDiff,
 			pitrSupportDbCustomizeDiff,
@@ -483,6 +491,25 @@ is set to true. Defaults to ZONAL.`,
 													Set:         schema.HashString,
 													Description: `List of consumer projects that are allow-listed for PSC connections to this instance. This instance can be connected to with PSC from any network in these projects. Each consumer project in this list may be represented by a project number (numeric) or by a project id (alphanumeric).`,
 												},
+												"psc_auto_connections": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"consumer_service_project_id": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The project ID of consumer service project of this consumer endpoint.`,
+															},
+															"consumer_network": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The consumer network of this consumer endpoint. This must be a resource path that includes both the host project and the network name. The consumer host project of this network might be different from the consumer service project.`,
+															},
+														},
+													},
+													Description: `A comma-separated list of networks or a comma-separated list of network-project pairs. Each project in this list is represented by a project number (numeric) or by a project ID (alphanumeric). This allows Private Service Connect connections to be created automatically for the specified networks.`,
+												},
 											},
 										},
 									},
@@ -803,6 +830,12 @@ is set to true. Defaults to ZONAL.`,
 							AtLeastOneOf: replicaConfigurationKeys,
 							Description:  `PEM representation of the trusted CA's x509 certificate.`,
 						},
+						"cascadable_replica": {
+							Type:         schema.TypeBool,
+							Optional:     true,
+							AtLeastOneOf: replicaConfigurationKeys,
+							Description:  `Specifies if a SQL Server replica is a cascadable replica. A cascadable replica is a SQL Server cross region replica that supports replica(s) under it.`,
+						},
 						"client_certificate": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -877,6 +910,15 @@ is set to true. Defaults to ZONAL.`,
 					},
 				},
 				Description: `The configuration for replication.`,
+			},
+			"replica_names": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Description: `The replicas of the instance.`,
 			},
 			"server_ca_cert": {
 				Type:      schema.TypeList,
@@ -1320,7 +1362,8 @@ func expandReplicaConfiguration(configured []interface{}) *sqladmin.ReplicaConfi
 
 	_replicaConfiguration := configured[0].(map[string]interface{})
 	return &sqladmin.ReplicaConfiguration{
-		FailoverTarget: _replicaConfiguration["failover_target"].(bool),
+		CascadableReplica: _replicaConfiguration["cascadable_replica"].(bool),
+		FailoverTarget:    _replicaConfiguration["failover_target"].(bool),
 
 		// MysqlReplicaConfiguration has been flattened in the TF schema, so
 		// we'll keep it flat here instead of another expand method.
@@ -1415,12 +1458,30 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 	}
 }
 
+func expandPscAutoConnectionConfig(configured []interface{}) []*sqladmin.PscAutoConnectionConfig {
+	pscAutoConnections := make([]*sqladmin.PscAutoConnectionConfig, 0, len(configured))
+
+	for _, _flag := range configured {
+		if _flag == nil {
+			continue
+		}
+		_entry := _flag.(map[string]interface{})
+
+		pscAutoConnections = append(pscAutoConnections, &sqladmin.PscAutoConnectionConfig{
+			ConsumerNetwork: _entry["consumer_network"].(string),
+			ConsumerProject: _entry["consumer_service_project_id"].(string),
+		})
+	}
+	return pscAutoConnections
+}
+
 func expandPscConfig(configured []interface{}) *sqladmin.PscConfig {
 	for _, _pscConfig := range configured {
 		_entry := _pscConfig.(map[string]interface{})
 		return &sqladmin.PscConfig{
 			PscEnabled:              _entry["psc_enabled"].(bool),
 			AllowedConsumerProjects: tpgresource.ConvertStringArr(_entry["allowed_consumer_projects"].(*schema.Set).List()),
+			PscAutoConnections:      expandPscAutoConnectionConfig(_entry["psc_auto_connections"].([]interface{})),
 		}
 	}
 
@@ -1648,6 +1709,10 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration, d)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Replica Configuration")
 	}
+
+	if err := d.Set("replica_names", instance.ReplicaNames); err != nil {
+		return fmt.Errorf("Error setting replica_names: %w", err)
+	}
 	ipAddresses := flattenIpAddresses(instance.IpAddresses)
 	if err := d.Set("ip_address", ipAddresses); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance IP Addresses")
@@ -1702,6 +1767,14 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
+type replicaDRKind int
+
+const (
+	replicaDRNone replicaDRKind = iota
+	replicaDRByPromote
+	replicaDRBySwitchover
+)
+
 func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -1718,17 +1791,20 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		maintenance_version = v.(string)
 	}
 
-	promoteReadReplicaRequired := false
+	replicaDRKind := replicaDRNone
 	if d.HasChange("instance_type") {
 		oldInstanceType, newInstanceType := d.GetChange("instance_type")
 
 		if isReplicaPromoteRequested(nil, oldInstanceType, newInstanceType, nil) {
-			err = checkPromoteConfigurations(d)
-			if err != nil {
-				return err
+			if isSwitchoverRequested(d) {
+				replicaDRKind = replicaDRBySwitchover
+			} else {
+				err = checkPromoteConfigurations(d)
+				if err != nil {
+					return err
+				}
+				replicaDRKind = replicaDRByPromote
 			}
-
-			promoteReadReplicaRequired = true
 		}
 	}
 
@@ -1876,12 +1952,25 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
-	if promoteReadReplicaRequired {
-		err = transport_tpg.Retry(transport_tpg.RetryOptions{
-			RetryFunc: func() (rerr error) {
+	if replicaDRKind != replicaDRNone {
+		var retryFunc func() (rerr error)
+		switch replicaDRKind {
+		case replicaDRByPromote:
+			retryFunc = func() (rerr error) {
 				op, rerr = config.NewSqlAdminClient(userAgent).Instances.PromoteReplica(project, d.Get("name").(string)).Do()
 				return rerr
-			},
+			}
+		case replicaDRBySwitchover:
+			retryFunc = func() (rerr error) {
+				op, rerr = config.NewSqlAdminClient(userAgent).Instances.Switchover(project, d.Get("name").(string)).Do()
+				return rerr
+			}
+		default:
+			return fmt.Errorf("unknown replica DR scenario: %v", replicaDRKind)
+		}
+
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc:            retryFunc,
 			Timeout:              d.Timeout(schema.TimeoutUpdate),
 			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
 		})
@@ -2292,10 +2381,26 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema
 	return []map[string]interface{}{data}
 }
 
+func flattenPscAutoConnections(pscAutoConnections []*sqladmin.PscAutoConnectionConfig) []map[string]interface{} {
+	flags := make([]map[string]interface{}, 0, len(pscAutoConnections))
+
+	for _, flag := range pscAutoConnections {
+		data := map[string]interface{}{
+			"consumer_network":            flag.ConsumerNetwork,
+			"consumer_service_project_id": flag.ConsumerProject,
+		}
+
+		flags = append(flags, data)
+	}
+
+	return flags
+}
+
 func flattenPscConfigs(pscConfig *sqladmin.PscConfig) interface{} {
 	data := map[string]interface{}{
 		"psc_enabled":               pscConfig.PscEnabled,
 		"allowed_consumer_projects": schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(pscConfig.AllowedConsumerProjects)),
+		"psc_auto_connections":      flattenPscAutoConnections(pscConfig.PscAutoConnections),
 	}
 
 	return []map[string]interface{}{data}
@@ -2342,7 +2447,8 @@ func flattenReplicaConfiguration(replicaConfiguration *sqladmin.ReplicaConfigura
 
 	if replicaConfiguration != nil {
 		data := map[string]interface{}{
-			"failover_target": replicaConfiguration.FailoverTarget,
+			"cascadable_replica": replicaConfiguration.CascadableReplica,
+			"failover_target":    replicaConfiguration.FailoverTarget,
 
 			// Don't attempt to assign anything from replicaConfiguration.MysqlReplicaConfiguration,
 			// since those fields are set on create and then not stored. See description at
@@ -2529,6 +2635,20 @@ func isMasterInstanceNameSet(_ context.Context, oldMasterInstanceName interface{
 	return true
 }
 
+func isSwitchoverRequested(d *schema.ResourceData) bool {
+	originalPrimaryName, _ := d.GetChange("master_instance_name")
+	_, newReplicaNames := d.GetChange("replica_names")
+	if !slices.Contains(newReplicaNames.([]interface{}), originalPrimaryName) {
+		return false
+	}
+	dbVersion := d.Get("database_version")
+	if !strings.HasPrefix(dbVersion.(string), "SQLSERVER") {
+		log.Printf("[WARN] Switchover is only supported for SQL Server %q", dbVersion)
+		return false
+	}
+	return true
+}
+
 func isReplicaPromoteRequested(_ context.Context, oldInstanceType interface{}, newInstanceType interface{}, _ interface{}) bool {
 	oldInstanceType = oldInstanceType.(string)
 	newInstanceType = newInstanceType.(string)
@@ -2538,6 +2658,34 @@ func isReplicaPromoteRequested(_ context.Context, oldInstanceType interface{}, n
 	}
 
 	return false
+}
+
+// Check if this resource change is the manual update done on old primary after a switchover. If true, no replacement is needed.
+func isSwitchoverFromOldPrimarySide(d *schema.ResourceDiff) bool {
+	dbVersion := d.Get("database_version")
+	if !strings.HasPrefix(dbVersion.(string), "SQLSERVER") {
+		log.Printf("[WARN] Switchover is only supported for SQL Server %q", dbVersion)
+		return false
+	}
+	oldInstanceType, newInstanceType := d.GetChange("instance_type")
+	oldReplicaNames, newReplicaNames := d.GetChange("replica_names")
+	_, newMasterInstanceName := d.GetChange("master_instance_name")
+	_, newReplicaConfiguration := d.GetChange("replica_configuration")
+	if len(newReplicaConfiguration.([]interface{})) != 1 || newReplicaConfiguration.([]interface{})[0] == nil {
+		return false
+	}
+	replicaConfiguration := newReplicaConfiguration.([]interface{})[0].(map[string]interface{})
+	cascadableReplica, cascadableReplicaFieldExists := replicaConfiguration["cascadable_replica"]
+
+	instanceTypeChangedFromPrimaryToReplica := oldInstanceType.(string) == "CLOUD_SQL_INSTANCE" && newInstanceType.(string) == "READ_REPLICA_INSTANCE"
+	newMasterInOldReplicaNames := slices.Contains(oldReplicaNames.([]interface{}), newMasterInstanceName)
+	newMasterNotInNewReplicaNames := !slices.Contains(newReplicaNames.([]interface{}), newMasterInstanceName)
+	isCascadableReplica := cascadableReplicaFieldExists && cascadableReplica.(bool)
+
+	return newMasterInstanceName != nil &&
+		instanceTypeChangedFromPrimaryToReplica &&
+		newMasterInOldReplicaNames && newMasterNotInNewReplicaNames &&
+		isCascadableReplica
 }
 
 func checkPromoteConfigurations(d *schema.ResourceData) error {

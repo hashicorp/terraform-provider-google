@@ -70,8 +70,8 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  A unique identifier for the database, which cannot be changed after
-  the instance is created. Values are of the form [a-z][-a-z0-9]*[a-z0-9].
+  A unique identifier for the database, which cannot be changed after the
+  instance is created. Values are of the form `[a-z][-_a-z0-9]*[a-z0-9]`.
 
 * `instance` -
   (Required)

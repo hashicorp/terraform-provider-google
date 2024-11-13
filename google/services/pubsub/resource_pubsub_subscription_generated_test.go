@@ -410,24 +410,27 @@ resource "google_pubsub_subscription" "example" {
     service_account_email = google_service_account.bq_write_service_account.email
   }
 
-  depends_on = [google_service_account.bq_write_service_account, google_project_iam_member.viewer, google_project_iam_member.editor]
+  depends_on = [
+    google_service_account.bq_write_service_account,
+    google_project_iam_member.bigquery_metadata_viewer,
+    google_project_iam_member.bigquery_data_editor
+  ]
 }
 
-data "google_project" "project" {
-}
+data "google_project" "project" {}
 
 resource "google_service_account" "bq_write_service_account" {
   account_id = "tf-test-example-bqw%{random_suffix}"
   display_name = "BQ Write Service Account"
 }
 
-resource "google_project_iam_member" "viewer" {
+resource "google_project_iam_member" "bigquery_metadata_viewer" {
   project = data.google_project.project.project_id
   role   = "roles/bigquery.metadataViewer"
   member = "serviceAccount:${google_service_account.bq_write_service_account.email}"
 }
 
-resource "google_project_iam_member" "editor" {
+resource "google_project_iam_member" "bigquery_data_editor" {
   project = data.google_project.project.project_id
   role   = "roles/bigquery.dataEditor"
   member = "serviceAccount:${google_service_account.bq_write_service_account.email}"

@@ -81,6 +81,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/services/logging"
 	"github.com/hashicorp/terraform-provider-google/google/services/looker"
+	"github.com/hashicorp/terraform-provider-google/google/services/managedkafka"
 	"github.com/hashicorp/terraform-provider-google/google/services/memcache"
 	"github.com/hashicorp/terraform-provider-google/google/services/memorystore"
 	"github.com/hashicorp/terraform-provider-google/google/services/migrationcenter"
@@ -142,6 +143,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_access_approval_folder_service_account":        accessapproval.DataSourceAccessApprovalFolderServiceAccount(),
 	"google_access_approval_organization_service_account":  accessapproval.DataSourceAccessApprovalOrganizationServiceAccount(),
 	"google_access_approval_project_service_account":       accessapproval.DataSourceAccessApprovalProjectServiceAccount(),
+	"google_access_context_manager_access_policy":          accesscontextmanager.DataSourceAccessContextManagerAccessPolicy(),
 	"google_active_folder":                                 resourcemanager.DataSourceGoogleActiveFolder(),
 	"google_alloydb_locations":                             alloydb.DataSourceAlloydbLocations(),
 	"google_alloydb_supported_database_flags":              alloydb.DataSourceAlloydbSupportedDatabaseFlags(),
@@ -452,9 +454,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 485
+// Generated resources: 488
 // Generated IAM resources: 261
-// Total generated resources: 746
+// Total generated resources: 749
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -793,6 +795,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_dataproc_batch":                                                      dataproc.ResourceDataprocBatch(),
 	"google_dataproc_gdc_application_environment":                                dataprocgdc.ResourceDataprocGdcApplicationEnvironment(),
 	"google_dataproc_gdc_service_instance":                                       dataprocgdc.ResourceDataprocGdcServiceInstance(),
+	"google_dataproc_gdc_spark_application":                                      dataprocgdc.ResourceDataprocGdcSparkApplication(),
 	"google_dataproc_metastore_federation":                                       dataprocmetastore.ResourceDataprocMetastoreFederation(),
 	"google_dataproc_metastore_federation_iam_binding":                           tpgiamresource.ResourceIamBinding(dataprocmetastore.DataprocMetastoreFederationIamSchema, dataprocmetastore.DataprocMetastoreFederationIamUpdaterProducer, dataprocmetastore.DataprocMetastoreFederationIdParseFunc),
 	"google_dataproc_metastore_federation_iam_member":                            tpgiamresource.ResourceIamMember(dataprocmetastore.DataprocMetastoreFederationIamSchema, dataprocmetastore.DataprocMetastoreFederationIamUpdaterProducer, dataprocmetastore.DataprocMetastoreFederationIdParseFunc),
@@ -967,6 +970,8 @@ var generatedResources = map[string]*schema.Resource{
 	"google_logging_metric":                                                      logging.ResourceLoggingMetric(),
 	"google_logging_organization_settings":                                       logging.ResourceLoggingOrganizationSettings(),
 	"google_looker_instance":                                                     looker.ResourceLookerInstance(),
+	"google_managed_kafka_cluster":                                               managedkafka.ResourceManagedKafkaCluster(),
+	"google_managed_kafka_topic":                                                 managedkafka.ResourceManagedKafkaTopic(),
 	"google_memcache_instance":                                                   memcache.ResourceMemcacheInstance(),
 	"google_memorystore_instance":                                                memorystore.ResourceMemorystoreInstance(),
 	"google_migration_center_group":                                              migrationcenter.ResourceMigrationCenterGroup(),
