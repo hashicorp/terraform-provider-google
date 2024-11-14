@@ -282,6 +282,7 @@ type Config struct {
 	OrgPolicyBasePath                string
 	OSConfigBasePath                 string
 	OSLoginBasePath                  string
+	ParallelstoreBasePath            string
 	PrivatecaBasePath                string
 	PrivilegedAccessManagerBasePath  string
 	PublicCABasePath                 string
@@ -427,6 +428,7 @@ const OracleDatabaseBasePathKey = "OracleDatabase"
 const OrgPolicyBasePathKey = "OrgPolicy"
 const OSConfigBasePathKey = "OSConfig"
 const OSLoginBasePathKey = "OSLogin"
+const ParallelstoreBasePathKey = "Parallelstore"
 const PrivatecaBasePathKey = "Privateca"
 const PrivilegedAccessManagerBasePathKey = "PrivilegedAccessManager"
 const PublicCABasePathKey = "PublicCA"
@@ -566,6 +568,7 @@ var DefaultBasePaths = map[string]string{
 	OrgPolicyBasePathKey:                "https://orgpolicy.googleapis.com/v2/",
 	OSConfigBasePathKey:                 "https://osconfig.googleapis.com/v1/",
 	OSLoginBasePathKey:                  "https://oslogin.googleapis.com/v1/",
+	ParallelstoreBasePathKey:            "https://parallelstore.googleapis.com/v1/",
 	PrivatecaBasePathKey:                "https://privateca.googleapis.com/v1/",
 	PrivilegedAccessManagerBasePathKey:  "https://privilegedaccessmanager.googleapis.com/v1/",
 	PublicCABasePathKey:                 "https://publicca.googleapis.com/v1/",
@@ -1151,6 +1154,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("os_login_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_OS_LOGIN_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[OSLoginBasePathKey]))
+	}
+	if d.Get("parallelstore_custom_endpoint") == "" {
+		d.Set("parallelstore_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_PARALLELSTORE_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[ParallelstoreBasePathKey]))
 	}
 	if d.Get("privateca_custom_endpoint") == "" {
 		d.Set("privateca_custom_endpoint", MultiEnvDefault([]string{
@@ -2313,6 +2321,7 @@ func ConfigureBasePaths(c *Config) {
 	c.OrgPolicyBasePath = DefaultBasePaths[OrgPolicyBasePathKey]
 	c.OSConfigBasePath = DefaultBasePaths[OSConfigBasePathKey]
 	c.OSLoginBasePath = DefaultBasePaths[OSLoginBasePathKey]
+	c.ParallelstoreBasePath = DefaultBasePaths[ParallelstoreBasePathKey]
 	c.PrivatecaBasePath = DefaultBasePaths[PrivatecaBasePathKey]
 	c.PrivilegedAccessManagerBasePath = DefaultBasePaths[PrivilegedAccessManagerBasePathKey]
 	c.PublicCABasePath = DefaultBasePaths[PublicCABasePathKey]

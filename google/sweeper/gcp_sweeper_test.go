@@ -100,6 +100,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/orgpolicy"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/osconfig"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/oslogin"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/parallelstore"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/privateca"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/privilegedaccessmanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/publicca"
