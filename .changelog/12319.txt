@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `MRDMA` and `IRDMA` options to the setting `nic_type` in the `google_compute_instance` and `google_compute_instance_template` resources (beta)
+```
+```release-note:enhancement
+compute: added `network_profile` setting to `google_compute_network` resource (beta)
+```
