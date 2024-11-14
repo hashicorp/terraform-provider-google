@@ -5,19 +5,19 @@
 FEATURES:
 * **New Data Source:** `google_access_context_manager_access_policy` ([#20295](https://github.com/hashicorp/terraform-provider-google/pull/20295))
 * **New Resource:** `google_dataproc_gdc_spark_application` ([#20242](https://github.com/hashicorp/terraform-provider-google/pull/20242))
-* **New Resource:** `google_managed_kafka_cluster` and `google_managed_kafka_topic` (ga) ([#20237](https://github.com/hashicorp/terraform-provider-google/pull/20237))
+* **New Resource:** `google_managed_kafka_cluster` and `google_managed_kafka_topic` ([#20237](https://github.com/hashicorp/terraform-provider-google/pull/20237))
 
 IMPROVEMENTS:
 * artifactregistry: added `common_repository` field to `google_artifact_registry_repository` resource ([#20305](https://github.com/hashicorp/terraform-provider-google/pull/20305))
 * cloudrunv2: added `urls` output field to `google_cloud_run_v2_service` resource ([#20313](https://github.com/hashicorp/terraform-provider-google/pull/20313))
-* compute: added `IDPF` as a possible `nic_type` for the `google_compute_instance.network_interface` ([#20250](https://github.com/hashicorp/terraform-provider-google/pull/20250))
-* compute: added the `IDPF` tag to the list of `guestOsFeatures` ([#20250](https://github.com/hashicorp/terraform-provider-google/pull/20250))
+* compute: added `IDPF` as a possible value for the `network_interface.nic_type` field in `google_compute_instance` resource ([#8664](https://github.com/hashicorp/terraform-provider-google-beta/pull/8664))
+* compute: added `IDPF` as a possible value for the `guest_os_features.type` field in `google_compute_image` resource ([#8664](https://github.com/hashicorp/terraform-provider-google-beta/pull/8664))
 * compute: added `replica_names` field to `sql_database_instance` resource ([#20202](https://github.com/hashicorp/terraform-provider-google/pull/20202))
 * filestore: added `performance_config` field to `google_filestore_instance` ([#20218](https://github.com/hashicorp/terraform-provider-google/pull/20218))
 * redis: added `persistence_config` to `google_redis_cluster`. ([#20212](https://github.com/hashicorp/terraform-provider-google/pull/20212))
 * securesourcemanager: added `workforce_identity_federation_config` field to `google_secure_source_manager_instance` resource ([#20290](https://github.com/hashicorp/terraform-provider-google/pull/20290))
 * spanner: added `default_backup_schedule_type` field to  `google_spanner_instance` ([#20213](https://github.com/hashicorp/terraform-provider-google/pull/20213))
-* sql: added `psc_auto_connections` field to `instances` resource ([#20307](https://github.com/hashicorp/terraform-provider-google/pull/20307))
+* sql: added `psc_auto_connections` fields to `google_sql_database_instance` resource ([#8682](https://github.com/hashicorp/terraform-provider-google-beta/pull/8682))
 
 BUG FIXES:
 * accesscontextmanager: fixed permadiff in perimeter `google_access_context_manager_service_perimeter_ingress_policy` and `google_access_context_manager_service_perimeter_egress_policy` resources when there are duplicate resources in the rules ([#8675](https://github.com/hashicorp/terraform-provider-google-beta/pull/8675))
