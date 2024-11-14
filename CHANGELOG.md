@@ -1,4 +1,9 @@
-## 6.11.1 (Unreleased)
+## 6.11.2 (Unreleased)
+
+BUG FIXES:
+* vertexai: fixed issue with google_vertex_ai_endpoint where upgrading to 6.11.0 would delete all traffic splits that were set outside Terraform (which was previously a required step for all meaningful use of this resource).
+
+## 6.11.1 (Nov 12, 2024)
 
 BUG FIXES:
 * container: fixed diff on `google_container_cluster.user_managed_keys_config` field for resources that had not set it.
