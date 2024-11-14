@@ -8,9 +8,6 @@ description: |-
 
 Provides access to Kubernetes Secret configuration for a given project, region and Composer Environment.
 
-~> **Warning:** This data source is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
-
 ## Example Usage
 
 ```hcl
