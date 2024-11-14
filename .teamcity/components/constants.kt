@@ -16,6 +16,7 @@ const val DefaultStartHour = 4
 const val DefaultParallelism = 6
 
 // specifies the default version of Terraform Core which should be used for testing
+// this is updated semi-regularly
 const val DefaultTerraformCoreVersion = "1.8.3"
 
 // This represents a cron view of days of the week
