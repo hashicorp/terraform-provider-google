@@ -480,7 +480,7 @@ func TestAccTranscoderJob_transcoderJobManifestsExample(t *testing.T) {
 				ResourceName:            "google_transcoder_job.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"end_time", "labels", "location", "state", "template_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"end_time", "labels", "location", "start_time", "state", "template_id", "terraform_labels"},
 			},
 		},
 	})
