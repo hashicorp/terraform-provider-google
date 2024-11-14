@@ -1,7 +1,5 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
 //
@@ -20,13 +18,19 @@
 package parallelstore_test
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccParallelstoreInstance_parallelstoreInstanceBasicExample_update(t *testing.T) {
+func TestAccParallelstoreInstance_parallelstoreInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -39,28 +43,19 @@ func TestAccParallelstoreInstance_parallelstoreInstanceBasicExample_update(t *te
 		CheckDestroy:             testAccCheckParallelstoreInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccParallelstoreInstance_parallelstoreInstanceBasicExample_basic(context),
+				Config: testAccParallelstoreInstance_parallelstoreInstanceBasicExample(context),
 			},
 			{
 				ResourceName:            "google_parallelstore_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "instance_id", "labels", "terraform_labels"},
-			},
-			{
-				Config: testAccParallelstoreInstance_parallelstoreInstanceBasicExample_update(context),
-			},
-			{
-				ResourceName:            "google_parallelstore_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "instance_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels"},
 			},
 		},
 	})
 }
 
-func testAccParallelstoreInstance_parallelstoreInstanceBasicExample_basic(context map[string]interface{}) string {
+func testAccParallelstoreInstance_parallelstoreInstanceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_parallelstore_instance" "instance" {
   instance_id = "instance%{random_suffix}"
@@ -68,7 +63,6 @@ resource "google_parallelstore_instance" "instance" {
   description = "test instance"
   capacity_gib = 12000
   network = google_compute_network.network.name
-  reserved_ip_range = google_compute_global_address.private_ip_alloc.name
   file_stripe_level = "FILE_STRIPE_LEVEL_MIN"
   directory_stripe_level = "DIRECTORY_STRIPE_LEVEL_MIN"
   labels = {
@@ -83,8 +77,6 @@ resource "google_compute_network" "network" {
   mtu = 8896
 }
 
-
-
 # Create an IP address
 resource "google_compute_global_address" "private_ip_alloc" {
   name          = "address%{random_suffix}"
@@ -103,43 +95,41 @@ resource "google_service_networking_connection" "default" {
 `, context)
 }
 
-func testAccParallelstoreInstance_parallelstoreInstanceBasicExample_update(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_parallelstore_instance" "instance" {
-  instance_id = "instance%{random_suffix}"
-  location = "us-central1-a"
-  description = "test instance updated"
-  capacity_gib = 12000
-  network = google_compute_network.network.name
+func testAccCheckParallelstoreInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_parallelstore_instance" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
 
-  labels = {
-    test = "value23"
-  }
-  depends_on = [google_service_networking_connection.default]
-}
+			config := acctest.GoogleProviderConfig(t)
 
-resource "google_compute_network" "network" {
-  name                    = "network%{random_suffix}"
-  auto_create_subnetworks = true
-  mtu = 8896
-}
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{ParallelstoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}")
+			if err != nil {
+				return err
+			}
 
+			billingProject := ""
 
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
 
-# Create an IP address
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "address%{random_suffix}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 24
-  network       = google_compute_network.network.id
-}
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
+			if err == nil {
+				return fmt.Errorf("ParallelstoreInstance still exists at %s", url)
+			}
+		}
 
-# Create a private connection
-resource "google_service_networking_connection" "default" {
-  network                 = google_compute_network.network.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
-}
-`, context)
+		return nil
+	}
 }

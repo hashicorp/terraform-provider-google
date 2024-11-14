@@ -97,6 +97,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/orgpolicy"
 	"github.com/hashicorp/terraform-provider-google/google/services/osconfig"
 	"github.com/hashicorp/terraform-provider-google/google/services/oslogin"
+	"github.com/hashicorp/terraform-provider-google/google/services/parallelstore"
 	"github.com/hashicorp/terraform-provider-google/google/services/privateca"
 	"github.com/hashicorp/terraform-provider-google/google/services/privilegedaccessmanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/publicca"
@@ -454,9 +455,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 489
+// Generated resources: 490
 // Generated IAM resources: 261
-// Total generated resources: 750
+// Total generated resources: 751
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1041,6 +1042,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_org_policy_policy":                                                   orgpolicy.ResourceOrgPolicyPolicy(),
 	"google_os_config_patch_deployment":                                          osconfig.ResourceOSConfigPatchDeployment(),
 	"google_os_login_ssh_public_key":                                             oslogin.ResourceOSLoginSSHPublicKey(),
+	"google_parallelstore_instance":                                              parallelstore.ResourceParallelstoreInstance(),
 	"google_privateca_ca_pool":                                                   privateca.ResourcePrivatecaCaPool(),
 	"google_privateca_ca_pool_iam_binding":                                       tpgiamresource.ResourceIamBinding(privateca.PrivatecaCaPoolIamSchema, privateca.PrivatecaCaPoolIamUpdaterProducer, privateca.PrivatecaCaPoolIdParseFunc),
 	"google_privateca_ca_pool_iam_member":                                        tpgiamresource.ResourceIamMember(privateca.PrivatecaCaPoolIamSchema, privateca.PrivatecaCaPoolIamUpdaterProducer, privateca.PrivatecaCaPoolIdParseFunc),

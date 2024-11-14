@@ -21,8 +21,6 @@ description: |-
 
 A Parallelstore Instance.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -45,7 +43,6 @@ resource "google_parallelstore_instance" "instance" {
   labels = {
     test = "value"
   }
-  provider = google-beta
   depends_on = [google_service_networking_connection.default]
 }
 
@@ -53,7 +50,6 @@ resource "google_compute_network" "network" {
   name                    = "network"
   auto_create_subnetworks = true
   mtu = 8896
-  provider = google-beta
 }
 
 # Create an IP address
@@ -63,7 +59,6 @@ resource "google_compute_global_address" "private_ip_alloc" {
   address_type  = "INTERNAL"
   prefix_length = 24
   network       = google_compute_network.network.id
-  provider = google-beta
 }
 
 # Create a private connection
@@ -71,7 +66,6 @@ resource "google_service_networking_connection" "default" {
   network                 = google_compute_network.network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
-  provider = google-beta
 }
 ```
 
