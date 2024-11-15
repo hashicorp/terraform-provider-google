@@ -25,6 +25,11 @@ BUG FIXES:
 * compute: fixed permadiff on attempted `type` field updates in `google_computer_security_policy`, updating this field will now force recreation of the resource ([#20316](https://github.com/hashicorp/terraform-provider-google/pull/20316))
 * identityplatform: fixed perma-diff originating from the `sign_in.anonymous.enabled` field in `google_identity_platform_config` ([#20244](https://github.com/hashicorp/terraform-provider-google/pull/20244))
 
+## 6.11.2 (November 15, 2024)
+
+BUG FIXES:
+* vertexai: fixed issue with google_vertex_ai_endpoint where upgrading to 6.11.0 would delete all traffic splits that were set outside Terraform (which was previously a required step for all meaningful use of this resource). ([#20350](https://github.com/hashicorp/terraform-provider-google/pull/20350))
+
 ## 6.11.1 (November 12, 2024)
 
 BUG FIXES:
