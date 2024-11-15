@@ -10,17 +10,17 @@ FEATURES:
 IMPROVEMENTS:
 * artifactregistry: added `common_repository` field to `google_artifact_registry_repository` resource ([#20305](https://github.com/hashicorp/terraform-provider-google/pull/20305))
 * cloudrunv2: added `urls` output field to `google_cloud_run_v2_service` resource ([#20313](https://github.com/hashicorp/terraform-provider-google/pull/20313))
-* compute: added `IDPF` as a possible value for the `network_interface.nic_type` field in `google_compute_instance` resource ([#8664](https://github.com/hashicorp/terraform-provider-google-beta/pull/8664))
-* compute: added `IDPF` as a possible value for the `guest_os_features.type` field in `google_compute_image` resource ([#8664](https://github.com/hashicorp/terraform-provider-google-beta/pull/8664))
+* compute: added `IDPF` as a possible value for the `network_interface.nic_type` field in `google_compute_instance` resource ([#20250](https://github.com/hashicorp/terraform-provider-google/pull/20250))
+* compute: added `IDPF` as a possible value for the `guest_os_features.type` field in `google_compute_image` resource ([#20250](https://github.com/hashicorp/terraform-provider-google/pull/20250))
 * compute: added `replica_names` field to `sql_database_instance` resource ([#20202](https://github.com/hashicorp/terraform-provider-google/pull/20202))
 * filestore: added `performance_config` field to `google_filestore_instance` ([#20218](https://github.com/hashicorp/terraform-provider-google/pull/20218))
 * redis: added `persistence_config` to `google_redis_cluster`. ([#20212](https://github.com/hashicorp/terraform-provider-google/pull/20212))
 * securesourcemanager: added `workforce_identity_federation_config` field to `google_secure_source_manager_instance` resource ([#20290](https://github.com/hashicorp/terraform-provider-google/pull/20290))
 * spanner: added `default_backup_schedule_type` field to  `google_spanner_instance` ([#20213](https://github.com/hashicorp/terraform-provider-google/pull/20213))
-* sql: added `psc_auto_connections` fields to `google_sql_database_instance` resource ([#8682](https://github.com/hashicorp/terraform-provider-google-beta/pull/8682))
+* sql: added `psc_auto_connections` fields to `google_sql_database_instance` resource ([#20307](https://github.com/hashicorp/terraform-provider-google/pull/20307))
 
 BUG FIXES:
-* accesscontextmanager: fixed permadiff in perimeter `google_access_context_manager_service_perimeter_ingress_policy` and `google_access_context_manager_service_perimeter_egress_policy` resources when there are duplicate resources in the rules ([#8675](https://github.com/hashicorp/terraform-provider-google-beta/pull/8675))
+* accesscontextmanager: fixed permadiff in perimeter `google_access_context_manager_service_perimeter_ingress_policy` and `google_access_context_manager_service_perimeter_egress_policy` resources when there are duplicate resources in the rules ([#20294](https://github.com/hashicorp/terraform-provider-google/pull/20294))
 * * accesscontextmanager: fixed comparison of `identity_type` in `ingress_from` and `egress_from` when the `IDENTITY_TYPE_UNSPECIFIED` is set ([#20221](https://github.com/hashicorp/terraform-provider-google/pull/20221))
 * compute: fixed permadiff on attempted `type` field updates in `google_computer_security_policy`, updating this field will now force recreation of the resource ([#20316](https://github.com/hashicorp/terraform-provider-google/pull/20316))
 * identityplatform: fixed perma-diff originating from the `sign_in.anonymous.enabled` field in `google_identity_platform_config` ([#20244](https://github.com/hashicorp/terraform-provider-google/pull/20244))
