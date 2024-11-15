@@ -1,0 +1,3 @@
+```release-note:bug
+vertexai: fixed issue with google_vertex_ai_endpoint where upgrading to 6.11.0 would delete all traffic splits that were set outside Terraform (which was previously a required step for all meaningful use of this resource).
+```
