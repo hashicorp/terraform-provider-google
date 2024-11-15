@@ -2388,6 +2388,7 @@ resource "google_dataproc_cluster" "with_net_ref_by_url" {
 
     gce_cluster_config {
       network = google_compute_network.dataproc_network.self_link
+      internal_ip_only = false
     }
   }
 }
