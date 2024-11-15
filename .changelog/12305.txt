@@ -1,0 +1,3 @@
+```release-note:bug
+storage: derive the project attribute from resource or compute api or fallback to provider in `resource_storage_bucket`
+```
