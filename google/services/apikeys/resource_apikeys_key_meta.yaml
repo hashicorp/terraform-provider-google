@@ -1,0 +1,5 @@
+resource: 'google_apikeys_key'
+generation_type: 'dcl'
+api_service_name: 'apikeys.googleapis.com'
+api_version: 'v2'
+api_resource_type_kind: 'Key'
