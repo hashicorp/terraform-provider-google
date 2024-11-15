@@ -73,6 +73,7 @@ func dataSourceGoogleCloudIdentityGroupMembershipsRead(d *schema.ResourceData, m
 				"type":                 member.Type,
 				"roles":                flattenCloudIdentityGroupMembershipsRoles(member.Roles),
 				"preferred_member_key": flattenCloudIdentityGroupsEntityKey(member.PreferredMemberKey),
+				"create_time":          member.CreateTime,
 			})
 		}
 
