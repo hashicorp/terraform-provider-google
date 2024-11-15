@@ -39,7 +39,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudrunv2"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudscheduler"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudtasks"
-	"github.com/hashicorp/terraform-provider-google/google/services/composer"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/containeranalysis"
 	"github.com/hashicorp/terraform-provider-google/google/services/containerattached"
@@ -131,6 +130,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/workbench"
 	"github.com/hashicorp/terraform-provider-google/google/services/workflows"
 
+	"github.com/hashicorp/terraform-provider-google/google/services/composer"
 	"github.com/hashicorp/terraform-provider-google/google/services/container"
 	"github.com/hashicorp/terraform-provider-google/google/services/containeraws"
 	"github.com/hashicorp/terraform-provider-google/google/services/containerazure"
@@ -179,8 +179,6 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_cloud_run_v2_job":                              cloudrunv2.DataSourceGoogleCloudRunV2Job(),
 	"google_cloud_run_v2_service":                          cloudrunv2.DataSourceGoogleCloudRunV2Service(),
 	"google_composer_environment":                          composer.DataSourceGoogleComposerEnvironment(),
-	"google_composer_user_workloads_config_map":            composer.DataSourceGoogleComposerUserWorkloadsConfigMap(),
-	"google_composer_user_workloads_secret":                composer.DataSourceGoogleComposerUserWorkloadsSecret(),
 	"google_composer_image_versions":                       composer.DataSourceGoogleComposerImageVersions(),
 	"google_compute_address":                               compute.DataSourceGoogleComputeAddress(),
 	"google_compute_addresses":                             compute.DataSourceGoogleComputeAddresses(),
@@ -457,9 +455,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 491
+// Generated resources: 490
 // Generated IAM resources: 261
-// Total generated resources: 752
+// Total generated resources: 751
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -624,7 +622,6 @@ var generatedResources = map[string]*schema.Resource{
 	"google_cloud_tasks_queue_iam_binding":                                       tpgiamresource.ResourceIamBinding(cloudtasks.CloudTasksQueueIamSchema, cloudtasks.CloudTasksQueueIamUpdaterProducer, cloudtasks.CloudTasksQueueIdParseFunc),
 	"google_cloud_tasks_queue_iam_member":                                        tpgiamresource.ResourceIamMember(cloudtasks.CloudTasksQueueIamSchema, cloudtasks.CloudTasksQueueIamUpdaterProducer, cloudtasks.CloudTasksQueueIdParseFunc),
 	"google_cloud_tasks_queue_iam_policy":                                        tpgiamresource.ResourceIamPolicy(cloudtasks.CloudTasksQueueIamSchema, cloudtasks.CloudTasksQueueIamUpdaterProducer, cloudtasks.CloudTasksQueueIdParseFunc),
-	"google_composer_user_workloads_config_map":                                  composer.ResourceComposerUserWorkloadsConfigMap(),
 	"google_compute_address":                                                     compute.ResourceComputeAddress(),
 	"google_compute_autoscaler":                                                  compute.ResourceComputeAutoscaler(),
 	"google_compute_backend_bucket":                                              compute.ResourceComputeBackendBucket(),
@@ -1214,7 +1211,6 @@ var handwrittenResources = map[string]*schema.Resource{
 	"google_billing_subaccount":                     resourcemanager.ResourceBillingSubaccount(),
 	"google_cloudfunctions_function":                cloudfunctions.ResourceCloudFunctionsFunction(),
 	"google_composer_environment":                   composer.ResourceComposerEnvironment(),
-	"google_composer_user_workloads_secret":         composer.ResourceComposerUserWorkloadsSecret(),
 	"google_compute_attached_disk":                  compute.ResourceComputeAttachedDisk(),
 	"google_compute_instance":                       compute.ResourceComputeInstance(),
 	"google_compute_disk_async_replication":         compute.ResourceComputeDiskAsyncReplication(),
