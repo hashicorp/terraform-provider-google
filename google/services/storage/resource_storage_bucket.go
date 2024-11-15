@@ -1847,18 +1847,16 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 	// block, or the resource or an environment variable, we use the compute API to lookup the projectID
 	// from the projectNumber which is included in the bucket API response
 	if d.Get("project") == "" {
-		project, _ := tpgresource.GetProject(d, config)
-		if err := d.Set("project", project); err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
-		}
-	}
-	if d.Get("project") == "" {
+		projectName, _ := tpgresource.GetProject(d, config)
 		proj, err := config.NewComputeClient(userAgent).Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
 		if err != nil {
-			return err
+			log.Printf("[ERROR] Missing Compute API permissions, fallback to provider/resource default")
 		}
-		log.Printf("[DEBUG] Bucket %v is in project number %v, which is project ID %s.\n", res.Name, res.ProjectNumber, proj.Name)
-		if err := d.Set("project", proj.Name); err != nil {
+
+		if proj != nil && projectName != "" && projectName != proj.Name {
+			projectName = proj.Name
+		}
+		if err := d.Set("project", projectName); err != nil {
 			return fmt.Errorf("Error setting project: %s", err)
 		}
 	}
