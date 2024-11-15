@@ -690,6 +690,8 @@ The `specific_reservation` block supports:
 
 * `visible_core_count` - (Optional) The number of physical cores to expose to an instance. [visible cores info (VC)](https://cloud.google.com/compute/docs/instances/customize-visible-cores).
 
+* `performance_monitoring_unit` - (Optional) [The PMU](https://cloud.google.com/compute/docs/pmu-overview) is a hardware component within the CPU core that monitors how the processor runs code. Valid values for the level of PMU are `STANDARD`, `ENHANCED`, and `ARCHITECTURAL`.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
