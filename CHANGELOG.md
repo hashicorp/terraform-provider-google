@@ -23,7 +23,7 @@ BUG FIXES:
 * accesscontextmanager: fixed permadiff in perimeter `google_access_context_manager_service_perimeter_ingress_policy` and `google_access_context_manager_service_perimeter_egress_policy` resources when there are duplicate resources in the rules ([#8675](https://github.com/hashicorp/terraform-provider-google-beta/pull/8675))
 * * accesscontextmanager: fixed comparison of `identity_type` in `ingress_from` and `egress_from` when the `IDENTITY_TYPE_UNSPECIFIED` is set ([#20221](https://github.com/hashicorp/terraform-provider-google/pull/20221))
 * compute: fixed permadiff on attempted `type` field updates in `google_computer_security_policy`, updating this field will now force recreation of the resource ([#20316](https://github.com/hashicorp/terraform-provider-google/pull/20316))
-* identityplatform: fixed perma-diff in `google_identity_platform_config` ([#20244](https://github.com/hashicorp/terraform-provider-google/pull/20244))
+* identityplatform: fixed perma-diff originating from the `sign_in.anonymous.enabled` field in `google_identity_platform_config` ([#20244](https://github.com/hashicorp/terraform-provider-google/pull/20244))
 
 ## 6.11.1 (November 12, 2024)
 
