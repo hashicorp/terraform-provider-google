@@ -815,6 +815,68 @@ func TestAccComputeInstanceTemplate_AdvancedMachineFeatures(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_performanceMonitoringUnit(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	context_1 := map[string]interface{}{
+		"instance_name":               fmt.Sprintf("tf-test-instance-template-%s", acctest.RandString(t, 10)),
+		"performance_monitoring_unit": "STANDARD",
+	}
+	context_2 := map[string]interface{}{
+		"instance_name":               context_1["instance_name"].(string),
+		"performance_monitoring_unit": "ENHANCED",
+	}
+	context_3 := map[string]interface{}{
+		"instance_name":               context_1["instance_name"].(string),
+		"performance_monitoring_unit": "ARCHITECTURAL",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_performanceMonitoringUnit(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "advanced_machine_features.0.performance_monitoring_unit", "STANDARD"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeInstanceTemplate_performanceMonitoringUnit(context_2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "advanced_machine_features.0.performance_monitoring_unit", "ENHANCED"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeInstanceTemplate_performanceMonitoringUnit(context_3),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "advanced_machine_features.0.performance_monitoring_unit", "ARCHITECTURAL"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_invalidDiskType(t *testing.T) {
 	t.Parallel()
 
@@ -3443,6 +3505,32 @@ resource "google_compute_instance_template" "foobar" {
 
 }
 `, suffix)
+}
+
+func testAccComputeInstanceTemplate_performanceMonitoringUnit(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "ubuntu-2004-lts"
+  project = "ubuntu-os-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name         = "%{instance_name}"
+	machine_type = "c4-standard-96"
+
+	disk {
+		source_image = data.google_compute_image.my_image.self_link
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	advanced_machine_features {
+		performance_monitoring_unit = "%{performance_monitoring_unit}"
+	}
+}
+`, context)
 }
 
 func testAccComputeInstanceTemplate_invalidDiskType(suffix string) string {

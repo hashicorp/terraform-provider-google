@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: `google_compute_instance`, `google_compute_instance_template` and `google_compute_region_instance_template` now support `advanced_machine_features.performance_monitoring_unit`
+```
