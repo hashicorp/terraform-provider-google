@@ -350,10 +350,13 @@ snapshot versions.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"uri": {
-										Type:        schema.TypeString,
-										Required:    true,
-										ForceNew:    true,
-										Description: `Specific uri to the Artifact Registory repository, e.g. 'projects/UPSTREAM_PROJECT_ID/locations/REGION/repositories/UPSTREAM_REPOSITORY'`,
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `One of:
+a. Artifact Registry Repository resource, e.g. 'projects/UPSTREAM_PROJECT_ID/locations/REGION/repositories/UPSTREAM_REPOSITORY'
+b. URI to the registry, e.g. '"https://registry-1.docker.io"'
+c. URI to Artifact Registry Repository, e.g. '"https://REGION-docker.pkg.dev/UPSTREAM_PROJECT_ID/UPSTREAM_REPOSITORY"'`,
 									},
 								},
 							},
@@ -383,7 +386,7 @@ not be validated.`,
 										Type:        schema.TypeList,
 										Optional:    true,
 										ForceNew:    true,
-										Description: `Settings for a remote repository with a custom uri.`,
+										Description: `[Deprecated, please use commonRepository instead] Settings for a remote repository with a custom uri.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -422,7 +425,7 @@ not be validated.`,
 										Type:        schema.TypeList,
 										Optional:    true,
 										ForceNew:    true,
-										Description: `Settings for a remote repository with a custom uri.`,
+										Description: `[Deprecated, please use commonRepository instead] Settings for a remote repository with a custom uri.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -461,7 +464,7 @@ not be validated.`,
 										Type:        schema.TypeList,
 										Optional:    true,
 										ForceNew:    true,
-										Description: `Settings for a remote repository with a custom uri.`,
+										Description: `[Deprecated, please use commonRepository instead] Settings for a remote repository with a custom uri.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -500,7 +503,7 @@ not be validated.`,
 										Type:        schema.TypeList,
 										Optional:    true,
 										ForceNew:    true,
-										Description: `Settings for a remote repository with a custom uri.`,
+										Description: `[Deprecated, please use commonRepository instead] Settings for a remote repository with a custom uri.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
