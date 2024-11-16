@@ -1,0 +1,3 @@
+```release-note:none
+Update Google Go API dependency to v0.206.0
+```
