@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/appengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/apphub"
 	"github.com/hashicorp/terraform-provider-google/google/services/artifactregistry"
+	"github.com/hashicorp/terraform-provider-google/google/services/backupdr"
 	"github.com/hashicorp/terraform-provider-google/google/services/beyondcorp"
 	"github.com/hashicorp/terraform-provider-google/google/services/biglake"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigquery"
@@ -455,9 +456,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 490
+// Generated resources: 491
 // Generated IAM resources: 261
-// Total generated resources: 751
+// Total generated resources: 752
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -523,6 +524,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_artifact_registry_repository_iam_binding":                            tpgiamresource.ResourceIamBinding(artifactregistry.ArtifactRegistryRepositoryIamSchema, artifactregistry.ArtifactRegistryRepositoryIamUpdaterProducer, artifactregistry.ArtifactRegistryRepositoryIdParseFunc),
 	"google_artifact_registry_repository_iam_member":                             tpgiamresource.ResourceIamMember(artifactregistry.ArtifactRegistryRepositoryIamSchema, artifactregistry.ArtifactRegistryRepositoryIamUpdaterProducer, artifactregistry.ArtifactRegistryRepositoryIdParseFunc),
 	"google_artifact_registry_repository_iam_policy":                             tpgiamresource.ResourceIamPolicy(artifactregistry.ArtifactRegistryRepositoryIamSchema, artifactregistry.ArtifactRegistryRepositoryIamUpdaterProducer, artifactregistry.ArtifactRegistryRepositoryIdParseFunc),
+	"google_backup_dr_backup_vault":                                              backupdr.ResourceBackupDRBackupVault(),
 	"google_beyondcorp_app_connection":                                           beyondcorp.ResourceBeyondcorpAppConnection(),
 	"google_beyondcorp_app_connector":                                            beyondcorp.ResourceBeyondcorpAppConnector(),
 	"google_beyondcorp_app_gateway":                                              beyondcorp.ResourceBeyondcorpAppGateway(),

@@ -21,8 +21,6 @@ description: |-
 
 Container to store and organize immutable and indelible backups.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Backup Dr Backup Vault Full
@@ -30,18 +28,17 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_backup_dr_backup_vault" "backup-vault-test" {
-  provider = google-beta
   location = "us-central1"
   backup_vault_id    = "backup-vault-test"
   description = "This is a second backup vault built by Terraform."
   backup_minimum_enforced_retention_duration = "100000s"
-  labels = {
-    foo = "bar1"
-    bar = "baz1"
-  }
   annotations = {
     annotations1 = "bar1"
     annotations2 = "baz1"
+  }
+  labels = {
+    foo = "bar1"
+    bar = "baz1"
   }
   force_update = "true"
   access_restriction = "WITHIN_ORGANIZATION"
