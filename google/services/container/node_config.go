@@ -758,6 +758,13 @@ func schemaNodeConfig() *schema.Schema {
 					ForceNew:    true,
 					Description: `If enabled boot disks are configured with confidential mode.`,
 				},
+				"local_ssd_encryption_mode": {
+					Type:         schema.TypeString,
+					Optional:     true,
+					ForceNew:     true,
+					ValidateFunc: validation.StringInSlice([]string{"STANDARD_ENCRYPTION", "EPHEMERAL_KEY_ENCRYPTION"}, false),
+					Description:  `LocalSsdEncryptionMode specified the method used for encrypting the local SSDs attached to the node.`,
+				},
 			},
 		},
 	}
@@ -1094,6 +1101,10 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 
 	if v, ok := nodeConfig["enable_confidential_storage"]; ok {
 		nc.EnableConfidentialStorage = v.(bool)
+	}
+
+	if v, ok := nodeConfig["local_ssd_encryption_mode"]; ok {
+		nc.LocalSsdEncryptionMode = v.(string)
 	}
 
 	if v, ok := nodeConfig["confidential_nodes"]; ok {
@@ -1454,6 +1465,7 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 		"fast_socket":                        flattenFastSocket(c.FastSocket),
 		"resource_manager_tags":              flattenResourceManagerTags(c.ResourceManagerTags),
 		"enable_confidential_storage":        c.EnableConfidentialStorage,
+		"local_ssd_encryption_mode":          c.LocalSsdEncryptionMode,
 	})
 
 	if len(c.OauthScopes) > 0 {
