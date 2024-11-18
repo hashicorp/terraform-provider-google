@@ -200,6 +200,189 @@ resource "google_compute_network" "producer_net" {
 `, context)
 }
 
+func TestAccRedisCluster_redisClusterSecondaryExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"primary_cluster_deletion_protection_enabled":   false,
+		"secondary_cluster_deletion_protection_enabled": false,
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRedisClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRedisCluster_redisClusterSecondaryExample(context),
+			},
+			{
+				ResourceName:            "google_redis_cluster.secondary_cluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "psc_configs", "region"},
+			},
+		},
+	})
+}
+
+func testAccRedisCluster_redisClusterSecondaryExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+// Primary cluster
+resource "google_redis_cluster" "primary_cluster" {
+  name          = "tf-test-my-primary-cluster%{random_suffix}"
+  region        = "us-east1"
+  psc_configs {
+    network = google_compute_network.producer_net.id
+  }
+
+  // Settings that should match on primary and secondary clusters. 
+  // If you define a setting here, ensure that the secondary clusters also define it with the same values. 
+  // Please see https://cloud.google.com/memorystore/docs/cluster/about-cross-region-replication#settings_copied_from_the_primary_during_instance_creation for the complete list of such settings.
+  authorization_mode = "AUTH_MODE_DISABLED"
+  transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
+  shard_count   = 3
+  redis_configs = {
+    maxmemory-policy = "volatile-ttl"
+  }
+  node_type = "REDIS_HIGHMEM_MEDIUM"
+  persistence_config {
+    mode = "RDB"
+    rdb_config {
+      rdb_snapshot_period = "ONE_HOUR"
+      rdb_snapshot_start_time = "2024-10-02T15:01:23Z"
+    }
+  }
+
+  // Settings that can have different values on primary and secondary clusters.
+  // Please see https://cloud.google.com/memorystore/docs/cluster/about-cross-region-replication#override_allowed_during_instance_creation for the complete list of such settings.
+  zone_distribution_config {
+    mode = "MULTI_ZONE"
+  }
+  replica_count = 1
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
+  deletion_protection_enabled = %{primary_cluster_deletion_protection_enabled}
+
+  depends_on = [
+    google_network_connectivity_service_connection_policy.primary_cluster_region_scp
+  ]
+}
+
+
+// Secondary cluster
+resource "google_redis_cluster" "secondary_cluster" {
+  name          = "tf-test-my-secondary-cluster%{random_suffix}"
+  region        = "europe-west1"
+  psc_configs {
+    network = google_compute_network.producer_net.id
+  }
+
+  // Settings that should match on primary and secondary clusters. 
+  // If you defined a setting here for primary, ensure the secondary clusters also define it with the same values. 
+  // Please see https://cloud.google.com/memorystore/docs/cluster/about-cross-region-replication#settings_copied_from_the_primary_during_instance_creation for the complete list of such settings.
+  authorization_mode = "AUTH_MODE_DISABLED"
+  transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
+  shard_count   = 3
+  redis_configs = {
+    maxmemory-policy = "volatile-ttl"
+  }
+  node_type = "REDIS_HIGHMEM_MEDIUM"
+  persistence_config {
+    mode = "RDB"
+    rdb_config {
+      rdb_snapshot_period = "ONE_HOUR"
+      rdb_snapshot_start_time = "2024-10-02T15:01:23Z"
+    }
+  }
+
+  // Settings that can be different on primary and secondary clusters.
+  // Please see https://cloud.google.com/memorystore/docs/cluster/about-cross-region-replication#override_allowed_during_instance_creation for the complete list of such settings.
+  zone_distribution_config {
+    mode = "MULTI_ZONE"
+  }
+  replica_count = 2
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "WEDNESDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
+  deletion_protection_enabled = %{secondary_cluster_deletion_protection_enabled}
+
+  // Cross cluster replication config
+  cross_cluster_replication_config {
+    cluster_role = "SECONDARY"
+    primary_cluster {
+      cluster = google_redis_cluster.primary_cluster.id
+    }
+  }
+
+  depends_on = [
+    google_network_connectivity_service_connection_policy.secondary_cluster_region_scp
+  ]
+}
+
+
+resource "google_network_connectivity_service_connection_policy" "primary_cluster_region_scp" {
+  name = "tf-test-mypolicy-primary-cluster%{random_suffix}"
+  location = "us-east1"
+  service_class = "gcp-memorystore-redis"
+  description   = "Primary cluster service connection policy"
+  network = google_compute_network.producer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.primary_cluster_producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "primary_cluster_producer_subnet" {
+  name          = "tf-test-mysubnet-primary-cluster%{random_suffix}"
+  ip_cidr_range = "10.0.1.0/29"
+  region        = "us-east1"
+  network       = google_compute_network.producer_net.id
+}
+
+
+resource "google_network_connectivity_service_connection_policy" "secondary_cluster_region_scp" {
+  name = "tf-test-mypolicy-secondary-cluster%{random_suffix}"
+  location = "europe-west1"
+  service_class = "gcp-memorystore-redis"
+  description   = "Secondary cluster service connection policy"
+  network = google_compute_network.producer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.secondary_cluster_producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "secondary_cluster_producer_subnet" {
+  name          = "tf-test-mysubnet-secondary-cluster%{random_suffix}"
+  ip_cidr_range = "10.0.2.0/29"
+  region        = "europe-west1"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_network" "producer_net" {
+  name                    = "mynetwork%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
 func TestAccRedisCluster_redisClusterRdbExample(t *testing.T) {
 	t.Parallel()
 
