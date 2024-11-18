@@ -1,6 +1,4 @@
-## 6.13.0 (Unreleased)
-
-## 6.12.0 (November 18, 2024)
+## 6.12.0 (Unreleased)
 
 FEATURES:
 * **New Data Source:** `google_access_context_manager_access_policy` ([#20295](https://github.com/hashicorp/terraform-provider-google/pull/20295))
