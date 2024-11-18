@@ -392,6 +392,50 @@ func TestAccRegionInstanceGroupManager_stateful(t *testing.T) {
 		},
 	})
 }
+
+func TestAccRegionInstanceGroupManager_instanceFlexibilityPolicy(t *testing.T) {
+	t.Parallel()
+
+	template := fmt.Sprintf("tf-test-rigm-%s", acctest.RandString(t, 10))
+	igm := fmt.Sprintf("tf-test-rigm-%s", acctest.RandString(t, 10))
+	network := fmt.Sprintf("tf-test-rigm-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRegionInstanceGroupManager_instanceFlexibilityPolicy(network, template, igm),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+			{
+				Config: testAccRegionInstanceGroupManager_instanceFlexibilityPolicyUpdate(network, template, igm),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+			{
+				Config: testAccRegionInstanceGroupManager_instanceFlexibilityPolicyRemove(network, template, igm),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+		},
+	})
+}
+
 func TestAccRegionInstanceGroupManager_APISideListRecordering(t *testing.T) {
 	t.Parallel()
 
@@ -1742,4 +1786,173 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
 
 }
 `, context)
+}
+
+func testAccRegionInstanceGroupManager_instanceFlexibilityPolicy(network, template, igm string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-11"
+	project = "debian-cloud"
+}
+
+resource "google_compute_network" "igm-basic" {
+	name = "%s"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+	name           = "%s"
+	machine_type   = "e2-medium"
+	disk {
+		source_image = data.google_compute_image.my_image.self_link
+		auto_delete  = true
+		boot         = true
+		device_name  = "stateful-disk"
+	}
+	network_interface {
+		network = "default"
+	}
+}
+
+resource "google_compute_region_instance_group_manager" "igm-basic" {
+	description = "Terraform test instance group manager"
+	name        = "%s"
+
+	version {
+		instance_template = google_compute_instance_template.igm-basic.self_link
+		name              = "primary"
+	}
+
+	base_instance_name        = "tf-test-igm-basic"
+	region                    = "us-central1"
+	target_size               = 2
+	distribution_policy_target_shape = "ANY_SINGLE_ZONE"
+	update_policy {
+		instance_redistribution_type = "NONE"
+		type                         = "OPPORTUNISTIC"
+		minimal_action               = "REPLACE"
+		max_surge_fixed              = 0
+		max_unavailable_fixed        = 6
+	}
+	instance_flexibility_policy {
+		instance_selections {
+			name = "instance_selection_name_1"
+			rank = 2
+			machine_types = ["n1-standard-16"]
+		}
+		instance_selections {
+			name = "instance_selection_name_2"
+			rank = 1
+			machine_types = ["n1-standard-1", "n4-standard-2"]
+		}
+	}
+}
+`, network, template, igm)
+}
+
+func testAccRegionInstanceGroupManager_instanceFlexibilityPolicyUpdate(network, template, igm string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-11"
+	project = "debian-cloud"
+}
+
+resource "google_compute_network" "igm-basic" {
+	name = "%s"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+	name           = "%s"
+	machine_type   = "e2-medium"
+	disk {
+		source_image = data.google_compute_image.my_image.self_link
+		auto_delete  = true
+		boot         = true
+		device_name  = "stateful-disk"
+	}
+	network_interface {
+		network = "default"
+	}
+}
+
+resource "google_compute_region_instance_group_manager" "igm-basic" {
+	description = "Terraform test instance group manager"
+	name        = "%s"
+
+	version {
+		instance_template = google_compute_instance_template.igm-basic.self_link
+		name              = "primary"
+	}
+
+	base_instance_name        = "tf-test-igm-basic"
+	region                    = "us-central1"
+	target_size               = 0
+	distribution_policy_target_shape = "ANY_SINGLE_ZONE"
+	update_policy {
+		instance_redistribution_type = "NONE"
+		type                         = "OPPORTUNISTIC"
+		minimal_action               = "REPLACE"
+		max_surge_fixed              = 0
+		max_unavailable_fixed        = 6
+	}
+	instance_flexibility_policy {
+		instance_selections {
+			name = "instance_selection_name_1"
+			machine_types = ["n1-standard-1"]
+		}
+		instance_selections {
+				name = "instance_selection_name_2_version_2"
+				machine_types = ["n1-standard-2", "n1-standard-4"]
+		}
+	}
+}
+`, network, template, igm)
+}
+
+func testAccRegionInstanceGroupManager_instanceFlexibilityPolicyRemove(network, template, igm string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-11"
+	project = "debian-cloud"
+}
+
+resource "google_compute_network" "igm-basic" {
+	name = "%s"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+	name           = "%s"
+	machine_type   = "e2-medium"
+	disk {
+		source_image = data.google_compute_image.my_image.self_link
+		auto_delete  = true
+		boot         = true
+		device_name  = "stateful-disk"
+	}
+	network_interface {
+		network = "default"
+	}
+}
+
+resource "google_compute_region_instance_group_manager" "igm-basic" {
+	description = "Terraform test instance group manager"
+	name        = "%s"
+
+	version {
+		instance_template = google_compute_instance_template.igm-basic.self_link
+		name              = "primary"
+	}
+
+	base_instance_name        = "tf-test-igm-basic"
+	region                    = "us-central1"
+	target_size               = 0
+	distribution_policy_target_shape = "ANY_SINGLE_ZONE"
+	update_policy {
+		instance_redistribution_type = "NONE"
+		type                         = "OPPORTUNISTIC"
+		minimal_action               = "REPLACE"
+		max_surge_fixed              = 0
+		max_unavailable_fixed        = 6
+	}
+}
+`, network, template, igm)
 }
