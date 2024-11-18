@@ -1036,6 +1036,6 @@ func (p *FrameworkProvider) Functions(_ context.Context) []func() function.Funct
 // EphemeralResources defines the resources that are of ephemeral type implemented in the provider.
 func (p *FrameworkProvider) EphemeralResources(_ context.Context) []func() ephemeral.EphemeralResource {
 	return []func() ephemeral.EphemeralResource{
-		// TODO!
+		resourcemanager.GoogleEphemeralServiceAccountAccessToken,
 	}
 }
