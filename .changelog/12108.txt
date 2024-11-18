@@ -1,0 +1,3 @@
+```release-note:bug
+pubsub: fixed the issue to allow successfully configure empty `cloud_storage_config.avro_config` field in `google_pubsub_subscription`
+```
