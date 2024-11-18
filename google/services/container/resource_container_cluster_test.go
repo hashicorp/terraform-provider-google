@@ -417,6 +417,32 @@ func TestAccContainerCluster_withConfidentialNodes(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withLocalSsdEncryptionMode(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	npName := fmt.Sprintf("tf-test-node-pool-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withLocalSsdEncryptionMode(clusterName, npName, networkName, subnetworkName, "EPHEMERAL_KEY_ENCRYPTION"),
+			},
+			{
+				ResourceName:            "google_container_cluster.local_ssd_encryption_mode",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withILBSubsetting(t *testing.T) {
 	t.Parallel()
 
@@ -5906,6 +5932,32 @@ resource "google_container_cluster" "confidential_nodes" {
   deletion_protection = false
 }
 `, clusterName, npName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withLocalSsdEncryptionMode(clusterName, npName, networkName, subnetworkName, mode string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "local_ssd_encryption_mode" {
+  name               = "%s"
+  location           = "us-central1-a"
+  release_channel {
+    channel = "RAPID"
+  }
+
+  node_pool {
+    name = "%s"
+    initial_node_count = 1
+    node_config {
+      machine_type = "n1-standard-2"
+	  local_ssd_count = 1
+	  local_ssd_encryption_mode = "%s"
+    }
+  }
+
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+`, clusterName, npName, mode, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withILBSubSetting(clusterName, npName, networkName, subnetworkName string) string {
