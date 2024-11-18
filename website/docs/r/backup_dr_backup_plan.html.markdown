@@ -37,7 +37,7 @@ To get more information about BackupPlan, see:
 resource "google_backup_dr_backup_vault" "my_backup_vault" {
   provider                                      = google-beta
   location                                      = "us-central1"
-  backup_vault_id                               = "bv-bp-test"
+  backup_vault_id                               = "backup-vault-simple-test"
   backup_minimum_enforced_retention_duration    = "100000s"
 }
 
