@@ -2353,14 +2353,15 @@ resource "google_dataproc_cluster" "with_net_ref_by_name" {
     }
 
     master_config {
-      machine_type = "e2-medium"
+      machine_type = "e2-standard-2"
       disk_config {
         boot_disk_size_gb = 35
       }
     }
 
     gce_cluster_config {
-      network = google_compute_network.dataproc_network.name
+      network          = google_compute_network.dataproc_network.name
+      internal_ip_only = false
     }
   }
 }
@@ -2380,14 +2381,15 @@ resource "google_dataproc_cluster" "with_net_ref_by_url" {
     }
 
     master_config {
-      machine_type = "e2-medium"
+      machine_type = "e2-standard-2"
       disk_config {
         boot_disk_size_gb = 35
       }
     }
 
     gce_cluster_config {
-      network = google_compute_network.dataproc_network.self_link
+      network          = google_compute_network.dataproc_network.self_link
+      internal_ip_only = false
     }
   }
 }
