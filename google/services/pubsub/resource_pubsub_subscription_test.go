@@ -354,6 +354,31 @@ func TestAccPubsubSubscriptionCloudStorage_updateAvro(t *testing.T) {
 	})
 }
 
+func TestAccPubsubSubscriptionCloudStorage_emptyAvroConfig(t *testing.T) {
+	t.Parallel()
+
+	bucket := fmt.Sprintf("tf-test-bucket-%s", acctest.RandString(t, 10))
+	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
+	subscriptionShort := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscriptionCloudStorage_basic(bucket, topic, subscriptionShort, "pre-", "-suffix", "YYYY-MM-DD/hh_mm_ssZ", 1000, "300s", 1000, "", "empty-avro"),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportStateId:     subscriptionShort,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccPubsubSubscriptionCloudStorage_serviceAccount(t *testing.T) {
 	t.Parallel()
 
@@ -825,6 +850,8 @@ resource "google_storage_bucket_iam_member" "admin" {
     use_topic_schema = true
   }
 `
+	} else if outputFormat == "empty-avro" {
+		outputFormatString = `avro_config {}`
 	}
 	return fmt.Sprintf(`
 data "google_project" "project" { }
