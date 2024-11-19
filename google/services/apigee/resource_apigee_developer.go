@@ -311,58 +311,27 @@ func resourceApigeeDeveloperUpdate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[DEBUG] Updating Developer %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
-	updateMask := []string{}
-
-	if d.HasChange("email") {
-		updateMask = append(updateMask, "email")
-	}
-
-	if d.HasChange("first_name") {
-		updateMask = append(updateMask, "firstName")
-	}
-
-	if d.HasChange("last_name") {
-		updateMask = append(updateMask, "lastName")
-	}
-
-	if d.HasChange("user_name") {
-		updateMask = append(updateMask, "userName")
-	}
-
-	if d.HasChange("attributes") {
-		updateMask = append(updateMask, "attributes")
-	}
-	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
-	// won't set it
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
-	if err != nil {
-		return err
-	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	// if updateMask is empty we are not updating anything so skip the post
-	if len(updateMask) > 0 {
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PUT",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PUT",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
 
-		if err != nil {
-			return fmt.Errorf("Error updating Developer %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Developer %q: %#v", d.Id(), res)
-		}
-
+	if err != nil {
+		return fmt.Errorf("Error updating Developer %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Developer %q: %#v", d.Id(), res)
 	}
 
 	return resourceApigeeDeveloperRead(d, meta)
