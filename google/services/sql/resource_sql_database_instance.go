@@ -2026,6 +2026,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	instance.Settings.SettingsVersion = int64(_settings["version"].(int))
 	// Collation cannot be included in the update request
 	instance.Settings.Collation = ""
+	instance.Settings.DataCacheConfig = expandDataCacheConfig(_settings["data_cache_config"].([]interface{}))
 
 	// Lock on the master_instance_name just in case updating any replica
 	// settings causes operations on the master.
