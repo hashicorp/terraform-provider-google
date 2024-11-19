@@ -1185,6 +1185,7 @@ func ResourceDataprocCluster() *schema.Resource {
 													ForceNew: true,
 													AtLeastOneOf: []string{
 														"cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.instance_selection_list",
+														"cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.provisioning_model_mix",
 													},
 													Description: `List of instance selection options that the group will use when creating new VMs.`,
 													Elem: &schema.Resource{
@@ -1225,6 +1226,36 @@ func ResourceDataprocCluster() *schema.Resource {
 																Computed:    true,
 																Elem:        &schema.Schema{Type: schema.TypeInt},
 																Description: `Number of VM provisioned with the machine_type.`,
+															},
+														},
+													},
+												},
+												"provisioning_model_mix": {
+													Type:     schema.TypeList,
+													Optional: true,
+													ForceNew: true,
+													AtLeastOneOf: []string{
+														"cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.instance_selection_list",
+														"cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.provisioning_model_mix",
+													},
+													MaxItems:    1,
+													Description: `Defines how Dataproc should create VMs with a mixture of provisioning models.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"standard_capacity_base": {
+																Type:         schema.TypeInt,
+																Optional:     true,
+																ForceNew:     true,
+																Description:  `The base capacity that will always use Standard VMs to avoid risk of more preemption than the minimum capacity you need.`,
+																ValidateFunc: validation.IntAtLeast(0),
+															},
+
+															"standard_capacity_percent_above_base": {
+																Type:         schema.TypeInt,
+																Optional:     true,
+																ForceNew:     true,
+																Description:  `The percentage of target capacity that should use Standard VM. The remaining percentage will use Spot VMs.`,
+																ValidateFunc: validation.IntBetween(0, 100),
 															},
 														},
 													},
@@ -2415,6 +2446,9 @@ func expandPreemptibleInstanceGroupConfig(cfg map[string]interface{}) *dataproc.
 			if v, ok := flexibilityPolicy["instance_selection_list"]; ok {
 				icg.InstanceFlexibilityPolicy.InstanceSelectionList = expandInstanceSelectionList(v)
 			}
+			if v, ok := flexibilityPolicy["provisioning_model_mix"]; ok {
+				icg.InstanceFlexibilityPolicy.ProvisioningModelMix = expandProvisioningModelMix(v)
+			}
 		}
 
 	}
@@ -2444,6 +2478,18 @@ func expandInstanceSelectionList(v interface{}) []*dataproc.InstanceSelection {
 	}
 
 	return instanceSelections
+}
+
+func expandProvisioningModelMix(v interface{}) *dataproc.ProvisioningModelMix {
+	pmm := v.([]interface{})
+	if len(pmm) > 0 {
+		provisioningModelMix := pmm[0].(map[string]interface{})
+		return &dataproc.ProvisioningModelMix{
+			StandardCapacityBase:             int64(provisioningModelMix["standard_capacity_base"].(int)),
+			StandardCapacityPercentAboveBase: int64(provisioningModelMix["standard_capacity_percent_above_base"].(int)),
+		}
+	}
+	return nil
 }
 
 func expandMasterInstanceGroupConfig(cfg map[string]interface{}) *dataproc.InstanceGroupConfig {
@@ -3186,8 +3232,13 @@ func flattenPreemptibleInstanceGroupConfig(d *schema.ResourceData, icg *dataproc
 			disk["local_ssd_interface"] = icg.DiskConfig.LocalSsdInterface
 		}
 		if icg.InstanceFlexibilityPolicy != nil {
-			instanceFlexibilityPolicy["instance_selection_list"] = flattenInstanceSelectionList(icg.InstanceFlexibilityPolicy.InstanceSelectionList)
-			instanceFlexibilityPolicy["instance_selection_results"] = flattenInstanceSelectionResults(icg.InstanceFlexibilityPolicy.InstanceSelectionResults)
+			if icg.InstanceFlexibilityPolicy.InstanceSelectionList != nil {
+				instanceFlexibilityPolicy["instance_selection_list"] = flattenInstanceSelectionList(icg.InstanceFlexibilityPolicy.InstanceSelectionList)
+				instanceFlexibilityPolicy["instance_selection_results"] = flattenInstanceSelectionResults(icg.InstanceFlexibilityPolicy.InstanceSelectionResults)
+			}
+			if icg.InstanceFlexibilityPolicy.ProvisioningModelMix != nil {
+				instanceFlexibilityPolicy["provisioning_model_mix"] = flattenProvisioningModelMix(icg.InstanceFlexibilityPolicy.ProvisioningModelMix)
+			}
 		}
 	}
 
@@ -3222,6 +3273,14 @@ func flattenInstanceSelectionResults(isr []*dataproc.InstanceSelectionResult) []
 	}
 	return instanceSelectionResults
 
+}
+
+func flattenProvisioningModelMix(pmm *dataproc.ProvisioningModelMix) []map[string]interface{} {
+	provisioningModelMix := map[string]interface{}{}
+	provisioningModelMix["standard_capacity_base"] = pmm.StandardCapacityBase
+	provisioningModelMix["standard_capacity_percent_above_base"] = pmm.StandardCapacityPercentAboveBase
+
+	return []map[string]interface{}{provisioningModelMix}
 }
 
 func flattenMasterInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGroupConfig) []map[string]interface{} {
