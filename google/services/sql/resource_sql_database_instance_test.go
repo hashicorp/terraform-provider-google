@@ -1881,7 +1881,6 @@ func TestAccSqlDatabaseInstance_Postgres_Edition_Upgrade(t *testing.T) {
 }
 
 func TestAccSqlDatabaseInstance_Edition_Downgrade(t *testing.T) {
-	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20010")
 	t.Parallel()
 	enterprisePlusTier := "db-perf-optimized-N-2"
 	enterpriseTier := "db-custom-2-13312"

@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed edition downgrade failure for an `ENTERPRISE_PLUS` instance with data cache enabled.
+```
