@@ -407,6 +407,12 @@ projects/{project}/locations/{region}/cloudVmClusters/{cloud_vm_cluster}`,
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"deletion_protection": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.`,
+				Default:     true,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -577,6 +583,12 @@ func resourceOracleDatabaseCloudVmClusterRead(d *schema.ResourceData, meta inter
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("OracleDatabaseCloudVmCluster %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_protection"); !ok {
+		if err := d.Set("deletion_protection", true); err != nil {
+			return fmt.Errorf("Error setting deletion_protection: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
 	}
@@ -654,6 +666,9 @@ func resourceOracleDatabaseCloudVmClusterDelete(d *schema.ResourceData, meta int
 	}
 
 	headers := make(http.Header)
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("cannot destroy google_oracle_database_cloud_vm_cluster resource with id : %q  without setting deletion_protection=false and running `terraform apply`", d.Id())
+	}
 
 	log.Printf("[DEBUG] Deleting CloudVmCluster %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -698,6 +713,11 @@ func resourceOracleDatabaseCloudVmClusterImport(d *schema.ResourceData, meta int
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_protection", true); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

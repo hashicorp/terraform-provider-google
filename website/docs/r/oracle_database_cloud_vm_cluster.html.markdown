@@ -53,6 +53,8 @@ resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster"{
     gi_version = "19.0.0.0"
     hostname_prefix = "hostname1"
   }
+
+  deletion_protection = "true"
 }
 
 resource "google_oracle_database_cloud_exadata_infrastructure" "cloudExadataInfrastructures"{
@@ -118,6 +120,8 @@ resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster"{
     }
     memory_size_gb = 60
   }
+
+  deletion_protection = "true"
 }
 
 resource "google_oracle_database_cloud_exadata_infrastructure" "cloudExadataInfrastructures"{
@@ -201,6 +205,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.
 
 <a name="nested_properties"></a>The `properties` block supports:
 
