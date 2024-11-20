@@ -1,0 +1,3 @@
+```release-note:none
+tpuv2: changed `accelerator_config.tpye` field from enum to string in `google_tpu_v2_vm` resource (beta)
+```
