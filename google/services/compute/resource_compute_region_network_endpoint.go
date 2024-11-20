@@ -92,6 +92,11 @@ This can only be specified when network_endpoint_type of the NEG is INTERNET_IP_
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `Region where the containing network endpoint group is located.`,
 			},
+			"network_endpoint_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The unique identifier number for the resource. This identifier is defined by the server.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -278,6 +283,9 @@ func resourceComputeRegionNetworkEndpointRead(d *schema.ResourceData, meta inter
 	if err := d.Set("ip_address", flattenNestedComputeRegionNetworkEndpointIpAddress(res["ipAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionNetworkEndpoint: %s", err)
 	}
+	if err := d.Set("network_endpoint_id", flattenNestedComputeRegionNetworkEndpointNetworkEndpointId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpoint: %s", err)
+	}
 	if err := d.Set("fqdn", flattenNestedComputeRegionNetworkEndpointFqdn(res["fqdn"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionNetworkEndpoint: %s", err)
 	}
@@ -412,6 +420,23 @@ func flattenNestedComputeRegionNetworkEndpointPort(v interface{}, d *schema.Reso
 
 func flattenNestedComputeRegionNetworkEndpointIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenNestedComputeRegionNetworkEndpointNetworkEndpointId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenNestedComputeRegionNetworkEndpointFqdn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

@@ -27,6 +27,9 @@ func TestAccRegionInstanceGroupManager_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRegionInstanceGroupManager_basic(template, target, igm1, igm2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"google_compute_region_instance_group_manager.igm-basic", "instance_group_manager_id")),
 			},
 			{
 				ResourceName:            "google_compute_region_instance_group_manager.igm-basic",

@@ -574,6 +574,11 @@ consecutive failures. The default value is 2.`,
 				Computed:    true,
 				Description: `Creation timestamp in RFC3339 text format.`,
 			},
+			"health_check_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The unique identifier number for the resource. This identifier is defined by the server.`,
+			},
 			"type": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -797,6 +802,9 @@ func resourceComputeRegionHealthCheckRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
 	if err := d.Set("description", flattenComputeRegionHealthCheckDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	}
+	if err := d.Set("health_check_id", flattenComputeRegionHealthCheckHealthCheckId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
 	if err := d.Set("healthy_threshold", flattenComputeRegionHealthCheckHealthyThreshold(res["healthyThreshold"], d, config)); err != nil {
@@ -1092,6 +1100,23 @@ func flattenComputeRegionHealthCheckCreationTimestamp(v interface{}, d *schema.R
 
 func flattenComputeRegionHealthCheckDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenComputeRegionHealthCheckHealthCheckId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeRegionHealthCheckHealthyThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

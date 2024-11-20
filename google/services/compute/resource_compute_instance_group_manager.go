@@ -117,6 +117,12 @@ func ResourceComputeInstanceGroupManager() *schema.Resource {
 				Description: `An optional textual description of the instance group manager.`,
 			},
 
+			"instance_group_manager_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The unique identifier number for the resource. This identifier is defined by the server.`,
+			},
+
 			"fingerprint": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -758,6 +764,11 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	if err := d.Set("description", manager.Description); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
+
+	if err := d.Set("instance_group_manager_id", manager.Id); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}

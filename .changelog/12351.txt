@@ -1,0 +1,18 @@
+```release-note: enhancement
+compute: added server generated id as `forwarding_rule_id` to `google_compute_global_forwarding_rule`
+```
+```release-note: enhancement
+compute: added server generated id as `health_check_id` to `google_region_health_check`
+```
+```release-note: enhancement
+compute: added server generated id as `instance_group_manager_id` to `google_region_instance_group_manager`
+```
+```release-note: enhancement
+compute: added server generated id as `instance_group_manager_id` to `google_instance_group_manager`
+```
+```release-note: enhancement
+compute: added server generated id as `network_endpoint_id` to `google_region_network_endpoint`
+```
+```release-note: enhancement
+compute: added server generated id as `subnetwork_id` to `google_subnetwork`
+```

@@ -32,7 +32,8 @@ func TestAccComputeGlobalForwardingRule_updateTarget(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr(
 						"google_compute_global_forwarding_rule.forwarding_rule", "target", regexp.MustCompile(proxy+"$")),
-				),
+					resource.TestCheckResourceAttrSet(
+						"google_compute_global_forwarding_rule.forwarding_rule", "forwarding_rule_id")),
 			},
 			{
 				ResourceName:            "google_compute_global_forwarding_rule.forwarding_rule",

@@ -355,6 +355,11 @@ outside this subnetwork.`,
 				Computed:    true,
 				Description: `The range of internal IPv6 addresses that are owned by this subnetwork.`,
 			},
+			"subnetwork_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The unique identifier number for the resource. This identifier is defined by the server.`,
+			},
 			"send_secondary_ip_range_if_empty": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -630,6 +635,9 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("description", flattenComputeSubnetworkDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err := d.Set("subnetwork_id", flattenComputeSubnetworkSubnetworkId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("gateway_address", flattenComputeSubnetworkGatewayAddress(res["gatewayAddress"], d, config)); err != nil {
@@ -1244,6 +1252,23 @@ func flattenComputeSubnetworkCreationTimestamp(v interface{}, d *schema.Resource
 
 func flattenComputeSubnetworkDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenComputeSubnetworkSubnetworkId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeSubnetworkGatewayAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
