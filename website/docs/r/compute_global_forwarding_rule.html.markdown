@@ -1427,6 +1427,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `psc_connection_status` -
   The PSC connection status of the PSC Forwarding Rule. Possible values: `STATUS_UNSPECIFIED`, `PENDING`, `ACCEPTED`, `REJECTED`, `CLOSED`
 
+* `forwarding_rule_id` -
+  The unique identifier number for the resource. This identifier is defined by the server.
+
 * `label_fingerprint` -
   The fingerprint used for optimistic locking of this resource.  Used
   internally during updates.

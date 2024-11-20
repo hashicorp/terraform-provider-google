@@ -521,6 +521,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
 
+* `subnetwork_id` -
+  The unique identifier number for the resource. This identifier is defined by the server.
+
 * `gateway_address` -
   The gateway address for default routes to reach destination addresses
   outside this subnetwork.

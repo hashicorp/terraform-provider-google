@@ -209,6 +209,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `{{project}}/{{region}}/{{region_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}`
 
+* `network_endpoint_id` -
+  The unique identifier number for the resource. This identifier is defined by the server.
+
 
 ## Timeouts
 

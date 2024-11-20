@@ -23,6 +23,10 @@ func TestAccComputeRegionHealthCheck_tcp_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionHealthCheck_tcp(hckName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"google_compute_region_health_check.foobar", "health_check_id"),
+				),
 			},
 			{
 				ResourceName:      "google_compute_region_health_check.foobar",

@@ -34,6 +34,10 @@ func TestAccComputeRegionNetworkEndpoint_regionNetworkEndpointBasic(t *testing.T
 			{
 				// Create one endpoint
 				Config: testAccComputeRegionNetworkEndpoint_regionNetworkEndpointBasic(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"google_compute_region_network_endpoint.default", "network_endpoint_id"),
+				),
 			},
 			{
 				ResourceName:      "google_compute_region_network_endpoint.default",
