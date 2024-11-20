@@ -23,6 +23,7 @@ func main() {
 	flag.Parse()
 
 	// concat with sdkv2 provider
+	// noop
 	providers := []func() tfprotov5.ProviderServer{
 		providerserver.NewProtocol5(fwprovider.New()), // framework provider
 		provider.Provider().GRPCProvider,              // sdk provider
