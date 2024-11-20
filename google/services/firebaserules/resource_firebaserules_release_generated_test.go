@@ -33,7 +33,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccFirebaserulesRelease_FirestoreReleaseHandWritten(t *testing.T) {
+func TestAccFirebaserulesRelease_FirestoreReleaseAdditionalHandWritten(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -47,7 +47,7 @@ func TestAccFirebaserulesRelease_FirestoreReleaseHandWritten(t *testing.T) {
 		CheckDestroy:             testAccCheckFirebaserulesReleaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFirebaserulesRelease_FirestoreReleaseHandWritten(context),
+				Config: testAccFirebaserulesRelease_FirestoreReleaseAdditionalHandWritten(context),
 			},
 			{
 				ResourceName:      "google_firebaserules_release.primary",
@@ -58,29 +58,23 @@ func TestAccFirebaserulesRelease_FirestoreReleaseHandWritten(t *testing.T) {
 	})
 }
 
-func testAccFirebaserulesRelease_FirestoreReleaseHandWritten(context map[string]interface{}) string {
+func testAccFirebaserulesRelease_FirestoreReleaseAdditionalHandWritten(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_firebaserules_release" "primary" {
   name         = "cloud.firestore/tf-test-database%{random_suffix}"
-  ruleset_name = "projects/%{project_name}/rulesets/${google_firebaserules_ruleset.firestore.name}"
   project      = "%{project_name}"
-
-  lifecycle {
-    replace_triggered_by = [
-      google_firebaserules_ruleset.firestore
-    ]
-  }
+  ruleset_name = "projects/%{project_name}/rulesets/${google_firebaserules_ruleset.firestore.name}"
 }
 
 resource "google_firebaserules_ruleset" "firestore" {
+  project = "%{project_name}"
+
   source {
     files {
       content = "service cloud.firestore {match /databases/{database}/documents { match /{document=**} { allow read, write: if false; } } }"
       name    = "firestore.rules"
     }
   }
-
-  project = "%{project_name}"
 }
 
 `, context)

@@ -25,29 +25,44 @@ description: |-
 For more information, see:
 * [Get started with Firebase Security Rules](https://firebase.google.com/docs/rules/get-started)
 ## Example Usage - firestore_release
-Creates a Firebase Rules Release to Cloud Firestore
+Creates a Firebase Rules Release to the default Cloud Firestore instance
 ```hcl
 resource "google_firebaserules_release" "primary" {
-  name         = "cloud.firestore/database"
-  ruleset_name = "projects/my-project-name/rulesets/${google_firebaserules_ruleset.firestore.name}"
+  name         = "cloud.firestore"
   project      = "my-project-name"
-
-  lifecycle {
-    replace_triggered_by = [
-      google_firebaserules_ruleset.firestore
-    ]
-  }
+  ruleset_name = "projects/my-project-name/rulesets/${google_firebaserules_ruleset.firestore.name}"
 }
 
 resource "google_firebaserules_ruleset" "firestore" {
+  project = "my-project-name"
+
   source {
     files {
       content = "service cloud.firestore {match /databases/{database}/documents { match /{document=**} { allow read, write: if false; } } }"
       name    = "firestore.rules"
     }
   }
+}
 
+```
+## Example Usage - firestore_release_additional
+Creates a Firebase Rules Release to an additional Cloud Firestore instance
+```hcl
+resource "google_firebaserules_release" "primary" {
+  name         = "cloud.firestore/database"
+  project      = "my-project-name"
+  ruleset_name = "projects/my-project-name/rulesets/${google_firebaserules_ruleset.firestore.name}"
+}
+
+resource "google_firebaserules_ruleset" "firestore" {
   project = "my-project-name"
+
+  source {
+    files {
+      content = "service cloud.firestore {match /databases/{database}/documents { match /{document=**} { allow read, write: if false; } } }"
+      name    = "firestore.rules"
+    }
+  }
 }
 
 ```
