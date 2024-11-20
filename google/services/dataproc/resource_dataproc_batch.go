@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 /*
@@ -285,6 +286,34 @@ Supported file types: .py, .egg, and .zip.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"autotuning_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Optional. Autotuning configuration of the workload.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"scenarios": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Optional. Scenarios for which tunings are applied. Possible values: ["SCALING", "BROADCAST_HASH_JOIN", "MEMORY"]`,
+										Elem: &schema.Schema{
+											Type:         schema.TypeString,
+											ValidateFunc: verify.ValidateEnum([]string{"SCALING", "BROADCAST_HASH_JOIN", "MEMORY"}),
+										},
+										RequiredWith: []string{"runtime_config.0.cohort"},
+									},
+								},
+							},
+						},
+						"cohort": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Optional. Cohort identifier. Identifies families of the workloads having the same shape, e.g. daily ETL jobs.`,
+						},
 						"container_image": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -1132,6 +1161,10 @@ func flattenDataprocBatchRuntimeConfig(v interface{}, d *schema.ResourceData, co
 		flattenDataprocBatchRuntimeConfigProperties(original["properties"], d, config)
 	transformed["effective_properties"] =
 		flattenDataprocBatchRuntimeConfigEffectiveProperties(original["effective_properties"], d, config)
+	transformed["autotuning_config"] =
+		flattenDataprocBatchRuntimeConfigAutotuningConfig(original["autotuningConfig"], d, config)
+	transformed["cohort"] =
+		flattenDataprocBatchRuntimeConfigCohort(original["cohort"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataprocBatchRuntimeConfigVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1147,6 +1180,27 @@ func flattenDataprocBatchRuntimeConfigProperties(v interface{}, d *schema.Resour
 }
 
 func flattenDataprocBatchRuntimeConfigEffectiveProperties(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataprocBatchRuntimeConfigAutotuningConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["scenarios"] =
+		flattenDataprocBatchRuntimeConfigAutotuningConfigScenarios(original["scenarios"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataprocBatchRuntimeConfigAutotuningConfigScenarios(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataprocBatchRuntimeConfigCohort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1501,6 +1555,20 @@ func expandDataprocBatchRuntimeConfig(v interface{}, d tpgresource.TerraformReso
 		transformed["effective_properties"] = transformedEffectiveProperties
 	}
 
+	transformedAutotuningConfig, err := expandDataprocBatchRuntimeConfigAutotuningConfig(original["autotuning_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAutotuningConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["autotuningConfig"] = transformedAutotuningConfig
+	}
+
+	transformedCohort, err := expandDataprocBatchRuntimeConfigCohort(original["cohort"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCohort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cohort"] = transformedCohort
+	}
+
 	return transformed, nil
 }
 
@@ -1532,6 +1600,33 @@ func expandDataprocBatchRuntimeConfigEffectiveProperties(v interface{}, d tpgres
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandDataprocBatchRuntimeConfigAutotuningConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScenarios, err := expandDataprocBatchRuntimeConfigAutotuningConfigScenarios(original["scenarios"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScenarios); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scenarios"] = transformedScenarios
+	}
+
+	return transformed, nil
+}
+
+func expandDataprocBatchRuntimeConfigAutotuningConfigScenarios(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataprocBatchRuntimeConfigCohort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandDataprocBatchEnvironmentConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
