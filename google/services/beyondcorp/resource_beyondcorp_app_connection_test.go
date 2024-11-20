@@ -19,7 +19,10 @@ func TestAccBeyondcorpAppConnection_beyondcorpAppConnectionUpdateExample(t *test
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckBeyondcorpAppConnectionDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckBeyondcorpAppConnectionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBeyondcorpAppConnection_beyondcorpAppConnectionBasicExample(context),
@@ -53,7 +56,16 @@ resource "google_service_account" "service_account" {
   display_name = "Test Service Account"
 }
 
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_service_account.service_account]
+
+  create_duration = "120s"
+}
+
+
 resource "google_beyondcorp_app_connector" "app_connector" {
+  depends_on = [time_sleep.wait_120_seconds]  
+
   name = "tf-test-my-app-connector%{random_suffix}"
   principal_info {
     service_account {
