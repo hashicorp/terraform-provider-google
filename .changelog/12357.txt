@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataproc: added `autotuning_config` and `cohort` fields to `google_dataproc_batch`
+```
