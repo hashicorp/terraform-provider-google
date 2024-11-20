@@ -40,7 +40,10 @@ func TestAccBeyondcorpAppConnection_beyondcorpAppConnectionBasicExample(t *testi
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckBeyondcorpAppConnectionDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckBeyondcorpAppConnectionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBeyondcorpAppConnection_beyondcorpAppConnectionBasicExample(context),
@@ -62,7 +65,18 @@ resource "google_service_account" "service_account" {
   display_name = "Test Service Account"
 }
 
+# wait for service account to propagate -- can be needed due to 
+# SA eventual consistency issue
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_service_account.service_account]
+
+  create_duration = "120s"
+}
+
+
 resource "google_beyondcorp_app_connector" "app_connector" {
+  depends_on = [time_sleep.wait_120_seconds]
+
   name = "tf-test-my-app-connector%{random_suffix}"
   principal_info {
     service_account {
@@ -93,7 +107,10 @@ func TestAccBeyondcorpAppConnection_beyondcorpAppConnectionFullExample(t *testin
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckBeyondcorpAppConnectionDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckBeyondcorpAppConnectionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBeyondcorpAppConnection_beyondcorpAppConnectionFullExample(context),
@@ -115,6 +132,14 @@ resource "google_service_account" "service_account" {
   display_name = "Test Service Account"
 }
 
+# wait for service account to propagate -- can be needed due to 
+# SA eventual consistency issue
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_service_account.service_account]
+
+  create_duration = "120s"
+}
+
 resource "google_beyondcorp_app_gateway" "app_gateway" {
   name = "tf-test-my-app-gateway%{random_suffix}"
   type = "TCP_PROXY"
@@ -122,6 +147,8 @@ resource "google_beyondcorp_app_gateway" "app_gateway" {
 }
 
 resource "google_beyondcorp_app_connector" "app_connector" {
+  depends_on = [time_sleep.wait_120_seconds]
+
   name = "tf-test-my-app-connector%{random_suffix}"
   principal_info {
     service_account {
