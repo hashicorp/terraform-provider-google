@@ -22,7 +22,6 @@ var testAccProvider *schema.Provider
 
 func init() {
 	configs = make(map[string]*transport_tpg.Config)
-	fwProviders = make(map[string]*frameworkTestProvider)
 	sources = make(map[string]VcrSource)
 	testAccProvider = provider.Provider()
 	TestAccProviders = map[string]*schema.Provider{

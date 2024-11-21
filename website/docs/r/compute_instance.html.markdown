@@ -395,11 +395,11 @@ is desired, you will need to modify your state file manually using
     array of alias IP ranges for this network interface. Can only be specified for network
     interfaces on subnet-mode networks. Structure [documented below](#nested_alias_ip_range).
 
-* `nic_type` - (Optional) The type of vNIC to be used on this interface. Possible values: GVNIC, VIRTIO_NET.
+* `nic_type` - (Optional) The type of vNIC to be used on this interface. Possible values: GVNIC, VIRTIO_NET, IDPF. In the beta provider the additional values of MRDMA and IRDMA are supported.
 
 * `network_attachment` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) The URL of the network attachment that this interface should connect to in the following format: `projects/{projectNumber}/regions/{region_name}/networkAttachments/{network_attachment_name}`.
 
-* `stack_type` - (Optional) The stack type for this network interface to identify whether the IPv6 feature is enabled or not. Values are IPV4_IPV6 or IPV4_ONLY. If not specified, IPV4_ONLY will be used.
+* `stack_type` - (Optional) The stack type for this network interface to identify whether the IPv6 feature is enabled or not. Values are IPV4_IPV6, IPV6_ONLY or IPV4_ONLY. If not specified, IPV4_ONLY will be used.
 
 * `ipv6_access_config` - (Optional) An array of IPv6 access configurations for this interface.
 Currently, only one IPv6 access config, DIRECT_IPV6, is supported. If there is no ipv6AccessConfig
@@ -572,6 +572,8 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 * `turbo_mode` - (Optional) Turbo frequency mode to use for the instance. Supported modes are currently either `ALL_CORE_MAX` or unset (default).
 
 * `visible_core_count` - (Optional) The number of physical cores to expose to an instance. [visible cores info (VC)](https://cloud.google.com/compute/docs/instances/customize-visible-cores).
+
+* `performance_monitoring_unit` - (Optional) [The PMU](https://cloud.google.com/compute/docs/pmu-overview) is a hardware component within the CPU core that monitors how the processor runs code. Valid values for the level of PMU are `STANDARD`, `ENHANCED`, and `ARCHITECTURAL`.
 
 <a name="nested_reservation_affinity"></a>The `reservation_affinity` block supports:
 

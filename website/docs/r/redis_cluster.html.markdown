@@ -28,6 +28,79 @@ To get more information about Cluster, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/memorystore/docs/cluster/)
 
+~> **Note:** For [Cross Region Replication](https://cloud.google.com/memorystore/docs/cluster/about-cross-region-replication), please follow the instructions below for performing certain update and failover (switchover and detach) operations
+
+**Cross Region Replication**
+
+**Settings updated on primary and propagated to secondaries**
+
+The settings listed [here](https://cloud.google.com/memorystore/docs/cluster/about-cross-region-replication#set_on_primary)
+are only allowed to be updated on the primary cluster and the changes are automatically propagated to the secondary clusters.
+To keep the Terraform configuration and state in sync for such settings, please follow the below steps to update them:
+  1. Update the setting on the primary cluster:
+      * Update the setting to its new desired value in the Terraform configuration file.
+      * Execute `terraform apply` to apply the change and wait for it to complete.
+  1. Detect configuration drift on the secondary cluster(s):
+      * Execute `terraform plan`. This should reveal a diff for the modified setting. The proposed value in the Terraform plan should align with the updated value applied to the primary cluster in the preceding step.
+  1. Reconcile secondary cluster(s) configuration:
+      * Manually edit the Terraform configuration file(s) for the secondary cluster(s) to update the setting with the latest value from the state.
+      * Execute `terraform plan` once again. This should not generate any diff, confirming the configuration is in sync with the infrastructure.
+
+
+**Switchover**
+
+To perform a [switchover](https://cloud.google.com/memorystore/docs/cluster/working-with-cross-region-replication#perform_a_switchover), please follow the below steps:
+  1. Ensure that the Terraform configuration file for the secondary cluster that needs to become the new primary has the `cross_cluster_replication_config` field. If it is not present:
+      * Add the `cross_cluster_replication_config` field to the configuration file to match the latest value in the state.
+      * Execute `terraform plan`. This should not generate any diff, confirming the configuration is in sync with the infrastructure.
+  1. Update the `cross_cluster_replication_config` field of the secondary that needs to become the new primary:
+      * Change `cross_cluster_replication_config.cluster_role` from `SECONDARY` to `PRIMARY`.
+      * Remove `cross_cluster_replication_config.primary_cluster` field.
+      * Set `cross_cluster_replication_config.secondary_clusters` list with the new secondaries. The new secondaries are the current primary and other secondary clusters(if any).
+
+      -> You can refer to the current value of `cross_cluster_replication_config.membership` field to lookup the current primary and secondary clusters.
+  1. Execute switchover:
+      * Execute`terraform apply` to apply the change and wait for it to complete.
+  1. Fix any configuration drifts on the previous primary and other secondary clusters:
+      * Execute `terraform plan`. If any diffs are reported for `cross_cluster_replication_config` field:
+          * Manually update `cross_cluster_replication_config` field in the configuration file(s) for those clusters with the latest value from the state.
+          * Execute `terraform plan` once again. This should not generate any diff, confirming the configuration is in sync with the infrastructure.
+
+**Detach a secondary cluster**
+
+To [detach](https://cloud.google.com/memorystore/docs/cluster/working-with-cross-region-replication#detach_secondary_clusters_option_1) a secondary cluster, please follow the below steps:
+  1. Ensure that the Terraform configuration file for the secondary cluster that needs to be detached has the `cross_cluster_replication_config` field. If it is not present:
+      * Add the `cross_cluster_replication_config` field to the configuration file to match the latest value in the state.
+      * Execute `terraform plan`. This should not generate any diff, confirming the configuration is in sync with the infrastructure.
+  1. Update the `cross_cluster_replication_config` field of the secondary that needs to be detached:
+      * Change `cross_cluster_replication_config.cluster_role` from `SECONDARY` to `NONE`.
+      * Remove `cross_cluster_replication_config.primary_cluster`.
+  1. Execute detach:
+      * Execute`terraform apply` to apply the change and wait for it to complete.
+  1. Fix any configuration drifts on the primary cluster:
+      * Execute `terraform plan`. If any diff is reported for `cross_cluster_replication_config` field:
+          * Manually update `cross_cluster_replication_config` field in the configuration file with the latest value from the state.
+          * Execute `terraform plan` once again. This should not generate any diff, confirming the configuration is in sync with the infrastructure.
+
+**Detach secondary cluster(s) via primary cluster**
+
+To [detach](https://cloud.google.com/memorystore/docs/cluster/working-with-cross-region-replication#detach_secondary_clusters_option_2) secondary clusters via primary, please follow the below steps:
+  1. Ensure that the Terraform configuration file for the primary cluster from which the secondary(ies) has(ve) to be detached has the `cross_cluster_replication_config` field. If it is not present:
+      * Add the `cross_cluster_replication_config` field to the configuration file to match the latest value in the state.
+      * Execute `terraform plan`. This should not generate any diff, confirming the configuration is in sync with the infrastructure.
+  1. Update the `cross_cluster_replication_config` field of the primary cluster:
+      * If you are detaching all secondaries from the primary:
+          * Change `cross_cluster_replication_config.cluster_role` from `PRIMARY` to `NONE`.
+          * Remove `cross_cluster_replication_config.secondary_clusters` list field.
+      * If you are detaching a subset of secondaries:
+          * Update `cross_cluster_replication_config.secondary_clusters` list field to remove the secondary clusters that need to be detached.
+  1. Execute detach:
+      * Execute `terraform apply` to apply the change and wait for it to complete.
+  1. Fix any configuration drifts on the secondary cluster(s) that was detached:
+      * Execute `terraform plan`. If any diffs are reported for `cross_cluster_replication_config` field:
+          * Manually update `cross_cluster_replication_config` field in the configuration file(s) for those clusters with the latest value from the state.
+          * Execute `terraform plan` once again. This should not generate any diff, confirming the configuration is in sync with the infrastructure.
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=redis_cluster_ha&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -156,6 +229,314 @@ resource "google_compute_network" "producer_net" {
   auto_create_subnetworks = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=redis_cluster_secondary&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Cluster Secondary
+
+
+```hcl
+// Primary cluster
+resource "google_redis_cluster" "primary_cluster" {
+  name          = "my-primary-cluster"
+  region        = "us-east1"
+  psc_configs {
+    network = google_compute_network.producer_net.id
+  }
+
+  // Settings that should match on primary and secondary clusters. 
+  // If you define a setting here, ensure that the secondary clusters also define it with the same values. 
+  // Please see https://cloud.google.com/memorystore/docs/cluster/about-cross-region-replication#settings_copied_from_the_primary_during_instance_creation for the complete list of such settings.
+  authorization_mode = "AUTH_MODE_DISABLED"
+  transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
+  shard_count   = 3
+  redis_configs = {
+    maxmemory-policy = "volatile-ttl"
+  }
+  node_type = "REDIS_HIGHMEM_MEDIUM"
+  persistence_config {
+    mode = "RDB"
+    rdb_config {
+      rdb_snapshot_period = "ONE_HOUR"
+      rdb_snapshot_start_time = "2024-10-02T15:01:23Z"
+    }
+  }
+
+  // Settings that can have different values on primary and secondary clusters.
+  // Please see https://cloud.google.com/memorystore/docs/cluster/about-cross-region-replication#override_allowed_during_instance_creation for the complete list of such settings.
+  zone_distribution_config {
+    mode = "MULTI_ZONE"
+  }
+  replica_count = 1
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
+  deletion_protection_enabled = true
+
+  depends_on = [
+    google_network_connectivity_service_connection_policy.primary_cluster_region_scp
+  ]
+}
+
+
+// Secondary cluster
+resource "google_redis_cluster" "secondary_cluster" {
+  name          = "my-secondary-cluster"
+  region        = "europe-west1"
+  psc_configs {
+    network = google_compute_network.producer_net.id
+  }
+
+  // Settings that should match on primary and secondary clusters. 
+  // If you defined a setting here for primary, ensure the secondary clusters also define it with the same values. 
+  // Please see https://cloud.google.com/memorystore/docs/cluster/about-cross-region-replication#settings_copied_from_the_primary_during_instance_creation for the complete list of such settings.
+  authorization_mode = "AUTH_MODE_DISABLED"
+  transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
+  shard_count   = 3
+  redis_configs = {
+    maxmemory-policy = "volatile-ttl"
+  }
+  node_type = "REDIS_HIGHMEM_MEDIUM"
+  persistence_config {
+    mode = "RDB"
+    rdb_config {
+      rdb_snapshot_period = "ONE_HOUR"
+      rdb_snapshot_start_time = "2024-10-02T15:01:23Z"
+    }
+  }
+
+  // Settings that can be different on primary and secondary clusters.
+  // Please see https://cloud.google.com/memorystore/docs/cluster/about-cross-region-replication#override_allowed_during_instance_creation for the complete list of such settings.
+  zone_distribution_config {
+    mode = "MULTI_ZONE"
+  }
+  replica_count = 2
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "WEDNESDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
+  deletion_protection_enabled = true
+
+  // Cross cluster replication config
+  cross_cluster_replication_config {
+    cluster_role = "SECONDARY"
+    primary_cluster {
+      cluster = google_redis_cluster.primary_cluster.id
+    }
+  }
+
+  depends_on = [
+    google_network_connectivity_service_connection_policy.secondary_cluster_region_scp
+  ]
+}
+
+
+resource "google_network_connectivity_service_connection_policy" "primary_cluster_region_scp" {
+  name = "mypolicy-primary-cluster"
+  location = "us-east1"
+  service_class = "gcp-memorystore-redis"
+  description   = "Primary cluster service connection policy"
+  network = google_compute_network.producer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.primary_cluster_producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "primary_cluster_producer_subnet" {
+  name          = "mysubnet-primary-cluster"
+  ip_cidr_range = "10.0.1.0/29"
+  region        = "us-east1"
+  network       = google_compute_network.producer_net.id
+}
+
+
+resource "google_network_connectivity_service_connection_policy" "secondary_cluster_region_scp" {
+  name = "mypolicy-secondary-cluster"
+  location = "europe-west1"
+  service_class = "gcp-memorystore-redis"
+  description   = "Secondary cluster service connection policy"
+  network = google_compute_network.producer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.secondary_cluster_producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "secondary_cluster_producer_subnet" {
+  name          = "mysubnet-secondary-cluster"
+  ip_cidr_range = "10.0.2.0/29"
+  region        = "europe-west1"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_network" "producer_net" {
+  name                    = "mynetwork"
+  auto_create_subnetworks = false
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=redis_cluster_rdb&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Cluster Rdb
+
+
+```hcl
+resource "google_redis_cluster" "cluster-rdb" {
+  name           = "rdb-cluster"
+  shard_count    = 3
+  psc_configs {
+    network = google_compute_network.producer_net.id
+  }
+  region = "us-central1"
+  replica_count = 0
+  node_type = "REDIS_SHARED_CORE_NANO"
+  transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
+  authorization_mode = "AUTH_MODE_DISABLED"
+  redis_configs = {
+    maxmemory-policy	= "volatile-ttl"
+  }
+  deletion_protection_enabled = true
+
+  zone_distribution_config {
+    mode = "MULTI_ZONE"
+  }
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
+  persistence_config { 
+    mode = "RDB"
+    rdb_config {
+      rdb_snapshot_period = "ONE_HOUR"
+      rdb_snapshot_start_time = "2024-10-02T15:01:23Z"
+    }
+  }
+  depends_on = [
+    google_network_connectivity_service_connection_policy.default
+  ]
+}
+
+resource "google_network_connectivity_service_connection_policy" "default" {
+  name = "mypolicy"
+  location = "us-central1"
+  service_class = "gcp-memorystore-redis"
+  description   = "my basic service connection policy"
+  network = google_compute_network.producer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "producer_subnet" {
+  name          = "mysubnet"
+  ip_cidr_range = "10.0.0.248/29"
+  region        = "us-central1"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_network" "producer_net" {
+  name                    = "mynetwork"
+  auto_create_subnetworks = false
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=redis_cluster_aof&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Cluster Aof
+
+
+```hcl
+resource "google_redis_cluster" "cluster-aof" {
+  name           = "aof-cluster"
+  shard_count    = 3
+  psc_configs {
+    network = google_compute_network.producer_net.id
+  }
+  region = "us-central1"
+  replica_count = 0
+  node_type = "REDIS_SHARED_CORE_NANO"
+  transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
+  authorization_mode = "AUTH_MODE_DISABLED"
+  redis_configs = {
+    maxmemory-policy	= "volatile-ttl"
+  }
+  deletion_protection_enabled = true
+
+  zone_distribution_config {
+    mode = "MULTI_ZONE"
+  }
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
+  persistence_config { 
+    mode = "AOF"
+    aof_config {
+      append_fsync = "EVERYSEC"
+    }
+  }
+  depends_on = [
+    google_network_connectivity_service_connection_policy.default
+  ]
+}
+
+resource "google_network_connectivity_service_connection_policy" "default" {
+  name = "mypolicy"
+  location = "us-central1"
+  service_class = "gcp-memorystore-redis"
+  description   = "my basic service connection policy"
+  network = google_compute_network.producer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "producer_subnet" {
+  name          = "mysubnet"
+  ip_cidr_range = "10.0.0.248/29"
+  region        = "us-central1"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_network" "producer_net" {
+  name                    = "mynetwork"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 
@@ -230,10 +611,20 @@ The following arguments are supported:
   Please check Memorystore documentation for the list of supported parameters:
   https://cloud.google.com/memorystore/docs/cluster/supported-instance-configurations
 
+* `persistence_config` -
+  (Optional)
+  Persistence config (RDB, AOF) for the cluster.
+  Structure is [documented below](#nested_persistence_config).
+
 * `maintenance_policy` -
   (Optional)
   Maintenance policy for a cluster
   Structure is [documented below](#nested_maintenance_policy).
+
+* `cross_cluster_replication_config` -
+  (Optional)
+  Cross cluster replication config
+  Structure is [documented below](#nested_cross_cluster_replication_config).
 
 * `region` -
   (Optional)
@@ -254,6 +645,54 @@ The following arguments are supported:
 * `zone` -
   (Optional)
   Immutable. The zone for single zone Memorystore Redis cluster.
+
+<a name="nested_persistence_config"></a>The `persistence_config` block supports:
+
+* `mode` -
+  (Optional)
+  Optional. Controls whether Persistence features are enabled. If not provided, the existing value will be used.
+  - DISABLED: 	Persistence (both backup and restore) is disabled for the cluster.
+  - RDB: RDB based Persistence is enabled.
+  - AOF: AOF based Persistence is enabled.
+  Possible values are: `PERSISTENCE_MODE_UNSPECIFIED`, `DISABLED`, `RDB`, `AOF`.
+
+* `rdb_config` -
+  (Optional)
+  RDB configuration. This field will be ignored if mode is not RDB.
+  Structure is [documented below](#nested_rdb_config).
+
+* `aof_config` -
+  (Optional)
+  AOF configuration. This field will be ignored if mode is not AOF.
+  Structure is [documented below](#nested_aof_config).
+
+
+<a name="nested_rdb_config"></a>The `rdb_config` block supports:
+
+* `rdb_snapshot_period` -
+  (Optional)
+  Optional. Available snapshot periods for scheduling.
+  - ONE_HOUR:	Snapshot every 1 hour.
+  - SIX_HOURS:	Snapshot every 6 hours.
+  - TWELVE_HOURS:	Snapshot every 12 hours.
+  - TWENTY_FOUR_HOURS:	Snapshot every 24 hours.
+  Possible values are: `SNAPSHOT_PERIOD_UNSPECIFIED`, `ONE_HOUR`, `SIX_HOURS`, `TWELVE_HOURS`, `TWENTY_FOUR_HOURS`.
+
+* `rdb_snapshot_start_time` -
+  (Optional)
+  The time that the first snapshot was/will be attempted, and to which
+  future snapshots will be aligned.
+  If not provided, the current time will be used.
+
+<a name="nested_aof_config"></a>The `aof_config` block supports:
+
+* `append_fsync` -
+  (Optional)
+  Optional. Available fsync modes.
+  - NO - Do not explicilty call fsync(). Rely on OS defaults.
+  - EVERYSEC - Call fsync() once per second in a background thread. A balance between performance and durability.
+  - ALWAYS - Call fsync() for earch write command.
+  Possible values are: `APPEND_FSYNC_UNSPECIFIED`, `NO`, `EVERYSEC`, `ALWAYS`.
 
 <a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
 
@@ -324,6 +763,90 @@ The following arguments are supported:
 * `nanos` -
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+
+<a name="nested_cross_cluster_replication_config"></a>The `cross_cluster_replication_config` block supports:
+
+* `cluster_role` -
+  (Optional)
+  The role of the cluster in cross cluster replication. Supported values are:
+  1. `CLUSTER_ROLE_UNSPECIFIED`: This is an independent cluster that has never participated in cross cluster replication. It allows both reads and writes.
+  1. `NONE`: This is an independent cluster that previously participated in cross cluster replication(either as a `PRIMARY` or `SECONDARY` cluster). It allows both reads and writes.
+  1. `PRIMARY`: This cluster serves as the replication source for secondary clusters that are replicating from it. Any data written to it is automatically replicated to its secondary clusters. It allows both reads and writes.
+  1. `SECONDARY`: This cluster replicates data from the primary cluster. It allows only reads.
+  Possible values are: `CLUSTER_ROLE_UNSPECIFIED`, `NONE`, `PRIMARY`, `SECONDARY`.
+
+* `primary_cluster` -
+  (Optional)
+  Details of the primary cluster that is used as the replication source for this secondary cluster. This is allowed to be set only for clusters whose cluster role is of type `SECONDARY`.
+  Structure is [documented below](#nested_primary_cluster).
+
+* `secondary_clusters` -
+  (Optional)
+  List of secondary clusters that are replicating from this primary cluster. This is allowed to be set only for clusters whose cluster role is of type `PRIMARY`.
+  Structure is [documented below](#nested_secondary_clusters).
+
+* `membership` -
+  (Output)
+  An output only view of all the member clusters participating in cross cluster replication. This field is populated for all the member clusters irrespective of their cluster role.
+  Structure is [documented below](#nested_membership).
+
+* `update_time` -
+  (Output)
+  The last time cross cluster replication config was updated.
+
+
+<a name="nested_primary_cluster"></a>The `primary_cluster` block supports:
+
+* `cluster` -
+  (Optional)
+  The full resource path of the primary cluster in the format: projects/{project}/locations/{region}/clusters/{cluster-id}
+
+* `uid` -
+  (Output)
+  The unique id of the primary cluster.
+
+<a name="nested_secondary_clusters"></a>The `secondary_clusters` block supports:
+
+* `cluster` -
+  (Optional)
+  The full resource path of the secondary cluster in the format: projects/{project}/locations/{region}/clusters/{cluster-id}
+
+* `uid` -
+  (Output)
+  The unique id of the secondary cluster.
+
+<a name="nested_membership"></a>The `membership` block contains:
+
+* `primary_cluster` -
+  (Output)
+  Details of the primary cluster that is used as the replication source for all the secondary clusters.
+  Structure is [documented below](#nested_primary_cluster).
+
+* `secondary_clusters` -
+  (Output)
+  List of secondary clusters that are replicating from the primary cluster.
+  Structure is [documented below](#nested_secondary_clusters).
+
+
+<a name="nested_primary_cluster"></a>The `primary_cluster` block contains:
+
+* `cluster` -
+  (Output)
+  The full resource path of the primary cluster in the format: projects/{project}/locations/{region}/clusters/{cluster-id}
+
+* `uid` -
+  (Output)
+  The unique id of the primary cluster.
+
+<a name="nested_secondary_clusters"></a>The `secondary_clusters` block contains:
+
+* `cluster` -
+  (Output)
+  The full resource path of the secondary cluster in the format: projects/{project}/locations/{region}/clusters/{cluster-id}
+
+* `uid` -
+  (Output)
+  The unique id of the secondary cluster.
 
 ## Attributes Reference
 

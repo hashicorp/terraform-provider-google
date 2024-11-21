@@ -5,6 +5,7 @@ package compute
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -22,6 +23,7 @@ type ComputeOperationWaiter struct {
 	Op      *compute.Operation
 	Context context.Context
 	Project string
+	Parent  string
 }
 
 func (w *ComputeOperationWaiter) State() string {
@@ -78,6 +80,8 @@ func (w *ComputeOperationWaiter) QueryOp() (interface{}, error) {
 	} else if w.Op.Region != "" {
 		region := tpgresource.GetResourceNameFromSelfLink(w.Op.Region)
 		return w.Service.RegionOperations.Get(w.Project, region, w.Op.Name).Do()
+	} else if w.Parent != "" {
+		return w.Service.GlobalOrganizationOperations.Get(w.Op.Name).ParentId(w.Parent).Do()
 	}
 	return w.Service.GlobalOperations.Get(w.Project, w.Op.Name).Do()
 }
@@ -116,6 +120,32 @@ func ComputeOperationWaitTime(config *transport_tpg.Config, res interface{}, pro
 		return err
 	}
 	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
+}
+
+func ComputeOrgOperationWaitTimeWithResponse(config *transport_tpg.Config, res interface{}, response *map[string]interface{}, parent, activity, userAgent string, timeout time.Duration) error {
+	op := &compute.Operation{}
+	err := tpgresource.Convert(res, op)
+	if err != nil {
+		return err
+	}
+
+	w := &ComputeOperationWaiter{
+		Service: config.NewComputeClient(userAgent),
+		Op:      op,
+		Parent:  parent,
+	}
+
+	if err := w.SetOp(op); err != nil {
+		return err
+	}
+	if err := tpgresource.OperationWait(w, activity, timeout, config.PollInterval); err != nil {
+		return err
+	}
+	e, err := json.Marshal(w.Op)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(e, response)
 }
 
 // ComputeOperationError wraps compute.OperationError and implements the

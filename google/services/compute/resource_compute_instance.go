@@ -57,6 +57,7 @@ var (
 		"advanced_machine_features.0.threads_per_core",
 		"advanced_machine_features.0.turbo_mode",
 		"advanced_machine_features.0.visible_core_count",
+		"advanced_machine_features.0.performance_monitoring_unit",
 	}
 
 	bootDiskKeys = []string{
@@ -448,8 +449,8 @@ func ResourceComputeInstance() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"GVNIC", "VIRTIO_NET"}, false),
-							Description:  `The type of vNIC to be used on this interface. Possible values:GVNIC, VIRTIO_NET`,
+							ValidateFunc: validation.StringInSlice([]string{"GVNIC", "VIRTIO_NET", "IDPF"}, false),
+							Description:  `The type of vNIC to be used on this interface. Possible values:GVNIC, VIRTIO_NET, IDPF`,
 						},
 						"access_config": {
 							Type:        schema.TypeList,
@@ -505,7 +506,7 @@ func ResourceComputeInstance() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Computed:     true,
-							ValidateFunc: validation.StringInSlice([]string{"IPV4_ONLY", "IPV4_IPV6", ""}, false),
+							ValidateFunc: validation.StringInSlice([]string{"IPV4_ONLY", "IPV4_IPV6", "IPV6_ONLY", ""}, false),
 							Description:  `The stack type for this network interface to identify whether the IPv6 feature is enabled or not. If not specified, IPV4_ONLY will be used.`,
 						},
 
@@ -518,6 +519,7 @@ func ResourceComputeInstance() *schema.Resource {
 						"ipv6_access_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
+							Computed:    true,
 							Description: `An array of IPv6 access configurations for this interface. Currently, only one IPv6 access config, DIRECT_IPV6, is supported. If there is no ipv6AccessConfig specified, then this instance will have no external IPv6 Internet access.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -1055,6 +1057,13 @@ be from 0 to 999,999,999 inclusive.`,
 							Optional:     true,
 							AtLeastOneOf: advancedMachineFeaturesKeys,
 							Description:  `The number of physical cores to expose to an instance. Multiply by the number of threads per core to compute the total number of virtual CPUs to expose to the instance. If unset, the number of cores is inferred from the instance\'s nominal CPU count and the underlying platform\'s SMT width.`,
+						},
+						"performance_monitoring_unit": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: advancedMachineFeaturesKeys,
+							ValidateFunc: validation.StringInSlice([]string{"STANDARD", "ENHANCED", "ARCHITECTURAL"}, false),
+							Description:  `The PMU is a hardware component within the CPU core that monitors how the processor runs code. Valid values for the level of PMU are "STANDARD", "ENHANCED", and "ARCHITECTURAL".`,
 						},
 					},
 				},

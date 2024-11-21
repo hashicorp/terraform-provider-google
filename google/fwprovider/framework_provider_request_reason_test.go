@@ -20,7 +20,7 @@ func TestAccFwProvider_request_reason(t *testing.T) {
 
 		// Schema-level validation
 		// TODO: https://github.com/hashicorp/terraform-provider-google/issues/19643
-		"when request_reason is set to an empty string in the config the value is not ignored, and there isn't any validation about this that raises an error": testAccFwProvider_request_reason_emptyStringValidation,
+		"when request_reason is set to an empty string in the config the value IS ignored, allowing environment values to be used": testAccFwProvider_request_reason_emptyStringValidation,
 
 		// Usage
 		// We cannot test the impact of this field in an acc test, as it sets the X-Goog-Request-Reason value for audit logging purposes in GCP
@@ -118,7 +118,7 @@ func testAccFwProvider_request_reason_emptyStringValidation(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Currently the PF provider uses empty strings, instead of providing validation feedback to users
 					// See: https://github.com/hashicorp/terraform-provider-google/issues/19643
-					resource.TestCheckResourceAttr("data.google_provider_config_plugin_framework.default", "request_reason", emptyString),
+					resource.TestCheckResourceAttr("data.google_provider_config_plugin_framework.default", "request_reason", envReason),
 				),
 			},
 		},

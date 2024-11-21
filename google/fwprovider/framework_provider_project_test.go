@@ -89,9 +89,7 @@ func testAccFwProvider_project_precedenceOrderEnvironmentVariables(t *testing.T)
 				},
 				Config: testAccFwProvider_projectInEnvsOnly(),
 				Check: resource.ComposeTestCheckFunc(
-					// Differing behavior between SDK and PF; the attribute is NOT found here.
-					// This reflects the different type systems used in the SDKv2 and the plugin-framework
-					resource.TestCheckNoResourceAttr("data.google_provider_config_plugin_framework.default", "project"),
+					resource.TestCheckResourceAttr("data.google_provider_config_plugin_framework.default", "project", ""),
 				),
 			},
 			{

@@ -1,0 +1,5 @@
+resource: 'google_cloudbuild_worker_pool'
+generation_type: 'dcl'
+api_service_name: 'cloudbuild.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'WorkerPool'

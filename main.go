@@ -22,10 +22,12 @@ func main() {
 	flag.BoolVar(&debug, "debug", false, "set to true to run the provider with support for debuggers like delve")
 	flag.Parse()
 
-	// concat with sdkv2 provider
+	// primary is the SDKv2 implementation of the provider
+	primary := provider.Provider()
+
 	providers := []func() tfprotov5.ProviderServer{
-		providerserver.NewProtocol5(fwprovider.New()), // framework provider
-		provider.Provider().GRPCProvider,              // sdk provider
+		primary.GRPCProvider, // sdk provider
+		providerserver.NewProtocol5(fwprovider.New(primary)), // framework provider
 	}
 
 	// use the muxer

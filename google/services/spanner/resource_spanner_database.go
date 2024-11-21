@@ -117,8 +117,8 @@ func ResourceSpannerDatabase() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: verify.ValidateRegexp(`^[a-z][a-z0-9_\-]*[a-z0-9]$`),
-				Description: `A unique identifier for the database, which cannot be changed after
-the instance is created. Values are of the form [a-z][-a-z0-9]*[a-z0-9].`,
+				Description: `A unique identifier for the database, which cannot be changed after the
+instance is created. Values are of the form '[a-z][-_a-z0-9]*[a-z0-9]'.`,
 			},
 			"database_dialect": {
 				Type:         schema.TypeString,

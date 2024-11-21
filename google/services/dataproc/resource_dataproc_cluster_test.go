@@ -536,6 +536,29 @@ func TestAccDataprocCluster_spotWithInstanceFlexibilityPolicy(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_spotOnDemandMixing(t *testing.T) {
+	t.Parallel()
+
+	rnd := acctest.RandString(t, 10)
+	var cluster dataproc.Cluster
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_spotOnDemandMixing(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.spot_mixing", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.spot_mixing", "cluster_config.0.preemptible_worker_config.0.preemptibility", "SPOT"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.spot_mixing", "cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.provisioning_model_mix.0.standard_capacity_base", "1"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.spot_mixing", "cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.provisioning_model_mix.0.standard_capacity_percent_above_base", "50"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_spotWithAuxiliaryNodeGroups(t *testing.T) {
 	t.Parallel()
 
@@ -1657,6 +1680,12 @@ resource "google_dataproc_cluster" "basic" {
   region = "us-central1"
 
   cluster_config {
+    master_config {
+      machine_type = "n1-standard-2"
+    }
+    worker_config {
+      machine_type = "n1-standard-2"
+    }
     software_config {
       image_version = "2.0.35-debian10"
     }
@@ -1943,6 +1972,50 @@ resource "google_dataproc_cluster" "spot_with_instance_flexibility_policy" {
         instance_selection_list {
           machine_types = ["n2d-standard-2"]
           rank          = 3
+        }
+      }
+    }
+  }
+}
+	`, rnd)
+}
+
+func testAccDataprocCluster_spotOnDemandMixing(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "spot_mixing" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+    gce_cluster_config {
+      internal_ip_only = false
+    }
+    master_config {
+      num_instances = "1"
+      machine_type  = "e2-medium"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+    }
+
+    worker_config {
+      num_instances = "2"
+      machine_type  = "e2-medium"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+    }
+
+    preemptible_worker_config {
+      num_instances = "3"
+      preemptibility = "SPOT"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+      instance_flexibility_policy {
+        provisioning_model_mix {
+          standard_capacity_base = 1
+          standard_capacity_percent_above_base = 50
         }
       }
     }
@@ -2347,14 +2420,15 @@ resource "google_dataproc_cluster" "with_net_ref_by_name" {
     }
 
     master_config {
-      machine_type = "e2-medium"
+      machine_type = "e2-standard-2"
       disk_config {
         boot_disk_size_gb = 35
       }
     }
 
     gce_cluster_config {
-      network = google_compute_network.dataproc_network.name
+      network          = google_compute_network.dataproc_network.name
+      internal_ip_only = false
     }
   }
 }
@@ -2374,14 +2448,15 @@ resource "google_dataproc_cluster" "with_net_ref_by_url" {
     }
 
     master_config {
-      machine_type = "e2-medium"
+      machine_type = "e2-standard-2"
       disk_config {
         boot_disk_size_gb = 35
       }
     }
 
     gce_cluster_config {
-      network = google_compute_network.dataproc_network.self_link
+      network          = google_compute_network.dataproc_network.self_link
+      internal_ip_only = false
     }
   }
 }

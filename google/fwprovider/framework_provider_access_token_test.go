@@ -184,7 +184,7 @@ credentials = "%s"
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_provider_config_plugin_framework.default", "access_token", accessToken),
 					// not set as ENV not used
-					resource.TestCheckNoResourceAttr("data.google_provider_config_plugin_framework.default", "credentials"),
+					resource.TestCheckResourceAttr("data.google_provider_config_plugin_framework.default", "credentials", ""),
 				),
 			},
 			{
@@ -197,7 +197,7 @@ credentials = "%s"
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_provider_config_sdk.default", "credentials", credentials),
 					// not set, as ENV not used
-					resource.TestCheckNoResourceAttr("data.google_provider_config_sdk.default", "access_token"),
+					resource.TestCheckResourceAttr("data.google_provider_config_sdk.default", "access_token", ""),
 				),
 				ExpectError: regexp.MustCompile("JSON credentials are not valid"),
 			},

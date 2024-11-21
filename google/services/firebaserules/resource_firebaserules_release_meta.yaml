@@ -1,0 +1,5 @@
+resource: 'google_firebaserules_release'
+generation_type: 'dcl'
+api_service_name: 'firebaserules.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Release'

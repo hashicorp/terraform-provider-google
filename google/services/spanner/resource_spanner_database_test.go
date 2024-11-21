@@ -291,7 +291,7 @@ func TestAccSpannerDatabase_versionRetentionPeriod(t *testing.T) {
 				// Test that when the above config is reapplied:
 				// - changes the value (reverts to set value of `version_retention_period`, 2h)
 				// - is stable; no further conflict
-				Config:             testAccSpannerDatabase_versionRetentionPeriodUpdate3(instanceName, databaseName), //same as previous step
+				Config:             testAccSpannerDatabase_versionRetentionPeriodUpdate3(instanceName, databaseName), // same as previous step
 				ExpectNonEmptyPlan: false,                                                                            // is stable
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_spanner_database.basic", "state"),
@@ -467,7 +467,6 @@ resource "google_spanner_database" "basic" {
 }
 
 func TestAccSpannerDatabase_deletionProtection(t *testing.T) {
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -503,8 +502,9 @@ func TestAccSpannerDatabase_deletionProtection(t *testing.T) {
 func testAccSpannerDatabase_deletionProtection(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_spanner_instance" "main" {
-  config       = "regional-europe-west1"
+  name         = "tf-test-%{random_suffix}"
   display_name = "main-instance"
+  config       = "regional-europe-west1"
   num_nodes    = 1
 }
 

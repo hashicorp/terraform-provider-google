@@ -1,0 +1,5 @@
+resource: 'google_clouddeploy_delivery_pipeline'
+generation_type: 'dcl'
+api_service_name: 'clouddeploy.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'DeliveryPipeline'

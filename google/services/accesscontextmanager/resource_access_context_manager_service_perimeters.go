@@ -151,9 +151,11 @@ a perimeter bridge.`,
 															"identities": {
 																Type:     schema.TypeSet,
 																Optional: true,
-																Description: `A list of identities that are allowed access through this 'EgressPolicy'.
-Should be in the format of email address. The email address should
-represent individual user or service account only.`,
+																Description: `Identities can be an individual user, service account, Google group,
+or third-party identity. For third-party identity, only single identities
+are supported and other identity types are not supported.The v1 identities
+that have the prefix user, group and serviceAccount in
+https://cloud.google.com/iam/docs/principal-identifiers#v1 are supported.`,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},

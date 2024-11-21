@@ -266,6 +266,39 @@ resource "google_dataproc_batch" "example_batch_sparkr" {
     }
 }
 ```
+## Example Usage - Dataproc Batch Autotuning
+
+
+```hcl
+resource "google_dataproc_batch" "example_batch_autotuning" {
+
+    batch_id      = "tf-test-batch%{random_suffix}"
+    location      = "us-central1"
+    labels        = {"batch_test": "terraform"}
+
+    runtime_config {
+      version       = "2.2"
+      properties    = { "spark.dynamicAllocation.enabled": "false", "spark.executor.instances": "2" }
+      cohort        = "tf-dataproc-batch-example"
+      autotuning_config {
+        scenarios = ["SCALING", "MEMORY"]
+      }
+    }
+
+    environment_config {
+      execution_config {
+        subnetwork_uri = "default"
+        ttl            = "3600s"
+      }
+    }
+
+    spark_batch {
+      main_class    = "org.apache.spark.examples.SparkPi"
+      args          = ["10"]
+      jar_file_uris = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
+    }
+}
+```
 
 ## Argument Reference
 
@@ -343,6 +376,23 @@ The following arguments are supported:
 * `effective_properties` -
   (Output)
   A mapping of property names to values, which are used to configure workload execution.
+
+* `autotuning_config` -
+  (Optional)
+  Optional. Autotuning configuration of the workload.
+  Structure is [documented below](#nested_autotuning_config).
+
+* `cohort` -
+  (Optional)
+  Optional. Cohort identifier. Identifies families of the workloads having the same shape, e.g. daily ETL jobs.
+
+
+<a name="nested_autotuning_config"></a>The `autotuning_config` block supports:
+
+* `scenarios` -
+  (Optional)
+  Optional. Scenarios for which tunings are applied.
+  Each value may be one of: `SCALING`, `BROADCAST_HASH_JOIN`, `MEMORY`.
 
 <a name="nested_environment_config"></a>The `environment_config` block supports:
 

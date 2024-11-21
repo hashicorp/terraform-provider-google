@@ -421,7 +421,7 @@ The following arguments are supported:
   (Optional)
   The stack type for this subnet to identify whether the IPv6 feature is enabled or not.
   If not specified IPV4_ONLY will be used.
-  Possible values are: `IPV4_ONLY`, `IPV4_IPV6`.
+  Possible values are: `IPV4_ONLY`, `IPV4_IPV6`, `IPV6_ONLY`.
 
 * `ipv6_access_type` -
   (Optional)
@@ -520,6 +520,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
+* `subnetwork_id` -
+  The unique identifier number for the resource. This identifier is defined by the server.
 
 * `gateway_address` -
   The gateway address for default routes to reach destination addresses

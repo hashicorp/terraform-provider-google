@@ -1103,6 +1103,14 @@ If reconciliation failed, trafficStatuses, observedGeneration, and latestReadyRe
 				Computed:    true,
 				Description: `The main URI in which this Service is serving traffic.`,
 			},
+			"urls": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `All URLs serving traffic for this Service.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"deletion_protection": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -1452,6 +1460,9 @@ func resourceCloudRunV2ServiceRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
 	if err := d.Set("uri", flattenCloudRunV2ServiceUri(res["uri"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err := d.Set("urls", flattenCloudRunV2ServiceUrls(res["urls"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
 	if err := d.Set("reconciling", flattenCloudRunV2ServiceReconciling(res["reconciling"], d, config)); err != nil {
@@ -3119,6 +3130,10 @@ func flattenCloudRunV2ServiceTrafficStatusesUri(v interface{}, d *schema.Resourc
 }
 
 func flattenCloudRunV2ServiceUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceUrls(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

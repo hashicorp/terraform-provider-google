@@ -371,6 +371,11 @@ mode or when creating external forwarding rule with IPv6.`,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"forwarding_rule_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The unique identifier number for the resource. This identifier is defined by the server.`,
+			},
 			"label_fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -681,6 +686,9 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 	if err := d.Set("description", flattenComputeGlobalForwardingRuleDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
+	if err := d.Set("forwarding_rule_id", flattenComputeGlobalForwardingRuleForwardingRuleId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
+	}
 	if err := d.Set("ip_address", flattenComputeGlobalForwardingRuleIPAddress(res["IPAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
@@ -944,6 +952,23 @@ func flattenComputeGlobalForwardingRulePscConnectionStatus(v interface{}, d *sch
 
 func flattenComputeGlobalForwardingRuleDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenComputeGlobalForwardingRuleForwardingRuleId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeGlobalForwardingRuleIPAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

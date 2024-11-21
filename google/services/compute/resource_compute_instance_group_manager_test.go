@@ -26,6 +26,9 @@ func TestAccInstanceGroupManager_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_basic(template, target, igm1, igm2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"google_compute_instance_group_manager.igm-no-tp", "instance_group_manager_id")),
 			},
 			{
 				ResourceName:            "google_compute_instance_group_manager.igm-basic",

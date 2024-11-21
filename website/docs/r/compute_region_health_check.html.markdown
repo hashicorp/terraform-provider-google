@@ -727,6 +727,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
 
+* `health_check_id` -
+  The unique identifier number for the resource. This identifier is defined by the server.
+
 * `type` -
   The type of the health check. One of HTTP, HTTP2, HTTPS, TCP, or SSL.
 * `self_link` - The URI of the created resource.

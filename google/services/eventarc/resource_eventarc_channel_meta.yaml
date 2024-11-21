@@ -1,0 +1,5 @@
+resource: 'google_eventarc_channel'
+generation_type: 'dcl'
+api_service_name: 'eventarc.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Channel'

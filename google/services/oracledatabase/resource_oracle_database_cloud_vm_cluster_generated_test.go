@@ -36,6 +36,7 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterBasicExampl
 	context := map[string]interface{}{
 		"cloud_exadata_infrastructure_id": "ofake-exadata-for-vm-basic",
 		"cloud_vm_cluster_id":             "ofake-vmcluster-basic",
+		"deletion_protection":             false,
 		"project":                         "oci-terraform-testing",
 		"random_suffix":                   acctest.RandString(t, 10),
 	}
@@ -52,7 +53,7 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterBasicExampl
 				ResourceName:            "google_oracle_database_cloud_vm_cluster.my_vmcluster",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_vm_cluster_id", "labels", "location", "properties.0.gi_version", "properties.0.hostname_prefix", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"cloud_vm_cluster_id", "deletion_protection", "labels", "location", "properties.0.gi_version", "properties.0.hostname_prefix", "terraform_labels"},
 			},
 		},
 	})
@@ -76,6 +77,8 @@ resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster"{
     gi_version = "19.0.0.0"
     hostname_prefix = "hostname1"
   }
+
+  deletion_protection = "%{deletion_protection}"
 }
 
 resource "google_oracle_database_cloud_exadata_infrastructure" "cloudExadataInfrastructures"{
@@ -103,6 +106,7 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterFullExample
 	context := map[string]interface{}{
 		"cloud_exadata_infrastructure_id": "ofake-exadata-for-vm-full",
 		"cloud_vm_cluster_id":             "ofake-vmcluster-full",
+		"deletion_protection":             false,
 		"project":                         "oci-terraform-testing",
 		"random_suffix":                   acctest.RandString(t, 10),
 	}
@@ -119,7 +123,7 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterFullExample
 				ResourceName:            "google_oracle_database_cloud_vm_cluster.my_vmcluster",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_vm_cluster_id", "labels", "location", "properties.0.gi_version", "properties.0.hostname_prefix", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"cloud_vm_cluster_id", "deletion_protection", "labels", "location", "properties.0.gi_version", "properties.0.hostname_prefix", "terraform_labels"},
 			},
 		},
 	})
@@ -164,6 +168,8 @@ resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster"{
     }
     memory_size_gb = 60
   }
+
+  deletion_protection = "%{deletion_protection}"
 }
 
 resource "google_oracle_database_cloud_exadata_infrastructure" "cloudExadataInfrastructures"{
