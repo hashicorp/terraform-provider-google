@@ -390,6 +390,45 @@ func TestAccCloudFunctionsFunction_vpcConnector(t *testing.T) {
 	})
 }
 
+func TestAccCloudFunctionsFunction_vpcConnectorEgressSettings(t *testing.T) {
+	t.Parallel()
+
+	funcResourceName := "google_cloudfunctions_function.function"
+	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt(t))
+	networkName := fmt.Sprintf("tf-test-net-%d", acctest.RandInt(t))
+	vpcConnectorName := fmt.Sprintf("tf-test-conn-%s", acctest.RandString(t, 5))
+	zipFilePath := acctest.CreateZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
+	projectNumber := os.Getenv("GOOGLE_PROJECT_NUMBER")
+	defer os.Remove(zipFilePath) // clean up
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudFunctionsFunctionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_vpcConnectorEgressSettings(projectNumber, networkName, functionName, bucketName, zipFilePath, "10.10.0.0/28", vpcConnectorName, "PRIVATE_RANGES_ONLY"),
+			},
+			{
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccCloudFunctionsFunction_vpcConnectorEgressSettings(projectNumber, networkName, functionName, bucketName, zipFilePath, "10.20.0.0/28", vpcConnectorName+"-update", "ALL_TRAFFIC"),
+			},
+			{
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func TestAccCloudFunctionsFunction_secretEnvVar(t *testing.T) {
 	t.Parallel()
 
@@ -648,7 +687,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs10"
+  runtime               = "nodejs20"
   description           = "test function"
   docker_registry       = "ARTIFACT_REGISTRY"
   available_memory_mb   = 128
@@ -697,7 +736,7 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_object        = google_storage_bucket_object.archive.name
   trigger_http                 = true
   https_trigger_security_level = "SECURE_ALWAYS"
-  runtime                      = "nodejs10"
+  runtime                      = "nodejs20"
   timeout                      = 91
   entry_point                  = "helloGET"
   ingress_settings             = "ALLOW_ALL"
@@ -753,7 +792,7 @@ resource "google_cloudbuild_worker_pool" "pool" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%[3]s"
-  runtime               = "nodejs10"
+  runtime               = "nodejs20"
   description           = "test function"
   docker_registry       = "ARTIFACT_REGISTRY"
   available_memory_mb   = 128
@@ -787,7 +826,7 @@ resource "google_pubsub_topic" "sub" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs10"
+  runtime               = "nodejs20"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -824,7 +863,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs10"
+  runtime               = "nodejs20"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -858,7 +897,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs10"
+  runtime               = "nodejs20"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -889,7 +928,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs10"
+  runtime               = "nodejs20"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -907,7 +946,7 @@ func testAccCloudFunctionsFunction_sourceRepo(functionName, project string) stri
 	return fmt.Sprintf(`
 resource "google_cloudfunctions_function" "function" {
   name    = "%s"
-  runtime = "nodejs10"
+  runtime = "nodejs20"
 
   source_repository {
     // There isn't yet an API that'll allow us to create a source repository and
@@ -942,7 +981,7 @@ data "google_compute_default_service_account" "default" {
 
 resource "google_cloudfunctions_function" "function" {
   name    = "%s"
-  runtime = "nodejs10"
+  runtime = "nodejs20"
 
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -993,7 +1032,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name     = "%s"
-  runtime  = "nodejs10"
+  runtime  = "nodejs20"
 
   description           = "test function"
   available_memory_mb   = 128
@@ -1016,6 +1055,69 @@ resource "google_cloudfunctions_function" "function" {
   depends_on = [google_project_iam_member.gcfadmin]
 }
 `, projectNumber, networkName, vpcConnectorName, vpcConnectorName, vpcIp, bucketName, zipFilePath, functionName, vpcConnectorName)
+}
+
+func testAccCloudFunctionsFunction_vpcConnectorEgressSettings(projectNumber, networkName, functionName, bucketName, zipFilePath, vpcIp, vpcConnectorName, vpcConnectorEgressSettings string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_project_iam_member" "gcfadmin" {
+  project = data.google_project.project.project_id
+  role     = "roles/editor"
+  member   = "serviceAccount:service-%s@gcf-admin-robot.iam.gserviceaccount.com"
+}
+
+resource "google_compute_network" "vpc" {
+	name = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_vpc_access_connector" "%s" {
+  name          = "%s"
+  region        = "us-central1"
+  ip_cidr_range = "%s"
+  network       = google_compute_network.vpc.name
+  min_throughput  = 200
+  max_throughput = 300
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name     = "index.zip"
+  bucket   = google_storage_bucket.bucket.name
+  source   = "%s"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name     = "%s"
+  runtime  = "nodejs20"
+
+  description           = "test function"
+  available_memory_mb   = 128
+  source_archive_bucket = google_storage_bucket.bucket.name
+  source_archive_object = google_storage_bucket_object.archive.name
+  trigger_http          = true
+  timeout               = 61
+  entry_point           = "helloGET"
+  labels = {
+	my-label = "my-label-value"
+  }
+  environment_variables = {
+	TEST_ENV_VARIABLE = "test-env-variable-value"
+  }
+  max_instances = 10
+  min_instances = 3
+  vpc_connector = google_vpc_access_connector.%s.self_link
+  vpc_connector_egress_settings = "%s"
+
+  depends_on = [google_project_iam_member.gcfadmin]
+}
+`, projectNumber, networkName, vpcConnectorName, vpcConnectorName, vpcIp, bucketName, zipFilePath, functionName, vpcConnectorName, vpcConnectorEgressSettings)
 }
 
 func testAccCloudFunctionsFunction_secretEnvVar(secretName, versionName, bucketName, functionName, versionNumber, zipFilePath, accountId string) string {
@@ -1203,7 +1305,7 @@ resource "time_sleep" "wait_iam_roles_%[3]s" {
 resource "google_cloudfunctions_function" "function" {
 	depends_on = [time_sleep.wait_iam_roles_%[3]s]
   name    = "%[5]s"
-  runtime = "nodejs10"
+  runtime = "nodejs20"
 
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name

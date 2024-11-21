@@ -1,0 +1,3 @@
+```release-note:bug
+cloudfunctions: Fixed issue when updating `vpc_connector_egress_settings` field for `google_cloudfunctions_function` resource.
+```
