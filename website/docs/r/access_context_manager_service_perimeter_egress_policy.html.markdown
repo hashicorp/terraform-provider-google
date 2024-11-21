@@ -31,6 +31,9 @@ or query against a BigQuery dataset).
 ~> **Note:** By default, updates to this resource will remove the EgressPolicy from the
 from the perimeter and add it back in a non-atomic manner. To ensure that the new EgressPolicy
 is added before the old one is removed, add a `lifecycle` block with `create_before_destroy = true` to this resource.
+~> **Note:** If this resource is used alongside a `google_access_context_manager_service_perimeter` resource,
+the service perimeter resource must have a `lifecycle` block with `ignore_changes = [status[0].egress_policies]` so
+they don't fight over which egress rules should be in the policy.
 
 
 To get more information about ServicePerimeterEgressPolicy, see:
@@ -51,7 +54,7 @@ resource "google_access_context_manager_service_perimeter" "storage-perimeter" {
     restricted_services = ["storage.googleapis.com"]
   }
   lifecycle {
-    ignore_changes = [status[0].resources]
+    ignore_changes = [status[0].egress_policies] # Allows ingress policies to be managed by google_access_context_manager_service_perimeter_egress_policy resources
   }
 }
 
