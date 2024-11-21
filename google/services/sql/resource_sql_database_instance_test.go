@@ -1060,7 +1060,7 @@ func TestAccSqlDatabaseInstance_withPSCEnabled_withIpV4Enabled(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccSqlDatabaseInstance_withPSCEnabled_withIpV4Enable(instanceName, projectId, orgId, billingAccount),
-				ExpectError: regexp.MustCompile("PSC connectivity cannot be enabled together with public IP"),
+				ExpectError: regexp.MustCompile("PSC connectivity cannot be enabled together with only public IP"),
 			},
 		},
 	})
