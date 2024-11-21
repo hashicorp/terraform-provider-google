@@ -568,3 +568,99 @@ func TestAccBigtableAppProfile_updateStandardIsolationToDataBoost(t *testing.T) 
 		},
 	})
 }
+
+func testAccBigtableAppProfile_updateRowAffinity(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+  name = "%s"
+  cluster {
+    cluster_id   = "%s"
+    zone         = "us-central1-b"
+    num_nodes    = 1
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s2"
+    zone         = "us-central1-a"
+    num_nodes    = 1
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s3"
+    zone         = "us-central1-c"
+    num_nodes    = 1
+    storage_type = "HDD"
+  }
+  deletion_protection = false
+}
+resource "google_bigtable_app_profile" "ap" {
+  instance       = google_bigtable_instance.instance.id
+  app_profile_id = "test"
+  multi_cluster_routing_use_any     = true
+  multi_cluster_routing_cluster_ids = ["%s", "%s2", "%s3"]
+  row_affinity = true
+  ignore_warnings               = true
+}
+`, instanceName, instanceName, instanceName, instanceName, instanceName, instanceName, instanceName)
+}
+
+func TestAccBigtableAppProfile_updateRowAffinity(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableAppProfileDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigtableAppProfile_updateMC2(instanceName),
+			},
+			{
+				ResourceName:            "google_bigtable_app_profile.ap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+			},
+			{
+				Config: testAccBigtableAppProfile_updateRowAffinity(instanceName),
+			},
+			{
+				ResourceName:            "google_bigtable_app_profile.ap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+			},
+			{
+				Config: testAccBigtableAppProfile_update1(instanceName),
+			},
+			{
+				ResourceName:            "google_bigtable_app_profile.ap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+			},
+			{
+				Config: testAccBigtableAppProfile_updateRowAffinity(instanceName),
+			},
+			{
+				ResourceName:            "google_bigtable_app_profile.ap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+			},
+			{
+				Config: testAccBigtableAppProfile_updateMC2(instanceName),
+			},
+			{
+				ResourceName:            "google_bigtable_app_profile.ap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+			},
+		},
+	})
+}
