@@ -5,6 +5,8 @@ package fwprovider
 import (
 	"context"
 
+	sdk_schema "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/function"
@@ -18,7 +20,6 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/functions"
 	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
-	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/version"
 
@@ -33,16 +34,17 @@ var (
 )
 
 // New is a helper function to simplify provider server and testing implementation.
-func New() provider.ProviderWithMetaSchema {
+func New(primary *sdk_schema.Provider) provider.ProviderWithMetaSchema {
 	return &FrameworkProvider{
 		Version: version.ProviderVersion,
+		Primary: primary,
 	}
 }
 
 // FrameworkProvider is the provider implementation.
 type FrameworkProvider struct {
-	fwtransport.FrameworkProviderConfig
 	Version string
+	Primary *sdk_schema.Provider
 }
 
 // Metadata returns
@@ -65,6 +67,9 @@ func (p *FrameworkProvider) MetaSchema(_ context.Context, _ provider.MetaSchemaR
 }
 
 // Schema defines the provider-level schema for configuration data.
+// See: https://developer.hashicorp.com/terraform/plugin/framework/migrating/mux
+// "The schema and configuration handling must exactly match between all underlying providers of the mux server"
+// This schema matches the schema implemented with SDKv2 in google/provider/provider.go
 func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
@@ -130,6 +135,10 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 			},
 			"request_timeout": schema.StringAttribute{
 				Optional: true,
+				Validators: []validator.String{
+					NonEmptyStringValidator(),
+					NonNegativeDurationValidator(),
+				},
 			},
 			"request_reason": schema.StringAttribute{
 				Optional: true,
@@ -1011,15 +1020,18 @@ func (p *FrameworkProvider) Configure(ctx context.Context, req provider.Configur
 	}
 
 	// Configuration values are now available.
-	p.LoadAndValidateFramework(ctx, &data, req.TerraformVersion, &resp.Diagnostics, p.Version)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	// However we don't use them; for the plugin-framework implementation of the provider
+	// we take the configuration values from the SDK implementation of the provider. This avoids duplicated logic and inconsistencies in implementation.
+	// The trade off is that we don't benefit from the new type system that differentiates Null and Unknown values, which is especially useful for strings.
+	// This makes it necessary to write code that stops empty strings (etc) being passed from the Config struct to PF-implemented resources/datasources.
+	//    E.g. GetProjectFramework treats Null and "" the same way : https://github.com/hashicorp/terraform-provider-google/blob/74c815ee4ad059453e06b84448af244d80490ec1/google/fwresource/field_helpers.go#L21-L36
+	//    See also, new approaches to handle this: https://github.com/GoogleCloudPlatform/magic-modules/pull/11925
 
 	// This is how we make provider configuration info (configured clients, default project, etc) available to resources and data sources
 	// implemented using the plugin-framework. The resources' Configure functions receive this data in the ConfigureRequest argument.
-	resp.DataSourceData = &p.FrameworkProviderConfig
-	resp.ResourceData = &p.FrameworkProviderConfig
+	meta := p.Primary.Meta().(*transport_tpg.Config)
+	resp.DataSourceData = meta
+	resp.ResourceData = meta
 }
 
 // DataSources defines the data sources implemented in the provider.

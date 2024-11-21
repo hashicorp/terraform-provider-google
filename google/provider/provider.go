@@ -31,6 +31,9 @@ func Provider() *schema.Provider {
 	}
 
 	provider := &schema.Provider{
+		// See: https://developer.hashicorp.com/terraform/plugin/framework/migrating/mux
+		// "The schema and configuration handling must exactly match between all underlying providers of the mux server"
+		// This schema matches the schema implemented with the plugin-framework in google/fwprovider/framework_provider.go
 		Schema: map[string]*schema.Schema{
 			"credentials": {
 				Type:          schema.TypeString,

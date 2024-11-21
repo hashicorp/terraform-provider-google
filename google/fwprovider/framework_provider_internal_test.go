@@ -7,8 +7,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-provider-google/google/fwprovider"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func TestFrameworkProvider_impl(t *testing.T) {
-	var _ provider.ProviderWithMetaSchema = fwprovider.New()
+	primary := &schema.Provider{}
+	var _ provider.ProviderWithMetaSchema = fwprovider.New(primary)
 }
