@@ -15,8 +15,8 @@ import (
 func TestAccFwProvider_add_terraform_attribution_label(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
 		// Configuring the provider using inputs
-		"when add_terraform_attribution_label is set in the config, the value is set in the provider meta data":                      testAccFwProvider_add_terraform_attribution_label_configUsed,
-		"when add_terraform_attribution_label is unset in the config, the default value 'true' is NOT set on the provider meta data": testAccFwProvider_add_terraform_attribution_label_defaultValue,
+		"when add_terraform_attribution_label is set in the config, the value is set in the provider meta data":                  testAccFwProvider_add_terraform_attribution_label_configUsed,
+		"when add_terraform_attribution_label is unset in the config, the default value 'true' is set on the provider meta data": testAccFwProvider_add_terraform_attribution_label_defaultValue,
 	}
 
 	for name, tc := range testCases {
@@ -73,7 +73,7 @@ func testAccFwProvider_add_terraform_attribution_label_defaultValue(t *testing.T
 			{
 				Config: testAccFwProvider_add_terraform_attribution_label_inEnvsOnly(context),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckNoResourceAttr("data.google_provider_config_plugin_framework.default", "add_terraform_attribution_label"),
+					resource.TestCheckResourceAttr("data.google_provider_config_plugin_framework.default", "add_terraform_attribution_label", "true"),
 				),
 			},
 		},

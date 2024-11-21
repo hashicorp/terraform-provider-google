@@ -197,6 +197,34 @@ resource "google_sql_database_instance" "main" {
 }
 ```
 
+### Cloud SQL Instance with PSC auto connections
+
+```hcl
+resource "google_sql_database_instance" "main" {
+  name             = "psc-enabled-main-instance"
+  database_version = "MYSQL_8_0"
+  settings {
+    tier    = "db-f1-micro"
+    ip_configuration {
+      psc_config {
+        psc_enabled = true
+        allowed_consumer_projects = ["allowed-consumer-project-name"]
+        psc_auto_connections {
+          consumer_network = "network-name"
+          consumer_service_project_id = "project-id"
+        }
+      }
+      ipv4_enabled = false
+    }
+    backup_configuration {
+      enabled = true
+      binary_log_enabled = true
+    }
+    availability_type = "REGIONAL"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -234,7 +262,9 @@ includes an up-to-date reference of supported versions.
     is not provided, the provider project is used.
 
 * `replica_configuration` - (Optional) The configuration for replication. The
-    configuration is detailed below. Valid only for MySQL instances.
+    configuration is detailed below. 
+
+* `replica_names` - (Optional, Computed) List of replica names. Can be updated.
 
 * `root_password` - (Optional) Initial root password. Can be updated. Required for MS SQL Server.
 
@@ -402,6 +432,12 @@ The optional `settings.ip_configuration.psc_config` sublist supports:
 
 * `allowed_consumer_projects` - (Optional) List of consumer projects that are allow-listed for PSC connections to this instance. This instance can be connected to with PSC from any network in these projects. Each consumer project in this list may be represented by a project number (numeric) or by a project id (alphanumeric).
 
+* The optional `psc_config.psc_auto_connections` subblock - (Optional) A comma-separated list of networks or a comma-separated list of network-project pairs. Each project in this list is represented by a project number (numeric) or by a project ID (alphanumeric). This allows Private Service Connect connections to be created automatically for the specified networks.
+
+* `consumer_network` - "The consumer network of this consumer endpoint. This must be a resource path that includes both the host project and the network name. For example, `projects/project1/global/networks/network1`. The consumer host project of this network might be different from the consumer service project."
+
+* `consumer_service_project_id` - (Optional) The project ID of consumer service project of this consumer endpoint.
+
 The optional `settings.location_preference` subblock supports:
 
 * `follow_gae_application` - (Optional) A GAE application whose zone to remain
@@ -451,10 +487,14 @@ The optional `settings.password_validation_policy` subblock for instances declar
 The optional `replica_configuration` block must have `master_instance_name` set
 to work, cannot be updated and supports:
 
--> **Note:** `replica_configuration` field is not meant to be used if the master
+~> **Note:** `replica_configuration` field is not meant to be used if the master
 instance is a source representation instance. The configuration provided by this
 field can be set on the source representation instance directly. If this field
 is present when the master instance is a source representation instance, `dump_file_path` must be provided.
+
+* `cascadable_replica` - (Optional) Specifies if the replica is a cascadable replica. If true, instance must be in different region from primary.
+
+  ~> **NOTE:** Only supported for SQL Server database.
 
 * `ca_certificate` - (Optional) PEM representation of the trusted CA's x509
     certificate.
@@ -525,7 +565,7 @@ exported:
 * `connection_name` - The connection name of the instance to be used in
 connection strings. For example, when connecting with [Cloud SQL Proxy](https://cloud.google.com/sql/docs/mysql/connect-admin-proxy).
 
-* `dsn_name` - The DNS name of the instance. See [Connect to an instance using Private Service Connect](https://cloud.google.com/sql/docs/mysql/configure-private-service-connect#view-summary-information-cloud-sql-instances-psc-enabled) for more details.
+* `dns_name` - The DNS name of the instance. See [Connect to an instance using Private Service Connect](https://cloud.google.com/sql/docs/mysql/configure-private-service-connect#view-summary-information-cloud-sql-instances-psc-enabled) for more details.
 
 * `service_account_email_address` - The service account email address assigned to the
 instance.
@@ -577,6 +617,38 @@ performing filtering in a Terraform config.
 * `server_ca_cert.0.expiration_time` - Expiration time of the CA Cert.
 
 * `server_ca_cert.0.sha1_fingerprint` - SHA Fingerprint of the CA Cert.
+
+## Switchover (SQL Server Only)
+Users can perform a switchover on any direct `cascadable` replica by following the steps below.
+
+  ~>**WARNING:** Failure to follow these steps can lead to data loss (You will be warned during plan stage). To prevent data loss during a switchover, please verify your plan with the checklist below.
+
+For a more in-depth walkthrough with example code, see the [Switchover Guide](../guides/sql_instance_switchover.html.markdown)
+
+### Steps to Invoke Switchover
+
+Create a `cascadable` replica in a different region from the primary (`cascadable_replica` is set to true in `replica_configuration`)
+
+#### Invoking switchover in the replica resource:
+1. Change instance_type from `READ_REPLICA_INSTANCE` to `CLOUD_SQL_INSTANCE`
+2. Remove `master_instance_name`
+3. Remove `replica_configuration`
+4. Add current primary's name to the replica's `replica_names` list
+
+#### Updating the primary resource:
+1. Change `instance_type` from `CLOUD_SQL_INSTANCE` to `READ_REPLICA_INSTANCE`
+2. Set `master_instance_name` to the original replica (which will be primary after switchover)
+3. Set `replica_configuration` and set `cascadable_replica` to `true`
+4. Remove original replica from `replica_names`
+
+    ~> **NOTE**: Do **not** delete the replica_names field, even if it has no replicas remaining. Set replica_names = [ ] to indicate it having no replicas.
+
+#### Plan and verify that:
+- `terraform plan` outputs **"0 to add, 0 to destroy"**
+- `terraform plan` does not say **"must be replaced"** for any resource
+- Every resource **"will be updated in-place"**
+- Only the 2 instances involved in switchover have planned changes
+- (Recommended) Use `deletion_protection` on instances as a safety measure
 
 ## Timeouts
 

@@ -30,9 +30,6 @@ func TestAccDataSourceArtifactRegistryDockerImage(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName+"Tag", "image_size_bytes"),
 					validateTimeStamps(resourceName+"Tag"),
 
-					resource.TestCheckResourceAttrSet(resourceName+"Digest", "image_size_bytes"),
-					validateTimeStamps(resourceName+"Digest"),
-
 					// url safe docker name using a tag
 					checkTaggedDataSources(resourceName+"UrlTag", "latest"),
 

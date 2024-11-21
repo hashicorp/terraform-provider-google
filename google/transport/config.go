@@ -186,7 +186,7 @@ type Config struct {
 	UserAgent          string
 	gRPCLoggingOptions []option.ClientOption
 
-	tokenSource oauth2.TokenSource
+	TokenSource oauth2.TokenSource
 
 	AccessApprovalBasePath           string
 	AccessContextManagerBasePath     string
@@ -196,6 +196,7 @@ type Config struct {
 	AppEngineBasePath                string
 	ApphubBasePath                   string
 	ArtifactRegistryBasePath         string
+	BackupDRBasePath                 string
 	BeyondcorpBasePath               string
 	BiglakeBasePath                  string
 	BigQueryBasePath                 string
@@ -266,6 +267,7 @@ type Config struct {
 	KMSBasePath                      string
 	LoggingBasePath                  string
 	LookerBasePath                   string
+	ManagedKafkaBasePath             string
 	MemcacheBasePath                 string
 	MemorystoreBasePath              string
 	MigrationCenterBasePath          string
@@ -281,6 +283,7 @@ type Config struct {
 	OrgPolicyBasePath                string
 	OSConfigBasePath                 string
 	OSLoginBasePath                  string
+	ParallelstoreBasePath            string
 	PrivatecaBasePath                string
 	PrivilegedAccessManagerBasePath  string
 	PublicCABasePath                 string
@@ -340,6 +343,7 @@ const ApigeeBasePathKey = "Apigee"
 const AppEngineBasePathKey = "AppEngine"
 const ApphubBasePathKey = "Apphub"
 const ArtifactRegistryBasePathKey = "ArtifactRegistry"
+const BackupDRBasePathKey = "BackupDR"
 const BeyondcorpBasePathKey = "Beyondcorp"
 const BiglakeBasePathKey = "Biglake"
 const BigQueryBasePathKey = "BigQuery"
@@ -410,6 +414,7 @@ const IntegrationsBasePathKey = "Integrations"
 const KMSBasePathKey = "KMS"
 const LoggingBasePathKey = "Logging"
 const LookerBasePathKey = "Looker"
+const ManagedKafkaBasePathKey = "ManagedKafka"
 const MemcacheBasePathKey = "Memcache"
 const MemorystoreBasePathKey = "Memorystore"
 const MigrationCenterBasePathKey = "MigrationCenter"
@@ -425,6 +430,7 @@ const OracleDatabaseBasePathKey = "OracleDatabase"
 const OrgPolicyBasePathKey = "OrgPolicy"
 const OSConfigBasePathKey = "OSConfig"
 const OSLoginBasePathKey = "OSLogin"
+const ParallelstoreBasePathKey = "Parallelstore"
 const PrivatecaBasePathKey = "Privateca"
 const PrivilegedAccessManagerBasePathKey = "PrivilegedAccessManager"
 const PublicCABasePathKey = "PublicCA"
@@ -478,6 +484,7 @@ var DefaultBasePaths = map[string]string{
 	AppEngineBasePathKey:                "https://appengine.googleapis.com/v1/",
 	ApphubBasePathKey:                   "https://apphub.googleapis.com/v1/",
 	ArtifactRegistryBasePathKey:         "https://artifactregistry.googleapis.com/v1/",
+	BackupDRBasePathKey:                 "https://backupdr.googleapis.com/v1/",
 	BeyondcorpBasePathKey:               "https://beyondcorp.googleapis.com/v1/",
 	BiglakeBasePathKey:                  "https://biglake.googleapis.com/v1/",
 	BigQueryBasePathKey:                 "https://bigquery.googleapis.com/bigquery/v2/",
@@ -548,6 +555,7 @@ var DefaultBasePaths = map[string]string{
 	KMSBasePathKey:                      "https://cloudkms.googleapis.com/v1/",
 	LoggingBasePathKey:                  "https://logging.googleapis.com/v2/",
 	LookerBasePathKey:                   "https://looker.googleapis.com/v1/",
+	ManagedKafkaBasePathKey:             "https://managedkafka.googleapis.com/v1/",
 	MemcacheBasePathKey:                 "https://memcache.googleapis.com/v1/",
 	MemorystoreBasePathKey:              "https://memorystore.googleapis.com/v1/",
 	MigrationCenterBasePathKey:          "https://migrationcenter.googleapis.com/v1/",
@@ -563,6 +571,7 @@ var DefaultBasePaths = map[string]string{
 	OrgPolicyBasePathKey:                "https://orgpolicy.googleapis.com/v2/",
 	OSConfigBasePathKey:                 "https://osconfig.googleapis.com/v1/",
 	OSLoginBasePathKey:                  "https://oslogin.googleapis.com/v1/",
+	ParallelstoreBasePathKey:            "https://parallelstore.googleapis.com/v1/",
 	PrivatecaBasePathKey:                "https://privateca.googleapis.com/v1/",
 	PrivilegedAccessManagerBasePathKey:  "https://privilegedaccessmanager.googleapis.com/v1/",
 	PublicCABasePathKey:                 "https://publicca.googleapis.com/v1/",
@@ -718,6 +727,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("artifact_registry_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_ARTIFACT_REGISTRY_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[ArtifactRegistryBasePathKey]))
+	}
+	if d.Get("backup_dr_custom_endpoint") == "" {
+		d.Set("backup_dr_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_BACKUP_DR_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[BackupDRBasePathKey]))
 	}
 	if d.Get("beyondcorp_custom_endpoint") == "" {
 		d.Set("beyondcorp_custom_endpoint", MultiEnvDefault([]string{
@@ -1069,6 +1083,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 			"GOOGLE_LOOKER_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[LookerBasePathKey]))
 	}
+	if d.Get("managed_kafka_custom_endpoint") == "" {
+		d.Set("managed_kafka_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_MANAGED_KAFKA_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[ManagedKafkaBasePathKey]))
+	}
 	if d.Get("memcache_custom_endpoint") == "" {
 		d.Set("memcache_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_MEMCACHE_CUSTOM_ENDPOINT",
@@ -1143,6 +1162,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("os_login_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_OS_LOGIN_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[OSLoginBasePathKey]))
+	}
+	if d.Get("parallelstore_custom_endpoint") == "" {
+		d.Set("parallelstore_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_PARALLELSTORE_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[ParallelstoreBasePathKey]))
 	}
 	if d.Get("privateca_custom_endpoint") == "" {
 		d.Set("privateca_custom_endpoint", MultiEnvDefault([]string{
@@ -1386,7 +1410,7 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 		return err
 	}
 
-	c.tokenSource = tokenSource
+	c.TokenSource = tokenSource
 
 	cleanCtx := context.WithValue(ctx, oauth2.HTTPClient, cleanhttp.DefaultClient())
 
@@ -2012,7 +2036,7 @@ func (c *Config) NewCloudIdentityClient(userAgent string) *cloudidentity.Service
 func (c *Config) BigTableClientFactory(userAgent string) *BigtableClientFactory {
 	bigtableClientFactory := &BigtableClientFactory{
 		UserAgent:           userAgent,
-		TokenSource:         c.tokenSource,
+		TokenSource:         c.TokenSource,
 		gRPCLoggingOptions:  c.gRPCLoggingOptions,
 		BillingProject:      c.BillingProject,
 		UserProjectOverride: c.UserProjectOverride,
@@ -2219,6 +2243,7 @@ func ConfigureBasePaths(c *Config) {
 	c.AppEngineBasePath = DefaultBasePaths[AppEngineBasePathKey]
 	c.ApphubBasePath = DefaultBasePaths[ApphubBasePathKey]
 	c.ArtifactRegistryBasePath = DefaultBasePaths[ArtifactRegistryBasePathKey]
+	c.BackupDRBasePath = DefaultBasePaths[BackupDRBasePathKey]
 	c.BeyondcorpBasePath = DefaultBasePaths[BeyondcorpBasePathKey]
 	c.BiglakeBasePath = DefaultBasePaths[BiglakeBasePathKey]
 	c.BigQueryBasePath = DefaultBasePaths[BigQueryBasePathKey]
@@ -2289,6 +2314,7 @@ func ConfigureBasePaths(c *Config) {
 	c.KMSBasePath = DefaultBasePaths[KMSBasePathKey]
 	c.LoggingBasePath = DefaultBasePaths[LoggingBasePathKey]
 	c.LookerBasePath = DefaultBasePaths[LookerBasePathKey]
+	c.ManagedKafkaBasePath = DefaultBasePaths[ManagedKafkaBasePathKey]
 	c.MemcacheBasePath = DefaultBasePaths[MemcacheBasePathKey]
 	c.MemorystoreBasePath = DefaultBasePaths[MemorystoreBasePathKey]
 	c.MigrationCenterBasePath = DefaultBasePaths[MigrationCenterBasePathKey]
@@ -2304,6 +2330,7 @@ func ConfigureBasePaths(c *Config) {
 	c.OrgPolicyBasePath = DefaultBasePaths[OrgPolicyBasePathKey]
 	c.OSConfigBasePath = DefaultBasePaths[OSConfigBasePathKey]
 	c.OSLoginBasePath = DefaultBasePaths[OSLoginBasePathKey]
+	c.ParallelstoreBasePath = DefaultBasePaths[ParallelstoreBasePathKey]
 	c.PrivatecaBasePath = DefaultBasePaths[PrivatecaBasePathKey]
 	c.PrivilegedAccessManagerBasePath = DefaultBasePaths[PrivilegedAccessManagerBasePathKey]
 	c.PublicCABasePath = DefaultBasePaths[PublicCABasePathKey]

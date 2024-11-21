@@ -20,6 +20,9 @@ func TestAccAccessContextManager(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
 		"access_policy":                            testAccAccessContextManagerAccessPolicy_basicTest,
 		"access_policy_scoped":                     testAccAccessContextManagerAccessPolicy_scopedTest,
+		"access_policy_iam_binding":                testAccAccessContextManagerAccessPolicyIamBinding,
+		"access_policy_iam_member":                 testAccAccessContextManagerAccessPolicyIamMember,
+		"access_policy_iam_policy":                 testAccAccessContextManagerAccessPolicyIamPolicy,
 		"service_perimeter":                        testAccAccessContextManagerServicePerimeter_basicTest,
 		"service_perimeter_update":                 testAccAccessContextManagerServicePerimeter_updateTest,
 		"service_perimeter_resource":               testAccAccessContextManagerServicePerimeterResource_basicTest,

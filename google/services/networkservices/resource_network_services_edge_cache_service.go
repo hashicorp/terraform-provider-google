@@ -76,7 +76,7 @@ and all following characters must be a dash, underscore, letter or digit.`,
 							Required:    true,
 							Description: `The list of hostRules to match against. These rules define which hostnames the EdgeCacheService will match against, and which route configurations apply.`,
 							MinItems:    1,
-							MaxItems:    10,
+							MaxItems:    50,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"hosts": {
@@ -124,7 +124,7 @@ When multiple hosts are specified, hosts are matched in the following priority:
 							Required:    true,
 							Description: `The list of pathMatchers referenced via name by hostRules. PathMatcher is used to match the path portion of the URL when a HostRule matches the URL's host portion.`,
 							MinItems:    1,
-							MaxItems:    10,
+							MaxItems:    50,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {

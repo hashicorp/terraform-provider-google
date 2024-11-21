@@ -21,8 +21,6 @@ description: |-
 
 Container to store and organize immutable and indelible backups.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Backup Dr Backup Vault Full
@@ -30,20 +28,20 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_backup_dr_backup_vault" "backup-vault-test" {
-  provider = google-beta
   location = "us-central1"
   backup_vault_id    = "backup-vault-test"
   description = "This is a second backup vault built by Terraform."
   backup_minimum_enforced_retention_duration = "100000s"
-  labels = {
-    foo = "bar1"
-    bar = "baz1"
-  }
   annotations = {
     annotations1 = "bar1"
     annotations2 = "baz1"
   }
+  labels = {
+    foo = "bar1"
+    bar = "baz1"
+  }
   force_update = "true"
+  access_restriction = "WITHIN_ORGANIZATION"
   ignore_inactive_datasources = "true"
   ignore_backup_plan_references = "true"
   allow_missing = "true"
@@ -91,6 +89,12 @@ The following arguments are supported:
   Stores small amounts of arbitrary data. 
   **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
   Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
+* `access_restriction` -
+  (Optional)
+  Access restriction for the backup vault. Default value is `WITHIN_ORGANIZATION` if not provided during creation.
+  Default value is `WITHIN_ORGANIZATION`.
+  Possible values are: `ACCESS_RESTRICTION_UNSPECIFIED`, `WITHIN_PROJECT`, `WITHIN_ORGANIZATION`, `UNRESTRICTED`, `WITHIN_ORG_BUT_UNRESTRICTED_FOR_BA`.
 
 * `force_update` -
   (Optional)

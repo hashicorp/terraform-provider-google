@@ -512,6 +512,118 @@ resource "google_artifact_registry_repository" "my-repo" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=artifact_registry_repository_remote_common_repository_with_docker&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Artifact Registry Repository Remote Common Repository With Docker
+
+
+```hcl
+resource "google_artifact_registry_repository" "upstream_repo" {
+  location      = "us-central1"
+  repository_id = "example-upstream-repo"
+  description   = "example upstream repository"
+  format        = "DOCKER"
+}
+
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "example-common-remote"
+  description   = "example remote common repository with docker upstream"
+  format        = "DOCKER"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "pull-through cache of another Artifact Registry repository"
+    common_repository {
+      uri         = google_artifact_registry_repository.upstream_repo.id
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=artifact_registry_repository_remote_common_repository_with_artifact_registry_uri&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Artifact Registry Repository Remote Common Repository With Artifact Registry Uri
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_artifact_registry_repository" "upstream_repo" {
+  location      = "us-central1"
+  repository_id = "example-upstream-repo"
+  description   = "example upstream repository"
+  format        = "DOCKER"
+}
+
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "example-common-remote"
+  description   = "example remote common repository with docker upstream"
+  format        = "DOCKER"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "pull-through cache of another Artifact Registry repository by URL"
+    common_repository {
+      uri         = "https://us-central1-docker.pkg.dev//example-upstream-repo"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=artifact_registry_repository_remote_common_repository_with_custom_upstream&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Artifact Registry Repository Remote Common Repository With Custom Upstream
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "example-remote-secret" {
+  secret_id = "example-secret"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "example-remote-secret_version" {
+  secret = google_secret_manager_secret.example-remote-secret.id
+  secret_data = "remote-password"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret-access" {
+  secret_id = google_secret_manager_secret.example-remote-secret.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
+}
+
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "example-docker-custom-remote"
+  description   = "example remote custom docker repository with credentials"
+  format        = "DOCKER"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "custom common docker remote with credentials"
+    disable_upstream_validation = true
+    common_repository {
+      uri = "https://registry-1.docker.io"
+    }
+    upstream_credentials {
+      username_password_credentials {
+        username = "remote-username"
+        password_secret_version = google_secret_manager_secret_version.example-remote-secret_version.name
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -743,6 +855,11 @@ The following arguments are supported:
   Specific settings for an Yum remote repository.
   Structure is [documented below](#nested_yum_repository).
 
+* `common_repository` -
+  (Optional)
+  Specific settings for an Artifact Registory remote repository.
+  Structure is [documented below](#nested_common_repository).
+
 * `upstream_credentials` -
   (Optional)
   The credentials used to access the remote repository.
@@ -783,7 +900,7 @@ The following arguments are supported:
 
 * `custom_repository` -
   (Optional)
-  Settings for a remote repository with a custom uri.
+  [Deprecated, please use commonRepository instead] Settings for a remote repository with a custom uri.
   Structure is [documented below](#nested_custom_repository).
 
 
@@ -803,7 +920,7 @@ The following arguments are supported:
 
 * `custom_repository` -
   (Optional)
-  Settings for a remote repository with a custom uri.
+  [Deprecated, please use commonRepository instead] Settings for a remote repository with a custom uri.
   Structure is [documented below](#nested_custom_repository).
 
 
@@ -823,7 +940,7 @@ The following arguments are supported:
 
 * `custom_repository` -
   (Optional)
-  Settings for a remote repository with a custom uri.
+  [Deprecated, please use commonRepository instead] Settings for a remote repository with a custom uri.
   Structure is [documented below](#nested_custom_repository).
 
 
@@ -843,7 +960,7 @@ The following arguments are supported:
 
 * `custom_repository` -
   (Optional)
-  Settings for a remote repository with a custom uri.
+  [Deprecated, please use commonRepository instead] Settings for a remote repository with a custom uri.
   Structure is [documented below](#nested_custom_repository).
 
 
@@ -871,6 +988,15 @@ The following arguments are supported:
 * `repository_path` -
   (Required)
   Specific repository from the base, e.g. `"pub/rocky/9/BaseOS/x86_64/os"`
+
+<a name="nested_common_repository"></a>The `common_repository` block supports:
+
+* `uri` -
+  (Required)
+  One of:
+  a. Artifact Registry Repository resource, e.g. `projects/UPSTREAM_PROJECT_ID/locations/REGION/repositories/UPSTREAM_REPOSITORY`
+  b. URI to the registry, e.g. `"https://registry-1.docker.io"`
+  c. URI to Artifact Registry Repository, e.g. `"https://REGION-docker.pkg.dev/UPSTREAM_PROJECT_ID/UPSTREAM_REPOSITORY"`
 
 <a name="nested_upstream_credentials"></a>The `upstream_credentials` block supports:
 

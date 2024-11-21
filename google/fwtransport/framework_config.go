@@ -74,6 +74,7 @@ type FrameworkProviderConfig struct {
 	AppEngineBasePath                string
 	ApphubBasePath                   string
 	ArtifactRegistryBasePath         string
+	BackupDRBasePath                 string
 	BeyondcorpBasePath               string
 	BiglakeBasePath                  string
 	BigQueryBasePath                 string
@@ -144,6 +145,7 @@ type FrameworkProviderConfig struct {
 	KMSBasePath                      string
 	LoggingBasePath                  string
 	LookerBasePath                   string
+	ManagedKafkaBasePath             string
 	MemcacheBasePath                 string
 	MemorystoreBasePath              string
 	MigrationCenterBasePath          string
@@ -159,6 +161,7 @@ type FrameworkProviderConfig struct {
 	OrgPolicyBasePath                string
 	OSConfigBasePath                 string
 	OSLoginBasePath                  string
+	ParallelstoreBasePath            string
 	PrivatecaBasePath                string
 	PrivilegedAccessManagerBasePath  string
 	PublicCABasePath                 string
@@ -240,6 +243,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.AppEngineBasePath = data.AppEngineCustomEndpoint.ValueString()
 	p.ApphubBasePath = data.ApphubCustomEndpoint.ValueString()
 	p.ArtifactRegistryBasePath = data.ArtifactRegistryCustomEndpoint.ValueString()
+	p.BackupDRBasePath = data.BackupDRCustomEndpoint.ValueString()
 	p.BeyondcorpBasePath = data.BeyondcorpCustomEndpoint.ValueString()
 	p.BiglakeBasePath = data.BiglakeCustomEndpoint.ValueString()
 	p.BigQueryBasePath = data.BigQueryCustomEndpoint.ValueString()
@@ -310,6 +314,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.KMSBasePath = data.KMSCustomEndpoint.ValueString()
 	p.LoggingBasePath = data.LoggingCustomEndpoint.ValueString()
 	p.LookerBasePath = data.LookerCustomEndpoint.ValueString()
+	p.ManagedKafkaBasePath = data.ManagedKafkaCustomEndpoint.ValueString()
 	p.MemcacheBasePath = data.MemcacheCustomEndpoint.ValueString()
 	p.MemorystoreBasePath = data.MemorystoreCustomEndpoint.ValueString()
 	p.MigrationCenterBasePath = data.MigrationCenterCustomEndpoint.ValueString()
@@ -325,6 +330,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.OrgPolicyBasePath = data.OrgPolicyCustomEndpoint.ValueString()
 	p.OSConfigBasePath = data.OSConfigCustomEndpoint.ValueString()
 	p.OSLoginBasePath = data.OSLoginCustomEndpoint.ValueString()
+	p.ParallelstoreBasePath = data.ParallelstoreCustomEndpoint.ValueString()
 	p.PrivatecaBasePath = data.PrivatecaCustomEndpoint.ValueString()
 	p.PrivilegedAccessManagerBasePath = data.PrivilegedAccessManagerCustomEndpoint.ValueString()
 	p.PublicCABasePath = data.PublicCACustomEndpoint.ValueString()
@@ -559,6 +565,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.ArtifactRegistryBasePathKey])
 		if customEndpoint != nil {
 			data.ArtifactRegistryCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.BackupDRCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_BACKUP_DR_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.BackupDRBasePathKey])
+		if customEndpoint != nil {
+			data.BackupDRCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.BeyondcorpCustomEndpoint.IsNull() {
@@ -1121,6 +1135,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 			data.LookerCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
+	if data.ManagedKafkaCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_MANAGED_KAFKA_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ManagedKafkaBasePathKey])
+		if customEndpoint != nil {
+			data.ManagedKafkaCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
 	if data.MemcacheCustomEndpoint.IsNull() {
 		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_MEMCACHE_CUSTOM_ENDPOINT",
@@ -1239,6 +1261,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.OSLoginBasePathKey])
 		if customEndpoint != nil {
 			data.OSLoginCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.ParallelstoreCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_PARALLELSTORE_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ParallelstoreBasePathKey])
+		if customEndpoint != nil {
+			data.ParallelstoreCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.PrivatecaCustomEndpoint.IsNull() {

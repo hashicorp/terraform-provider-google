@@ -406,6 +406,67 @@ resource "google_dataproc_batch" "example_batch_sparkr" {
 `, context)
 }
 
+func TestAccDataprocBatch_dataprocBatchAutotuningExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":    envvar.GetTestProjectFromEnv(),
+		"prevent_destroy": false,
+		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-autotuning-test-network", "dataproc-autotuning-test-subnetwork"),
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocBatchDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocBatch_dataprocBatchAutotuningExample(context),
+			},
+			{
+				ResourceName:            "google_dataproc_batch.example_batch_autotuning",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"batch_id", "labels", "location", "runtime_config.0.properties", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDataprocBatch_dataprocBatchAutotuningExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataproc_batch" "example_batch_autotuning" {
+
+    batch_id      = "tf-test-batch%{random_suffix}"
+    location      = "us-central1"
+    labels        = {"batch_test": "terraform"}
+
+    runtime_config {
+      version       = "2.2"
+      properties    = { "spark.dynamicAllocation.enabled": "false", "spark.executor.instances": "2" }
+      cohort        = "tf-dataproc-batch-example"
+      autotuning_config {
+        scenarios = ["SCALING", "MEMORY"]
+      }
+    }
+
+    environment_config {
+      execution_config {
+        subnetwork_uri = "%{subnetwork_name}"
+        ttl            = "3600s"
+      }
+    }
+
+    spark_batch {
+      main_class    = "org.apache.spark.examples.SparkPi"
+      args          = ["10"]
+      jar_file_uris = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
+    }
+}
+`, context)
+}
+
 func testAccCheckDataprocBatchDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

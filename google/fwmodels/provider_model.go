@@ -38,6 +38,7 @@ type ProviderModel struct {
 	AppEngineCustomEndpoint                types.String `tfsdk:"app_engine_custom_endpoint"`
 	ApphubCustomEndpoint                   types.String `tfsdk:"apphub_custom_endpoint"`
 	ArtifactRegistryCustomEndpoint         types.String `tfsdk:"artifact_registry_custom_endpoint"`
+	BackupDRCustomEndpoint                 types.String `tfsdk:"backup_dr_custom_endpoint"`
 	BeyondcorpCustomEndpoint               types.String `tfsdk:"beyondcorp_custom_endpoint"`
 	BiglakeCustomEndpoint                  types.String `tfsdk:"biglake_custom_endpoint"`
 	BigQueryCustomEndpoint                 types.String `tfsdk:"big_query_custom_endpoint"`
@@ -108,6 +109,7 @@ type ProviderModel struct {
 	KMSCustomEndpoint                      types.String `tfsdk:"kms_custom_endpoint"`
 	LoggingCustomEndpoint                  types.String `tfsdk:"logging_custom_endpoint"`
 	LookerCustomEndpoint                   types.String `tfsdk:"looker_custom_endpoint"`
+	ManagedKafkaCustomEndpoint             types.String `tfsdk:"managed_kafka_custom_endpoint"`
 	MemcacheCustomEndpoint                 types.String `tfsdk:"memcache_custom_endpoint"`
 	MemorystoreCustomEndpoint              types.String `tfsdk:"memorystore_custom_endpoint"`
 	MigrationCenterCustomEndpoint          types.String `tfsdk:"migration_center_custom_endpoint"`
@@ -123,6 +125,7 @@ type ProviderModel struct {
 	OrgPolicyCustomEndpoint                types.String `tfsdk:"org_policy_custom_endpoint"`
 	OSConfigCustomEndpoint                 types.String `tfsdk:"os_config_custom_endpoint"`
 	OSLoginCustomEndpoint                  types.String `tfsdk:"os_login_custom_endpoint"`
+	ParallelstoreCustomEndpoint            types.String `tfsdk:"parallelstore_custom_endpoint"`
 	PrivatecaCustomEndpoint                types.String `tfsdk:"privateca_custom_endpoint"`
 	PrivilegedAccessManagerCustomEndpoint  types.String `tfsdk:"privileged_access_manager_custom_endpoint"`
 	PublicCACustomEndpoint                 types.String `tfsdk:"public_ca_custom_endpoint"`

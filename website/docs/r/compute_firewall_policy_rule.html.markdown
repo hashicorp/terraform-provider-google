@@ -21,8 +21,6 @@ description: |-
 
 Represents a rule that describes one or more match conditions along with the action to be taken when traffic matches this condition (allow or deny).
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about FirewallPolicyRule, see:
 
@@ -33,8 +31,6 @@ To get more information about FirewallPolicyRule, see:
 
 ```hcl
 resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
-  provider = google-beta
-  
   name        = "address"
   parent      = "organizations/123456789"
   description = "Sample global networksecurity_address_group"
@@ -45,24 +41,18 @@ resource "google_network_security_address_group" "basic_global_networksecurity_a
 }
 
 resource "google_folder" "folder" {
-  provider = google-beta
-  
   display_name        = "folder"
   parent              = "organizations/123456789"
   deletion_protection = false
 }
 
 resource "google_compute_firewall_policy" "default" {
-  provider = google-beta
-  
   parent      = google_folder.folder.id
   short_name  = "policy"
   description = "Resource created for Terraform acceptance testing"
 }
 
 resource "google_compute_firewall_policy_rule" "policy_rule" {
-  provider = google-beta
-  
   firewall_policy = google_compute_firewall_policy.default.name
   description     = "Resource created for Terraform acceptance testing"
   priority        = 9000

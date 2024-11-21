@@ -115,6 +115,24 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 					},
 				},
 			},
+			"workforce_identity_federation_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `Configuration for Workforce Identity Federation to support third party identity provider.
+If unset, defaults to the Google OIDC IdP.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							ForceNew:    true,
+							Description: `'Whether Workforce Identity Federation is enabled.'`,
+						},
+					},
+				},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -213,6 +231,12 @@ func resourceSecureSourceManagerInstanceCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("private_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(privateConfigProp)) && (ok || !reflect.DeepEqual(v, privateConfigProp)) {
 		obj["privateConfig"] = privateConfigProp
+	}
+	workforceIdentityFederationConfigProp, err := expandSecureSourceManagerInstanceWorkforceIdentityFederationConfig(d.Get("workforce_identity_federation_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("workforce_identity_federation_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(workforceIdentityFederationConfigProp)) && (ok || !reflect.DeepEqual(v, workforceIdentityFederationConfigProp)) {
+		obj["workforceIdentityFederationConfig"] = workforceIdentityFederationConfigProp
 	}
 	labelsProp, err := expandSecureSourceManagerInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -344,6 +368,9 @@ func resourceSecureSourceManagerInstanceRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("private_config", flattenSecureSourceManagerInstancePrivateConfig(res["privateConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("workforce_identity_federation_config", flattenSecureSourceManagerInstanceWorkforceIdentityFederationConfig(res["workforceIdentityFederationConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenSecureSourceManagerInstanceTerraformLabels(res["labels"], d, config)); err != nil {
@@ -547,6 +574,23 @@ func flattenSecureSourceManagerInstancePrivateConfigSshServiceAttachment(v inter
 	return v
 }
 
+func flattenSecureSourceManagerInstanceWorkforceIdentityFederationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenSecureSourceManagerInstanceWorkforceIdentityFederationConfigEnabled(original["enabled"], d, config)
+	return []interface{}{transformed}
+}
+func flattenSecureSourceManagerInstanceWorkforceIdentityFederationConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenSecureSourceManagerInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -623,6 +667,29 @@ func expandSecureSourceManagerInstancePrivateConfigHttpServiceAttachment(v inter
 }
 
 func expandSecureSourceManagerInstancePrivateConfigSshServiceAttachment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSecureSourceManagerInstanceWorkforceIdentityFederationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandSecureSourceManagerInstanceWorkforceIdentityFederationConfigEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandSecureSourceManagerInstanceWorkforceIdentityFederationConfigEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

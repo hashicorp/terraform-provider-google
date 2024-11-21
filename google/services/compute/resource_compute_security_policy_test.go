@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -24,7 +25,48 @@ func TestAccComputeSecurityPolicy_basic(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSecurityPolicy_basic(spName),
+				Config: testAccComputeSecurityPolicy_basic(spName, "CLOUD_ARMOR"),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeSecurityPolicy_basicUpdate(t *testing.T) {
+	t.Parallel()
+
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicy_basic(spName, "CLOUD_ARMOR"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_security_policy.policy", "type", "CLOUD_ARMOR"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicy_basic(spName, "CLOUD_ARMOR_EDGE"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_security_policy.policy", plancheck.ResourceActionDestroyBeforeCreate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_security_policy.policy", "type", "CLOUD_ARMOR_EDGE"),
+				),
 			},
 			{
 				ResourceName:      "google_compute_security_policy.policy",
@@ -214,7 +256,7 @@ func TestAccComputeSecurityPolicy_withAdvancedOptionsConfig(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSecurityPolicy_basic(spName),
+				Config: testAccComputeSecurityPolicy_basic(spName, "CLOUD_ARMOR"),
 			},
 			{
 				ResourceName:      "google_compute_security_policy.policy",
@@ -256,7 +298,7 @@ func TestAccComputeSecurityPolicy_withAdvancedOptionsConfig(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeSecurityPolicy_basic(spName),
+				Config: testAccComputeSecurityPolicy_basic(spName, "CLOUD_ARMOR"),
 			},
 			{
 				ResourceName:      "google_compute_security_policy.policy",
@@ -384,7 +426,7 @@ func TestAccComputeSecurityPolicy_withRecaptchaOptionsConfig(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSecurityPolicy_basic(spName),
+				Config: testAccComputeSecurityPolicy_basic(spName, "CLOUD_ARMOR"),
 			},
 			{
 				ResourceName:      "google_compute_security_policy.policy",
@@ -632,14 +674,14 @@ func testAccCheckComputeSecurityPolicyDestroyProducer(t *testing.T) func(s *terr
 	}
 }
 
-func testAccComputeSecurityPolicy_basic(spName string) string {
+func testAccComputeSecurityPolicy_basic(spName, policyType string) string {
 	return fmt.Sprintf(`
 resource "google_compute_security_policy" "policy" {
   name        = "%s"
   description = "basic security policy"
-  type        = "CLOUD_ARMOR"
+  type        = "%s"
 }
-`, spName)
+`, spName, policyType)
 }
 
 func testAccComputeSecurityPolicy_withRule(spName string) string {

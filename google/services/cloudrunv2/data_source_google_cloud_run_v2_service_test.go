@@ -4,6 +4,7 @@ package cloudrunv2_test
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -19,6 +20,10 @@ func TestAccDataSourceGoogleCloudRunV2Service_basic(t *testing.T) {
 	name := fmt.Sprintf("tf-test-cloud-run-v2-service-%d", acctest.RandInt(t))
 	location := "us-central1"
 	id := fmt.Sprintf("projects/%s/locations/%s/services/%s", project, location, name)
+	deterministicURLRegex, err := regexp.Compile(fmt.Sprintf("https://%s-[0-9]+.%s.run.ap", name, location))
+	if err != nil {
+		t.Fatalf("Failed to compile deterministic URL regex: %v", err)
+	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -30,6 +35,8 @@ func TestAccDataSourceGoogleCloudRunV2Service_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.google_cloud_run_v2_service.hello", "id", id),
 					resource.TestCheckResourceAttr("data.google_cloud_run_v2_service.hello", "name", name),
 					resource.TestCheckResourceAttr("data.google_cloud_run_v2_service.hello", "location", location),
+					resource.TestCheckResourceAttr("data.google_cloud_run_v2_service.hello", "urls.#", "2"),
+					resource.TestMatchResourceAttr("data.google_cloud_run_v2_service.hello", "urls.0", deterministicURLRegex),
 				),
 			},
 		},

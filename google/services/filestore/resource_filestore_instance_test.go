@@ -287,3 +287,127 @@ resource "google_filestore_instance" "instance" {
 }
 `, name, location, tier, deletionProtection, deletionProtectionReason)
 }
+
+func TestAccFilestoreInstance_performanceConfig(t *testing.T) {
+	t.Parallel()
+
+	name := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	location := "us-central1"
+	tier := "REGIONAL"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFilestoreInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFilestoreInstance_fixedIopsPerformanceConfig(name, location, tier),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_filestore_instance.instance", "performance_config.0.fixed_iops.0.max_iops", "17000"),
+				),
+			},
+			{
+				ResourceName:            "google_filestore_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"zone"},
+			},
+			{
+				Config: testAccFilestoreInstance_iopsPerTbPerformanceConfig(name, location, tier),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_filestore_instance.instance", "performance_config.0.iops_per_tb.0.max_iops_per_tb", "17000"),
+				),
+			},
+			{
+				ResourceName:            "google_filestore_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"zone"},
+			},
+			{
+				Config: testAccFilestoreInstance_defaultConfig(name, location, tier),
+			},
+			{
+				ResourceName:            "google_filestore_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"zone"},
+			},
+		},
+	})
+}
+
+func testAccFilestoreInstance_fixedIopsPerformanceConfig(name, location, tier string) string {
+	return fmt.Sprintf(`
+resource "google_filestore_instance" "instance" {
+  name        = "%s"
+  location    = "%s"
+  tier        = "%s"
+  description = "An instance created during testing."
+
+  file_shares {
+    capacity_gb = 1024
+    name        = "share"
+  }
+
+  networks {
+    network = "default"
+		modes   = ["MODE_IPV4"]
+  }
+
+  performance_config {
+    fixed_iops {
+      max_iops = 17000
+    }
+  }
+}
+`, name, location, tier)
+}
+
+func testAccFilestoreInstance_iopsPerTbPerformanceConfig(name, location, tier string) string {
+	return fmt.Sprintf(`
+resource "google_filestore_instance" "instance" {
+  name        = "%s"
+  zone        = "%s"
+  tier        = "%s"
+  description = "An instance created during testing."
+
+  file_shares {
+    capacity_gb = 1024
+    name        = "share"
+  }
+
+  networks {
+    network = "default"
+		modes   = ["MODE_IPV4"]
+  }
+
+  performance_config {
+    iops_per_tb {
+      max_iops_per_tb = 17000
+    }
+  }
+}
+`, name, location, tier)
+}
+
+func testAccFilestoreInstance_defaultConfig(name, location, tier string) string {
+	return fmt.Sprintf(`
+resource "google_filestore_instance" "instance" {
+  name        = "%s"
+  zone        = "%s"
+  tier        = "%s"
+  description = "An instance created during testing."
+
+  file_shares {
+    capacity_gb = 1024
+    name        = "share"
+  }
+
+  networks {
+    network = "default"
+		modes   = ["MODE_IPV4"]
+  }
+}
+`, name, location, tier)
+}

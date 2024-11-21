@@ -75,6 +75,14 @@ func AccessContextManagerServicePerimeterDryRunIngressPolicyIngressToResourcesDi
 	return slices.Equal(oldResources, newResources)
 }
 
+func AccessContextManagerServicePerimeterDryRunIngressPolicyIdentityTypeDiffSupressFunc(_, old, new string, _ *schema.ResourceData) bool {
+	if old == "" && new == "IDENTITY_TYPE_UNSPECIFIED" {
+		return true
+	}
+
+	return old == new
+}
+
 func ResourceAccessContextManagerServicePerimeterDryRunIngressPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAccessContextManagerServicePerimeterDryRunIngressPolicyCreate,
@@ -107,18 +115,21 @@ to apply.`,
 							Type:     schema.TypeList,
 							Optional: true,
 							ForceNew: true,
-							Description: `A list of identities that are allowed access through this ingress policy.
-Should be in the format of email address. The email address should represent
-individual user or service account only.`,
+							Description: `Identities can be an individual user, service account, Google group,
+or third-party identity. For third-party identity, only single identities
+are supported and other identity types are not supported.The v1 identities
+that have the prefix user, group and serviceAccount in
+https://cloud.google.com/iam/docs/principal-identifiers#v1 are supported.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						"identity_type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ForceNew:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT", ""}),
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							ValidateFunc:     verify.ValidateEnum([]string{"ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT", ""}),
+							DiffSuppressFunc: AccessContextManagerServicePerimeterIdentityTypeDiffSupressFunc,
 							Description: `Specifies the type of identities that are allowed access from outside the
 perimeter. If left unspecified, then members of 'identities' field will be
 allowed access. Possible values: ["ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT"]`,
@@ -546,28 +557,29 @@ func flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngress
 }
 func flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressToResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	rawConfigValue := d.Get("ingress_to.0.resources")
-
 	// Convert config value to []string
 	configValue, err := tpgresource.InterfaceSliceToStringSlice(rawConfigValue)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert config value: %s", err)
 		return v
 	}
+	sortedConfigValue := append([]string{}, configValue...)
+	sort.Strings(sortedConfigValue)
 
 	// Convert v to []string
-	apiStringValue, err := tpgresource.InterfaceSliceToStringSlice(v)
+	apiValue, err := tpgresource.InterfaceSliceToStringSlice(v)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert API value: %s", err)
 		return v
 	}
+	sortedApiValue := append([]string{}, apiValue...)
+	sort.Strings(sortedApiValue)
 
-	sortedStrings, err := tpgresource.SortStringsByConfigOrder(configValue, apiStringValue)
-	if err != nil {
-		log.Printf("[ERROR] Could not sort API response value: %s", err)
-		return v
+	if slices.Equal(sortedApiValue, sortedConfigValue) {
+		return configValue
 	}
 
-	return sortedStrings
+	return apiValue
 }
 
 func flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressToOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

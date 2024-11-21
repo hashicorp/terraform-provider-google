@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/appengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/apphub"
 	"github.com/hashicorp/terraform-provider-google/google/services/artifactregistry"
+	"github.com/hashicorp/terraform-provider-google/google/services/backupdr"
 	"github.com/hashicorp/terraform-provider-google/google/services/beyondcorp"
 	"github.com/hashicorp/terraform-provider-google/google/services/biglake"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigquery"
@@ -81,6 +82,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/services/logging"
 	"github.com/hashicorp/terraform-provider-google/google/services/looker"
+	"github.com/hashicorp/terraform-provider-google/google/services/managedkafka"
 	"github.com/hashicorp/terraform-provider-google/google/services/memcache"
 	"github.com/hashicorp/terraform-provider-google/google/services/memorystore"
 	"github.com/hashicorp/terraform-provider-google/google/services/migrationcenter"
@@ -96,6 +98,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/orgpolicy"
 	"github.com/hashicorp/terraform-provider-google/google/services/osconfig"
 	"github.com/hashicorp/terraform-provider-google/google/services/oslogin"
+	"github.com/hashicorp/terraform-provider-google/google/services/parallelstore"
 	"github.com/hashicorp/terraform-provider-google/google/services/privateca"
 	"github.com/hashicorp/terraform-provider-google/google/services/privilegedaccessmanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/publicca"
@@ -142,6 +145,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_access_approval_folder_service_account":        accessapproval.DataSourceAccessApprovalFolderServiceAccount(),
 	"google_access_approval_organization_service_account":  accessapproval.DataSourceAccessApprovalOrganizationServiceAccount(),
 	"google_access_approval_project_service_account":       accessapproval.DataSourceAccessApprovalProjectServiceAccount(),
+	"google_access_context_manager_access_policy":          accesscontextmanager.DataSourceAccessContextManagerAccessPolicy(),
 	"google_active_folder":                                 resourcemanager.DataSourceGoogleActiveFolder(),
 	"google_alloydb_locations":                             alloydb.DataSourceAlloydbLocations(),
 	"google_alloydb_supported_database_flags":              alloydb.DataSourceAlloydbSupportedDatabaseFlags(),
@@ -452,9 +456,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 485
+// Generated resources: 491
 // Generated IAM resources: 261
-// Total generated resources: 746
+// Total generated resources: 752
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -520,6 +524,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_artifact_registry_repository_iam_binding":                            tpgiamresource.ResourceIamBinding(artifactregistry.ArtifactRegistryRepositoryIamSchema, artifactregistry.ArtifactRegistryRepositoryIamUpdaterProducer, artifactregistry.ArtifactRegistryRepositoryIdParseFunc),
 	"google_artifact_registry_repository_iam_member":                             tpgiamresource.ResourceIamMember(artifactregistry.ArtifactRegistryRepositoryIamSchema, artifactregistry.ArtifactRegistryRepositoryIamUpdaterProducer, artifactregistry.ArtifactRegistryRepositoryIdParseFunc),
 	"google_artifact_registry_repository_iam_policy":                             tpgiamresource.ResourceIamPolicy(artifactregistry.ArtifactRegistryRepositoryIamSchema, artifactregistry.ArtifactRegistryRepositoryIamUpdaterProducer, artifactregistry.ArtifactRegistryRepositoryIdParseFunc),
+	"google_backup_dr_backup_vault":                                              backupdr.ResourceBackupDRBackupVault(),
 	"google_beyondcorp_app_connection":                                           beyondcorp.ResourceBeyondcorpAppConnection(),
 	"google_beyondcorp_app_connector":                                            beyondcorp.ResourceBeyondcorpAppConnector(),
 	"google_beyondcorp_app_gateway":                                              beyondcorp.ResourceBeyondcorpAppGateway(),
@@ -632,6 +637,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_compute_disk_resource_policy_attachment":                             compute.ResourceComputeDiskResourcePolicyAttachment(),
 	"google_compute_external_vpn_gateway":                                        compute.ResourceComputeExternalVpnGateway(),
 	"google_compute_firewall":                                                    compute.ResourceComputeFirewall(),
+	"google_compute_firewall_policy_rule":                                        compute.ResourceComputeFirewallPolicyRule(),
 	"google_compute_forwarding_rule":                                             compute.ResourceComputeForwardingRule(),
 	"google_compute_global_address":                                              compute.ResourceComputeGlobalAddress(),
 	"google_compute_global_forwarding_rule":                                      compute.ResourceComputeGlobalForwardingRule(),
@@ -793,6 +799,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_dataproc_batch":                                                      dataproc.ResourceDataprocBatch(),
 	"google_dataproc_gdc_application_environment":                                dataprocgdc.ResourceDataprocGdcApplicationEnvironment(),
 	"google_dataproc_gdc_service_instance":                                       dataprocgdc.ResourceDataprocGdcServiceInstance(),
+	"google_dataproc_gdc_spark_application":                                      dataprocgdc.ResourceDataprocGdcSparkApplication(),
 	"google_dataproc_metastore_federation":                                       dataprocmetastore.ResourceDataprocMetastoreFederation(),
 	"google_dataproc_metastore_federation_iam_binding":                           tpgiamresource.ResourceIamBinding(dataprocmetastore.DataprocMetastoreFederationIamSchema, dataprocmetastore.DataprocMetastoreFederationIamUpdaterProducer, dataprocmetastore.DataprocMetastoreFederationIdParseFunc),
 	"google_dataproc_metastore_federation_iam_member":                            tpgiamresource.ResourceIamMember(dataprocmetastore.DataprocMetastoreFederationIamSchema, dataprocmetastore.DataprocMetastoreFederationIamUpdaterProducer, dataprocmetastore.DataprocMetastoreFederationIdParseFunc),
@@ -967,6 +974,8 @@ var generatedResources = map[string]*schema.Resource{
 	"google_logging_metric":                                                      logging.ResourceLoggingMetric(),
 	"google_logging_organization_settings":                                       logging.ResourceLoggingOrganizationSettings(),
 	"google_looker_instance":                                                     looker.ResourceLookerInstance(),
+	"google_managed_kafka_cluster":                                               managedkafka.ResourceManagedKafkaCluster(),
+	"google_managed_kafka_topic":                                                 managedkafka.ResourceManagedKafkaTopic(),
 	"google_memcache_instance":                                                   memcache.ResourceMemcacheInstance(),
 	"google_memorystore_instance":                                                memorystore.ResourceMemorystoreInstance(),
 	"google_migration_center_group":                                              migrationcenter.ResourceMigrationCenterGroup(),
@@ -1035,6 +1044,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_org_policy_policy":                                                   orgpolicy.ResourceOrgPolicyPolicy(),
 	"google_os_config_patch_deployment":                                          osconfig.ResourceOSConfigPatchDeployment(),
 	"google_os_login_ssh_public_key":                                             oslogin.ResourceOSLoginSSHPublicKey(),
+	"google_parallelstore_instance":                                              parallelstore.ResourceParallelstoreInstance(),
 	"google_privateca_ca_pool":                                                   privateca.ResourcePrivatecaCaPool(),
 	"google_privateca_ca_pool_iam_binding":                                       tpgiamresource.ResourceIamBinding(privateca.PrivatecaCaPoolIamSchema, privateca.PrivatecaCaPoolIamUpdaterProducer, privateca.PrivatecaCaPoolIdParseFunc),
 	"google_privateca_ca_pool_iam_member":                                        tpgiamresource.ResourceIamMember(privateca.PrivatecaCaPoolIamSchema, privateca.PrivatecaCaPoolIamUpdaterProducer, privateca.PrivatecaCaPoolIdParseFunc),

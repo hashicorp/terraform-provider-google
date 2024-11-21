@@ -44,7 +44,18 @@ resource "google_service_account" "service_account" {
   display_name = "Test Service Account"
 }
 
+# wait for service account to propagate -- can be needed due to 
+# SA eventual consistency issue
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_service_account.service_account]
+
+  create_duration = "120s"
+}
+
+
 resource "google_beyondcorp_app_connector" "app_connector" {
+  depends_on = [time_sleep.wait_120_seconds]
+
   name = "my-app-connector"
   principal_info {
     service_account {
@@ -77,6 +88,14 @@ resource "google_service_account" "service_account" {
   display_name = "Test Service Account"
 }
 
+# wait for service account to propagate -- can be needed due to 
+# SA eventual consistency issue
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_service_account.service_account]
+
+  create_duration = "120s"
+}
+
 resource "google_beyondcorp_app_gateway" "app_gateway" {
   name = "my-app-gateway"
   type = "TCP_PROXY"
@@ -84,6 +103,8 @@ resource "google_beyondcorp_app_gateway" "app_gateway" {
 }
 
 resource "google_beyondcorp_app_connector" "app_connector" {
+  depends_on = [time_sleep.wait_120_seconds]
+
   name = "my-app-connector"
   principal_info {
     service_account {

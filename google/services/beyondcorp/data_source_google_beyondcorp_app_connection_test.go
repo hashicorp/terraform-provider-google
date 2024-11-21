@@ -20,7 +20,10 @@ func TestAccDataSourceGoogleBeyondcorpAppConnection_basic(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckBeyondcorpAppConnectionDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckBeyondcorpAppConnectionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleBeyondcorpAppConnection_basic(context),
@@ -42,7 +45,10 @@ func TestAccDataSourceGoogleBeyondcorpAppConnection_full(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckBeyondcorpAppConnectionDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckBeyondcorpAppConnectionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleBeyondcorpAppConnection_full(context),
@@ -57,34 +63,43 @@ func TestAccDataSourceGoogleBeyondcorpAppConnection_full(t *testing.T) {
 func testAccDataSourceGoogleBeyondcorpAppConnection_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "service_account" {
-	account_id   = "tf-test-my-account%{random_suffix}"
-	display_name = "Test Service Account"
+  account_id   = "tf-test-my-account%{random_suffix}"
+  display_name = "Test Service Account"
 }
 
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_service_account.service_account]
+
+  create_duration = "120s"
+}
+
+
 resource "google_beyondcorp_app_connector" "app_connector" {
-	name = "tf-test-appconnector-%{random_suffix}"
-	principal_info {
-		service_account {
-			email = google_service_account.service_account.email
-		}
-	}
+  depends_on = [time_sleep.wait_120_seconds]
+
+  name = "tf-test-appconnector-%{random_suffix}"
+  principal_info {
+    service_account {
+      email = google_service_account.service_account.email
+    }
+  }
 }
 
 resource "google_beyondcorp_app_connection" "foo" {
-	name = "tf-test-my-app-connection-%{random_suffix}"
-	type = "TCP_PROXY"
-	application_endpoint {
-		host = "foo-host"
-		port = 8080
-	}
-	connectors = [google_beyondcorp_app_connector.app_connector.id]
-	labels = {
-		my-label = "my-label-value"
-	}
+  name = "tf-test-my-app-connection-%{random_suffix}"
+  type = "TCP_PROXY"
+  application_endpoint {
+    host = "foo-host"
+    port = 8080
+  }
+  connectors = [google_beyondcorp_app_connector.app_connector.id]
+  labels = {
+    my-label = "my-label-value"
+  }
 }
 
 data "google_beyondcorp_app_connection" "foo" {
-	name = google_beyondcorp_app_connection.foo.name
+  name = google_beyondcorp_app_connection.foo.name
 }
 `, context)
 }
@@ -92,33 +107,41 @@ data "google_beyondcorp_app_connection" "foo" {
 func testAccDataSourceGoogleBeyondcorpAppConnection_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_account" "service_account" {
-	account_id   = "tf-test-my-account%{random_suffix}"
-	display_name = "Test Service Account"
+  account_id   = "tf-test-my-account%{random_suffix}"
+  display_name = "Test Service Account"
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_service_account.service_account]
+
+  create_duration = "120s"
 }
 
 resource "google_beyondcorp_app_connector" "app_connector" {
-	name = "tf-test-appconnector-%{random_suffix}"
-	principal_info {
-		service_account {
-			email = google_service_account.service_account.email
-		}
-	}
+  depends_on = [time_sleep.wait_120_seconds]
+
+  name = "tf-test-appconnector-%{random_suffix}"
+  principal_info {
+    service_account {
+      email = google_service_account.service_account.email
+    }
+  }
 }
 
 resource "google_beyondcorp_app_connection" "foo" {
-	name = "tf-test-my-app-connection-%{random_suffix}"
-	type = "TCP_PROXY"
-	application_endpoint {
-		host = "foo-host"
-		port = 8080
-	}
-	connectors = [google_beyondcorp_app_connector.app_connector.id]
+  name = "tf-test-my-app-connection-%{random_suffix}"
+  type = "TCP_PROXY"
+  application_endpoint {
+    host = "foo-host"
+    port = 8080
+  }
+  connectors = [google_beyondcorp_app_connector.app_connector.id]
 }
 
 data "google_beyondcorp_app_connection" "foo" {
-	name    = google_beyondcorp_app_connection.foo.name
-	project = google_beyondcorp_app_connection.foo.project
-	region  = google_beyondcorp_app_connection.foo.region
+  name    = google_beyondcorp_app_connection.foo.name
+  project = google_beyondcorp_app_connection.foo.project
+  region  = google_beyondcorp_app_connection.foo.region
 }
 `, context)
 }

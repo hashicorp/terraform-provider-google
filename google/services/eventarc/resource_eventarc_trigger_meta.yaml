@@ -1,0 +1,5 @@
+resource: 'google_eventarc_trigger'
+generation_type: 'dcl'
+api_service_name: 'eventarc.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Trigger'

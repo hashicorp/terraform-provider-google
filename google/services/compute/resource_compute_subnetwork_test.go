@@ -76,7 +76,8 @@ func TestAccComputeSubnetwork_basic(t *testing.T) {
 						t, "google_compute_subnetwork.network-ref-by-url", &subnetwork1),
 					testAccCheckComputeSubnetworkExists(
 						t, "google_compute_subnetwork.network-ref-by-name", &subnetwork2),
-				),
+					resource.TestCheckResourceAttrSet(
+						"google_compute_subnetwork.network-ref-by-name", "subnetwork_id")),
 			},
 			{
 				ResourceName:      "google_compute_subnetwork.network-ref-by-url",

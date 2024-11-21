@@ -64,6 +64,8 @@ func testAccSdkProvider_request_timeout_setInConfig(t *testing.T) {
 
 	providerTimeout1 := "3m0s"
 	providerTimeout2 := "3m"
+
+	// All inputs are normalised to this
 	expectedValue := "3m0s"
 
 	context1 := map[string]interface{}{
