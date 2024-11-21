@@ -1,0 +1,3 @@
+```release-note:note
+provider: refactored how the provider configuration is handled internally
+```

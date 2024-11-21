@@ -88,7 +88,7 @@ func testAccFwProvider_user_project_override_precedenceOrderEnvironmentVariables
 				},
 				Config: testAccFwProvider_user_project_overrideInEnvsOnly(context),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckNoResourceAttr("data.google_provider_config_plugin_framework.default", "user_project_override"),
+					resource.TestCheckResourceAttr("data.google_provider_config_plugin_framework.default", "user_project_override", "false"),
 				),
 			},
 			{

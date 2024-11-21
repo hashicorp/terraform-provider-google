@@ -15,8 +15,8 @@ import (
 func TestAccFwProvider_terraform_attribution_label_addition_strategy(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
 		// Configuring the provider using inputs
-		"config sets terraform_attribution_label_addition_strategy values":                                                                                 testAccFwProvider_terraform_attribution_label_addition_strategy_configUsed,
-		"when terraform_attribution_label_addition_strategy is unset in the config, the default value'CREATION_ONLY' is NOT set in the provider meta data": testAccFwProvider_terraform_attribution_label_addition_strategy_defaultValue,
+		"config sets terraform_attribution_label_addition_strategy values":                                                                              testAccFwProvider_terraform_attribution_label_addition_strategy_configUsed,
+		"when terraform_attribution_label_addition_strategy is unset in the config, the default value 'CREATION_ONLY' is set in the provider meta data": testAccFwProvider_terraform_attribution_label_addition_strategy_defaultValue,
 	}
 
 	for name, tc := range testCases {
@@ -73,7 +73,7 @@ func testAccFwProvider_terraform_attribution_label_addition_strategy_defaultValu
 			{
 				Config: testAccFwProvider_terraform_attribution_label_addition_strategy_inEnvsOnly(context),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckNoResourceAttr("data.google_provider_config_plugin_framework.default", "terraform_attribution_label_addition_strategy"),
+					resource.TestCheckResourceAttr("data.google_provider_config_plugin_framework.default", "terraform_attribution_label_addition_strategy", "CREATION_ONLY"),
 				),
 			},
 		},

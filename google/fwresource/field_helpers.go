@@ -11,8 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // GetProject reads the "project" field from the given resource and falls
@@ -71,7 +71,7 @@ func ParseProjectFieldValueFramework(resourceType, fieldValue, projectSchemaFiel
 
 // This function isn't a test of transport.go; instead, it is used as an alternative
 // to ReplaceVars inside tests.
-func ReplaceVarsForFrameworkTest(prov *fwtransport.FrameworkProviderConfig, rs *terraform.ResourceState, linkTmpl string) (string, error) {
+func ReplaceVarsForFrameworkTest(prov *transport_tpg.Config, rs *terraform.ResourceState, linkTmpl string) (string, error) {
 	re := regexp.MustCompile("{{([[:word:]]+)}}")
 	var project, region, zone string
 

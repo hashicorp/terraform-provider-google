@@ -82,9 +82,13 @@ func CheckDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourc
 func MuxedProviders(testName string) (func() tfprotov5.ProviderServer, error) {
 	ctx := context.Background()
 
+	// primary is the SDKv2 implementation of the provider
+	// If tests are run in VCR mode, the provider will use a cached config specific to the test name
+	primary := GetSDKProvider(testName)
+
 	providers := []func() tfprotov5.ProviderServer{
-		providerserver.NewProtocol5(NewFrameworkTestProvider(testName)), // framework provider
-		GetSDKProvider(testName).GRPCProvider,                           // sdk provider
+		primary.GRPCProvider, // sdk provider
+		providerserver.NewProtocol5(NewFrameworkTestProvider(testName, primary)), // framework provider
 	}
 
 	muxServer, err := tf5muxserver.NewMuxServer(ctx, providers...)

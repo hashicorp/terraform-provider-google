@@ -13,14 +13,11 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/fwresource"
-	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccFrameworkProviderMeta_setModuleName(t *testing.T) {
-	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	moduleName := "my-module"
@@ -65,47 +62,23 @@ func TestAccFrameworkProviderBasePath_setInvalidBasePath(t *testing.T) {
 }
 
 func TestAccFrameworkProviderBasePath_setBasePath(t *testing.T) {
-	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:     func() { acctest.AccTestPreCheck(t) },
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducerFramework(t),
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducerFramework(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				ExternalProviders: map[string]resource.ExternalProvider{
-					"google": {
-						VersionConstraint: "4.58.0",
-						Source:            "hashicorp/google",
-					},
-				},
 				Config: testAccFrameworkProviderBasePath_setBasePath("https://www.googleapis.com/dns/v1beta2/", acctest.RandString(t, 10)),
 			},
 			{
-				ExternalProviders: map[string]resource.ExternalProvider{
-					"google": {
-						VersionConstraint: "4.58.0",
-						Source:            "hashicorp/google",
-					},
-				},
 				ResourceName:      "google_dns_managed_zone.foo",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
-				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-				Config:                   testAccFrameworkProviderBasePath_setBasePath("https://www.googleapis.com/dns/v1beta2/", acctest.RandString(t, 10)),
-			},
-			{
-				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-				ResourceName:             "google_dns_managed_zone.foo",
-				ImportState:              true,
-				ImportStateVerify:        true,
-			},
-			{
-				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-				Config:                   testAccFrameworkProviderBasePath_setBasePathstep3("https://www.googleapis.com/dns/v1beta2/", acctest.RandString(t, 10)),
+				Config: testAccFrameworkProviderBasePath_setBasePathstep3("https://www.googleapis.com/dns/v1beta2/", acctest.RandString(t, 10)),
 			},
 		},
 	})
@@ -222,21 +195,28 @@ func testAccCheckDNSManagedZoneDestroyProducerFramework(t *testing.T) func(s *te
 				continue
 			}
 
-			p := acctest.GetFwTestProvider(t)
+			config := acctest.GoogleProviderConfig(t)
 
-			url, err := fwresource.ReplaceVarsForFrameworkTest(&p.FrameworkProvider.FrameworkProviderConfig, rs, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
+			url, err := fwresource.ReplaceVarsForFrameworkTest(config, rs, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
 			if err != nil {
 				return err
 			}
 
 			billingProject := ""
 
-			if !p.BillingProject.IsNull() && p.BillingProject.String() != "" {
-				billingProject = p.BillingProject.String()
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
 			}
 
-			_, diags := fwtransport.SendFrameworkRequest(&p.FrameworkProvider.FrameworkProviderConfig, "GET", billingProject, url, p.UserAgent, nil)
-			if !diags.HasError() {
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
+
+			if err == nil {
 				return fmt.Errorf("DNSManagedZone still exists at %s", url)
 			}
 		}

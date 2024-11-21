@@ -102,7 +102,7 @@ func testAccFwProvider_billing_project_precedenceOrderEnvironmentVariables(t *te
 				},
 				Config: testAccFwProvider_billing_project_inEnvsOnly(context),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckNoResourceAttr("data.google_provider_config_plugin_framework.default", "billing_project"),
+					resource.TestCheckResourceAttr("data.google_provider_config_plugin_framework.default", "billing_project", ""),
 				),
 			},
 		},

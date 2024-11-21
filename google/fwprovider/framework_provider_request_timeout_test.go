@@ -16,8 +16,8 @@ import (
 func TestAccFwProvider_request_timeout(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
 		// Configuring the provider using inputs
-		"a default value of 120s is used when there are no user inputs":                                       testAccFwProvider_request_timeout_providerDefault,
-		"request_timeout can be set in config in different formats, are NOT normalized to full-length format": testAccFwProvider_request_timeout_setInConfig,
+		"a default value of 0s is used when there are no user inputs":                                     testAccFwProvider_request_timeout_providerDefault,
+		"request_timeout can be set in config in different formats, are normalized to full-length format": testAccFwProvider_request_timeout_setInConfig,
 		//no ENVs to test
 
 		// Schema-level validation
@@ -42,7 +42,7 @@ func TestAccFwProvider_request_timeout(t *testing.T) {
 func testAccFwProvider_request_timeout_providerDefault(t *testing.T) {
 	acctest.SkipIfVcr(t) // Test doesn't interact with API
 
-	defaultValue := "120s"
+	defaultValue := "0s"
 
 	acctest.VcrTest(t, resource.TestCase{
 		// No PreCheck for checking ENVs
@@ -64,9 +64,8 @@ func testAccFwProvider_request_timeout_setInConfig(t *testing.T) {
 	providerTimeout1 := "3m0s"
 	providerTimeout2 := "3m"
 
-	// In the SDK version of the test expectedValue = "3m0s" only
-	expectedValue1 := "3m0s"
-	expectedValue2 := "3m"
+	// All inputs are normalised to this
+	expectedValue := "3m0s"
 
 	context1 := map[string]interface{}{
 		"request_timeout": providerTimeout1,
@@ -82,13 +81,13 @@ func testAccFwProvider_request_timeout_setInConfig(t *testing.T) {
 			{
 				Config: testAccFwProvider_request_timeout_inProviderBlock(context1),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_provider_config_plugin_framework.default", "request_timeout", expectedValue1),
+					resource.TestCheckResourceAttr("data.google_provider_config_plugin_framework.default", "request_timeout", expectedValue),
 				),
 			},
 			{
 				Config: testAccFwProvider_request_timeout_inProviderBlock(context2),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_provider_config_plugin_framework.default", "request_timeout", expectedValue2),
+					resource.TestCheckResourceAttr("data.google_provider_config_plugin_framework.default", "request_timeout", expectedValue),
 				),
 			},
 		},
