@@ -222,6 +222,26 @@ The URL of the network to which all network endpoints in the NEG belong. Uses
 				Description:  `Type of network endpoints in this network endpoint group. Defaults to SERVERLESS. Default value: "SERVERLESS" Possible values: ["SERVERLESS", "PRIVATE_SERVICE_CONNECT", "INTERNET_IP_PORT", "INTERNET_FQDN_PORT", "GCE_VM_IP_PORTMAP"]`,
 				Default:      "SERVERLESS",
 			},
+			"psc_data": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `This field is only used for PSC NEGs.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"producer_port": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `The PSC producer port to use when consumer PSC NEG connects to a producer. If
+this flag isn't specified for a PSC NEG with endpoint type
+private-service-connect, then PSC NEG will be connected to a first port in the
+available PSC producer port range.`,
+						},
+					},
+				},
+			},
 			"psc_target_service": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -298,6 +318,12 @@ func resourceComputeRegionNetworkEndpointGroupCreate(d *schema.ResourceData, met
 		return err
 	} else if v, ok := d.GetOkExists("subnetwork"); !tpgresource.IsEmptyValue(reflect.ValueOf(subnetworkProp)) && (ok || !reflect.DeepEqual(v, subnetworkProp)) {
 		obj["subnetwork"] = subnetworkProp
+	}
+	pscDataProp, err := expandComputeRegionNetworkEndpointGroupPscData(d.Get("psc_data"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("psc_data"); !tpgresource.IsEmptyValue(reflect.ValueOf(pscDataProp)) && (ok || !reflect.DeepEqual(v, pscDataProp)) {
+		obj["pscData"] = pscDataProp
 	}
 	cloudRunProp, err := expandComputeRegionNetworkEndpointGroupCloudRun(d.Get("cloud_run"), d, config)
 	if err != nil {
@@ -440,6 +466,9 @@ func resourceComputeRegionNetworkEndpointGroupRead(d *schema.ResourceData, meta 
 	if err := d.Set("subnetwork", flattenComputeRegionNetworkEndpointGroupSubnetwork(res["subnetwork"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
 	}
+	if err := d.Set("psc_data", flattenComputeRegionNetworkEndpointGroupPscData(res["pscData"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
 	if err := d.Set("cloud_run", flattenComputeRegionNetworkEndpointGroupCloudRun(res["cloudRun"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
 	}
@@ -566,6 +595,23 @@ func flattenComputeRegionNetworkEndpointGroupSubnetwork(v interface{}, d *schema
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeRegionNetworkEndpointGroupPscData(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["producer_port"] =
+		flattenComputeRegionNetworkEndpointGroupPscDataProducerPort(original["producerPort"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionNetworkEndpointGroupPscDataProducerPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("psc_data.0.producer_port")
+}
+
 func flattenComputeRegionNetworkEndpointGroupCloudRun(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -681,6 +727,29 @@ func expandComputeRegionNetworkEndpointGroupSubnetwork(v interface{}, d tpgresou
 		return nil, fmt.Errorf("Invalid value for subnetwork: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeRegionNetworkEndpointGroupPscData(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedProducerPort, err := expandComputeRegionNetworkEndpointGroupPscDataProducerPort(original["producer_port"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProducerPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["producerPort"] = transformedProducerPort
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionNetworkEndpointGroupPscDataProducerPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeRegionNetworkEndpointGroupCloudRun(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

@@ -50,7 +50,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunction
 				ResourceName:            "google_compute_region_network_endpoint_group.function_neg",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
+				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
 			},
 		},
 	})
@@ -113,7 +113,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupCloudrun
 				ResourceName:            "google_compute_region_network_endpoint_group.cloudrun_neg",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
+				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
 			},
 		},
 	})
@@ -170,7 +170,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengin
 				ResourceName:            "google_compute_region_network_endpoint_group.appengine_neg",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
+				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
 			},
 		},
 	})
@@ -275,7 +275,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengin
 				ResourceName:            "google_compute_region_network_endpoint_group.appengine_neg",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
+				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
 			},
 		},
 	})
@@ -313,7 +313,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExamp
 				ResourceName:            "google_compute_region_network_endpoint_group.psc_neg",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
+				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
 			},
 		},
 	})
@@ -350,7 +350,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscServi
 				ResourceName:            "google_compute_region_network_endpoint_group.psc_neg_service_attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
+				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
 			},
 		},
 	})
@@ -399,7 +399,7 @@ resource "google_compute_forwarding_rule" "default" {
 
   load_balancing_scheme = "INTERNAL"
   backend_service       = google_compute_region_backend_service.default.id
-  all_ports             = true
+  ports                 = ["80", "88", "443"]
   network               = google_compute_network.default.name
   subnetwork            = google_compute_subnetwork.default.name
 }
@@ -421,7 +421,9 @@ resource "google_compute_region_network_endpoint_group" "psc_neg_service_attachm
 
   network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
   psc_target_service    = google_compute_service_attachment.default.self_link
-
+  psc_data {
+    producer_port = "88"
+  }
   network               = google_compute_network.default.self_link
   subnetwork            = google_compute_subnetwork.default.self_link
 }
@@ -447,7 +449,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternet
 				ResourceName:            "google_compute_region_network_endpoint_group.region_network_endpoint_group_internet_ip_port",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
+				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
 			},
 		},
 	})
@@ -488,7 +490,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternet
 				ResourceName:            "google_compute_region_network_endpoint_group.region_network_endpoint_group_internet_fqdn_port",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
+				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
 			},
 		},
 	})
