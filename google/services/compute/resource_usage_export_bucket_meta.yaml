@@ -1,4 +1,4 @@
-resource: 'google_usage_export_bucket'
+resource: 'google_project_usage_export_bucket'
 generation_type: 'handwritten'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'

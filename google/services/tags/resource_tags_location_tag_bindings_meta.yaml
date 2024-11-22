@@ -1,4 +1,4 @@
-resource: 'google_tags_location_tag_bindings'
+resource: 'google_tags_location_tag_binding'
 generation_type: 'handwritten'
 api_service_name: 'cloudresourcemanager.googleapis.com'
 api_version: 'v3'
