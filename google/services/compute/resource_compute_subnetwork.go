@@ -330,9 +330,9 @@ E.g. 'networkconnectivity.googleapis.com/projects/{project}/locations/global/int
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"IPV4_ONLY", "IPV4_IPV6", "IPV6_ONLY", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"IPV4_ONLY", "IPV4_IPV6", ""}),
 				Description: `The stack type for this subnet to identify whether the IPv6 feature is enabled or not.
-If not specified IPV4_ONLY will be used. Possible values: ["IPV4_ONLY", "IPV4_IPV6", "IPV6_ONLY"]`,
+If not specified IPV4_ONLY will be used. Possible values: ["IPV4_ONLY", "IPV4_IPV6"]`,
 			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
