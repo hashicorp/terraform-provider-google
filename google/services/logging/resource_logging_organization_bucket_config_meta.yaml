@@ -1,0 +1,5 @@
+resource: 'google_logging_organization_bucket_config'
+generation_type: 'handwritten'
+api_service_name: 'logging.googleapis.com'
+api_version: 'v2'
+api_resource_type_kind: 'LogBucket'
