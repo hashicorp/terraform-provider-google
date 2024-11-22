@@ -14,10 +14,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/ephemeral/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
-	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
 	"github.com/hashicorp/terraform-provider-google/google/fwutils"
 	"github.com/hashicorp/terraform-provider-google/google/fwvalidators"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/iamcredentials/v1"
 )
 
@@ -28,7 +27,7 @@ func GoogleEphemeralServiceAccountIdToken() ephemeral.EphemeralResource {
 }
 
 type googleEphemeralServiceAccountIdToken struct {
-	providerConfig *fwtransport.FrameworkProviderConfig
+	providerConfig *transport_tpg.Config
 }
 
 func (p *googleEphemeralServiceAccountIdToken) Metadata(ctx context.Context, req ephemeral.MetadataRequest, resp *ephemeral.MetadataResponse) {
@@ -87,11 +86,11 @@ func (p *googleEphemeralServiceAccountIdToken) Configure(ctx context.Context, re
 		return
 	}
 
-	pd, ok := req.ProviderData.(*fwtransport.FrameworkProviderConfig)
+	pd, ok := req.ProviderData.(*transport_tpg.Config)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Data Source Configure Type",
-			fmt.Sprintf("Expected *fwtransport.FrameworkProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *transport_tpg.Config, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 		return
 	}
@@ -106,19 +105,15 @@ func (p *googleEphemeralServiceAccountIdToken) Open(ctx context.Context, req eph
 
 	targetAudience := data.TargetAudience.ValueString()
 
-	// TODO: This is a temporary solution to get the credentials from the provider config.
-	// we'll address this once muxing issues are resolved.
-	model := fwmodels.ProviderModel{
-		Credentials:                        p.providerConfig.Credentials,
-		AccessToken:                        p.providerConfig.AccessToken,
-		ImpersonateServiceAccount:          p.providerConfig.ImpersonateServiceAccount,
-		ImpersonateServiceAccountDelegates: p.providerConfig.ImpersonateServiceAccountDelegates,
-		Project:                            p.providerConfig.Project,
-		BillingProject:                     p.providerConfig.BillingProject,
-		Scopes:                             p.providerConfig.Scopes,
-		UniverseDomain:                     p.providerConfig.UniverseDomain,
+	creds, err := p.providerConfig.GetCredentials([]string{userInfoScope}, false)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"error calling GetCredentials()",
+			err.Error(),
+		)
+		return
 	}
-	creds := fwtransport.GetCredentials(ctx, model, false, &resp.Diagnostics)
+
 	targetServiceAccount := data.TargetServiceAccount
 	// If a target service account is provided, use the API to generate the idToken
 	if !targetServiceAccount.IsNull() && !targetServiceAccount.IsUnknown() {
