@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added the `psc_data` field to the `google_compute_region_network_endpoint_group` resource
+```

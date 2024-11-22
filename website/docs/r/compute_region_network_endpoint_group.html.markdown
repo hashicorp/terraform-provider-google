@@ -285,7 +285,7 @@ resource "google_compute_forwarding_rule" "default" {
 
   load_balancing_scheme = "INTERNAL"
   backend_service       = google_compute_region_backend_service.default.id
-  all_ports             = true
+  ports                 = ["80", "88", "443"]
   network               = google_compute_network.default.name
   subnetwork            = google_compute_subnetwork.default.name
 }
@@ -307,7 +307,9 @@ resource "google_compute_region_network_endpoint_group" "psc_neg_service_attachm
 
   network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
   psc_target_service    = google_compute_service_attachment.default.self_link
-
+  psc_data {
+    producer_port = "88"
+  }
   network               = google_compute_network.default.self_link
   subnetwork            = google_compute_subnetwork.default.self_link
 }
@@ -438,6 +440,11 @@ The following arguments are supported:
   This field is only used for PSC NEGs.
   Optional URL of the subnetwork to which all network endpoints in the NEG belong.
 
+* `psc_data` -
+  (Optional)
+  This field is only used for PSC NEGs.
+  Structure is [documented below](#nested_psc_data).
+
 * `cloud_run` -
   (Optional)
   This field is only used for SERVERLESS NEGs.
@@ -465,6 +472,15 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_psc_data"></a>The `psc_data` block supports:
+
+* `producer_port` -
+  (Optional)
+  The PSC producer port to use when consumer PSC NEG connects to a producer. If
+  this flag isn't specified for a PSC NEG with endpoint type
+  private-service-connect, then PSC NEG will be connected to a first port in the
+  available PSC producer port range.
 
 <a name="nested_cloud_run"></a>The `cloud_run` block supports:
 
