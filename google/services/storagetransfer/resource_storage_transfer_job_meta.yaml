@@ -1,0 +1,5 @@
+resource: 'google_storage_transfer_job'
+generation_type: 'handwritten'
+api_service_name: 'storagetransfer.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'TransferJob'

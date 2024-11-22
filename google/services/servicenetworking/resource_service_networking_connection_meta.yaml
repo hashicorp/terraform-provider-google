@@ -1,0 +1,5 @@
+resource: 'google_service_networking_connection'
+generation_type: 'handwritten'
+api_service_name: 'servicenetworking.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Connection'

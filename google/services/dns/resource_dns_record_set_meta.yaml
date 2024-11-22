@@ -1,0 +1,5 @@
+resource: 'google_dns_record_set'
+generation_type: 'handwritten'
+api_service_name: 'dns.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'ResourceRecordSet'
