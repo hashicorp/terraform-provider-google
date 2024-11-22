@@ -265,14 +265,9 @@ func TestAccDataprocJob_Pig(t *testing.T) {
 	})
 }
 
-func TestAccDataprocJob_SparkSql(t *testing.T) {
+func testAccDataprocJobSparkSql(t *testing.T, config string) {
 	t.Parallel()
-
 	var job dataproc.Job
-	rnd := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -280,7 +275,7 @@ func TestAccDataprocJob_SparkSql(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocJob_sparksql(rnd, subnetworkName),
+				Config: config,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocJobExists(t, "google_dataproc_job.sparksql", &job),
 
@@ -299,6 +294,20 @@ func TestAccDataprocJob_SparkSql(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccDataprocJob_SparkSql_QueryList(t *testing.T) {
+	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	testAccDataprocJobSparkSql(t, testAccDataprocJob_SparkSql_QueryList(rnd, subnetworkName))
+}
+
+func TestAccDataprocJob_SparkSql_QueryFile(t *testing.T) {
+	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	testAccDataprocJobSparkSql(t, testAccDataprocJob_SparkSql_QueryFile(rnd, subnetworkName))
 }
 
 func TestAccDataprocJob_Presto(t *testing.T) {
@@ -833,7 +842,7 @@ resource "google_dataproc_job" "pig" {
 
 }
 
-func testAccDataprocJob_sparksql(rnd, subnetworkName string) string {
+func testAccDataprocJob_SparkSql_QueryList(rnd, subnetworkName string) string {
 	return fmt.Sprintf(
 		singleNodeClusterConfig+`
 resource "google_dataproc_job" "sparksql" {
@@ -849,6 +858,24 @@ resource "google_dataproc_job" "sparksql" {
       "CREATE TABLE dprocjob_test(bar int)",
       "SELECT * FROM dprocjob_test WHERE bar > 2",
     ]
+  }
+}
+`, rnd, subnetworkName)
+
+}
+
+func testAccDataprocJob_SparkSql_QueryFile(rnd, subnetworkName string) string {
+	return fmt.Sprintf(
+		singleNodeClusterConfig+`
+resource "google_dataproc_job" "sparksql" {
+  region       = google_dataproc_cluster.basic.region
+  force_delete = true
+  placement {
+    cluster_name = google_dataproc_cluster.basic.name
+  }
+
+  sparksql_config {
+    query_file_uri = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/spark-sql/natality/cigarette_correlations.sql"
   }
 }
 `, rnd, subnetworkName)

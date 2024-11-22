@@ -931,11 +931,17 @@ func flattenHiveJob(job *dataproc.HiveJob) []map[string]interface{} {
 func expandHiveJob(config map[string]interface{}) *dataproc.HiveJob {
 	job := &dataproc.HiveJob{}
 	if v, ok := config["query_file_uri"]; ok {
-		job.QueryFileUri = v.(string)
+		queryFileUri := v.(string)
+		if len(queryFileUri) != 0 {
+			job.QueryFileUri = v.(string)
+		}
 	}
 	if v, ok := config["query_list"]; ok {
-		job.QueryList = &dataproc.QueryList{
-			Queries: tpgresource.ConvertStringArr(v.([]interface{})),
+		queryList := v.([]interface{})
+		if len(queryList) != 0 {
+			job.QueryList = &dataproc.QueryList{
+				Queries: tpgresource.ConvertStringArr(queryList),
+			}
 		}
 	}
 	if v, ok := config["continue_on_failure"]; ok {
@@ -1039,11 +1045,17 @@ func flattenPigJob(job *dataproc.PigJob) []map[string]interface{} {
 func expandPigJob(config map[string]interface{}) *dataproc.PigJob {
 	job := &dataproc.PigJob{}
 	if v, ok := config["query_file_uri"]; ok {
-		job.QueryFileUri = v.(string)
+		queryFileUri := v.(string)
+		if len(queryFileUri) != 0 {
+			job.QueryFileUri = v.(string)
+		}
 	}
 	if v, ok := config["query_list"]; ok {
-		job.QueryList = &dataproc.QueryList{
-			Queries: tpgresource.ConvertStringArr(v.([]interface{})),
+		queryList := v.([]interface{})
+		if len(queryList) != 0 {
+			job.QueryList = &dataproc.QueryList{
+				Queries: tpgresource.ConvertStringArr(queryList),
+			}
 		}
 	}
 	if v, ok := config["continue_on_failure"]; ok {
@@ -1140,11 +1152,17 @@ func flattenSparkSqlJob(job *dataproc.SparkSqlJob) []map[string]interface{} {
 func expandSparkSqlJob(config map[string]interface{}) *dataproc.SparkSqlJob {
 	job := &dataproc.SparkSqlJob{}
 	if v, ok := config["query_file_uri"]; ok {
-		job.QueryFileUri = v.(string)
+		queryFileUri := v.(string)
+		if len(queryFileUri) != 0 {
+			job.QueryFileUri = v.(string)
+		}
 	}
 	if v, ok := config["query_list"]; ok {
-		job.QueryList = &dataproc.QueryList{
-			Queries: tpgresource.ConvertStringArr(v.([]interface{})),
+		queryList := v.([]interface{})
+		if len(queryList) != 0 {
+			job.QueryList = &dataproc.QueryList{
+				Queries: tpgresource.ConvertStringArr(queryList),
+			}
 		}
 	}
 	if v, ok := config["script_variables"]; ok {
@@ -1241,19 +1259,25 @@ func flattenPrestoJob(job *dataproc.PrestoJob) []map[string]interface{} {
 
 func expandPrestoJob(config map[string]interface{}) *dataproc.PrestoJob {
 	job := &dataproc.PrestoJob{}
+	if v, ok := config["query_file_uri"]; ok {
+		queryFileUri := v.(string)
+		if len(queryFileUri) != 0 {
+			job.QueryFileUri = v.(string)
+		}
+	}
+	if v, ok := config["query_list"]; ok {
+		queryList := v.([]interface{})
+		if len(queryList) != 0 {
+			job.QueryList = &dataproc.QueryList{
+				Queries: tpgresource.ConvertStringArr(queryList),
+			}
+		}
+	}
 	if v, ok := config["client_tags"]; ok {
 		job.ClientTags = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["continue_on_failure"]; ok {
 		job.ContinueOnFailure = v.(bool)
-	}
-	if v, ok := config["query_file_uri"]; ok {
-		job.QueryFileUri = v.(string)
-	}
-	if v, ok := config["query_list"]; ok {
-		job.QueryList = &dataproc.QueryList{
-			Queries: tpgresource.ConvertStringArr(v.([]interface{})),
-		}
 	}
 	if v, ok := config["properties"]; ok {
 		job.Properties = tpgresource.ConvertStringMap(v.(map[string]interface{}))

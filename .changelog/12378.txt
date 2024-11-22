@@ -1,0 +1,3 @@
+```release-note:bug
+dataproc: ensured oneOf condition is honored when expanding the job configuration for Hive, Pig, Spark-sql, and Presto in `google_dataproc_job`.
+```
