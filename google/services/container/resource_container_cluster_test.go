@@ -11631,3 +11631,79 @@ resource "google_container_cluster" "primary" {
   }
 }`, name, enabled)
 }
+
+func TestAccContainerCluster_withCgroupMode(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withCgroupMode(clusterName, "CGROUP_MODE_V2"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "node_pool_auto_config.0.linux_node_config.0.cgroup_mode"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "node_pool_auto_config.0.linux_node_config.0.cgroup_mode", "CGROUP_MODE_V2"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withCgroupModeUpdate(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_autopilot_minimal(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withCgroupMode(clusterName, "CGROUP_MODE_V2"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "node_pool_auto_config.0.linux_node_config.0.cgroup_mode"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "node_pool_auto_config.0.linux_node_config.0.cgroup_mode", "CGROUP_MODE_V2"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withCgroupMode(name string, cgroupMode string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  enable_autopilot    = true
+  deletion_protection = false
+  node_pool_auto_config {
+    linux_node_config {
+      cgroup_mode = "%s"
+    }
+  }
+}
+  `, name, cgroupMode)
+}

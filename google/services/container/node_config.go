@@ -787,6 +787,29 @@ func schemaNodePoolAutoConfigNodeKubeletConfig() *schema.Schema {
 	}
 }
 
+// Separate since this currently only supports a single value -- a subset of
+// the overall LinuxNodeConfig
+func schemaNodePoolAutoConfigLinuxNodeConfig() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Optional:    true,
+		MaxItems:    1,
+		Description: `Linux node configuration options.`,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"cgroup_mode": {
+					Type:             schema.TypeString,
+					Optional:         true,
+					Computed:         true,
+					ValidateFunc:     validation.StringInSlice([]string{"CGROUP_MODE_UNSPECIFIED", "CGROUP_MODE_V1", "CGROUP_MODE_V2"}, false),
+					Description:      `cgroupMode specifies the cgroup mode to be used on the node.`,
+					DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("CGROUP_MODE_UNSPECIFIED"),
+				},
+			},
+		},
+	}
+}
+
 func expandNodeConfigDefaults(configured interface{}) *container.NodeConfigDefaults {
 	configs := configured.([]interface{})
 	if len(configs) == 0 || configs[0] == nil {
