@@ -28,6 +28,7 @@ func testAccAccessContextManagerServicePerimeter_basicTest(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerServicePerimeter_basic(org, "my policy", "level", "perimeter"),
+				Check:  resource.TestCheckResourceAttrSet("google_access_context_manager_service_perimeter.test-access", "etag"),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",

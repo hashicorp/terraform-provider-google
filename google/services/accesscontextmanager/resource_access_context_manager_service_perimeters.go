@@ -715,6 +715,13 @@ bet set to True if any of the fields in the spec are set to non-default values.`
 							Computed:    true,
 							Description: `Time the AccessPolicy was created in UTC.`,
 						},
+						"etag": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `An opaque identifier for the current version of the ServicePerimeter. This
+identifier does not follow any specific format. If an etag is not provided, the
+operation will be performed as if a valid etag is provided.`,
+						},
 						"update_time": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -1116,6 +1123,7 @@ func flattenAccessContextManagerServicePerimetersServicePerimeters(v interface{}
 			"perimeter_type":            flattenAccessContextManagerServicePerimetersServicePerimetersPerimeterType(original["perimeterType"], d, config),
 			"status":                    flattenAccessContextManagerServicePerimetersServicePerimetersStatus(original["status"], d, config),
 			"spec":                      flattenAccessContextManagerServicePerimetersServicePerimetersSpec(original["spec"], d, config),
+			"etag":                      flattenAccessContextManagerServicePerimetersServicePerimetersEtag(original["etag"], d, config),
 			"use_explicit_dry_run_spec": flattenAccessContextManagerServicePerimetersServicePerimetersUseExplicitDryRunSpec(original["useExplicitDryRunSpec"], d, config),
 		})
 	}
@@ -1133,6 +1141,10 @@ func flattenAccessContextManagerServicePerimetersServicePerimeters(v interface{}
 }
 
 func flattenAccessContextManagerServicePerimetersServicePerimetersName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimetersServicePerimetersEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1939,6 +1951,13 @@ func expandAccessContextManagerServicePerimetersServicePerimeters(v interface{},
 			transformed["description"] = transformedDescription
 		}
 
+		transformedEtag, err := expandAccessContextManagerServicePerimetersServicePerimetersEtag(original["etag"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEtag); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["etag"] = transformedEtag
+		}
+
 		transformedCreateTime, err := expandAccessContextManagerServicePerimetersServicePerimetersCreateTime(original["create_time"], d, config)
 		if err != nil {
 			return nil, err
@@ -1995,6 +2014,10 @@ func expandAccessContextManagerServicePerimetersServicePerimetersTitle(v interfa
 }
 
 func expandAccessContextManagerServicePerimetersServicePerimetersDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimetersServicePerimetersEtag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
