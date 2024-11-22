@@ -139,8 +139,8 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 			"request_timeout": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					NonEmptyStringValidator(),
-					NonNegativeDurationValidator(),
+					fwvalidators.NonEmptyStringValidator(),
+					fwvalidators.NonNegativeDurationValidator(),
 				},
 			},
 			"request_reason": schema.StringAttribute{
@@ -1035,6 +1035,7 @@ func (p *FrameworkProvider) Configure(ctx context.Context, req provider.Configur
 	meta := p.Primary.Meta().(*transport_tpg.Config)
 	resp.DataSourceData = meta
 	resp.ResourceData = meta
+	resp.EphemeralResourceData = meta
 }
 
 // DataSources defines the data sources implemented in the provider.
