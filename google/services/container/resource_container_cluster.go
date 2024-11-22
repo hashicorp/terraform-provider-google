@@ -1363,6 +1363,7 @@ func ResourceContainerCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"node_kubelet_config": schemaNodePoolAutoConfigNodeKubeletConfig(),
+						"linux_node_config":   schemaNodePoolAutoConfigLinuxNodeConfig(),
 						"network_tags": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -2593,6 +2594,34 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		err = ContainerOperationWait(config, op, project, location, "updating AdditionalPodRangesConfig", userAgent, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return errwrap.Wrapf("Error while waiting to update AdditionalPodRangesConfig: {{err}}", err)
+		}
+	}
+
+	if linuxNodeConfig, ok := d.GetOk("node_pool_auto_config.0.linux_node_config"); ok {
+		name := containerClusterFullName(project, location, clusterName)
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredNodePoolAutoConfigLinuxNodeConfig: expandLinuxNodeConfig(linuxNodeConfig),
+			},
+		}
+
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() error {
+				clusterUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Update(name, req)
+				if config.UserProjectOverride {
+					clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
+				}
+				op, err = clusterUpdateCall.Do()
+				return err
+			},
+		})
+		if err != nil {
+			return errwrap.Wrapf("Error updating LinuxNodeConfig: {{err}}", err)
+		}
+
+		err = ContainerOperationWait(config, op, project, location, "updating LinuxNodeConfig", userAgent, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return errwrap.Wrapf("Error while waiting to update LinuxNodeConfig: {{err}}", err)
 		}
 	}
 
@@ -4178,6 +4207,24 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s node pool auto config resource manager tags have been updated", d.Id())
+	}
+
+	if d.HasChange("node_pool_auto_config.0.linux_node_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredNodePoolAutoConfigLinuxNodeConfig: expandLinuxNodeConfig(
+					d.Get("node_pool_auto_config.0.linux_node_config"),
+				),
+			},
+		}
+
+		updateF := updateFunc(req, "updating GKE cluster node pool auto config linux node config")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s node pool auto config linux_node_config parameters have been updated", d.Id())
 	}
 
 	d.Partial(false)
@@ -6223,6 +6270,11 @@ func flattenNodePoolAutoConfig(c *container.NodePoolAutoConfig) []map[string]int
 	}
 	if c.ResourceManagerTags != nil {
 		result["resource_manager_tags"] = flattenResourceManagerTags(c.ResourceManagerTags)
+	}
+	if c.LinuxNodeConfig != nil {
+		result["linux_node_config"] = []map[string]interface{}{
+			{"cgroup_mode": c.LinuxNodeConfig.CgroupMode},
+		}
 	}
 
 	return []map[string]interface{}{result}
