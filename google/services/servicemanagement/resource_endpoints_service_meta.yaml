@@ -1,0 +1,5 @@
+resource: 'google_endpoints_service'
+generation_type: 'handwritten'
+api_service_name: 'servicemanagement.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'ManagedService'

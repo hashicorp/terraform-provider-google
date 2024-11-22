@@ -1,0 +1,5 @@
+resource: 'google_folder'
+generation_type: 'handwritten'
+api_service_name: 'cloudresourcemanager.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Folder'

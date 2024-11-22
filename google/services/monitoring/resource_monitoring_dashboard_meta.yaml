@@ -1,0 +1,5 @@
+resource: 'google_monitoring_dashboard'
+generation_type: 'handwritten'
+api_service_name: 'monitoring.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Dashboard'
