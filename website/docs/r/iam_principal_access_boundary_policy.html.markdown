@@ -21,12 +21,10 @@ description: |-
 
 An IAM Principal Access Boundary Policy resource
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about PrincipalAccessBoundaryPolicy, see:
 
-* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v3beta/organizations.locations.principalAccessBoundaryPolicies)
+* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v3/organizations.locations.principalAccessBoundaryPolicies)
 * How-to Guides
     * [Create and apply Principal Access Boundaries](https://cloud.google.com/iam/docs/principal-access-boundary-policies-create)
 
@@ -35,7 +33,6 @@ To get more information about PrincipalAccessBoundaryPolicy, see:
 
 ```hcl
 resource "google_iam_principal_access_boundary_policy" "my-pab-policy" {
-  provider = google-beta
   organization   = "123456789"
   location       = "global"
   display_name   = "test pab policy"

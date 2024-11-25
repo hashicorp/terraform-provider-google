@@ -76,6 +76,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gkeonprem"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/healthcare"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/iam2"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/iam3"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/iambeta"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/iamworkforcepool"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/iap"
