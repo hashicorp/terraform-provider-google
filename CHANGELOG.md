@@ -184,7 +184,6 @@ BUG FIXES:
 * bigquery: fixed a regression that caused `google_bigquery_dataset_iam_*` resources to attempt to set deleted IAM members, thereby triggering an API error ([#19857](https://github.com/hashicorp/terraform-provider-google/pull/19857))
 * compute: fixed an issue in `google_compute_backend_service` and `google_compute_region_backend_service` to allow sending `false` for `iap.enabled` ([#19795](https://github.com/hashicorp/terraform-provider-google/pull/19795))
 * container: `node_config.linux_node_config`, `node_config.workload_metadata_config` and `node_config.kubelet_config` will now successfully send empty messages to the API when `terraform plan` indicates they are being removed, rather than null, which caused an error. The sole reliable case is `node_config.linux_node_config` when the block is removed, where there will still be a permadiff, but the update request that's triggered will no longer error and other changes displayed in the plan should go through. ([#19842](https://github.com/hashicorp/terraform-provider-google/pull/19842))
-* pubsub: fixed permadiff with configuring an empty `retry_policy` in `google_pubsub_subscription` ([#19784](https://github.com/hashicorp/terraform-provider-google/pull/19784))
 
 ## 5.44.2 (October 14, 2024)
 
@@ -216,7 +215,7 @@ BUG FIXES:
 * dataproc: fixed a bug in `google_dataproc_cluster` that prevented creation of clusters with `internal_ip_only` set to false ([#19782](https://github.com/hashicorp/terraform-provider-google/pull/19782))
 * iam: addressed `google_service_account` creation issues caused by the eventual consistency of the GCP IAM API by ignoring 403 errors returned on polling the service account after creation. ([#19727](https://github.com/hashicorp/terraform-provider-google/pull/19727))
 * logging: fixed the whitespace permadiff on `exclusions.filter` field in `google_logging_billing_account_sink`, `google_logging_folder_sink`, `google_logging_organization_sink` and `google_logging_project_sink` resources ([#19744](https://github.com/hashicorp/terraform-provider-google/pull/19744))
-* pubsub: fixed permadiff with configuring an empty `retry_policy`. ([#19784](https://github.com/hashicorp/terraform-provider-google/pull/19784))
+* pubsub: fixed permadiff with configuring an empty `retry_policy` in `google_pubsub_subscription` ([#19784](https://github.com/hashicorp/terraform-provider-google/pull/19784))
 * secretmanager: fixed the issue of unpopulated fields `labels`, `annotations` and `version_destroy_ttl` in the terraform state for the `google_secret_manager_secrets` datasource ([#19748](https://github.com/hashicorp/terraform-provider-google/pull/19748))
 
 ## 6.6.0 (October 7, 2024)
