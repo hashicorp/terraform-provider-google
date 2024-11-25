@@ -134,8 +134,8 @@ func ResourceDiscoveryEngineSearchEngine() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"GENERIC", "MEDIA", ""}),
-				Description:  `The industry vertical that the engine registers. The restriction of the Engine industry vertical is based on DataStore: If unspecified, default to GENERIC. Vertical on Engine has to match vertical of the DataStore liniked to the engine. Default value: "GENERIC" Possible values: ["GENERIC", "MEDIA"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"GENERIC", "MEDIA", "HEALTHCARE_FHIR", ""}),
+				Description:  `The industry vertical that the engine registers. The restriction of the Engine industry vertical is based on DataStore: If unspecified, default to GENERIC. Vertical on Engine has to match vertical of the DataStore liniked to the engine. Default value: "GENERIC" Possible values: ["GENERIC", "MEDIA", "HEALTHCARE_FHIR"]`,
 				Default:      "GENERIC",
 			},
 			"create_time": {
