@@ -503,7 +503,7 @@ func NewServiceNetworkSettings(options ...func(*ServiceNetworkSettings)) *Servic
 // must be deleted first. After the service instances are deleted, some service producers delay the deletion
 // utnil a waiting period has passed. For example, after four days that you delete a SQL instance,
 // the service networking connection can be deleted.
-// That is the reason to use the shared service networking connection for thest resources.
+// That is the reason to use the shared service networking connection for test resources.
 // https://cloud.google.com/vpc/docs/configure-private-services-access#removing-connection
 //
 // testId specifies the test for which a shared network and a gobal address are used/initialized.

@@ -411,6 +411,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Firestore",
         "path" to "./google/services/firestore"
     ),
+    "gemini" to mapOf(
+        "name" to "gemini",
+        "displayName" to "Gemini",
+        "path" to "./google/services/gemini"
+    ),
     "gkebackup" to mapOf(
         "name" to "gkebackup",
         "displayName" to "Gkebackup",
