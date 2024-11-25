@@ -108,7 +108,7 @@ The following arguments are supported:
   (Optional)
   The industry vertical that the engine registers. The restriction of the Engine industry vertical is based on DataStore: If unspecified, default to GENERIC. Vertical on Engine has to match vertical of the DataStore liniked to the engine.
   Default value is `GENERIC`.
-  Possible values are: `GENERIC`, `MEDIA`.
+  Possible values are: `GENERIC`, `MEDIA`, `HEALTHCARE_FHIR`.
 
 * `common_config` -
   (Optional)
