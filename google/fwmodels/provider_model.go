@@ -100,6 +100,7 @@ type ProviderModel struct {
 	GkeonpremCustomEndpoint                types.String `tfsdk:"gkeonprem_custom_endpoint"`
 	HealthcareCustomEndpoint               types.String `tfsdk:"healthcare_custom_endpoint"`
 	IAM2CustomEndpoint                     types.String `tfsdk:"iam2_custom_endpoint"`
+	IAM3CustomEndpoint                     types.String `tfsdk:"iam3_custom_endpoint"`
 	IAMBetaCustomEndpoint                  types.String `tfsdk:"iam_beta_custom_endpoint"`
 	IAMWorkforcePoolCustomEndpoint         types.String `tfsdk:"iam_workforce_pool_custom_endpoint"`
 	IapCustomEndpoint                      types.String `tfsdk:"iap_custom_endpoint"`

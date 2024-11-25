@@ -21,12 +21,10 @@ description: |-
 
 A policy binding to a folder
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about FoldersPolicyBinding, see:
 
-* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v3beta/folders.locations.policyBindings)
+* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v3/folders.locations.policyBindings)
 * How-to Guides
     * [Apply a policy binding](https://cloud.google.com/iam/docs/principal-access-boundary-policies-create#create_binding)
 
@@ -35,7 +33,6 @@ To get more information about FoldersPolicyBinding, see:
 
 ```hcl
 resource "google_iam_principal_access_boundary_policy" "pab_policy" {
-  provider = google-beta
   organization   = "123456789"
   location       = "global"
   display_name   = "test folder binding"
@@ -43,7 +40,6 @@ resource "google_iam_principal_access_boundary_policy" "pab_policy" {
 }
 
 resource "google_folder" "folder" {
-  provider = google-beta
   display_name        = "test folder"
   parent              = "organizations/123456789"
   deletion_protection = false
@@ -55,7 +51,6 @@ resource "time_sleep" "wait_120s" {
 }
 
 resource "google_iam_folders_policy_binding" "my-folder-binding" {
-  provider = google-beta
   folder         = google_folder.folder.folder_id
   location       = "global"
   display_name   = "test folder binding"

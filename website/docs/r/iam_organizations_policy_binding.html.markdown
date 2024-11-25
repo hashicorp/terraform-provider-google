@@ -21,12 +21,10 @@ description: |-
 
 A policy binding to an organizations
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about OrganizationsPolicyBinding, see:
 
-* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v3beta/organizations.locations.policyBindings)
+* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v3/organizations.locations.policyBindings)
 * How-to Guides
     * [Apply a policy binding](https://cloud.google.com/iam/docs/principal-access-boundary-policies-create#create_binding)
 
@@ -35,7 +33,6 @@ To get more information about OrganizationsPolicyBinding, see:
 
 ```hcl
 resource "google_iam_principal_access_boundary_policy" "pab_policy" {
-  provider = google-beta
   organization   = "123456789"
   location       = "global"
   display_name   = "test org binding"
@@ -43,7 +40,6 @@ resource "google_iam_principal_access_boundary_policy" "pab_policy" {
 }
 
 resource "google_iam_organizations_policy_binding" "my-org-binding" {
-  provider = google-beta
   organization   = "123456789"
   location       = "global"
   display_name   = "test org binding"

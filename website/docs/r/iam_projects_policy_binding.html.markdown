@@ -21,12 +21,10 @@ description: |-
 
 A policy binding to a Project
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about ProjectsPolicyBinding, see:
 
-* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v3beta/projects.locations.policyBindings)
+* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v3/projects.locations.policyBindings)
 * How-to Guides
     * [Apply a policy binding](https://cloud.google.com/iam/docs/principal-access-boundary-policies-create#create_binding)
 
@@ -35,11 +33,10 @@ To get more information about ProjectsPolicyBinding, see:
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
+  provider = google
 }
 
 resource "google_iam_principal_access_boundary_policy" "pab_policy" {
-  provider = google-beta
   organization   = "123456789"
   location       = "global"
   display_name   = "test project binding"
@@ -47,7 +44,6 @@ resource "google_iam_principal_access_boundary_policy" "pab_policy" {
 }
 
 resource "google_iam_projects_policy_binding" "my-project-binding" {
-  provider = google-beta
   project        = data.google_project.project.project_id
   location       = "global"
   display_name   = "test project binding"

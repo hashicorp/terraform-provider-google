@@ -73,6 +73,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/gkeonprem"
 	"github.com/hashicorp/terraform-provider-google/google/services/healthcare"
 	"github.com/hashicorp/terraform-provider-google/google/services/iam2"
+	"github.com/hashicorp/terraform-provider-google/google/services/iam3"
 	"github.com/hashicorp/terraform-provider-google/google/services/iambeta"
 	"github.com/hashicorp/terraform-provider-google/google/services/iamworkforcepool"
 	"github.com/hashicorp/terraform-provider-google/google/services/iap"
@@ -457,9 +458,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 491
+// Generated resources: 495
 // Generated IAM resources: 261
-// Total generated resources: 752
+// Total generated resources: 756
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -905,6 +906,10 @@ var generatedResources = map[string]*schema.Resource{
 	"google_healthcare_workspace":                                                healthcare.ResourceHealthcareWorkspace(),
 	"google_iam_access_boundary_policy":                                          iam2.ResourceIAM2AccessBoundaryPolicy(),
 	"google_iam_deny_policy":                                                     iam2.ResourceIAM2DenyPolicy(),
+	"google_iam_folders_policy_binding":                                          iam3.ResourceIAM3FoldersPolicyBinding(),
+	"google_iam_organizations_policy_binding":                                    iam3.ResourceIAM3OrganizationsPolicyBinding(),
+	"google_iam_principal_access_boundary_policy":                                iam3.ResourceIAM3PrincipalAccessBoundaryPolicy(),
+	"google_iam_projects_policy_binding":                                         iam3.ResourceIAM3ProjectsPolicyBinding(),
 	"google_iam_workload_identity_pool":                                          iambeta.ResourceIAMBetaWorkloadIdentityPool(),
 	"google_iam_workload_identity_pool_provider":                                 iambeta.ResourceIAMBetaWorkloadIdentityPoolProvider(),
 	"google_iam_workforce_pool":                                                  iamworkforcepool.ResourceIAMWorkforcePoolWorkforcePool(),

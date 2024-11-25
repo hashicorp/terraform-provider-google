@@ -1,0 +1,3 @@
+```release-note: note
+iam3: promoted resources `google_iam_principal_access_boundary_policy`, `google_iam_organizations_policy_binding`, `google_iam_folders_policy_binding` and `google_iam_projects_policy_binding` to GA
+```

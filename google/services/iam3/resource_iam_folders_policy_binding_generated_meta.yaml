@@ -1,0 +1,5 @@
+resource: 'google_iam_folders_policy_binding'
+generation_type: 'mmv1'
+api_service_name: 'iam.googleapis.com'
+api_version: 'v3'
+api_resource_type_kind: 'FoldersPolicyBinding'
