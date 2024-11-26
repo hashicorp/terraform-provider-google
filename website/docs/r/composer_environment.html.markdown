@@ -363,6 +363,35 @@ resource "google_composer_environment" "example" {
 }
 ```
 
+If you specify an existing network attachment that you also manage in Terraform, then Terraform will revert changes
+to the attachment done by Cloud Composer when you apply configuration changes. As a result, the environment will no
+longer use the attachment. To address this problem, make sure that Terraform ignores changes to the
+`producer_accept_lists` parameter of the attachment, as follows:
+
+```hcl
+resource "google_compute_network_attachment" "example" {
+  lifecycle {
+    ignore_changes = [producer_accept_lists]
+  }
+
+  # ... other configuration parameters
+}
+
+resource "google_composer_environment" "example" {
+  name = "example-environment"
+  region = "us-central1"
+
+  config {
+
+    node_config {
+      composer_network_attachment = google_compute_network_attachment.example.id
+    }
+
+    # ... other configuration parameters
+  }
+}
+```
+
 ### With Software (Airflow) Config
 
 ```hcl
@@ -1303,11 +1332,11 @@ The following arguments are supported:
   The configuration settings for software (Airflow) inside the environment. Structure is [documented below](#nested_software_config_c3).
 
 * `enable_private_environment` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
+  (Optional, Cloud Composer 3 only)
   If true, a private Composer environment will be created.
 
 * `enable_private_builds_only` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
+  (Optional, Cloud Composer 3 only)
   If true, builds performed during operations that install Python packages have only private connectivity to Google services.
   If false, the builds also have access to the internet.
 
@@ -1377,7 +1406,7 @@ The following arguments are supported:
   network must also be provided and the subnetwork must belong to the enclosing environment's project and region.
 
 * `composer_network_attachment` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
+  (Optional, Cloud Composer 3 only)
   PSC (Private Service Connect) Network entry point. Customers can pre-create the Network Attachment 
   and point Cloud Composer environment to use. It is possible to share network attachment among many environments, 
   provided enough IP addresses are available.
@@ -1398,7 +1427,7 @@ The following arguments are supported:
   Cannot be updated.
 
 * `composer_internal_ipv4_cidr_block` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
+  (Optional, Cloud Composer 3 only)
   /20 IPv4 cidr range that will be used by Composer internal components.
   Cannot be updated.
 
@@ -1471,7 +1500,7 @@ The following arguments are supported:
   [documented below](#nested_cloud_data_lineage_integration_c3).
 
 * `web_server_plugins_mode` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
+  (Optional, Cloud Composer 3 only)
   Web server plugins configuration. Can be either 'ENABLED' or 'DISABLED'. Defaults to 'ENABLED'.
 
 <a name="nested_cloud_data_lineage_integration_c3"></a>The `cloud_data_lineage_integration` block supports:
@@ -1523,7 +1552,7 @@ The `workloads_config` block supports:
   Configuration for resources used by Airflow workers.
 
 * `dag_processor` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
+  (Optional, Cloud Composer 3 only)
   Configuration for resources used by DAG processor.
 
 The `scheduler` block supports:
