@@ -35,6 +35,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBas
 
 	context := map[string]interface{}{
 		"autonomous_database_id": "my-adb-instance-id",
+		"deletion_protection":    false,
 		"project":                "oci-terraform-testing",
 		"random_suffix":          acctest.RandString(t, 10),
 	}
@@ -51,7 +52,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBas
 				ResourceName:            "google_oracle_database_autonomous_database.myADB",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -74,6 +75,7 @@ resource "google_oracle_database_autonomous_database" "myADB"{
     db_workload = "OLTP"
     license_type = "LICENSE_INCLUDED"
     }
+  deletion_protection = "%{deletion_protection}"
 }
 
 data "google_compute_network" "default" {
@@ -88,6 +90,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseFul
 
 	context := map[string]interface{}{
 		"autonomous_database_id": "my-adb-instance-id-2",
+		"deletion_protection":    false,
 		"project":                "oci-terraform-testing",
 		"random_suffix":          acctest.RandString(t, 10),
 	}
@@ -104,7 +107,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseFul
 				ResourceName:            "google_oracle_database_autonomous_database.myADB",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -145,6 +148,7 @@ resource "google_oracle_database_autonomous_database" "myADB"{
     private_endpoint_ip    = "10.5.0.11"
     private_endpoint_label = "testhost"
   }
+  deletion_protection = "%{deletion_protection}"
 }
 
 data "google_compute_network" "default" {

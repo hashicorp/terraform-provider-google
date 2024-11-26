@@ -52,6 +52,7 @@ resource "google_oracle_database_autonomous_database" "myADB"{
     db_workload = "OLTP"
     license_type = "LICENSE_INCLUDED"
     }
+  deletion_protection = "true"
 }
 
 data "google_compute_network" "default" {
@@ -101,6 +102,7 @@ resource "google_oracle_database_autonomous_database" "myADB"{
     private_endpoint_ip    = "10.5.0.11"
     private_endpoint_label = "testhost"
   }
+  deletion_protection = "true"
 }
 
 data "google_compute_network" "default" {
@@ -799,6 +801,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.
 
 ## Attributes Reference
 
