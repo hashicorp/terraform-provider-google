@@ -1,0 +1,15 @@
+```release-note:new-datasource
+`google_composer_user_workloads_config_map` (GA)
+```
+```release-note:new-datasource
+`google_composer_user_workloads_secret` (GA)
+```
+```release-note:new-resource
+`google_composer_user_workloads_config_map` (GA)
+```
+```release-note:new-resource
+`google_composer_user_workloads_secret` (GA)
+```
+```release-note:enhancement
+composer: added multiple composer 3 related fields to `google_composer_environment` (GA)
+```
