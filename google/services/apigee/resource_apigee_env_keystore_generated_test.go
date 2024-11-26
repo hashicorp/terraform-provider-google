@@ -43,7 +43,10 @@ func TestAccApigeeEnvKeystore_apigeeEnvironmentKeystoreTestExample(t *testing.T)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckApigeeEnvKeystoreDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckApigeeEnvKeystoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeEnvKeystore_apigeeEnvironmentKeystoreTestExample(context),
@@ -68,9 +71,15 @@ resource "google_project" "project" {
   deletion_policy = "DELETE"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_project.project]
+}
+
 resource "google_project_service" "apigee" {
   project = google_project.project.project_id
   service = "apigee.googleapis.com"
+  depends_on = [time_sleep.wait_60_seconds]
 }
 
 resource "google_project_service" "servicenetworking" {
