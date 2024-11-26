@@ -67,6 +67,8 @@ resource "google_oracle_database_cloud_exadata_infrastructure" "cloudExadataInfr
     compute_count= "2"
     storage_count= "3"
   }
+
+  deletion_protection = "true"
 }
 
 data "google_compute_network" "default" {
@@ -134,6 +136,8 @@ resource "google_oracle_database_cloud_exadata_infrastructure" "cloudExadataInfr
     compute_count= "2"
     storage_count= "3"
   }
+
+  deletion_protection = "true"
 }
 
 data "google_compute_network" "default" {

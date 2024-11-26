@@ -35,6 +35,7 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 
 	context := map[string]interface{}{
 		"cloud_exadata_infrastructure_id": "ofake-exadata-basic",
+		"deletion_protection":             false,
 		"project":                         "oci-terraform-testing",
 		"random_suffix":                   acctest.RandString(t, 10),
 	}
@@ -51,7 +52,7 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 				ResourceName:            "google_oracle_database_cloud_exadata_infrastructure.my-cloud-exadata",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_exadata_infrastructure_id", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"cloud_exadata_infrastructure_id", "deletion_protection", "labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -69,6 +70,8 @@ resource "google_oracle_database_cloud_exadata_infrastructure" "my-cloud-exadata
     compute_count= "2"
     storage_count= "3"
   }
+
+  deletion_protection = "%{deletion_protection}"
 }
 `, context)
 }
@@ -78,6 +81,7 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 
 	context := map[string]interface{}{
 		"cloud_exadata_infrastructure_id": "ofake-exadata-full",
+		"deletion_protection":             false,
 		"project":                         "oci-terraform-testing",
 		"random_suffix":                   acctest.RandString(t, 10),
 	}
@@ -94,7 +98,7 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 				ResourceName:            "google_oracle_database_cloud_exadata_infrastructure.my-cloud-exadata",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_exadata_infrastructure_id", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"cloud_exadata_infrastructure_id", "deletion_protection", "labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -131,6 +135,8 @@ resource "google_oracle_database_cloud_exadata_infrastructure" "my-cloud-exadata
   labels = {
     "label-one" = "value-one"
   }
+
+  deletion_protection = "%{deletion_protection}"
 }
 `, context)
 }
