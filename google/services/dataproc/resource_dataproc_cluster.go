@@ -64,6 +64,7 @@ var (
 		"cluster_config.0.gce_cluster_config.0.metadata",
 		"cluster_config.0.gce_cluster_config.0.reservation_affinity",
 		"cluster_config.0.gce_cluster_config.0.node_group_affinity",
+		"cluster_config.0.gce_cluster_config.0.confidential_instance_config",
 	}
 
 	schieldedInstanceConfigKeys = []string{
@@ -76,6 +77,10 @@ var (
 		"cluster_config.0.gce_cluster_config.0.reservation_affinity.0.consume_reservation_type",
 		"cluster_config.0.gce_cluster_config.0.reservation_affinity.0.key",
 		"cluster_config.0.gce_cluster_config.0.reservation_affinity.0.values",
+	}
+
+	confidentialInstanceConfigKeys = []string{
+		"cluster_config.0.gce_cluster_config.0.confidential_instance_config.0.enable_confidential_compute",
 	}
 
 	masterDiskConfigKeys            = diskConfigKeys("master_config")
@@ -755,6 +760,26 @@ func ResourceDataprocCluster() *schema.Resource {
 													Required:         true,
 													Description:      `The URI of a sole-tenant that the cluster will be created on.`,
 													DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+												},
+											},
+										},
+									},
+									"confidential_instance_config": {
+										Type:         schema.TypeList,
+										Optional:     true,
+										AtLeastOneOf: gceClusterConfigKeys,
+										Computed:     true,
+										MaxItems:     1,
+										Description:  `Confidential Instance Config for clusters using Compute Engine Confidential VMs.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"enable_confidential_compute": {
+													Type:         schema.TypeBool,
+													Optional:     true,
+													Default:      false,
+													AtLeastOneOf: confidentialInstanceConfigKeys,
+													ForceNew:     true,
+													Description:  `Defines whether the instance should have confidential compute enabled.`,
 												},
 											},
 										},
@@ -2248,6 +2273,13 @@ func expandGceClusterConfig(d *schema.ResourceData, config *transport_tpg.Config
 			conf.NodeGroupAffinity.NodeGroupUri = v.(string)
 		}
 	}
+	if v, ok := d.GetOk("cluster_config.0.gce_cluster_config.0.confidential_instance_config"); ok {
+		cfgCic := v.([]interface{})[0].(map[string]interface{})
+		conf.ConfidentialInstanceConfig = &dataproc.ConfidentialInstanceConfig{}
+		if v, ok := cfgCic["enable_confidential_compute"]; ok {
+			conf.ConfidentialInstanceConfig.EnableConfidentialCompute = v.(bool)
+		}
+	}
 	return conf, nil
 }
 
@@ -3193,6 +3225,13 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 		gceConfig["node_group_affinity"] = []map[string]interface{}{
 			{
 				"node_group_uri": gcc.NodeGroupAffinity.NodeGroupUri,
+			},
+		}
+	}
+	if gcc.ConfidentialInstanceConfig != nil {
+		gceConfig["confidential_instance_config"] = []map[string]interface{}{
+			{
+				"enable_confidential_compute": gcc.ConfidentialInstanceConfig.EnableConfidentialCompute,
 			},
 		}
 	}

@@ -258,6 +258,51 @@ func TestAccDataprocCluster_withInternalIpOnlyTrueAndShieldedConfig(t *testing.T
 	})
 }
 
+func TestAccDataprocCluster_withConfidentialCompute(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	imageUri := "https://www.googleapis.com/compute/v1/projects/cloud-dataproc/global/images/dataproc-2-1-ubu20-20241026-165100-rc01"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withConfidentialCompute(rnd, subnetworkName, imageUri),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.confidential", &cluster),
+
+					// Check confidential compute
+					resource.TestCheckResourceAttr("google_dataproc_cluster.confidential",
+						"cluster_config.0.gce_cluster_config.0.confidential_instance_config.0.enable_confidential_compute", "true"),
+
+					// Check master
+					resource.TestCheckResourceAttr("google_dataproc_cluster.confidential",
+						"cluster_config.0.master_config.0.machine_type", "n2d-standard-2"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.confidential",
+						"cluster_config.0.master_config.0.image_uri", imageUri),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.confidential",
+						"cluster_config.0.master_config.0.min_cpu_platform", "AMD Rome"),
+
+					// Check worker
+					resource.TestCheckResourceAttr("google_dataproc_cluster.confidential",
+						"cluster_config.0.worker_config.0.machine_type", "n2d-standard-2"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.confidential",
+						"cluster_config.0.worker_config.0.image_uri", imageUri),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.confidential",
+						"cluster_config.0.worker_config.0.min_cpu_platform", "AMD Rome"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withMetadataAndTags(t *testing.T) {
 	t.Parallel()
 
@@ -1538,6 +1583,36 @@ resource "google_dataproc_cluster" "basic" {
   }
 }
 `, rnd, rnd, rnd, rnd)
+}
+
+func testAccDataprocCluster_withConfidentialCompute(rnd, subnetworkName string, imageUri string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "confidential" {
+    name   = "tf-test-dproc-%s"
+    region = "us-central1"
+
+    cluster_config {
+        gce_cluster_config {
+			subnetwork = "%s"
+            confidential_instance_config {
+                enable_confidential_compute = true
+            }
+        }
+
+        master_config {
+            machine_type     = "n2d-standard-2"
+            image_uri        = "%s"
+            min_cpu_platform = "AMD Rome"
+        }
+
+        worker_config {
+            machine_type     = "n2d-standard-2"
+            image_uri        = "%s"
+            min_cpu_platform = "AMD Rome"
+        }
+    }
+}
+`, rnd, subnetworkName, imageUri, imageUri)
 }
 
 func testAccDataprocCluster_withMetadataAndTags(rnd, subnetworkName string) string {
