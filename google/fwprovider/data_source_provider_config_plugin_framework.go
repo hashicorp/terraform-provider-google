@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
-	"github.com/hashicorp/terraform-provider-google/google/fwresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -20,7 +19,6 @@ import (
 var (
 	_ datasource.DataSource              = &GoogleProviderConfigPluginFrameworkDataSource{}
 	_ datasource.DataSourceWithConfigure = &GoogleProviderConfigPluginFrameworkDataSource{}
-	_ fwresource.LocationDescriber       = &GoogleProviderConfigPluginFrameworkModel{}
 )
 
 func NewGoogleProviderConfigPluginFrameworkDataSource() datasource.DataSource {
@@ -56,15 +54,6 @@ type GoogleProviderConfigPluginFrameworkModel struct {
 	DefaultLabels                             types.Map    `tfsdk:"default_labels"`
 	AddTerraformAttributionLabel              types.Bool   `tfsdk:"add_terraform_attribution_label"`
 	TerraformAttributionLabelAdditionStrategy types.String `tfsdk:"terraform_attribution_label_addition_strategy"`
-}
-
-func (m *GoogleProviderConfigPluginFrameworkModel) GetLocationDescription(providerConfig *transport_tpg.Config) fwresource.LocationDescription {
-	return fwresource.LocationDescription{
-		RegionSchemaField: types.StringValue("region"),
-		ZoneSchemaField:   types.StringValue("zone"),
-		ProviderRegion:    types.StringValue(providerConfig.Region),
-		ProviderZone:      types.StringValue(providerConfig.Zone),
-	}
 }
 
 func (d *GoogleProviderConfigPluginFrameworkDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
