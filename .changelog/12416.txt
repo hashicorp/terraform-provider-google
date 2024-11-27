@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: made `google_apigee_organization` wait for deletion operation to complete.
+```
