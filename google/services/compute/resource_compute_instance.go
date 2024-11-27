@@ -2974,7 +2974,11 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 		}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.storage_pool"); ok {
-			disk.InitializeParams.StoragePool = v.(string)
+			storagePoolUrl, err := expandStoragePool(v, d, config)
+			if err != nil {
+				return nil, fmt.Errorf("Error resolving storage pool name '%s': '%s'", v.(string), err)
+			}
+			disk.InitializeParams.StoragePool = storagePoolUrl.(string)
 		}
 	}
 
@@ -3071,6 +3075,10 @@ func flattenScratchDisk(disk *compute.AttachedDisk) map[string]interface{} {
 		"size":        disk.DiskSizeGb,
 	}
 	return result
+}
+
+func expandStoragePool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return ExpandStoragePoolUrl(v, d, config)
 }
 
 func hash256(raw string) (string, error) {

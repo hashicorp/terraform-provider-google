@@ -293,6 +293,44 @@ func suppressWindowsFamilyDiff(imageName, familyName string) bool {
 	return strings.Contains(updatedImageName, updatedFamilyString)
 }
 
+// ExpandStoragePoolUrl returns a full self link from a partial self link.
+func ExpandStoragePoolUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (string, error) {
+	// It does not try to construct anything from empty.
+	if v == nil || v.(string) == "" {
+		return "", nil
+	}
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return "", err
+	}
+	zone, err := tpgresource.GetZone(d, config)
+	if err != nil {
+		return "", err
+	}
+
+	formattedStr := v.(string)
+	if strings.HasPrefix(v.(string), "/") {
+		formattedStr = formattedStr[1:]
+	}
+	replacedStr := ""
+
+	if strings.HasPrefix(formattedStr, "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return formattedStr, nil
+	} else if strings.HasPrefix(formattedStr, "projects/") {
+		// If the self link references a project, we'll just stuck the compute prefix on it
+		replacedStr = config.ComputeBasePath + formattedStr
+	} else if strings.HasPrefix(formattedStr, "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		replacedStr = config.ComputeBasePath + "projects/" + project + "/" + formattedStr
+	} else {
+		// Anything else is assumed to be a zonal resource, with a partial link that begins with the resource name.
+		replacedStr = config.ComputeBasePath + "projects/" + project + "/zones/" + zone + "/storagePools/" + formattedStr
+	}
+	return replacedStr, nil
+}
+
 func ResourceComputeDisk() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeDiskCreate,
@@ -649,10 +687,12 @@ encryption key that protects this resource.`,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareResourceNames,
-				Description: `The URL of the storage pool in which the new disk is created.
+				Description: `The URL or the name of the storage pool in which the new disk is created.
 For example:
 * https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/storagePools/{storagePool}
-* /projects/{project}/zones/{zone}/storagePools/{storagePool}`,
+* /projects/{project}/zones/{zone}/storagePools/{storagePool}
+* /zones/{zone}/storagePools/{storagePool}
+* /{storagePool}`,
 			},
 			"type": {
 				Type:             schema.TypeString,
@@ -2014,7 +2054,7 @@ func expandComputeDiskLicenses(v interface{}, d tpgresource.TerraformResourceDat
 }
 
 func expandComputeDiskStoragePool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+	return ExpandStoragePoolUrl(v, d, config)
 }
 
 func expandComputeDiskAccessMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

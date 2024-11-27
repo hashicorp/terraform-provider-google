@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -1437,6 +1439,28 @@ func TestAccComputeDisk_storagePoolSpecified(t *testing.T) {
 	})
 }
 
+func TestAccComputeDisk_storagePoolSpecified_nameOnly(t *testing.T) {
+	t.Parallel()
+
+	acctest.BootstrapComputeStoragePool(t, "basic-2", "hyperdisk-throughput")
+	diskName := fmt.Sprintf("tf-test-disk-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_storagePoolSpecified(diskName, "tf-bootstrap-storage-pool-hyperdisk-throughput-basic-2"),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeDisk_storagePoolSpecified(diskName, storagePoolUrl string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "foobar" {
@@ -1447,6 +1471,189 @@ resource "google_compute_disk" "foobar" {
   storage_pool = "%s"
 }
 `, diskName, storagePoolUrl)
+}
+
+func TestExpandStoragePoolUrl_withDataProjectAndZone(t *testing.T) {
+	config := &transport_tpg.Config{
+		ComputeBasePath: "https://www.googleapis.com/compute/v1/",
+		Project:         "other-project",
+		Zone:            "other-zone",
+	}
+
+	data := &tpgresource.ResourceDataMock{
+		FieldsInSchema: map[string]interface{}{
+			"project": "test-project",
+			"zone":    "test-zone",
+		},
+	}
+
+	name := "test-storage-pool"
+	zoneUrl := "zones/test-zone/storagePools/" + name
+	projectUrl := "projects/test-project/" + zoneUrl
+	fullUrl := config.ComputeBasePath + projectUrl
+
+	cases := []struct {
+		name     string
+		inputStr string
+	}{
+		{
+			name:     "full url",
+			inputStr: fullUrl,
+		},
+		{
+			name:     "project/{project}/zones/{zone}/storagePools/{storagePool}",
+			inputStr: projectUrl,
+		},
+		{
+			name:     "/project/{project}/zones/{zone}/storagePools/{storagePool}",
+			inputStr: "/" + projectUrl,
+		},
+		{
+			name:     "zones/{zone}/storagePools/{storagePool}",
+			inputStr: zoneUrl,
+		},
+		{
+			name:     "/zones/{zone}/storagePools/{storagePool}",
+			inputStr: "/" + zoneUrl,
+		},
+		{
+			name:     "{storagePool}",
+			inputStr: name,
+		},
+		{
+			name:     "/{storagePool}",
+			inputStr: "/" + name,
+		},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			result, _ := tpgcompute.ExpandStoragePoolUrl(tc.inputStr, data, config)
+			if result != fullUrl {
+				t.Fatalf("%s does not match with expected full url: %s", result, fullUrl)
+			}
+		})
+	}
+}
+
+func TestExpandStoragePoolUrl_withConfigProjectAndZone(t *testing.T) {
+	config := &transport_tpg.Config{
+		ComputeBasePath: "https://www.googleapis.com/compute/v1/",
+		Project:         "test-project",
+		Zone:            "test-zone",
+	}
+
+	data := &tpgresource.ResourceDataMock{}
+
+	name := "test-storage-pool"
+	zoneUrl := "zones/test-zone/storagePools/" + name
+	projectUrl := "projects/test-project/" + zoneUrl
+	fullUrl := config.ComputeBasePath + projectUrl
+
+	cases := []struct {
+		name     string
+		inputStr string
+	}{
+		{
+			name:     "full url",
+			inputStr: fullUrl,
+		},
+		{
+			name:     "project/{project}/zones/{zone}/storagePools/{storagePool}",
+			inputStr: projectUrl,
+		},
+		{
+			name:     "/project/{project}/zones/{zone}/storagePools/{storagePool}",
+			inputStr: "/" + projectUrl,
+		},
+		{
+			name:     "zones/{zone}/storagePools/{storagePool}",
+			inputStr: zoneUrl,
+		},
+		{
+			name:     "/zones/{zone}/storagePools/{storagePool}",
+			inputStr: "/" + zoneUrl,
+		},
+		{
+			name:     "{storagePool}",
+			inputStr: name,
+		},
+		{
+			name:     "/{storagePool}",
+			inputStr: "/" + name,
+		},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			result, _ := tpgcompute.ExpandStoragePoolUrl(tc.inputStr, data, config)
+			if result != fullUrl {
+				t.Fatalf("%s does not match with expected full url: %s", result, fullUrl)
+			}
+		})
+	}
+}
+
+func TestExpandStoragePoolUrl_noProjectAndZoneFromConfigAndData(t *testing.T) {
+	config := &transport_tpg.Config{
+		ComputeBasePath: "https://www.googleapis.com/compute/v1/",
+	}
+
+	data := &tpgresource.ResourceDataMock{}
+
+	name := "test-storage-pool"
+	zoneUrl := "zones/test-zone/storagePools/" + name
+	projectUrl := "projects/test-project/" + zoneUrl
+	fullUrl := config.ComputeBasePath + projectUrl
+
+	cases := []struct {
+		name     string
+		inputStr string
+	}{
+		{
+			name:     "full url",
+			inputStr: fullUrl,
+		},
+		{
+			name:     "project/{project}/zones/{zone}/storagePools/{storagePool}",
+			inputStr: projectUrl,
+		},
+		{
+			name:     "/project/{project}/zones/{zone}/storagePools/{storagePool}",
+			inputStr: "/" + projectUrl,
+		},
+		{
+			name:     "zones/{zone}/storagePools/{storagePool}",
+			inputStr: zoneUrl,
+		},
+		{
+			name:     "/zones/{zone}/storagePools/{storagePool}",
+			inputStr: "/" + zoneUrl,
+		},
+		{
+			name:     "{storagePool}",
+			inputStr: name,
+		},
+		{
+			name:     "/{storagePool}",
+			inputStr: "/" + name,
+		},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			_, err := tpgcompute.ExpandStoragePoolUrl(tc.inputStr, data, config)
+			if err == nil {
+				t.Fatal("Should return error when no project and zone available from config or resource data")
+			}
+		})
+	}
 }
 
 func TestAccComputeDisk_accessModeSpecified(t *testing.T) {
