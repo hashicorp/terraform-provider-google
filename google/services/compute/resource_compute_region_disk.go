@@ -375,6 +375,18 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	obj := make(map[string]interface{})
+	diskEncryptionKeyProp, err := expandComputeRegionDiskDiskEncryptionKey(d.Get("disk_encryption_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disk_encryption_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(diskEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, diskEncryptionKeyProp)) {
+		obj["diskEncryptionKey"] = diskEncryptionKeyProp
+	}
+	sourceSnapshotEncryptionKeyProp, err := expandComputeRegionDiskSourceSnapshotEncryptionKey(d.Get("source_snapshot_encryption_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_snapshot_encryption_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceSnapshotEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, sourceSnapshotEncryptionKeyProp)) {
+		obj["sourceSnapshotEncryptionKey"] = sourceSnapshotEncryptionKeyProp
+	}
 	labelFingerprintProp, err := expandComputeRegionDiskLabelFingerprint(d.Get("label_fingerprint"), d, config)
 	if err != nil {
 		return err
@@ -453,23 +465,11 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("region"); !tpgresource.IsEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
 		obj["region"] = regionProp
 	}
-	diskEncryptionKeyProp, err := expandComputeRegionDiskDiskEncryptionKey(d.Get("disk_encryption_key"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("disk_encryption_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(diskEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, diskEncryptionKeyProp)) {
-		obj["diskEncryptionKey"] = diskEncryptionKeyProp
-	}
 	sourceSnapshotProp, err := expandComputeRegionDiskSnapshot(d.Get("snapshot"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("snapshot"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceSnapshotProp)) && (ok || !reflect.DeepEqual(v, sourceSnapshotProp)) {
 		obj["sourceSnapshot"] = sourceSnapshotProp
-	}
-	sourceSnapshotEncryptionKeyProp, err := expandComputeRegionDiskSourceSnapshotEncryptionKey(d.Get("source_snapshot_encryption_key"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("source_snapshot_encryption_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceSnapshotEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, sourceSnapshotEncryptionKeyProp)) {
-		obj["sourceSnapshotEncryptionKey"] = sourceSnapshotEncryptionKeyProp
 	}
 
 	obj, err = resourceComputeRegionDiskEncoder(d, meta, obj)
@@ -587,6 +587,15 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
 
+	if err := d.Set("disk_encryption_key", flattenComputeRegionDiskDiskEncryptionKey(res["diskEncryptionKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionDisk: %s", err)
+	}
+	if err := d.Set("source_snapshot_encryption_key", flattenComputeRegionDiskSourceSnapshotEncryptionKey(res["sourceSnapshotEncryptionKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionDisk: %s", err)
+	}
+	if err := d.Set("source_snapshot_id", flattenComputeRegionDiskSourceSnapshotId(res["sourceSnapshotId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionDisk: %s", err)
+	}
 	if err := d.Set("label_fingerprint", flattenComputeRegionDiskLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
@@ -647,16 +656,7 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("region", flattenComputeRegionDiskRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
-	if err := d.Set("disk_encryption_key", flattenComputeRegionDiskDiskEncryptionKey(res["diskEncryptionKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
-	}
 	if err := d.Set("snapshot", flattenComputeRegionDiskSnapshot(res["sourceSnapshot"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
-	}
-	if err := d.Set("source_snapshot_encryption_key", flattenComputeRegionDiskSourceSnapshotEncryptionKey(res["sourceSnapshotEncryptionKey"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RegionDisk: %s", err)
-	}
-	if err := d.Set("source_snapshot_id", flattenComputeRegionDiskSourceSnapshotId(res["sourceSnapshotId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -923,6 +923,62 @@ func resourceComputeRegionDiskImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
+func flattenComputeRegionDiskDiskEncryptionKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["raw_key"] =
+		flattenComputeRegionDiskDiskEncryptionKeyRawKey(original["rawKey"], d, config)
+	transformed["sha256"] =
+		flattenComputeRegionDiskDiskEncryptionKeySha256(original["sha256"], d, config)
+	transformed["kms_key_name"] =
+		flattenComputeRegionDiskDiskEncryptionKeyKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionDiskDiskEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionDiskDiskEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionDiskDiskEncryptionKeyKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionDiskSourceSnapshotEncryptionKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["raw_key"] =
+		flattenComputeRegionDiskSourceSnapshotEncryptionKeyRawKey(original["rawKey"], d, config)
+	transformed["sha256"] =
+		flattenComputeRegionDiskSourceSnapshotEncryptionKeySha256(original["sha256"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionDiskSourceSnapshotEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionDiskSourceSnapshotEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionDiskSourceSnapshotId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionDiskLabelFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1097,35 +1153,6 @@ func flattenComputeRegionDiskRegion(v interface{}, d *schema.ResourceData, confi
 	return tpgresource.NameFromSelfLinkStateFunc(v)
 }
 
-func flattenComputeRegionDiskDiskEncryptionKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["raw_key"] =
-		flattenComputeRegionDiskDiskEncryptionKeyRawKey(original["rawKey"], d, config)
-	transformed["sha256"] =
-		flattenComputeRegionDiskDiskEncryptionKeySha256(original["sha256"], d, config)
-	transformed["kms_key_name"] =
-		flattenComputeRegionDiskDiskEncryptionKeyKmsKeyName(original["kmsKeyName"], d, config)
-	return []interface{}{transformed}
-}
-func flattenComputeRegionDiskDiskEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenComputeRegionDiskDiskEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenComputeRegionDiskDiskEncryptionKeyKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenComputeRegionDiskSnapshot(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1133,31 +1160,83 @@ func flattenComputeRegionDiskSnapshot(v interface{}, d *schema.ResourceData, con
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeRegionDiskSourceSnapshotEncryptionKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
+func expandComputeRegionDiskDiskEncryptionKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
 	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
-	transformed["raw_key"] =
-		flattenComputeRegionDiskSourceSnapshotEncryptionKeyRawKey(original["rawKey"], d, config)
-	transformed["sha256"] =
-		flattenComputeRegionDiskSourceSnapshotEncryptionKeySha256(original["sha256"], d, config)
-	return []interface{}{transformed}
-}
-func flattenComputeRegionDiskSourceSnapshotEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+
+	transformedRawKey, err := expandComputeRegionDiskDiskEncryptionKeyRawKey(original["raw_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRawKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rawKey"] = transformedRawKey
+	}
+
+	transformedSha256, err := expandComputeRegionDiskDiskEncryptionKeySha256(original["sha256"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSha256); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sha256"] = transformedSha256
+	}
+
+	transformedKmsKeyName, err := expandComputeRegionDiskDiskEncryptionKeyKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
 }
 
-func flattenComputeRegionDiskSourceSnapshotEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+func expandComputeRegionDiskDiskEncryptionKeyRawKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
-func flattenComputeRegionDiskSourceSnapshotId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+func expandComputeRegionDiskDiskEncryptionKeySha256(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionDiskDiskEncryptionKeyKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionDiskSourceSnapshotEncryptionKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRawKey, err := expandComputeRegionDiskSourceSnapshotEncryptionKeyRawKey(original["raw_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRawKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rawKey"] = transformedRawKey
+	}
+
+	transformedSha256, err := expandComputeRegionDiskSourceSnapshotEncryptionKeySha256(original["sha256"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSha256); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sha256"] = transformedSha256
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionDiskSourceSnapshotEncryptionKeyRawKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionDiskSourceSnapshotEncryptionKeySha256(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeRegionDiskLabelFingerprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1293,91 +1372,12 @@ func expandComputeRegionDiskRegion(v interface{}, d tpgresource.TerraformResourc
 	return f.RelativeLink(), nil
 }
 
-func expandComputeRegionDiskDiskEncryptionKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedRawKey, err := expandComputeRegionDiskDiskEncryptionKeyRawKey(original["raw_key"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedRawKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["rawKey"] = transformedRawKey
-	}
-
-	transformedSha256, err := expandComputeRegionDiskDiskEncryptionKeySha256(original["sha256"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSha256); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["sha256"] = transformedSha256
-	}
-
-	transformedKmsKeyName, err := expandComputeRegionDiskDiskEncryptionKeyKmsKeyName(original["kms_key_name"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["kmsKeyName"] = transformedKmsKeyName
-	}
-
-	return transformed, nil
-}
-
-func expandComputeRegionDiskDiskEncryptionKeyRawKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeRegionDiskDiskEncryptionKeySha256(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeRegionDiskDiskEncryptionKeyKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
 func expandComputeRegionDiskSnapshot(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := tpgresource.ParseGlobalFieldValue("snapshots", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for snapshot: %s", err)
 	}
 	return f.RelativeLink(), nil
-}
-
-func expandComputeRegionDiskSourceSnapshotEncryptionKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedRawKey, err := expandComputeRegionDiskSourceSnapshotEncryptionKeyRawKey(original["raw_key"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedRawKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["rawKey"] = transformedRawKey
-	}
-
-	transformedSha256, err := expandComputeRegionDiskSourceSnapshotEncryptionKeySha256(original["sha256"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSha256); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["sha256"] = transformedSha256
-	}
-
-	return transformed, nil
-}
-
-func expandComputeRegionDiskSourceSnapshotEncryptionKeyRawKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeRegionDiskSourceSnapshotEncryptionKeySha256(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
 }
 
 func resourceComputeRegionDiskEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
