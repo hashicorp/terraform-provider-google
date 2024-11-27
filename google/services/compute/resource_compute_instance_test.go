@@ -9171,6 +9171,28 @@ func TestAccComputeInstance_bootDisk_storagePoolSpecified(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_bootDisk_storagePoolSpecified_nameOnly(t *testing.T) {
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10))
+	acctest.BootstrapComputeStoragePool(t, "basic-2", "hyperdisk-balanced")
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_bootDisk_storagePoolSpecified(instanceName, "tf-bootstrap-storage-pool-hyperdisk-balanced-basic-2", envvar.GetTestZoneFromEnv()),
+			},
+			{
+				ResourceName:      "google_compute_instance.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeInstance_bootDisk_storagePoolSpecified(instanceName, storagePoolUrl, zone string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
