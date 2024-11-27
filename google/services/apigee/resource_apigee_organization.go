@@ -601,6 +601,14 @@ func resourceApigeeOrganizationDelete(d *schema.ResourceData, meta interface{}) 
 		return transport_tpg.HandleNotFoundError(err, d, "Organization")
 	}
 
+	err = ApigeeOperationWaitTime(
+		config, res, "Deleting Organization", userAgent,
+		d.Timeout(schema.TimeoutDelete))
+
+	if err != nil {
+		return err
+	}
+
 	log.Printf("[DEBUG] Finished deleting Organization %q: %#v", d.Id(), res)
 	return nil
 }
