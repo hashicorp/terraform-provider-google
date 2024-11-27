@@ -16,16 +16,3 @@ In a case where you are editing an existing field you might want to ensure the r
 export RELEASE_DIFF=true
 TF_LOG=TRACE make testacc TEST=./google TESTARGS='-run=TestAccContainerNodePool_basic' > output.log
 ```
-
-## Sweepers
-
-Running provider tests often can lead to dangling test resources caused by test failures. Terraform has a capability to run [Sweepers](https://www.terraform.io/docs/extend/testing/acceptance-tests/sweepers.html) which can go through and delete resources. In TPG, sweepers mainly:
-1. List every resource in a project of a specific kind
-2. Iterate through the list and determine if a resource is [sweepable](https://github.com/GoogleCloudPlatform/magic-modules/blob/master/mmv1/third_party/terraform/utils/gcp_sweeper_test.go#L46)
-3. If sweepable, delete the resource
-
-Sweepers run by using the `-sweep` and `-sweep-run` `TESTARGS` flags:
-
-```
-TF_LOG=TRACE make testacc TEST=./google TESTARGS='-sweep=us-central1 -sweep-run=<sweeper-name-here>' > output.log
-```
