@@ -410,7 +410,7 @@ projects/{project}/locations/{region}/cloudVmClusters/{cloud_vm_cluster}`,
 			"deletion_protection": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: `Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.`,
+				Description: `Whether Terraform will be prevented from destroying the cluster. Deleting this cluster via terraform destroy or terraform apply will only succeed if this field is false in the Terraform state.`,
 				Default:     true,
 			},
 			"project": {
