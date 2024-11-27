@@ -1,0 +1,5 @@
+resource: 'google_compute_disk_async_replication'
+generation_type: 'handwritten'
+api_service_name: 'compute.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Disk'
