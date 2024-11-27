@@ -167,6 +167,26 @@ The following arguments are supported:
 - - -
 
 
+* `disk_encryption_key` -
+  (Optional)
+  Encrypts the disk using a customer-supplied encryption key.
+  After you encrypt a disk with a customer-supplied key, you must
+  provide the same key if you use the disk later (e.g. to create a disk
+  snapshot or an image, or to attach the disk to a virtual machine).
+  Customer-supplied encryption keys do not protect access to metadata of
+  the disk.
+  If you do not provide an encryption key when creating the disk, then
+  the disk will be encrypted using an automatically generated key and
+  you do not need to provide a key to use the disk later.
+  Structure is [documented below](#nested_disk_encryption_key).
+
+* `source_snapshot_encryption_key` -
+  (Optional)
+  The customer-supplied encryption key of the source snapshot. Required
+  if the source snapshot is protected by a customer-supplied encryption
+  key.
+  Structure is [documented below](#nested_source_snapshot_encryption_key).
+
 * `description` -
   (Optional)
   An optional description of this resource. Provide this property when
@@ -238,19 +258,6 @@ The following arguments are supported:
   (Optional)
   A reference to the region where the disk resides.
 
-* `disk_encryption_key` -
-  (Optional)
-  Encrypts the disk using a customer-supplied encryption key.
-  After you encrypt a disk with a customer-supplied key, you must
-  provide the same key if you use the disk later (e.g. to create a disk
-  snapshot or an image, or to attach the disk to a virtual machine).
-  Customer-supplied encryption keys do not protect access to metadata of
-  the disk.
-  If you do not provide an encryption key when creating the disk, then
-  the disk will be encrypted using an automatically generated key and
-  you do not need to provide a key to use the disk later.
-  Structure is [documented below](#nested_disk_encryption_key).
-
 * `snapshot` -
   (Optional)
   The source snapshot used to create this disk. You can provide this as
@@ -261,29 +268,9 @@ The following arguments are supported:
   * `global/snapshots/snapshot`
   * `snapshot`
 
-* `source_snapshot_encryption_key` -
-  (Optional)
-  The customer-supplied encryption key of the source snapshot. Required
-  if the source snapshot is protected by a customer-supplied encryption
-  key.
-  Structure is [documented below](#nested_source_snapshot_encryption_key).
-
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-
-<a name="nested_async_primary_disk"></a>The `async_primary_disk` block supports:
-
-* `disk` -
-  (Required)
-  Primary disk for asynchronous disk replication.
-
-<a name="nested_guest_os_features"></a>The `guest_os_features` block supports:
-
-* `type` -
-  (Required)
-  The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.
-  Possible values are: `MULTI_IP_SUBNET`, `SECURE_BOOT`, `SEV_CAPABLE`, `UEFI_COMPATIBLE`, `VIRTIO_SCSI_MULTIQUEUE`, `WINDOWS`, `GVNIC`, `SEV_LIVE_MIGRATABLE`, `SEV_SNP_CAPABLE`, `SUSPEND_RESUME_COMPATIBLE`, `TDX_CAPABLE`.
 
 <a name="nested_disk_encryption_key"></a>The `disk_encryption_key` block supports:
 
@@ -318,11 +305,32 @@ The following arguments are supported:
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
 
+<a name="nested_async_primary_disk"></a>The `async_primary_disk` block supports:
+
+* `disk` -
+  (Required)
+  Primary disk for asynchronous disk replication.
+
+<a name="nested_guest_os_features"></a>The `guest_os_features` block supports:
+
+* `type` -
+  (Required)
+  The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.
+  Possible values are: `MULTI_IP_SUBNET`, `SECURE_BOOT`, `SEV_CAPABLE`, `UEFI_COMPATIBLE`, `VIRTIO_SCSI_MULTIQUEUE`, `WINDOWS`, `GVNIC`, `SEV_LIVE_MIGRATABLE`, `SEV_SNP_CAPABLE`, `SUSPEND_RESUME_COMPATIBLE`, `TDX_CAPABLE`.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/disks/{{name}}`
+
+* `source_snapshot_id` -
+  The unique ID of the snapshot used to create this disk. This value
+  identifies the exact snapshot that was used to create this persistent
+  disk. For example, if you created the persistent disk from a snapshot
+  that was later deleted and recreated under the same name, the source
+  snapshot ID would identify the exact version of the snapshot that was
+  used.
 
 * `label_fingerprint` -
   The fingerprint used for optimistic locking of this resource.  Used
@@ -352,14 +360,6 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
-
-* `source_snapshot_id` -
-  The unique ID of the snapshot used to create this disk. This value
-  identifies the exact snapshot that was used to create this persistent
-  disk. For example, if you created the persistent disk from a snapshot
-  that was later deleted and recreated under the same name, the source
-  snapshot ID would identify the exact version of the snapshot that was
-  used.
 * `self_link` - The URI of the created resource.
 
 
