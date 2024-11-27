@@ -1,0 +1,3 @@
+```release-note:note
+Corrected documentation for `deletion_protection` in Oracle and GKE clusters.
+```

@@ -121,9 +121,10 @@ locations. In contrast, in a regional cluster, cluster master nodes are present
 in multiple zones in the region. For that reason, regional clusters should be
 preferred.
 
-* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy
-the cluster. Unless this field is set to false in Terraform state, a
-`terraform destroy` or `terraform apply` that would delete the cluster will fail.
+* `deletion_protection` - (Optional) Whether Terraform will be prevented from
+destroying the cluster.  Deleting this cluster via `terraform destroy` or
+`terraform apply` will only succeed if this field is `false` in the Terraform
+state.
 
 * `addons_config` - (Optional) The configuration for addons supported by GKE.
     Structure is [documented below](#nested_addons_config).
