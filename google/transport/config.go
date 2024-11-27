@@ -2449,3 +2449,11 @@ func GetRegionFromRegionSelfLink(selfLink string) string {
 	}
 	return selfLink
 }
+
+func GetUniverseDomainFromMeta(meta interface{}) string {
+	config := meta.(*Config)
+	if config.UniverseDomain == "" {
+		return "googleapis.com"
+	}
+	return config.UniverseDomain
+}

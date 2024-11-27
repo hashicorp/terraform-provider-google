@@ -4,12 +4,16 @@ package resourcemanager_test
 
 import (
 	"fmt"
+	"maps"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	tpgresourcemanager "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 // Test that a service account resource can be created, updated, and destroyed
@@ -300,4 +304,108 @@ resource "google_service_account" "acceptance" {
   disabled      = "%t"
 }
 `, account, name, desc, disabled)
+}
+
+func TestResourceServiceAccountCustomDiff(t *testing.T) {
+	t.Parallel()
+
+	accountId := "a" + acctest.RandString(t, 10)
+	project := envvar.GetTestProjectFromEnv()
+	if project == "" {
+		project = "test-project"
+	}
+	expectedEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountId, project)
+	expectedMember := "serviceAccount:" + expectedEmail
+
+	cases := []struct {
+		name       string
+		before     map[string]interface{}
+		after      map[string]interface{}
+		wantEmail  string
+		wantMember string
+	}{
+		{
+			name:   "normal (new)",
+			before: map[string]interface{}{},
+			after: map[string]interface{}{
+				"account_id": accountId,
+				"name":       "", // Empty name indicates a new resource
+				"project":    project,
+			},
+			wantEmail:  expectedEmail,
+			wantMember: expectedMember,
+		},
+		{
+			name: "no change",
+			before: map[string]interface{}{
+				"account_id": accountId,
+				"email":      "dontchange",
+				"member":     "dontchange",
+				"project":    project,
+			},
+			after: map[string]interface{}{
+				"account_id": accountId,
+				"name":       "unimportant",
+				"project":    project,
+			},
+			wantEmail:  "",
+			wantMember: "",
+		},
+		{
+			name: "recreate (new)",
+			before: map[string]interface{}{
+				"account_id": "recreate-account",
+				"email":      "recreate-email",
+				"member":     "recreate-member",
+				"project":    project,
+			},
+			after: map[string]interface{}{
+				"account_id": accountId,
+				"name":       "",
+				"project":    project,
+			},
+			wantEmail:  expectedEmail,
+			wantMember: expectedMember,
+		},
+		{
+			name:   "missing account_id (new)",
+			before: map[string]interface{}{},
+			after: map[string]interface{}{
+				"account_id": "",
+				"name":       "",
+				"project":    project,
+			},
+			wantEmail:  "",
+			wantMember: "",
+		},
+		{
+			name:   "missing project (new)",
+			before: map[string]interface{}{},
+			after: map[string]interface{}{
+				"account_id": accountId,
+				"name":       "",
+				"project":    "",
+			},
+			wantEmail:  "",
+			wantMember: "",
+		},
+	}
+	for _, tc := range cases {
+		result := maps.Clone(tc.after)
+		if tc.wantEmail != "" || tc.wantMember != "" {
+			result["email"] = tc.wantEmail
+			result["member"] = tc.wantMember
+		}
+		t.Run(tc.name, func(t *testing.T) {
+			diff := &tpgresource.ResourceDiffMock{
+				Before: tc.before,
+				After:  tc.after,
+				Schema: tpgresourcemanager.ResourceGoogleServiceAccount().Schema,
+			}
+			tpgresourcemanager.ResourceServiceAccountCustomDiffFunc(diff)
+			if d := cmp.Diff(result, diff.After); d != "" {
+				t.Fatalf("got unexpected change: %v expected: %v", diff.After, result)
+			}
+		})
+	}
 }
