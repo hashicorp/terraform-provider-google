@@ -81,6 +81,7 @@ type ResourceDiffMock struct {
 	Before     map[string]interface{}
 	After      map[string]interface{}
 	Cleared    map[string]interface{}
+	Schema     map[string]*schema.Schema
 	IsForceNew bool
 }
 
@@ -112,6 +113,32 @@ func (d *ResourceDiffMock) Clear(key string) error {
 
 func (d *ResourceDiffMock) ForceNew(key string) error {
 	d.IsForceNew = true
+	return nil
+}
+
+func (d *ResourceDiffMock) SetNew(key string, value interface{}) error {
+	if len(d.Schema) > 0 {
+		if err := d.checkKey(key, "SetNew"); err != nil {
+			return err
+		}
+	}
+
+	d.After[key] = value
+	return nil
+}
+
+func (d *ResourceDiffMock) checkKey(key, caller string) error {
+	var schema *schema.Schema
+	s, ok := d.Schema[key]
+	if ok {
+		schema = s
+	}
+	if schema == nil {
+		return fmt.Errorf("%s: invalid key: %s", caller, key)
+	}
+	if !schema.Computed {
+		return fmt.Errorf("%s only operates on computed keys - %s is not one", caller, key)
+	}
 	return nil
 }
 

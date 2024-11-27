@@ -56,6 +56,7 @@ type TerraformResourceDiff interface {
 	GetOk(string) (interface{}, bool)
 	Clear(string) error
 	ForceNew(string) error
+	SetNew(string, interface{}) error
 }
 
 // Contains functions that don't really belong anywhere else.
