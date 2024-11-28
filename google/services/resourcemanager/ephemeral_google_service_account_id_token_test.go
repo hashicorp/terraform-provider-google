@@ -53,6 +53,26 @@ func TestAccEphemeralServiceAccountIdToken_withDelegates(t *testing.T) {
 	})
 }
 
+func TestAccEphemeralServiceAccountIdToken_withEmptyDelegates(t *testing.T) {
+	t.Parallel()
+
+	initialServiceAccount := envvar.GetTestServiceAccountFromEnv(t)
+	targetServiceAccountEmail := acctest.BootstrapServiceAccount(t, "no-del", initialServiceAccount) // SA_4
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEphemeralServiceAccountIdToken_withEmptyDelegates(targetServiceAccountEmail),
+			},
+		},
+	})
+}
+
 func TestAccEphemeralServiceAccountIdToken_withIncludeEmail(t *testing.T) {
 	t.Parallel()
 
@@ -96,6 +116,16 @@ ephemeral "google_service_account_id_token" "token" {
 # The delegation chain is:
 # SA_1 (initialServiceAccountEmail) -> SA_2 (delegateServiceAccountEmailOne) -> SA_3 (delegateServiceAccountEmailTwo) -> SA_4 (targetServiceAccountEmail)
 `, targetServiceAccountEmail, delegateServiceAccountEmailOne, delegateServiceAccountEmailTwo)
+}
+
+func testAccEphemeralServiceAccountIdToken_withEmptyDelegates(targetServiceAccountEmail string) string {
+	return fmt.Sprintf(`
+ephemeral "google_service_account_id_token" "token" {
+  target_service_account = "%s"
+  delegates = []
+  target_audience       = "https://example.com"
+}
+`, targetServiceAccountEmail)
 }
 
 func testAccEphemeralServiceAccountIdToken_withIncludeEmail(serviceAccountEmail string) string {
