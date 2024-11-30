@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
-	"github.com/hashicorp/terraform-provider-google/google/fwresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -18,7 +17,6 @@ import (
 var (
 	_ datasource.DataSource              = &GoogleClientConfigDataSource{}
 	_ datasource.DataSourceWithConfigure = &GoogleClientConfigDataSource{}
-	_ fwresource.LocationDescriber       = &GoogleClientConfigModel{}
 )
 
 func NewGoogleClientConfigDataSource() datasource.DataSource {
@@ -38,17 +36,6 @@ type GoogleClientConfigModel struct {
 	Zone          types.String `tfsdk:"zone"`
 	AccessToken   types.String `tfsdk:"access_token"`
 	DefaultLabels types.Map    `tfsdk:"default_labels"`
-}
-
-func (m *GoogleClientConfigModel) GetLocationDescription(providerConfig *transport_tpg.Config) fwresource.LocationDescription {
-	return fwresource.LocationDescription{
-		RegionSchemaField: types.StringValue("region"),
-		ZoneSchemaField:   types.StringValue("zone"),
-		ResourceRegion:    m.Region,
-		ResourceZone:      m.Zone,
-		ProviderRegion:    types.StringValue(providerConfig.Region),
-		ProviderZone:      types.StringValue(providerConfig.Zone),
-	}
 }
 
 func (d *GoogleClientConfigDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -133,14 +120,10 @@ func (d *GoogleClientConfigDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	locationInfo := data.GetLocationDescription(d.providerConfig)
-	region, _ := locationInfo.GetRegion()
-	zone, _ := locationInfo.GetZone()
-
-	data.Id = types.StringValue(fmt.Sprintf("projects/%s/regions/%s/zones/%s", d.providerConfig.Project, region.String(), zone.String()))
+	data.Id = types.StringValue(fmt.Sprintf("projects/%s/regions/%s/zones/%s", d.providerConfig.Project, d.providerConfig.Region, d.providerConfig.Zone))
 	data.Project = types.StringValue(d.providerConfig.Project)
-	data.Region = region
-	data.Zone = zone
+	data.Region = types.StringValue(d.providerConfig.Region)
+	data.Zone = types.StringValue(d.providerConfig.Zone)
 
 	// Convert default labels from SDK type system to plugin-framework data type
 	m := map[string]*string{}
