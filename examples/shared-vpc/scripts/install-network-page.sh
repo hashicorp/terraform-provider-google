@@ -11,7 +11,7 @@ sudo cat > /var/www/html/index.html << EOF
 <pre>
 $ ping -c 4 -W 1 $VM1_INT_IP
 $(ping -c 4 -W 1 $VM1_INT_IP)
-
+|
 $ curl $VM1_INT_IP
 $(curl $VM1_INT_IP)
 </pre>
@@ -19,7 +19,7 @@ $(curl $VM1_INT_IP)
 <pre>
 $ ping -c 4 -W 1 $VM1_EXT_IP
 $(ping -c 4 -W 1 $VM1_EXT_IP)
-
+|
 $ curl $VM1_EXT_IP
 $(curl $VM1_EXT_IP)
 </pre>
