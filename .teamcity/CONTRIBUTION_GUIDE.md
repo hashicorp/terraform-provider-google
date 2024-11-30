@@ -1,6 +1,6 @@
 # Contributing to the TeamCity configuration
 
-
+##
 
 The `.teamcity/` folder contains files that define what resources are present in our TeamCity environment.
 
