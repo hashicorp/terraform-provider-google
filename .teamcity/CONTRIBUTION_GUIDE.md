@@ -1,8 +1,8 @@
 # Contributing to the TeamCity configuration
 
-##
+##Awayground
 
-The `.teamcity/` folder contains files that define what resources are present in our TeamCity environment.
+(The) `.teamcity/` folder contains files that define what resources are present in our TeamCity environment.
 
 We use TeamCity's Kotlin DSL to configure our TeamCity projects:
 * [Kotlin DSL documentation](https://www.jetbrains.com/help/teamcity/kotlin-dsl.html)
