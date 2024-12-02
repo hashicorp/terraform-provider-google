@@ -1,0 +1,12 @@
+```release-note:enhancement
+`google_service_account_access_token`
+```
+```release-note:enhancement
+`google_service_account_jwt`
+```
+```release-note:enhancement
+`google_service_account_key`
+```
+```release-note:enhancement
+`google_service_account_id_token`
+```
