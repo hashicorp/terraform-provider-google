@@ -35,10 +35,6 @@ In the example below, `google_project` will run as `service_B`.
 provider "google" {
 }
 
-data "google_client_config" "default" {
-  provider = google
-}
-
 ephemeral "google_service_account_access_token" "default" {
   provider               = google
   target_service_account = "service_B@projectB.iam.gserviceaccount.com"
