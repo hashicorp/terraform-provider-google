@@ -47,6 +47,7 @@ func testAccDataSourceGoogleNetworkCheck(data_source_name string, resource_name 
 		network_attrs_to_test := []string{
 			"id",
 			"name",
+			"numeric_id",
 			"description",
 			"internal_ipv6_range",
 		}
