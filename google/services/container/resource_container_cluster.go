@@ -2116,6 +2116,30 @@ func ResourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
+			"enterprise_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Computed:    true,
+				Description: `Defines the config needed to enable/disable GKE Enterprise`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cluster_tier": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Indicates the effective cluster tier. Available options include STANDARD and ENTERPRISE.`,
+						},
+						"desired_tier": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							ValidateFunc:     validation.StringInSlice([]string{"STANDARD", "ENTERPRISE"}, false),
+							Description:      `Indicates the desired cluster tier. Available options include STANDARD and ENTERPRISE.`,
+							DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("CLUSTER_TIER_UNSPECIFIED"),
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -2418,6 +2442,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("security_posture_config"); ok {
 		cluster.SecurityPostureConfig = expandSecurityPostureConfig(v)
+	}
+
+	if v, ok := d.GetOk("enterprise_config"); ok {
+		cluster.EnterpriseConfig = expandEnterpriseConfig(v)
 	}
 
 	needUpdateAfterCreate := false
@@ -2947,6 +2975,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("security_posture_config", flattenSecurityPostureConfig(cluster.SecurityPostureConfig)); err != nil {
+		return err
+	}
+
+	if err := d.Set("enterprise_config", flattenEnterpriseConfig(cluster.EnterpriseConfig)); err != nil {
 		return err
 	}
 
@@ -4227,6 +4259,23 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s node pool auto config linux_node_config parameters have been updated", d.Id())
 	}
 
+	if d.HasChange("enterprise_config") && d.HasChange("enterprise_config.0.desired_tier") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredEnterpriseConfig: &container.DesiredEnterpriseConfig{
+					DesiredTier: d.Get("enterprise_config.0.desired_tier").(string),
+				},
+			},
+		}
+		updateF := updateFunc(req, "updating GKE cluster Enterprise Config")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s Enterprise Config has been updated to %#v", d.Id(), req.Update.DesiredSecurityPostureConfig)
+	}
+
 	d.Partial(false)
 
 	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
@@ -4822,6 +4871,36 @@ func flattenSecurityPostureConfig(spc *container.SecurityPostureConfig) []map[st
 
 	result["mode"] = spc.Mode
 	result["vulnerability_mode"] = spc.VulnerabilityMode
+
+	return []map[string]interface{}{result}
+}
+
+func expandEnterpriseConfig(configured interface{}) *container.EnterpriseConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+
+	ec := &container.EnterpriseConfig{}
+	enterpriseConfig := l[0].(map[string]interface{})
+	if v, ok := enterpriseConfig["cluster_tier"]; ok {
+		ec.ClusterTier = v.(string)
+	}
+
+	if v, ok := enterpriseConfig["desired_tier"]; ok {
+		ec.DesiredTier = v.(string)
+	}
+	return ec
+}
+
+func flattenEnterpriseConfig(ec *container.EnterpriseConfig) []map[string]interface{} {
+	if ec == nil {
+		return nil
+	}
+	result := make(map[string]interface{})
+
+	result["cluster_tier"] = ec.ClusterTier
+	result["desired_tier"] = ec.DesiredTier
 
 	return []map[string]interface{}{result}
 }
