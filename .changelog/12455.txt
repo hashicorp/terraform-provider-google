@@ -1,0 +1,3 @@
+```release-note:enhancement
+alloydb: increased default timeout on `google_alloydb_cluster` to 120m from 30m
+```
