@@ -4,6 +4,7 @@ package compute
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -21,6 +22,14 @@ func DataSourceGoogleComputeNetwork() *schema.Resource {
 			},
 
 			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			// TODO: this should eventually be TypeInt, but leaving as
+			// string for now to match the resource and to avoid a
+			// breaking change.
+			"numeric_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -84,6 +93,9 @@ func dataSourceGoogleComputeNetworkRead(d *schema.ResourceData, meta interface{}
 	}
 	if err := d.Set("description", network.Description); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("numeric_id", strconv.Itoa(int(network.Id))); err != nil {
+		return fmt.Errorf("Error setting numeric_id: %s", err)
 	}
 	if err := d.Set("subnetworks_self_links", network.Subnetworks); err != nil {
 		return fmt.Errorf("Error setting subnetworks_self_links: %s", err)
