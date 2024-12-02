@@ -463,6 +463,7 @@ resource "google_monitoring_alert_policy" "promql" {
       }
       alert_rule      = "AlwaysOn"
       rule_group      = "abc"
+      disable_metric_validation = true
     }
   }
 
