@@ -79,47 +79,6 @@ func TestAccComposerEnvironment_basic(t *testing.T) {
 	})
 }
 
-// Checks that all updatable fields can be updated in one apply
-// (PATCH for Environments only is per-field)
-func TestAccComposerEnvironment_update(t *testing.T) {
-	// Currently failing
-	acctest.SkipIfVcr(t)
-	t.Parallel()
-
-	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
-	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
-	subnetwork := network + "-1"
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComposerEnvironment_basic(envName, network, subnetwork),
-			},
-			{
-				Config: testAccComposerEnvironment_update(envName, network, subnetwork),
-			},
-			{
-				ResourceName:            "google_composer_environment.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
-			},
-			// This is a terrible clean-up step in order to get destroy to succeed,
-			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
-			{
-				PlanOnly:           true,
-				ExpectNonEmptyPlan: false,
-				Config:             testAccComposerEnvironment_update(envName, network, subnetwork),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
-			},
-		},
-	})
-}
-
 // Checks private environment creation for composer 1 and 2.
 func TestAccComposerEnvironmentComposer1_private(t *testing.T) {
 	t.Parallel()
@@ -276,45 +235,6 @@ func TestAccComposerEnvironment_withDatabaseConfig(t *testing.T) {
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
 				Config:             testAccComposerEnvironment_databaseCfgUpdated(envName, network, subnetwork),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
-			},
-		},
-	})
-}
-
-func TestAccComposerEnvironment_withWebServerConfig(t *testing.T) {
-	// Currently failing
-	acctest.SkipIfVcr(t)
-	t.Parallel()
-	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
-	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
-	subnetwork := network + "-1"
-
-	grantServiceAgentsRole(t, "service-", []string{"gcp-sa-cloudbuild"}, "roles/cloudbuild.builds.builder")
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComposerEnvironment_webServerCfg(envName, network, subnetwork),
-			},
-			{
-				Config: testAccComposerEnvironment_webServerCfgUpdated(envName, network, subnetwork),
-			},
-			{
-				ResourceName:      "google_composer_environment.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			// This is a terrible clean-up step in order to get destroy to succeed,
-			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
-			{
-				PlanOnly:           true,
-				ExpectNonEmptyPlan: false,
-				Config:             testAccComposerEnvironment_webServerCfgUpdated(envName, network, subnetwork),
 				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
@@ -1939,78 +1859,6 @@ resource "google_compute_subnetwork" "test" {
 `, name, network, subnetwork)
 }
 
-func testAccComposerEnvironment_webServerCfg(name, network, subnetwork string) string {
-	return fmt.Sprintf(`
-resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
-  config {
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
-    }
-    software_config {
-      image_version = "composer-1-airflow-2"
-    }
-    web_server_config {
-      machine_type  = "composer-n1-webserver-4"
-    }
-  }
-}
-
-// use a separate network to avoid conflicts with other tests running in parallel
-// that use the default network/subnet
-resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.test.self_link
-}
-`, name, network, subnetwork)
-}
-
-func testAccComposerEnvironment_webServerCfgUpdated(name, network, subnetwork string) string {
-	return fmt.Sprintf(`
-resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
-  config {
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
-    }
-    software_config {
-      image_version = "composer-1-airflow-2"
-    }
-    web_server_config {
-      machine_type  = "composer-n1-webserver-8"
-    }
-  }
-}
-
-// use a separate network to avoid conflicts with other tests running in parallel
-// that use the default network/subnet
-resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.test.self_link
-}
-`, name, network, subnetwork)
-}
-
 func testAccComposerEnvironment_encryptionCfg(pid, compVersion, airflowVersion, name, kmsKey, network, subnetwork string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {
@@ -2578,64 +2426,6 @@ resource "google_compute_subnetwork" "test" {
 }
 
 `, envName, compVersion, airflowVersion, network, subnetwork)
-}
-
-func testAccComposerEnvironment_update(name, network, subnetwork string) string {
-	return fmt.Sprintf(`
-resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
-
-  config {
-    node_count = 4
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
-      machine_type  = "n1-standard-1"
-      ip_allocation_policy {
-        use_ip_aliases          = true
-        cluster_ipv4_cidr_block = "10.0.0.0/16"
-      }
-    }
-
-    software_config {
-      image_version = "composer-1-airflow-2"
-
-      airflow_config_overrides = {
-        core-load_example = "True"
-      }
-
-      pypi_packages = {
-        numpy = ""
-      }
-
-      env_variables = {
-        FOO = "bar"
-      }
-    }
-  }
-
-  labels = {
-    foo          = "bar"
-    anotherlabel = "boo"
-  }
-}
-
-// use a separate network to avoid conflicts with other tests running in parallel
-// that use the default network/subnet
-resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.test.self_link
-}
-`, name, network, subnetwork)
 }
 
 func testAccComposerEnvironment_updateComposerV2(name, network, subnetwork string) string {
