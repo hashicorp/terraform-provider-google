@@ -370,6 +370,36 @@ func TestAccComputeSecurityPolicy_withoutAdaptiveProtection(t *testing.T) {
 	})
 }
 
+func TestAccComputeSecurityPolicy_withAdaptiveProtection_withThresholdConfigs(t *testing.T) {
+	t.Parallel()
+
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicy_withAdaptiveProtection_enabled_withThresholdConfigs(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicy_withAdaptiveProtection_update_ThresholdConfigs(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeSecurityPolicy_withRateLimitOptions(t *testing.T) {
 	t.Parallel()
 
@@ -1324,6 +1354,62 @@ resource "google_compute_security_policy" "policy" {
     layer_7_ddos_defense_config {
       enable = true
       rule_visibility = "STANDARD"
+	}
+  }
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_withAdaptiveProtection_enabled_withThresholdConfigs(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  description = "updated description"
+
+  adaptive_protection_config {
+    layer_7_ddos_defense_config {
+      enable = true
+      rule_visibility = "STANDARD"
+			threshold_configs {
+				name                                    = "threshold-name"
+				auto_deploy_load_threshold              = 0.1
+				auto_deploy_confidence_threshold        = 0.5
+				auto_deploy_impacted_baseline_threshold = 0.02
+				auto_deploy_expiration_sec              = 3600
+				detection_load_threshold                = 0.7
+				detection_absolute_qps                  = 1.0
+				detection_relative_to_baseline_qps      = 1.1
+				traffic_granularity_configs {
+					type                     = "HTTP_HEADER_HOST"
+					enable_each_unique_value = true
+				}
+			}
+	}
+  }
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_withAdaptiveProtection_update_ThresholdConfigs(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  description = "updated description"
+
+  adaptive_protection_config {
+    layer_7_ddos_defense_config {
+      enable = true
+      rule_visibility = "STANDARD"
+			threshold_configs {
+				name                                    = "threshold-name-updated"
+				auto_deploy_load_threshold              = 0.2
+				auto_deploy_confidence_threshold        = 0.6
+				auto_deploy_impacted_baseline_threshold = 0.03
+				auto_deploy_expiration_sec              = 7200
+				detection_load_threshold                = 0.8
+				detection_absolute_qps                  = 1.1
+				detection_relative_to_baseline_qps      = 1.2
+			}
 	}
   }
 }

@@ -522,6 +522,80 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 										ValidateFunc: validation.StringInSlice([]string{"STANDARD", "PREMIUM"}, false),
 										Description:  `Rule visibility. Supported values include: "STANDARD", "PREMIUM".`,
 									},
+									"threshold_configs": {
+										Type:        schema.TypeList,
+										Description: `Configuration options for layer7 adaptive protection for various customizable thresholds.`,
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:         schema.TypeString,
+													Required:     true,
+													Description:  `The name must be 1-63 characters long, and comply with RFC1035. The name must be unique within the security policy.`,
+													ValidateFunc: validation.StringLenBetween(1, 63),
+												},
+												"auto_deploy_load_threshold": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ValidateFunc: validation.FloatAtLeast(0.0),
+												},
+												"auto_deploy_confidence_threshold": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ValidateFunc: validation.FloatBetween(0.0, 1.0),
+												},
+												"auto_deploy_impacted_baseline_threshold": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ValidateFunc: validation.FloatBetween(0.0, 1.0),
+												},
+												"auto_deploy_expiration_sec": {
+													Type:         schema.TypeInt,
+													Optional:     true,
+													ValidateFunc: validation.IntBetween(1, 7776000),
+												},
+												"detection_load_threshold": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ValidateFunc: validation.FloatAtLeast(0.0),
+												},
+												"detection_absolute_qps": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ValidateFunc: validation.FloatAtLeast(0.0),
+												},
+												"detection_relative_to_baseline_qps": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ValidateFunc: validation.FloatAtLeast(1.0),
+												},
+												"traffic_granularity_configs": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"type": {
+																Type:         schema.TypeString,
+																Required:     true,
+																Description:  `Type of this configuration.`,
+																ValidateFunc: validation.StringInSlice([]string{"HTTP_HEADER_HOST", "HTTP_PATH"}, false),
+															},
+															"value": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Requests that match this value constitute a granular traffic unit.`,
+															},
+															"enable_each_unique_value": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Description: `If enabled, traffic matching each unique value for the specified type constitutes a separate traffic unit. It can only be set to true if value is empty.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -1232,10 +1306,47 @@ func expandLayer7DdosDefenseConfig(configured []interface{}) *compute.SecurityPo
 
 	data := configured[0].(map[string]interface{})
 	return &compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfig{
-		Enable:          data["enable"].(bool),
-		RuleVisibility:  data["rule_visibility"].(string),
-		ForceSendFields: []string{"Enable"},
+		Enable:           data["enable"].(bool),
+		RuleVisibility:   data["rule_visibility"].(string),
+		ThresholdConfigs: expandThresholdConfigs(data["threshold_configs"].([]interface{})),
+		ForceSendFields:  []string{"Enable"},
 	}
+}
+
+func expandThresholdConfigs(configured []interface{}) []*compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfig {
+	params := make([]*compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfig, 0, len(configured))
+	for _, raw := range configured {
+		params = append(params, expandThresholdConfig(raw))
+	}
+	return params
+}
+
+func expandThresholdConfig(configured interface{}) *compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfig {
+	data := configured.(map[string]interface{})
+	return &compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfig{
+		AutoDeployConfidenceThreshold:       data["auto_deploy_confidence_threshold"].(float64),
+		AutoDeployExpirationSec:             int64(data["auto_deploy_expiration_sec"].(int)),
+		AutoDeployImpactedBaselineThreshold: data["auto_deploy_impacted_baseline_threshold"].(float64),
+		AutoDeployLoadThreshold:             data["auto_deploy_load_threshold"].(float64),
+		DetectionAbsoluteQps:                data["detection_absolute_qps"].(float64),
+		DetectionLoadThreshold:              data["detection_load_threshold"].(float64),
+		DetectionRelativeToBaselineQps:      data["detection_relative_to_baseline_qps"].(float64),
+		Name:                                data["name"].(string),
+		TrafficGranularityConfigs:           expandTrafficGranularityConfig(data["traffic_granularity_configs"].([]interface{})),
+	}
+}
+
+func expandTrafficGranularityConfig(configured []interface{}) []*compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfigTrafficGranularityConfig {
+	params := make([]*compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfigTrafficGranularityConfig, 0, len(configured))
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+		params = append(params, &compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfigTrafficGranularityConfig{
+			EnableEachUniqueValue: data["enable_each_unique_value"].(bool),
+			Type:                  data["type"].(string),
+			Value:                 data["value"].(string),
+		})
+	}
+	return params
 }
 
 func flattenSecurityPolicyAdaptiveProtectionConfig(conf *compute.SecurityPolicyAdaptiveProtectionConfig) []map[string]interface{} {
@@ -1256,11 +1367,44 @@ func flattenLayer7DdosDefenseConfig(conf *compute.SecurityPolicyAdaptiveProtecti
 	}
 
 	data := map[string]interface{}{
-		"enable":          conf.Enable,
-		"rule_visibility": conf.RuleVisibility,
+		"enable":            conf.Enable,
+		"rule_visibility":   conf.RuleVisibility,
+		"threshold_configs": flattenThresholdConfigs(conf.ThresholdConfigs),
 	}
 
 	return []map[string]interface{}{data}
+}
+
+func flattenThresholdConfigs(conf []*compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfig) []map[string]interface{} {
+	configs := make([]map[string]interface{}, 0, len(conf))
+	for _, field := range conf {
+		data := map[string]interface{}{
+			"name":                                    field.Name,
+			"auto_deploy_load_threshold":              field.AutoDeployLoadThreshold,
+			"auto_deploy_confidence_threshold":        field.AutoDeployConfidenceThreshold,
+			"auto_deploy_impacted_baseline_threshold": field.AutoDeployImpactedBaselineThreshold,
+			"auto_deploy_expiration_sec":              field.AutoDeployExpirationSec,
+			"detection_load_threshold":                field.DetectionLoadThreshold,
+			"detection_absolute_qps":                  field.DetectionAbsoluteQps,
+			"detection_relative_to_baseline_qps":      field.DetectionRelativeToBaselineQps,
+			"traffic_granularity_configs":             flattenTrafficGranularityConfigs(field.TrafficGranularityConfigs),
+		}
+		configs = append(configs, data)
+	}
+	return configs
+}
+
+func flattenTrafficGranularityConfigs(conf []*compute.SecurityPolicyAdaptiveProtectionConfigLayer7DdosDefenseConfigThresholdConfigTrafficGranularityConfig) []map[string]interface{} {
+	configs := make([]map[string]interface{}, 0, len(conf))
+	for _, field := range conf {
+		data := map[string]interface{}{
+			"type":                     field.Type,
+			"value":                    field.Value,
+			"enable_each_unique_value": field.EnableEachUniqueValue,
+		}
+		configs = append(configs, data)
+	}
+	return configs
 }
 
 func expandSecurityPolicyRuleRateLimitOptions(configured []interface{}) *compute.SecurityPolicyRuleRateLimitOptions {

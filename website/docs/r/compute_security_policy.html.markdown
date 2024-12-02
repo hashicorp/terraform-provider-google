@@ -430,6 +430,39 @@ The following arguments are supported:
   * `STANDARD` - opaque rules. (default)
   * `PREMIUM` - transparent rules.
 
+* `threshold_configs` - (Optional) Configuration options for layer7 adaptive protection for various customizable thresholds. Structure is [documented below](#nested_threshold_configs).
+
+<a name="nested_threshold_configs"></a>The `threshold_configs` block supports:
+
+* `name` - The name of config. The name must be 1-63 characters long, and comply with RFC1035. The name must be unique within the security policy.
+
+* `auto_deploy_load_threshold` - (Optional) Load threshold above which Adaptive Protection automatically deploy threshold based on the backend load threshold and detect a new rule during an alerted attack.
+
+* `auto_deploy_confidence_threshold` - (Optional) Confidence threshold above which Adaptive Protection's auto-deploy takes actions.
+
+* `auto_deploy_impacted_baseline_threshold` - (Optional) Impacted baseline threshold below which Adaptive Protection's auto-deploy takes actions.
+
+* `auto_deploy_expiration_sec` - (Optional) Duration over which Adaptive Protection's auto-deployed actions last.
+
+* `detection_load_threshold` - (Optional) Detection threshold based on the backend service's load.
+
+* `detection_absolute_qps` - (Optional) Detection threshold based on absolute QPS.
+
+* `detection_relative_to_baseline_qps` - (Optional) Detection threshold based on QPS relative to the average of baseline traffic.
+
+* `traffic_granularity_configs` - (Optional) Configuration options for enabling Adaptive Protection to work on the specified service granularity. Structure is [documented below](#nested_traffic_granularity_configs).
+
+<a name="nested_traffic_granularity_configs"></a>The `traffic_granularity_configs` block supports:
+
+* `type` - The type of this configuration, a granular traffic unit can be one of the following:
+  * `HTTP_HEADER_HOST`
+  * `HTTP_PATH`
+
+* `value` - (Optional) Requests that match this value constitute a granular traffic unit.
+
+* `enable_each_unique_value` - (Optional) If enabled, traffic matching each unique value for the specified type constitutes a separate traffic unit. It can only be set to true if value is empty.
+
+
 <a name="nested_auto_deploy_config"></a>The `auto_deploy_config` block supports:
 
 * `load_threshold` - (Optional) Identifies new attackers only when the load to the backend service that is under attack exceeds this threshold.
