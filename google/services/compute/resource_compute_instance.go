@@ -58,6 +58,7 @@ var (
 		"advanced_machine_features.0.turbo_mode",
 		"advanced_machine_features.0.visible_core_count",
 		"advanced_machine_features.0.performance_monitoring_unit",
+		"advanced_machine_features.0.enable_uefi_networking",
 	}
 
 	bootDiskKeys = []string{
@@ -1063,6 +1064,13 @@ be from 0 to 999,999,999 inclusive.`,
 							AtLeastOneOf: advancedMachineFeaturesKeys,
 							ValidateFunc: validation.StringInSlice([]string{"STANDARD", "ENHANCED", "ARCHITECTURAL"}, false),
 							Description:  `The PMU is a hardware component within the CPU core that monitors how the processor runs code. Valid values for the level of PMU are "STANDARD", "ENHANCED", and "ARCHITECTURAL".`,
+						},
+						"enable_uefi_networking": {
+							Type:         schema.TypeBool,
+							Optional:     true,
+							ForceNew:     true,
+							AtLeastOneOf: advancedMachineFeaturesKeys,
+							Description:  `Whether to enable UEFI networking for the instance.`,
 						},
 					},
 				},

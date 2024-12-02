@@ -589,6 +589,7 @@ func expandAdvancedMachineFeatures(d tpgresource.TerraformResourceData) *compute
 		TurboMode:                  d.Get(prefix + ".turbo_mode").(string),
 		VisibleCoreCount:           int64(d.Get(prefix + ".visible_core_count").(int)),
 		PerformanceMonitoringUnit:  d.Get(prefix + ".performance_monitoring_unit").(string),
+		EnableUefiNetworking:       d.Get(prefix + ".enable_uefi_networking").(bool),
 	}
 }
 
@@ -602,6 +603,7 @@ func flattenAdvancedMachineFeatures(AdvancedMachineFeatures *compute.AdvancedMac
 		"turbo_mode":                   AdvancedMachineFeatures.TurboMode,
 		"visible_core_count":           AdvancedMachineFeatures.VisibleCoreCount,
 		"performance_monitoring_unit":  AdvancedMachineFeatures.PerformanceMonitoringUnit,
+		"enable_uefi_networking":       AdvancedMachineFeatures.EnableUefiNetworking,
 	}}
 }
 

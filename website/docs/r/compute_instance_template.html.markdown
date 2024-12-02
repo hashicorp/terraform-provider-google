@@ -732,6 +732,8 @@ The `specific_reservation` block supports:
 
 * `performance_monitoring_unit` - (Optional) [The PMU](https://cloud.google.com/compute/docs/pmu-overview) is a hardware component within the CPU core that monitors how the processor runs code. Valid values for the level of PMU are `STANDARD`, `ENHANCED`, and `ARCHITECTURAL`.
 
+* `enable_uefi_networking` - (Optional) Whether to enable UEFI networking for instance creation.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
