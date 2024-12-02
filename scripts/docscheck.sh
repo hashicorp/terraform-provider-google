@@ -27,6 +27,15 @@ for doc in $docs; do
       fi
       ;;
 
+    "ephemeral-resources")
+      # Ephemeral resources require a subcategory
+      grep "^subcategory: " "$doc" > /dev/null
+      if [[ "$?" == "1" ]]; then
+        echo "Doc is missing a subcategory: $doc"
+        error=true
+      fi
+      ;;
+
     "functions")
       # Functions require a page_title
       grep "^page_title: " "$doc" > /dev/null
@@ -39,7 +48,7 @@ for doc in $docs; do
     *)
       error=true
       echo "Unknown category \"$category\". " \
-        "Docs can only exist in r/, d/, or guides/ folders."
+        "Docs can only exist in r/, d/, ephemeral-resources/, functions/ or guides/ folders."
       ;;
   esac
 done
