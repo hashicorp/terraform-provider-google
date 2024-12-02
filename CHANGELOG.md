@@ -215,7 +215,7 @@ BUG FIXES:
 * dataproc: fixed a bug in `google_dataproc_cluster` that prevented creation of clusters with `internal_ip_only` set to false ([#19782](https://github.com/hashicorp/terraform-provider-google/pull/19782))
 * iam: addressed `google_service_account` creation issues caused by the eventual consistency of the GCP IAM API by ignoring 403 errors returned on polling the service account after creation. ([#19727](https://github.com/hashicorp/terraform-provider-google/pull/19727))
 * logging: fixed the whitespace permadiff on `exclusions.filter` field in `google_logging_billing_account_sink`, `google_logging_folder_sink`, `google_logging_organization_sink` and `google_logging_project_sink` resources ([#19744](https://github.com/hashicorp/terraform-provider-google/pull/19744))
-* pubsub: fixed permadiff with configuring an empty `retry_policy` in `google_pubsub_subscription` ([#19784](https://github.com/hashicorp/terraform-provider-google/pull/19784))
+* pubsub: fixed permadiff with configuring an empty `retry_policy` in `google_pubsub_subscription`.  This will result in `minimum_backoff` and `maximum_backoff` using server-side defaults. To use "immedate retry", do not specify a `retry_policy` block at all. ([#19784](https://github.com/hashicorp/terraform-provider-google/pull/19784))
 * secretmanager: fixed the issue of unpopulated fields `labels`, `annotations` and `version_destroy_ttl` in the terraform state for the `google_secret_manager_secrets` datasource ([#19748](https://github.com/hashicorp/terraform-provider-google/pull/19748))
 
 ## 6.6.0 (October 7, 2024)
