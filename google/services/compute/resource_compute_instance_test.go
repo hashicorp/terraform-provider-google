@@ -1512,6 +1512,33 @@ func TestAccComputeInstance_performanceMonitoringUnit(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_enableUefiNetworking(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	context_1 := map[string]interface{}{
+		"instance_name":          fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"enable_uefi_networking": "true",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_enableUefiNetworking(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "advanced_machine_features.0.enable_uefi_networking", "true"),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", context_1["instance_name"].(string), []string{}),
+		},
+	})
+}
+
 func TestAccComputeInstance_soleTenantNodeAffinities(t *testing.T) {
 	t.Parallel()
 
@@ -6577,6 +6604,35 @@ resource "google_compute_instance" "foobar" {
   }
 
   allow_stopping_for_update = true
+}
+`, context)
+}
+
+func testAccComputeInstance_enableUefiNetworking(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%{instance_name}"
+  machine_type = "n2-standard-2"
+  zone         = "us-central1-a"
+
+  boot_disk {
+	initialize_params {
+		image = data.google_compute_image.my_image.self_link
+	}
+  }
+
+  network_interface {
+	network = "default"
+  }
+
+  advanced_machine_features {
+	enable_uefi_networking = "%{enable_uefi_networking}"
+  }
 }
 `, context)
 }

@@ -877,6 +877,47 @@ func TestAccComputeInstanceTemplate_performanceMonitoringUnit(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_enableUefiNetworking(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	context_1 := map[string]interface{}{
+		"instance_name":          fmt.Sprintf("tf-test-instance-template-%s", acctest.RandString(t, 10)),
+		"enable_uefi_networking": "false",
+	}
+	context_2 := map[string]interface{}{
+		"instance_name":          context_1["instance_name"].(string),
+		"enable_uefi_networking": "true",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_enableUefiNetworking(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "advanced_machine_features.0.enable_uefi_networking", "false"),
+				),
+			},
+			{
+				Config: testAccComputeInstanceTemplate_enableUefiNetworking(context_2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "advanced_machine_features.0.enable_uefi_networking", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_invalidDiskType(t *testing.T) {
 	t.Parallel()
 
@@ -3528,6 +3569,32 @@ resource "google_compute_instance_template" "foobar" {
 
 	advanced_machine_features {
 		performance_monitoring_unit = "%{performance_monitoring_unit}"
+	}
+}
+`, context)
+}
+
+func testAccComputeInstanceTemplate_enableUefiNetworking(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "ubuntu-2004-lts"
+  project = "ubuntu-os-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name         = "%{instance_name}"
+	machine_type = "n2-standard-2"
+
+	disk {
+		source_image = data.google_compute_image.my_image.self_link
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	advanced_machine_features {
+		enable_uefi_networking = "%{enable_uefi_networking}"
 	}
 }
 `, context)
