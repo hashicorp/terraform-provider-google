@@ -11707,3 +11707,86 @@ resource "google_container_cluster" "primary" {
 }
   `, name, cgroupMode)
 }
+
+func TestAccContainerCluster_withEnterpriseConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	pid := envvar.GetTestProjectFromEnv()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_updateEnterpriseConfig(pid, clusterName, networkName, subnetworkName, "STANDARD"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_enterprise_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_updateEnterpriseConfig(pid, clusterName, networkName, subnetworkName, "ENTERPRISE"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_enterprise_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_removeEnterpriseConfig(pid, clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_enterprise_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_updateEnterpriseConfig(projectID, clusterName, networkName, subnetworkName string, desiredTier string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+
+resource "google_container_cluster" "with_enterprise_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  enterprise_config {
+    desired_tier = "%s"
+  }
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, projectID, clusterName, desiredTier, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_removeEnterpriseConfig(projectID, clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+
+resource "google_container_cluster" "with_enterprise_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, projectID, clusterName, networkName, subnetworkName)
+}
