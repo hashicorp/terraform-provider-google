@@ -1,0 +1,3 @@
+```release-note:bug
+gkehub: fixed allowable value `INSTALLATION_UNSPECIFIED` in `template_library.installation`
+```

@@ -161,7 +161,7 @@ The following arguments are supported:
 
 * `channel_id` -
   (Optional)
-  Channel identifier identifies the owner maintaing this grouping.
+  Channel identifier identifies the owner maintaining this grouping.
 
 * `display_name` -
   (Optional)

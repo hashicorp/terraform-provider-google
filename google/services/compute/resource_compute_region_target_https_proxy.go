@@ -962,7 +962,7 @@ func resourceComputeRegionTargetHttpsProxyDecoder(d *schema.ResourceData, meta i
 		regPat, _ := regexp.Compile("//certificatemanager.googleapis.com/projects/(.*)/locations/(.*)/certificates/(.*)")
 
 		if regPat.MatchString(sslCertificates[0].(string)) {
-			// It is enough to check only the type of one of the provided certificates beacuse all the certificates should be the same type.
+			// It is enough to check only the type of one of the provided certificates because all the certificates should be the same type.
 			log.Printf("[DEBUG] The field sslCertificates contains certificateManagerCertificates, the field name will be converted to certificateManagerCertificates")
 			res["certificateManagerCertificates"] = res["sslCertificates"]
 			delete(res, "sslCertificates")

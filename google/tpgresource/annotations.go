@@ -99,7 +99,7 @@ func SetMetadataAnnotationsDiff(_ context.Context, d *schema.ResourceDiff, meta 
 
 // Sets the "annotations" field with the value of the field "effective_annotations" for data sources.
 // When reading data source, as the annotations field is unavailable in the configuration of the data source,
-// the "annotations" field will be empty. With this funciton, the labels "annotations" will have all of annotations in the resource.
+// the "annotations" field will be empty. With this function, the labels "annotations" will have all of annotations in the resource.
 func SetDataSourceAnnotations(d *schema.ResourceData) error {
 	effectiveAnnotations := d.Get("effective_annotations")
 	if effectiveAnnotations == nil {

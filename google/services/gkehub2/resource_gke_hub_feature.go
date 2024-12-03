@@ -436,8 +436,8 @@ func ResourceGKEHub2Feature() *schema.Resource {
 																		"installation": {
 																			Type:         schema.TypeString,
 																			Optional:     true,
-																			ValidateFunc: verify.ValidateEnum([]string{"INSTALATION_UNSPECIFIED", "NOT_INSTALLED", "ALL", ""}),
-																			Description:  `Configures the manner in which the template library is installed on the cluster. Possible values: ["INSTALATION_UNSPECIFIED", "NOT_INSTALLED", "ALL"]`,
+																			ValidateFunc: verify.ValidateEnum([]string{"INSTALLATION_UNSPECIFIED", "NOT_INSTALLED", "ALL", ""}),
+																			Description:  `Configures the manner in which the template library is installed on the cluster. Possible values: ["INSTALLATION_UNSPECIFIED", "NOT_INSTALLED", "ALL"]`,
 																		},
 																	},
 																},

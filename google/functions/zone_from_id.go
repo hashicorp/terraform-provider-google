@@ -32,7 +32,7 @@ func (f ZoneFromIdFunction) Definition(ctx context.Context, req function.Definit
 		Parameters: []function.Parameter{
 			function.StringParameter{
 				Name:        "id",
-				Description: "An id of a resouce, or a self link. For example, both \"projects/my-project/zones/us-central1-c/instances/my-instance\" and \"https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1-c/instances/my-instance\" are valid inputs",
+				Description: "An id of a resource, or a self link. For example, both \"projects/my-project/zones/us-central1-c/instances/my-instance\" and \"https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1-c/instances/my-instance\" are valid inputs",
 			},
 		},
 		Return: function.StringReturn{},

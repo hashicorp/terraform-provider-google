@@ -33,7 +33,7 @@ func SetLabels(labels map[string]string, d *schema.ResourceData, lineage string)
 
 // Sets the "labels" field and "terraform_labels" with the value of the field "effective_labels" for data sources.
 // When reading data source, as the labels field is unavailable in the configuration of the data source,
-// the "labels" field will be empty. With this funciton, the labels "field" will have all of labels in the resource.
+// the "labels" field will be empty. With this function, the labels "field" will have all of labels in the resource.
 func SetDataSourceLabels(d *schema.ResourceData) error {
 	effectiveLabels := d.Get("effective_labels")
 	if effectiveLabels == nil {

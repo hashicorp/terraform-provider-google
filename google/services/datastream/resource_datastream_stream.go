@@ -2000,7 +2000,7 @@ func resourceDatastreamStreamUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	// lables and terraform_labels fields are overriden with the labels before updating inside the function waitForDatastreamStreamReady
+	// lables and terraform_labels fields are overridden with the labels before updating inside the function waitForDatastreamStreamReady
 	labels := d.Get("labels")
 	terraformLabels := d.Get("terraform_labels")
 

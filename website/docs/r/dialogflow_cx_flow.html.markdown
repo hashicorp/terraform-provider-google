@@ -911,7 +911,7 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
 
 * `use_timeout_based_endpointing` -
   (Optional)
-  Use timeout based endpointing, interpreting endpointer sensitivy as seconds of timeout value.
+  Use timeout based endpointing, interpreting endpointer sensitivity as seconds of timeout value.
 
 * `models` -
   (Optional)

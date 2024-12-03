@@ -76,7 +76,7 @@ The following arguments are supported:
 
 * `storage_pool` -
   (Required)
-  Name of the storage pool to create the volume in. Pool needs enough spare capacity to accomodate the volume.
+  Name of the storage pool to create the volume in. Pool needs enough spare capacity to accommodate the volume.
 
 * `capacity_gib` -
   (Required)
@@ -194,7 +194,7 @@ Possible values: DEFAULT, FORCE.
 
 * `allowed_clients` -
   (Optional)
-  Defines the client ingress specification (allowed clients) as a comma seperated list with IPv4 CIDRs or IPv4 host addresses.
+  Defines the client ingress specification (allowed clients) as a comma separated list with IPv4 CIDRs or IPv4 host addresses.
 
 * `has_root_access` -
   (Optional)
@@ -389,7 +389,7 @@ In addition to the arguments listed above, the following computed attributes are
   VPC network name with format: `projects/{{project}}/global/networks/{{network}}`. Inherited from storage pool.
 
 * `service_level` -
-  Service level of the volume. Inherited from storage pool. Supported values are : PREMIUM, EXTERME, STANDARD, FLEX.
+  Service level of the volume. Inherited from storage pool. Supported values are : PREMIUM, EXTREME, STANDARD, FLEX.
 
 * `used_gib` -
   Used capacity of the volume (in GiB). This is computed periodically and it does not represent the realtime usage.

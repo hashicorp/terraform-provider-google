@@ -736,7 +736,7 @@ The following arguments are supported:
 * `installation` -
   (Optional)
   Configures the manner in which the template library is installed on the cluster.
-  Possible values are: `INSTALATION_UNSPECIFIED`, `NOT_INSTALLED`, `ALL`.
+  Possible values are: `INSTALLATION_UNSPECIFIED`, `NOT_INSTALLED`, `ALL`.
 
 <a name="nested_bundles"></a>The `bundles` block supports:
 

@@ -667,7 +667,7 @@ func resourceVmwareenginePrivateCloudCreate(d *schema.ResourceData, meta interfa
 		}
 
 		err = VmwareengineOperationWaitTime(
-			config, res, project, "Updating Managment Cluster", userAgent,
+			config, res, project, "Updating Management Cluster", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
@@ -886,7 +886,7 @@ func resourceVmwareenginePrivateCloudUpdate(d *schema.ResourceData, meta interfa
 		}
 
 		err = VmwareengineOperationWaitTime(
-			config, res, project, "Updating Managment Cluster", userAgent,
+			config, res, project, "Updating Management Cluster", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
@@ -1990,7 +1990,7 @@ func resourceVmwareenginePrivateCloudDecoder(d *schema.ResourceData, meta interf
 		return nil, fmt.Errorf("Error reading management cluster of PrivateCloud: %s", err)
 	}
 
-	// There can only be 1 management cluster and if the PC read is successfuly and
+	// There can only be 1 management cluster and if the PC read is successfully and
 	// we got response from cluster API then it should be present.
 	mgmtClusterObj := clusterResponse["clusters"].([]interface{})[0].(map[string]interface{})
 	clusterName := mgmtClusterObj["name"].(string)

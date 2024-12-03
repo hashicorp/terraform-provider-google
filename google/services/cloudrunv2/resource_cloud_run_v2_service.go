@@ -960,7 +960,7 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 			"expire_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `For a deleted resource, the time after which it will be permamently deleted.`,
+				Description: `For a deleted resource, the time after which it will be permanently deleted.`,
 			},
 			"generation": {
 				Type:        schema.TypeString,

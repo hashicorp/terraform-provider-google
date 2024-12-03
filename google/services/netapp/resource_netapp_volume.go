@@ -92,7 +92,7 @@ func ResourceNetappVolume() *schema.Resource {
 			"storage_pool": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Name of the storage pool to create the volume in. Pool needs enough spare capacity to accomodate the volume.`,
+				Description: `Name of the storage pool to create the volume in. Pool needs enough spare capacity to accommodate the volume.`,
 			},
 			"backup_config": {
 				Type:        schema.TypeList,
@@ -150,7 +150,7 @@ Format: 'projects/{{projectId}}/locations/{{location}}/backupVaults/{{backupVaul
 									"allowed_clients": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: `Defines the client ingress specification (allowed clients) as a comma seperated list with IPv4 CIDRs or IPv4 host addresses.`,
+										Description: `Defines the client ingress specification (allowed clients) as a comma separated list with IPv4 CIDRs or IPv4 host addresses.`,
 									},
 									"has_root_access": {
 										Type:        schema.TypeString,
@@ -546,7 +546,7 @@ Format for SMB volumes: '\\\\netbios_prefix-four_random_hex_letters.domain_name\
 			"service_level": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Service level of the volume. Inherited from storage pool. Supported values are : PREMIUM, EXTERME, STANDARD, FLEX.`,
+				Description: `Service level of the volume. Inherited from storage pool. Supported values are : PREMIUM, EXTREME, STANDARD, FLEX.`,
 			},
 			"state": {
 				Type:        schema.TypeString,

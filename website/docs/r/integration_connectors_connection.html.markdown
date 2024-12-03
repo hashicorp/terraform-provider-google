@@ -402,7 +402,7 @@ The following arguments are supported:
 
 * `encryption_key_value` -
   (Optional)
-  Encription key value of configVariable.
+  Encryption key value of configVariable.
   Structure is [documented below](#nested_encryption_key_value).
 
 
@@ -416,7 +416,7 @@ The following arguments are supported:
 
 * `type` -
   (Required)
-  Type of Encription Key
+  Type of Encryption Key
   Possible values are: `GOOGLE_MANAGED`, `CUSTOMER_MANAGED`.
 
 * `kms_key_name` -
@@ -492,7 +492,7 @@ The following arguments are supported:
 
 * `encryption_key_value` -
   (Optional)
-  Encription key value of configVariable.
+  Encryption key value of configVariable.
   Structure is [documented below](#nested_encryption_key_value).
 
 
@@ -506,7 +506,7 @@ The following arguments are supported:
 
 * `type` -
   (Required)
-  Type of Encription Key
+  Type of Encryption Key
   Possible values are: `GOOGLE_MANAGED`, `CUSTOMER_MANAGED`.
 
 * `kms_key_name` -
@@ -808,7 +808,7 @@ The following arguments are supported:
 
 * `encryption_key_value` -
   (Optional)
-  Encription key value of configVariable
+  Encryption key value of configVariable
   Structure is [documented below](#nested_encryption_key_value).
 
 
@@ -822,7 +822,7 @@ The following arguments are supported:
 
 * `type` -
   (Optional)
-  Type of Encription Key
+  Type of Encryption Key
   Possible values are: `GOOGLE_MANAGED`, `CUSTOMER_MANAGED`.
 
 * `kms_key_name` -
@@ -926,7 +926,7 @@ The following arguments are supported:
 
 * `encryption_key_value` -
   (Optional)
-  Encription key value of configVariable
+  Encryption key value of configVariable
   Structure is [documented below](#nested_encryption_key_value).
 
 
@@ -940,7 +940,7 @@ The following arguments are supported:
 
 * `type` -
   (Optional)
-  Type of Encription Key
+  Type of Encryption Key
   Possible values are: `GOOGLE_MANAGED`, `CUSTOMER_MANAGED`.
 
 * `kms_key_name` -
@@ -993,7 +993,7 @@ The following arguments are supported:
 
 * `encryption_key_value` -
   (Optional)
-  Encription key value of configVariable.
+  Encryption key value of configVariable.
   Structure is [documented below](#nested_encryption_key_value).
 
 

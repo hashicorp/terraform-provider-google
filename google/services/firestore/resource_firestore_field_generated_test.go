@@ -234,7 +234,7 @@ func testAccCheckFirestoreFieldDestroyProducer(t *testing.T) func(s *terraform.S
 			if err != nil {
 				e := err.(*googleapi.Error)
 				if e.Code == 403 && strings.Contains(e.Message, "Cloud Firestore API has not been used in project") {
-					// The acceptance test has provisioned the resources under test in a new project, and the destory check is seeing the
+					// The acceptance test has provisioned the resources under test in a new project, and the destroy check is seeing the
 					// effects of the project not existing. This means the service isn't enabled, and that the resource is definitely destroyed.
 					// We do not return the error in this case - destroy was successful
 					return nil

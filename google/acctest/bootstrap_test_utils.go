@@ -499,7 +499,7 @@ func NewServiceNetworkSettings(options ...func(*ServiceNetworkSettings)) *Servic
 // BootstrapSharedServiceNetworkingConnection returns a persistent compute network name
 // for a test or set of tests.
 //
-// To delete a service networking conneciton, all of the service instances that use that connection
+// To delete a service networking connection, all of the service instances that use that connection
 // must be deleted first. After the service instances are deleted, some service producers delay the deletion
 // utnil a waiting period has passed. For example, after four days that you delete a SQL instance,
 // the service networking connection can be deleted.

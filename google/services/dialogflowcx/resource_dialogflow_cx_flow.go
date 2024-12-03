@@ -172,7 +172,7 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 									"use_timeout_based_endpointing": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: `Use timeout based endpointing, interpreting endpointer sensitivy as seconds of timeout value.`,
+										Description: `Use timeout based endpointing, interpreting endpointer sensitivity as seconds of timeout value.`,
 									},
 								},
 							},
