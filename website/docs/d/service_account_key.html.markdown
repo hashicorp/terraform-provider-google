@@ -33,7 +33,7 @@ The following arguments are supported:
   `projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}/keys/{KEYID}`, where `{ACCOUNT}`
   is the email address or unique id of the service account.
 
-* `project` - (Optional) The ID of the project that the service account will be created in.
+* `project` - (Optional) The ID of the project that the service account is present in.
   Defaults to the provider project configuration.
 
 * `public_key_type` (Optional) The output format of the public key requested. TYPE_X509_PEM_FILE is the default output format.
