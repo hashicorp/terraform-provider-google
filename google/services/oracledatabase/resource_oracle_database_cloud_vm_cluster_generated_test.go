@@ -34,11 +34,9 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterBasicExampl
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"cloud_exadata_infrastructure_id": "ofake-exadata-for-vm-basic",
-		"cloud_vm_cluster_id":             "ofake-vmcluster-basic",
-		"deletion_protection":             false,
-		"project":                         "oci-terraform-testing",
-		"random_suffix":                   acctest.RandString(t, 10),
+		"deletion_protection": false,
+		"project":             "oci-terraform-testing",
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -62,8 +60,8 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterBasicExampl
 func testAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster"{
-  cloud_vm_cluster_id = "%{cloud_vm_cluster_id}"
-  display_name = "%{cloud_vm_cluster_id} displayname"
+  cloud_vm_cluster_id = "tf-test-my-instance%{random_suffix}"
+  display_name = "tf-test-my-instance%{random_suffix} displayname"
   location = "us-east4"
   project = "%{project}"
   exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.cloudExadataInfrastructures.id
@@ -82,8 +80,8 @@ resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster"{
 }
 
 resource "google_oracle_database_cloud_exadata_infrastructure" "cloudExadataInfrastructures"{
-  cloud_exadata_infrastructure_id = "%{cloud_exadata_infrastructure_id}"
-  display_name = "%{cloud_exadata_infrastructure_id} displayname"
+  cloud_exadata_infrastructure_id = "tf-test-my-exadata%{random_suffix}"
+  display_name = "tf-test-my-exadata%{random_suffix} displayname"
   location = "us-east4"
   project = "%{project}"
   properties {
@@ -106,11 +104,9 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterFullExample
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"cloud_exadata_infrastructure_id": "ofake-exadata-for-vm-full",
-		"cloud_vm_cluster_id":             "ofake-vmcluster-full",
-		"deletion_protection":             false,
-		"project":                         "oci-terraform-testing",
-		"random_suffix":                   acctest.RandString(t, 10),
+		"deletion_protection": false,
+		"project":             "oci-terraform-testing",
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -134,8 +130,8 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterFullExample
 func testAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster"{
-  cloud_vm_cluster_id = "%{cloud_vm_cluster_id}"
-  display_name = "%{cloud_vm_cluster_id} displayname"
+  cloud_vm_cluster_id = "tf-test-my-instance%{random_suffix}"
+  display_name = "tf-test-my-instance%{random_suffix} displayname"
   location = "us-east4"
   project = "%{project}"
   exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.cloudExadataInfrastructures.id
@@ -175,8 +171,8 @@ resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster"{
 }
 
 resource "google_oracle_database_cloud_exadata_infrastructure" "cloudExadataInfrastructures"{
-  cloud_exadata_infrastructure_id = "%{cloud_exadata_infrastructure_id}"
-  display_name = "%{cloud_exadata_infrastructure_id} displayname"
+  cloud_exadata_infrastructure_id = "tf-test-my-exadata%{random_suffix}"
+  display_name = "tf-test-my-exadata%{random_suffix} displayname"
   location = "us-east4"
   project = "%{project}"
   properties {
