@@ -537,6 +537,14 @@ func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigK
 				Description: "Optional. The label to use when selecting Pods for the Deployment and Service resources. This label must already be present in both resources.",
 			},
 
+			"route_destinations": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Route destinations allow configuring the Gateway API HTTPRoute to be deployed to additional clusters. This option is available for multi-cluster service mesh set ups that require the route to exist in the clusters that call the service. If unspecified, the HTTPRoute will only be deployed to the Target cluster.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigKubernetesGatewayServiceMeshRouteDestinationsSchema(),
+			},
+
 			"route_update_wait_time": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -547,6 +555,25 @@ func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigK
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Optional. The amount of time to migrate traffic back from the canary Service to the original Service during the stable phase deployment. If specified, must be between 15s and 3600s. If unspecified, there is no cutback time.",
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigKubernetesGatewayServiceMeshRouteDestinationsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"destination_ids": {
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: "Required. The clusters where the Gateway API HTTPRoute resource will be deployed to. Valid entries include the associated entities IDs configured in the Target resource and \"@self\" to include the Target cluster.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"propagate_service": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Optional. Whether to propagate the Kubernetes Service to the route destination clusters. The Service will always be deployed to the Target cluster even if the HTTPRoute is not. This option may be used to facilitiate successful DNS lookup in the route destination clusters. Can only be set to true if destinations are specified.",
 			},
 		},
 	}
@@ -1515,6 +1542,7 @@ func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeC
 		HttpRoute:             dcl.String(obj["http_route"].(string)),
 		Service:               dcl.String(obj["service"].(string)),
 		PodSelectorLabel:      dcl.String(obj["pod_selector_label"].(string)),
+		RouteDestinations:     expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigKubernetesGatewayServiceMeshRouteDestinations(obj["route_destinations"]),
 		RouteUpdateWaitTime:   dcl.String(obj["route_update_wait_time"].(string)),
 		StableCutbackDuration: dcl.String(obj["stable_cutback_duration"].(string)),
 	}
@@ -1529,8 +1557,37 @@ func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntime
 		"http_route":              obj.HttpRoute,
 		"service":                 obj.Service,
 		"pod_selector_label":      obj.PodSelectorLabel,
+		"route_destinations":      flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigKubernetesGatewayServiceMeshRouteDestinations(obj.RouteDestinations),
 		"route_update_wait_time":  obj.RouteUpdateWaitTime,
 		"stable_cutback_duration": obj.StableCutbackDuration,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigKubernetesGatewayServiceMeshRouteDestinations(o interface{}) *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigKubernetesGatewayServiceMeshRouteDestinations {
+	if o == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigKubernetesGatewayServiceMeshRouteDestinations
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigKubernetesGatewayServiceMeshRouteDestinations
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigKubernetesGatewayServiceMeshRouteDestinations{
+		DestinationIds:   tpgdclresource.ExpandStringArray(obj["destination_ids"]),
+		PropagateService: dcl.Bool(obj["propagate_service"].(bool)),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigKubernetesGatewayServiceMeshRouteDestinations(obj *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigKubernetesGatewayServiceMeshRouteDestinations) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"destination_ids":   obj.DestinationIds,
+		"propagate_service": obj.PropagateService,
 	}
 
 	return []interface{}{transformed}

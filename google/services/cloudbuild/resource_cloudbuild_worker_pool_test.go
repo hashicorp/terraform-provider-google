@@ -59,9 +59,17 @@ func TestAccCloudbuildWorkerPool_withComputedAnnotations(t *testing.T) {
 func TestAccCloudbuildWorkerPool_basic(t *testing.T) {
 	t.Parallel()
 
+	testNetworkName := acctest.BootstrapSharedTestNetwork(t, "attachment-network")
+	subnetName := acctest.BootstrapSubnet(t, "tf-test-subnet", testNetworkName)
+	networkAttachmentName := acctest.BootstrapNetworkAttachment(t, "tf-test-attachment", subnetName)
+
+	// Need to have the full network attachment name in the format project/{project_id}/regions/{region_id}/networkAttachments/{networkAttachmentName}
+	fullFormNetworkAttachmentName := fmt.Sprintf("projects/%s/regions/%s/networkAttachments/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), networkAttachmentName)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix":      acctest.RandString(t, 10),
+		"project":            envvar.GetTestProjectFromEnv(),
+		"network_attachment": fullFormNetworkAttachmentName,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -107,6 +115,11 @@ resource "google_cloudbuild_worker_pool" "pool" {
 		disk_size_gb = 100
 		machine_type = "e2-standard-8"
 		no_external_ip = true
+	}
+
+	private_service_connect {
+		network_attachment = "%{network_attachment}"
+		route_all_traffic = false
 	}
 }
 `, context)

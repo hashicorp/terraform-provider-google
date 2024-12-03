@@ -408,6 +408,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
         sync_rev       = "v3.60.0"
         sync_wait_secs = "30"
       }
+      stop_syncing = true
     }
   }
 }

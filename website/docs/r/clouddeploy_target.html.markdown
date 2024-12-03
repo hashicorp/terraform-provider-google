@@ -157,6 +157,10 @@ Please refer to the field `effective_annotations` for all of the annotations pre
   (Optional)
   Information specifying an Anthos Cluster.
   
+* `associated_entities` -
+  (Optional)
+  Optional. Map of entity IDs to their associated entities. Associated entities allows specifying places other than the deployment target for specific features. For example, the Gateway API canary can be configured to deploy the HTTPRoute to a different cluster(s) than the deployment cluster using associated entities. An entity ID must consist of lower-case letters, numbers, and hyphens, start with a letter and end with a letter or a number, and have a max length of 63 characters. In other words, it must match the following regex: `^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$`.
+  
 * `custom_target` -
   (Optional)
   Optional. Information specifying a Custom Target.
@@ -207,6 +211,40 @@ The `anthos_cluster` block supports:
 * `membership` -
   (Optional)
   Membership of the GKE Hub-registered cluster to which to apply the Skaffold configuration. Format is `projects/{project}/locations/{location}/memberships/{membership_name}`.
+    
+The `associated_entities` block supports:
+    
+* `anthos_clusters` -
+  (Optional)
+  Optional. Information specifying Anthos clusters as associated entities.
+    
+* `entity_id` -
+  (Required)
+  The name for the key in the map for which this object is mapped to in the API
+    
+* `gke_clusters` -
+  (Optional)
+  Optional. Information specifying GKE clusters as associated entities.
+    
+The `anthos_clusters` block supports:
+    
+* `membership` -
+  (Optional)
+  Optional. Membership of the GKE Hub-registered cluster to which to apply the Skaffold configuration. Format is `projects/{project}/locations/{location}/memberships/{membership_name}`.
+    
+The `gke_clusters` block supports:
+    
+* `cluster` -
+  (Optional)
+  Optional. Information specifying a GKE Cluster. Format is `projects/{project_id}/locations/{location_id}/clusters/{cluster_id}`.
+    
+* `internal_ip` -
+  (Optional)
+  Optional. If true, `cluster` is accessed using the private IP address of the control plane endpoint. Otherwise, the default IP address of the control plane endpoint is used. The default IP address is the private IP address for clusters with private control-plane endpoints and the public IP address otherwise. Only specify this option when `cluster` is a [private GKE cluster](https://cloud.google.com/kubernetes-engine/docs/concepts/private-cluster-concept).
+    
+* `proxy_url` -
+  (Optional)
+  Optional. If set, used to configure a [proxy](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#proxy) to the Kubernetes server.
     
 The `custom_target` block supports:
     

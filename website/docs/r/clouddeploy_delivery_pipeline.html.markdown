@@ -475,6 +475,10 @@ The `gateway_service_mesh` block supports:
   (Optional)
   Optional. The label to use when selecting Pods for the Deployment and Service resources. This label must already be present in both resources.
     
+* `route_destinations` -
+  (Optional)
+  Optional. Route destinations allow configuring the Gateway API HTTPRoute to be deployed to additional clusters. This option is available for multi-cluster service mesh set ups that require the route to exist in the clusters that call the service. If unspecified, the HTTPRoute will only be deployed to the Target cluster.
+    
 * `route_update_wait_time` -
   (Optional)
   Optional. The time to wait for route updates to propagate. The maximum configurable time is 3 hours, in seconds format. If unspecified, there is no wait time.
@@ -486,6 +490,16 @@ The `gateway_service_mesh` block supports:
 * `stable_cutback_duration` -
   (Optional)
   Optional. The amount of time to migrate traffic back from the canary Service to the original Service during the stable phase deployment. If specified, must be between 15s and 3600s. If unspecified, there is no cutback time.
+    
+The `route_destinations` block supports:
+    
+* `destination_ids` -
+  (Required)
+  Required. The clusters where the Gateway API HTTPRoute resource will be deployed to. Valid entries include the associated entities IDs configured in the Target resource and "@self" to include the Target cluster.
+    
+* `propagate_service` -
+  (Optional)
+  Optional. Whether to propagate the Kubernetes Service to the route destination clusters. The Service will always be deployed to the Target cluster even if the HTTPRoute is not. This option may be used to facilitiate successful DNS lookup in the route destination clusters. Can only be set to true if destinations are specified.
     
 The `service_networking` block supports:
     
