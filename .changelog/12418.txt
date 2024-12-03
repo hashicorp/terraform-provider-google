@@ -1,0 +1,3 @@
+```release-note:none
+integrations: fixed example in docs to reflect usage of basename instead of full name in `cloud_kms_config` 
+```
