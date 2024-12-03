@@ -1,18 +1,18 @@
 ---
-page_title: "Using Terraform Cloud's Continuous Validation feature with the Google Provider"
+page_title: "Using HCP Terraform's Continuous Validation feature with the Google Provider"
 description: |-
   Continuous validation helps identify issues immediately and continuously instead of waiting until customers encounter problems. This guide shows how continuous validation can be used with the Google provider.
 ---
 
-# Using Terraform Cloud's Continuous Validation feature with the Google Provider
+# Using HCP Terraform's Continuous Validation feature with the Google Provider
 
-The Continuous Validation feature in Terraform Cloud (TFC) allows users to make assertions about their infrastructure between applied runs. This helps users to identify issues at the time they first appear and avoid situations where a change is only identified during a future terraform plan/apply or once it causes a user-facing problem.
+The Continuous Validation feature in HCP Terraform allows users to make assertions about their infrastructure between applied runs. This helps users to identify issues at the time they first appear and avoid situations where a change is only identified during a future terraform plan/apply or once it causes a user-facing problem.
 
 Users can add checks to their Terraform configuration using an HCL language feature called [check{} blocks](https://developer.hashicorp.com/terraform/language/checks). Check blocks contain assertions that are defined with a custom condition expression and an error message. When the condition expression evaluates to true the check passes, but when the expression evaluates to false Terraform will show a warning message that includes the user-defined error message.
 
 Custom conditions can be created using data from Terraform providers’ resources and data sources. Data can also be combined from multiple sources; for example, you can use checks to monitor expirable resources by comparing a resource’s expiration date attribute to the current time returned by Terraform’s built-in time functions. These include the [plantimestamp function](https://developer.hashicorp.com/terraform/language/functions/plantimestamp), which was added in Terraform 1.5.
 
-For more information about continuous validation visit the [Workspace Health page in the Terraform Cloud documentation](https://developer.hashicorp.com/terraform/cloud-docs/workspaces/health#continuous-validation).
+For more information about continuous validation visit the [Workspace Health page in the HCP Terraform documentation](https://developer.hashicorp.com/terraform/cloud-docs/workspaces/health#continuous-validation).
 
 Below, this guide shows examples of how data returned by the Google provider can be used to define checks in your Terraform configuration. In each example it is assumed that the Google provider is configured with a default project, region, and zone.
 
@@ -24,7 +24,7 @@ VM instances provisioned using Compute Engine can pass through several states as
 
 The example below shows how a check block can be used to assert that a VM is in the running state.
 
-You can force the check to fail in this example by provisioning the VM, manually stopping it in the Google Cloud console, and then triggering a health check in TFC. The check will fail and report that the VM is not running.
+You can force the check to fail in this example by provisioning the VM, manually stopping it in the Google Cloud console, and then triggering a health check in HCP Terraform. The check will fail and report that the VM is not running.
 
 ```hcl
 data "google_compute_network" "default" {
@@ -60,11 +60,11 @@ check "check_vm_status" {
 
 ## Example - Check if a certificate will expire within a certain timeframe (`google_privateca_certificate`)
 
-Certificates can be provisioned using either the Certificate Manager, Certificate Authority Service (‘Private CA’), and Compute Engine APIs. In this example we provision a certificate via the Certificate Authority Service that has a user-supplied [lifetime argument](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/privateca_certificate#lifetime). After the lifetime duration passes the certificate is automatically deleted in GCP. By creating a check that asserts the certificate’s expiration date is more than 30 days away we can be notified by TFC health checks when the certificate is approaching expiration and needs manual intervention.
+Certificates can be provisioned using either the Certificate Manager, Certificate Authority Service (‘Private CA’), and Compute Engine APIs. In this example we provision a certificate via the Certificate Authority Service that has a user-supplied [lifetime argument](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/privateca_certificate#lifetime). After the lifetime duration passes the certificate is automatically deleted in GCP. By creating a check that asserts the certificate’s expiration date is more than 30 days away we can be notified by HCP Terraform health checks when the certificate is approaching expiration and needs manual intervention.
 
 In the example below we provision a certificate with a lifetime of 30 days and 2 minutes (see `local.month_and_2min_in_second_duration`) and create a check that asserts certificates should be valid for the next month (see `local.month_in_hour_duration`).
 
-We can see the check begin to fail by waiting 2 minutes after the certificate is provisioned and then triggering a health check in TFC. The check will fail and report that the certificate is due to expire in less than a month.
+We can see the check begin to fail by waiting 2 minutes after the certificate is provisioned and then triggering a health check in HCP Terraform. The check will fail and report that the certificate is due to expire in less than a month.
 
 ```hcl
 locals {
