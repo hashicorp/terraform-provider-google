@@ -34,10 +34,9 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBas
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"autonomous_database_id": "my-adb-instance-id",
-		"deletion_protection":    false,
-		"project":                "oci-terraform-testing",
-		"random_suffix":          acctest.RandString(t, 10),
+		"deletion_protection": false,
+		"project":             "oci-terraform-testing",
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -61,7 +60,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBas
 func testAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_oracle_database_autonomous_database" "myADB"{
-  autonomous_database_id = "%{autonomous_database_id}"
+  autonomous_database_id = "tf-test-my-instance%{random_suffix}"
   location = "us-east4"
   project = "%{project}"
   database = "testdb"
@@ -89,10 +88,9 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseFul
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"autonomous_database_id": "my-adb-instance-id-2",
-		"deletion_protection":    false,
-		"project":                "oci-terraform-testing",
-		"random_suffix":          acctest.RandString(t, 10),
+		"deletion_protection": false,
+		"project":             "oci-terraform-testing",
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -116,7 +114,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseFul
 func testAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_oracle_database_autonomous_database" "myADB"{
-  autonomous_database_id = "%{autonomous_database_id}"
+  autonomous_database_id = "tf-test-my-instance%{random_suffix}"
   location = "us-east4"
   project = "%{project}"
   display_name = "autonomousDatabase displayname"
