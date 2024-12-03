@@ -418,11 +418,15 @@ The following arguments are supported:
 
 * `prevent_drift` -
   (Optional)
-  Supported from Config Sync versions 1.10.0 onwards. Set to true to enable the Config Sync admission webhook to prevent drifts. If set to "false", disables the Config Sync admission webhook and does not prevent drifts.
+  Supported from Config Sync versions 1.10.0 onwards. Set to `true` to enable the Config Sync admission webhook to prevent drifts. If set to `false`, disables the Config Sync admission webhook and does not prevent drifts.
     
 * `source_format` -
   (Optional)
   Specifies whether the Config Sync Repo is in "hierarchical" or "unstructured" mode.
+
+* `stop_syncing` -
+  (Optional)
+  Set to `true` to stop syncing configurations for a single cluster. This field is only available on clusters using Config Sync [auto-upgrades](http://cloud/kubernetes-engine/enterprise/config-sync/docs/how-to/upgrade-config-sync#auto-upgrade-config) or on Config Sync version 1.20.0 or later. Defaults: `false`.
     
 <a name="nested_git"></a>The `git` block supports:
     
