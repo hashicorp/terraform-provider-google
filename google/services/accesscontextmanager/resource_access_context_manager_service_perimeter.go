@@ -34,7 +34,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
-func AccessContextManagerServicePerimeterEgressToResourcesDiffSupressFunc(_, _, _ string, d *schema.ResourceData) bool {
+func AccessContextManagerServicePerimeterEgressToResourcesDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
 	old, new := d.GetChange("egress_to.0.resources")
 
 	oldResources, err := tpgresource.InterfaceSliceToStringSlice(old)
@@ -55,7 +55,7 @@ func AccessContextManagerServicePerimeterEgressToResourcesDiffSupressFunc(_, _, 
 	return slices.Equal(oldResources, newResources)
 }
 
-func AccessContextManagerServicePerimeterIngressToResourcesDiffSupressFunc(_, _, _ string, d *schema.ResourceData) bool {
+func AccessContextManagerServicePerimeterIngressToResourcesDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
 	old, new := d.GetChange("ingress_to.0.resources")
 
 	oldResources, err := tpgresource.InterfaceSliceToStringSlice(old)
@@ -76,7 +76,7 @@ func AccessContextManagerServicePerimeterIngressToResourcesDiffSupressFunc(_, _,
 	return slices.Equal(oldResources, newResources)
 }
 
-func AccessContextManagerServicePerimeterIdentityTypeDiffSupressFunc(_, old, new string, _ *schema.ResourceData) bool {
+func AccessContextManagerServicePerimeterIdentityTypeDiffSuppressFunc(_, old, new string, _ *schema.ResourceData) bool {
 	if old == "" && new == "IDENTITY_TYPE_UNSPECIFIED" {
 		return true
 	}
@@ -211,7 +211,7 @@ represent individual user or service account only.`,
 													Type:             schema.TypeString,
 													Optional:         true,
 													ValidateFunc:     verify.ValidateEnum([]string{"IDENTITY_TYPE_UNSPECIFIED", "ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT", ""}),
-													DiffSuppressFunc: AccessContextManagerServicePerimeterIdentityTypeDiffSupressFunc,
+													DiffSuppressFunc: AccessContextManagerServicePerimeterIdentityTypeDiffSuppressFunc,
 													Description: `Specifies the type of identities that are allowed access to outside the
 perimeter. If left unspecified, then members of 'identities' field will
 be allowed access. Possible values: ["IDENTITY_TYPE_UNSPECIFIED", "ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT"]`,
@@ -351,7 +351,7 @@ individual user or service account only.`,
 													Type:             schema.TypeString,
 													Optional:         true,
 													ValidateFunc:     verify.ValidateEnum([]string{"IDENTITY_TYPE_UNSPECIFIED", "ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT", ""}),
-													DiffSuppressFunc: AccessContextManagerServicePerimeterIdentityTypeDiffSupressFunc,
+													DiffSuppressFunc: AccessContextManagerServicePerimeterIdentityTypeDiffSuppressFunc,
 													Description: `Specifies the type of identities that are allowed access from outside the
 perimeter. If left unspecified, then members of 'identities' field will be
 allowed access. Possible values: ["IDENTITY_TYPE_UNSPECIFIED", "ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT"]`,
@@ -579,7 +579,7 @@ https://cloud.google.com/iam/docs/principal-identifiers#v1 are supported.`,
 													Type:             schema.TypeString,
 													Optional:         true,
 													ValidateFunc:     verify.ValidateEnum([]string{"IDENTITY_TYPE_UNSPECIFIED", "ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT", ""}),
-													DiffSuppressFunc: AccessContextManagerServicePerimeterIdentityTypeDiffSupressFunc,
+													DiffSuppressFunc: AccessContextManagerServicePerimeterIdentityTypeDiffSuppressFunc,
 													Description: `Specifies the type of identities that are allowed access to outside the
 perimeter. If left unspecified, then members of 'identities' field will
 be allowed access. Possible values: ["IDENTITY_TYPE_UNSPECIFIED", "ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT"]`,
@@ -721,7 +721,7 @@ https://cloud.google.com/iam/docs/principal-identifiers#v1 are supported.`,
 													Type:             schema.TypeString,
 													Optional:         true,
 													ValidateFunc:     verify.ValidateEnum([]string{"IDENTITY_TYPE_UNSPECIFIED", "ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT", ""}),
-													DiffSuppressFunc: AccessContextManagerServicePerimeterIdentityTypeDiffSupressFunc,
+													DiffSuppressFunc: AccessContextManagerServicePerimeterIdentityTypeDiffSuppressFunc,
 													Description: `Specifies the type of identities that are allowed access from outside the
 perimeter. If left unspecified, then members of 'identities' field will be
 allowed access. Possible values: ["IDENTITY_TYPE_UNSPECIFIED", "ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT"]`,

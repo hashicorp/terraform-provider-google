@@ -54,7 +54,7 @@ func ResourceComputeRegionDisk() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("size", IsDiskShrinkage),
-			hyperDiskIopsUpdateDiffSupress,
+			hyperDiskIopsUpdateDiffSuppress,
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
@@ -232,7 +232,7 @@ valid values:
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: sourceDiskDiffSupress,
+				DiffSuppressFunc: sourceDiskDiffSuppress,
 				Description: `The source disk used to create this disk. You can provide this as a partial or full URL to the resource.
 For example, the following are valid values:
 

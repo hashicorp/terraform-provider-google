@@ -96,7 +96,7 @@ func TestUnitBigtable_getInstanceFromResponse(t *testing.T) {
 			wantInstanceName: "",
 			wantId:           originalId,
 		},
-		"unavailble error": {
+		"unavailable error": {
 			instanceNames:      []string{"wrong", "also_wrong"},
 			listInstancesError: bigtable.ErrPartiallyUnavailable{[]string{"some", "location"}},
 

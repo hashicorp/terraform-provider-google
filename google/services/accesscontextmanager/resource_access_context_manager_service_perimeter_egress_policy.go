@@ -33,7 +33,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
-func AccessContextManagerServicePerimeterEgressPolicyEgressToResourcesDiffSupressFunc(_, _, _ string, d *schema.ResourceData) bool {
+func AccessContextManagerServicePerimeterEgressPolicyEgressToResourcesDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
 	old, new := d.GetChange("egress_to.0.resources")
 
 	oldResources, err := tpgresource.InterfaceSliceToStringSlice(old)
@@ -54,7 +54,7 @@ func AccessContextManagerServicePerimeterEgressPolicyEgressToResourcesDiffSupres
 	return slices.Equal(oldResources, newResources)
 }
 
-func AccessContextManagerServicePerimeterEgressPolicyIngressToResourcesDiffSupressFunc(_, _, _ string, d *schema.ResourceData) bool {
+func AccessContextManagerServicePerimeterEgressPolicyIngressToResourcesDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
 	old, new := d.GetChange("ingress_to.0.resources")
 
 	oldResources, err := tpgresource.InterfaceSliceToStringSlice(old)
@@ -75,7 +75,7 @@ func AccessContextManagerServicePerimeterEgressPolicyIngressToResourcesDiffSupre
 	return slices.Equal(oldResources, newResources)
 }
 
-func AccessContextManagerServicePerimeterEgressPolicyIdentityTypeDiffSupressFunc(_, old, new string, _ *schema.ResourceData) bool {
+func AccessContextManagerServicePerimeterEgressPolicyIdentityTypeDiffSuppressFunc(_, old, new string, _ *schema.ResourceData) bool {
 	if old == "" && new == "IDENTITY_TYPE_UNSPECIFIED" {
 		return true
 	}
@@ -128,7 +128,7 @@ https://cloud.google.com/iam/docs/principal-identifiers#v1 are supported.`,
 							Optional:         true,
 							ForceNew:         true,
 							ValidateFunc:     verify.ValidateEnum([]string{"ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT", ""}),
-							DiffSuppressFunc: AccessContextManagerServicePerimeterIdentityTypeDiffSupressFunc,
+							DiffSuppressFunc: AccessContextManagerServicePerimeterIdentityTypeDiffSuppressFunc,
 							Description: `Specifies the type of identities that are allowed access to outside the
 perimeter. If left unspecified, then members of 'identities' field will
 be allowed access. Possible values: ["ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT"]`,
@@ -230,7 +230,7 @@ field set to '*' will allow all methods AND permissions for all services.`,
 							Type:             schema.TypeList,
 							Optional:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: AccessContextManagerServicePerimeterEgressPolicyEgressToResourcesDiffSupressFunc,
+							DiffSuppressFunc: AccessContextManagerServicePerimeterEgressPolicyEgressToResourcesDiffSuppressFunc,
 							Description: `A list of resources, currently only projects in the form
 'projects/<projectnumber>', that match this to stanza. A request matches
 if it contains a resource in this list. If * is specified for resources,

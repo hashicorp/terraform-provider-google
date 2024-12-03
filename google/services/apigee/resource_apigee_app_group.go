@@ -85,7 +85,7 @@ in the format 'organizations/{{org_name}}'.`,
 			"channel_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Channel identifier identifies the owner maintaing this grouping.`,
+				Description: `Channel identifier identifies the owner maintaining this grouping.`,
 			},
 			"channel_uri": {
 				Type:        schema.TypeString,

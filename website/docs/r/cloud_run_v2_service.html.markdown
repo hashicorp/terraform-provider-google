@@ -1289,7 +1289,7 @@ In addition to the arguments listed above, the following computed attributes are
   The deletion time.
 
 * `expire_time` -
-  For a deleted resource, the time after which it will be permamently deleted.
+  For a deleted resource, the time after which it will be permanently deleted.
 
 * `creator` -
   Email address of the authenticated creator.

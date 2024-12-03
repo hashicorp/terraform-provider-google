@@ -413,7 +413,7 @@ given time.`,
 									"project_id": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: `Project identifier (preferrably project number but can also be the project ID) of the project that contains the secret. If not set, it will be populated with the function's project assuming that the secret exists in the same project as of the function.`,
+										Description: `Project identifier (preferably project number but can also be the project ID) of the project that contains the secret. If not set, it will be populated with the function's project assuming that the secret exists in the same project as of the function.`,
 									},
 									"secret": {
 										Type:        schema.TypeString,
@@ -442,7 +442,7 @@ given time.`,
 									"project_id": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: `Project identifier (preferrably project number but can also be the project ID) of the project that contains the secret. If not set, it will be populated with the function's project assuming that the secret exists in the same project as of the function.`,
+										Description: `Project identifier (preferably project number but can also be the project ID) of the project that contains the secret. If not set, it will be populated with the function's project assuming that the secret exists in the same project as of the function.`,
 									},
 									"secret": {
 										Type:        schema.TypeString,

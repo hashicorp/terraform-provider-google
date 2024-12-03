@@ -35,8 +35,8 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-// diffsupress for hyperdisk provisioned_iops
-func hyperDiskIopsUpdateDiffSupress(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+// diffsuppress for hyperdisk provisioned_iops
+func hyperDiskIopsUpdateDiffSuppress(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	if !strings.Contains(d.Get("type").(string), "hyperdisk") {
 		resourceSchema := ResourceComputeDisk().Schema
 		for field := range resourceSchema {
@@ -51,8 +51,8 @@ func hyperDiskIopsUpdateDiffSupress(_ context.Context, d *schema.ResourceDiff, m
 	return nil
 }
 
-// diffsupress for beta and to check change in source_disk attribute
-func sourceDiskDiffSupress(_, old, new string, _ *schema.ResourceData) bool {
+// diffsuppress for beta and to check change in source_disk attribute
+func sourceDiskDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	s1 := strings.TrimPrefix(old, "https://www.googleapis.com/compute/beta")
 	s2 := strings.TrimPrefix(new, "https://www.googleapis.com/compute/v1")
 	if strings.HasSuffix(s1, s2) {
@@ -350,7 +350,7 @@ func ResourceComputeDisk() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("size", IsDiskShrinkage),
-			hyperDiskIopsUpdateDiffSupress,
+			hyperDiskIopsUpdateDiffSuppress,
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
@@ -584,7 +584,7 @@ following are valid values:
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: sourceDiskDiffSupress,
+				DiffSuppressFunc: sourceDiskDiffSuppress,
 				Description: `The source disk used to create this disk. You can provide this as a partial or full URL to the resource.
 For example, the following are valid values:
 

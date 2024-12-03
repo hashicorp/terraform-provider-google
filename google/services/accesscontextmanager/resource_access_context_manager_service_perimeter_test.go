@@ -414,14 +414,14 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 `, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName, perimeterTitleName)
 }
 
-type IdentityTypeDiffSupressFuncDiffSuppressTestCase struct {
+type IdentityTypeDiffSuppressFuncDiffSuppressTestCase struct {
 	Name     string
 	AreEqual bool
 	Before   string
 	After    string
 }
 
-var identityTypeDiffSuppressTestCases = []IdentityTypeDiffSupressFuncDiffSuppressTestCase{
+var identityTypeDiffSuppressTestCases = []IdentityTypeDiffSuppressFuncDiffSuppressTestCase{
 	{
 		AreEqual: false,
 		Before:   "A",
@@ -460,8 +460,8 @@ func TestUnitAccessContextManagerServicePerimeter_identityTypeDiff(t *testing.T)
 	}
 }
 
-func (tc *IdentityTypeDiffSupressFuncDiffSuppressTestCase) Test(t *testing.T) {
-	actual := accesscontextmanager.AccessContextManagerServicePerimeterIdentityTypeDiffSupressFunc("", tc.Before, tc.After, nil)
+func (tc *IdentityTypeDiffSuppressFuncDiffSuppressTestCase) Test(t *testing.T) {
+	actual := accesscontextmanager.AccessContextManagerServicePerimeterIdentityTypeDiffSuppressFunc("", tc.Before, tc.After, nil)
 	if actual != tc.AreEqual {
 		t.Errorf(
 			"Unexpected difference found. Before: \"%s\", after: \"%s\", actual: %t, expected: %t",

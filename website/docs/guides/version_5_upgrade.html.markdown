@@ -726,7 +726,7 @@ proposed value to configuration (below) or apply `lifecycle.ignore_changes` to t
 
 ## Resource: `google_dataflow_flex_template_job`
 
-### Fields that are a part of the [environment block](https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.locations.flexTemplates/launch#FlexTemplateRuntimeEnvironment) will be overriden to be sent via their fields even when supplied via parameters.
+### Fields that are a part of the [environment block](https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.locations.flexTemplates/launch#FlexTemplateRuntimeEnvironment) will be overridden to be sent via their fields even when supplied via parameters.
 
 Several fields within the `google_dataflow_flex_template_job` resource can be supplied through either the `parameters{}` block or a field on the resource object. Support for these fields on the resource object was added in the `4.66.0` release of the Google provider. That version introduced an issue where the values were being double-sent to the API due to being recorded in Terraform state in two places. To resolve this issue, these fields will be deduplicated and sent to the API through the resource object.
 

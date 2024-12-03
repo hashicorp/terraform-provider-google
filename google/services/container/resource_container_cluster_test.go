@@ -10156,7 +10156,7 @@ func testAccContainerCluster_additional_pod_ranges_config(name string, nameCount
 	    master_ipv4_cidr_block  = "172.16.0.0/28"
 	  }
 
-	  # supresses permadiff
+	  # suppresses permadiff
 	  dns_config {
 	    cluster_dns        = "CLOUD_DNS"
 	    cluster_dns_domain = "cluster.local"

@@ -31,7 +31,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-// Supress diffs when the lists of project have the same number of entries to handle the case that
+// Suppress diffs when the lists of project have the same number of entries to handle the case that
 // API does not return what the user originally provided. Instead, API does some transformation.
 // For example, user provides a list of project number, but API returns a list of project Id.
 func projectListDiffSuppress(_, _, _ string, d *schema.ResourceData) bool {

@@ -125,7 +125,7 @@ func ResourceIntegrationConnectorsConnection() *schema.Resource {
 									"encryption_key_value": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: `Encription key value of configVariable.`,
+										Description: `Encryption key value of configVariable.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -133,7 +133,7 @@ func ResourceIntegrationConnectorsConnection() *schema.Resource {
 													Type:         schema.TypeString,
 													Required:     true,
 													ValidateFunc: verify.ValidateEnum([]string{"GOOGLE_MANAGED", "CUSTOMER_MANAGED"}),
-													Description:  `Type of Encription Key Possible values: ["GOOGLE_MANAGED", "CUSTOMER_MANAGED"]`,
+													Description:  `Type of Encryption Key Possible values: ["GOOGLE_MANAGED", "CUSTOMER_MANAGED"]`,
 												},
 												"kms_key_name": {
 													Type:     schema.TypeString,
@@ -421,7 +421,7 @@ format as: projects/*/secrets/*/versions/*.`,
 						"encryption_key_value": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `Encription key value of configVariable.`,
+							Description: `Encryption key value of configVariable.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -429,7 +429,7 @@ format as: projects/*/secrets/*/versions/*.`,
 										Type:         schema.TypeString,
 										Required:     true,
 										ValidateFunc: verify.ValidateEnum([]string{"GOOGLE_MANAGED", "CUSTOMER_MANAGED"}),
-										Description:  `Type of Encription Key Possible values: ["GOOGLE_MANAGED", "CUSTOMER_MANAGED"]`,
+										Description:  `Type of Encryption Key Possible values: ["GOOGLE_MANAGED", "CUSTOMER_MANAGED"]`,
 									},
 									"kms_key_name": {
 										Type:     schema.TypeString,
@@ -577,7 +577,7 @@ Will be empty string if google managed.`,
 									"encryption_key_value": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: `Encription key value of configVariable.`,
+										Description: `Encryption key value of configVariable.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -688,7 +688,7 @@ format as: projects/*/secrets/*/versions/*.`,
 												"encryption_key_value": {
 													Type:        schema.TypeList,
 													Optional:    true,
-													Description: `Encription key value of configVariable`,
+													Description: `Encryption key value of configVariable`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
@@ -703,7 +703,7 @@ Will be empty string if google managed.`,
 																Type:         schema.TypeString,
 																Optional:     true,
 																ValidateFunc: verify.ValidateEnum([]string{"GOOGLE_MANAGED", "CUSTOMER_MANAGED", ""}),
-																Description:  `Type of Encription Key Possible values: ["GOOGLE_MANAGED", "CUSTOMER_MANAGED"]`,
+																Description:  `Type of Encryption Key Possible values: ["GOOGLE_MANAGED", "CUSTOMER_MANAGED"]`,
 															},
 														},
 													},
@@ -864,7 +864,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 									"encryption_key_value": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: `Encription key value of configVariable`,
+										Description: `Encryption key value of configVariable`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -879,7 +879,7 @@ Will be empty string if google managed.`,
 													Type:         schema.TypeString,
 													Optional:     true,
 													ValidateFunc: verify.ValidateEnum([]string{"GOOGLE_MANAGED", "CUSTOMER_MANAGED", ""}),
-													Description:  `Type of Encription Key Possible values: ["GOOGLE_MANAGED", "CUSTOMER_MANAGED"]`,
+													Description:  `Type of Encryption Key Possible values: ["GOOGLE_MANAGED", "CUSTOMER_MANAGED"]`,
 												},
 											},
 										},

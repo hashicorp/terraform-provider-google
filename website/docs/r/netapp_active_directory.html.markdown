@@ -135,7 +135,7 @@ The following arguments are supported:
 
 * `kdc_hostname` -
   (Optional)
-  Hostname of the Active Directory server used as Kerberos Key Distribution Center. Only requried for volumes using kerberized NFSv4.1
+  Hostname of the Active Directory server used as Kerberos Key Distribution Center. Only required for volumes using kerberized NFSv4.1
 
 * `kdc_ip` -
   (Optional)

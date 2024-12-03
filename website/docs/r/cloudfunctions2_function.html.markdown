@@ -1252,7 +1252,7 @@ The following arguments are supported:
 
 * `project_id` -
   (Required)
-  Project identifier (preferrably project number but can also be the project ID) of the project that contains the secret. If not set, it will be populated with the function's project assuming that the secret exists in the same project as of the function.
+  Project identifier (preferably project number but can also be the project ID) of the project that contains the secret. If not set, it will be populated with the function's project assuming that the secret exists in the same project as of the function.
 
 * `secret` -
   (Required)
@@ -1270,7 +1270,7 @@ The following arguments are supported:
 
 * `project_id` -
   (Required)
-  Project identifier (preferrably project number but can also be the project ID) of the project that contains the secret. If not set, it will be populated with the function's project assuming that the secret exists in the same project as of the function.
+  Project identifier (preferably project number but can also be the project ID) of the project that contains the secret. If not set, it will be populated with the function's project assuming that the secret exists in the same project as of the function.
 
 * `secret` -
   (Required)

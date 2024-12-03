@@ -130,7 +130,7 @@ A five-character random ID is generated automatically, for example, -6f9a, and a
 			"kdc_hostname": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Hostname of the Active Directory server used as Kerberos Key Distribution Center. Only requried for volumes using kerberized NFSv4.1`,
+				Description: `Hostname of the Active Directory server used as Kerberos Key Distribution Center. Only required for volumes using kerberized NFSv4.1`,
 			},
 			"kdc_ip": {
 				Type:        schema.TypeString,

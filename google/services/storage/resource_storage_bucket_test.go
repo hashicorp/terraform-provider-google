@@ -111,7 +111,7 @@ func TestAccStorageBucket_basicWithAutoclass(t *testing.T) {
 	})
 }
 
-func TestAccStorageBucket_AutoclassDiffSupress(t *testing.T) {
+func TestAccStorageBucket_AutoclassDiffSuppress(t *testing.T) {
 	t.Parallel()
 
 	var bucket storage.Bucket

@@ -912,7 +912,7 @@ The following arguments are supported:
 
 * `key_id` -
   (Optional)
-  The value of the KeyId in lowercase hexidecimal.
+  The value of the KeyId in lowercase hexadecimal.
 
 <a name="nested_public_key"></a>The `public_key` block supports:
 
