@@ -533,6 +533,19 @@ resource "google_clouddeploy_target" "primary" {
     my_first_label = "example-label-1"
     my_second_label = "example-label-2"
   }
+
+  associated_entities {
+    entity_id = "test"
+    anthos_clusters {
+      membership = "projects/%{project_name}/locations/%{region}/memberships/membership-a"
+    }
+
+    gke_clusters {
+      cluster     = "projects/%{project_name}/locations/%{region}/clusters/cluster-a"
+      internal_ip = true
+      proxy_url   = "http://10.0.0.1"
+    }
+  }
 }
 `, context)
 }

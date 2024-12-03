@@ -84,12 +84,23 @@ func ResourceCloudbuildWorkerPool() *schema.Resource {
 			},
 
 			"network_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Network configuration for the `WorkerPool`.",
-				MaxItems:    1,
-				Elem:        CloudbuildWorkerPoolNetworkConfigSchema(),
+				Type:          schema.TypeList,
+				Optional:      true,
+				ForceNew:      true,
+				Description:   "Network configuration for the `WorkerPool`.",
+				MaxItems:      1,
+				Elem:          CloudbuildWorkerPoolNetworkConfigSchema(),
+				ConflictsWith: []string{"private_service_connect"},
+			},
+
+			"private_service_connect": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				ForceNew:      true,
+				Description:   "Private Service Connect configuration for the pool.",
+				MaxItems:      1,
+				Elem:          CloudbuildWorkerPoolPrivateServiceConnectSchema(),
+				ConflictsWith: []string{"network_config"},
 			},
 
 			"project": {
@@ -171,6 +182,27 @@ func CloudbuildWorkerPoolNetworkConfigSchema() *schema.Resource {
 	}
 }
 
+func CloudbuildWorkerPoolPrivateServiceConnectSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"network_attachment": {
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      "Required. Immutable. The network attachment that the worker network interface is connected to. Must be in the format `projects/{project}/regions/{region}/networkAttachments/{networkAttachment}`. The region of network attachment must be the same as the worker pool. See [Network Attachments](https://cloud.google.com/vpc/docs/about-network-attachments)",
+			},
+
+			"route_all_traffic": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Immutable. Route all traffic through PSC interface. Enable this if you want full control of traffic in the private pool. Configure Cloud NAT for the subnet of network attachment if you need to access public Internet. If false, Only route private IPs, e.g. 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16 through PSC interface.",
+			},
+		},
+	}
+}
+
 func CloudbuildWorkerPoolWorkerConfigSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -204,13 +236,14 @@ func resourceCloudbuildWorkerPoolCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	obj := &cloudbuild.WorkerPool{
-		Location:      dcl.String(d.Get("location").(string)),
-		Name:          dcl.String(d.Get("name").(string)),
-		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Annotations:   tpgresource.CheckStringMap(d.Get("effective_annotations")),
-		NetworkConfig: expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
-		Project:       dcl.String(project),
-		WorkerConfig:  expandCloudbuildWorkerPoolWorkerConfig(d.Get("worker_config")),
+		Location:              dcl.String(d.Get("location").(string)),
+		Name:                  dcl.String(d.Get("name").(string)),
+		DisplayName:           dcl.String(d.Get("display_name").(string)),
+		Annotations:           tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		NetworkConfig:         expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
+		PrivateServiceConnect: expandCloudbuildWorkerPoolPrivateServiceConnect(d.Get("private_service_connect")),
+		Project:               dcl.String(project),
+		WorkerConfig:          expandCloudbuildWorkerPoolWorkerConfig(d.Get("worker_config")),
 	}
 
 	id, err := obj.ID()
@@ -258,13 +291,14 @@ func resourceCloudbuildWorkerPoolRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	obj := &cloudbuild.WorkerPool{
-		Location:      dcl.String(d.Get("location").(string)),
-		Name:          dcl.String(d.Get("name").(string)),
-		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Annotations:   tpgresource.CheckStringMap(d.Get("effective_annotations")),
-		NetworkConfig: expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
-		Project:       dcl.String(project),
-		WorkerConfig:  expandCloudbuildWorkerPoolWorkerConfig(d.Get("worker_config")),
+		Location:              dcl.String(d.Get("location").(string)),
+		Name:                  dcl.String(d.Get("name").(string)),
+		DisplayName:           dcl.String(d.Get("display_name").(string)),
+		Annotations:           tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		NetworkConfig:         expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
+		PrivateServiceConnect: expandCloudbuildWorkerPoolPrivateServiceConnect(d.Get("private_service_connect")),
+		Project:               dcl.String(project),
+		WorkerConfig:          expandCloudbuildWorkerPoolWorkerConfig(d.Get("worker_config")),
 	}
 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -304,6 +338,9 @@ func resourceCloudbuildWorkerPoolRead(d *schema.ResourceData, meta interface{}) 
 	if err = d.Set("network_config", flattenCloudbuildWorkerPoolNetworkConfig(res.NetworkConfig)); err != nil {
 		return fmt.Errorf("error setting network_config in state: %s", err)
 	}
+	if err = d.Set("private_service_connect", flattenCloudbuildWorkerPoolPrivateServiceConnect(res.PrivateServiceConnect)); err != nil {
+		return fmt.Errorf("error setting private_service_connect in state: %s", err)
+	}
 	if err = d.Set("project", res.Project); err != nil {
 		return fmt.Errorf("error setting project in state: %s", err)
 	}
@@ -339,13 +376,14 @@ func resourceCloudbuildWorkerPoolUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	obj := &cloudbuild.WorkerPool{
-		Location:      dcl.String(d.Get("location").(string)),
-		Name:          dcl.String(d.Get("name").(string)),
-		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Annotations:   tpgresource.CheckStringMap(d.Get("effective_annotations")),
-		NetworkConfig: expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
-		Project:       dcl.String(project),
-		WorkerConfig:  expandCloudbuildWorkerPoolWorkerConfig(d.Get("worker_config")),
+		Location:              dcl.String(d.Get("location").(string)),
+		Name:                  dcl.String(d.Get("name").(string)),
+		DisplayName:           dcl.String(d.Get("display_name").(string)),
+		Annotations:           tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		NetworkConfig:         expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
+		PrivateServiceConnect: expandCloudbuildWorkerPoolPrivateServiceConnect(d.Get("private_service_connect")),
+		Project:               dcl.String(project),
+		WorkerConfig:          expandCloudbuildWorkerPoolWorkerConfig(d.Get("worker_config")),
 	}
 	directive := tpgdclresource.UpdateDirective
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -388,13 +426,14 @@ func resourceCloudbuildWorkerPoolDelete(d *schema.ResourceData, meta interface{}
 	}
 
 	obj := &cloudbuild.WorkerPool{
-		Location:      dcl.String(d.Get("location").(string)),
-		Name:          dcl.String(d.Get("name").(string)),
-		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Annotations:   tpgresource.CheckStringMap(d.Get("effective_annotations")),
-		NetworkConfig: expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
-		Project:       dcl.String(project),
-		WorkerConfig:  expandCloudbuildWorkerPoolWorkerConfig(d.Get("worker_config")),
+		Location:              dcl.String(d.Get("location").(string)),
+		Name:                  dcl.String(d.Get("name").(string)),
+		DisplayName:           dcl.String(d.Get("display_name").(string)),
+		Annotations:           tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		NetworkConfig:         expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
+		PrivateServiceConnect: expandCloudbuildWorkerPoolPrivateServiceConnect(d.Get("private_service_connect")),
+		Project:               dcl.String(project),
+		WorkerConfig:          expandCloudbuildWorkerPoolWorkerConfig(d.Get("worker_config")),
 	}
 
 	log.Printf("[DEBUG] Deleting WorkerPool %q", d.Id())
@@ -465,6 +504,34 @@ func flattenCloudbuildWorkerPoolNetworkConfig(obj *cloudbuild.WorkerPoolNetworkC
 	transformed := map[string]interface{}{
 		"peered_network":          obj.PeeredNetwork,
 		"peered_network_ip_range": obj.PeeredNetworkIPRange,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandCloudbuildWorkerPoolPrivateServiceConnect(o interface{}) *cloudbuild.WorkerPoolPrivateServiceConnect {
+	if o == nil {
+		return cloudbuild.EmptyWorkerPoolPrivateServiceConnect
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return cloudbuild.EmptyWorkerPoolPrivateServiceConnect
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &cloudbuild.WorkerPoolPrivateServiceConnect{
+		NetworkAttachment: dcl.String(obj["network_attachment"].(string)),
+		RouteAllTraffic:   dcl.Bool(obj["route_all_traffic"].(bool)),
+	}
+}
+
+func flattenCloudbuildWorkerPoolPrivateServiceConnect(obj *cloudbuild.WorkerPoolPrivateServiceConnect) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"network_attachment": obj.NetworkAttachment,
+		"route_all_traffic":  obj.RouteAllTraffic,
 	}
 
 	return []interface{}{transformed}

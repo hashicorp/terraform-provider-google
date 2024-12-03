@@ -204,7 +204,7 @@ func GkeHubFeatureMembershipConfigmanagementConfigSyncSchema() *schema.Resource 
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description:      "The Email of the Google Cloud Service Account (GSA) used for exporting Config Sync metrics to Cloud Monitoring. The GSA should have the Monitoring Metric Writer(roles/monitoring.metricWriter) IAM role. The Kubernetes ServiceAccount `default` in the namespace `config-management-monitoring` should be bound to the GSA.",
+				Description:      "Deprecated: If Workload Identity Federation for GKE is enabled, Google Cloud Service Account is no longer needed for exporting Config Sync metrics: https://cloud.google.com/kubernetes-engine/enterprise/config-sync/docs/how-to/monitor-config-sync-cloud-monitoring#custom-monitoring.",
 			},
 
 			"oci": {
@@ -226,6 +226,12 @@ func GkeHubFeatureMembershipConfigmanagementConfigSyncSchema() *schema.Resource 
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Specifies whether the Config Sync Repo is in \"hierarchical\" or \"unstructured\" mode.",
+			},
+
+			"stop_syncing": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Set to true to stop syncing configs for a single cluster. Default: false.",
 			},
 		},
 	}
@@ -1063,6 +1069,7 @@ func expandGkeHubFeatureMembershipConfigmanagementConfigSync(o interface{}) *gke
 		Oci:                           expandGkeHubFeatureMembershipConfigmanagementConfigSyncOci(obj["oci"]),
 		PreventDrift:                  dcl.Bool(obj["prevent_drift"].(bool)),
 		SourceFormat:                  dcl.String(obj["source_format"].(string)),
+		StopSyncing:                   dcl.Bool(obj["stop_syncing"].(bool)),
 	}
 }
 
@@ -1077,6 +1084,7 @@ func flattenGkeHubFeatureMembershipConfigmanagementConfigSync(obj *gkehub.Featur
 		"oci":                               flattenGkeHubFeatureMembershipConfigmanagementConfigSyncOci(obj.Oci),
 		"prevent_drift":                     obj.PreventDrift,
 		"source_format":                     obj.SourceFormat,
+		"stop_syncing":                      obj.StopSyncing,
 	}
 
 	return []interface{}{transformed}

@@ -1,0 +1,15 @@
+```release-note:enhancement
+cloudbuild: added `private_service_connect` field to `google_cloudbuild_worker_pool` resource
+```
+```release-note:enhancement
+clouddeploy: added `associated_entities` field to `google_clouddeploy_target` resource
+```
+```release-note:enhancement
+clouddeploy: added `serial_pipeline.strategy.canary.runtime_config.kubernetes.gateway_service_mesh.route_destinations` field to `google_clouddeploy_delivery_pipeline` resource
+```
+```release-note:enhancement
+gkehub: added `configmanagement.config_sync.stop_syncing` field to `google_gke_hub_feature_membership` resource
+```
+```release-note:deprecation
+gkehub: deprecated `configmanagement.config_sync.metrics_gcp_service_account_email` in `google_gke_hub_feature_membership` resource
+```
