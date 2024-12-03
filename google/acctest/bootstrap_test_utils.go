@@ -506,7 +506,7 @@ func NewServiceNetworkSettings(options ...func(*ServiceNetworkSettings)) *Servic
 // That is the reason to use the shared service networking connection for test resources.
 // https://cloud.google.com/vpc/docs/configure-private-services-access#removing-connection
 //
-// testId specifies the test for which a shared network and a gobal address are used/initialized.
+// testId specifies the test for which a shared network and a global address are used/initialized.
 func BootstrapSharedServiceNetworkingConnection(t *testing.T, testId string, params ...func(*ServiceNetworkSettings)) string {
 	settings := NewServiceNetworkSettings(params...)
 	parentService := "services/" + settings.ParentService

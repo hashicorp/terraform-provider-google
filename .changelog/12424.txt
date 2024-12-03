@@ -1,0 +1,12 @@
+```release-note:new-resource
+`google_gemini_repository_group` (beta only)
+```
+```release-note:new-resource
+`google_gemini_repository_group_iam_member` (beta only)
+```
+```release-note:new-resource
+`google_gemini_repository_group_iam_binding` (beta only)
+```
+```release-note:new-resource
+`google_gemini_repository_group_iam_policy` (beta only)
+```

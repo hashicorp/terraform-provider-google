@@ -117,6 +117,21 @@ func is409OperationInProgressError(err error) (bool, string) {
 	return false, ""
 }
 
+// Code Repository Index is a long running operation
+// The resource takes time to change it's state from "CREATING" to "ACTIVE"
+func IsCodeRepositoryIndexUnreadyError(err error) (bool, string) {
+	gerr, ok := err.(*googleapi.Error)
+	if !ok {
+		return false, ""
+	}
+
+	if gerr.Code == 409 && strings.Contains(gerr.Body, "parent resource not in ready state") {
+		log.Printf("[DEBUG] Dismissed an error as retryable based on error code 409 and error reason 'parent resource not in ready state': %s", err)
+		return true, "CodeRepositoryIndex not ready"
+	}
+	return false, ""
+}
+
 func isSubnetworkUnreadyError(err error) (bool, string) {
 	gerr, ok := err.(*googleapi.Error)
 	if !ok {
@@ -256,6 +271,17 @@ func IsBigqueryIAMQuotaError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {
 		if gerr.Code == 403 && strings.Contains(strings.ToLower(gerr.Body), "exceeded rate limits") {
 			return true, "Waiting for Bigquery edit quota to refresh"
+		}
+	}
+	return false, ""
+}
+
+// Retry if Repository Group operation returns a 409 with a specific message for
+// enqueued operations.
+func IsRepositoryGroupQueueError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 && (strings.Contains(strings.ToLower(gerr.Body), "unable to queue the operation")) {
+			return true, "Waiting for other enqueued operations to finish"
 		}
 	}
 	return false, ""
