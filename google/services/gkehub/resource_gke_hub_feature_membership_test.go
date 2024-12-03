@@ -162,9 +162,9 @@ resource "google_gke_hub_feature_membership" "feature_member_1" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership.membership_id
   configmanagement {
-    version = "1.18.2"
     config_sync {
       source_format = "hierarchy"
+      stop_syncing  = true
       enabled       = true
       git {
         sync_repo   = "https://github.com/GoogleCloudPlatform/magic-modules"
