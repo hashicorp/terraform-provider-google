@@ -460,9 +460,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 496
+// Generated resources: 498
 // Generated IAM resources: 261
-// Total generated resources: 757
+// Total generated resources: 759
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1017,6 +1017,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_network_connectivity_spoke":                                          networkconnectivity.ResourceNetworkConnectivitySpoke(),
 	"google_network_management_connectivity_test":                                networkmanagement.ResourceNetworkManagementConnectivityTest(),
 	"google_network_security_address_group":                                      networksecurity.ResourceNetworkSecurityAddressGroup(),
+	"google_network_security_authz_policy":                                       networksecurity.ResourceNetworkSecurityAuthzPolicy(),
 	"google_network_security_client_tls_policy":                                  networksecurity.ResourceNetworkSecurityClientTlsPolicy(),
 	"google_network_security_firewall_endpoint":                                  networksecurity.ResourceNetworkSecurityFirewallEndpoint(),
 	"google_network_security_firewall_endpoint_association":                      networksecurity.ResourceNetworkSecurityFirewallEndpointAssociation(),
@@ -1030,6 +1031,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_network_security_server_tls_policy":                                  networksecurity.ResourceNetworkSecurityServerTlsPolicy(),
 	"google_network_security_tls_inspection_policy":                              networksecurity.ResourceNetworkSecurityTlsInspectionPolicy(),
 	"google_network_security_url_lists":                                          networksecurity.ResourceNetworkSecurityUrlLists(),
+	"google_network_services_authz_extension":                                    networkservices.ResourceNetworkServicesAuthzExtension(),
 	"google_network_services_edge_cache_keyset":                                  networkservices.ResourceNetworkServicesEdgeCacheKeyset(),
 	"google_network_services_edge_cache_origin":                                  networkservices.ResourceNetworkServicesEdgeCacheOrigin(),
 	"google_network_services_edge_cache_service":                                 networkservices.ResourceNetworkServicesEdgeCacheService(),
