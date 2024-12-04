@@ -371,6 +371,39 @@ func TestAccStorageTransferJob_notificationConfig(t *testing.T) {
 	})
 }
 
+func TestAccStorageTransferJob_hdfsSource(t *testing.T) {
+	t.Parallel()
+
+	testDataSinkName := acctest.RandString(t, 10)
+	otherDataSinkName := acctest.RandString(t, 10)
+	testTransferJobDescription := acctest.RandString(t, 10)
+	testSourceAgentPoolName := fmt.Sprintf("tf-test-source-agent-pool-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageTransferJob_hdfsSource(envvar.GetTestProjectFromEnv(), testDataSinkName, testTransferJobDescription, testSourceAgentPoolName, "/root/", ""),
+			},
+			{
+				ResourceName:      "google_storage_transfer_job.transfer_job",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccStorageTransferJob_hdfsSource(envvar.GetTestProjectFromEnv(), otherDataSinkName, testTransferJobDescription, testSourceAgentPoolName, "/root/dir/", "object/"),
+			},
+			{
+				ResourceName:      "google_storage_transfer_job.transfer_job",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccStorageTransferJobDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -950,6 +983,83 @@ resource "google_storage_transfer_job" "transfer_job" {
   ]
 }
 `, project, dataSinkBucketName, project, sourceAgentPoolName, transferJobDescription, project)
+}
+
+func testAccStorageTransferJob_hdfsSource(project string, dataSinkBucketName string, transferJobDescription string, sourceAgentPoolName string, hdfsPath string, gcsPath string) string {
+	return fmt.Sprintf(`
+data "google_storage_transfer_project_service_account" "default" {
+  project = "%s"
+}
+
+resource "google_storage_bucket" "data_sink" {
+  name          = "%s"
+  project       = "%s"
+  location      = "US"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_iam_member" "data_sink" {
+  bucket = google_storage_bucket.data_sink.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
+}
+
+resource "google_project_iam_member" "pubsub" {
+	project = data.google_storage_transfer_project_service_account.default.project
+  role    = "roles/pubsub.admin"
+  member  = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
+}
+
+resource "google_storage_transfer_agent_pool" "foo" {
+  name         = "%s"
+  bandwidth_limit {
+    limit_mbps = "120"
+  }
+
+  depends_on = [google_project_iam_member.pubsub]
+}
+
+resource "google_storage_transfer_job" "transfer_job" {
+  description = "%s"
+  project     = "%s"
+
+  transfer_spec {
+    source_agent_pool_name = google_storage_transfer_agent_pool.foo.id
+    hdfs_data_source {
+    	path = "%s"
+    }
+    gcs_data_sink {
+      bucket_name = google_storage_bucket.data_sink.name
+      path  = "%s"
+    }
+  }
+
+  schedule {
+    schedule_start_date {
+      year  = 2018
+      month = 10
+      day   = 1
+    }
+    schedule_end_date {
+      year  = 2019
+      month = 10
+      day   = 1
+    }
+    start_time_of_day {
+      hours   = 0
+      minutes = 30
+      seconds = 0
+      nanos   = 0
+    }
+  }
+
+  depends_on = [
+    google_storage_bucket_iam_member.data_sink,
+    google_project_iam_member.pubsub
+  ]
+}
+`, project, dataSinkBucketName, project, sourceAgentPoolName, transferJobDescription, project, hdfsPath, gcsPath)
 }
 
 func testAccStorageTransferJob_posixSink(project string, dataSourceBucketName string, transferJobDescription string, sinkAgentPoolName string) string {
