@@ -10,9 +10,6 @@ on:
         description: "The date to backfill tickets since in YYYY-MM-DD format"
         required: true
         default: '1973-01-01'
-      dry_run:
-        description: "Dry run (no changes will be made to issues)"
-        type: boolean
   schedule:
         - cron: '0 7 * * *' # UTC 7AM (-7)-> 12AM PST
 
@@ -37,7 +34,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{github.token}}
         SINCE: ${{ inputs.since || '1973-01-01' }}
-        DRY_RUN: ${{ contains(inputs.dry_run, 'true') }}
       run: |
         cd magic-modules/tools/issue-labeler
         ./issue-labeler backfill-issue-labels --since=${{env.SINCE}}
