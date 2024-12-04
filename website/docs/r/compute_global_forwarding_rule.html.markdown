@@ -725,6 +725,7 @@ resource "google_compute_global_forwarding_rule" "default" {
   target                = google_compute_target_http_proxy.default.id
   port_range            = "80"
   load_balancing_scheme = "EXTERNAL_MANAGED"
+  network_tier          = "PREMIUM"
 }
 
 resource "google_compute_target_http_proxy" "default" {
@@ -1347,6 +1348,19 @@ The following arguments are supported:
   If the network specified is in auto subnet mode, this field is optional.
   However, a subnetwork must be specified if the network is in custom subnet
   mode or when creating external forwarding rule with IPv6.
+
+* `network_tier` -
+  (Optional)
+  This signifies the networking tier used for configuring
+  this load balancer and can only take the following values:
+  `PREMIUM`, `STANDARD`.
+  For regional ForwardingRule, the valid values are `PREMIUM` and
+  `STANDARD`. For GlobalForwardingRule, the valid value is
+  `PREMIUM`.
+  If this field is not specified, it is assumed to be `PREMIUM`.
+  If `IPAddress` is specified, this value must be equal to the
+  networkTier of the Address.
+  Possible values are: `PREMIUM`, `STANDARD`.
 
 * `service_directory_registrations` -
   (Optional)
