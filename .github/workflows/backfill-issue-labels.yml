@@ -24,16 +24,20 @@ jobs:
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       with:
         repository: GoogleCloudPlatform/magic-modules
-        path: repo
+        path: magic-modules
     - name: Set up Go
       uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
       with:
         go-version: '^1.19.1'
+    - name: Build issue-labeler binary
+      run: |
+        cd magic-modules/tools/issue-labeler
+        go build .
     - name: Run backfill
       env:
         GITHUB_TOKEN: ${{github.token}}
         SINCE: ${{ inputs.since || '1973-01-01' }}
         DRY_RUN: ${{ contains(inputs.dry_run, 'true') }}
       run: |
-        cd repo/tools/issue-labeler
-        go run . -backfill-date=${{env.SINCE}} -backfill-dry-run=${{env.DRY_RUN}} -logtostderr=true
+        cd magic-modules/tools/issue-labeler
+        ./issue-labeler backfill-issue-labels --since=${{env.SINCE}}

@@ -26,24 +26,28 @@ jobs:
         serviceLabels="$(echo '${{ toJson(github.event.issue.labels.*.name) }}' | jq -c 'map(select(startswith("service/")))')"
         echo "Service labels: $serviceLabels"
         echo "service_labels=$serviceLabels" >> $GITHUB_OUTPUT
-    - name: Pick labels
-      id: pick_labels
+    - name: Build issue-labeler binary
+      run: |
+        cd magic-modules/tools/issue-labeler
+        go build .
+    - name: Compute new labels
+      id: compute_new_labels
       if: ${{ steps.service_labels.outputs.service_labels == '[]' }}
       env:
         ISSUE_BODY: ${{ github.event.issue.body }}
       run: |
         cd magic-modules/tools/issue-labeler
-        labels=$(go run .)
+        labels=$(./issue-labeler compute-new-labels)
         echo "Labels: $labels"
         echo "labels=$labels" >> $GITHUB_OUTPUT
     - name: Apply labels
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-      if: ${{ steps.service_labels.outputs.service_labels == '[]' && steps.pick_labels.outputs.labels != '' }}
+      if: ${{ steps.service_labels.outputs.service_labels == '[]' && steps.compute_new_labels.outputs.labels != '' }}
       with:
         script: |
           github.rest.issues.addLabels({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            labels: ${{ steps.pick_labels.outputs.labels }}
+            labels: ${{ steps.compute_new_labels.outputs.labels }}
           })
