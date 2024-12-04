@@ -20,7 +20,7 @@ require (
 	github.com/hashicorp/terraform-provider-clean-google v0.0.0-00010101000000-000000000000
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.1.0
-	github.com/sirupsen/logrus v1.8.1
+	github.com/sirupsen/logrus v1.8.3
 	golang.org/x/net v0.24.0
 	golang.org/x/oauth2 v0.10.0
 	google.golang.org/api v0.126.0
