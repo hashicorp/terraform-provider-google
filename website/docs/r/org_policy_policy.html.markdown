@@ -34,8 +34,8 @@ To get more information about Policy, see:
 
 ```hcl
 resource "google_org_policy_policy" "primary" {
-  name   = "projects/${google_project.basic.name}/policies/iam.disableServiceAccountKeyUpload"
-  parent = "projects/${google_project.basic.name}"
+  name   = "projects/${google_project.basic.project_id}/policies/iam.disableServiceAccountKeyUpload"
+  parent = "projects/${google_project.basic.project_id}"
 
   spec {
     rules {
@@ -92,8 +92,8 @@ resource "google_org_policy_policy" "primary" {
 
 ```hcl
 resource "google_org_policy_policy" "primary" {
-  name   = "projects/${google_project.basic.name}/policies/gcp.resourceLocations"
-  parent = "projects/${google_project.basic.name}"
+  name   = "projects/${google_project.basic.project_id}/policies/gcp.resourceLocations"
+  parent = "projects/${google_project.basic.project_id}"
 
   spec {
     rules {
