@@ -140,6 +140,7 @@ resource "google_compute_global_forwarding_rule" "default" {
   target                = google_compute_target_http_proxy.default.id
   port_range            = "80"
   load_balancing_scheme = "EXTERNAL_MANAGED"
+  network_tier          = "PREMIUM"
 }
 
 resource "google_compute_target_http_proxy" "default" {

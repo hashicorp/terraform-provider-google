@@ -274,6 +274,24 @@ be used.
 For Private Service Connect forwarding rules that forward traffic to Google
 APIs, a network must be provided.`,
 			},
+			"network_tier": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"PREMIUM", "STANDARD", ""}),
+				Description: `This signifies the networking tier used for configuring
+this load balancer and can only take the following values:
+'PREMIUM', 'STANDARD'.
+
+For regional ForwardingRule, the valid values are 'PREMIUM' and
+'STANDARD'. For GlobalForwardingRule, the valid value is
+'PREMIUM'.
+
+If this field is not specified, it is assumed to be 'PREMIUM'.
+If 'IPAddress' is specified, this value must be equal to the
+networkTier of the Address. Possible values: ["PREMIUM", "STANDARD"]`,
+			},
 			"no_automate_dns_zone": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -493,6 +511,12 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("target"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetProp)) && (ok || !reflect.DeepEqual(v, targetProp)) {
 		obj["target"] = targetProp
+	}
+	networkTierProp, err := expandComputeGlobalForwardingRuleNetworkTier(d.Get("network_tier"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("network_tier"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkTierProp)) && (ok || !reflect.DeepEqual(v, networkTierProp)) {
+		obj["networkTier"] = networkTierProp
 	}
 	serviceDirectoryRegistrationsProp, err := expandComputeGlobalForwardingRuleServiceDirectoryRegistrations(d.Get("service_directory_registrations"), d, config)
 	if err != nil {
@@ -723,6 +747,9 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
 	if err := d.Set("target", flattenComputeGlobalForwardingRuleTarget(res["target"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
+	}
+	if err := d.Set("network_tier", flattenComputeGlobalForwardingRuleNetworkTier(res["networkTier"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
 	if err := d.Set("service_directory_registrations", flattenComputeGlobalForwardingRuleServiceDirectoryRegistrations(res["serviceDirectoryRegistrations"], d, config)); err != nil {
@@ -1082,6 +1109,10 @@ func flattenComputeGlobalForwardingRuleTarget(v interface{}, d *schema.ResourceD
 	return v
 }
 
+func flattenComputeGlobalForwardingRuleNetworkTier(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeGlobalForwardingRuleServiceDirectoryRegistrations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1255,6 +1286,10 @@ func expandComputeGlobalForwardingRuleSubnetwork(v interface{}, d tpgresource.Te
 }
 
 func expandComputeGlobalForwardingRuleTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeGlobalForwardingRuleNetworkTier(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
