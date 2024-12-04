@@ -43,6 +43,7 @@ var (
 		"transfer_spec.0.http_data_source",
 		"transfer_spec.0.azure_blob_storage_data_source",
 		"transfer_spec.0.posix_data_source",
+		"transfer_spec.0.hdfs_data_source",
 	}
 	transferSpecDataSinkKeys = []string{
 		"transfer_spec.0.gcs_data_sink",
@@ -192,6 +193,14 @@ func ResourceStorageTransferJob() *schema.Resource {
 							Elem:         azureBlobStorageDataSchema(),
 							ExactlyOneOf: transferSpecDataSourceKeys,
 							Description:  `An Azure Blob Storage data source.`,
+						},
+						"hdfs_data_source": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							MaxItems:     1,
+							Elem:         hdfsDataSchema(),
+							ExactlyOneOf: transferSpecDataSourceKeys,
+							Description:  `An HDFS Storage data source.`,
 						},
 					},
 				},
@@ -536,6 +545,18 @@ func posixDataSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Root directory path to the filesystem.`,
+			},
+		},
+	}
+}
+
+func hdfsDataSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"path": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Directory path to the filesystem.`,
 			},
 		},
 	}
@@ -1088,6 +1109,25 @@ func flattenPosixData(posixData *storagetransfer.PosixFilesystem) []map[string]i
 	return []map[string]interface{}{data}
 }
 
+func expandHdfsData(hdfsDatas []interface{}) *storagetransfer.HdfsData {
+	if len(hdfsDatas) == 0 || hdfsDatas[0] == nil {
+		return nil
+	}
+
+	hdfsData := hdfsDatas[0].(map[string]interface{})
+	return &storagetransfer.HdfsData{
+		Path: hdfsData["path"].(string),
+	}
+}
+
+func flattenHdfsData(hdfsData *storagetransfer.HdfsData) []map[string]interface{} {
+	data := map[string]interface{}{
+		"path": hdfsData.Path,
+	}
+
+	return []map[string]interface{}{data}
+}
+
 func expandAzureCredentials(azureCredentials []interface{}) *storagetransfer.AzureCredentials {
 	if len(azureCredentials) == 0 || azureCredentials[0] == nil {
 		return nil
@@ -1204,6 +1244,7 @@ func expandTransferSpecs(transferSpecs []interface{}) *storagetransfer.TransferS
 		HttpDataSource:             expandHttpData(transferSpec["http_data_source"].([]interface{})),
 		AzureBlobStorageDataSource: expandAzureBlobStorageData(transferSpec["azure_blob_storage_data_source"].([]interface{})),
 		PosixDataSource:            expandPosixData(transferSpec["posix_data_source"].([]interface{})),
+		HdfsDataSource:             expandHdfsData(transferSpec["hdfs_data_source"].([]interface{})),
 	}
 }
 
@@ -1239,6 +1280,8 @@ func flattenTransferSpec(transferSpec *storagetransfer.TransferSpec, d *schema.R
 		data["azure_blob_storage_data_source"] = flattenAzureBlobStorageData(transferSpec.AzureBlobStorageDataSource, d)
 	} else if transferSpec.PosixDataSource != nil {
 		data["posix_data_source"] = flattenPosixData(transferSpec.PosixDataSource)
+	} else if transferSpec.HdfsDataSource != nil {
+		data["hdfs_data_source"] = flattenHdfsData(transferSpec.HdfsDataSource)
 	}
 
 	return []map[string]interface{}{data}

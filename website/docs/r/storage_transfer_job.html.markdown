@@ -155,6 +155,8 @@ The following arguments are supported:
 
 * `azure_blob_storage_data_source` - (Optional) An Azure Blob Storage data source. Structure [documented below](#nested_azure_blob_storage_data_source).
 
+* `hdfs_data_source` - (Optional) An HDFS data source. Structure [documented below](#nested_hdfs_data_source).
+
 <a name="nested_schedule"></a>The `schedule` block supports:
 
 * `schedule_start_date` - (Required) The first day the recurring transfer is scheduled to run. If `schedule_start_date` is in the past, the transfer will run for the first time on the following day. Structure [documented below](#nested_schedule_start_end_date).
@@ -218,6 +220,10 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 <a name="nested_posix_data_source"></a>The `posix_data_source` block supports:
 
 * `root_directory` - (Required) Root directory path to the filesystem.
+
+<a name="nested_hdfs_data_source"></a>The `hdfs_data_source` block supports:
+
+* `path` - (Required) Root directory path to the filesystem.
 
 <a name="nested_aws_s3_data_source"></a>The `aws_s3_data_source` block supports:
 
