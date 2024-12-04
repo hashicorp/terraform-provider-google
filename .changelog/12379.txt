@@ -1,0 +1,6 @@
+```release-note:new-resource
+networksecurity: Added new resource `google_network_security_authz_policy`
+```
+```release-note:new-resource
+networkservices: Added new resource `google_network_services_authz_extension`
+```
