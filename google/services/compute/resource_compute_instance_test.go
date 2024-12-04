@@ -3469,6 +3469,49 @@ func TestAccComputeInstance_proactiveAttributionLabel(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_autoDeleteUpdate(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	context_1 := map[string]interface{}{
+		"instance_name": fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"auto_delete":   "true",
+	}
+	context_2 := map[string]interface{}{
+		"instance_name": context_1["instance_name"],
+		"auto_delete":   "false",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_autoDeleteUpdate(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "boot_disk.0.auto_delete", "true"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_autoDeleteUpdate(context_2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "boot_disk.0.auto_delete", "false"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_autoDeleteUpdate(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "boot_disk.0.auto_delete", "true"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_keyRevocationActionType(t *testing.T) {
 	t.Parallel()
 
@@ -9355,29 +9398,55 @@ resource "google_compute_instance" "foobar" {
 `, diskName, instanceName, machineType, zone, bootDiskInterface, allowStoppingForUpdate)
 }
 
-func testAccComputeInstance_keyRevocationActionType(context map[string]interface{}) string {
+func testAccComputeInstance_autoDeleteUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
-  project = "debian-cloud"
+	family  = "debian-11"
+	project = "debian-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
-  name         = "%{instance_name}"
-  machine_type = "e2-medium"
-  zone         = "us-central1-a"
+	name = "%{instance_name}"
+	machine_type = "n1-standard-1"
+	zone = "us-central1-a"
 
-  boot_disk {
-	initialize_params {
-	  image = data.google_compute_image.my_image.self_link
+	boot_disk {
+		auto_delete = %{auto_delete}
+		initialize_params {
+			image = data.google_compute_image.my_image.self_link
+		}
 	}
-  }
 
-  network_interface {
-	network = "default"
-  }
+	network_interface {
+		network = "default"
+	}
+}
+`, context)
+}
 
-  key_revocation_action_type = %{key_revocation_action_type}
+func testAccComputeInstance_keyRevocationActionType(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-11"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%{instance_name}"
+	machine_type = "e2-medium"
+	zone         = "us-central1-a"
+
+	boot_disk {
+	initialize_params {
+		image = data.google_compute_image.my_image.self_link
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	key_revocation_action_type = %{key_revocation_action_type}
 }
 `, context)
 }

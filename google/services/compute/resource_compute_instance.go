@@ -212,7 +212,6 @@ func ResourceComputeInstance() *schema.Resource {
 							Optional:     true,
 							AtLeastOneOf: bootDiskKeys,
 							Default:      true,
-							ForceNew:     true,
 							Description:  `Whether the disk will be auto-deleted when the instance is deleted.`,
 						},
 
@@ -2335,6 +2334,18 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return opErr
 			}
 			log.Printf("[DEBUG] Successfully attached disk %s", disk.Source)
+		}
+	}
+
+	// if any other boot_disk fields will be added here this should be wrapped in if d.HasChange("boot_disk")
+	if d.HasChange("boot_disk.0.auto_delete") {
+		op, err := config.NewComputeClient(userAgent).Instances.SetDiskAutoDelete(project, zone, instance.Name, d.Get("boot_disk.0.auto_delete").(bool), d.Get("boot_disk.0.device_name").(string)).Do()
+		if err != nil {
+			return fmt.Errorf("Error changing auto_delete: %s", err)
+		}
+		opErr := ComputeOperationWaitTime(config, op, project, "changing auto_delete", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if opErr != nil {
+			return opErr
 		}
 	}
 
