@@ -68,7 +68,7 @@ The following arguments are supported:
 * `cloud_armor_tier` -
   (Required)
   Managed protection tier to be set.
-  Possible values are: `CA_STANDARD`, `CA_ENTERPRISE_PAYGO`.
+  Possible values are: `CA_STANDARD`, `CA_ENTERPRISE_PAYGO`, `CA_ENTERPRISE_ANNUAL`.
 
 
 - - -

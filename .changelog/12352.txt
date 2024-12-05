@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `CA_ENTERPRISE_ANNUAL` option for field `cloud_armor_tier` in `google_compute_project_cloud_armor_tier` resource
+```
