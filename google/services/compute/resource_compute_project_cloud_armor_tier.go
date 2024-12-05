@@ -57,8 +57,8 @@ func ResourceComputeProjectCloudArmorTier() *schema.Resource {
 			"cloud_armor_tier": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"CA_STANDARD", "CA_ENTERPRISE_PAYGO"}),
-				Description:  `Managed protection tier to be set. Possible values: ["CA_STANDARD", "CA_ENTERPRISE_PAYGO"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"CA_STANDARD", "CA_ENTERPRISE_PAYGO", "CA_ENTERPRISE_ANNUAL"}),
+				Description:  `Managed protection tier to be set. Possible values: ["CA_STANDARD", "CA_ENTERPRISE_PAYGO", "CA_ENTERPRISE_ANNUAL"]`,
 			},
 			"project": {
 				Type:     schema.TypeString,
