@@ -1,0 +1,3 @@
+```release-note:none
+dataproc: fixed test failure due to usage of deprecated version
+```

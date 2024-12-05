@@ -114,7 +114,7 @@ func TestAccDataprocVirtualCluster_basic(t *testing.T) {
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
 	pid := envvar.GetTestProjectFromEnv()
-	version := "3.1-dataproc-7"
+	version := "3.5-dataproc-17"
 	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
 	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
 
@@ -1447,7 +1447,7 @@ resource "google_dataproc_cluster" "virtual_cluster" {
 		kubernetes_namespace = "tf-test-dproc-%s"
 		kubernetes_software_config {
 		  component_version = {
-			"SPARK": "3.1-dataproc-7",
+			"SPARK": "3.5-dataproc-17",
 		  }
 		}
 		gke_cluster_config {

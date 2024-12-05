@@ -214,7 +214,7 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
 
         kubernetes_software_config {
           component_version = {
-            "SPARK" : "3.1-dataproc-7"
+            "SPARK" : "3.5-dataproc-17"
           }
 
           properties = {
