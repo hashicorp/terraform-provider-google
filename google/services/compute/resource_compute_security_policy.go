@@ -325,6 +325,27 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 										Description: `Rate limit key name applicable only for the following key types: HTTP_HEADER -- Name of the HTTP header whose value is taken as the key value. HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.`,
 									},
 
+									"enforce_on_key_configs": {
+										Type:        schema.TypeList,
+										Description: `Enforce On Key Config of this security policy`,
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"enforce_on_key_type": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `Determines the key to enforce the rate_limit_threshold on`,
+													ValidateFunc: validation.StringInSlice([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "USER_IP"}, false),
+												},
+												"enforce_on_key_name": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Rate limit key name applicable only for the following key types: HTTP_HEADER -- Name of the HTTP header whose value is taken as the key value. HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.`,
+												},
+											},
+										},
+									},
+
 									"ban_threshold": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -853,15 +874,22 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 
 		oPriorities := map[int64]bool{}
 		nPriorities := map[int64]bool{}
+		oRules := make(map[int64]map[string]interface{})
+		nRules := make(map[int64]map[string]interface{})
+
 		for _, rule := range oSet.List() {
 			oPriorities[int64(rule.(map[string]interface{})["priority"].(int))] = true
+			oRules[int64(rule.(map[string]interface{})["priority"].(int))] = rule.(map[string]interface{})
 		}
 
 		for _, rule := range nSet.List() {
+			nRules[int64(rule.(map[string]interface{})["priority"].(int))] = rule.(map[string]interface{})
 			priority := int64(rule.(map[string]interface{})["priority"].(int))
 			nPriorities[priority] = true
+
 			if !oPriorities[priority] {
 				client := config.NewComputeClient(userAgent)
+
 				// If the rule is in new and its priority does not exist in old, then add it.
 				op, err := client.SecurityPolicies.AddRule(project, sp, expandSecurityPolicyRule(rule)).Do()
 
@@ -874,10 +902,40 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 					return err
 				}
 			} else if !oSet.Contains(rule) {
+
+				oMap := make(map[string]interface{})
+				nMap := make(map[string]interface{})
+
+				updateMask := []string{}
+
+				if oRules[priority]["rate_limit_options"] != nil {
+					for _, oValue := range oRules[priority]["rate_limit_options"].([]interface{}) {
+						oMap = oValue.(map[string]interface{})
+					}
+				}
+
+				if nRules[priority]["rate_limit_options"] != nil {
+					for _, nValue := range nRules[priority]["rate_limit_options"].([]interface{}) {
+						nMap = nValue.(map[string]interface{})
+					}
+				}
+
+				if fmt.Sprintf("%v", oMap["enforce_on_key"]) != fmt.Sprintf("%v", nMap["enforce_on_key"]) {
+					updateMask = append(updateMask, "rate_limit_options.enforce_on_key")
+				}
+
+				if fmt.Sprintf("%v", oMap["enforce_on_key_configs"]) != fmt.Sprintf("%v", nMap["enforce_on_key_configs"]) {
+					updateMask = append(updateMask, "rate_limit_options.enforce_on_key_configs")
+				}
+
+				if fmt.Sprintf("%v", oMap["enforce_on_key_name"]) != fmt.Sprintf("%v", nMap["enforce_on_key_name"]) {
+					updateMask = append(updateMask, "rate_limit_options.enforce_on_key_name")
+				}
+
 				client := config.NewComputeClient(userAgent)
 
 				// If the rule is in new, and its priority is in old, but its hash is different than the one in old, update it.
-				op, err := client.SecurityPolicies.PatchRule(project, sp, expandSecurityPolicyRule(rule)).Priority(priority).Do()
+				op, err := client.SecurityPolicies.PatchRule(project, sp, expandSecurityPolicyRule(rule)).Priority(priority).UpdateMask(strings.Join(updateMask, ",")).Do()
 
 				if err != nil {
 					return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
@@ -1420,6 +1478,7 @@ func expandSecurityPolicyRuleRateLimitOptions(configured []interface{}) *compute
 		ConformAction:         data["conform_action"].(string),
 		EnforceOnKey:          data["enforce_on_key"].(string),
 		EnforceOnKeyName:      data["enforce_on_key_name"].(string),
+		EnforceOnKeyConfigs:   expandSecurityPolicyEnforceOnKeyConfigs(data["enforce_on_key_configs"].([]interface{})),
 		BanDurationSec:        int64(data["ban_duration_sec"].(int)),
 		ExceedRedirectOptions: expandSecurityPolicyRuleRedirectOptions(data["exceed_redirect_options"].([]interface{})),
 		ForceSendFields:       []string{"EnforceOnKey", "EnforceOnKeyName"},
@@ -1438,6 +1497,25 @@ func expandThreshold(configured []interface{}) *compute.SecurityPolicyRuleRateLi
 	}
 }
 
+func expandSecurityPolicyEnforceOnKeyConfigs(configured []interface{}) []*compute.SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig {
+	params := make([]*compute.SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig, 0, len(configured))
+
+	for _, raw := range configured {
+		params = append(params, expandSecurityPolicyEnforceOnKeyConfigsFields(raw))
+	}
+
+	return params
+}
+
+func expandSecurityPolicyEnforceOnKeyConfigsFields(raw interface{}) *compute.SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig {
+	data := raw.(map[string]interface{})
+
+	return &compute.SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig{
+		EnforceOnKeyType: data["enforce_on_key_type"].(string),
+		EnforceOnKeyName: data["enforce_on_key_name"].(string),
+	}
+}
+
 func flattenSecurityPolicyRuleRateLimitOptions(conf *compute.SecurityPolicyRuleRateLimitOptions) []map[string]interface{} {
 	if conf == nil {
 		return nil
@@ -1450,6 +1528,7 @@ func flattenSecurityPolicyRuleRateLimitOptions(conf *compute.SecurityPolicyRuleR
 		"conform_action":          conf.ConformAction,
 		"enforce_on_key":          conf.EnforceOnKey,
 		"enforce_on_key_name":     conf.EnforceOnKeyName,
+		"enforce_on_key_configs":  flattenSecurityPolicyEnforceOnKeyConfigs(conf.EnforceOnKeyConfigs),
 		"ban_duration_sec":        conf.BanDurationSec,
 		"exceed_redirect_options": flattenSecurityPolicyRedirectOptions(conf.ExceedRedirectOptions),
 	}
@@ -1479,6 +1558,29 @@ func expandSecurityPolicyRuleRedirectOptions(configured []interface{}) *compute.
 	return &compute.SecurityPolicyRuleRedirectOptions{
 		Type:   data["type"].(string),
 		Target: data["target"].(string),
+	}
+}
+
+func flattenSecurityPolicyEnforceOnKeyConfigs(conf []*compute.SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig) []map[string]interface{} {
+	if conf == nil || len(conf) == 0 {
+		return nil
+	}
+
+	transformed := make([]map[string]interface{}, 0, len(conf))
+	for _, raw := range conf {
+		transformed = append(transformed, flattenSecurityPolicyEnforceOnKeyConfigsFields(raw))
+	}
+	return transformed
+}
+
+func flattenSecurityPolicyEnforceOnKeyConfigsFields(conf *compute.SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig) map[string]interface{} {
+	if conf == nil {
+		return nil
+	}
+
+	return map[string]interface{}{
+		"enforce_on_key_name": conf.EnforceOnKeyName,
+		"enforce_on_key_type": conf.EnforceOnKeyType,
 	}
 }
 
