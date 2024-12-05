@@ -34,9 +34,10 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"project":             "oci-terraform-testing",
-		"random_suffix":       acctest.RandString(t, 10),
+		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-basic-%s", acctest.RandString(t, 10)),
+		"deletion_protection":             false,
+		"project":                         "oci-terraform-testing",
+		"random_suffix":                   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -60,8 +61,8 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 func testAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataInfrastructureBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_oracle_database_cloud_exadata_infrastructure" "my-cloud-exadata"{
-  cloud_exadata_infrastructure_id = "tf-test-my-instance%{random_suffix}"
-  display_name = "tf-test-my-instance%{random_suffix} displayname"
+  cloud_exadata_infrastructure_id = "%{cloud_exadata_infrastructure_id}"
+  display_name = "%{cloud_exadata_infrastructure_id} displayname"
   location = "us-east4"
   project = "%{project}"
   properties {
@@ -79,9 +80,10 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"project":             "oci-terraform-testing",
-		"random_suffix":       acctest.RandString(t, 10),
+		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-full-%s", acctest.RandString(t, 10)),
+		"deletion_protection":             false,
+		"project":                         "oci-terraform-testing",
+		"random_suffix":                   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -105,8 +107,8 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 func testAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataInfrastructureFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_oracle_database_cloud_exadata_infrastructure" "my-cloud-exadata"{
-  cloud_exadata_infrastructure_id = "tf-test-my-instance%{random_suffix}"
-  display_name = "tf-test-my-instance%{random_suffix} displayname"
+  cloud_exadata_infrastructure_id = "%{cloud_exadata_infrastructure_id}"
+  display_name = "%{cloud_exadata_infrastructure_id} displayname"
   location = "us-east4"
   project = "%{project}"
   gcp_oracle_zone = "us-east4-b-r1"
