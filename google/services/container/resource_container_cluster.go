@@ -189,6 +189,7 @@ func ResourceContainerCluster() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			resourceNodeConfigEmptyGuestAccelerator,
 			customdiff.ForceNewIfChange("enable_l4_ilb_subsetting", isBeenEnabled),
+			customdiff.ForceNewIfChange("enable_fqdn_network_policy", isBeenEnabled),
 			containerClusterAutopilotCustomizeDiff,
 			containerClusterNodeVersionRemoveDefaultCustomizeDiff,
 			containerClusterNetworkPolicyEmptyCustomizeDiff,
@@ -1910,6 +1911,12 @@ func ResourceContainerCluster() *schema.Resource {
 				Description: `Whether multi-networking is enabled for this cluster.`,
 				Default:     false,
 			},
+			"enable_fqdn_network_policy": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether FQDN Network Policy is enabled on this cluster.`,
+				Default:     false,
+			},
 			"private_ipv6_google_access": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -2296,6 +2303,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			GatewayApiConfig:                     expandGatewayApiConfig(d.Get("gateway_api_config")),
 			EnableMultiNetworking:                d.Get("enable_multi_networking").(bool),
 			DefaultEnablePrivateNodes:            expandDefaultEnablePrivateNodes(d),
+			EnableFqdnNetworkPolicy:              d.Get("enable_fqdn_network_policy").(bool),
 		},
 		MasterAuth:           expandMasterAuth(d.Get("master_auth")),
 		NotificationConfig:   expandNotificationConfig(d.Get("notification_config")),
@@ -2855,6 +2863,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("enable_multi_networking", cluster.NetworkConfig.EnableMultiNetworking); err != nil {
 		return fmt.Errorf("Error setting enable_multi_networking: %s", err)
 	}
+	if err := d.Set("enable_fqdn_network_policy", cluster.NetworkConfig.EnableFqdnNetworkPolicy); err != nil {
+		return fmt.Errorf("Error setting enable_fqdn_network_policy: %s", err)
+	}
 	if err := d.Set("private_ipv6_google_access", cluster.NetworkConfig.PrivateIpv6GoogleAccess); err != nil {
 		return fmt.Errorf("Error setting private_ipv6_google_access: %s", err)
 	}
@@ -3305,6 +3316,22 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s L4 ILB Subsetting has been updated to %v", d.Id(), enabled)
+	}
+
+	if d.HasChange("enable_fqdn_network_policy") {
+		enabled := d.Get("enable_fqdn_network_policy").(bool)
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredEnableFqdnNetworkPolicy: enabled,
+			},
+		}
+		updateF := updateFunc(req, "updating fqdn network policy")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s FQDN Network Policy has been updated to %v", d.Id(), enabled)
 	}
 
 	if d.HasChange("enable_cilium_clusterwide_network_policy") {

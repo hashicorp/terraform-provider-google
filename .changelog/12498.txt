@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: promoted `google_container_cluster.enable_fqdn_network_policy` to GA 
+```
