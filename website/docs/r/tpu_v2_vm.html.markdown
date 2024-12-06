@@ -90,6 +90,7 @@ resource "google_tpu_v2_vm" "tpu" {
     enable_external_ips = true
     network             = google_compute_network.network.id
     subnetwork          = google_compute_subnetwork.subnet.id
+    queue_count         = 32
   }
   
   scheduling_config {
@@ -206,6 +207,12 @@ The following arguments are supported:
   Network configurations for the TPU node.
   Structure is [documented below](#nested_network_config).
 
+* `network_configs` -
+  (Optional)
+  Repeated network configurations for the TPU node. This field is used to specify multiple
+  network configs for the TPU node.
+  Structure is [documented below](#nested_network_configs).
+
 * `service_account` -
   (Optional)
   The Google Cloud Platform Service Account to be used by the TPU node VMs. If None is
@@ -260,16 +267,12 @@ The following arguments are supported:
 * `network` -
   (Optional)
   The name of the network for the TPU node. It must be a preexisting Google Compute Engine
-  network. If both network and subnetwork are specified, the given subnetwork must belong
-  to the given network. If network is not specified, it will be looked up from the
-  subnetwork if one is provided, or otherwise use "default".
+  network. If none is provided, "default" will be used.
 
 * `subnetwork` -
   (Optional)
   The name of the subnetwork for the TPU node. It must be a preexisting Google Compute
-  Engine subnetwork. If both network and subnetwork are specified, the given subnetwork
-  must belong to the given network. If subnetwork is not specified, the subnetwork with the
-  same name as the network will be used.
+  Engine subnetwork. If none is provided, "default" will be used.
 
 * `enable_external_ips` -
   (Optional)
@@ -280,6 +283,36 @@ The following arguments are supported:
   (Optional)
   Allows the TPU node to send and receive packets with non-matching destination or source
   IPs. This is required if you plan to use the TPU workers to forward routes.
+
+* `queue_count` -
+  (Optional)
+  Specifies networking queue count for TPU VM instance's network interface.
+
+<a name="nested_network_configs"></a>The `network_configs` block supports:
+
+* `network` -
+  (Optional)
+  The name of the network for the TPU node. It must be a preexisting Google Compute Engine
+  network. If none is provided, "default" will be used.
+
+* `subnetwork` -
+  (Optional)
+  The name of the subnetwork for the TPU node. It must be a preexisting Google Compute
+  Engine subnetwork. If none is provided, "default" will be used.
+
+* `enable_external_ips` -
+  (Optional)
+  Indicates that external IP addresses would be associated with the TPU workers. If set to
+  false, the specified subnetwork or network should have Private Google Access enabled.
+
+* `can_ip_forward` -
+  (Optional)
+  Allows the TPU node to send and receive packets with non-matching destination or source
+  IPs. This is required if you plan to use the TPU workers to forward routes.
+
+* `queue_count` -
+  (Optional)
+  Specifies networking queue count for TPU VM instance's network interface.
 
 <a name="nested_service_account"></a>The `service_account` block supports:
 
