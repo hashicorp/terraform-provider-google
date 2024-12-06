@@ -22,6 +22,26 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+func verifyRulePriorityCompareEmptyValues(d *schema.ResourceData, rulePriority int, schemaKey string) bool {
+	if schemaRules, ok := d.GetOk("rule"); ok {
+		for _, itemRaw := range schemaRules.(*schema.Set).List() {
+			if itemRaw == nil {
+				continue
+			}
+			item := itemRaw.(map[string]interface{})
+
+			schemaPriority := item["priority"].(int)
+			if rulePriority == schemaPriority {
+				if tpgresource.IsEmptyValue(reflect.ValueOf(item[schemaKey])) {
+					return true
+				}
+				break
+			}
+		}
+	}
+	return false
+}
+
 // IsEmptyValue does not consider a empty PreconfiguredWafConfig object as empty so we check it's nested values
 func preconfiguredWafConfigIsEmptyValue(config *compute.SecurityPolicyRulePreconfiguredWafConfig) bool {
 	if tpgresource.IsEmptyValue(reflect.ValueOf(config.Exclusions)) &&
@@ -1155,7 +1175,7 @@ func flattenSecurityPolicyRules(rules []*compute.SecurityPolicyRule, d *schema.R
 			"priority":                 rule.Priority,
 			"action":                   rule.Action,
 			"preview":                  rule.Preview,
-			"match":                    flattenMatch(rule.Match),
+			"match":                    flattenMatch(rule.Match, d, int(rule.Priority)),
 			"preconfigured_waf_config": flattenPreconfiguredWafConfig(rule.PreconfiguredWafConfig, d, int(rule.Priority)),
 			"rate_limit_options":       flattenSecurityPolicyRuleRateLimitOptions(rule.RateLimitOptions),
 			"redirect_options":         flattenSecurityPolicyRedirectOptions(rule.RedirectOptions),
@@ -1166,7 +1186,7 @@ func flattenSecurityPolicyRules(rules []*compute.SecurityPolicyRule, d *schema.R
 	return rulesSchema
 }
 
-func flattenMatch(match *compute.SecurityPolicyRuleMatcher) []map[string]interface{} {
+func flattenMatch(match *compute.SecurityPolicyRuleMatcher, d *schema.ResourceData, rulePriority int) []map[string]interface{} {
 	if match == nil {
 		return nil
 	}
@@ -1175,7 +1195,7 @@ func flattenMatch(match *compute.SecurityPolicyRuleMatcher) []map[string]interfa
 		"versioned_expr": match.VersionedExpr,
 		"config":         flattenMatchConfig(match.Config),
 		"expr":           flattenMatchExpr(match),
-		"expr_options":   flattenMatchExprOptions(match.ExprOptions),
+		"expr_options":   flattenMatchExprOptions(match.ExprOptions, d, rulePriority),
 	}
 
 	return []map[string]interface{}{data}
@@ -1193,8 +1213,15 @@ func flattenMatchConfig(conf *compute.SecurityPolicyRuleMatcherConfig) []map[str
 	return []map[string]interface{}{data}
 }
 
-func flattenMatchExprOptions(exprOptions *compute.SecurityPolicyRuleMatcherExprOptions) []map[string]interface{} {
+func flattenMatchExprOptions(exprOptions *compute.SecurityPolicyRuleMatcherExprOptions, d *schema.ResourceData, rulePriority int) []map[string]interface{} {
 	if exprOptions == nil {
+		return nil
+	}
+
+	// We check if the API is returning a empty non-null value then we find the current value for this field in the rule config and check if its empty
+	if (tpgresource.IsEmptyValue(reflect.ValueOf(exprOptions.RecaptchaOptions.ActionTokenSiteKeys)) &&
+		tpgresource.IsEmptyValue(reflect.ValueOf(exprOptions.RecaptchaOptions.SessionTokenSiteKeys))) &&
+		verifyRulePriorityCompareEmptyValues(d, rulePriority, "recaptcha_options") {
 		return nil
 	}
 
@@ -1239,22 +1266,9 @@ func flattenPreconfiguredWafConfig(config *compute.SecurityPolicyRulePreconfigur
 		return nil
 	}
 
-	// We find the current value for this field in the config and check if its empty, then check if the API is returning a empty non-null value
-	if schemaRules, ok := d.GetOk("rule"); ok {
-		for _, itemRaw := range schemaRules.(*schema.Set).List() {
-			if itemRaw == nil {
-				continue
-			}
-			item := itemRaw.(map[string]interface{})
-
-			schemaPriority := item["priority"].(int)
-			if rulePriority == schemaPriority {
-				if preconfiguredWafConfigIsEmptyValue(config) && tpgresource.IsEmptyValue(reflect.ValueOf(item["preconfigured_waf_config"])) {
-					return nil
-				}
-				break
-			}
-		}
+	// We check if the API is returning a empty non-null value then we find the current value for this field in the rule config and check if its empty
+	if preconfiguredWafConfigIsEmptyValue(config) && verifyRulePriorityCompareEmptyValues(d, rulePriority, "preconfigured_waf_config") {
+		return nil
 	}
 
 	data := map[string]interface{}{

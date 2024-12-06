@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed permadiff on the `recaptcha_options` field for `google_compute_security_policy` resource
+```
