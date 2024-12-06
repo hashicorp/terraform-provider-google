@@ -1,0 +1,3 @@
+```release-note:enhancement
+tpuv2: added `network_configs` and `network_config.queue_count` fields to `google_tpu_v2_vm` resource
+```
