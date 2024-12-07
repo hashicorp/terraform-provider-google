@@ -34,6 +34,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBas
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"database_name":       fmt.Sprintf("tftestdatabase%s", acctest.RandString(t, 10)),
 		"deletion_protection": false,
 		"project":             "oci-terraform-testing",
 		"random_suffix":       acctest.RandString(t, 10),
@@ -63,7 +64,7 @@ resource "google_oracle_database_autonomous_database" "myADB"{
   autonomous_database_id = "tf-test-my-instance%{random_suffix}"
   location = "us-east4"
   project = "%{project}"
-  database = "testdb"
+  database = "%{database_name}"
   admin_password = "123Abpassword"
   network = data.google_compute_network.default.id
   cidr = "10.5.0.0/24"
@@ -88,6 +89,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseFul
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"database_name":       fmt.Sprintf("tftestdatabase%s", acctest.RandString(t, 10)),
 		"deletion_protection": false,
 		"project":             "oci-terraform-testing",
 		"random_suffix":       acctest.RandString(t, 10),
@@ -118,7 +120,7 @@ resource "google_oracle_database_autonomous_database" "myADB"{
   location = "us-east4"
   project = "%{project}"
   display_name = "autonomousDatabase displayname"
-  database = "testdatabase"
+  database = "%{database_name}"
   admin_password = "123Abpassword"
   network = data.google_compute_network.default.id
   cidr = "10.5.0.0/24"
