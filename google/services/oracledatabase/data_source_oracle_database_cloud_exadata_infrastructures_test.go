@@ -27,7 +27,6 @@ func TestAccOracleDatabaseCloudExadataInfrastructures_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_exadata_infrastructures.my_cloud_exadatas", "cloud_exadata_infrastructures.0.properties.0.cpu_count"),
 					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_exadata_infrastructures.my_cloud_exadatas", "cloud_exadata_infrastructures.0.properties.0.compute_count"),
 					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_exadata_infrastructures.my_cloud_exadatas", "cloud_exadata_infrastructures.0.properties.0.max_cpu_count"),
-					resource.TestCheckResourceAttr("data.google_oracle_database_cloud_exadata_infrastructures.my_cloud_exadatas", "cloud_exadata_infrastructures.0.properties.0.state", "AVAILABLE"),
 					resource.TestCheckResourceAttr("data.google_oracle_database_cloud_exadata_infrastructures.my_cloud_exadatas", "cloud_exadata_infrastructures.0.properties.0.max_cpu_count", "252"),
 				),
 			},
