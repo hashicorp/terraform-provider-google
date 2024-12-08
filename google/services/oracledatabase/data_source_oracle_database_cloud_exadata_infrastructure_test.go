@@ -23,7 +23,7 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_exadata_infrastructure.my-exadata", "gcp_oracle_zone"),
 					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_exadata_infrastructure.my-exadata", "properties.#"),
 					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_exadata_infrastructure.my-exadata", "properties.0.compute_count"),
-					resource.TestCheckResourceAttr("data.google_oracle_database_cloud_exadata_infrastructure.my-exadata", "display_name", "ofake-exadata-for-vm display name"),
+					resource.TestCheckResourceAttr("data.google_oracle_database_cloud_exadata_infrastructure.my-exadata", "display_name", "ofake-do-not-delete-tf-exadata display name"),
 					resource.TestCheckResourceAttr("data.google_oracle_database_cloud_exadata_infrastructure.my-exadata", "gcp_oracle_zone", "us-east4-b-r1"),
 					resource.TestCheckResourceAttr("data.google_oracle_database_cloud_exadata_infrastructure.my-exadata", "properties.0.state", "AVAILABLE"),
 					resource.TestCheckResourceAttr("data.google_oracle_database_cloud_exadata_infrastructure.my-exadata", "properties.0.shape", "Exadata.X9M"),
