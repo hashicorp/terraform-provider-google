@@ -71,6 +71,56 @@ func TestAccComputeResourcePolicy_attached(t *testing.T) {
 	})
 }
 
+func TestAccComputeResourcePolicy_guestFlushEmptyValue(t *testing.T) {
+	t.Parallel()
+
+	context_1 := map[string]interface{}{
+		"suffix":              fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"snapshot_properties": ``,
+	}
+
+	context_2 := map[string]interface{}{
+		"suffix": context_1["suffix"],
+		"snapshot_properties": `
+		snapshot_properties {
+          labels = {
+            foo = "bar"
+          }
+        }
+		`,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeResourcePolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeResourcePolicy_guestFlushEmptyValue(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_compute_resource_policy.foo", "guest_flush"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_resource_policy.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeResourcePolicy_guestFlushEmptyValue(context_2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_compute_resource_policy.foo", "guest_flush"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_resource_policy.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeResourcePolicy_attached(suffix string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -120,4 +170,22 @@ resource "google_compute_resource_policy" "foo" {
 }
 
 `, suffix, suffix)
+}
+
+func testAccComputeResourcePolicy_guestFlushEmptyValue(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_resource_policy" "foo" {
+  name   = "tf-test-gce-policy%{suffix}"
+  region = "us-central1"
+  snapshot_schedule_policy {
+	schedule {
+	  daily_schedule {
+		days_in_cycle = 1
+		start_time    = "04:00"
+	  }
+	}
+	%{snapshot_properties}
+  }
+}
+`, context)
 }

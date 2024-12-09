@@ -1,0 +1,3 @@
+```release-note:bug
+compute: updating labels on `resource_google_compute_resource_policy` will no longer fail because of a Patch error with `guest_flush`
+```
