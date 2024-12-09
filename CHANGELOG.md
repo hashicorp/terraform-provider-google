@@ -25,7 +25,10 @@ FEATURES:
 * **New Resource:** `google_gemini_repository_group_iam_policy` (beta only) ([#20557](https://github.com/hashicorp/terraform-provider-google/pull/20557))
 * **New Resource:** `google_gemini_repository_group` (beta only) ([#20557](https://github.com/hashicorp/terraform-provider-google/pull/20557))
 * **New Resource:** `google_iam_projects_policy_binding` (beta) ([#20438](https://github.com/hashicorp/terraform-provider-google/pull/20438))
-* **New Resource:** `google_network_security_mirroring_deployment`, `google_network_security_mirroring_deployment_group`, `google_network_security_mirroring_endpoint_group_association`, `google_network_security_mirroring_endpoint_group` ([#20489](https://github.com/hashicorp/terraform-provider-google/pull/20489))
+* **New Resource:** `google_network_security_mirroring_deployment` ([#20489](https://github.com/hashicorp/terraform-provider-google/pull/20489))
+* **New Resource:** `google_network_security_mirroring_deployment_group` ([#20489](https://github.com/hashicorp/terraform-provider-google/pull/20489))
+* **New Resource:** `google_network_security_mirroring_endpoint_group_association` ([#20489](https://github.com/hashicorp/terraform-provider-google/pull/20489))
+* **New Resource:** `google_network_security_mirroring_endpoint_group` ([#20489](https://github.com/hashicorp/terraform-provider-google/pull/20489))
 * **New Resource:** `google_tpu_v2_queued_resource` (beta) ([#20443](https://github.com/hashicorp/terraform-provider-google/pull/20443))
 
 IMPROVEMENTS:
@@ -37,8 +40,7 @@ IMPROVEMENTS:
 * clouddeploy: added `serial_pipeline.strategy.canary.runtime_config.kubernetes.gateway_service_mesh.route_destinations` field to `google_clouddeploy_delivery_pipeline` resource ([#20561](https://github.com/hashicorp/terraform-provider-google/pull/20561))
 * composer: added multiple composer 3 related fields to `google_composer_environment` (GA) ([#20478](https://github.com/hashicorp/terraform-provider-google/pull/20478))
 * compute: `google_compute_instance`, `google_compute_instance_template`, `google_compute_region_instance_template` now supports `advanced_machine_features.enable_uefi_networking` field ([#20531](https://github.com/hashicorp/terraform-provider-google/pull/20531))
-* compute: `stack_type` can now be set to `IPV6_ONLY` on `google_compute_subnetwork`, `google_compute_instance`, `google_compute_instance_template` and `google_compute_region_instance_template`. REVERTED: PLEASE REMOVE ([#20462](https://github.com/hashicorp/terraform-provider-google/pull/20462))
-* compute: add support for specifying storage pool with name or partial url ([#20502](https://github.com/hashicorp/terraform-provider-google/pull/20502))
+* compute: added support for specifying storage pool with name or partial url ([#20502](https://github.com/hashicorp/terraform-provider-google/pull/20502))
 * compute: added `numeric_id` to the `google_compute_network` data source ([#20548](https://github.com/hashicorp/terraform-provider-google/pull/20548))
 * compute: added `threshold_configs` field to `google_compute_security_policy` resource ([#20545](https://github.com/hashicorp/terraform-provider-google/pull/20545))
 * compute: added server generated id as `forwarding_rule_id` to `google_compute_global_forwarding_rule` ([#20404](https://github.com/hashicorp/terraform-provider-google/pull/20404))
@@ -61,11 +63,10 @@ IMPROVEMENTS:
 * oracledatabase: added `deletion_protection` field to `google_oracle_database_cloud_vm_cluster ` ([#20392](https://github.com/hashicorp/terraform-provider-google/pull/20392))
 * parallelstore: added `deployment_type` to `google_parallelstore_instance` ([#20457](https://github.com/hashicorp/terraform-provider-google/pull/20457))
 * resourcemanager: made `google_service_account` `email` and `member` fields available during plan ([#20510](https://github.com/hashicorp/terraform-provider-google/pull/20510))
-* sql: fixed acceptance tests TestAccSqlDatabaseInstance_replica and TestAccSQLDatabaseInstance_sqlPostgresDataCacheConfig. ([#20436](https://github.com/hashicorp/terraform-provider-google/pull/20436))
 
 BUG FIXES:
 * apigee: made `google_apigee_organization` wait for deletion operation to complete. ([#20504](https://github.com/hashicorp/terraform-provider-google/pull/20504))
-* cloudfunctions: Fixed issue when updating `vpc_connector_egress_settings` field for `google_cloudfunctions_function` resource. ([#20437](https://github.com/hashicorp/terraform-provider-google/pull/20437))
+* cloudfunctions: fixed issue when updating `vpc_connector_egress_settings` field for `google_cloudfunctions_function` resource. ([#20437](https://github.com/hashicorp/terraform-provider-google/pull/20437))
 * dataproc: ensured oneOf condition is honored when expanding the job configuration for Hive, Pig, Spark-sql, and Presto in `google_dataproc_job`. ([#20453](https://github.com/hashicorp/terraform-provider-google/pull/20453))
 * gkehub: fixed allowable value `INSTALLATION_UNSPECIFIED` in `template_library.installation` ([#20567](https://github.com/hashicorp/terraform-provider-google/pull/20567))
 * sql: fixed edition downgrade failure for an `ENTERPRISE_PLUS` instance with data cache enabled. ([#20393](https://github.com/hashicorp/terraform-provider-google/pull/20393))
