@@ -66,6 +66,42 @@ resource "google_artifact_registry_repository" "my-repo" {
 `, context)
 }
 
+func TestAccArtifactRegistryRepository_artifactRegistryRepositoryMultiRegionExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArtifactRegistryRepository_artifactRegistryRepositoryMultiRegionExample(context),
+			},
+			{
+				ResourceName:            "google_artifact_registry_repository.my-repo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "repository_id", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccArtifactRegistryRepository_artifactRegistryRepositoryMultiRegionExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_artifact_registry_repository" "my-repo" {
+  repository_id = "tf-test-my-repository%{random_suffix}"
+  description   = "example docker repository%{random_suffix}"
+  location      = "us"
+  format        = "DOCKER"
+}
+`, context)
+}
+
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryDockerExample(t *testing.T) {
 	t.Parallel()
 

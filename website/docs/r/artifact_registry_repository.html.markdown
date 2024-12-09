@@ -45,6 +45,22 @@ resource "google_artifact_registry_repository" "my-repo" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=artifact_registry_repository_multi_region&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Artifact Registry Repository Multi Region
+
+
+```hcl
+resource "google_artifact_registry_repository" "my-repo" {
+  repository_id = "my-repository"
+  description   = "example docker repository"
+  location      = "us"
+  format        = "DOCKER"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=artifact_registry_repository_docker&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -630,11 +646,6 @@ resource "google_artifact_registry_repository" "my-repo" {
 The following arguments are supported:
 
 
-* `repository_id` -
-  (Required)
-  The last part of the repository name, for example:
-  "repo1"
-
 * `format` -
   (Required)
   The format of packages that are stored in the repository. Supported formats
@@ -642,13 +653,14 @@ The following arguments are supported:
   You can only create alpha formats if you are a member of the
   [alpha user group](https://cloud.google.com/artifact-registry/docs/supported-formats#alpha-access).
 
+* `repository_id` -
+  (Required)
+  The last part of the repository name, for example:
+  "repo1"
+
 
 - - -
 
-
-* `location` -
-  (Optional)
-  The name of the location this repository is located in.
 
 * `description` -
   (Optional)
@@ -712,6 +724,15 @@ The following arguments are supported:
   (Optional)
   If true, the cleanup pipeline is prevented from deleting versions in this
   repository.
+
+* `location` -
+  (Optional)
+  The name of the repository's location. In addition to specific regions,
+  special values for multi-region locations are `asia`, `europe`, and `us`.
+  See [here](https://cloud.google.com/artifact-registry/docs/repositories/repo-locations),
+  or use the
+  [google_artifact_registry_locations](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/artifact_registry_locations)
+  data source for possible values.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -1059,7 +1080,6 @@ Repository can be imported using any of these accepted formats:
 * `projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}`
 * `{{project}}/{{location}}/{{repository_id}}`
 * `{{location}}/{{repository_id}}`
-* `{{repository_id}}`
 
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Repository using one of the formats above. For example:
@@ -1077,7 +1097,6 @@ When using the [`terraform import` command](https://developer.hashicorp.com/terr
 $ terraform import google_artifact_registry_repository.default projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}
 $ terraform import google_artifact_registry_repository.default {{project}}/{{location}}/{{repository_id}}
 $ terraform import google_artifact_registry_repository.default {{location}}/{{repository_id}}
-$ terraform import google_artifact_registry_repository.default {{repository_id}}
 ```
 
 ## User Project Overrides
