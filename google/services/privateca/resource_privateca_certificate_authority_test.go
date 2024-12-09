@@ -128,9 +128,10 @@ func TestAccPrivatecaCertificateAuthority_subordinateCaActivatedByFirstPartyIssu
 
 	random_suffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"root_location": "us-central1",
-		"sub_location":  "australia-southeast1",
-		"random_suffix": random_suffix,
+		"root_location":     "us-central1",
+		"sub_location":      "australia-southeast1",
+		"random_suffix":     random_suffix,
+		"first_label_value": "bar",
 	}
 
 	resourceName := "google_privateca_certificate_authority.sub-1"
@@ -170,6 +171,47 @@ func TestAccPrivatecaCertificateAuthority_subordinateCaActivatedByFirstPartyIssu
 				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordinateStagedWithFirstPartyIssuer(context),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "state", "STAGED"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccPrivatecaCertificateAuthority_subordinateCaCanUpdateLabel(t *testing.T) {
+	t.Parallel()
+	acctest.SkipIfVcr(t)
+
+	random_suffix := acctest.RandString(t, 10)
+	context1 := map[string]interface{}{
+		"root_location":     "us-central1",
+		"sub_location":      "australia-southeast1",
+		"random_suffix":     random_suffix,
+		"first_label_value": "bar-1",
+	}
+
+	context2 := map[string]interface{}{
+		"root_location":     "us-central1",
+		"sub_location":      "australia-southeast1",
+		"random_suffix":     random_suffix,
+		"first_label_value": "bar-2",
+	}
+
+	resourceName := "google_privateca_certificate_authority.sub-1"
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordinateWithFirstPartyIssuer(context1),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "labels.first_label", context1["first_label_value"].(string)),
+				),
+			},
+			{
+				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordinateWithFirstPartyIssuer(context2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "labels.first_label", context2["first_label_value"].(string)),
 				),
 			},
 		},
@@ -469,6 +511,10 @@ resource "google_privateca_certificate_authority" "sub-1" {
 		algorithm = "RSA_PKCS1_4096_SHA256"
 	}
 	type = "SUBORDINATE"
+
+	labels = {
+		first_label = "%{first_label_value}"
+	}
 
 	// Disable CA deletion related safe checks for easier cleanup.
 	deletion_protection                    = false

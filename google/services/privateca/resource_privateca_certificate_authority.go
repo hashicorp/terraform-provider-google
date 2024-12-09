@@ -1217,6 +1217,21 @@ func resourcePrivatecaCertificateAuthorityUpdate(d *schema.ResourceData, meta in
 		}
 	}
 
+	// `subordinateConfig.certificateAuthority` is not directly passed
+	// to the backend when activating a sub-CA. Instead, it is used to sign CA cert
+	// and activate the sub-CA at client side. See b/332548736 for details.
+	// Drop this field to avoid both `subordinateConfig.certificateAuthority`
+	// and `subordinateConfig.pemIssuerChain` to be passed to the backend.
+	if _, ok := obj["subordinateConfig"]; ok {
+		subConfig := obj["subordinateConfig"].(map[string]interface{})
+		// There could be case which a sub-CA was activated via `subordinateConfig.certificateAuthority`
+		// directly by older version of providers.
+		// For backward compatibility, delete `certificateAuthority` only if `pemIssuerChain` is presented.
+		if _, ok := subConfig["pemIssuerChain"]; ok {
+			delete(subConfig, "certificateAuthority")
+		}
+	}
+
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
