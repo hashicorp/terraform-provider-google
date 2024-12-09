@@ -2,9 +2,7 @@
 
 NOTES:
 * New [ephemeral resources](https://developer.hashicorp.com/terraform/language/v1.10.x/resources/ephemeral) `google_service_account_access_token`, `google_service_account_id_token`, `google_service_account_jwt`, `google_service_account_key` now support [ephemeral values](https://developer.hashicorp.com/terraform/language/v1.10.x/values/variables#exclude-values-from-state).
-* Corrected documentation for `deletion_protection` in Oracle and GKE clusters. ([#20494](https://github.com/hashicorp/terraform-provider-google/pull/20494))
 * iam3: promoted resources `google_iam_principal_access_boundary_policy`, `google_iam_organizations_policy_binding`, `google_iam_folders_policy_binding` and `google_iam_projects_policy_binding` to GA ([#20475](https://github.com/hashicorp/terraform-provider-google/pull/20475))
-* provider: refactored how the provider configuration is handled internally ([#20426](https://github.com/hashicorp/terraform-provider-google/pull/20426))
 DEPRECATIONS:
 * gkehub: deprecated `configmanagement.config_sync.metrics_gcp_service_account_email` in `google_gke_hub_feature_membership` resource ([#20561](https://github.com/hashicorp/terraform-provider-google/pull/20561))
 
@@ -14,22 +12,15 @@ FEATURES:
 * **New Ephemeral Resource:** `google_service_account_jwt` ([#20542](https://github.com/hashicorp/terraform-provider-google/pull/20542))
 * **New Ephemeral Resource:** `google_service_account_key` ([#20542](https://github.com/hashicorp/terraform-provider-google/pull/20542))
 * **New Data Source:** `google_backup_dr_backup_vault` ([#20468](https://github.com/hashicorp/terraform-provider-google/pull/20468))
-* **New Data Source:** `google_backup_dr_backup` (beta) ([#20449](https://github.com/hashicorp/terraform-provider-google/pull/20449))
 * **New Data Source:** `google_composer_user_workloads_config_map` (GA) ([#20478](https://github.com/hashicorp/terraform-provider-google/pull/20478))
 * **New Data Source:** `google_composer_user_workloads_secret` (GA) ([#20478](https://github.com/hashicorp/terraform-provider-google/pull/20478))
 * **New Resource:** `google_composer_user_workloads_config_map` (GA) ([#20478](https://github.com/hashicorp/terraform-provider-google/pull/20478))
 * **New Resource:** `google_composer_user_workloads_secret` (GA) ([#20478](https://github.com/hashicorp/terraform-provider-google/pull/20478))
 * **New Resource:** `google_gemini_code_repository_index` ([#20474](https://github.com/hashicorp/terraform-provider-google/pull/20474))
-* **New Resource:** `google_gemini_repository_group_iam_binding` (beta only) ([#20557](https://github.com/hashicorp/terraform-provider-google/pull/20557))
-* **New Resource:** `google_gemini_repository_group_iam_member` (beta only) ([#20557](https://github.com/hashicorp/terraform-provider-google/pull/20557))
-* **New Resource:** `google_gemini_repository_group_iam_policy` (beta only) ([#20557](https://github.com/hashicorp/terraform-provider-google/pull/20557))
-* **New Resource:** `google_gemini_repository_group` (beta only) ([#20557](https://github.com/hashicorp/terraform-provider-google/pull/20557))
-* **New Resource:** `google_iam_projects_policy_binding` (beta) ([#20438](https://github.com/hashicorp/terraform-provider-google/pull/20438))
 * **New Resource:** `google_network_security_mirroring_deployment` ([#20489](https://github.com/hashicorp/terraform-provider-google/pull/20489))
 * **New Resource:** `google_network_security_mirroring_deployment_group` ([#20489](https://github.com/hashicorp/terraform-provider-google/pull/20489))
 * **New Resource:** `google_network_security_mirroring_endpoint_group_association` ([#20489](https://github.com/hashicorp/terraform-provider-google/pull/20489))
 * **New Resource:** `google_network_security_mirroring_endpoint_group` ([#20489](https://github.com/hashicorp/terraform-provider-google/pull/20489))
-* **New Resource:** `google_tpu_v2_queued_resource` (beta) ([#20443](https://github.com/hashicorp/terraform-provider-google/pull/20443))
 
 IMPROVEMENTS:
 * accesscontextmanager: added `etag` to `google_access_context_manager_service_perimeter` and `google_access_context_manager_service_perimeters` ([#20455](https://github.com/hashicorp/terraform-provider-google/pull/20455))
