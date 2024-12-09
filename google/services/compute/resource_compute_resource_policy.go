@@ -1355,7 +1355,7 @@ func expandComputeResourcePolicySnapshotSchedulePolicySnapshotProperties(v inter
 	transformedGuestFlush, err := expandComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesGuestFlush(original["guest_flush"], d, config)
 	if err != nil {
 		return nil, err
-	} else {
+	} else if val := reflect.ValueOf(transformedGuestFlush); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["guestFlush"] = transformedGuestFlush
 	}
 
