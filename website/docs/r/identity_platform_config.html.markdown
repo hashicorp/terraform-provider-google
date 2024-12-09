@@ -100,7 +100,7 @@ resource "google_identity_platform_config" "default" {
   quota {
     sign_up_quota_config {
       quota = 1000
-      start_time = ""
+      start_time = "2014-10-02T15:01:23Z"
       quota_duration = "7200s"
     }
   }
@@ -293,7 +293,7 @@ The following arguments are supported:
 
 * `sign_up_quota_config` -
   (Optional)
-  Quota for the Signup endpoint, if overwritten. Signup quota is measured in sign ups per project per hour per IP.
+  Quota for the Signup endpoint, if overwritten. Signup quota is measured in sign ups per project per hour per IP. None of quota, startTime, or quotaDuration can be skipped.
   Structure is [documented below](#nested_sign_up_quota_config).
 
 
@@ -301,7 +301,7 @@ The following arguments are supported:
 
 * `quota` -
   (Optional)
-  A sign up APIs quota that customers can override temporarily.
+  A sign up APIs quota that customers can override temporarily. Value can be in between 1 and 1000.
 
 * `start_time` -
   (Optional)

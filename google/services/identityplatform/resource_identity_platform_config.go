@@ -286,24 +286,27 @@ If the value is not set, the tenant will be created under the same organization 
 						"sign_up_quota_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `Quota for the Signup endpoint, if overwritten. Signup quota is measured in sign ups per project per hour per IP.`,
+							Description: `Quota for the Signup endpoint, if overwritten. Signup quota is measured in sign ups per project per hour per IP. None of quota, startTime, or quotaDuration can be skipped.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"quota": {
-										Type:        schema.TypeInt,
-										Optional:    true,
-										Description: `A sign up APIs quota that customers can override temporarily.`,
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Description:  `A sign up APIs quota that customers can override temporarily. Value can be in between 1 and 1000.`,
+										RequiredWith: []string{"quota.0.sign_up_quota_config.0.start_time", "quota.0.sign_up_quota_config.0.quota_duration"},
 									},
 									"quota_duration": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `How long this quota will be active for. It is measurred in seconds, e.g., Example: "9.615s".`,
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `How long this quota will be active for. It is measurred in seconds, e.g., Example: "9.615s".`,
+										RequiredWith: []string{"quota.0.sign_up_quota_config.0.start_time", "quota.0.sign_up_quota_config.0.quota"},
 									},
 									"start_time": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `When this quota will take affect.`,
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `When this quota will take affect.`,
+										RequiredWith: []string{"quota.0.sign_up_quota_config.0.quota", "quota.0.sign_up_quota_config.0.quota_duration"},
 									},
 								},
 							},

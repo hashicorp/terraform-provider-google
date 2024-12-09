@@ -1,0 +1,3 @@
+```release-note:enhancement
+identityplatform: marked `quota.0.sign_up_quota_config` subfields conditionally required in `google_identity_platform_config` to move errors from apply time up to plan time, and clarified the rule in documentation
+```
