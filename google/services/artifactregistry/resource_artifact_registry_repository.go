@@ -256,11 +256,16 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"location": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The name of the location this repository is located in.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The name of the repository's location. In addition to specific regions,
+special values for multi-region locations are 'asia', 'europe', and 'us'.
+See [here](https://cloud.google.com/artifact-registry/docs/repositories/repo-locations),
+or use the
+[google_artifact_registry_locations](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/artifact_registry_locations)
+data source for possible values.`,
 			},
 			"maven_config": {
 				Type:     schema.TypeList,
@@ -1144,7 +1149,6 @@ func resourceArtifactRegistryRepositoryImport(d *schema.ResourceData, meta inter
 		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/repositories/(?P<repository_id>[^/]+)$",
 		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<repository_id>[^/]+)$",
 		"^(?P<location>[^/]+)/(?P<repository_id>[^/]+)$",
-		"^(?P<repository_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
