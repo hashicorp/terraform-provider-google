@@ -157,6 +157,29 @@ resource "google_org_policy_policy" "primary" {
   }
 }
 ```
+## Example Usage - Org Policy Policy Parameters Enforce
+
+
+```hcl
+resource "google_org_policy_policy" "primary" {
+  name     = "projects/${google_project.basic.name}/policies/compute.managed.restrictDiskCreation"
+  parent   = "projects/${google_project.basic.name}"
+
+  spec {
+    rules {
+      enforce = "TRUE"
+      parameters = jsonencode({"isSizeLimitCheck" : true, "allowedDiskTypes" : ["pd-ssd", "pd-standard"]})
+    }
+  }
+}
+
+resource "google_project" "basic" {
+  project_id = "id"
+  name       = "id"
+  org_id     = "123456789"
+  deletion_policy = "DELETE"
+}
+```
 
 ## Argument Reference
 
@@ -228,6 +251,10 @@ The following arguments are supported:
 * `enforce` -
   (Optional)
   If `"TRUE"`, then the `Policy` is enforced. If `"FALSE"`, then any configuration is acceptable. This field can be set only in Policies for boolean constraints.
+
+* `parameters` -
+  (Optional)
+  Optional. Required for Managed Constraints if parameters defined in constraints. Pass parameter values when policy enforcement is enabled. Ensure that parameter value types match those defined in the constraint definition. For example: { \"allowedLocations\" : [\"us-east1\", \"us-west1\"], \"allowAll\" : true }
 
 * `condition` -
   (Optional)
@@ -305,6 +332,10 @@ The following arguments are supported:
 * `enforce` -
   (Optional)
   If `"TRUE"`, then the `Policy` is enforced. If `"FALSE"`, then any configuration is acceptable. This field can be set only in Policies for boolean constraints.
+
+* `parameters` -
+  (Optional)
+  Optional. Required for Managed Constraints if parameters defined in constraints. Pass parameter values when policy enforcement is enabled. Ensure that parameter value types match those defined in the constraint definition. For example: { \"allowedLocations\" : [\"us-east1\", \"us-west1\"], \"allowAll\" : true }
 
 * `condition` -
   (Optional)

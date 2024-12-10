@@ -18,6 +18,7 @@
 package orgpolicy
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -27,6 +28,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -139,6 +142,13 @@ func ResourceOrgPolicyPolicy() *schema.Resource {
 										Optional:    true,
 										Description: `If '"TRUE"', then the 'Policy' is enforced. If '"FALSE"', then any configuration is acceptable. This field can be set only in Policies for boolean constraints.`,
 									},
+									"parameters": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringIsJSON,
+										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+										Description:  `Optional. Required for Managed Constraints if parameters defined in constraints. Pass parameter values when policy enforcement is enabled. Ensure that parameter value types match those defined in the constraint definition. For example: { \"allowedLocations\" : [\"us-east1\", \"us-west1\"], \"allowAll\" : true }`,
+									},
 									"values": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -249,6 +259,13 @@ func ResourceOrgPolicyPolicy() *schema.Resource {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: `If '"TRUE"', then the 'Policy' is enforced. If '"FALSE"', then any configuration is acceptable. This field can be set only in Policies for boolean constraints.`,
+									},
+									"parameters": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringIsJSON,
+										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+										Description:  `Optional. Required for Managed Constraints if parameters defined in constraints. Pass parameter values when policy enforcement is enabled. Ensure that parameter value types match those defined in the constraint definition. For example: { \"allowedLocations\" : [\"us-east1\", \"us-west1\"], \"allowAll\" : true }`,
 									},
 									"values": {
 										Type:        schema.TypeList,
@@ -609,11 +626,12 @@ func flattenOrgPolicyPolicySpecRules(v interface{}, d *schema.ResourceData, conf
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"values":    flattenOrgPolicyPolicySpecRulesValues(original["values"], d, config),
-			"allow_all": flattenOrgPolicyPolicySpecRulesAllowAll(original["allowAll"], d, config),
-			"deny_all":  flattenOrgPolicyPolicySpecRulesDenyAll(original["denyAll"], d, config),
-			"enforce":   flattenOrgPolicyPolicySpecRulesEnforce(original["enforce"], d, config),
-			"condition": flattenOrgPolicyPolicySpecRulesCondition(original["condition"], d, config),
+			"values":     flattenOrgPolicyPolicySpecRulesValues(original["values"], d, config),
+			"allow_all":  flattenOrgPolicyPolicySpecRulesAllowAll(original["allowAll"], d, config),
+			"deny_all":   flattenOrgPolicyPolicySpecRulesDenyAll(original["denyAll"], d, config),
+			"enforce":    flattenOrgPolicyPolicySpecRulesEnforce(original["enforce"], d, config),
+			"parameters": flattenOrgPolicyPolicySpecRulesParameters(original["parameters"], d, config),
+			"condition":  flattenOrgPolicyPolicySpecRulesCondition(original["condition"], d, config),
 		})
 	}
 	return transformed
@@ -660,6 +678,18 @@ func flattenOrgPolicyPolicySpecRulesEnforce(v interface{}, d *schema.ResourceDat
 		return ""
 	}
 	return strings.ToUpper(strconv.FormatBool(v.(bool)))
+}
+
+func flattenOrgPolicyPolicySpecRulesParameters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
 }
 
 func flattenOrgPolicyPolicySpecRulesCondition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -747,11 +777,12 @@ func flattenOrgPolicyPolicyDryRunSpecRules(v interface{}, d *schema.ResourceData
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"values":    flattenOrgPolicyPolicyDryRunSpecRulesValues(original["values"], d, config),
-			"allow_all": flattenOrgPolicyPolicyDryRunSpecRulesAllowAll(original["allowAll"], d, config),
-			"deny_all":  flattenOrgPolicyPolicyDryRunSpecRulesDenyAll(original["denyAll"], d, config),
-			"enforce":   flattenOrgPolicyPolicyDryRunSpecRulesEnforce(original["enforce"], d, config),
-			"condition": flattenOrgPolicyPolicyDryRunSpecRulesCondition(original["condition"], d, config),
+			"values":     flattenOrgPolicyPolicyDryRunSpecRulesValues(original["values"], d, config),
+			"allow_all":  flattenOrgPolicyPolicyDryRunSpecRulesAllowAll(original["allowAll"], d, config),
+			"deny_all":   flattenOrgPolicyPolicyDryRunSpecRulesDenyAll(original["denyAll"], d, config),
+			"enforce":    flattenOrgPolicyPolicyDryRunSpecRulesEnforce(original["enforce"], d, config),
+			"parameters": flattenOrgPolicyPolicyDryRunSpecRulesParameters(original["parameters"], d, config),
+			"condition":  flattenOrgPolicyPolicyDryRunSpecRulesCondition(original["condition"], d, config),
 		})
 	}
 	return transformed
@@ -798,6 +829,18 @@ func flattenOrgPolicyPolicyDryRunSpecRulesEnforce(v interface{}, d *schema.Resou
 		return ""
 	}
 	return strings.ToUpper(strconv.FormatBool(v.(bool)))
+}
+
+func flattenOrgPolicyPolicyDryRunSpecRulesParameters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
 }
 
 func flattenOrgPolicyPolicyDryRunSpecRulesCondition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -944,6 +987,13 @@ func expandOrgPolicyPolicySpecRules(v interface{}, d tpgresource.TerraformResour
 			transformed["enforce"] = transformedEnforce
 		}
 
+		transformedParameters, err := expandOrgPolicyPolicySpecRulesParameters(original["parameters"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedParameters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["parameters"] = transformedParameters
+		}
+
 		transformedCondition, err := expandOrgPolicyPolicySpecRulesCondition(original["condition"], d, config)
 		if err != nil {
 			return nil, err
@@ -1024,6 +1074,18 @@ func expandOrgPolicyPolicySpecRulesEnforce(v interface{}, d tpgresource.Terrafor
 		return nil, nil
 	}
 	return b, nil
+}
+
+func expandOrgPolicyPolicySpecRulesParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	m := make(map[string]interface{})
+	if err := json.Unmarshal(b, &m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func expandOrgPolicyPolicySpecRulesCondition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1183,6 +1245,13 @@ func expandOrgPolicyPolicyDryRunSpecRules(v interface{}, d tpgresource.Terraform
 			transformed["enforce"] = transformedEnforce
 		}
 
+		transformedParameters, err := expandOrgPolicyPolicyDryRunSpecRulesParameters(original["parameters"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedParameters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["parameters"] = transformedParameters
+		}
+
 		transformedCondition, err := expandOrgPolicyPolicyDryRunSpecRulesCondition(original["condition"], d, config)
 		if err != nil {
 			return nil, err
@@ -1263,6 +1332,18 @@ func expandOrgPolicyPolicyDryRunSpecRulesEnforce(v interface{}, d tpgresource.Te
 		return nil, nil
 	}
 	return b, nil
+}
+
+func expandOrgPolicyPolicyDryRunSpecRulesParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	m := make(map[string]interface{})
+	if err := json.Unmarshal(b, &m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func expandOrgPolicyPolicyDryRunSpecRulesCondition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
