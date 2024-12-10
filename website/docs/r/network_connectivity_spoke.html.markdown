@@ -506,11 +506,11 @@ The following arguments are supported:
 <a name="nested_instances"></a>The `instances` block supports:
 
 * `virtual_machine` -
-  (Optional)
+  (Required)
   The URI of the virtual machine resource
 
 * `ip_address` -
-  (Optional)
+  (Required)
   The IP address on the VM to use for peering.
 
 <a name="nested_linked_vpc_network"></a>The `linked_vpc_network` block supports:

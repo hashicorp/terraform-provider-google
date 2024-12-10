@@ -92,7 +92,6 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"linked_interconnect_attachments": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `A collection of VLAN attachment resources. These resources should be redundant attachments that all advertise the same prefixes to Google Cloud. Alternatively, in active/passive configurations, all attachments should be capable of advertising the same prefixes.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -176,7 +175,6 @@ The only allowed value for now is "ALL_IPV4_RANGES".`,
 			"linked_router_appliance_instances": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `The URIs of linked Router appliance resources`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -190,13 +188,13 @@ The only allowed value for now is "ALL_IPV4_RANGES".`,
 								Schema: map[string]*schema.Schema{
 									"ip_address": {
 										Type:        schema.TypeString,
-										Optional:    true,
+										Required:    true,
 										ForceNew:    true,
 										Description: `The IP address on the VM to use for peering.`,
 									},
 									"virtual_machine": {
 										Type:             schema.TypeString,
-										Optional:         true,
+										Required:         true,
 										ForceNew:         true,
 										DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 										Description:      `The URI of the virtual machine resource`,
@@ -263,7 +261,6 @@ The only allowed value for now is "ALL_IPV4_RANGES".`,
 			"linked_vpn_tunnels": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `The URIs of linked VPN tunnel resources`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -573,6 +570,24 @@ func resourceNetworkConnectivitySpokeUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	linkedVpnTunnelsProp, err := expandNetworkConnectivitySpokeLinkedVpnTunnels(d.Get("linked_vpn_tunnels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("linked_vpn_tunnels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, linkedVpnTunnelsProp)) {
+		obj["linkedVpnTunnels"] = linkedVpnTunnelsProp
+	}
+	linkedInterconnectAttachmentsProp, err := expandNetworkConnectivitySpokeLinkedInterconnectAttachments(d.Get("linked_interconnect_attachments"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("linked_interconnect_attachments"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, linkedInterconnectAttachmentsProp)) {
+		obj["linkedInterconnectAttachments"] = linkedInterconnectAttachmentsProp
+	}
+	linkedRouterApplianceInstancesProp, err := expandNetworkConnectivitySpokeLinkedRouterApplianceInstances(d.Get("linked_router_appliance_instances"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("linked_router_appliance_instances"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, linkedRouterApplianceInstancesProp)) {
+		obj["linkedRouterApplianceInstances"] = linkedRouterApplianceInstancesProp
+	}
 	labelsProp, err := expandNetworkConnectivitySpokeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -591,6 +606,19 @@ func resourceNetworkConnectivitySpokeUpdate(d *schema.ResourceData, meta interfa
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("linked_vpn_tunnels") {
+		updateMask = append(updateMask, "linkedVpnTunnels.includeImportRanges")
+	}
+
+	if d.HasChange("linked_interconnect_attachments") {
+		updateMask = append(updateMask, "linkedInterconnectAttachments.includeImportRanges")
+	}
+
+	if d.HasChange("linked_router_appliance_instances") {
+		updateMask = append(updateMask, "linkedRouterApplianceInstances.instances",
+			"linkedRouterApplianceInstances.includeImportRanges")
 	}
 
 	if d.HasChange("effective_labels") {
