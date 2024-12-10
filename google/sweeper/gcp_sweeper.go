@@ -23,6 +23,7 @@ var testResourcePrefixes = []string{
 	// include a "-" or "_" respectively, and they are the preferred prefix for our test resources to use
 	"tf-test",
 	"tf_test",
+	// Resource-specific prefixes that should be moved to the corresponding resource sweeper as part of https://github.com/hashicorp/terraform-provider-google/issues/20638
 	"tfgen",
 	"gke-us-central1-tf",  // composer-created disks which are abandoned by design (https://cloud.google.com/composer/pricing)
 	"gcs-bucket-tf-test-", // https://github.com/hashicorp/terraform-provider-google/issues/8909
@@ -30,6 +31,7 @@ var testResourcePrefixes = []string{
 	"resourcegroup-",      // https://github.com/hashicorp/terraform-provider-google/issues/8924
 	"cluster-",            // https://github.com/hashicorp/terraform-provider-google/issues/8924
 	"k8s-fw-",             // firewall rules are getting created and not cleaned up by k8 resources using this prefix
+	"ext-tf-test",         // Cloud Tasks Queues created automatically by tests for `google_firebase_extensions_instance`.
 }
 
 // SharedConfigForRegion returns a common config setup needed for the sweeper
