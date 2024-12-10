@@ -1,0 +1,3 @@
+```release-note:none
+dataproc: unskip failing test fixed in https://github.com/GoogleCloudPlatform/magic-modules/pull/12454.
+```

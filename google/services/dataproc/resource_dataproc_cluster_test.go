@@ -107,8 +107,6 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 }
 
 func TestAccDataprocVirtualCluster_basic(t *testing.T) {
-	// Currently failing
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	var cluster dataproc.Cluster
