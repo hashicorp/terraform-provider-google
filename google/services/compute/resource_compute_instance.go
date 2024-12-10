@@ -760,7 +760,6 @@ func ResourceComputeInstance() *schema.Resource {
 			"metadata_startup_script": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Metadata startup scripts made available within the instance.`,
 			},
 
@@ -1253,6 +1252,9 @@ be from 0 to 999,999,999 inclusive.`,
 				},
 				suppressEmptyGuestAcceleratorDiff,
 			),
+			customdiff.ForceNewIf("metadata_startup_script", func(_ context.Context, d *schema.ResourceDiff, meta interface{}) bool {
+				return isGracefulMetadataStartupSwitch(d)
+			}),
 			validateSubnetworkProject,
 			forceNewIfNetworkIPNotUpdatable,
 			tpgresource.SetLabelsDiff,
@@ -2817,6 +2819,52 @@ func suppressEmptyGuestAcceleratorDiff(_ context.Context, d *schema.ResourceDiff
 	}
 
 	return nil
+}
+
+// Function checks whether a graceful switch (without ForceNew) is available
+// between `metadata_startup_script` and `metadata.startup-script`.
+// Graceful switch can be executed in two situations:
+// 1. When `metadata_startup_script` is created with the old value of
+// `metadata.startup-script`.
+// 2. When `metadata_startup_script` is deleted and the old value remains in
+// `metadata.startup-script`
+// For all other changes in `metadata_startup_script`, function sets ForceNew.
+func isGracefulMetadataStartupSwitch(d *schema.ResourceDiff) bool {
+	oldMd, newMd := d.GetChange("metadata")
+	oldMdMap := oldMd.(map[string]interface{})
+	newMdMap := newMd.(map[string]interface{})
+
+	//No new and old metadata
+	if len(oldMdMap) == 0 && len(newMdMap) == 0 {
+		return true
+	}
+
+	oldMds, newMds := d.GetChange("metadata_startup_script")
+	vMdOld, okOld := oldMdMap["startup-script"]
+	vMdNew, okNew := newMdMap["startup-script"]
+
+	// metadata_startup_script is created
+	if oldMds == "" {
+		if !okOld {
+			return true
+		} else if newMds == vMdOld {
+			return false
+		} else {
+			return true
+		}
+	}
+	// metadata_startup_script is deleted
+	if newMds == "" {
+		if !okNew {
+			return true
+		} else if oldMds == vMdNew {
+			return false
+		} else {
+			return true
+		}
+	}
+
+	return true
 }
 
 func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) error {
