@@ -59,6 +59,68 @@ resource "google_firebase_hosting_release" "default" {
   message      = "Redirect to Google"
 }
 ```
+## Example Usage - Firebasehosting Version Headers
+
+
+```hcl
+resource "google_firebase_hosting_site" "default" {
+  provider = google-beta
+  project  = "my-project-name"
+  site_id  = "site-id"
+}
+
+resource "google_firebase_hosting_version" "default" {
+  provider = google-beta
+  site_id  = google_firebase_hosting_site.default.site_id
+  config {
+    headers {
+      # Also okay to use regex
+      glob = "/headers/**"
+      headers = {
+        my-header = "my-value"
+      }
+    }
+  }
+}
+
+resource "google_firebase_hosting_release" "default" {
+  provider     = google-beta
+  site_id      = google_firebase_hosting_site.default.site_id
+  version_name = google_firebase_hosting_version.default.name
+  message      = "With custom headers"
+}
+```
+## Example Usage - Firebasehosting Version Headers Regex
+
+
+```hcl
+resource "google_firebase_hosting_site" "default" {
+  provider = google-beta
+  project  = "my-project-name"
+  site_id  = "site-id"
+}
+
+resource "google_firebase_hosting_version" "default" {
+  provider = google-beta
+  site_id  = google_firebase_hosting_site.default.site_id
+  config {
+    headers {
+      # Also okay to use glob
+      regex = "^~/headers$"
+      headers = {
+        my-header = "my-value"
+      }
+    }
+  }
+}
+
+resource "google_firebase_hosting_release" "default" {
+  provider     = google-beta
+  site_id      = google_firebase_hosting_site.default.site_id
+  version_name = google_firebase_hosting_version.default.name
+  message      = "With custom headers"
+}
+```
 ## Example Usage - Firebasehosting Version Path
 
 
@@ -228,6 +290,12 @@ The following arguments are supported:
   triggers Hosting to respond with a redirect to the specified destination path.
   Structure is [documented below](#nested_redirects).
 
+* `headers` -
+  (Optional)
+  An array of objects, where each object specifies a URL pattern that, if matched to the request URL path,
+  triggers Hosting to apply the specified custom response headers.
+  Structure is [documented below](#nested_headers).
+
 
 <a name="nested_rewrites"></a>The `rewrites` block supports:
 
@@ -289,6 +357,20 @@ The following arguments are supported:
     location = "https://example.com/foo/:capture"
   }
   ```
+
+<a name="nested_headers"></a>The `headers` block supports:
+
+* `glob` -
+  (Optional)
+  The user-supplied glob to match against the request URL path.
+
+* `regex` -
+  (Optional)
+  The user-supplied RE2 regular expression to match against the request URL path.
+
+* `headers` -
+  (Required)
+  The additional headers to add to the response. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
 ## Attributes Reference
 
