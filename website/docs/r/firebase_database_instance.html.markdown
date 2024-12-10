@@ -69,15 +69,32 @@ resource "google_project" "default" {
   }
 }
 
+resource "google_project_service" "firebase" {
+  provider = google-beta
+  project  = google_project.default.project_id
+  service  = "firebase.googleapis.com"
+
+  disable_on_destroy = false
+}
+
 resource "google_firebase_project" "default" {
   provider = google-beta
   project  = google_project.default.project_id
+
+  depends_on = [google_project_service.firebase]
 }
 
 resource "google_project_service" "firebase_database" {
   provider = google-beta
   project  = google_firebase_project.default.project
   service  = "firebasedatabase.googleapis.com"
+
+  disable_on_destroy = false
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_project_service.firebase_database]
 }
 
 resource "google_firebase_database_instance" "default" {
@@ -86,7 +103,7 @@ resource "google_firebase_database_instance" "default" {
   region   = "us-central1"
   instance_id = "rtdb-project-default-rtdb"
   type     = "DEFAULT_DATABASE"
-  depends_on = [google_project_service.firebase_database]
+  depends_on = [time_sleep.wait_60_seconds]
 }
 ```
 
