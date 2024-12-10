@@ -3341,6 +3341,43 @@ func TestAccComputeInstance_metadataStartupScript_update(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_metadataStartupScript_gracefulSwitch(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_metadataStartupScript(instanceName, "e2-medium", "abc"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceMetadata(
+						&instance, "foo", "abc"),
+					testAccCheckComputeInstanceMetadata(
+						&instance, "startup-script", "echo hi > /test.txt"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_metadataStartupScript_gracefulSwitch(instanceName, "e2-medium", "abc"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceMetadata(
+						&instance, "foo", "abc"),
+					testAccCheckComputeInstanceMetadata(
+						&instance, "startup-script", "echo hi > /test.txt"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_regionBootDisk(t *testing.T) {
 	t.Parallel()
 
@@ -9146,6 +9183,40 @@ resource "google_compute_instance" "foobar" {
     foo = "%s"
   }
   metadata_startup_script = "echo hi > /test.txt"
+  allow_stopping_for_update = true
+}
+`, instance, machineType, metadata)
+}
+
+func testAccComputeInstance_metadataStartupScript_gracefulSwitch(instance, machineType, metadata string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name           = "%s"
+  machine_type   = "%s"
+  zone           = "us-central1-a"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "%s"
+	startup-script = "echo hi > /test.txt"
+  }
+
   allow_stopping_for_update = true
 }
 `, instance, machineType, metadata)
