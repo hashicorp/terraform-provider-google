@@ -2249,6 +2249,12 @@ func flattenSettings(settings *sqladmin.Settings, d *schema.ResourceData) []map[
 
 	if settings.DataCacheConfig != nil {
 		data["data_cache_config"] = flattenDataCacheConfig(settings.DataCacheConfig)
+	} else {
+		data["data_cache_config"] = []map[string]interface{}{
+			{
+				"data_cache_enabled": false,
+			},
+		}
 	}
 
 	if settings.AdvancedMachineFeatures != nil {
@@ -2260,7 +2266,11 @@ func flattenSettings(settings *sqladmin.Settings, d *schema.ResourceData) []map[
 
 func flattenDataCacheConfig(d *sqladmin.DataCacheConfig) []map[string]interface{} {
 	if d == nil {
-		return nil
+		return []map[string]interface{}{
+			{
+				"data_cache_enabled": false,
+			},
+		}
 	}
 	return []map[string]interface{}{
 		{
