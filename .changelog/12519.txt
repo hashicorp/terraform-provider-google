@@ -1,0 +1,6 @@
+```release-note:enhancement
+networkconnectivity: added support for updating `linked_vpn_tunnels.include_import_ranges`, `linked_interconnect_attachments.include_import_ranges`, `linked_router_appliance_instances. instances` and `linked_router_appliance_instances.include_import_ranges` in `google_network_connectivity_spoke`
+```
+```release-note:bug
+networkconnectivity: fixed `linked_router_appliance_instances.instances.virtual_machine` and `linked_router_appliance_instances.instances.ip_address` attributes in `google_network_connectivity_spoke` to be correctly marked as required. Otherwise the request to create the resource will fail.
+```
