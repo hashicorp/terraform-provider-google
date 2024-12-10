@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: fixed permadiff when 'settings.data_cache_config' is set to false for 'google_sql_database_instance' resource
+```
