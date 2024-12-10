@@ -19,7 +19,7 @@ description: |-
 
 # google_firebase_project
 
-A Google Cloud Firebase instance. This enables Firebase resources on a given google project.
+A Google Cloud Firebase instance. This enables Firebase resources on a given Google Project.
 Since a FirebaseProject is actually also a GCP Project, a FirebaseProject uses underlying GCP
 identifiers (most importantly, the projectId) as its own for easy interop with GCP APIs.
 Once Firebase has been added to a Google Project it cannot be removed.
@@ -80,7 +80,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}`
 
 * `project_number` -
-  The number of the google project that firebase is enabled on.
+  The number of the Google Project that Firebase is enabled on.
 
 * `display_name` -
   The GCP project display name
