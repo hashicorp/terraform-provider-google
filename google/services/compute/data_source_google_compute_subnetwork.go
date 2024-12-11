@@ -29,6 +29,10 @@ func DataSourceGoogleComputeSubnetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"subnetwork_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"ip_cidr_range": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -96,6 +100,10 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 	subnetwork, err := config.NewComputeClient(userAgent).Subnetworks.Get(project, region, name).Do()
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Subnetwork Not Found : %s", name), id)
+	}
+
+	if err := d.Set("subnetwork_id", subnetwork.Id); err != nil {
+		return fmt.Errorf("Error setting subnetwork_id: %s", err)
 	}
 
 	if err := d.Set("ip_cidr_range", subnetwork.IpCidrRange); err != nil {
