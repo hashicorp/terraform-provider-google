@@ -49,6 +49,7 @@ func testAccDataSourceGoogleSubnetworkCheck(data_source_name string, resource_na
 			"id",
 			"name",
 			"description",
+			"subnetwork_id",
 			"ip_cidr_range",
 			"private_ip_google_access",
 			"internal_ipv6_prefix",

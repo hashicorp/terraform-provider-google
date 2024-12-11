@@ -40,6 +40,8 @@ In addition to the arguments listed above, the following attributes are exported
 * `network` - The network name or resource link to the parent
     network of this subnetwork.
 
+* `subnetwork_id` - The numeric ID of the resource.
+
 * `description` - Description of this subnetwork.
 
 * `ip_cidr_range` - The IP address range that machines in this
