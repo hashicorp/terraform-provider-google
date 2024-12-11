@@ -620,7 +620,7 @@ func testAccNetappVolume_volumeBasicExample_cleanupScheduledBackup(t *testing.T,
 			createTime time.Time
 		}
 		var backupDataList []BackupData
-		for i, _ := range backups {
+		for i := range backups {
 			backup := backups[i].(map[string]interface{})
 			backupName := backup["name"].(string)
 			backupCreateTimeStr := backup["createTime"].(string)
@@ -637,7 +637,7 @@ func testAccNetappVolume_volumeBasicExample_cleanupScheduledBackup(t *testing.T,
 		sort.Slice(backupDataList, func(i, j int) bool {
 			return backupDataList[i].createTime.After(backupDataList[j].createTime)
 		})
-		for i, _ := range backupDataList {
+		for i := range backupDataList {
 			baseUrl, err := tpgresource.ReplaceVarsForTest(config, rs, "{{NetappBasePath}}")
 			if err != nil {
 				return fmt.Errorf("Error : %v", err)

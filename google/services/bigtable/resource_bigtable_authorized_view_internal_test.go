@@ -20,7 +20,7 @@ func TestUnitBigtable_flattenSubsetViewInfo(t *testing.T) {
 		"empty subset view": {
 			sv: bigtable.SubsetViewInfo{},
 			want: []map[string]interface{}{
-				map[string]interface{}{},
+				{},
 			},
 			orWant: nil,
 		},
@@ -29,7 +29,7 @@ func TestUnitBigtable_flattenSubsetViewInfo(t *testing.T) {
 				RowPrefixes: [][]byte{[]byte("row1"), []byte("row2")},
 			},
 			want: []map[string]interface{}{
-				map[string]interface{}{
+				{
 					"row_prefixes": []string{"cm93MQ==", "cm93Mg=="},
 				},
 			},
@@ -47,12 +47,12 @@ func TestUnitBigtable_flattenSubsetViewInfo(t *testing.T) {
 				},
 			},
 			want: []map[string]interface{}{
-				map[string]interface{}{
+				{
 					"family_subsets": []map[string]interface{}{
-						map[string]interface{}{
+						{
 							"family_name":        "fam1",
 							"qualifier_prefixes": []string{"Y29s"},
-						}, map[string]interface{}{
+						}, {
 							"family_name": "fam2",
 							"qualifiers":  []string{"Y29sMQ==", "Y29sMg=="},
 						},
@@ -60,13 +60,13 @@ func TestUnitBigtable_flattenSubsetViewInfo(t *testing.T) {
 				},
 			},
 			orWant: []map[string]interface{}{
-				map[string]interface{}{
+				{
 					"family_subsets": []map[string]interface{}{
-						map[string]interface{}{
+						{
 							"family_name": "fam2",
 							"qualifiers":  []string{"Y29sMQ==", "Y29sMg=="},
 						},
-						map[string]interface{}{
+						{
 							"family_name":        "fam1",
 							"qualifier_prefixes": []string{"Y29s"},
 						},
@@ -83,9 +83,9 @@ func TestUnitBigtable_flattenSubsetViewInfo(t *testing.T) {
 				},
 			},
 			want: []map[string]interface{}{
-				map[string]interface{}{
+				{
 					"family_subsets": []map[string]interface{}{
-						map[string]interface{}{
+						{
 							"family_name": "fam",
 							"qualifiers":  []string{"Y29s"},
 						},
@@ -103,9 +103,9 @@ func TestUnitBigtable_flattenSubsetViewInfo(t *testing.T) {
 				},
 			},
 			want: []map[string]interface{}{
-				map[string]interface{}{
+				{
 					"family_subsets": []map[string]interface{}{
-						map[string]interface{}{
+						{
 							"family_name":        "fam",
 							"qualifier_prefixes": []string{"Y29s"},
 						},
@@ -120,7 +120,7 @@ func TestUnitBigtable_flattenSubsetViewInfo(t *testing.T) {
 				FamilySubsets: map[string]bigtable.FamilySubset{},
 			},
 			want: []map[string]interface{}{
-				map[string]interface{}{},
+				{},
 			},
 			orWant: nil,
 		},

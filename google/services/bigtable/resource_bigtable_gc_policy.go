@@ -404,7 +404,6 @@ func GcPolicyToGCRuleString(gc bigtable.GCPolicy, topLevel bool) (map[string]int
 		} else {
 			result["max_version"] = version
 		}
-		break
 	case bigtable.PolicyUnion:
 		result["mode"] = "union"
 		rules := []interface{}{}
@@ -416,7 +415,6 @@ func GcPolicyToGCRuleString(gc bigtable.GCPolicy, topLevel bool) (map[string]int
 			rules = append(rules, gcRuleString)
 		}
 		result["rules"] = rules
-		break
 	case bigtable.PolicyIntersection:
 		result["mode"] = "intersection"
 		rules := []interface{}{}
