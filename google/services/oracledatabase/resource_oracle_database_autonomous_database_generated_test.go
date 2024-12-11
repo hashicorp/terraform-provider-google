@@ -91,6 +91,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseFul
 	context := map[string]interface{}{
 		"database_name":       fmt.Sprintf("tftestdatabase%s", acctest.RandString(t, 10)),
 		"deletion_protection": false,
+		"endpoint_name":       fmt.Sprintf("tftestendpoint%s", acctest.RandString(t, 10)),
 		"project":             "oci-terraform-testing",
 		"random_suffix":       acctest.RandString(t, 10),
 	}
@@ -146,7 +147,7 @@ resource "google_oracle_database_autonomous_database" "myADB"{
       email = "xyz@example.com"
     }
     private_endpoint_ip    = "10.5.0.11"
-    private_endpoint_label = "testhost"
+    private_endpoint_label = "%{endpoint_name}"
   }
   deletion_protection = "%{deletion_protection}"
 }
