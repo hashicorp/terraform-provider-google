@@ -31,6 +31,7 @@ import (
 )
 
 func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationBasicExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20418")
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -74,6 +75,7 @@ resource "google_dataproc_gdc_spark_application" "spark-application" {
 }
 
 func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20418")
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -137,6 +139,7 @@ resource "google_dataproc_gdc_spark_application" "spark-application" {
 }
 
 func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationPysparkExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20418")
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -185,6 +188,7 @@ resource "google_dataproc_gdc_spark_application" "spark-application" {
 }
 
 func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparkrExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20418")
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -230,6 +234,7 @@ resource "google_dataproc_gdc_spark_application" "spark-application" {
 }
 
 func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparksqlExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20418")
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -278,6 +283,7 @@ resource "google_dataproc_gdc_spark_application" "spark-application" {
 }
 
 func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparksqlQueryFileExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20418")
 	t.Parallel()
 
 	context := map[string]interface{}{

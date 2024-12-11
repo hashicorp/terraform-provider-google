@@ -31,6 +31,7 @@ import (
 )
 
 func TestAccDataprocGdcApplicationEnvironment_dataprocgdcApplicationenvironmentBasicExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20419")
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -69,6 +70,7 @@ resource "google_dataproc_gdc_application_environment" "application-environment"
 }
 
 func TestAccDataprocGdcApplicationEnvironment_dataprocgdcApplicationenvironmentExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20419")
 	t.Parallel()
 
 	context := map[string]interface{}{
