@@ -29,7 +29,7 @@ func TestAccUniverseDomainPubSub(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccUniverseDomain_basic_pubsub(universeDomain, topic, subscription),
 			},
 		},

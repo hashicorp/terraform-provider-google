@@ -1385,7 +1385,7 @@ func flattenContainerAwsClusterAnnotations(v map[string]string, d *schema.Resour
 
 	transformed := make(map[string]interface{})
 	if l, ok := d.Get("annotations").(map[string]interface{}); ok {
-		for k, _ := range l {
+		for k := range l {
 			transformed[k] = v[k]
 		}
 	}

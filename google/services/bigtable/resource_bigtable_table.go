@@ -459,7 +459,7 @@ func resourceBigtableTableUpdate(d *schema.ResourceData, meta interface{}) error
 			return fmt.Errorf("Error creating column family %q: %s", cfn, err)
 		}
 	}
-	for cfn, _ := range familyMapDiffKeys(oMap, nMap) {
+	for cfn := range familyMapDiffKeys(oMap, nMap) {
 		log.Printf("[DEBUG] removing column family %q", cfn)
 		if err := c.DeleteColumnFamily(ctx, name, cfn); err != nil {
 			return fmt.Errorf("Error deleting column family %q: %s", cfn, err)

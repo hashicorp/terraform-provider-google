@@ -354,7 +354,6 @@ func flattenNestedTagsLocationTagBinding(d *schema.ResourceData, meta interface{
 	switch v.(type) {
 	case []interface{}:
 		log.Printf("[DEBUG] Hey it's in break = %#v,)", v)
-		break
 	case map[string]interface{}:
 		// Construct list out of single nested resource
 		v = []interface{}{v}
