@@ -242,7 +242,7 @@ Format: accessPolicies/{policy_id}/accessLevels/{short_name}`,
 															"vpc_ip_subnetworks": {
 																Type:        schema.TypeList,
 																Optional:    true,
-																Description: `CIDR block IP subnetwork specification. Must be IPv4.`,
+																Description: `A list of CIDR block IP subnetwork specification. Must be IPv4.`,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
