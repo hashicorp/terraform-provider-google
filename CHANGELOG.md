@@ -17,7 +17,6 @@ IMPROVEMENTS:
 * identityplatform: marked `quota.0.sign_up_quota_config` subfields conditionally required in `google_identity_platform_config` to move errors from apply time up to plan time, and clarified the rule in documentation ([#20627](https://github.com/hashicorp/terraform-provider-google/pull/20627))
 * networkconnectivity: added support for updating `linked_vpn_tunnels.include_import_ranges`, `linked_interconnect_attachments.include_import_ranges`, `linked_router_appliance_instances. instances` and `linked_router_appliance_instances.include_import_ranges` in `google_network_connectivity_spoke` ([#20650](https://github.com/hashicorp/terraform-provider-google/pull/20650))
 * orgpolicy: added `parameters` fields to `google_org_policy_policy` resource (beta) ([#20647](https://github.com/hashicorp/terraform-provider-google/pull/20647))
-* sql: fixed permadiff when 'settings.data_cache_config' is set to false for 'google_sql_database_instance' resource ([#20656](https://github.com/hashicorp/terraform-provider-google/pull/20656))
 * storage: added `hdfs_data_source` field to `google_storage_transfer_job` resource ([#20583](https://github.com/hashicorp/terraform-provider-google/pull/20583))
 * tpuv2: added `network_configs` and `network_config.queue_count` fields to `google_tpu_v2_vm` resource ([#20621](https://github.com/hashicorp/terraform-provider-google/pull/20621))
 
@@ -26,6 +25,8 @@ BUG FIXES:
 * compute: fixed issue where updating labels on `resource_google_compute_resource_policy` would fail because of a patch error with `guest_flush` ([#20632](https://github.com/hashicorp/terraform-provider-google/pull/20632))
 * networkconnectivity: fixed `linked_router_appliance_instances.instances.virtual_machine` and `linked_router_appliance_instances.instances.ip_address` attributes in `google_network_connectivity_spoke` to be correctly marked as required. Otherwise the request to create the resource will fail. ([#20650](https://github.com/hashicorp/terraform-provider-google/pull/20650))
 * privateca: fixed an issue which causes error when updating labels for activated sub-CA ([#20630](https://github.com/hashicorp/terraform-provider-google/pull/20630))
+* sql: fixed permadiff when 'settings.data_cache_config' is set to false for 'google_sql_database_instance' resource ([#20656](https://github.com/hashicorp/terraform-provider-google/pull/20656))
+
 
 ## 6.13.0 (December 9, 2024)
 
