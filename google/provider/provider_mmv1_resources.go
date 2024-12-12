@@ -157,6 +157,8 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_app_engine_default_service_account":            appengine.DataSourceGoogleAppEngineDefaultServiceAccount(),
 	"google_apphub_application":                            apphub.DataSourceGoogleApphubApplication(),
 	"google_apphub_discovered_service":                     apphub.DataSourceApphubDiscoveredService(),
+	"google_backup_dr_backup":                              backupdr.DataSourceGoogleCloudBackupDRBackup(),
+	"google_backup_dr_data_source":                         backupdr.DataSourceGoogleCloudBackupDRDataSource(),
 	"google_backup_dr_backup_vault":                        backupdr.DataSourceGoogleCloudBackupDRBackupVault(),
 	"google_beyondcorp_app_connection":                     beyondcorp.DataSourceGoogleBeyondcorpAppConnection(),
 	"google_beyondcorp_app_connector":                      beyondcorp.DataSourceGoogleBeyondcorpAppConnector(),
