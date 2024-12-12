@@ -1,0 +1,6 @@
+```release-note:enhancement
+parallelstore: added `deployment_type` to `google_parallelstore_instance` (revert)
+```
+```release-note:enhancement
+parallelstore: made `network` field required for `google_parallelstore_instance` (revert)
+```
