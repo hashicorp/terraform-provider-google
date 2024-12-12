@@ -1,0 +1,6 @@
+```release-note: enhancement
+backupdr: promoted datasource`google_backup_dr_data_source` to ga.
+```
+```release-note: enhancement
+backupdr: promoted datasource`google_backup_dr_backup` to ga.
+```
