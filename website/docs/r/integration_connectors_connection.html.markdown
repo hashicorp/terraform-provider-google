@@ -311,7 +311,7 @@ The following arguments are supported:
 
 * `description` -
   (Optional)
-  An arbitrary description for the Conection.
+  An arbitrary description for the Connection.
 
 * `labels` -
   (Optional)

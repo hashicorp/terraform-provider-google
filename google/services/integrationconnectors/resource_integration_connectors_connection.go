@@ -472,7 +472,7 @@ Will be empty string if google managed.`,
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `An arbitrary description for the Conection.`,
+				Description: `An arbitrary description for the Connection.`,
 			},
 			"destination_config": {
 				Type:        schema.TypeList,

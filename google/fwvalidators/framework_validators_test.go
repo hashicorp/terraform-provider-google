@@ -27,7 +27,7 @@ func TestFrameworkProvider_CredentialsValidator(t *testing.T) {
 		"configuring credentials as a path to a credentials JSON file is valid": {
 			ConfigValue: types.StringValue(transport_tpg.TestFakeCredentialsPath), // Path to a test fixture
 		},
-		"configuring credentials as a path to a non-existant file is NOT valid": {
+		"configuring credentials as a path to a non-existent file is NOT valid": {
 			ConfigValue:        types.StringValue("./this/path/doesnt/exist.json"), // Doesn't exist
 			ExpectedErrorCount: 1,
 		},
