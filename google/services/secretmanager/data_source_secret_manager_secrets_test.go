@@ -233,7 +233,7 @@ func checkFieldsMatchForDataSourceStateAndResourceState(dsAttr, rsAttr map[strin
 	return nil
 }
 
-// This function checks state match for resourceName and asserts the absense of resourceName2 in data source
+// This function checks state match for resourceName and asserts the absence of resourceName2 in data source
 func checkListDataSourceStateMatchesResourceStateWithIgnoresForAppliedFilter(dataSourceName, resourceName, resourceName2 string, ignoreFields map[string]struct{}) func(*terraform.State) error {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[dataSourceName]

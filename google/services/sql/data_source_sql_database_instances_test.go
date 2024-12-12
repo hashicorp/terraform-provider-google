@@ -329,7 +329,7 @@ func checkListDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, res
 	}
 }
 
-// This function checks state match for resorceName2 and asserts the absense of resorceName in data source
+// This function checks state match for resorceName2 and asserts the absence of resorceName in data source
 func checkListDataSourceStateMatchesResourceStateWithIgnoresForAppliedFilter(dataSourceName, resourceName, resourceName2 string, ignoreFields map[string]struct{}) func(*terraform.State) error {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[dataSourceName]
@@ -375,7 +375,7 @@ func checkResourceAbsentInDataSourceAfterFilterApllied(dsAttr, rsAttr map[string
 	return nil
 }
 
-// This function checks whether all the attributes of the database instance resource and the attributes of the datbase instance inside the data source list are the same
+// This function checks whether all the attributes of the database instance resource and the attributes of the database instance inside the data source list are the same
 func checkFieldsMatchForDataSourceStateAndResourceState(dsAttr, rsAttr map[string]string, ignoreFields map[string]struct{}) error {
 	totalInstances, err := strconv.Atoi(dsAttr["instances.#"])
 	if err != nil {

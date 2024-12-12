@@ -252,7 +252,7 @@ The following arguments are supported:
 
 * `use_timeout_based_endpointing` -
   (Optional)
-  Use timeout based endpointing, interpreting endpointer sensitivy as seconds of timeout value.
+  Use timeout based endpointing, interpreting endpointer sensitivity as seconds of timeout value.
 
 * `models` -
   (Optional)

@@ -1231,7 +1231,7 @@ data "google_compute_global_address" "private_ip_alloc" {
 `, context)
 }
 
-// This test passes if automated backup policy and inital user can be added and deleted from the promoted secondary cluster
+// This test passes if automated backup policy and initial user can be added and deleted from the promoted secondary cluster
 func TestAccAlloydbCluster_secondaryClusterPromoteAndAddAndDeleteAutomatedBackupPolicyAndInitialUser(t *testing.T) {
 	t.Parallel()
 

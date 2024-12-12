@@ -622,7 +622,7 @@ func expandFirestoreFieldIndexConfig(v interface{}, d tpgresource.TerraformResou
 /*
  * Expands an empty terraform config into an empty object.
  *
- * Used to differentate a user specifying an empty block versus a null/unset block.
+ * Used to differentiate a user specifying an empty block versus a null/unset block.
  *
  * This is unique from send_empty_value, which will send an explicit null value
  * for empty configuration blocks.
