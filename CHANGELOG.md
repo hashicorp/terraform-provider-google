@@ -1,4 +1,31 @@
-## 6.14.0 (Unreleased)
+## 6.14.0 (December 16, 2024)
+
+FEATURES:
+* **New Resource:** `google_network_security_intercept_deployment_group` ([#20615](https://github.com/hashicorp/terraform-provider-google/pull/20615))
+* **New Resource:** `google_network_security_intercept_deployment` ([#20634](https://github.com/hashicorp/terraform-provider-google/pull/20634))
+* **New Resource:** `google_network_security_authz_policy` ([#20595](https://github.com/hashicorp/terraform-provider-google/pull/20595))
+* **New Resource:** `google_network_services_authz_extension` ([#20595](https://github.com/hashicorp/terraform-provider-google/pull/20595))
+
+IMPROVEMENTS:
+* compute: `google_compute_instance` is no longer recreated when changing `boot_disk.auto_delete` ([#20580](https://github.com/hashicorp/terraform-provider-google/pull/20580))
+* compute: added `CA_ENTERPRISE_ANNUAL` option for field `cloud_armor_tier` in `google_compute_project_cloud_armor_tier` resource ([#20596](https://github.com/hashicorp/terraform-provider-google/pull/20596))
+* compute: added `network_tier` field to `google_compute_global_forwarding_rule` resource ([#20582](https://github.com/hashicorp/terraform-provider-google/pull/20582))
+* compute: added `rule.rate_limit_options.enforce_on_key_configs` field to `google_compute_security_policy` resource (GA) ([#20597](https://github.com/hashicorp/terraform-provider-google/pull/20597))
+* compute: made `metadata_startup_script` able to be updated via graceful switch in `google_compute_instance` ([#20655](https://github.com/hashicorp/terraform-provider-google/pull/20655))
+* container: promoted `google_container_cluster.enable_fqdn_network_policy` to GA ([#20609](https://github.com/hashicorp/terraform-provider-google/pull/20609))
+* firebasehosting: added `headers` field in `google_firebase_hosting_version` resource (beta) ([#20654](https://github.com/hashicorp/terraform-provider-google/pull/20654))
+* identityplatform: marked `quota.0.sign_up_quota_config` subfields conditionally required in `google_identity_platform_config` to move errors from apply time up to plan time, and clarified the rule in documentation ([#20627](https://github.com/hashicorp/terraform-provider-google/pull/20627))
+* networkconnectivity: added support for updating `linked_vpn_tunnels.include_import_ranges`, `linked_interconnect_attachments.include_import_ranges`, `linked_router_appliance_instances. instances` and `linked_router_appliance_instances.include_import_ranges` in `google_network_connectivity_spoke` ([#20650](https://github.com/hashicorp/terraform-provider-google/pull/20650))
+* orgpolicy: added `parameters` fields to `google_org_policy_policy` resource (beta) ([#20647](https://github.com/hashicorp/terraform-provider-google/pull/20647))
+* sql: fixed permadiff when 'settings.data_cache_config' is set to false for 'google_sql_database_instance' resource ([#20656](https://github.com/hashicorp/terraform-provider-google/pull/20656))
+* storage: added `hdfs_data_source` field to `google_storage_transfer_job` resource ([#20583](https://github.com/hashicorp/terraform-provider-google/pull/20583))
+* tpuv2: added `network_configs` and `network_config.queue_count` fields to `google_tpu_v2_vm` resource ([#20621](https://github.com/hashicorp/terraform-provider-google/pull/20621))
+
+BUG FIXES:
+* compute: fixed permadiff on the `recaptcha_options` field for `google_compute_security_policy` resource ([#20617](https://github.com/hashicorp/terraform-provider-google/pull/20617))
+* compute: updating labels on `resource_google_compute_resource_policy` will no longer fail because of a Patch error with `guest_flush` ([#20632](https://github.com/hashicorp/terraform-provider-google/pull/20632))
+* networkconnectivity: fixed `linked_router_appliance_instances.instances.virtual_machine` and `linked_router_appliance_instances.instances.ip_address` attributes in `google_network_connectivity_spoke` to be correctly marked as required. Otherwise the request to create the resource will fail. ([#20650](https://github.com/hashicorp/terraform-provider-google/pull/20650))
+* privateca: fixed an issue which causes error when updating labels for activated sub-CA ([#20630](https://github.com/hashicorp/terraform-provider-google/pull/20630))
 
 ## 6.13.0 (December 9, 2024)
 
