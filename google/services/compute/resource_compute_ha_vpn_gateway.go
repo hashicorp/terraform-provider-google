@@ -18,6 +18,7 @@
 package compute
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -47,6 +48,15 @@ func ResourceComputeHaVpnGateway() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		SchemaVersion: 1,
+
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceComputeHaVpnGatewayResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceComputeHaVpnGatewayUpgradeV0,
+				Version: 0,
+			},
+		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
 		),
@@ -575,4 +585,123 @@ func expandComputeHaVpnGatewayRegion(v interface{}, d tpgresource.TerraformResou
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func resourceComputeHaVpnGatewayResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateGCEName,
+				Description: `Name of the resource. Provided by the client when the resource is
+created. The name must be 1-63 characters long, and comply with
+RFC1035.  Specifically, the name must be 1-63 characters long and
+match the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means
+the first character must be a lowercase letter, and all following
+characters must be a dash, lowercase letter, or digit, except the last
+character, which cannot be a dash.`,
+			},
+			"network": {
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      `The network this VPN gateway is accepting traffic for.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `An optional description of this resource.`,
+			},
+			"gateway_ip_version": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"IPV4", "IPV6", ""}),
+				Description:  `The IP family of the gateway IPs for the HA-VPN gateway interfaces. If not specified, IPV4 will be used. Default value: "IPV4" Possible values: ["IPV4", "IPV6"]`,
+				Default:      "IPV4",
+			},
+			"region": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      `The region this gateway should sit in.`,
+			},
+			"stack_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"IPV4_ONLY", "IPV4_IPV6", "IPV6_ONLY", ""}),
+				Description: `The stack type for this VPN gateway to identify the IP protocols that are enabled.
+If not specified, IPV4_ONLY will be used. Default value: "IPV4_ONLY" Possible values: ["IPV4_ONLY", "IPV4_IPV6", "IPV6_ONLY"]`,
+				Default: "IPV4_ONLY",
+			},
+			"vpn_interfaces": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `A list of interfaces on this VPN gateway.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The numeric ID of this VPN gateway interface.`,
+						},
+						"interconnect_attachment": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+							Description: `URL of the interconnect attachment resource. When the value
+of this field is present, the VPN Gateway will be used for
+IPsec-encrypted Cloud Interconnect; all Egress or Ingress
+traffic for this VPN Gateway interface will go through the
+specified interconnect attachment resource.
+
+Not currently available publicly.`,
+						},
+						"ip_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The external IP address for this VPN gateway interface.`,
+						},
+					},
+				},
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"self_link": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+		UseJSONNumber: true,
+	}
+}
+
+func ResourceComputeHaVpnGatewayUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
+
+	// Check if "gateway_ip_version" already exists
+	if _, ok := rawState["gateway_ip_version"]; !ok {
+		// Add the missing attribute with the default value
+		rawState["gateway_ip_version"] = "IPV4"
+	} else {
+		log.Printf("[DEBUG] 'gateway_ip_version' already exists: %#v", rawState["gateway_ip_version"])
+	}
+
+	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
+	return rawState, nil
 }

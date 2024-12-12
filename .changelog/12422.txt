@@ -1,0 +1,3 @@
+```release-note:enhancement
+bug: fixed an issue where `terraform plan -refresh=false` with `google_compute_ha_vpn_gateway.gateway_ip_version` would plan a resource replacement if a full refresh had not been run yet. Terraform now assumes that the value is the default value, `IPV4`, until a refresh is completed.
+```
