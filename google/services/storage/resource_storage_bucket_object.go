@@ -5,6 +5,7 @@ package storage
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -26,10 +27,11 @@ import (
 
 func ResourceStorageBucketObject() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceStorageBucketObjectCreate,
-		Read:   resourceStorageBucketObjectRead,
-		Update: resourceStorageBucketObjectUpdate,
-		Delete: resourceStorageBucketObjectDelete,
+		Create:        resourceStorageBucketObjectCreate,
+		Read:          resourceStorageBucketObjectRead,
+		Update:        resourceStorageBucketObjectUpdate,
+		Delete:        resourceStorageBucketObjectDelete,
+		CustomizeDiff: resourceStorageBucketObjectCustomizeDiff,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(4 * time.Minute),
@@ -604,4 +606,36 @@ func flattenObjectRetention(objectRetention *storage.ObjectRetention) []map[stri
 
 	retentions = append(retentions, retention)
 	return retentions
+}
+
+func resourceStorageBucketObjectCustomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	localMd5Hash := ""
+	if source, ok := d.GetOkExists("source"); ok {
+		localMd5Hash = tpgresource.GetFileMd5Hash(source.(string))
+	}
+	if content, ok := d.GetOkExists("content"); ok {
+		localMd5Hash = tpgresource.GetContentMd5Hash([]byte(content.(string)))
+	}
+	if localMd5Hash == "" {
+		return nil
+	}
+
+	oldMd5Hash, ok := d.GetOkExists("md5hash")
+	if ok && oldMd5Hash == localMd5Hash {
+		return nil
+	}
+
+	err := d.SetNewComputed("md5hash")
+	if err != nil {
+		return fmt.Errorf("Error re-setting md5hash: %s", err)
+	}
+	err = d.SetNewComputed("crc32c")
+	if err != nil {
+		return fmt.Errorf("Error re-setting crc32c: %s", err)
+	}
+	err = d.SetNewComputed("generation")
+	if err != nil {
+		return fmt.Errorf("Error re-setting generation: %s", err)
+	}
+	return nil
 }

@@ -1,0 +1,3 @@
+```release-note:bug
+storage: Make `resource_google_storage_bucket_object` generate diff for `md5hash`, `generation`, `crc32c` if content changes
+```
