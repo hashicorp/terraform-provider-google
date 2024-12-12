@@ -250,7 +250,7 @@ The following arguments are supported:
 
 * `vpc_ip_subnetworks` -
   (Optional)
-  CIDR block IP subnetwork specification. Must be IPv4.
+  A list of CIDR block IP subnetwork specification. Must be IPv4.
 
 <a name="nested_custom"></a>The `custom` block supports:
 
