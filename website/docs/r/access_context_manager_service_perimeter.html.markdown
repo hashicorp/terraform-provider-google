@@ -860,11 +860,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `update_time` -
   Time the AccessPolicy was updated in UTC.
 
-* `etag` -
-  An opaque identifier for the current version of the ServicePerimeter. This
-  identifier does not follow any specific format. If an etag is not provided, the
-  operation will be performed as if a valid etag is provided.
-
 
 ## Timeouts
 
