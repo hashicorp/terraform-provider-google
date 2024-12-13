@@ -1,0 +1,3 @@
+```release-note:enhancement
+spanner: updated document for IAM policy for Spanner Databases on federated identities
+```
