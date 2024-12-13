@@ -144,6 +144,9 @@ func expandScheduling(v interface{}) (*compute.Scheduling, error) {
 		scheduling.InstanceTerminationAction = v.(string)
 		scheduling.ForceSendFields = append(scheduling.ForceSendFields, "InstanceTerminationAction")
 	}
+	if v, ok := original["availability_domain"]; ok && v != nil {
+		scheduling.AvailabilityDomain = int64(v.(int))
+	}
 	if v, ok := original["max_run_duration"]; ok {
 		transformedMaxRunDuration, err := expandComputeMaxRunDuration(v)
 		if err != nil {
@@ -264,6 +267,7 @@ func flattenScheduling(resp *compute.Scheduling) []map[string]interface{} {
 		"min_node_cpus":               resp.MinNodeCpus,
 		"provisioning_model":          resp.ProvisioningModel,
 		"instance_termination_action": resp.InstanceTerminationAction,
+		"availability_domain":         resp.AvailabilityDomain,
 	}
 
 	if resp.AutomaticRestart != nil {
@@ -679,6 +683,9 @@ func schedulingHasChangeWithoutReboot(d *schema.ResourceData) bool {
 	}
 
 	if oScheduling["instance_termination_action"] != newScheduling["instance_termination_action"] {
+		return true
+	}
+	if oScheduling["availability_domain"] != newScheduling["availability_domain"] {
 		return true
 	}
 

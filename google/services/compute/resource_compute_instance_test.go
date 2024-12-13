@@ -2909,6 +2909,31 @@ func TestAccComputeInstance_resourcePolicyCollocate(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_resourcePolicySpread(t *testing.T) {
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	var instance compute.Instance
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_resourcePolicySpread(instanceName, acctest.RandString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatus(&instance, "RUNNING"),
+					testAccCheckComputeInstanceHasAvailabilityDomain(&instance, 3),
+				),
+			},
+			computeInstanceImportStep("us-east4-b", instanceName, []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
 func TestAccComputeInstance_subnetworkUpdate(t *testing.T) {
 	t.Parallel()
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
@@ -3837,6 +3862,23 @@ func testAccCheckComputeInstanceMaxRunDuration(instance *compute.Instance, insta
 
 		if !reflect.DeepEqual(*instance.Scheduling.MaxRunDuration, instanceMaxRunDurationWant) {
 			return fmt.Errorf("got the wrong instance max run duration action: have: %#v; want: %#v", instance.Scheduling.MaxRunDuration, instanceMaxRunDurationWant)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasAvailabilityDomain(instance *compute.Instance, availabilityDomain int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance == nil {
+			return fmt.Errorf("instance is nil")
+		}
+		if instance.Scheduling == nil {
+			return fmt.Errorf("no scheduling")
+		}
+
+		if instance.Scheduling.AvailabilityDomain != availabilityDomain {
+			return fmt.Errorf("got the wrong availability domain: have %d; want %d", instance.Scheduling.AvailabilityDomain, availabilityDomain)
 		}
 
 		return nil
@@ -8585,6 +8627,50 @@ resource "google_compute_resource_policy" "foo" {
 }
 
 `, instance, instance, suffix)
+}
+
+func testAccComputeInstance_resourcePolicySpread(instance, suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name           = "%s"
+  machine_type   = "e2-standard-4"
+  zone           = "us-east4-b"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  //deletion_protection = false is implicit in this config due to default value
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+	availability_domain = 3
+  }
+
+  resource_policies = [google_compute_resource_policy.foo.self_link]
+}
+
+resource "google_compute_resource_policy" "foo" {
+  name   = "tf-test-policy-%s"
+  region = "us-east4"
+  group_placement_policy {
+    availability_domain_count = 3
+  }
+}
+
+`, instance, suffix)
 }
 
 func testAccComputeInstance_subnetworkUpdate(suffix, instance string) string {
