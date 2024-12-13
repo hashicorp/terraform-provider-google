@@ -93,6 +93,76 @@ resource "google_network_connectivity_spoke" "primary"  {
 `, context)
 }
 
+func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkGroupExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkConnectivitySpokeDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkGroupExample(context),
+			},
+			{
+				ResourceName:            "google_network_connectivity_spoke.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkGroupExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "network" {
+  name                    = "tf-test-net-spoke%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_connectivity_hub" "basic_hub" {
+  name        = "tf-test-hub1-spoke%{random_suffix}"
+  description = "A sample hub"
+  labels = {
+    label-two = "value-one"
+  }
+}
+
+resource "google_network_connectivity_group" "default_group"  {
+ hub         = google_network_connectivity_hub.basic_hub.id
+ name        = "default"
+ description = "A sample hub group"
+}
+
+resource "google_network_connectivity_spoke" "primary"  {
+  name = "tf-test-group-spoke1%{random_suffix}"
+  location = "global"
+  description = "A sample spoke with a linked VPC"
+  labels = {
+    label-one = "value-one"
+  }
+  hub = google_network_connectivity_hub.basic_hub.id
+  linked_vpc_network {
+    exclude_export_ranges = [
+      "198.51.100.0/24",
+      "10.10.0.0/16"
+    ]
+    include_export_ranges = [
+      "198.51.100.0/23",
+      "10.0.0.0/8"
+    ]
+    uri = google_compute_network.network.self_link
+  }
+  group = google_network_connectivity_group.default_group.id
+}
+`, context)
+}
+
 func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeRouterApplianceBasicExample(t *testing.T) {
 	t.Parallel()
 

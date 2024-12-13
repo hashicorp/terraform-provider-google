@@ -80,6 +80,13 @@ func ResourceNetworkConnectivitySpoke() *schema.Resource {
 				Optional:    true,
 				Description: `An optional description of the spoke.`,
 			},
+			"group": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The name of the group that this spoke is associated with.`,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -364,6 +371,12 @@ func resourceNetworkConnectivitySpokeCreate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("hub"); !tpgresource.IsEmptyValue(reflect.ValueOf(hubProp)) && (ok || !reflect.DeepEqual(v, hubProp)) {
 		obj["hub"] = hubProp
 	}
+	groupProp, err := expandNetworkConnectivitySpokeGroup(d.Get("group"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("group"); !tpgresource.IsEmptyValue(reflect.ValueOf(groupProp)) && (ok || !reflect.DeepEqual(v, groupProp)) {
+		obj["group"] = groupProp
+	}
 	linkedVpnTunnelsProp, err := expandNetworkConnectivitySpokeLinkedVpnTunnels(d.Get("linked_vpn_tunnels"), d, config)
 	if err != nil {
 		return err
@@ -515,6 +528,9 @@ func resourceNetworkConnectivitySpokeRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading Spoke: %s", err)
 	}
 	if err := d.Set("hub", flattenNetworkConnectivitySpokeHub(res["hub"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err := d.Set("group", flattenNetworkConnectivitySpokeGroup(res["group"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Spoke: %s", err)
 	}
 	if err := d.Set("linked_vpn_tunnels", flattenNetworkConnectivitySpokeLinkedVpnTunnels(res["linkedVpnTunnels"], d, config)); err != nil {
@@ -781,6 +797,10 @@ func flattenNetworkConnectivitySpokeHub(v interface{}, d *schema.ResourceData, c
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenNetworkConnectivitySpokeGroup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkConnectivitySpokeLinkedVpnTunnels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -997,6 +1017,10 @@ func expandNetworkConnectivitySpokeDescription(v interface{}, d tpgresource.Terr
 }
 
 func expandNetworkConnectivitySpokeHub(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivitySpokeGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
