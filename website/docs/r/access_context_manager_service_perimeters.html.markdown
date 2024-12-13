@@ -119,12 +119,6 @@ The following arguments are supported:
   Description of the ServicePerimeter and its use. Does not affect
   behavior.
 
-* `etag` -
-  (Output)
-  An opaque identifier for the current version of the ServicePerimeter. This
-  identifier does not follow any specific format. If an etag is not provided, the
-  operation will be performed as if a valid etag is provided.
-
 * `create_time` -
   (Output)
   Time the AccessPolicy was created in UTC.

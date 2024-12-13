@@ -909,13 +909,6 @@ bet set to True if any of the fields in the spec are set to non-default values.`
 				Computed:    true,
 				Description: `Time the AccessPolicy was created in UTC.`,
 			},
-			"etag": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Description: `An opaque identifier for the current version of the ServicePerimeter. This
-identifier does not follow any specific format. If an etag is not provided, the
-operation will be performed as if a valid etag is provided.`,
-			},
 			"update_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -969,12 +962,6 @@ func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, 
 		return err
 	} else if v, ok := d.GetOkExists("use_explicit_dry_run_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(useExplicitDryRunSpecProp)) && (ok || !reflect.DeepEqual(v, useExplicitDryRunSpecProp)) {
 		obj["useExplicitDryRunSpec"] = useExplicitDryRunSpecProp
-	}
-	etagProp, err := expandAccessContextManagerServicePerimeterEtag(d.Get("etag"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(etagProp)) && (ok || !reflect.DeepEqual(v, etagProp)) {
-		obj["etag"] = etagProp
 	}
 	parentProp, err := expandAccessContextManagerServicePerimeterParent(d.Get("parent"), d, config)
 	if err != nil {
@@ -1121,9 +1108,6 @@ func resourceAccessContextManagerServicePerimeterRead(d *schema.ResourceData, me
 	if err := d.Set("use_explicit_dry_run_spec", flattenAccessContextManagerServicePerimeterUseExplicitDryRunSpec(res["useExplicitDryRunSpec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
-	if err := d.Set("etag", flattenAccessContextManagerServicePerimeterEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
-	}
 	if err := d.Set("name", flattenAccessContextManagerServicePerimeterName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
@@ -1171,12 +1155,6 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 	} else if v, ok := d.GetOkExists("use_explicit_dry_run_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, useExplicitDryRunSpecProp)) {
 		obj["useExplicitDryRunSpec"] = useExplicitDryRunSpecProp
 	}
-	etagProp, err := expandAccessContextManagerServicePerimeterEtag(d.Get("etag"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, etagProp)) {
-		obj["etag"] = etagProp
-	}
 
 	obj, err = resourceAccessContextManagerServicePerimeterEncoder(d, meta, obj)
 	if err != nil {
@@ -1218,20 +1196,11 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 	if d.HasChange("use_explicit_dry_run_spec") {
 		updateMask = append(updateMask, "useExplicitDryRunSpec")
 	}
-
-	if d.HasChange("etag") {
-		updateMask = append(updateMask, "etag")
-	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
-	}
-	if _, ok := d.GetOkExists("etag"); ok {
-		updateMask = append(updateMask, "etag")
-
-		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	}
 
 	// err == nil indicates that the billing_project value was found
@@ -2113,10 +2082,6 @@ func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperat
 }
 
 func flattenAccessContextManagerServicePerimeterUseExplicitDryRunSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAccessContextManagerServicePerimeterEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3205,10 +3170,6 @@ func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperati
 }
 
 func expandAccessContextManagerServicePerimeterUseExplicitDryRunSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandAccessContextManagerServicePerimeterEtag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
