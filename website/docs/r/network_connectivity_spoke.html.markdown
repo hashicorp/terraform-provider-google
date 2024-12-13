@@ -72,6 +72,56 @@ resource "google_network_connectivity_spoke" "primary"  {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_spoke_linked_vpc_network_group&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Connectivity Spoke Linked Vpc Network Group
+
+
+```hcl
+resource "google_compute_network" "network" {
+  name                    = "net-spoke"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_connectivity_hub" "basic_hub" {
+  name        = "hub1-spoke"
+  description = "A sample hub"
+  labels = {
+    label-two = "value-one"
+  }
+}
+
+resource "google_network_connectivity_group" "default_group"  {
+ hub         = google_network_connectivity_hub.basic_hub.id
+ name        = "default"
+ description = "A sample hub group"
+}
+
+resource "google_network_connectivity_spoke" "primary"  {
+  name = "group-spoke1"
+  location = "global"
+  description = "A sample spoke with a linked VPC"
+  labels = {
+    label-one = "value-one"
+  }
+  hub = google_network_connectivity_hub.basic_hub.id
+  linked_vpc_network {
+    exclude_export_ranges = [
+      "198.51.100.0/24",
+      "10.10.0.0/16"
+    ]
+    include_export_ranges = [
+      "198.51.100.0/23",
+      "10.0.0.0/8"
+    ]
+    uri = google_compute_network.network.self_link
+  }
+  group = google_network_connectivity_group.default_group.id
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_spoke_router_appliance_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -426,6 +476,10 @@ The following arguments are supported:
 * `description` -
   (Optional)
   An optional description of the spoke.
+
+* `group` -
+  (Optional)
+  The name of the group that this spoke is associated with.
 
 * `linked_vpn_tunnels` -
   (Optional)
