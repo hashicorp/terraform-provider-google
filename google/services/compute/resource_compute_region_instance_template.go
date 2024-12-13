@@ -659,6 +659,13 @@ Google Cloud KMS.`,
 							AtLeastOneOf: schedulingInstTemplateKeys,
 							Description:  `Specifies the action GCE should take when SPOT VM is preempted.`,
 						},
+						"availability_domain": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ForceNew:     true,
+							AtLeastOneOf: schedulingInstTemplateKeys,
+							Description:  `Specifies the availability domain, which this instance should be scheduled on.`,
+						},
 						"max_run_duration": {
 							Type:        schema.TypeList,
 							Optional:    true,

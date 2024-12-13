@@ -92,6 +92,7 @@ var (
 		"scheduling.0.min_node_cpus",
 		"scheduling.0.provisioning_model",
 		"scheduling.0.instance_termination_action",
+		"scheduling.0.availability_domain",
 		"scheduling.0.max_run_duration",
 		"scheduling.0.on_instance_stop_action",
 		"scheduling.0.local_ssd_recovery_timeout",
@@ -845,6 +846,12 @@ func ResourceComputeInstance() *schema.Resource {
 							Optional:     true,
 							AtLeastOneOf: schedulingKeys,
 							Description:  `Specifies the action GCE should take when SPOT VM is preempted.`,
+						},
+						"availability_domain": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							AtLeastOneOf: schedulingKeys,
+							Description:  `Specifies the availability domain, which this instance should be scheduled on.`,
 						},
 						"max_run_duration": {
 							Type:        schema.TypeList,

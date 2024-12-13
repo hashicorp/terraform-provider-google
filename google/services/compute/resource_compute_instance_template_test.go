@@ -652,6 +652,34 @@ func TestAccComputeInstanceTemplate_instanceResourcePolicies(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_instanceResourcePoliciesSpread(t *testing.T) {
+	t.Parallel()
+
+	var template compute.InstanceTemplate
+	var policyName = "tf-test-policy-" + acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_instanceResourcePolicySpread(acctest.RandString(t, 10), policyName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &template),
+					testAccCheckComputeInstanceTemplateHasInstanceResourcePolicies(&template, policyName),
+					testAccCheckComputeInstanceTemplateHasAvailabilityDomain(&template, 3),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_reservationAffinities(t *testing.T) {
 	t.Parallel()
 
@@ -1985,6 +2013,15 @@ func testAccCheckComputeInstanceTemplateHasInstanceResourcePolicies(instanceTemp
 
 }
 
+func testAccCheckComputeInstanceTemplateHasAvailabilityDomain(instanceTemplate *compute.InstanceTemplate, availabilityDomain int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instanceTemplate.Properties.Scheduling.AvailabilityDomain != availabilityDomain {
+			return fmt.Errorf("Expected availability_domain  %d, got %d", availabilityDomain, instanceTemplate.Properties.Scheduling.AvailabilityDomain)
+		}
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceTemplateHasReservationAffinity(instanceTemplate *compute.InstanceTemplate, consumeReservationType string, specificReservationNames ...string) resource.TestCheckFunc {
 	if len(specificReservationNames) > 1 {
 		panic("too many specificReservationNames in test")
@@ -3255,6 +3292,48 @@ resource "google_compute_instance_template" "foobar" {
   scheduling {
     preemptible       = false
     automatic_restart = false
+  }
+
+  resource_policies = [google_compute_resource_policy.foo.self_link]
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+`, policyName, suffix)
+}
+
+func testAccComputeInstanceTemplate_instanceResourcePolicySpread(suffix string, policyName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_resource_policy" "foo" {
+  name = "%s"
+  region = "us-central1"
+  group_placement_policy {
+	availability_domain_count = 5
+  }
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "tf-test-instance-template-%s"
+  machine_type = "e2-standard-4"
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+	availability_domain = 3
   }
 
   resource_policies = [google_compute_resource_policy.foo.self_link]
