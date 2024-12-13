@@ -593,6 +593,8 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+* `auth_string` - AUTH String set on the instance. This field will only be populated if auth_enabled is true.
+
 
 <a name="nested_maintenance_schedule"></a>The `maintenance_schedule` block contains:
 
