@@ -1,0 +1,3 @@
+```release-note:none
+securitycenterv2: fixed flaky test TestAccSecurityCenterV2ProjectBigQueryExportConfig_basic
+```
