@@ -300,6 +300,15 @@ func TestAccBigQueryDataset_access(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
+				Config: testAccBigQueryDatasetWithConditionAccess(datasetID),
+			},
+			{
+				ResourceName:            "google_bigquery_dataset.access_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
 				Config: testAccBigQueryDatasetWithViewAccess(datasetID, otherDatasetID, otherTableID),
 			},
 			{
@@ -451,6 +460,31 @@ func TestAccBigQueryDataset_bigqueryDatasetResourceTags_update(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func TestAccBigQueryDataset_bigqueryDatasetExternalReferenceAws(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDataset_bigqueryDatasetExternalReferenceAws(context),
+			},
+			{
+				ResourceName:            "google_bigquery_dataset.dataset",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "etag", "last_modified_time"},
 			},
 		},
 	})
@@ -661,6 +695,35 @@ resource "google_bigquery_dataset" "access_test" {
   access {
     role          = "OWNER"
     user_by_email = "Joe@example.com"
+  }
+
+  labels = {
+    env                         = "foo"
+    default_table_expiration_ms = 3600000
+  }
+}
+`, datasetID)
+}
+
+func testAccBigQueryDatasetWithConditionAccess(datasetID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "access_test" {
+  dataset_id = "%s"
+
+  access {
+    role          = "OWNER"
+    user_by_email = "Joe@example.com"
+  }
+
+  access {
+    role          = "READER"
+    user_by_email = "Joe@example.com"
+    condition {
+        title       = "test-condition"
+        description = "Request after midnight of 2019-12-31"
+        expression  = "request.time > timestamp(\"2020-01-01T00:00:00Z\")"
+        location    = "any.file.anywhere"
+    }
   }
 
   labels = {
@@ -900,6 +963,22 @@ resource "google_bigquery_dataset" "dataset" {
       "new_dataset_owner" = "new_dataset_owner"
     }
     default_storage_location_uri = "gs://new_test_dataset/new_tables"
+  }
+}
+`, context)
+}
+
+func testAccBigQueryDataset_bigqueryDatasetExternalReferenceAws(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id                  = "dataset%{random_suffix}"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "aws-us-east-1"
+
+  external_dataset_reference {
+    external_source = "aws-glue://arn:aws:glue:us-east-1:772042918353:database/db_other_formats_external"
+    connection      = "projects/bigquerytestdefault/locations/aws-us-east-1/connections/external_test-connection"
   }
 }
 `, context)

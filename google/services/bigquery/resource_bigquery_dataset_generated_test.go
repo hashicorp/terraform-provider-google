@@ -410,47 +410,6 @@ resource "google_service_account" "bqowner" {
 `, context)
 }
 
-func TestAccBigQueryDataset_bigqueryDatasetExternalReferenceAwsTestExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccBigQueryDataset_bigqueryDatasetExternalReferenceAwsTestExample(context),
-			},
-			{
-				ResourceName:            "google_bigquery_dataset.dataset",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
-			},
-		},
-	})
-}
-
-func testAccBigQueryDataset_bigqueryDatasetExternalReferenceAwsTestExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_bigquery_dataset" "dataset" {
-  dataset_id                  = "tf_test_example_dataset%{random_suffix}"
-  friendly_name               = "test"
-  description                 = "This is a test description"
-  location                    = "aws-us-east-1"
-
-  external_dataset_reference {
-    external_source = "aws-glue://arn:aws:glue:us-east-1:772042918353:database/db_other_formats_external"
-    connection      = "projects/bigquerytestdefault/locations/aws-us-east-1/connections/external_test-connection"
-  }
-}
-`, context)
-}
-
 func TestAccBigQueryDataset_bigqueryDatasetResourceTagsExample(t *testing.T) {
 	t.Parallel()
 

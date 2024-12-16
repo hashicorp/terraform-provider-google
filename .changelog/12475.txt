@@ -1,0 +1,6 @@
+```release-note:enhancement
+bigquery: added `condition` field to `google_bigquery_dataset_access` resource
+```
+```release-note:enhancement
+bigquery: added `condition` field to `google_bigquery_dataset` resource
+```
