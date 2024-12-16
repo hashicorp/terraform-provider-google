@@ -3415,35 +3415,6 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s Default SNAT status has been updated", d.Id())
 	}
 
-	if d.HasChange("maintenance_policy") {
-		req := &container.SetMaintenancePolicyRequest{
-			MaintenancePolicy: expandMaintenancePolicy(d, meta),
-		}
-
-		updateF := func() error {
-			name := containerClusterFullName(project, location, clusterName)
-			clusterSetMaintenancePolicyCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.SetMaintenancePolicy(name, req)
-			if config.UserProjectOverride {
-				clusterSetMaintenancePolicyCall.Header().Add("X-Goog-User-Project", project)
-			}
-			op, err := clusterSetMaintenancePolicyCall.Do()
-
-			if err != nil {
-				return err
-			}
-
-			// Wait until it's updated
-			return ContainerOperationWait(config, op, project, location, "updating GKE cluster maintenance policy", userAgent, d.Timeout(schema.TimeoutUpdate))
-		}
-
-		// Call update serially.
-		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
-			return err
-		}
-
-		log.Printf("[INFO] GKE cluster %s maintenance policy has been updated", d.Id())
-	}
-
 	if d.HasChange("node_locations") {
 		azSetOldI, azSetNewI := d.GetChange("node_locations")
 		azSetNew := azSetNewI.(*schema.Set)
@@ -3709,6 +3680,36 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		if !foundDefault {
 			return fmt.Errorf("node_version was updated but default-pool was not found. To update the version for a non-default pool, use the version attribute on that pool.")
 		}
+	}
+
+	// Set maintenance policy after upgrade so validation will use the new versions.
+	if d.HasChange("maintenance_policy") {
+		req := &container.SetMaintenancePolicyRequest{
+			MaintenancePolicy: expandMaintenancePolicy(d, meta),
+		}
+
+		updateF := func() error {
+			name := containerClusterFullName(project, location, clusterName)
+			clusterSetMaintenancePolicyCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.SetMaintenancePolicy(name, req)
+			if config.UserProjectOverride {
+				clusterSetMaintenancePolicyCall.Header().Add("X-Goog-User-Project", project)
+			}
+			op, err := clusterSetMaintenancePolicyCall.Do()
+
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return ContainerOperationWait(config, op, project, location, "updating GKE cluster maintenance policy", userAgent, d.Timeout(schema.TimeoutUpdate))
+		}
+
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s maintenance policy has been updated", d.Id())
 	}
 
 	if d.HasChange("node_config") {
