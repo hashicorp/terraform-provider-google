@@ -21,8 +21,6 @@ description: |-
 
 VPC Flow Logs Config is a resource that lets you configure Flow Logs for VPC, Interconnect attachments or VPN Tunnels.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -35,11 +33,9 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_network_management_vpc_flow_logs_config" "interconnect-test" {
-  provider                = google-beta
   vpc_flow_logs_config_id = "full-interconnect-test-id"
   location                = "global"
   interconnect_attachment = "projects/${data.google_project.project.number}/regions/us-east4/interconnectAttachments/${google_compute_interconnect_attachment.attachment.name}"
@@ -51,12 +47,10 @@ resource "google_network_management_vpc_flow_logs_config" "interconnect-test" {
 }
 
 resource "google_compute_network" "network" {
-  provider = google-beta
   name     = "full-interconnect-test-network"
 }
 
 resource "google_compute_router" "router" {
-  provider = google-beta
   name    = "full-interconnect-test-router"
   network = google_compute_network.network.name
   bgp {
@@ -65,7 +59,6 @@ resource "google_compute_router" "router" {
 }
 
 resource "google_compute_interconnect_attachment" "attachment" {
-  provider                 = google-beta
   name                     = "full-interconnect-test-id"
   edge_availability_domain = "AVAILABILITY_DOMAIN_1"
   type                     = "PARTNER"
@@ -84,23 +77,19 @@ resource "google_compute_interconnect_attachment" "attachment" {
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_network_management_vpc_flow_logs_config" "interconnect-test" {
-  provider                = google-beta
   vpc_flow_logs_config_id = "basic-interconnect-test-id"
   location                = "global"
   interconnect_attachment = "projects/${data.google_project.project.number}/regions/us-east4/interconnectAttachments/${google_compute_interconnect_attachment.attachment.name}"
 }
 
 resource "google_compute_network" "network" {
-  provider = google-beta
   name     = "basic-interconnect-test-network"
 }
 
 resource "google_compute_router" "router" {
-  provider = google-beta
   name    = "basic-interconnect-test-router"
   network = google_compute_network.network.name
   bgp {
@@ -109,7 +98,6 @@ resource "google_compute_router" "router" {
 }
 
 resource "google_compute_interconnect_attachment" "attachment" {
-  provider                 = google-beta
   name                     = "basic-interconnect-test-id"
   edge_availability_domain = "AVAILABILITY_DOMAIN_1"
   type                     = "PARTNER"
@@ -128,18 +116,15 @@ resource "google_compute_interconnect_attachment" "attachment" {
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_network_management_vpc_flow_logs_config" "vpn-test" {
-  provider                = google-beta
   vpc_flow_logs_config_id = "basic-test-id"
   location                = "global"
   vpn_tunnel              = "projects/${data.google_project.project.number}/regions/us-central1/vpnTunnels/${google_compute_vpn_tunnel.tunnel.name}"
 }
 
 resource "google_compute_vpn_tunnel" "tunnel" {
-  provider           = google-beta
   name               = "basic-test-tunnel"
   peer_ip            = "15.0.0.120"
   shared_secret      = "a secret message"
@@ -153,23 +138,19 @@ resource "google_compute_vpn_tunnel" "tunnel" {
 }
 
 resource "google_compute_vpn_gateway" "target_gateway" {
-  provider = google-beta
   name     = "basic-test-gateway"
   network  = google_compute_network.network.id
 }
 
 resource "google_compute_network" "network" {
-  provider = google-beta
   name     = "basic-test-network"
 }
 
 resource "google_compute_address" "vpn_static_ip" {
-  provider = google-beta
   name     = "basic-test-address"
 }
 
 resource "google_compute_forwarding_rule" "fr_esp" {
-  provider    = google-beta
   name        = "basic-test-fresp"
   ip_protocol = "ESP"
   ip_address  = google_compute_address.vpn_static_ip.address
@@ -177,7 +158,6 @@ resource "google_compute_forwarding_rule" "fr_esp" {
 }
 
 resource "google_compute_forwarding_rule" "fr_udp500" {
-  provider    = google-beta
   name        = "basic-test-fr500"
   ip_protocol = "UDP"
   port_range  = "500"
@@ -186,7 +166,6 @@ resource "google_compute_forwarding_rule" "fr_udp500" {
 }
 
 resource "google_compute_forwarding_rule" "fr_udp4500" {
-  provider    = google-beta
   name        = "basic-test-fr4500"
   ip_protocol = "UDP"
   port_range  = "4500"
@@ -195,7 +174,6 @@ resource "google_compute_forwarding_rule" "fr_udp4500" {
 }
 
 resource "google_compute_route" "route" {
-  provider            = google-beta
   name                = "basic-test-route"
   network             = google_compute_network.network.name
   dest_range          = "15.0.0.0/24"
@@ -213,11 +191,9 @@ resource "google_compute_route" "route" {
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_network_management_vpc_flow_logs_config" "vpn-test" {
-  provider                = google-beta
   vpc_flow_logs_config_id = "full-test-id"
   location                = "global"
   vpn_tunnel              = "projects/${data.google_project.project.number}/regions/us-central1/vpnTunnels/${google_compute_vpn_tunnel.tunnel.name}"
@@ -229,7 +205,6 @@ resource "google_network_management_vpc_flow_logs_config" "vpn-test" {
 }
 
 resource "google_compute_vpn_tunnel" "tunnel" {
-  provider           = google-beta
   name               = "full-test-tunnel"
   peer_ip            = "15.0.0.120"
   shared_secret      = "a secret message"
@@ -243,23 +218,19 @@ resource "google_compute_vpn_tunnel" "tunnel" {
 }
 
 resource "google_compute_vpn_gateway" "target_gateway" {
-  provider = google-beta
   name     = "full-test-gateway"
   network  = google_compute_network.network.id
 }
 
 resource "google_compute_network" "network" {
-  provider = google-beta
   name     = "full-test-network"
 }
 
 resource "google_compute_address" "vpn_static_ip" {
-  provider = google-beta
   name     = "full-test-address"
 }
 
 resource "google_compute_forwarding_rule" "fr_esp" {
-  provider    = google-beta
   name        = "full-test-fresp"
   ip_protocol = "ESP"
   ip_address  = google_compute_address.vpn_static_ip.address
@@ -267,7 +238,6 @@ resource "google_compute_forwarding_rule" "fr_esp" {
 }
 
 resource "google_compute_forwarding_rule" "fr_udp500" {
-  provider    = google-beta
   name        = "full-test-fr500"
   ip_protocol = "UDP"
   port_range  = "500"
@@ -276,7 +246,6 @@ resource "google_compute_forwarding_rule" "fr_udp500" {
 }
 
 resource "google_compute_forwarding_rule" "fr_udp4500" {
-  provider    = google-beta
   name        = "full-test-fr4500"
   ip_protocol = "UDP"
   port_range  = "4500"
@@ -285,7 +254,6 @@ resource "google_compute_forwarding_rule" "fr_udp4500" {
 }
 
 resource "google_compute_route" "route" {
-  provider            = google-beta
   name                = "full-test-route"
   network             = google_compute_network.network.name
   dest_range          = "15.0.0.0/24"
