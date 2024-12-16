@@ -18,7 +18,6 @@ IMPROVEMENTS:
 * firebasehosting: added `headers` field in `google_firebase_hosting_version` resource (beta) ([#20654](https://github.com/hashicorp/terraform-provider-google/pull/20654))
 * identityplatform: marked `quota.0.sign_up_quota_config` subfields conditionally required in `google_identity_platform_config` to move errors from apply time up to plan time, and clarified the rule in documentation ([#20627](https://github.com/hashicorp/terraform-provider-google/pull/20627))
 * networkconnectivity: added support for updating `linked_vpn_tunnels.include_import_ranges`, `linked_interconnect_attachments.include_import_ranges`, `linked_router_appliance_instances. instances` and `linked_router_appliance_instances.include_import_ranges` in `google_network_connectivity_spoke` ([#20650](https://github.com/hashicorp/terraform-provider-google/pull/20650))
-* orgpolicy: added `parameters` fields to `google_org_policy_policy` resource (beta) ([#20647](https://github.com/hashicorp/terraform-provider-google/pull/20647))
 * storage: added `hdfs_data_source` field to `google_storage_transfer_job` resource ([#20583](https://github.com/hashicorp/terraform-provider-google/pull/20583))
 * tpuv2: added `network_configs` and `network_config.queue_count` fields to `google_tpu_v2_vm` resource ([#20621](https://github.com/hashicorp/terraform-provider-google/pull/20621))
 
