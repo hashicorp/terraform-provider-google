@@ -15,7 +15,6 @@ IMPROVEMENTS:
 * compute: added `rule.rate_limit_options.enforce_on_key_configs` field to `google_compute_security_policy` resource ([#20597](https://github.com/hashicorp/terraform-provider-google/pull/20597))
 * compute: made `metadata_startup_script` able to be updated via graceful switch in `google_compute_instance` ([#20655](https://github.com/hashicorp/terraform-provider-google/pull/20655))
 * container: added field `enable_fqdn_network_policy` to resource `google_container_cluster` ([#20609](https://github.com/hashicorp/terraform-provider-google/pull/20609))
-* firebasehosting: added `headers` field in `google_firebase_hosting_version` resource (beta) ([#20654](https://github.com/hashicorp/terraform-provider-google/pull/20654))
 * identityplatform: marked `quota.0.sign_up_quota_config` subfields conditionally required in `google_identity_platform_config` to move errors from apply time up to plan time, and clarified the rule in documentation ([#20627](https://github.com/hashicorp/terraform-provider-google/pull/20627))
 * networkconnectivity: added support for updating `linked_vpn_tunnels.include_import_ranges`, `linked_interconnect_attachments.include_import_ranges`, `linked_router_appliance_instances. instances` and `linked_router_appliance_instances.include_import_ranges` in `google_network_connectivity_spoke` ([#20650](https://github.com/hashicorp/terraform-provider-google/pull/20650))
 * storage: added `hdfs_data_source` field to `google_storage_transfer_job` resource ([#20583](https://github.com/hashicorp/terraform-provider-google/pull/20583))
