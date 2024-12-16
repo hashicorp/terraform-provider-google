@@ -36,7 +36,9 @@ In addition to the arguments listed above, the following attributes are exported
 
 * `description` - Description of this network.
 
-* `numeric_id` - The numeric unique identifier for the resource.
+* `network_id` - The numeric unique identifier for the resource.
+
+* `numeric_id` - (Deprecated) The numeric unique identifier for the resource. `numeric_id` is deprecated and will be removed in a future major release. Use `network_id` instead.
 
 * `gateway_ipv4` - The IP address of the gateway.
 

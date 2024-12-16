@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `network_id` (integer) to `google_compute_network` resource and data source
+```
+```release-note: deprecation
+compute: deprecated `numeric_id` (string) field in `google_compute_network` resource. Use the new `network_id` (integer)  field instead 
+```

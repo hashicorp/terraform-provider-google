@@ -209,8 +209,14 @@ In addition to the arguments listed above, the following computed attributes are
   The gateway address for default routing out of the network. This value
   is selected by GCP.
 
-* `numeric_id` -
+* `network_id` -
   The unique identifier for the resource. This identifier is defined by the server.
+
+* `numeric_id` -
+  (Deprecated)
+  The unique identifier for the resource. This identifier is defined by the server.
+
+  ~> **Warning:** `numeric_id` is deprecated and will be removed in a future major release. Use `network_id` instead.
 * `self_link` - The URI of the created resource.
 
 
