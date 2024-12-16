@@ -294,6 +294,40 @@ func TestAccBigQueryDatasetAccess_userByEmailWithMixedCase(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDatasetAccess_withCondition(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	saID := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	expected := map[string]interface{}{
+		"condition": map[string]interface{}{
+			"description": "Request after midnight of 2019-12-31",
+			"expression":  "request.time > timestamp(\"2020-01-01T00:00:00Z\")",
+			"location":    "any.file.anywhere",
+			"title":       "test-condition",
+		},
+		"role":        "OWNER",
+		"userByEmail": fmt.Sprintf("%s@%s.iam.gserviceaccount.com", saID, envvar.GetTestProjectFromEnv()),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDatasetAccess_withCondition(datasetID, saID),
+				Check:  testAccCheckBigQueryDatasetAccessPresent(t, "google_bigquery_dataset.dataset", expected),
+			},
+			{
+				// Destroy step instead of CheckDestroy so we can check the access is removed without deleting the dataset
+				Config: testAccBigQueryDatasetAccess_destroy(datasetID, "dataset"),
+				Check:  testAccCheckBigQueryDatasetAccessAbsent(t, "google_bigquery_dataset.dataset", expected),
+			},
+		},
+	})
+}
+
 func TestAccBigQueryDatasetAccess_groupByEmailWithMixedCase(t *testing.T) {
 	t.Parallel()
 
@@ -576,4 +610,28 @@ resource "google_bigquery_dataset" "dataset" {
   dataset_id = "%s"
 }
 `, accessType, email, datasetID)
+}
+
+func testAccBigQueryDatasetAccess_withCondition(datasetID, saID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset_access" "withCondition" {
+  dataset_id    = google_bigquery_dataset.dataset.dataset_id
+  role          = "OWNER"
+  user_by_email = google_service_account.bqowner.email
+  condition {
+    title       = "test-condition"
+    description = "Request after midnight of 2019-12-31"
+    expression  = "request.time > timestamp(\"2020-01-01T00:00:00Z\")"
+    location    = "any.file.anywhere"
+  }
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "%s"
+}
+
+resource "google_service_account" "bqowner" {
+  account_id = "%s"
+}
+`, datasetID, saID)
 }

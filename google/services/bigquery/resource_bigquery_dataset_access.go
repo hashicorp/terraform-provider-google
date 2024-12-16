@@ -179,6 +179,45 @@ func ResourceBigQueryDatasetAccess() *schema.Resource {
 must contain only letters (a-z, A-Z), numbers (0-9), or
 underscores (_). The maximum length is 1,024 characters.`,
 			},
+			"condition": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `Condition for the binding. If CEL expression in this field is true, this
+access binding will be considered.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"expression": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Textual representation of an expression in Common Expression Language syntax.`,
+						},
+						"description": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Description of the expression. This is a longer text which describes the expression,
+e.g. when hovered over it in a UI.`,
+						},
+						"location": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `String indicating the location of the expression for error reporting, e.g. a file
+name and a position in the file.`,
+						},
+						"title": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Title for the expression, i.e. a short string describing its purpose.
+This can be used e.g. in UIs which allow to enter the expression.`,
+						},
+					},
+				},
+			},
 			"dataset": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -439,6 +478,12 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("routine"); !tpgresource.IsEmptyValue(reflect.ValueOf(routineProp)) && (ok || !reflect.DeepEqual(v, routineProp)) {
 		obj["routine"] = routineProp
 	}
+	conditionProp, err := expandNestedBigQueryDatasetAccessCondition(d.Get("condition"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("condition"); !tpgresource.IsEmptyValue(reflect.ValueOf(conditionProp)) && (ok || !reflect.DeepEqual(v, conditionProp)) {
+		obj["condition"] = conditionProp
+	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "{{dataset_id}}")
 	if err != nil {
@@ -447,7 +492,7 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}?accessPolicyVersion=3")
 	if err != nil {
 		return err
 	}
@@ -534,7 +579,7 @@ func resourceBigQueryDatasetAccessRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}?accessPolicyVersion=3")
 	if err != nil {
 		return err
 	}
@@ -609,6 +654,9 @@ func resourceBigQueryDatasetAccessRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("routine", flattenNestedBigQueryDatasetAccessRoutine(res["routine"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DatasetAccess: %s", err)
 	}
+	if err := d.Set("condition", flattenNestedBigQueryDatasetAccessCondition(res["condition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DatasetAccess: %s", err)
+	}
 
 	return nil
 }
@@ -635,7 +683,7 @@ func resourceBigQueryDatasetAccessDelete(d *schema.ResourceData, meta interface{
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}?accessPolicyVersion=3")
 	if err != nil {
 		return err
 	}
@@ -803,6 +851,41 @@ func flattenNestedBigQueryDatasetAccessRoutineProjectId(v interface{}, d *schema
 }
 
 func flattenNestedBigQueryDatasetAccessRoutineRoutineId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedBigQueryDatasetAccessCondition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["expression"] =
+		flattenNestedBigQueryDatasetAccessConditionExpression(original["expression"], d, config)
+	transformed["title"] =
+		flattenNestedBigQueryDatasetAccessConditionTitle(original["title"], d, config)
+	transformed["description"] =
+		flattenNestedBigQueryDatasetAccessConditionDescription(original["description"], d, config)
+	transformed["location"] =
+		flattenNestedBigQueryDatasetAccessConditionLocation(original["location"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNestedBigQueryDatasetAccessConditionExpression(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedBigQueryDatasetAccessConditionTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedBigQueryDatasetAccessConditionDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedBigQueryDatasetAccessConditionLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1003,6 +1086,62 @@ func expandNestedBigQueryDatasetAccessRoutineRoutineId(v interface{}, d tpgresou
 	return v, nil
 }
 
+func expandNestedBigQueryDatasetAccessCondition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedExpression, err := expandNestedBigQueryDatasetAccessConditionExpression(original["expression"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExpression); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["expression"] = transformedExpression
+	}
+
+	transformedTitle, err := expandNestedBigQueryDatasetAccessConditionTitle(original["title"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTitle); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["title"] = transformedTitle
+	}
+
+	transformedDescription, err := expandNestedBigQueryDatasetAccessConditionDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedLocation, err := expandNestedBigQueryDatasetAccessConditionLocation(original["location"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLocation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["location"] = transformedLocation
+	}
+
+	return transformed, nil
+}
+
+func expandNestedBigQueryDatasetAccessConditionExpression(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedBigQueryDatasetAccessConditionTitle(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedBigQueryDatasetAccessConditionDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedBigQueryDatasetAccessConditionLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func flattenNestedBigQueryDatasetAccess(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	var v interface{}
 	var ok bool
@@ -1198,7 +1337,7 @@ func resourceBigQueryDatasetAccessPatchDeleteEncoder(d *schema.ResourceData, met
 // extracting list of objects.
 func resourceBigQueryDatasetAccessListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}?accessPolicyVersion=3")
 	if err != nil {
 		return nil, err
 	}

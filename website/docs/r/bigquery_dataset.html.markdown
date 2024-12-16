@@ -445,6 +445,12 @@ destroying the resource will fail if tables are present.
   needs to be granted again via an update operation.
   Structure is [documented below](#nested_routine).
 
+* `condition` -
+  (Optional)
+  Condition for the binding. If CEL expression in this field is true, this
+  access binding will be considered.
+  Structure is [documented below](#nested_condition).
+
 
 <a name="nested_view"></a>The `view` block supports:
 
@@ -500,6 +506,27 @@ destroying the resource will fail if tables are present.
   The ID of the routine. The ID must contain only letters (a-z,
   A-Z), numbers (0-9), or underscores (_). The maximum length
   is 256 characters.
+
+<a name="nested_condition"></a>The `condition` block supports:
+
+* `expression` -
+  (Required)
+  Textual representation of an expression in Common Expression Language syntax.
+
+* `title` -
+  (Optional)
+  Title for the expression, i.e. a short string describing its purpose.
+  This can be used e.g. in UIs which allow to enter the expression.
+
+* `description` -
+  (Optional)
+  Description of the expression. This is a longer text which describes the expression,
+  e.g. when hovered over it in a UI.
+
+* `location` -
+  (Optional)
+  String indicating the location of the expression for error reporting, e.g. a file
+  name and a position in the file.
 
 <a name="nested_external_dataset_reference"></a>The `external_dataset_reference` block supports:
 
