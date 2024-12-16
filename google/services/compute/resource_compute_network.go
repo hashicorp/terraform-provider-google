@@ -142,9 +142,15 @@ subnetworks of this network, across regions. Possible values: ["REGIONAL", "GLOB
 				Description: `The gateway address for default routing out of the network. This value
 is selected by GCP.`,
 			},
+			"network_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The unique identifier for the resource. This identifier is defined by the server.`,
+			},
 			"numeric_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Deprecated:  "`numeric_id` is deprecated and will be removed in a future major release. Use `network_id` instead.",
 				Description: `The unique identifier for the resource. This identifier is defined by the server.`,
 			},
 			"delete_default_routes_on_create": {
@@ -388,6 +394,9 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("name", flattenComputeNetworkName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
+	if err := d.Set("network_id", flattenComputeNetworkNetworkId(res["id"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
 	if err := d.Set("numeric_id", flattenComputeNetworkNumericId(res["numericId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
@@ -597,6 +606,10 @@ func flattenComputeNetworkGatewayIpv4(v interface{}, d *schema.ResourceData, con
 }
 
 func flattenComputeNetworkName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeNetworkNetworkId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

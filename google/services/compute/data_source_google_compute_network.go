@@ -26,12 +26,16 @@ func DataSourceGoogleComputeNetwork() *schema.Resource {
 				Computed: true,
 			},
 
-			// TODO: this should eventually be TypeInt, but leaving as
-			// string for now to match the resource and to avoid a
-			// breaking change.
-			"numeric_id": {
-				Type:     schema.TypeString,
+			"network_id": {
+				Type:     schema.TypeInt,
 				Computed: true,
+			},
+
+			// Deprecated in favor of network_id
+			"numeric_id": {
+				Type:       schema.TypeString,
+				Computed:   true,
+				Deprecated: "`numeric_id` is deprecated and will be removed in a future major release. Use `network_id` instead.",
 			},
 
 			"gateway_ipv4": {
@@ -93,6 +97,9 @@ func dataSourceGoogleComputeNetworkRead(d *schema.ResourceData, meta interface{}
 	}
 	if err := d.Set("description", network.Description); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("network_id", network.Id); err != nil {
+		return fmt.Errorf("Error setting network_id: %s", err)
 	}
 	if err := d.Set("numeric_id", strconv.Itoa(int(network.Id))); err != nil {
 		return fmt.Errorf("Error setting numeric_id: %s", err)
