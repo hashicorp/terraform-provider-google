@@ -1,0 +1,3 @@
+```release-note:bug
+cloudlogging: fixed bug in `google_logging_project_bucket_config` that if providing "project" in the format of `<project-id-only>` , the create url will contains "projects/" twice. 
+```

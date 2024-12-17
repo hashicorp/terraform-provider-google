@@ -133,15 +133,16 @@ For example: jsonPayload.request.status`,
 }
 
 func projectBucketConfigID(d *schema.ResourceData, config *transport_tpg.Config) (string, error) {
-	project := d.Get("project").(string)
+	projectID := d.Get("project").(string)
 	location := d.Get("location").(string)
 	bucketID := d.Get("bucket_id").(string)
 
-	if !strings.HasPrefix(project, "project") {
-		project = "projects/" + project
+	if strings.HasPrefix(projectID, "projects/") {
+		// Remove "projects/" prefix if it exists
+		projectID = strings.TrimPrefix(projectID, "projects/")
 	}
 
-	id := fmt.Sprintf("%s/locations/%s/buckets/%s", project, location, bucketID)
+	id := fmt.Sprintf("projects/%s/locations/%s/buckets/%s", projectID, location, bucketID)
 	return id, nil
 }
 
