@@ -568,6 +568,71 @@ resource "google_network_connectivity_spoke" "primary"  {
 `, context)
 }
 
+func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeCenterGroupExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkConnectivitySpokeDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkConnectivitySpoke_networkConnectivitySpokeCenterGroupExample(context),
+			},
+			{
+				ResourceName:            "google_network_connectivity_spoke.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkConnectivitySpoke_networkConnectivitySpokeCenterGroupExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "network" {
+  name                    = "tf-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_connectivity_hub" "star_hub" {
+  name = "tf-test-hub-basic%{random_suffix}"
+  preset_topology = "STAR"
+}
+
+resource "google_network_connectivity_group" "center_group" { 
+  name = "center"  # (default , center , edge)
+  hub  = google_network_connectivity_hub.star_hub.id
+  auto_accept {
+    auto_accept_projects = [
+      "foo%{random_suffix}", 
+      "bar%{random_suffix}", 
+    ]
+  }
+}
+
+resource "google_network_connectivity_spoke" "primary"  {
+  name = "tf-test-vpc-spoke%{random_suffix}"
+  location = "global"
+  description = "A sample spoke"
+  labels = {
+    label-one = "value-one"
+  }
+  hub = google_network_connectivity_hub.star_hub.id
+  group  = google_network_connectivity_group.center_group.id
+
+  linked_vpc_network {
+    uri = google_compute_network.network.self_link
+  }
+}
+`, context)
+}
+
 func testAccCheckNetworkConnectivitySpokeDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

@@ -445,6 +445,51 @@ resource "google_network_connectivity_spoke" "primary"  {
   depends_on  = [google_network_connectivity_spoke.linked_vpc_spoke]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_spoke_center_group&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Connectivity Spoke Center Group
+
+
+```hcl
+resource "google_compute_network" "network" {
+  name                    = "tf-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_connectivity_hub" "star_hub" {
+  name = "hub-basic"
+  preset_topology = "STAR"
+}
+
+resource "google_network_connectivity_group" "center_group" { 
+  name = "center"  # (default , center , edge)
+  hub  = google_network_connectivity_hub.star_hub.id
+  auto_accept {
+    auto_accept_projects = [
+      "foo%{random_suffix}", 
+      "bar%{random_suffix}", 
+    ]
+  }
+}
+
+resource "google_network_connectivity_spoke" "primary"  {
+  name = "vpc-spoke"
+  location = "global"
+  description = "A sample spoke"
+  labels = {
+    label-one = "value-one"
+  }
+  hub = google_network_connectivity_hub.star_hub.id
+  group  = google_network_connectivity_group.center_group.id
+
+  linked_vpc_network {
+    uri = google_compute_network.network.self_link
+  }
+}
+```
 
 ## Argument Reference
 

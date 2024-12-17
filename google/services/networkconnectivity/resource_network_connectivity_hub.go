@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceNetworkConnectivityHub() *schema.Resource {
@@ -82,6 +83,14 @@ func ResourceNetworkConnectivityHub() *schema.Resource {
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"preset_topology": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"MESH", "STAR", ""}),
+				Description:  `Optional. The topology implemented in this hub. Currently, this field is only used when policyMode = PRESET. The available preset topologies are MESH and STAR. If presetTopology is unspecified and policyMode = PRESET, the presetTopology defaults to MESH. When policyMode = CUSTOM, the presetTopology is set to PRESET_TOPOLOGY_UNSPECIFIED. Possible values: ["MESH", "STAR"]`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -161,6 +170,12 @@ func resourceNetworkConnectivityHubCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	presetTopologyProp, err := expandNetworkConnectivityHubPresetTopology(d.Get("preset_topology"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("preset_topology"); !tpgresource.IsEmptyValue(reflect.ValueOf(presetTopologyProp)) && (ok || !reflect.DeepEqual(v, presetTopologyProp)) {
+		obj["presetTopology"] = presetTopologyProp
 	}
 	exportPscProp, err := expandNetworkConnectivityHubExportPsc(d.Get("export_psc"), d, config)
 	if err != nil {
@@ -295,6 +310,9 @@ func resourceNetworkConnectivityHubRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Hub: %s", err)
 	}
 	if err := d.Set("routing_vpcs", flattenNetworkConnectivityHubRoutingVpcs(res["routingVpcs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+	if err := d.Set("preset_topology", flattenNetworkConnectivityHubPresetTopology(res["presetTopology"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Hub: %s", err)
 	}
 	if err := d.Set("export_psc", flattenNetworkConnectivityHubExportPsc(res["exportPsc"], d, config)); err != nil {
@@ -545,6 +563,10 @@ func flattenNetworkConnectivityHubRoutingVpcsUri(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenNetworkConnectivityHubPresetTopology(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkConnectivityHubExportPsc(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -573,6 +595,10 @@ func expandNetworkConnectivityHubName(v interface{}, d tpgresource.TerraformReso
 }
 
 func expandNetworkConnectivityHubDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivityHubPresetTopology(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
