@@ -465,7 +465,6 @@ func testAccGkeonpremVmwareCluster_vmwareClusterUpdateManualLb(context map[strin
       advanced_networking = true
     }
     vm_tracking_enabled = false
-    enable_control_plane_v2 = false
     disable_bundled_ingress = false
     upgrade_policy {
       control_plane_only = true

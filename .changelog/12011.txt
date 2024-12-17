@@ -1,0 +1,3 @@
+```release-note:new-resource
+Add `google_gkeonprem_vmware_admin_cluster` resource
+```
