@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccFilestoreBackup_update(t *testing.T) {
@@ -114,4 +115,73 @@ resource "google_filestore_backup" "backup" {
 }
 
 `, instName, bkupName)
+}
+
+func TestAccFilestoreBackup_tags(t *testing.T) {
+	t.Parallel()
+
+	org := envvar.GetTestOrgFromEnv(t)
+	instanceName := fmt.Sprintf("tf-fs-inst-%d", acctest.RandInt(t))
+	backupName := fmt.Sprintf("tf-fs-bkup-%d", acctest.RandInt(t))
+	tagKey := acctest.BootstrapSharedTestTagKey(t, "filestore-backups-tagkey")
+	tagValue := acctest.BootstrapSharedTestTagValue(t, "filestore-backups-tagvalue", tagKey)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFilestoreBackupDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFilestoreBackupTags(instanceName, backupName, map[string]string{org + "/" + tagKey: tagValue}),
+			},
+			{
+				ResourceName:            "google_filestore_backup.backup",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "description", "location", "tags"},
+			},
+		},
+	})
+}
+
+func testAccFilestoreBackupTags(instanceName string, backupName string, tags map[string]string) string {
+
+	r := fmt.Sprintf(`
+	resource "google_filestore_instance" "instance" {
+          name     = "%s"
+          location = "us-central1-b"
+          tier     = "BASIC_HDD"
+
+            file_shares {
+              capacity_gb = 1024
+              name        = "share1"
+            }
+
+            networks {
+              network      = "default"
+              modes        = ["MODE_IPV4"]
+              connect_mode = "DIRECT_PEERING"
+            }
+        }
+
+        resource "google_filestore_backup" "backup" {
+          name              = "%s"
+          location          = "us-central1"
+          description       = "This is a filestore backup for the test instance"
+          source_instance   = google_filestore_instance.instance.id
+          source_file_share = "share1"
+
+          labels = {
+            "files":"label1",
+            "other-label": "label2"
+          }
+	  tags = {`, instanceName, backupName)
+
+	l := ""
+	for key, value := range tags {
+		l += fmt.Sprintf("%q = %q\n", key, value)
+	}
+
+	l += fmt.Sprintf("}\n}")
+	return r + l
 }
