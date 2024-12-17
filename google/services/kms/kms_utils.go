@@ -22,6 +22,16 @@ type KmsKeyRingId struct {
 	Name     string
 }
 
+type KmsKeyHandleId struct {
+	Project  string
+	Location string
+	Name     string
+}
+
+func (s *KmsKeyHandleId) KeyHandleId() string {
+	return fmt.Sprintf("projects/%s/locations/%s/keyHandles/%s", s.Project, s.Location, s.Name)
+}
+
 func (s *KmsKeyRingId) KeyRingId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", s.Project, s.Location, s.Name)
 }

@@ -33,6 +33,7 @@ import (
 )
 
 var SharedKeyRing = "tftest-shared-keyring-1"
+
 var SharedCryptoKey = map[string]string{
 	"ENCRYPT_DECRYPT":    "tftest-shared-key-1",
 	"ASYMMETRIC_SIGN":    "tftest-shared-sign-key-1",
@@ -635,14 +636,22 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 // Given the existing projects being used by our team, the prefix provided to
 // this function can be no longer than 18 characters.
 func BootstrapProject(t *testing.T, projectIDPrefix, billingAccount string, services []string) *cloudresourcemanager.Project {
+	org := envvar.GetTestOrgFromEnv(t)
+	parent := &cloudresourcemanager.ResourceId{
+		Type: "organization",
+		Id:   org,
+	}
+	projectIDSuffix := strings.Replace(envvar.GetTestProjectFromEnv(), "ci-test-project-", "", 1)
+	projectID := projectIDPrefix + projectIDSuffix
+
+	return BootstrapProjectWithParent(t, projectID, billingAccount, parent, services)
+}
+
+func BootstrapProjectWithParent(t *testing.T, projectID string, billingAccount string, parent *cloudresourcemanager.ResourceId, services []string) *cloudresourcemanager.Project {
 	config := BootstrapConfig(t)
 	if config == nil {
 		return nil
 	}
-
-	projectIDSuffix := strings.Replace(envvar.GetTestProjectFromEnv(), "ci-test-project-", "", 1)
-	projectID := projectIDPrefix + projectIDSuffix
-
 	crmClient := config.NewResourceManagerClient(config.UserAgent)
 
 	project, err := crmClient.Projects.Get(projectID).Do()
@@ -650,15 +659,10 @@ func BootstrapProject(t *testing.T, projectIDPrefix, billingAccount string, serv
 		if !transport_tpg.IsGoogleApiErrorWithCode(err, 403) {
 			t.Fatalf("Error getting bootstrapped project: %s", err)
 		}
-		org := envvar.GetTestOrgFromEnv(t)
-
 		op, err := crmClient.Projects.Create(&cloudresourcemanager.Project{
 			ProjectId: projectID,
 			Name:      "Bootstrapped Test Project",
-			Parent: &cloudresourcemanager.ResourceId{
-				Type: "organization",
-				Id:   org,
-			},
+			Parent:    parent,
 		}).Do()
 		if err != nil {
 			t.Fatalf("Error creating bootstrapped test project: %s", err)
