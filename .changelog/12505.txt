@@ -1,0 +1,3 @@
+```release-note: note
+workbench : Made `gcs-data-bucket` metadata key modifiable. 
+```
