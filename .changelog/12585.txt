@@ -1,0 +1,3 @@
+```release-note:bug
+workbench: fixed an issue where a server-added `metadata` tag of `"resource-url"` would not be ignored
+```
