@@ -983,6 +983,45 @@ resource "google_artifact_registry_repository" "my-repo" {
 `, context)
 }
 
+func TestAccArtifactRegistryRepository_artifactRegistryRepositoryVulnerabilityScanningExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArtifactRegistryRepository_artifactRegistryRepositoryVulnerabilityScanningExample(context),
+			},
+			{
+				ResourceName:            "google_artifact_registry_repository.my-repo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "repository_id", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccArtifactRegistryRepository_artifactRegistryRepositoryVulnerabilityScanningExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "tf-test-my-repository%{random_suffix}"
+  description   = "example docker repository with vulnerability scanning %{random_suffix}"
+  format        = "DOCKER"
+  vulnerability_scanning_config {
+    enablement_config = "INHERITED"
+  }
+}
+`, context)
+}
+
 func testAccCheckArtifactRegistryRepositoryDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

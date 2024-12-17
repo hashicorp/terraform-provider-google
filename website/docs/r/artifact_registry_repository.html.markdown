@@ -640,6 +640,25 @@ resource "google_artifact_registry_repository" "my-repo" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=artifact_registry_repository_vulnerability_scanning&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Artifact Registry Repository Vulnerability Scanning
+
+
+```hcl
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "my-repository"
+  description   = "example docker repository with vulnerability scanning config"
+  format        = "DOCKER"
+  vulnerability_scanning_config {
+    enablement_config = "INHERITED"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -724,6 +743,11 @@ The following arguments are supported:
   (Optional)
   If true, the cleanup pipeline is prevented from deleting versions in this
   repository.
+
+* `vulnerability_scanning_config` -
+  (Optional)
+  Configuration for vulnerability scanning of artifacts stored in this repository.
+  Structure is [documented below](#nested_vulnerability_scanning_config).
 
 * `location` -
   (Optional)
@@ -1038,6 +1062,21 @@ The following arguments are supported:
   The Secret Manager key version that holds the password to access the
   remote repository. Must be in the format of
   `projects/{project}/secrets/{secret}/versions/{version}`.
+
+<a name="nested_vulnerability_scanning_config"></a>The `vulnerability_scanning_config` block supports:
+
+* `enablement_config` -
+  (Optional)
+  This configures whether vulnerability scanning is automatically performed for artifacts pushed to this repository.
+  Possible values are: `INHERITED`, `DISABLED`.
+
+* `enablement_state` -
+  (Output)
+  This field returns whether scanning is active for this repository.
+
+* `enablement_state_reason` -
+  (Output)
+  This provides an explanation for the state of scanning on this repository.
 
 ## Attributes Reference
 
