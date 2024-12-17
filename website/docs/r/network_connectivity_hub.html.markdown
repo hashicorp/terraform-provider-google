@@ -60,6 +60,42 @@ resource "google_network_connectivity_hub" "primary"  {
  export_psc = true
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_hub_mesh_topology&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Connectivity Hub Mesh Topology
+
+
+```hcl
+resource "google_network_connectivity_hub" "primary"  {
+ name        = "mesh"
+ description = "A sample mesh hub"
+ labels = {
+    label-one = "value-one"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_hub_star_topology&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Connectivity Hub Star Topology
+
+
+```hcl
+resource "google_network_connectivity_hub" "primary"  {
+ name        = "star"
+ description = "A sample star hub"
+ labels = {
+    label-one = "value-one"
+  }
+ preset_topology = "STAR"
+  
+}
+```
 
 ## Argument Reference
 
@@ -83,6 +119,11 @@ The following arguments are supported:
 * `description` -
   (Optional)
   An optional description of the hub.
+
+* `preset_topology` -
+  (Optional)
+  Optional. The topology implemented in this hub. Currently, this field is only used when policyMode = PRESET. The available preset topologies are MESH and STAR. If presetTopology is unspecified and policyMode = PRESET, the presetTopology defaults to MESH. When policyMode = CUSTOM, the presetTopology is set to PRESET_TOPOLOGY_UNSPECIFIED.
+  Possible values are: `MESH`, `STAR`.
 
 * `export_psc` -
   (Optional)
