@@ -416,7 +416,7 @@ resource "google_compute_service_attachment" "default" {
   enable_proxy_protocol    = false
   connection_preference    = "ACCEPT_AUTOMATIC"
   nat_subnets              = [google_compute_subnetwork.psc.id]
-  target_service           = google_network_services_gateway.foobar.self_link
+  target_service           = google_network_services_gateway.default.self_link
 }
 
 resource "google_certificate_manager_certificate" "default" {
@@ -475,14 +475,14 @@ resource "google_network_security_gateway_security_policy_rule" "default" {
   basic_profile           = "ALLOW"
 }
 
-resource "google_network_services_gateway" "foobar" {
+resource "google_network_services_gateway" "default" {
   name                                 = "tf-test-sa-swp-%{random_suffix}"
   location                             = "us-east1"
   addresses                            = ["10.128.0.99"]
   type                                 = "SECURE_WEB_GATEWAY"
   ports                                = [443]
   description                          = "my description"
-  scope                                = "%s"
+  scope                                = "serviceAttachment"
   certificate_urls                     = [google_certificate_manager_certificate.default.id]
   gateway_security_policy              = google_network_security_gateway_security_policy.default.id
   network                              = google_compute_network.default.id

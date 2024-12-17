@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: add back the validation for `target_service` field on the `google_compute_service_attachment` resource to validade a `ForwardingRule` or `Gateway` URL.
+```
