@@ -2243,6 +2243,9 @@ resource "google_dataproc_cluster" "with_labels" {
     gce_cluster_config {
       subnetwork = "%s"
     }
+    software_config {
+      image_version = "2.0.35-debian10"
+    }
   }
 
   labels = {
@@ -2261,6 +2264,9 @@ resource "google_dataproc_cluster" "with_labels" {
     gce_cluster_config {
       subnetwork = "%s"
     }
+    software_config {
+      image_version = "2.0.35-debian10"
+    }
   }
 
   labels = {
@@ -2278,6 +2284,9 @@ resource "google_dataproc_cluster" "with_labels" {
   cluster_config {
     gce_cluster_config {
       subnetwork = "%s"
+    }
+    software_config {
+      image_version = "2.0.35-debian10"
     }
   }
 }
