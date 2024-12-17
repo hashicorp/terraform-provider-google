@@ -150,6 +150,11 @@ The following arguments are supported:
   (Optional)
   'Client-specified environment variables passed to the workstation container's entrypoint.'
 
+* `source_workstation` -
+  (Optional)
+  Full resource name of the source workstation from which the workstation's persistent
+  directories will be cloned from during creation.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
