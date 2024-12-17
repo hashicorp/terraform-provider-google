@@ -103,6 +103,7 @@ var WorkbenchInstanceProvidedMetadata = []string{
 	"report-notebook-metrics",
 	"report-system-health",
 	"report-system-status",
+	"resource-url",
 	"restriction",
 	"serial-port-logging-enable",
 	"service-account-mode",
