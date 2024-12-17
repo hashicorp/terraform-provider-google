@@ -34,10 +34,13 @@ func TestAccParallelstoreInstance_parallelstoreInstanceBasicExample_update(t *te
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		PreCheck: func() { acctest.AccTestPreCheck(t) },
+
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckParallelstoreInstanceDestroyProducer(t),
+
+		CheckDestroy: testAccCheckParallelstoreInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
+
 			{
 				Config: testAccParallelstoreInstance_parallelstoreInstanceBasicExample_basic(context),
 			},
@@ -111,7 +114,6 @@ resource "google_parallelstore_instance" "instance" {
   description = "test instance updated"
   capacity_gib = 12000
   network = google_compute_network.network.name
-
   labels = {
     test = "value23"
   }

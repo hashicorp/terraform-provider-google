@@ -24,6 +24,56 @@ A Parallelstore Instance.
 
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=parallelstore_instance_basic_beta&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Parallelstore Instance Basic Beta
+
+
+```hcl
+resource "google_parallelstore_instance" "instance" {
+  provider = google-beta
+  instance_id = "instance"
+  location = "us-central1-a"
+  description = "test instance"
+  capacity_gib = 12000
+  network = google_compute_network.network.name
+  file_stripe_level = "FILE_STRIPE_LEVEL_MIN"
+  directory_stripe_level = "DIRECTORY_STRIPE_LEVEL_MIN"
+  deployment_type = "SCRATCH"
+  labels = {
+    test = "value"
+  }
+  depends_on = [google_service_networking_connection.default]
+}
+
+resource "google_compute_network" "network" {
+  provider = google-beta
+  name                    = "network"
+  auto_create_subnetworks = true
+  mtu = 8896
+}
+
+# Create an IP address
+resource "google_compute_global_address" "private_ip_alloc" {
+  provider = google-beta
+  name          = "address"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 24
+  network       = google_compute_network.network.id
+}
+
+# Create a private connection
+resource "google_service_networking_connection" "default" {
+  provider = google-beta
+  network                 = google_compute_network.network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=parallelstore_instance_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -156,6 +206,14 @@ The following arguments are supported:
     DIRECTORY_STRIPE_LEVEL_MIN
     DIRECTORY_STRIPE_LEVEL_BALANCED
     DIRECTORY_STRIPE_LEVEL_MAX
+
+* `deployment_type` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Parallelstore Instance deployment type.
+    Possible values:
+    DEPLOYMENT_TYPE_UNSPECIFIED
+    SCRATCH
+    PERSISTENT
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
