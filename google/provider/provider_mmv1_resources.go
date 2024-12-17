@@ -248,6 +248,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_dns_managed_zones":                             dns.DataSourceDnsManagedZones(),
 	"google_dns_record_set":                                dns.DataSourceDnsRecordSet(),
 	"google_gke_hub_membership_binding":                    gkehub2.DataSourceGoogleGkeHubMembershipBinding(),
+	"google_gke_hub_feature":                               gkehub2.DataSourceGoogleGkeHubFeature(),
 	"google_filestore_instance":                            filestore.DataSourceGoogleFilestoreInstance(),
 	"google_iam_policy":                                    resourcemanager.DataSourceGoogleIamPolicy(),
 	"google_iam_role":                                      resourcemanager.DataSourceGoogleIamRole(),
