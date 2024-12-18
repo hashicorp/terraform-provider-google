@@ -254,6 +254,7 @@ State will be removed on the next instance recreation or update.
   (Optional)
   The URL of the reservation for this IP address.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

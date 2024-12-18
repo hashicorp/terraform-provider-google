@@ -111,6 +111,7 @@ The following arguments are supported:
   Labels that specify the resource that emits the monitoring data
   which is used for SLO reporting of this `Service`.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

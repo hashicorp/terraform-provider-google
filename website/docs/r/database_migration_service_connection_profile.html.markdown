@@ -902,6 +902,7 @@ The following arguments are supported:
   (Required)
   The number of CPU's in the VM instance.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

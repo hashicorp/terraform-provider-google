@@ -714,6 +714,7 @@ The following arguments are supported:
   (Optional)
   The name of the vCenter storage policy for the user cluster.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

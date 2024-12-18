@@ -121,6 +121,7 @@ The following arguments are supported:
   (Optional)
   Data Clean Room (DCR), used for privacy-safe and secured data sharing.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

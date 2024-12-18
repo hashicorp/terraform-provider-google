@@ -150,6 +150,7 @@ The following arguments are supported:
   README template name.
   Valid values can be viewed at https://cloud.google.com/secure-source-manager/docs/reference/rest/v1/projects.locations.repositories#initialconfig.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

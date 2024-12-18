@@ -207,6 +207,7 @@ The following arguments are supported:
   described in RFC 4291 (e.g. 2001:db8:0:0:2d9:51:0:0). The output format
   is RFC 5952 format (e.g. 2001:db8::2d9:51:0:0).
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -827,6 +827,7 @@ The following arguments are supported:
   Resource name of the requested StoredInfoType, for example `organizations/433245324/storedInfoTypes/432452342`
   or `projects/project-id/storedInfoTypes/432452342`.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

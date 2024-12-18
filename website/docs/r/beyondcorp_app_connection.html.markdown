@@ -193,6 +193,7 @@ The following arguments are supported:
   (Output)
   Ingress port reserved on the gateways for this AppConnection, if not specified or zero, the default port is 19443.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -782,6 +782,7 @@ When the field is set to false, deleting the job is allowed.
   (Optional)
   The path to a binary authorization policy. Format: projects/{project}/platforms/cloudRun/{policy-name}
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

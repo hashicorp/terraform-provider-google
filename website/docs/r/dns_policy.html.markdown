@@ -150,6 +150,7 @@ The following arguments are supported:
   This should be formatted like `projects/{project}/global/networks/{network}` or
   `https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

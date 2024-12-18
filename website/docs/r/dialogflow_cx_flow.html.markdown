@@ -946,6 +946,7 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Optional)
   Enables consent-based end-user input redaction, if true, a pre-defined session parameter **$session.params.conversation-redaction** will be used to determine if the utterance should be redacted.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

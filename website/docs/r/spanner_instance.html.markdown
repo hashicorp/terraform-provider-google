@@ -290,6 +290,7 @@ This must be set to true if you created a backup manually in the console.
   (Required)
   The maximum number of nodes for this specific replica.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

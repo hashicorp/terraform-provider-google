@@ -191,6 +191,7 @@ The following arguments are supported:
   (Optional)
   User-specified description for the IP range.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

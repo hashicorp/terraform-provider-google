@@ -203,6 +203,7 @@ The following arguments are supported:
   (Output)
   The assigned URL for the node's execution client's Prometheus metrics endpoint.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

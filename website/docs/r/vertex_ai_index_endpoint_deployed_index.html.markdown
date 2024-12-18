@@ -322,6 +322,7 @@ The following arguments are supported:
   (Optional)
   A list of allowed JWT issuers. Each entry must be a valid Google service account, in the following format: service-account-name@project-id.iam.gserviceaccount.com
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

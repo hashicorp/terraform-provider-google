@@ -171,6 +171,7 @@ disabled rather than deleted. Default is `DELETE`. Possible values are:
 
 * `is_secret_data_base64` - (Optional) If set to 'true', the secret data is expected to be base64-encoded string and would be sent as is.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

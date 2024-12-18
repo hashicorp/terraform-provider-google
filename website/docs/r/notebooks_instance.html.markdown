@@ -424,6 +424,7 @@ The following arguments are supported:
   (Optional)
   The tag of the container image. If not specified, this defaults to the latest tag.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

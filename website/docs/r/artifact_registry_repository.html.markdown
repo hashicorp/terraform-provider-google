@@ -1039,6 +1039,7 @@ The following arguments are supported:
   remote repository. Must be in the format of
   `projects/{project}/secrets/{secret}/versions/{version}`.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

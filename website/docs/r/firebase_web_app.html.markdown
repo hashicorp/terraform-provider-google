@@ -120,6 +120,7 @@ rather than deleted upon `terraform destroy`. This is useful becaue the WebApp m
 serving traffic. Set to `DELETE` to delete the WebApp. Default to `DELETE`
 
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

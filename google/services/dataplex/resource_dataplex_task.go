@@ -1705,17 +1705,6 @@ func expandDataplexTaskExecutionSpec(v interface{}, d tpgresource.TerraformResou
 	return transformed, nil
 }
 
-func expandDataplexTaskExecutionSpecArgs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
-}
-
 func expandDataplexTaskExecutionSpecServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1925,17 +1914,6 @@ func expandDataplexTaskSparkInfrastructureSpecContainerImageJavaJars(v interface
 
 func expandDataplexTaskSparkInfrastructureSpecContainerImagePythonPackages(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandDataplexTaskSparkInfrastructureSpecContainerImageProperties(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
 
 func expandDataplexTaskSparkInfrastructureSpecVpcNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -2164,17 +2142,6 @@ func expandDataplexTaskNotebookInfrastructureSpecContainerImageJavaJars(v interf
 
 func expandDataplexTaskNotebookInfrastructureSpecContainerImagePythonPackages(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandDataplexTaskNotebookInfrastructureSpecContainerImageProperties(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
 
 func expandDataplexTaskNotebookInfrastructureSpecVpcNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

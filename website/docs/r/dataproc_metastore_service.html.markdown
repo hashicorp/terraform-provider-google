@@ -700,6 +700,7 @@ The following arguments are supported:
   Default value is `JSON`.
   Possible values are: `LEGACY`, `JSON`.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

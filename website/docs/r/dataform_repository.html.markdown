@@ -208,6 +208,7 @@ The following arguments are supported:
   (Optional)
   The prefix that should be prepended to all table names.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

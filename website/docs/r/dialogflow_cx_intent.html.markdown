@@ -208,6 +208,7 @@ The Default Negative Intent cannot be deleted; deleting the `google_dialogflow_c
   Indicates whether the parameter content should be redacted in log. If redaction is enabled, the parameter content will be replaced by parameter name during logging.
   Note: the parameter content is subject to redaction if either parameter level redaction or entity type level redaction is enabled.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

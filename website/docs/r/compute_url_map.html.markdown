@@ -3026,6 +3026,7 @@ The following arguments are supported:
   The percentage of traffic (connections/operations/requests) which will be aborted as part of fault injection.
   The value must be between 0.0 and 100.0 inclusive.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

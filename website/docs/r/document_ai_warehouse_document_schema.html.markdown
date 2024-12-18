@@ -283,6 +283,7 @@ The following arguments are supported:
   Tells whether the document is a folder or a typical document.
 
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

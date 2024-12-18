@@ -106,6 +106,7 @@ The following arguments are supported:
   For KIND_LIST entity types:
   * This collection must contain exactly one synonym equal to value.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

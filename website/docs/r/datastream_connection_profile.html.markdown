@@ -558,6 +558,7 @@ The following arguments are supported:
   (Required)
   A reference to a private connection resource. Format: `projects/{project}/locations/{location}/privateConnections/{name}`
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

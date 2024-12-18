@@ -532,6 +532,7 @@ destroying the resource will fail if tables are present.
   The storage location URI for all tables in the dataset. Equivalent to hive metastore's
   database locationUri. Maximum length of 1024 characters.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -171,6 +171,7 @@ The following arguments are supported:
   (Required)
   Defines whether the TPU instance is preemptible.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

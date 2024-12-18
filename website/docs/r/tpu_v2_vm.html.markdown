@@ -365,6 +365,7 @@ The following arguments are supported:
   (Required)
   Topology of TPU in chips.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

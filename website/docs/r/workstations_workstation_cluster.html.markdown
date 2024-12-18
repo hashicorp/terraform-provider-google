@@ -258,6 +258,7 @@ The following arguments are supported:
   (Required)
   Domain used by Workstations for HTTP ingress.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

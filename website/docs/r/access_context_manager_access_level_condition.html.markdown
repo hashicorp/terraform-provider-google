@@ -233,6 +233,7 @@ The following arguments are supported:
   (Optional)
   CIDR block IP subnetwork specification. Must be IPv4.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

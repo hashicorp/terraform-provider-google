@@ -104,6 +104,7 @@ The following arguments are supported:
   (Required)
   A list of project ids or project numbers for which you want to enable auto-accept. The auto-accept setting is applied to spokes being created or updated in these projects.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

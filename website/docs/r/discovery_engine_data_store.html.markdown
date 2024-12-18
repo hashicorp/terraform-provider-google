@@ -239,6 +239,7 @@ The following arguments are supported:
   (Optional)
   If true, will use native text instead of OCR text on pages containing native text.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

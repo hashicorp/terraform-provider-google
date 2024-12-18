@@ -247,6 +247,7 @@ The following arguments are supported:
   (Optional)
   Specifies the size of the disk in base-2 GB.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
