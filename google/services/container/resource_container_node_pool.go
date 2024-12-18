@@ -565,11 +565,6 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	// Acquire read-lock on cluster.
-	clusterLockKey := nodePoolInfo.clusterLockKey()
-	transport_tpg.MutexStore.RLock(clusterLockKey)
-	defer transport_tpg.MutexStore.RUnlock(clusterLockKey)
-
 	// Acquire write-lock on nodepool.
 	npLockKey := nodePoolInfo.nodePoolLockKey(nodePool.Name)
 	transport_tpg.MutexStore.Lock(npLockKey)
@@ -581,6 +576,9 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 
 	timeout := d.Timeout(schema.TimeoutCreate)
 	startTime := time.Now()
+
+	clusterLockKey := nodePoolInfo.clusterLockKey()
+	transport_tpg.MutexStore.RLock(clusterLockKey)
 
 	// we attempt to prefetch the node pool to make sure it doesn't exist before creation
 	var id = fmt.Sprintf("projects/%s/locations/%s/clusters/%s/nodePools/%s", nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name)
@@ -596,11 +594,16 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		// refreshed on the next call to apply.
 		d.SetId(id)
 	} else if err == nil {
+		transport_tpg.MutexStore.RUnlock(clusterLockKey)
 		return fmt.Errorf("resource - %s - already exists", id)
 	}
+	transport_tpg.MutexStore.RUnlock(clusterLockKey)
 
 	var operation *container.Operation
 	err = retry.Retry(timeout, func() *retry.RetryError {
+		transport_tpg.MutexStore.Lock(clusterLockKey)
+		defer transport_tpg.MutexStore.Unlock(clusterLockKey)
+
 		clusterNodePoolsCreateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Create(nodePoolInfo.parent(), req)
 		if config.UserProjectOverride {
 			clusterNodePoolsCreateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
@@ -619,6 +622,8 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		}
 		return nil
 	})
+	transport_tpg.MutexStore.RLock(clusterLockKey)
+	defer transport_tpg.MutexStore.RUnlock(clusterLockKey)
 	if err != nil {
 		return fmt.Errorf("error creating NodePool: %s", err)
 	}
@@ -793,10 +798,7 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	// Acquire read-lock on cluster.
 	clusterLockKey := nodePoolInfo.clusterLockKey()
-	transport_tpg.MutexStore.RLock(clusterLockKey)
-	defer transport_tpg.MutexStore.RUnlock(clusterLockKey)
 
 	// Acquire write-lock on nodepool.
 	npLockKey := nodePoolInfo.nodePoolLockKey(name)
@@ -808,6 +810,8 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 
 	var operation *container.Operation
 	err = retry.Retry(timeout, func() *retry.RetryError {
+		transport_tpg.MutexStore.Lock(clusterLockKey)
+		defer transport_tpg.MutexStore.Unlock(clusterLockKey)
 		clusterNodePoolsDeleteCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Delete(nodePoolInfo.fullyQualifiedName(name))
 		if config.UserProjectOverride {
 			clusterNodePoolsDeleteCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
@@ -827,6 +831,8 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 
 		return nil
 	})
+	transport_tpg.MutexStore.RLock(clusterLockKey)
+	defer transport_tpg.MutexStore.RUnlock(clusterLockKey)
 
 	if err != nil {
 		return fmt.Errorf("Error deleting NodePool: %s", err)
@@ -1352,12 +1358,11 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		return err
 	}
 
-	// Acquire read-lock on cluster.
+	// Cluster write-lock will be acquired when createOpF is called, and read-lock will be acquired when waitOpF is
+	// called.
 	clusterLockKey := nodePoolInfo.clusterLockKey()
-	transport_tpg.MutexStore.RLock(clusterLockKey)
-	defer transport_tpg.MutexStore.RUnlock(clusterLockKey)
 
-	// Nodepool write-lock will be acquired when update function is called.
+	// Nodepool write-lock will be acquired when calling createOpF and waitOpF.
 	npLockKey := nodePoolInfo.nodePoolLockKey(name)
 
 	if d.HasChange(prefix + "autoscaling") {
@@ -1385,24 +1390,22 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			Update: update,
 		}
 
-		updateF := func() error {
+		createOpF := func() (*container.Operation, error) {
 			clusterUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Update(nodePoolInfo.parent(), req)
 			if config.UserProjectOverride {
 				clusterUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 			}
-			op, err := clusterUpdateCall.Do()
-			if err != nil {
-				return err
-			}
+			return clusterUpdateCall.Do()
+		}
 
-			// Wait until it's updated
+		waitOpF := func(op *container.Operation) error {
 			return ContainerOperationWait(config, op,
 				nodePoolInfo.project,
 				nodePoolInfo.location, "updating GKE node pool", userAgent,
 				timeout)
 		}
 
-		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+		if err := retryWhileIncompatibleOperation(timeout, npLockKey, clusterLockKey, createOpF, waitOpF); err != nil {
 			return err
 		}
 		log.Printf("[INFO] Updated autoscaling in Node Pool %s", d.Id())
@@ -1417,24 +1420,21 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		req := &container.SetNodePoolSizeRequest{
 			NodeCount: newSize,
 		}
-		updateF := func() error {
+		createOpF := func() (*container.Operation, error) {
 			clusterNodePoolsSetSizeCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.SetSize(nodePoolInfo.fullyQualifiedName(name), req)
 			if config.UserProjectOverride {
 				clusterNodePoolsSetSizeCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 			}
-			op, err := clusterNodePoolsSetSizeCall.Do()
+			return clusterNodePoolsSetSizeCall.Do()
+		}
 
-			if err != nil {
-				return err
-			}
-
-			// Wait until it's updated
+		waitOpF := func(op *container.Operation) error {
 			return ContainerOperationWait(config, op,
 				nodePoolInfo.project,
 				nodePoolInfo.location, "updating GKE node pool size", userAgent,
 				timeout)
 		}
-		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+		if err := retryWhileIncompatibleOperation(timeout, npLockKey, clusterLockKey, createOpF, waitOpF); err != nil {
 			return err
 		}
 		log.Printf("[INFO] GKE node pool %s size has been updated to %d", name, newSize)
@@ -1452,24 +1452,21 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			Management: management,
 		}
 
-		updateF := func() error {
+		createOpF := func() (*container.Operation, error) {
 			clusterNodePoolsSetManagementCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.SetManagement(nodePoolInfo.fullyQualifiedName(name), req)
 			if config.UserProjectOverride {
 				clusterNodePoolsSetManagementCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 			}
-			op, err := clusterNodePoolsSetManagementCall.Do()
+			return clusterNodePoolsSetManagementCall.Do()
+		}
 
-			if err != nil {
-				return err
-			}
-
-			// Wait until it's updated
+		waitOpF := func(op *container.Operation) error {
 			return ContainerOperationWait(config, op,
 				nodePoolInfo.project,
 				nodePoolInfo.location, "updating GKE node pool management", userAgent, timeout)
 		}
 
-		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+		if err := retryWhileIncompatibleOperation(timeout, npLockKey, clusterLockKey, createOpF, waitOpF); err != nil {
 			return err
 		}
 		log.Printf("[INFO] Updated management in Node Pool %s", name)
@@ -1480,23 +1477,20 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			NodePoolId:  name,
 			NodeVersion: d.Get(prefix + "version").(string),
 		}
-		updateF := func() error {
+		createOpF := func() (*container.Operation, error) {
 			clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
 			if config.UserProjectOverride {
 				clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 			}
-			op, err := clusterNodePoolsUpdateCall.Do()
+			return clusterNodePoolsUpdateCall.Do()
+		}
 
-			if err != nil {
-				return err
-			}
-
-			// Wait until it's updated
+		waitOpF := func(op *container.Operation) error {
 			return ContainerOperationWait(config, op,
 				nodePoolInfo.project,
 				nodePoolInfo.location, "updating GKE node pool version", userAgent, timeout)
 		}
-		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+		if err := retryWhileIncompatibleOperation(timeout, npLockKey, clusterLockKey, createOpF, waitOpF); err != nil {
 			return err
 		}
 		log.Printf("[INFO] Updated version in Node Pool %s", name)
@@ -1506,22 +1500,19 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		req := &container.UpdateNodePoolRequest{
 			Locations: tpgresource.ConvertStringSet(d.Get(prefix + "node_locations").(*schema.Set)),
 		}
-		updateF := func() error {
+		createOpF := func() (*container.Operation, error) {
 			clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
 			if config.UserProjectOverride {
 				clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 			}
-			op, err := clusterNodePoolsUpdateCall.Do()
+			return clusterNodePoolsUpdateCall.Do()
+		}
 
-			if err != nil {
-				return err
-			}
-
-			// Wait until it's updated
+		waitOpF := func(op *container.Operation) error {
 			return ContainerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "updating GKE node pool node locations", userAgent, timeout)
 		}
 
-		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+		if err := retryWhileIncompatibleOperation(timeout, npLockKey, clusterLockKey, createOpF, waitOpF); err != nil {
 			return err
 		}
 		log.Printf("[INFO] Updated node locations in Node Pool %s", name)
@@ -1587,21 +1578,18 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		req := &container.UpdateNodePoolRequest{
 			UpgradeSettings: upgradeSettings,
 		}
-		updateF := func() error {
+		createOpF := func() (*container.Operation, error) {
 			clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
 			if config.UserProjectOverride {
 				clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 			}
-			op, err := clusterNodePoolsUpdateCall.Do()
+			return clusterNodePoolsUpdateCall.Do()
+		}
 
-			if err != nil {
-				return err
-			}
-
-			// Wait until it's updated
+		waitOpF := func(op *container.Operation) error {
 			return ContainerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "updating GKE node pool upgrade settings", userAgent, timeout)
 		}
-		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+		if err := retryWhileIncompatibleOperation(timeout, npLockKey, clusterLockKey, createOpF, waitOpF); err != nil {
 			return err
 		}
 		log.Printf("[INFO] Updated upgrade settings in Node Pool %s", name)
@@ -1613,18 +1601,15 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				NodePoolId:        name,
 				NodeNetworkConfig: expandNodeNetworkConfig(d.Get(prefix + "network_config")),
 			}
-			updateF := func() error {
+			createOpF := func() (*container.Operation, error) {
 				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
 				if config.UserProjectOverride {
 					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 				}
-				op, err := clusterNodePoolsUpdateCall.Do()
+				return clusterNodePoolsUpdateCall.Do()
+			}
 
-				if err != nil {
-					return err
-				}
-
-				// Wait until it's updated
+			waitOpF := func(op *container.Operation) error {
 				return ContainerOperationWait(config, op,
 					nodePoolInfo.project,
 					nodePoolInfo.location,
@@ -1632,7 +1617,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 					timeout)
 			}
 
-			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, clusterLockKey, createOpF, waitOpF); err != nil {
 				return err
 			}
 
@@ -1684,15 +1669,27 @@ func containerNodePoolAwaitRestingState(config *transport_tpg.Config, name, proj
 	return state, err
 }
 
-// Retries an operation while the canonical error code is FAILED_PRECONDTION
-// or RESOURCE_EXHAUSTED which indicates there is an incompatible operation
-// already running on the cluster or there are the number of allowed
-// concurrent operations running on the cluster. These errors can be safely
-// retried until the incompatible operation completes, and the newly
-// requested operation can begin.
-func retryWhileIncompatibleOperation(timeout time.Duration, lockKey string, f func() error) error {
+// Retries an operation while the canonical error code is FAILED_PRECONDTION or RESOURCE_EXHAUSTED which indicates
+// there is an incompatible operation already running on the cluster or there are the number of allowed concurrent
+// operations running on the cluster. These errors can be safely retried until the incompatible operation completes,
+// and the newly requested operation can begin.
+// The npLockKey is held throughout createOpFunc and waitOpFunc.
+// The clusterLockKey write-lock is held during createOpFunc to make operation creations sequential within the cluster,
+// and clusterLockKey read-lock is held during waitOpFunc to allow concurrency on a cluster.
+func retryWhileIncompatibleOperation(timeout time.Duration, npLockKey string, clusterLockKey string, createOpFunc func() (*container.Operation, error), waitOpFunc func(*container.Operation) error) error {
+	f := func() error {
+		transport_tpg.MutexStore.Lock(clusterLockKey)
+		op, err := createOpFunc()
+		transport_tpg.MutexStore.Unlock(clusterLockKey)
+		if err != nil {
+			return err
+		}
+		transport_tpg.MutexStore.RLock(clusterLockKey)
+		defer transport_tpg.MutexStore.RUnlock(clusterLockKey)
+		return waitOpFunc(op)
+	}
 	return retry.Retry(timeout, func() *retry.RetryError {
-		if err := transport_tpg.LockedCall(lockKey, f); err != nil {
+		if err := transport_tpg.LockedCall(npLockKey, f); err != nil {
 			if tpgresource.IsFailedPreconditionError(err) || tpgresource.IsQuotaError(err) {
 				return retry.RetryableError(err)
 			}
