@@ -117,6 +117,7 @@ The following arguments are supported:
   The access relationship of principals to the resources in this rule.
   Possible values: ALLOW
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

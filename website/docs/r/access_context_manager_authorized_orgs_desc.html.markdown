@@ -119,6 +119,7 @@ The following arguments are supported:
   Possible values are: `AUTHORIZATION_TYPE_TRUST`.
 
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

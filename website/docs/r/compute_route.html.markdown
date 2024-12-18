@@ -319,6 +319,7 @@ The following arguments are supported:
   `next_hop_instance`.  Omit if `next_hop_instance` is specified as
   a URL.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

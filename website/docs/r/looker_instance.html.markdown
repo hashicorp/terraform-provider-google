@@ -586,6 +586,7 @@ nested resources will return an error. Possible values: DEFAULT, FORCE
   (Output)
   Status of the custom domain.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

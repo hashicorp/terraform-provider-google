@@ -247,6 +247,7 @@ The following arguments are supported:
   (Required)
   Base64 encoded content of the file.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

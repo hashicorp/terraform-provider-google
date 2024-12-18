@@ -387,6 +387,7 @@ The following arguments are supported:
   Indicates whether incident logs and trace collection are enabled for the VM
   cluster
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

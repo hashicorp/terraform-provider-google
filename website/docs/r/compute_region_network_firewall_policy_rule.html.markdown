@@ -269,6 +269,7 @@ The following arguments are supported:
   (Output)
   State of the secure tag, either EFFECTIVE or INEFFECTIVE. A secure tag is INEFFECTIVE when it is deleted or its network is deleted.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

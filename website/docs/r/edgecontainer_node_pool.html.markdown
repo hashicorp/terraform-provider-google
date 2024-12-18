@@ -246,6 +246,7 @@ The following arguments are supported:
   (Optional)
   "The Kubernetes node labels"
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -973,6 +973,7 @@ The following arguments are supported:
   (Optional)
   The url of a webpage. A url can be templatized by using variables in the path or the query parameters. The total length of a URL should not exceed 2083 characters before and after variable expansion. Example: "https://my_domain.com/playbook?name=${resource.name}".
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

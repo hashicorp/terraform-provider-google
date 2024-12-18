@@ -115,6 +115,7 @@ rather than deleted upon `terraform destroy`. This is useful because the Android
 serving traffic. Set to `DELETE` to delete the AndroidApp. Defaults to `DELETE`.
 
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

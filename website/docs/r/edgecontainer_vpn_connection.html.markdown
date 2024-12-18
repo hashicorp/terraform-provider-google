@@ -140,6 +140,7 @@ The following arguments are supported:
   (Optional)
   The project of the VPC to connect to. If not specified, it is the same as the cluster project.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

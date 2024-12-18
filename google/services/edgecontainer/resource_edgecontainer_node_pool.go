@@ -753,17 +753,6 @@ func expandEdgecontainerNodePoolNodeConfig(v interface{}, d tpgresource.Terrafor
 	return transformed, nil
 }
 
-func expandEdgecontainerNodePoolNodeConfigLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
-}
-
 func expandEdgecontainerNodePoolEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil

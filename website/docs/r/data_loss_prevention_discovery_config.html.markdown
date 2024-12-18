@@ -1175,6 +1175,7 @@ The following arguments are supported:
   How frequently data profiles can be updated when the template is modified. Defaults to never.
   Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -192,6 +192,7 @@ The following arguments are supported:
   (Output)
   Output only. The username associated with this token.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

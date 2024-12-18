@@ -86,6 +86,7 @@ The following arguments are supported:
   (Optional)
   The path to the external key material on the EKM when using EkmConnection e.g., "v0/my/key". Set this field instead of externalKeyUri when using an EkmConnection.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

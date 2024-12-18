@@ -2929,17 +2929,6 @@ func expandAppEngineFlexibleAppVersionHandlersStaticFilesUploadPathRegex(v inter
 	return v, nil
 }
 
-func expandAppEngineFlexibleAppVersionHandlersStaticFilesHttpHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
-}
-
 func expandAppEngineFlexibleAppVersionHandlersStaticFilesMimeType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

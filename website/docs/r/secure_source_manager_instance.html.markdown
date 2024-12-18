@@ -631,6 +631,7 @@ The following arguments are supported:
   (Required)
   'Whether Workforce Identity Federation is enabled.'
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

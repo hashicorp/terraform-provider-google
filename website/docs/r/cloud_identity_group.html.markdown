@@ -122,6 +122,7 @@ The following arguments are supported:
   Possible values are: `INITIAL_GROUP_CONFIG_UNSPECIFIED`, `WITH_INITIAL_OWNER`, `EMPTY`.
 
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

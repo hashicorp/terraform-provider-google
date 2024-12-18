@@ -198,6 +198,7 @@ The following arguments are supported:
   (Required)
   a fully qualified BigQuery table URI where DICOM instance metadata will be streamed.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

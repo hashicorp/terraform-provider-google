@@ -238,6 +238,7 @@ The following arguments are supported:
   Domains for which a managed SSL certificate will be valid.  Currently,
   there can be up to 100 domains in this list.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

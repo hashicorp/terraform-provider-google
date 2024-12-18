@@ -562,6 +562,7 @@ The following arguments are supported:
   PEM certificate of the PKI used for validation. Must only contain one
   ca certificate(either root or intermediate cert).
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

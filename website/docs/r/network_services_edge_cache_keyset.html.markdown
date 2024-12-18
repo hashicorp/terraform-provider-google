@@ -167,6 +167,7 @@ The following arguments are supported:
   * If you are using HMAC-SHA256, we suggest 32-byte secrets.
   See RFC 2104, Section 3 for more details on these recommendations.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

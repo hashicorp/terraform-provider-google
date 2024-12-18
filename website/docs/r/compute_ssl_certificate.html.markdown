@@ -209,6 +209,7 @@ The following arguments are supported:
  Resulting name for a `name_prefix` 38 - 54 characters:
  `name_prefix` + YYmmdd + 3 digit incremental counter
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

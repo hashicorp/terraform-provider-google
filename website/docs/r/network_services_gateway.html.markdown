@@ -317,6 +317,7 @@ The following arguments are supported:
 If there is no other gateway of type 'SECURE_WEB_GATEWAY' remaining for that region and network it will be deleted.
 
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

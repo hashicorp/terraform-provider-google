@@ -661,6 +661,7 @@ The following arguments are supported:
   (Required)
   The name of a Kubernetes Resource.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

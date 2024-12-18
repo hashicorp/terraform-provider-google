@@ -108,6 +108,7 @@ The following arguments are supported:
   When this subscription should send messages to subscribers relative to messages persistence in storage.
   Possible values are: `DELIVER_IMMEDIATELY`, `DELIVER_AFTER_STORED`, `DELIVERY_REQUIREMENT_UNSPECIFIED`.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

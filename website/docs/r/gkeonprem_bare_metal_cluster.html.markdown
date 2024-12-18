@@ -1036,6 +1036,7 @@ The following arguments are supported:
   Specifies which upgrade policy to use.
   Possible values are: `SERIAL`, `CONCURRENT`.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

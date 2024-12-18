@@ -91,6 +91,7 @@ or `terraform destroy` that would delete the domain will fail.
 When the field is set to false, deleting the domain is allowed.
 
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

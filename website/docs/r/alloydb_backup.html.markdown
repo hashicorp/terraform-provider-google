@@ -195,6 +195,7 @@ The following arguments are supported:
   (Optional)
   The fully-qualified resource name of the KMS key. Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -92,6 +92,7 @@ The following arguments are supported:
   (Required)
   Bandwidth rate in megabytes per second, distributed across all the agents in the pool.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

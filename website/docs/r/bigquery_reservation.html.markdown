@@ -108,6 +108,7 @@ The following arguments are supported:
   (Optional)
   Number of slots to be scaled when needed.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
