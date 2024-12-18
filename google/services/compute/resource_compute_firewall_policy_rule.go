@@ -347,7 +347,7 @@ func resourceComputeFirewallPolicyRuleCreate(d *schema.ResourceData, meta interf
 		obj["firewallPolicy"] = firewallPolicyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{firewall_policy}}/addRule")
+	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{firewall_policy}}/addRule")
 	if err != nil {
 		return err
 	}
@@ -376,7 +376,7 @@ func resourceComputeFirewallPolicyRuleCreate(d *schema.ResourceData, meta interf
 	}
 
 	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "locations/global/firewallPolicies/{{firewall_policy}}/rules/{{priority}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "locations/global/firewallPolicies/{{firewall_policy}}/rules/{{priority}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -406,7 +406,7 @@ func resourceComputeFirewallPolicyRuleRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{firewall_policy}}/getRule?priority={{priority}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{firewall_policy}}/getRule?priority={{priority}}")
 	if err != nil {
 		return err
 	}
@@ -560,7 +560,7 @@ func resourceComputeFirewallPolicyRuleUpdate(d *schema.ResourceData, meta interf
 		obj["firewallPolicy"] = firewallPolicyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{firewall_policy}}/patchRule?priority={{priority}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{firewall_policy}}/patchRule?priority={{priority}}")
 	if err != nil {
 		return err
 	}
@@ -613,7 +613,7 @@ func resourceComputeFirewallPolicyRuleDelete(d *schema.ResourceData, meta interf
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{firewall_policy}}/removeRule?priority={{priority}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{firewall_policy}}/removeRule?priority={{priority}}")
 	if err != nil {
 		return err
 	}
@@ -668,7 +668,7 @@ func resourceComputeFirewallPolicyRuleImport(d *schema.ResourceData, meta interf
 	}
 
 	// Replace import id for the resource id
-	id, err := tpgresource.ReplaceVars(d, config, "locations/global/firewallPolicies/{{firewall_policy}}/rules/{{priority}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "locations/global/firewallPolicies/{{firewall_policy}}/rules/{{priority}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
