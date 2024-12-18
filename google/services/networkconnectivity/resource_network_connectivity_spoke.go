@@ -155,7 +155,6 @@ The only allowed value for now is "ALL_IPV4_RANGES".`,
 						"exclude_export_ranges": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `IP ranges encompassing the subnets to be excluded from peering.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -164,7 +163,6 @@ The only allowed value for now is "ALL_IPV4_RANGES".`,
 						"include_export_ranges": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `IP ranges allowed to be included from peering.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -246,7 +244,6 @@ The only allowed value for now is "ALL_IPV4_RANGES".`,
 						"exclude_export_ranges": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `IP ranges encompassing the subnets to be excluded from peering.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -255,7 +252,6 @@ The only allowed value for now is "ALL_IPV4_RANGES".`,
 						"include_export_ranges": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `IP ranges allowed to be included from peering.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
