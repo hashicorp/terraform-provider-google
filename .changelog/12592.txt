@@ -1,0 +1,3 @@
+```release-note:bug
+networkconnectivity: made `includeExportRanges`, `excludeExportRanges` mutable in `google_network_connectivity_spoke` to avoid recreation of resources (b/383149651)
+```
