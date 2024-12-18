@@ -31,6 +31,7 @@ import (
 )
 
 func TestAccVmwareengineNetwork_vmwareEngineNetworkStandardExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20719")
 	t.Parallel()
 
 	context := map[string]interface{}{

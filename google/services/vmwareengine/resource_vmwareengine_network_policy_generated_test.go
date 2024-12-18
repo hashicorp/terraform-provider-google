@@ -32,6 +32,7 @@ import (
 )
 
 func TestAccVmwareengineNetworkPolicy_vmwareEngineNetworkPolicyBasicExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20719")
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -76,6 +77,7 @@ resource "google_vmwareengine_network_policy" "vmw-engine-network-policy" {
 }
 
 func TestAccVmwareengineNetworkPolicy_vmwareEngineNetworkPolicyFullExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20719")
 	t.Parallel()
 
 	context := map[string]interface{}{

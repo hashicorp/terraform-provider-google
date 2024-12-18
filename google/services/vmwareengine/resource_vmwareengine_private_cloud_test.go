@@ -16,6 +16,7 @@ import (
 )
 
 func TestAccVmwareenginePrivateCloud_vmwareEnginePrivateCloudUpdate(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20719")
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
