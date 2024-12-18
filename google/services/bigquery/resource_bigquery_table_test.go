@@ -1815,7 +1815,6 @@ func TestAccBigQueryTable_ResourceTags(t *testing.T) {
 		},
 	})
 }
-
 func testAccCheckBigQueryExtData(t *testing.T, expectedQuoteChar string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, rs := range s.RootModule().Resources {

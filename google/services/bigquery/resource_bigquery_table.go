@@ -183,9 +183,9 @@ func bigQueryTableSchemaDiffSuppress(name, old, new string, _ *schema.ResourceDa
 
 func bigQueryTableConnectionIdSuppress(name, old, new string, _ *schema.ResourceData) bool {
 	// API accepts connectionId in below two formats
-	// "{{project}}.{{location}}.{{connection_id}}" or
-	// "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}".
-	// but always returns "{{project}}.{{location}}.{{connection_id}}"
+	// "<project>.<location>.<connection_id>" or
+	// "projects/<project}>locations/<location>/connections/<connection_id>".
+	// but always returns "<project>.<location>.<connection_id>"
 
 	if tpgresource.IsEmptyValue(reflect.ValueOf(old)) || tpgresource.IsEmptyValue(reflect.ValueOf(new)) {
 		return false
@@ -863,13 +863,13 @@ func ResourceBigQueryTable() *schema.Resource {
 						// ConnectionId: [Optional] The connection specifying the credentials
 						// to be used to read external storage, such as Azure Blob,
 						// Cloud Storage, or S3. The connectionId can have the form
-						// "{{project}}.{{location}}.{{connection_id}}" or
-						// "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}".
+						// "<project>.<location>.<connection_id>" or
+						// "projects/<project>/locations/<location>/connections/<connection_id>".
 						"connection_id": {
 							Type:             schema.TypeString,
 							Optional:         true,
 							DiffSuppressFunc: bigQueryTableConnectionIdSuppress,
-							Description:      `The connection specifying the credentials to be used to read external storage, such as Azure Blob, Cloud Storage, or S3. The connectionId can have the form "{{project}}.{{location}}.{{connection_id}}" or "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}".`,
+							Description:      `The connection specifying the credentials to be used to read external storage, such as Azure Blob, Cloud Storage, or S3. The connectionId can have the form "<project>.<location>.<connection_id>" or "projects/<project>/locations/<location>/connections/<connection_id>".`,
 						},
 						"reference_file_schema_uri": {
 							Type:        schema.TypeString,
@@ -1577,7 +1577,6 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 	}
 
 	table.ResourceTags = tpgresource.ExpandStringMap(d, "resource_tags")
-
 	return table, nil
 }
 
@@ -1894,7 +1893,6 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("Error setting table replication info: %s", err)
 		}
 	}
-
 	return nil
 }
 
@@ -3034,7 +3032,6 @@ func flattenTableReplicationInfo(tableReplicationInfo map[string]interface{}) []
 
 	return []map[string]interface{}{result}
 }
-
 func resourceBigQueryTableImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{

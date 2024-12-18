@@ -182,6 +182,11 @@ The following arguments are supported:
     parent organization or project resource for this tag key. Tag value is
     expected to be the short name, for example "Production".
 
+* `external_catalog_table_options` - (Optional, [Beta]
+(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+    Options defining open source compatible table.
+    Structure is [documented below](#nested_external_catalog_table_options).
+
 <a name="nested_external_data_configuration"></a>The `external_data_configuration` block supports:
 
 * `autodetect` - (Required) Let BigQuery try to autodetect the schema
@@ -499,6 +504,67 @@ The following arguments are supported:
 * `file_format` - (Required) The file format the table data is stored in.
 
 * `table_format` - (Required) The table format the metadata only snapshots are stored in.
+
+<a name="nested_external_catalog_table_options"></a>The `external_catalog_table_options` block supports:
+
+* `parameters` - (Optional, [Beta]
+(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A map of key value pairs defining the parameters and properties of the open
+  source table. Corresponds with hive meta store table parameters. Maximum size
+  of 4Mib.
+* `storage_descriptor` - (Optional, [Beta]
+(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A storage descriptor containing information about the physical storage of this
+  table.
+  Structure is [documented below](#nested_storage_descriptor).
+* `connection_id` - (Optional, [Beta]
+(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The connection specifying the credentials to be used to read external storage,
+  such as Azure Blob, Cloud Storage, or S3. The connection is needed to read the
+  open source table from BigQuery Engine. The connection_id can have the form
+  `<project_id>.<location_id>.<connection_id>` or `projects/<project_id>/locations/<location_id>/connections/<connection_id>`.
+
+<a name="nested_storage_descriptor"></a>The `storage_descriptor` block supports:
+
+* `location_uri` - (Optional, [Beta]
+(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The physical location of the table (e.g. 'gs://spark-dataproc-data/pangea-data/case_sensitive/' or 'gs://spark-dataproc-data/pangea-data/*').
+  The maximum length is 2056 bytes.
+
+* `input_format` - (Optional, [Beta]
+(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the fully qualified class name of the InputFormat (e.g. "org.apache.hadoop.hive.ql.io.orc.OrcInputFormat").
+  The maximum length is 128 characters.
+
+* `output_format` - (Optional, [Beta]
+(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the fully qualified class name of the OutputFormat (e.g. "org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat").
+  The maximum length is 128 characters.
+
+* `serde_info` - (Optional, [Beta]
+(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Serializer and deserializer information.
+  Structure is [documented below](#nested_serde_info).
+
+<a name="nested_serde_info"></a>The `serde_info` block supports:
+
+* `name` - (Optional, [Beta]
+(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Name of the SerDe.
+  The maximum length is 256 characters.
+
+* `serialization_library` - (Required, [Beta]
+(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies a fully-qualified class name of the serialization library that is
+  responsible for the translation of data between table representation and the
+  underlying low-level input and output format structures.
+  The maximum length is 256 characters.
+
+* `parameters` - (Optional, [Beta]
+(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Key-value pairs that define the initialization parameters for the
+  serialization library.
+  Maximum size 10 Kib.
 
 ## Attributes Reference
 
