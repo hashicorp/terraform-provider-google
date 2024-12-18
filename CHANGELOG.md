@@ -1,6 +1,11 @@
 ## 6.15.0 (Unreleased)
 
-## 6.14.0 (December 17, 2024)
+## 6.14.1 (December 18, 2024)
+
+BUG FIXES:
+* compute: fixed an issue where `google_compute_firewall_policy_rule` was incorrectly removed from the Terraform state ([#20733](https://github.com/hashicorp/terraform-provider-google/pull/20733))
+
+## 6.14.0 (December 16, 2024)
 
 FEATURES:
 * **New Resource:** `google_network_security_intercept_deployment_group` ([#20615](https://github.com/hashicorp/terraform-provider-google/pull/20615))
