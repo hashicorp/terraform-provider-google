@@ -428,13 +428,6 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 			log.Printf("[DEBUG] Finished updating Environment %q: %#v", d.Id(), res)
 		}
 
-		err = ApigeeOperationWaitTime(
-			config, res, "Updating Environment", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-
-		if err != nil {
-			return err
-		}
 	}
 
 	return resourceApigeeEnvironmentRead(d, meta)
