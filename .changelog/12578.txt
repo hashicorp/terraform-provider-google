@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: fix errors details for zonal resize request & align with mixer errors details 
+```

@@ -58,7 +58,7 @@ func TestAccComputeResizeRequest_computeMigResizeRequestExample(t *testing.T) {
 func testAccComputeResizeRequest_computeMigResizeRequestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_instance_template" "a3_dws" {
-  name                 = "a3-dws"
+  name                 = "tf-test-a3-dws%{random_suffix}"
   region               = "us-central1"
   description          = "This template is used to create a mig instance that is compatible with DWS resize requests."
   instance_description = "A3 GPU"
@@ -99,7 +99,7 @@ resource "google_compute_region_instance_template" "a3_dws" {
 }
 
 resource "google_compute_instance_group_manager" "a3_dws" {
-  name               = "a3-dws"
+  name               = "tf-test-a3-dws%{random_suffix}"
   base_instance_name = "a3-dws"
   zone               = "us-central1-a"
 

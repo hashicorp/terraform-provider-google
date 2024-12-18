@@ -24,14 +24,14 @@ Represents a Managed Instance Group Resize Request
 
 Resize Requests are the Managed Instance Group implementation of Dynamic Workload Scheduler Flex Start.
 
-With Dynamic Workload Scheduler in Flex Start mode, you submit a GPU capacity request for your AI/ML jobs by indicating how many you need, a duration, and your preferred region. Dynamic Workload Scheduler intelligently persists the request; once the capacity becomes available, it automatically provisions your VMs enabling your workloads to run continuously for the entire duration of the capacity allocation.
+With Dynamic Workload Scheduler in Flex Start mode, you submit a GPU capacity request for your AI/ML jobs by indicating how many you need, a duration, and your preferred zone. Dynamic Workload Scheduler intelligently persists the request; once the capacity becomes available, it automatically provisions your VMs enabling your workloads to run continuously for the entire duration of the capacity allocation.
 
 
 To get more information about ResizeRequest, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/instanceGroupManagerResizeRequests)
 * How-to Guides
-    * [QUICKSTART_TITLE](https://cloud.google.com/compute/docs/instance-groups/create-resize-requests-mig)
+    * [About resize requests in a MIG](https://cloud.google.com/compute/docs/instance-groups/about-resize-requests-mig)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=compute_mig_resize_request&open_in_editor=main.tf" target="_blank">
@@ -128,13 +128,11 @@ The following arguments are supported:
 
 * `zone` -
   (Required)
-  Name of the compute zone scoping this request. Name should conform to RFC1035.
+  The reference of the compute zone scoping this request.
 
 * `instance_group_manager` -
   (Required)
-  The name of the managed instance group. The name should conform to RFC1035 or be a resource ID.
-  Authorization requires the following IAM permission on the specified resource instanceGroupManager:
-  *compute.instanceGroupManagers.update
+  The reference of the instance group manager this ResizeRequest is a part of.
 
 
 - - -
@@ -157,7 +155,7 @@ The following arguments are supported:
 
 * `seconds` -
   (Required)
-  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive. Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years
+  Span of time at a resolution of a second. Must be from 600 to 604800 inclusive. Note: minimum and maximum allowed range for requestedRunDuration is 10 minutes (600 seconds) and 7 days(604800 seconds) correspondingly.
 
 * `nanos` -
   (Optional)
@@ -173,10 +171,10 @@ In addition to the arguments listed above, the following computed attributes are
   The creation timestamp for this resize request in RFC3339 text format.
 
 * `state` -
-  [Output only] Current state of the request.
+  Current state of the request.
 
 * `status` -
-  [Output only] Status of the request.
+  Status of the request.
   Structure is [documented below](#nested_status).
 
 
@@ -184,12 +182,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `error` -
   (Output)
-  [Output only] Fatal errors encountered during the queueing or provisioning phases of the ResizeRequest that caused the transition to the FAILED state. Contrary to the lastAttempt errors, this field is final and errors are never removed from here, as the ResizeRequest is not going to retry.
+  Fatal errors encountered during the queueing or provisioning phases of the ResizeRequest that caused the transition to the FAILED state. Contrary to the lastAttempt errors, this field is final and errors are never removed from here, as the ResizeRequest is not going to retry.
   Structure is [documented below](#nested_error).
 
 * `last_attempt` -
   (Output)
-  [Output only] Information about the last attempt to fulfill the request. The value is temporary since the ResizeRequest can retry, as long as it's still active and the last attempt value can either be cleared or replaced with a different error. Since ResizeRequest retries infrequently, the value may be stale and no longer show an active problem. The value is cleared when ResizeRequest transitions to the final state (becomes inactive). If the final state is FAILED the error describing it will be storred in the "error" field only.
+  Information about the last attempt to fulfill the request. The value is temporary since the ResizeRequest can retry, as long as it's still active and the last attempt value can either be cleared or replaced with a different error. Since ResizeRequest retries infrequently, the value may be stale and no longer show an active problem. The value is cleared when ResizeRequest transitions to the final state (becomes inactive). If the final state is FAILED the error describing it will be storred in the "error" field only.
   Structure is [documented below](#nested_last_attempt).
 
 
@@ -197,7 +195,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `errors` -
   (Output)
-  [Output Only] The array of errors encountered while processing this operation.
+  The array of errors encountered while processing this operation.
   Structure is [documented below](#nested_errors).
 
 
@@ -205,19 +203,19 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `code` -
   (Output)
-  [Output Only] The error type identifier for this error.
+  The error type identifier for this error.
 
 * `location` -
   (Output)
-  Output Only] Indicates the field in the request that caused the error. This property is optional.
+  Indicates the field in the request that caused the error. This property is optional.
 
 * `message` -
   (Output)
-  [Output Only] An optional, human-readable error message.
+  An optional, human-readable error message.
 
 * `error_details` -
   (Output)
-  [Output Only] An optional list of messages that contain the error details. There is a set of defined message types to use for providing details.The syntax depends on the error code. For example, QuotaExceededInfo will have details when the error code is QUOTA_EXCEEDED.
+  An array of messages that contain the error details. There is a set of defined message types to use for providing details.The syntax depends on the error code. For example, QuotaExceededInfo will have details when the error code is QUOTA_EXCEEDED.
   Structure is [documented below](#nested_error_details).
 
 
@@ -225,22 +223,22 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `error_info` -
   (Output)
-  [Output Only]
+  A nested object resource.
   Structure is [documented below](#nested_error_info).
 
 * `quota_info` -
   (Output)
-  [Output Only]
+  A nested object resource.
   Structure is [documented below](#nested_quota_info).
 
 * `help` -
   (Output)
-  [Output Only]
+  A nested object resource.
   Structure is [documented below](#nested_help).
 
 * `localized_message` -
   (Output)
-  [Output Only]
+  A nested object resource.
   Structure is [documented below](#nested_localized_message).
 
 
@@ -248,16 +246,15 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `reason` -
   (Output)
-  The reason of the error. This is a constant value that identifies the proximate cause of the error. Error reasons are unique within a particular domain of errors. This should be at most 63 characters and match a regular expression of [A-Z][A-Z0-9_]+[A-Z0-9], which represents UPPER_SNAKE_CASE.
+  The reason of the error. This is a constant value that identifies the proximate cause of the error. Error reasons are unique within a particular domain of errors.
 
 * `domain` -
   (Output)
-  The logical grouping to which the "reason" belongs. The error domain is typically the registered service name of the tool or product that generates the error. Example: "pubsub.googleapis.com". If the error is generated by some common infrastructure, the error domain must be a globally unique value that identifies the infrastructure. For Google API infrastructure, the error domain is "googleapis.com".
+  The logical grouping to which the "reason" belongs. The error domain is typically the registered service name of the tool or product that generates the error. Example: "pubsub.googleapis.com".
 
 * `metadatas` -
   (Output)
   Additional structured details about this error.
-  Keys must match /[a-z][a-zA-Z0-9-_]+/ but should ideally be lowerCamelCase. Also they must be limited to 64 characters in length. When identifying the current value of an exceeded limit, the units should be contained in the key, not the value. For example, rather than {"instanceLimit": "100/request"}, should be returned as, {"instanceLimitPerRequest": "100"}, if the client exceeds the number of instances that can be created in a single (batch) request.
 
 <a name="nested_quota_info"></a>The `quota_info` block contains:
 
@@ -289,7 +286,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `links` -
   (Output)
-  [Output Only]
+  A nested object resource.
   Structure is [documented below](#nested_links).
 
 
@@ -317,7 +314,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `error` -
   (Output)
-  [Output only] Fatal errors encountered during the queueing or provisioning phases of the ResizeRequest that caused the transition to the FAILED state. Contrary to the lastAttempt errors, this field is final and errors are never removed from here, as the ResizeRequest is not going to retry.
+  Fatal errors encountered during the queueing or provisioning phases of the ResizeRequest that caused the transition to the FAILED state. Contrary to the lastAttempt errors, this field is final and errors are never removed from here, as the ResizeRequest is not going to retry.
   Structure is [documented below](#nested_error).
 
 
@@ -325,7 +322,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `errors` -
   (Output)
-  [Output Only] The array of errors encountered while processing this operation.
+  The array of errors encountered while processing this operation.
   Structure is [documented below](#nested_errors).
 
 
@@ -333,19 +330,19 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `code` -
   (Output)
-  [Output Only] The error type identifier for this error.
+  The error type identifier for this error.
 
 * `location` -
   (Output)
-  Output Only] Indicates the field in the request that caused the error. This property is optional.
+  Indicates the field in the request that caused the error. This property is optional.
 
 * `message` -
   (Output)
-  [Output Only] An optional, human-readable error message.
+  An optional, human-readable error message.
 
 * `error_details` -
   (Output)
-  [Output Only] An optional list of messages that contain the error details. There is a set of defined message types to use for providing details.The syntax depends on the error code. For example, QuotaExceededInfo will have details when the error code is QUOTA_EXCEEDED.
+  An array of messages that contain the error details. There is a set of defined message types to use for providing details.The syntax depends on the error code. For example, QuotaExceededInfo will have details when the error code is QUOTA_EXCEEDED.
   Structure is [documented below](#nested_error_details).
 
 
@@ -353,22 +350,22 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `error_info` -
   (Output)
-  [Output Only]
+  A nested object resource.
   Structure is [documented below](#nested_error_info).
 
 * `quota_info` -
   (Output)
-  [Output Only]
+  A nested object resource.
   Structure is [documented below](#nested_quota_info).
 
 * `help` -
   (Output)
-  [Output Only]
+  A nested object resource.
   Structure is [documented below](#nested_help).
 
 * `localized_message` -
   (Output)
-  [Output Only]
+  A nested object resource.
   Structure is [documented below](#nested_localized_message).
 
 
@@ -376,16 +373,15 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `reason` -
   (Output)
-  The reason of the error. This is a constant value that identifies the proximate cause of the error. Error reasons are unique within a particular domain of errors. This should be at most 63 characters and match a regular expression of [A-Z][A-Z0-9_]+[A-Z0-9], which represents UPPER_SNAKE_CASE.
+  The reason of the error. This is a constant value that identifies the proximate cause of the error. Error reasons are unique within a particular domain of errors.
 
 * `domain` -
   (Output)
-  The logical grouping to which the "reason" belongs. The error domain is typically the registered service name of the tool or product that generates the error. Example: "pubsub.googleapis.com". If the error is generated by some common infrastructure, the error domain must be a globally unique value that identifies the infrastructure. For Google API infrastructure, the error domain is "googleapis.com".
+  The logical grouping to which the "reason" belongs. The error domain is typically the registered service name of the tool or product that generates the error. Example: "pubsub.googleapis.com".
 
 * `metadatas` -
   (Output)
   Additional structured details about this error.
-  Keys must match /[a-z][a-zA-Z0-9-_]+/ but should ideally be lowerCamelCase. Also they must be limited to 64 characters in length. When identifying the current value of an exceeded limit, the units should be contained in the key, not the value. For example, rather than {"instanceLimit": "100/request"}, should be returned as, {"instanceLimitPerRequest": "100"}, if the client exceeds the number of instances that can be created in a single (batch) request.
 
 <a name="nested_quota_info"></a>The `quota_info` block contains:
 
@@ -417,7 +413,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `links` -
   (Output)
-  [Output Only]
+  A nested object resource.
   Structure is [documented below](#nested_links).
 
 
