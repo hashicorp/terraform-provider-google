@@ -90,9 +90,14 @@ func dataSourceGoogleComputeInstanceGuestAttributesRead(d *schema.ResourceData, 
 		return err
 	}
 
+	//Check if instance exists
 	id := fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, name)
-	instanceGuestAttributes := &compute.GuestAttributes{}
+	_, err = config.NewComputeClient(userAgent).Instances.Get(project, zone, name).Do()
+	if err != nil {
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Instance %s", name), id)
+	}
 
+	instanceGuestAttributes := &compute.GuestAttributes{}
 	// You can either query based on variable_key, query_path or just get the first value
 	if d.Get("query_path").(string) != "" {
 		instanceGuestAttributes, err = config.NewComputeClient(userAgent).Instances.GetGuestAttributes(project, zone, name).QueryPath(d.Get("query_path").(string)).Do()
@@ -102,7 +107,7 @@ func dataSourceGoogleComputeInstanceGuestAttributesRead(d *schema.ResourceData, 
 		instanceGuestAttributes, err = config.NewComputeClient(userAgent).Instances.GetGuestAttributes(project, zone, name).Do()
 	}
 	if err != nil {
-		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Instance's Guest Attributes %s", name), id)
+		return nil
 	}
 
 	// Set query results
