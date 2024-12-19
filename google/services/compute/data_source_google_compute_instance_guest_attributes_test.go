@@ -23,6 +23,12 @@ func TestAccDataSourceComputeInstanceGuestAttributes_basic(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
+				Config: testAccDataSourceComputeInstanceGuestAttributesConfig_queryPath_empty(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("data.google_compute_instance_guest_attributes.bar", "query_value"),
+				),
+			},
+			{
 				//need to create the guest_attributes metadata from startup script first
 				Config: testAccDataSourceComputeInstanceGuestAttributesInitialConfig(instanceName),
 				Check:  testAccCheckComputeInstanceExists(t, "google_compute_instance.foo", &instance),
@@ -40,6 +46,12 @@ func TestAccDataSourceComputeInstanceGuestAttributes_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.google_compute_instance_guest_attributes.bar", "query_path", "testing/"),
 					resource.TestCheckResourceAttr("data.google_compute_instance_guest_attributes.bar", "query_value.0.value", "test1"),
 					resource.TestCheckResourceAttr("data.google_compute_instance_guest_attributes.bar", "query_value.1.value", "test2"),
+				),
+			},
+			{
+				Config: testAccDataSourceComputeInstanceGuestAttributesConfig_queryPath_nonExistent(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("data.google_compute_instance_guest_attributes.bar", "query_value"),
 				),
 			},
 		},
@@ -112,6 +124,77 @@ data "google_compute_instance_guest_attributes" "bar" {
   name = google_compute_instance.foo.name
   zone = "us-central1-a"
   query_path = "testing/"
+}
+`, instanceName)
+}
+
+func testAccDataSourceComputeInstanceGuestAttributesConfig_queryPath_nonExistent(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foo" {
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  zone           = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-8-jessie-v20160803"
+    }
+  }
+
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP
+    }
+  }
+
+  metadata = {
+    enable-guest-attributes = "TRUE"
+  }
+
+  metadata_startup_script = <<-EOF
+  curl -X PUT --data "test1" http://metadata.google.internal/computeMetadata/v1/instance/guest-attributes/testing/key1 -H "Metadata-Flavor: Google"
+  curl -X PUT --data "test2" http://metadata.google.internal/computeMetadata/v1/instance/guest-attributes/testing/key2 -H "Metadata-Flavor: Google"
+  EOF
+}
+
+data "google_compute_instance_guest_attributes" "bar" {
+  name = google_compute_instance.foo.name
+  zone = "us-central1-a"
+  query_path = "test/"
+}
+`, instanceName)
+}
+
+func testAccDataSourceComputeInstanceGuestAttributesConfig_queryPath_empty(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foo" {
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  zone           = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-8-jessie-v20160803"
+    }
+  }
+
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP
+    }
+  }
+
+  metadata = {
+    enable-guest-attributes = "TRUE"
+  }
+}
+
+data "google_compute_instance_guest_attributes" "bar" {
+  name = google_compute_instance.foo.name
+  zone = "us-central1-a"
+  query_path = "test/"
 }
 `, instanceName)
 }
