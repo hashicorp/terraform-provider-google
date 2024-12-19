@@ -25,30 +25,71 @@ A connection to a GitHub App installation.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_connection_basic&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Developer Connect Connection Basic
+## Example Usage - Developer Connect Connection New
 
 
 ```hcl
 resource "google_developer_connect_connection" "my-connection" {
   provider = google-beta
   location = "us-central1"
-  connection_id = "tf-test-connection"
+  connection_id = "tf-test-connection-new"
+
+  github_config {
+    github_app = "FIREBASE"
+  }
+
+  depends_on = [google_project_iam_member.devconnect-secret]
+}
+
+output "next_steps" {
+  description = "Follow the action_uri if present to continue setup"
+  value = google_developer_connect_connection.my-connection.installation_state
+}
+
+# Setup permissions. Only needed once per project
+resource "google_project_service_identity" "devconnect-p4sa" {
+  provider = google-beta
+
+  service = "developerconnect.googleapis.com"
+}
+
+resource "google_project_iam_member" "devconnect-secret" {
+  provider = google-beta
+
+  project  = "my-project-name"
+  role     = "roles/secretmanager.admin"
+  member   = google_project_service_identity.devconnect-p4sa.member
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_connection_existing_credentials&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Developer Connect Connection Existing Credentials
+
+
+```hcl
+resource "google_developer_connect_connection" "my-connection" {
+  provider = google-beta
+  location = "us-central1"
+  connection_id = "tf-test-connection-cred"
 
   github_config {
     github_app = "DEVELOPER_CONNECT"
 
     authorizer_credential {
-      oauth_token_secret_version = "projects/devconnect-terraform-creds/secrets/tf-test-do-not-change-github-oauthtoken-e0b9e7/versions/1"
+      oauth_token_secret_version = "projects/your-project/secrets/your-secret-id/versions/latest"
     }
   }
 }
+
+output "next_steps" {
+  description = "Follow the action_uri if present to continue setup"
+  value = google_developer_connect_connection.my-connection.installation_state
+}
 ```
-## Example Usage - Developer Connect Connection Github Doc
+## Example Usage - Developer Connect Connection Existing Installation
 
 
 ```hcl
@@ -69,11 +110,17 @@ resource "google_secret_manager_secret_version" "github-token-secret-version" {
   secret_data = file("my-github-token.txt")
 }
 
+resource "google_project_service_identity" "devconnect-p4sa" {
+  provider = google-beta
+
+  service = "developerconnect.googleapis.com"
+}
+
 data "google_iam_policy" "p4sa-secretAccessor" {
   binding {
     role = "roles/secretmanager.secretAccessor"
     // Here, 123456789 is the Google Cloud project number for the project that contains the connection.
-    members = ["serviceAccount:service-123456789@gcp-sa-devconnect.iam.gserviceaccount.com"]
+    members = [google_project_service_identity.devconnect-p4sa.member]
   }
 }
 
