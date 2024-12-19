@@ -266,6 +266,11 @@ func resourceAccessApprovalFolderSettingsCreate(d *schema.ResourceData, meta int
 	}
 	d.SetId(id)
 
+	// This is useful if the resource in question doesn't have a perfectly consistent API
+	// That is, the Operation for Create might return before the Get operation shows the
+	// completed state of the resource.
+	time.Sleep(4 * time.Minute)
+
 	log.Printf("[DEBUG] Finished creating FolderSettings %q: %#v", d.Id(), res)
 
 	return resourceAccessApprovalFolderSettingsRead(d, meta)
@@ -410,6 +415,10 @@ func resourceAccessApprovalFolderSettingsUpdate(d *schema.ResourceData, meta int
 
 	}
 
+	// This is useful if the resource in question doesn't have a perfectly consistent API
+	// That is, the Operation for Create might return before the Get operation shows the
+	// completed state of the resource.
+	time.Sleep(4 * time.Minute)
 	return resourceAccessApprovalFolderSettingsRead(d, meta)
 }
 
