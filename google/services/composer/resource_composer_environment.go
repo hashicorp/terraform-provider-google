@@ -706,7 +706,7 @@ func ResourceComposerEnvironment() *schema.Resource {
 									"task_logs_retention_config": {
 										Type:        schema.TypeList,
 										Description: `Optional. The configuration setting for Task Logs.`,
-										Required:    true,
+										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"storage_mode": {
@@ -714,6 +714,30 @@ func ResourceComposerEnvironment() *schema.Resource {
 													Optional:     true,
 													ValidateFunc: validation.StringInSlice([]string{"CLOUD_LOGGING_ONLY", "CLOUD_LOGGING_AND_CLOUD_STORAGE"}, false),
 													Description:  `Whether logs in cloud logging only is enabled or not. This field is supported for Cloud Composer environments in versions composer-2.0.32-airflow-2.1.4 and newer.`,
+												},
+											},
+										},
+									},
+									"airflow_metadata_retention_config": {
+										Type:        schema.TypeList,
+										Description: `Optional. The configuration setting for database retention.`,
+										Optional:    true,
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"retention_mode": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Computed:     true,
+													ValidateFunc: validation.StringInSlice([]string{"RETENTION_MODE_ENABLED", "RETENTION_MODE_DISABLED"}, false),
+													Description:  `Whether database retention is enabled or not. This field is supported for Cloud Composer environments in composer 3 and newer.`,
+												},
+												"retention_days": {
+													Type:         schema.TypeInt,
+													Optional:     true,
+													Computed:     true,
+													ValidateFunc: validation.IntBetween(30, 730),
+													Description:  `How many days data should be retained for. This field is supported for Cloud Composer environments in composer 3 and newer.`,
 												},
 											},
 										},
@@ -1470,6 +1494,22 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 				return err
 			}
 		}
+		if d.HasChange("config.0.data_retention_config.0.airflow_metadata_retention_config") {
+			patchObj := &composer.Environment{
+				Config: &composer.EnvironmentConfig{
+					DataRetentionConfig: &composer.DataRetentionConfig{
+						AirflowMetadataRetentionConfig: &composer.AirflowMetadataRetentionPolicyConfig{},
+					},
+				},
+			}
+			if config != nil && config.DataRetentionConfig != nil && config.DataRetentionConfig.AirflowMetadataRetentionConfig != nil {
+				patchObj.Config.DataRetentionConfig.AirflowMetadataRetentionConfig = config.DataRetentionConfig.AirflowMetadataRetentionConfig
+			}
+			err = resourceComposerEnvironmentPatchField("config.DataRetentionConfig.AirflowMetadataRetentionConfig", userAgent, patchObj, d, tfConfig)
+			if err != nil {
+				return err
+			}
+		}
 		if d.HasChange("config.0.recovery_config.0.scheduled_snapshots_config") {
 			patchObj := &composer.Environment{Config: &composer.EnvironmentConfig{}}
 			if config != nil {
@@ -1766,6 +1806,7 @@ func flattenComposerEnvironmentConfigDataRetentionConfig(dataRetentionConfig *co
 
 	transformed := make(map[string]interface{})
 	transformed["task_logs_retention_config"] = flattenComposerEnvironmentConfigDataRetentionConfigTaskLogsRetentionConfig(dataRetentionConfig.TaskLogsRetentionConfig)
+	transformed["airflow_metadata_retention_config"] = flattenComposerEnvironmentConfigDataRetentionConfigAirflowMetadataRetentionConfig(dataRetentionConfig.AirflowMetadataRetentionConfig)
 
 	return []interface{}{transformed}
 }
@@ -1777,6 +1818,18 @@ func flattenComposerEnvironmentConfigDataRetentionConfigTaskLogsRetentionConfig(
 
 	transformed := make(map[string]interface{})
 	transformed["storage_mode"] = taskLogsRetentionConfig.StorageMode
+
+	return []interface{}{transformed}
+}
+
+func flattenComposerEnvironmentConfigDataRetentionConfigAirflowMetadataRetentionConfig(airflowMetadataRetentionConfig *composer.AirflowMetadataRetentionPolicyConfig) interface{} {
+	if airflowMetadataRetentionConfig == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformed["retention_mode"] = airflowMetadataRetentionConfig.RetentionMode
+	transformed["retention_days"] = airflowMetadataRetentionConfig.RetentionDays
 
 	return []interface{}{transformed}
 }
@@ -2249,6 +2302,13 @@ func expandComposerEnvironmentConfigDataRetentionConfig(v interface{}, d *schema
 		}
 		transformed.TaskLogsRetentionConfig = transformedTaskLogsRetentionConfig
 	}
+	if airflowMetadataRetentionConfig, ok := original["airflow_metadata_retention_config"]; ok {
+		transformedAirflowMetadataRetentionConfig, err := expandComposerEnvironmentConfigDataRetentionConfigAirflowMetadataRetentionConfig(airflowMetadataRetentionConfig, d, config)
+		if err != nil {
+			return nil, err
+		}
+		transformed.AirflowMetadataRetentionConfig = transformedAirflowMetadataRetentionConfig
+	}
 
 	return transformed, nil
 }
@@ -2264,6 +2324,25 @@ func expandComposerEnvironmentConfigDataRetentionConfigTaskLogsRetentionConfig(v
 
 	if v, ok := original["storage_mode"]; ok {
 		transformed.StorageMode = v.(string)
+	}
+
+	return transformed, nil
+}
+
+func expandComposerEnvironmentConfigDataRetentionConfigAirflowMetadataRetentionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.AirflowMetadataRetentionPolicyConfig, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := &composer.AirflowMetadataRetentionPolicyConfig{}
+
+	if v, ok := original["retention_mode"]; ok {
+		transformed.RetentionMode = v.(string)
+	}
+	if v, ok := original["retention_days"]; ok {
+		transformed.RetentionDays = int64(v.(int))
 	}
 
 	return transformed, nil
