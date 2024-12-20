@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fix a failing testcase, create and update the bucket in same region
+```
