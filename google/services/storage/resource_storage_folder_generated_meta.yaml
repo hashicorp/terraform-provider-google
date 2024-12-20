@@ -1,0 +1,5 @@
+resource: 'google_storage_folder'
+generation_type: 'mmv1'
+api_service_name: 'storage.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Folder'
