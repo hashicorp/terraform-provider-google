@@ -429,10 +429,10 @@ func TestAccComposerEnvironment_UpdateComposerV2ImageVersion(t *testing.T) {
 		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComposerEnvironment_composerV250(envName, network, subnetwork),
+				Config: testAccComposerEnvironment_composerOldVersion(envName, network, subnetwork),
 			},
 			{
-				Config: testAccComposerEnvironment_composerV260(envName, network, subnetwork),
+				Config: testAccComposerEnvironment_composerNewVersion(envName, network, subnetwork),
 			},
 			{
 				ResourceName:      "google_composer_environment.test",
@@ -445,7 +445,7 @@ func TestAccComposerEnvironment_UpdateComposerV2ImageVersion(t *testing.T) {
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
-				Config:             testAccComposerEnvironment_composerV260(envName, network, subnetwork),
+				Config:             testAccComposerEnvironment_composerNewVersion(envName, network, subnetwork),
 				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
@@ -1483,7 +1483,7 @@ resource "google_composer_environment" "test" {
       }
     }
     software_config {
-      image_version = "composer-2.4.2-airflow-2"
+      image_version = "composer-2-airflow-2"
     }
   }
   storage_config {
@@ -1524,7 +1524,7 @@ resource "google_composer_environment" "test" {
       subnetwork     = google_compute_subnetwork.test.self_link
     }
     software_config {
-      image_version = "composer-2.9.3-airflow-2.9.1"
+      image_version = "composer-2-airflow-2"
     }
   }
   storage_config {
@@ -2107,7 +2107,7 @@ resource "google_compute_subnetwork" "test" {
 `, envName, network, subnetwork)
 }
 
-func testAccComposerEnvironment_composerV250(envName, network, subnetwork string) string {
+func testAccComposerEnvironment_composerOldVersion(envName, network, subnetwork string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
   name   = "%s"
@@ -2120,7 +2120,7 @@ resource "google_composer_environment" "test" {
       }
 
       software_config {
-        image_version = "composer-2.5.0-airflow-2.6.3"
+        image_version = "composer-2.10.0-airflow-2.10.2"
       }
     }
 }
@@ -2141,7 +2141,7 @@ resource "google_compute_subnetwork" "test" {
 `, envName, network, subnetwork)
 }
 
-func testAccComposerEnvironment_composerV260(envName, network, subnetwork string) string {
+func testAccComposerEnvironment_composerNewVersion(envName, network, subnetwork string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
   name   = "%s"
@@ -2154,7 +2154,7 @@ resource "google_composer_environment" "test" {
       }
 
       software_config {
-        image_version = "composer-2.6.0-airflow-2.6.3"
+        image_version = "composer-2.10.1-airflow-2.10.2"
       }
     }
 }
