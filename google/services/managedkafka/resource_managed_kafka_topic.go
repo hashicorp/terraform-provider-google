@@ -322,6 +322,10 @@ func resourceManagedKafkaTopicUpdate(d *schema.ResourceData, meta interface{}) e
 
 	}
 
+	// This is useful if the resource in question doesn't have a perfectly consistent API
+	// That is, the Operation for Create might return before the Get operation shows the
+	// completed state of the resource.
+	time.Sleep(5 * time.Second)
 	return resourceManagedKafkaTopicRead(d, meta)
 }
 
