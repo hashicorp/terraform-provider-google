@@ -339,8 +339,8 @@ provider "google" {
 ```
 
 Custom endpoints are an advanced feature. To determine the possible values you
-can set, consult the implementation in [provider.go](https://github.com/hashicorp/terraform-provider-google-beta/blob/main/google-beta/provider.go)
-and [config.go](https://github.com/hashicorp/terraform-provider-google-beta/blob/main/google-beta/config.go).
+can set, consult the implementation in [provider.go](https://github.com/hashicorp/terraform-provider-google-beta/blob/main/google-beta/provider/provider.go)
+and [config.go](https://github.com/hashicorp/terraform-provider-google-beta/blob/main/google-beta/transport/config.go).
 
 Support for custom endpoints is on a best-effort basis. The underlying
 endpoint and default values for a resource can be changed at any time without
