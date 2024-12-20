@@ -3078,6 +3078,13 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config 
 	}
 
 	diskDetails, err := getDisk(disk.Source, d, config)
+
+	// Resource policies can get autofilled from the API and on this field and this will cause the instance to recreate
+	// This overrides any value set by the API not to cause a diff when the user didn't set this in their config.
+	if d.Get("boot_disk.0.initialize_params.0.resource_policies.0") == nil || d.Get("boot_disk.0.initialize_params.0.resource_policies") == nil {
+		diskDetails.ResourcePolicies = nil
+	}
+
 	if err != nil {
 		log.Printf("[WARN] Cannot retrieve boot disk details: %s", err)
 
