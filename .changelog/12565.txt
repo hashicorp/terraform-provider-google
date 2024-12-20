@@ -1,0 +1,3 @@
+```release-note:enhancement
+composer: added `airflow_metadata_retention_config` field to `composer_environment`
+```
