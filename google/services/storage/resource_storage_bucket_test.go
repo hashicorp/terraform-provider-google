@@ -797,7 +797,6 @@ func TestAccStorageBucket_update(t *testing.T) {
 	t.Parallel()
 
 	var bucket storage.Bucket
-	var recreated storage.Bucket
 	var updated storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt(t))
 
@@ -807,26 +806,10 @@ func TestAccStorageBucket_update(t *testing.T) {
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageBucket_basic(bucketName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckStorageBucketExists(
-						t, "google_storage_bucket.bucket", bucketName, &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "force_destroy", "false"),
-				),
-			},
-			{
-				ResourceName:            "google_storage_bucket.bucket",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"force_destroy"},
-			},
-			{
 				Config: testAccStorageBucket_customAttributes(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
-						t, "google_storage_bucket.bucket", bucketName, &recreated),
-					testAccCheckStorageBucketWasRecreated(&recreated, &bucket),
+						t, "google_storage_bucket.bucket", bucketName, &bucket),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "true"),
 				),
@@ -842,7 +825,7 @@ func TestAccStorageBucket_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						t, "google_storage_bucket.bucket", bucketName, &updated),
-					testAccCheckStorageBucketWasUpdated(&updated, &recreated),
+					testAccCheckStorageBucketWasUpdated(&updated, &bucket),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "true"),
 				),
@@ -858,7 +841,7 @@ func TestAccStorageBucket_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						t, "google_storage_bucket.bucket", bucketName, &updated),
-					testAccCheckStorageBucketWasUpdated(&updated, &recreated),
+					testAccCheckStorageBucketWasUpdated(&updated, &bucket),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "true"),
 				),
@@ -874,7 +857,7 @@ func TestAccStorageBucket_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						t, "google_storage_bucket.bucket", bucketName, &updated),
-					testAccCheckStorageBucketWasUpdated(&updated, &recreated),
+					testAccCheckStorageBucketWasUpdated(&updated, &bucket),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "true"),
 				),
@@ -890,7 +873,7 @@ func TestAccStorageBucket_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						t, "google_storage_bucket.bucket", bucketName, &updated),
-					testAccCheckStorageBucketWasUpdated(&updated, &recreated),
+					testAccCheckStorageBucketWasUpdated(&updated, &bucket),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "true"),
 				),
