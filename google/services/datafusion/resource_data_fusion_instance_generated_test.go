@@ -31,6 +31,7 @@ import (
 )
 
 func TestAccDataFusionInstance_dataFusionInstanceBasicExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20574")
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -68,6 +69,7 @@ resource "google_data_fusion_instance" "basic_instance" {
 }
 
 func TestAccDataFusionInstance_dataFusionInstanceFullExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20574")
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -140,6 +142,7 @@ resource "google_compute_global_address" "private_ip_alloc" {
 }
 
 func TestAccDataFusionInstance_dataFusionInstancePscExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20574")
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -210,6 +213,7 @@ resource "google_compute_network_attachment" "psc" {
 }
 
 func TestAccDataFusionInstance_dataFusionInstanceCmekExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20574")
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -352,6 +356,7 @@ resource "google_pubsub_topic" "event" {
 }
 
 func TestAccDataFusionInstance_dataFusionInstanceZoneExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20574")
 	t.Parallel()
 
 	context := map[string]interface{}{
