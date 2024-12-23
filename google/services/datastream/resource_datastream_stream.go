@@ -342,6 +342,16 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"binary_log_position": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `CDC reader reads from binary logs replication cdc method.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ConflictsWith: []string{},
+									},
 									"exclude_objects": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -427,6 +437,16 @@ https://dev.mysql.com/doc/refman/8.0/en/data-types.html`,
 												},
 											},
 										},
+									},
+									"gtid": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `CDC reader reads from gtid based replication.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ConflictsWith: []string{},
 									},
 									"include_objects": {
 										Type:        schema.TypeList,
@@ -2200,6 +2220,10 @@ func flattenDatastreamStreamSourceConfigMysqlSourceConfig(v interface{}, d *sche
 		flattenDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentCdcTasks(original["maxConcurrentCdcTasks"], d, config)
 	transformed["max_concurrent_backfill_tasks"] =
 		flattenDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentBackfillTasks(original["maxConcurrentBackfillTasks"], d, config)
+	transformed["binary_log_position"] =
+		flattenDatastreamStreamSourceConfigMysqlSourceConfigBinaryLogPosition(original["binaryLogPosition"], d, config)
+	transformed["gtid"] =
+		flattenDatastreamStreamSourceConfigMysqlSourceConfigGtid(original["gtid"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDatastreamStreamSourceConfigMysqlSourceConfigIncludeObjects(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2508,6 +2532,22 @@ func flattenDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentBackfillTa
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigMysqlSourceConfigBinaryLogPosition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDatastreamStreamSourceConfigMysqlSourceConfigGtid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
 }
 
 func flattenDatastreamStreamSourceConfigOracleSourceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4703,6 +4743,20 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfig(v interface{}, d tpgres
 		transformed["maxConcurrentBackfillTasks"] = transformedMaxConcurrentBackfillTasks
 	}
 
+	transformedBinaryLogPosition, err := expandDatastreamStreamSourceConfigMysqlSourceConfigBinaryLogPosition(original["binary_log_position"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["binaryLogPosition"] = transformedBinaryLogPosition
+	}
+
+	transformedGtid, err := expandDatastreamStreamSourceConfigMysqlSourceConfigGtid(original["gtid"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["gtid"] = transformedGtid
+	}
+
 	return transformed, nil
 }
 
@@ -5066,6 +5120,36 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentCdcTasks(v 
 
 func expandDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentBackfillTasks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigMysqlSourceConfigBinaryLogPosition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDatastreamStreamSourceConfigMysqlSourceConfigGtid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
 
 func expandDatastreamStreamSourceConfigOracleSourceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
