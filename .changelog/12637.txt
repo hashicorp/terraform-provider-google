@@ -1,0 +1,3 @@
+```release-note:bug
+vertexai: made `contents_delta_uri` a optional field in `google_vertex_ai_index`
+```
