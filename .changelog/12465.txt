@@ -1,0 +1,3 @@
+```release-note:enhancement
+datastream: added `gtid`, `binaryLogPosition` fields to `datastream_stream` resource
+```

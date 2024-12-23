@@ -68,8 +68,18 @@ func TestAccDatastreamStream_update(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"create_without_validation", "stream_id", "location", "desired_state", "labels", "terraform_labels"},
 			},
 			{
+				ResourceName:            "google_datastream_stream.gtid",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"create_without_validation", "stream_id", "location", "desired_state", "labels", "terraform_labels"},
+			},
+			{
 				// Disable prevent_destroy
 				Config: testAccDatastreamStream_datastreamStreamBasicUpdate(context, "RUNNING", false),
+			},
+			{
+				Config: testAccDatastreamStream_datastreamStreamBasicExample(context),
+				Check:  resource.TestCheckResourceAttr("google_datastream_stream.gtid", "state", "NOT_STARTED"),
 			},
 		},
 	})
@@ -206,7 +216,45 @@ resource "google_datastream_stream" "default" {
     source_config {
         source_connection_profile = google_datastream_connection_profile.source_connection_profile.id
 
-        mysql_source_config {}
+        mysql_source_config {
+	        binary_log_position {}
+	    }
+    }
+    destination_config {
+        destination_connection_profile = google_datastream_connection_profile.destination_connection_profile.id
+        gcs_destination_config {
+            path = "mydata"
+            file_rotation_mb = 200
+            file_rotation_interval = "60s"
+            json_file_format {
+                schema_file_format = "NO_SCHEMA_FILE"
+                compression = "GZIP"
+            }
+        }
+    }
+
+    backfill_all {
+    }
+	%{lifecycle_block}
+}
+
+resource "google_datastream_stream" "gtid" {
+    stream_id = "tf-test-my-stream-gtid%{random_suffix}"
+    location = "us-central1"
+    display_name = "my gtid stream update"
+    desired_state = "%{desired_state}"
+    create_without_validation = true
+
+    labels = {
+    	key = "updated"
+    }
+
+    source_config {
+        source_connection_profile = google_datastream_connection_profile.source_connection_profile.id
+
+        mysql_source_config {
+	        gtid {}
+	    }
     }
     destination_config {
         destination_connection_profile = google_datastream_connection_profile.destination_connection_profile.id

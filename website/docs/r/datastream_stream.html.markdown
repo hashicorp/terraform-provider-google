@@ -632,6 +632,114 @@ resource "google_datastream_stream" "default" {
     backfill_none {}
 }
 ```
+## Example Usage - Datastream Stream Mysql Gtid
+
+
+```hcl
+resource "google_sql_database_instance" "instance" {
+    name                = "<%= ctx[:vars]['mysql_name'] %>"
+    database_version    = "MYSQL_8_0"
+    region              = "us-central1"
+    root_password       = "<%= ctx[:vars]['mysql_root_password'] %>"
+    deletion_protection = "<%= ctx[:vars]['deletion_protection'] %>"
+
+    settings {
+        tier = "db-custom-2-4096"
+        ip_configuration {
+            // Datastream IPs will vary by region.
+            // https://cloud.google.com/datastream/docs/ip-allowlists-and-regions
+            authorized_networks {
+                value = "34.71.242.81"
+            }
+
+            authorized_networks {
+                value = "34.72.28.29"
+            }
+
+            authorized_networks {
+                value = "34.67.6.157"
+            }
+
+            authorized_networks {
+                value = "34.67.234.134"
+            }
+
+            authorized_networks {
+                value = "34.72.239.218"
+            }
+        }
+    }
+}
+
+resource "google_sql_database" "db" {
+    name       = "<%= ctx[:vars]['database_name'] %>"
+    instance   = google_sql_database_instance.instance.name
+    depends_on = [google_sql_user.user]
+}
+
+resource "google_sql_user" "user" {
+    name     = "<%= ctx[:vars]['database_user'] %>"
+    instance = google_sql_database_instance.instance.name
+    password = "<%= ctx[:vars]['database_password'] %>"
+}
+
+resource "google_datastream_connection_profile" "source" {
+    display_name          = "MySQL Source"
+    location              = "us-central1"
+    connection_profile_id = "<%= ctx[:vars]['source_connection_profile_id'] %>"
+
+    mysql_profile {
+        hostname = google_sql_database_instance.instance.public_ip_address
+        port     = 1433
+        username = google_sql_user.user.name
+        password = google_sql_user.user.password
+        database = google_sql_database.db.name
+    }
+}
+
+resource "google_datastream_connection_profile" "destination" {
+    display_name          = "BigQuery Destination"
+    location              = "us-central1"
+    connection_profile_id = "<%= ctx[:vars]['destination_connection_profile_id'] %>"
+
+    bigquery_profile {}
+}
+
+resource "google_datastream_stream" "default" {
+    display_name = "MySQL to BigQuery"
+    location     = "us-central1"
+    stream_id    = "<%= ctx[:vars]['stream_id'] %>"
+
+    source_config {
+        source_connection_profile = google_datastream_connection_profile.source.id
+        mysql_source_config {
+            include_objects {
+                schemas {
+                    schema = "schema"
+                    tables {
+                        table = "table"
+                    }
+                }
+            }
+            gtid {}
+        }
+    }
+
+    destination_config {
+        destination_connection_profile = google_datastream_connection_profile.destination.id
+        bigquery_destination_config {
+            data_freshness = "900s"
+            source_hierarchy_datasets {
+                dataset_template {
+                    location = "us-central1"
+                }
+            }
+        }
+    }
+
+    backfill_none {}
+}
+```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=datastream_stream_postgresql_bigquery_dataset_id&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -1061,6 +1169,14 @@ The following arguments are supported:
   (Optional)
   Maximum number of concurrent backfill tasks. The number should be non negative.
   If not set (or set to 0), the system's default value will be used.
+
+* `binary_log_position` -
+  (Optional)
+  CDC reader reads from binary logs replication cdc method.
+
+* `gtid` -
+  (Optional)
+  CDC reader reads from gtid based replication.
 
 
 <a name="nested_include_objects"></a>The `include_objects` block supports:
