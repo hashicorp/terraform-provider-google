@@ -372,7 +372,7 @@ resource "google_bigquery_table" "dest" {
 EOF
 
   encryption_configuration {
-    kms_key_name = google_kms_crypto_key.crypto_key.id
+    kms_key_name = "example-key"
   }
 
   depends_on = ["google_kms_crypto_key_iam_member.encrypt_role"]
@@ -385,22 +385,12 @@ resource "google_bigquery_dataset" "dest" {
   location      = "US"
 }
 
-resource "google_kms_crypto_key" "crypto_key" {
-  name     = "example-key"
-  key_ring = google_kms_key_ring.key_ring.id
-}
-
-resource "google_kms_key_ring" "key_ring" {
-  name     = "example-keyring"
-  location = "global"
-}
-
 data "google_project" "project" {
   project_id = "my-project-name"
 }
 
 resource "google_kms_crypto_key_iam_member" "encrypt_role" {
-  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  crypto_key_id = "example-key"
   role = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member = "serviceAccount:bq-${data.google_project.project.number}@bigquery-encryption.iam.gserviceaccount.com"
 }
@@ -428,7 +418,7 @@ resource "google_bigquery_job" "job" {
     }
 
     destination_encryption_configuration {
-      kms_key_name = google_kms_crypto_key.crypto_key.id
+      kms_key_name = "example-key"
     }
   }
 

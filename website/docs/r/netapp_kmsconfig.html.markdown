@@ -39,21 +39,10 @@ To get more information about kmsconfig, see:
 
 
 ```hcl
-resource "google_kms_key_ring" "keyring" {
-  name     = "key-ring"
-  location = "us-central1"
-}
-
-resource "google_kms_crypto_key" "crypto_key" {
-  name            = "crypto-name"
-  key_ring        = google_kms_key_ring.keyring.id
-  # rotation_period = "7776000s"
-}
-
 resource "google_netapp_kmsconfig" "kmsConfig" {
   name = "kms-test"
   description="this is a test description"
-  crypto_key_name=google_kms_crypto_key.crypto_key.id
+  crypto_key_name="crypto-name"
   location="us-central1"
 }
 ```

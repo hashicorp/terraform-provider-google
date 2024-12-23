@@ -1586,8 +1586,9 @@ func TestAccSqlDatabaseInstance_encryptionKey_replicaInDifferentRegion(t *testin
 
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"key_name":      "tf-test-key-" + acctest.RandString(t, 10),
 		"instance_name": "tf-test-sql-" + acctest.RandString(t, 10),
+		"kms_key_name1": acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-sql-database-instance-key1").CryptoKey.Name,
+		"kms_key_name2": acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-bootstrap-sql-database-instance-key2").CryptoKey.Name,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -4440,19 +4441,8 @@ data "google_project" "project" {
   project_id = "%{project_id}"
 }
 
-resource "google_kms_key_ring" "keyring" {
-  name     = "%{key_name}"
-  location = "us-central1"
-}
-
-resource "google_kms_crypto_key" "key" {
-
-  name     = "%{key_name}"
-  key_ring = google_kms_key_ring.keyring.id
-}
-
 resource "google_kms_crypto_key_iam_member" "crypto_key" {
-  crypto_key_id = google_kms_crypto_key.key.id
+  crypto_key_id = "%{kms_key_name1}"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloud-sql.iam.gserviceaccount.com"
@@ -4463,7 +4453,7 @@ resource "google_sql_database_instance" "master" {
   database_version    = "MYSQL_5_7"
   region              = "us-central1"
   deletion_protection = false
-  encryption_key_name = google_kms_crypto_key.key.id
+  encryption_key_name = "%{kms_key_name1}"
 
   settings {
     tier = "db-n1-standard-1"
@@ -4478,20 +4468,8 @@ resource "google_sql_database_instance" "master" {
   depends_on = [google_kms_crypto_key_iam_member.crypto_key]
 }
 
-resource "google_kms_key_ring" "keyring-rep" {
-
-  name     = "%{key_name}-rep"
-  location = "us-east1"
-}
-
-resource "google_kms_crypto_key" "key-rep" {
-
-  name     = "%{key_name}-rep"
-  key_ring = google_kms_key_ring.keyring-rep.id
-}
-
 resource "google_kms_crypto_key_iam_member" "crypto_key_rep" {
-  crypto_key_id = google_kms_crypto_key.key-rep.id
+  crypto_key_id = "%{kms_key_name2}"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloud-sql.iam.gserviceaccount.com"
@@ -4502,7 +4480,7 @@ resource "google_sql_database_instance" "replica" {
   database_version     = "MYSQL_5_7"
   region               = "us-east1"
   master_instance_name = google_sql_database_instance.master.name
-  encryption_key_name = google_kms_crypto_key.key-rep.id
+  encryption_key_name = "%{kms_key_name2}"
   deletion_protection  = false
 
   settings {

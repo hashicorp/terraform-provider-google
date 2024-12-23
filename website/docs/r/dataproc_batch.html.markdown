@@ -83,7 +83,7 @@ resource "google_dataproc_batch" "example_batch_spark" {
       execution_config {
         ttl = "3600s"
         network_tags = ["tag1"]
-        kms_key = google_kms_crypto_key.crypto_key.id
+        kms_key = "example-key"
         network_uri = "default"
         service_account = "${data.google_project.project.number}-compute@developer.gserviceaccount.com"
         staging_bucket = google_storage_bucket.bucket.name
@@ -114,19 +114,8 @@ resource "google_storage_bucket" "bucket" {
   force_destroy               = true
 }
 
-resource "google_kms_crypto_key" "crypto_key" {
-  name     = "example-key"
-  key_ring = google_kms_key_ring.key_ring.id
-  purpose  = "ENCRYPT_DECRYPT"
-}
-
-resource "google_kms_key_ring" "key_ring" {
-  name     = "example-keyring"
-  location = "us-central1"
-}
-
 resource "google_kms_crypto_key_iam_member" "crypto_key_member_1" {
-  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  crypto_key_id = "example-key"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:service-${data.google_project.project.number}@dataproc-accounts.iam.gserviceaccount.com"
 }
