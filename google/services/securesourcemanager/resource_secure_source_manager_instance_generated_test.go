@@ -77,6 +77,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceCmekExample(t
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"kms_key_name":    acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-secure-source-manager-key1").CryptoKey.Name,
 		"prevent_destroy": false,
 		"random_suffix":   acctest.RandString(t, 10),
 	}
@@ -101,18 +102,8 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceCmekExample(t
 
 func testAccSecureSourceManagerInstance_secureSourceManagerInstanceCmekExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_kms_key_ring" "key_ring" {
-  name     = "tf-test-my-keyring%{random_suffix}"
-  location = "us-central1"
-}
-
-resource "google_kms_crypto_key" "crypto_key" {
-  name     = "tf-test-my-key%{random_suffix}"
-  key_ring = google_kms_key_ring.key_ring.id
-}
-
 resource "google_kms_crypto_key_iam_member" "crypto_key_binding" {
-  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  crypto_key_id = "%{kms_key_name}"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-sourcemanager.iam.gserviceaccount.com"
@@ -121,7 +112,7 @@ resource "google_kms_crypto_key_iam_member" "crypto_key_binding" {
 resource "google_secure_source_manager_instance" "default" {
     location = "us-central1"
     instance_id = "tf-test-my-instance%{random_suffix}"
-    kms_key = google_kms_crypto_key.crypto_key.id
+    kms_key = "%{kms_key_name}"
 
     depends_on = [
       google_kms_crypto_key_iam_member.crypto_key_binding
