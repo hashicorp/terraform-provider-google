@@ -103,8 +103,8 @@ func ResourceIntegrationConnectorsConnection() *schema.Resource {
 						"auth_type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"USER_PASSWORD", "OAUTH2_JWT_BEARER", "OAUTH2_CLIENT_CREDENTIALS", "SSH_PUBLIC_KEY", "OAUTH2_AUTH_CODE_FLOW"}),
-							Description:  `authType of the Connection Possible values: ["USER_PASSWORD", "OAUTH2_JWT_BEARER", "OAUTH2_CLIENT_CREDENTIALS", "SSH_PUBLIC_KEY", "OAUTH2_AUTH_CODE_FLOW"]`,
+							ValidateFunc: verify.ValidateEnum([]string{"AUTH_TYPE_UNSPECIFIED", "USER_PASSWORD", "OAUTH2_JWT_BEARER", "OAUTH2_CLIENT_CREDENTIALS", "SSH_PUBLIC_KEY", "OAUTH2_AUTH_CODE_FLOW"}),
+							Description:  `authType of the Connection Possible values: ["AUTH_TYPE_UNSPECIFIED", "USER_PASSWORD", "OAUTH2_JWT_BEARER", "OAUTH2_CLIENT_CREDENTIALS", "SSH_PUBLIC_KEY", "OAUTH2_AUTH_CODE_FLOW"]`,
 						},
 						"additional_variable": {
 							Type:        schema.TypeList,

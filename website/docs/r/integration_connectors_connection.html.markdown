@@ -430,7 +430,7 @@ The following arguments are supported:
 * `auth_type` -
   (Required)
   authType of the Connection
-  Possible values are: `USER_PASSWORD`, `OAUTH2_JWT_BEARER`, `OAUTH2_CLIENT_CREDENTIALS`, `SSH_PUBLIC_KEY`, `OAUTH2_AUTH_CODE_FLOW`.
+  Possible values are: `AUTH_TYPE_UNSPECIFIED`, `USER_PASSWORD`, `OAUTH2_JWT_BEARER`, `OAUTH2_CLIENT_CREDENTIALS`, `SSH_PUBLIC_KEY`, `OAUTH2_AUTH_CODE_FLOW`.
 
 * `additional_variable` -
   (Optional)
