@@ -1,0 +1,3 @@
+```release-note:bug
+integrationconnectors: allowed `AUTH_TYPE_UNSPECIFIED` option in `google_integration_connectors_connection` resource to support non-standard auth types
+```
