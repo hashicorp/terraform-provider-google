@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_monitoring_dashboard'
 generation_type: 'handwritten'
 api_service_name: 'monitoring.googleapis.com'
