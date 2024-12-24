@@ -224,6 +224,7 @@ The URL of the network to which all network endpoints in the NEG belong. Uses
 			},
 			"psc_data": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `This field is only used for PSC NEGs.`,
