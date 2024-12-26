@@ -78,6 +78,15 @@ func ResourceParallelstoreInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Part of 'parent'. See documentation of 'projectsId'.`,
 			},
+			"deployment_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Parallelstore Instance deployment type.
+  Possible values:
+  DEPLOYMENT_TYPE_UNSPECIFIED
+  SCRATCH
+  PERSISTENT`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -271,6 +280,12 @@ func resourceParallelstoreInstanceCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("directory_stripe_level"); !tpgresource.IsEmptyValue(reflect.ValueOf(directoryStripeLevelProp)) && (ok || !reflect.DeepEqual(v, directoryStripeLevelProp)) {
 		obj["directoryStripeLevel"] = directoryStripeLevelProp
 	}
+	deploymentTypeProp, err := expandParallelstoreInstanceDeploymentType(d.Get("deployment_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deployment_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(deploymentTypeProp)) && (ok || !reflect.DeepEqual(v, deploymentTypeProp)) {
+		obj["deploymentType"] = deploymentTypeProp
+	}
 	labelsProp, err := expandParallelstoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -432,6 +447,9 @@ func resourceParallelstoreInstanceRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("directory_stripe_level", flattenParallelstoreInstanceDirectoryStripeLevel(res["directoryStripeLevel"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("deployment_type", flattenParallelstoreInstanceDeploymentType(res["deploymentType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenParallelstoreInstanceTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -476,6 +494,12 @@ func resourceParallelstoreInstanceUpdate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("directory_stripe_level"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, directoryStripeLevelProp)) {
 		obj["directoryStripeLevel"] = directoryStripeLevelProp
 	}
+	deploymentTypeProp, err := expandParallelstoreInstanceDeploymentType(d.Get("deployment_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deployment_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deploymentTypeProp)) {
+		obj["deploymentType"] = deploymentTypeProp
+	}
 	labelsProp, err := expandParallelstoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -502,6 +526,10 @@ func resourceParallelstoreInstanceUpdate(d *schema.ResourceData, meta interface{
 
 	if d.HasChange("directory_stripe_level") {
 		updateMask = append(updateMask, "directoryStripeLevel")
+	}
+
+	if d.HasChange("deployment_type") {
+		updateMask = append(updateMask, "deploymentType")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -693,6 +721,10 @@ func flattenParallelstoreInstanceDirectoryStripeLevel(v interface{}, d *schema.R
 	return v
 }
 
+func flattenParallelstoreInstanceDeploymentType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenParallelstoreInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -733,6 +765,10 @@ func expandParallelstoreInstanceFileStripeLevel(v interface{}, d tpgresource.Ter
 }
 
 func expandParallelstoreInstanceDirectoryStripeLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandParallelstoreInstanceDeploymentType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
