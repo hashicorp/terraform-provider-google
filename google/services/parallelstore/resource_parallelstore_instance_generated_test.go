@@ -65,6 +65,7 @@ resource "google_parallelstore_instance" "instance" {
   network = google_compute_network.network.name
   file_stripe_level = "FILE_STRIPE_LEVEL_MIN"
   directory_stripe_level = "DIRECTORY_STRIPE_LEVEL_MIN"
+deployment_type = "SCRATCH"
   labels = {
     test = "value"
   }

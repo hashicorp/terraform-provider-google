@@ -72,6 +72,7 @@ resource "google_parallelstore_instance" "instance" {
   capacity_gib = 12000
   network = google_compute_network.network.name
   reserved_ip_range = google_compute_global_address.private_ip_alloc.name
+  deployment_type = "SCRATCH"
   file_stripe_level = "FILE_STRIPE_LEVEL_MIN"
   directory_stripe_level = "DIRECTORY_STRIPE_LEVEL_MIN"
   labels = {
