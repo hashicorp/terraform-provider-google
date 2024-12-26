@@ -1,0 +1,3 @@
+```release-note:bug
+compute: GetProjectFromRegionalSelfLink accepts projects with a colon in the name
+```
