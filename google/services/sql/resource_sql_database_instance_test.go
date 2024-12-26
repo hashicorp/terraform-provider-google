@@ -2266,7 +2266,7 @@ func TestAccSqlDatabaseInstance_activationPolicy(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
 			},
 			{
-				Config: testGoogleSqlDatabaseInstance_activationPolicy(instanceName, "MYSQL_8_0_26", "NEVER", true),
+				Config: testGoogleSqlDatabaseInstance_activationPolicy(instanceName, "MYSQL_8_0_37", "NEVER", true),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
@@ -2275,7 +2275,16 @@ func TestAccSqlDatabaseInstance_activationPolicy(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
 			},
 			{
-				Config: testGoogleSqlDatabaseInstance_activationPolicy(instanceName, "MYSQL_8_0_26", "ALWAYS", false),
+				Config: testGoogleSqlDatabaseInstance_activationPolicy(instanceName, "MYSQL_8_0_37", "ALWAYS", false),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_activationPolicy(instanceName, "MYSQL_8_4", "ALWAYS", false),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
