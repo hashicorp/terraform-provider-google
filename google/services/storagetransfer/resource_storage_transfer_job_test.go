@@ -80,6 +80,63 @@ func TestAccStorageTransferJob_basic(t *testing.T) {
 	})
 }
 
+func TestAccStorageTransferReplicationJob_basic(t *testing.T) {
+	t.Parallel()
+
+	testDataSourceBucketName := acctest.RandString(t, 10)
+	testDataSinkName := acctest.RandString(t, 10)
+	testTransferReplicationJobDescription := acctest.RandString(t, 10)
+	testUpdatedTransferReplicationJobDescription := acctest.RandString(t, 10)
+	testOverwriteWhen := []string{"ALWAYS", "NEVER", "DIFFERENT"}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageTransferReplicationJob_basic(envvar.GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testTransferReplicationJobDescription),
+			},
+			{
+				ResourceName:      "google_storage_transfer_job.transfer_job",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccStorageTransferReplicationJob_basic(envvar.GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testUpdatedTransferReplicationJobDescription),
+			},
+			{
+				ResourceName:      "google_storage_transfer_job.transfer_job",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccStorageTransferReplicationJob_with_transferOptions(envvar.GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testUpdatedTransferReplicationJobDescription, true, false, testOverwriteWhen[0]),
+			},
+			{
+				ResourceName:      "google_storage_transfer_job.transfer_job",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccStorageTransferReplicationJob_with_transferOptions(envvar.GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testUpdatedTransferReplicationJobDescription, false, false, testOverwriteWhen[1]),
+			},
+			{
+				ResourceName:      "google_storage_transfer_job.transfer_job",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccStorageTransferReplicationJob_with_transferOptions(envvar.GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testUpdatedTransferReplicationJobDescription, false, false, testOverwriteWhen[2]),
+			},
+			{
+				ResourceName:      "google_storage_transfer_job.transfer_job",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		}})
+}
+
 func TestAccStorageTransferJob_transferJobName(t *testing.T) {
 	t.Parallel()
 
@@ -1626,4 +1683,178 @@ resource "google_storage_transfer_job" "transfer_job" {
   ]
 }
 `, project, dataSourceBucketName, project, dataSinkBucketName, project, pubsubTopicName, transferJobDescription, project)
+}
+
+func testAccStorageTransferReplicationJob_basic(project string, dataSourceBucketName string, dataSinkBucketName string, transferJobDescription string) string {
+	return fmt.Sprintf(`
+data "google_storage_transfer_project_service_account" "default" {
+  project = "%s"
+}
+
+data "google_project" "my_project" {
+  project_id = "%s"
+}
+
+resource "google_project_iam_binding" "pubsub_publisher" {
+  project = "%s"
+  role    = "roles/pubsub.publisher"
+  members = [
+    "serviceAccount:service-${data.google_project.my_project.number}@gs-project-accounts.iam.gserviceaccount.com",
+  ]
+}
+
+resource "google_project_iam_binding" "service_agent_binding" {
+  project = "%s"
+  role    = "roles/storagetransfer.serviceAgent"
+  members = [
+    "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}",
+  ]
+}
+
+resource "google_storage_bucket" "data_source" {
+  name          = "%s"
+  project       = "%s"
+  location      = "US"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_iam_member" "data_source" {
+  bucket = google_storage_bucket.data_source.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
+}
+
+resource "google_storage_bucket" "data_sink" {
+  name          = "%s"
+  project       = "%s"
+  location      = "US"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_iam_member" "data_sink" {
+  bucket = google_storage_bucket.data_sink.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
+}
+
+resource "google_storage_transfer_job" "transfer_job" {
+  description = "%s"
+  project     = "%s"
+
+  replication_spec {
+    gcs_data_source {
+      bucket_name = google_storage_bucket.data_source.name
+      path  = "foo/bar/"
+    }
+    gcs_data_sink {
+      bucket_name = google_storage_bucket.data_sink.name
+      path  = "foo/bar/"
+    }
+  }
+
+  depends_on = [
+    google_storage_bucket_iam_member.data_source,
+    google_storage_bucket_iam_member.data_sink,
+    google_project_iam_binding.pubsub_publisher
+  ]
+}
+`, project, project, project, project, dataSourceBucketName, project, dataSinkBucketName, project, transferJobDescription, project)
+}
+
+func testAccStorageTransferReplicationJob_with_transferOptions(project string, dataSourceBucketName string, dataSinkBucketName string, transferJobDescription string, overwriteObjectsAlreadyExistingInSink bool, deleteObjectsUniqueInSink bool, overwriteWhenVal string) string {
+	return fmt.Sprintf(`
+data "google_storage_transfer_project_service_account" "default" {
+  project = "%s"
+}
+
+data "google_project" "my_project" {
+  project_id = "%s"
+}
+
+resource "google_project_iam_binding" "pubsub_publisher" {
+  project = "%s"
+  role    = "roles/pubsub.publisher"
+  members = [
+    "serviceAccount:service-${data.google_project.my_project.number}@gs-project-accounts.iam.gserviceaccount.com",
+  ]
+}
+
+resource "google_project_iam_binding" "service_agent_binding" {
+  project = "%s"
+  role    = "roles/storagetransfer.serviceAgent"
+  members = [
+    "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}",
+  ]
+}
+
+resource "google_storage_bucket" "data_source" {
+  name          = "%s"
+  project       = "%s"
+  location      = "US"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_iam_member" "data_source" {
+  bucket = google_storage_bucket.data_source.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
+}
+
+resource "google_storage_bucket" "data_sink" {
+  name          = "%s"
+  project       = "%s"
+  location      = "US"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_iam_member" "data_sink" {
+  bucket = google_storage_bucket.data_sink.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
+}
+
+resource "google_storage_transfer_job" "transfer_job" {
+  description = "%s"
+  project     = "%s"
+
+  replication_spec {
+    gcs_data_source {
+      bucket_name = google_storage_bucket.data_source.name
+      path  = "foo/bar/"
+    }
+    gcs_data_sink {
+      bucket_name = google_storage_bucket.data_sink.name
+      path  = "foo/bar/"
+    }
+    transfer_options {
+      overwrite_objects_already_existing_in_sink = %t
+      delete_objects_unique_in_sink = %t
+      overwrite_when = "%s"
+      delete_objects_from_source_after_transfer = false
+    }
+    object_conditions {
+      last_modified_since = "2020-01-01T00:00:00Z"
+      last_modified_before = "2020-01-01T00:00:00Z"
+      exclude_prefixes = [
+        "a/b/c", 
+      ]
+      include_prefixes = [
+        "a/b"
+      ]
+      max_time_elapsed_since_last_modification="300s"
+      min_time_elapsed_since_last_modification="3s"
+    }
+  }
+
+  depends_on = [
+    google_storage_bucket_iam_member.data_source,
+    google_storage_bucket_iam_member.data_sink,
+    google_project_iam_binding.pubsub_publisher
+  ]
+}
+`, project, project, project, project, dataSourceBucketName, project, dataSinkBucketName, project, transferJobDescription, project, overwriteObjectsAlreadyExistingInSink, deleteObjectsUniqueInSink, overwriteWhenVal)
 }

@@ -116,7 +116,9 @@ The following arguments are supported:
 
 * `description` - (Required) Unique description to identify the Transfer Job.
 
-* `transfer_spec` - (Required) Transfer specification. Structure [documented below](#nested_transfer_spec).
+* `transfer_spec` - (Optional) Transfer specification. Structure [documented below](#nested_transfer_spec). One of `transfer_spec`, or `replication_spec` can be specified.
+
+* `replication_spec` - (Optional) Replication specification. Structure [documented below](#nested_replication_spec). User should not configure `schedule`, `event_stream` with this argument. One of `transfer_spec`, or `replication_spec` must be specified.
 
 - - -
 
@@ -156,6 +158,16 @@ The following arguments are supported:
 * `azure_blob_storage_data_source` - (Optional) An Azure Blob Storage data source. Structure [documented below](#nested_azure_blob_storage_data_source).
 
 * `hdfs_data_source` - (Optional) An HDFS data source. Structure [documented below](#nested_hdfs_data_source).
+
+<a name="nested_replication_spec"></a>The `replication_spec` block supports:
+
+* `gcs_data_sink` - (Optional) A Google Cloud Storage data sink. Structure [documented below](#nested_gcs_data_sink).
+
+* `gcs_data_source` - (Optional) A Google Cloud Storage data source. Structure [documented below](#nested_gcs_data_source).
+
+* `object_conditions` - (Optional) Only objects that satisfy these object conditions are included in the set of data source and data sink objects. Object conditions based on objects' `last_modification_time` do not exclude objects in a data sink. Structure [documented below](#nested_object_conditions).
+
+* `transfer_options` - (Optional) Characteristics of how to treat files from datasource and sink during job. If the option `delete_objects_unique_in_sink` is true, object conditions based on objects' `last_modification_time` are ignored and do not exclude objects in a data source or a data sink. Structure [documented below](#nested_transfer_options).
 
 <a name="nested_schedule"></a>The `schedule` block supports:
 

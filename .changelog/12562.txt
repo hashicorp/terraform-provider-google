@@ -1,0 +1,3 @@
+```release-note:enhancement
+storagetransfer: add support for `replication_spec` fields to `google_storage_transfer_job` resource
+```
