@@ -95,11 +95,23 @@ func DurationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 // has the project number instead of the project name
 func ProjectNumberDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	var a2, b2 string
-	reN := regexp.MustCompile("projects/\\d+")
-	re := regexp.MustCompile("projects/[^/]+")
+	re := regexp.MustCompile("projects/\\d+")
+	reN := regexp.MustCompile("projects/[^/]+")
 	replacement := []byte("projects/equal")
-	a2 = string(reN.ReplaceAll([]byte(old), replacement))
-	b2 = string(re.ReplaceAll([]byte(new), replacement))
+	a2 = string(re.ReplaceAll([]byte(old), replacement))
+	b2 = string(reN.ReplaceAll([]byte(new), replacement))
+	return a2 == b2
+}
+
+// Suppress diffs when the value read from api
+// has the project ID instead of the project number
+func ProjectIDDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	var a2, b2 string
+	re := regexp.MustCompile("projects/[^/]+")
+	reN := regexp.MustCompile("projects/\\d+")
+	replacement := []byte("projects/equal")
+	a2 = string(re.ReplaceAll([]byte(old), replacement))
+	b2 = string(reN.ReplaceAll([]byte(new), replacement))
 	return a2 == b2
 }
 

@@ -19,6 +19,24 @@ func CompareResourceNames(_, old, new string, _ *schema.ResourceData) bool {
 }
 
 // Compare only the relative path of two self links.
+func CompareSelfLinkRelativePathsIgnoreProjectId(unused1, old, new string, unused2 *schema.ResourceData) bool {
+	oldStripped, err := GetRelativePath(old)
+	if err != nil {
+		return false
+	}
+
+	newStripped, err := GetRelativePath(new)
+	if err != nil {
+		return false
+	}
+
+	if oldStripped == newStripped {
+		return true
+	}
+	return ProjectIDDiffSuppress(unused1, oldStripped, newStripped, unused2)
+}
+
+// Compare only the relative path of two self links.
 func CompareSelfLinkRelativePaths(_, old, new string, _ *schema.ResourceData) bool {
 	oldStripped, err := GetRelativePath(old)
 	if err != nil {
@@ -33,7 +51,6 @@ func CompareSelfLinkRelativePaths(_, old, new string, _ *schema.ResourceData) bo
 	if oldStripped == newStripped {
 		return true
 	}
-
 	return false
 }
 

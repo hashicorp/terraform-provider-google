@@ -497,7 +497,7 @@ mode or when creating external forwarding rule with IPv6.`,
 			"target": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePathsIgnoreProjectId,
 				Description: `The URL of the target resource to receive the matched traffic.  For
 regional forwarding rules, this target must be in the same region as the
 forwarding rule. For global forwarding rules, this target must be a global

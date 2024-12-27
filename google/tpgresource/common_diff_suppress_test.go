@@ -69,6 +69,53 @@ func TestDurationDiffSuppress(t *testing.T) {
 	}
 }
 
+func TestProjectNumberDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"different project identifiers": {
+			Old:                "projects/1234/locations/abc/serviceAttachments/xyz",
+			New:                "projects/ten-tp/locations/abc/serviceAttachments/xyz",
+			ExpectDiffSuppress: true,
+		},
+		"different resources": {
+			Old:                "projects/1234/locations/abc/serviceAttachments/jkl",
+			New:                "projects/ten-tp/locations/abc/serviceAttachments/xyz",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if ProjectNumberDiffSuppress("diffSuppress", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
+
+func TestProjectIDDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"different project identifiers": {
+			Old:                "projects/ten-tp/locations/abc/serviceAttachments/xyz",
+			New:                "projects/1234/locations/abc/serviceAttachments/xyz",
+			ExpectDiffSuppress: true,
+		},
+		"different resources": {
+			Old:                "projects/ten-tp/locations/abc/serviceAttachments/xyz",
+			New:                "projects/1234/locations/abc/serviceAttachments/jkl",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if ProjectIDDiffSuppress("diffSuppress", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
 func TestEmptyOrUnsetBlockDiffSuppress(t *testing.T) {
 	cases := map[string]struct {
 		Key, Old, New      string
