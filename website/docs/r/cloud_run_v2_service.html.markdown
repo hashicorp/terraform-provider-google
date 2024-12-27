@@ -692,11 +692,12 @@ The following arguments are supported:
 
 * `min_instance_count` -
   (Optional)
-  Minimum number of serving instances that this resource should have.
+  Minimum number of serving instances that this resource should have. Defaults to 0. Must not be greater than maximum instance count.
 
 * `max_instance_count` -
   (Optional)
-  Maximum number of serving instances that this resource should have.
+  Maximum number of serving instances that this resource should have. Must not be less than minimum instance count. If absent, Cloud Run will calculate
+  a default value based on the project's available container instances quota in the region and specified instance size.
 
 <a name="nested_vpc_access"></a>The `vpc_access` block supports:
 

@@ -493,14 +493,15 @@ If not specified or 0, defaults to 80 when requested CPU >= 1 and defaults to 1 
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"max_instance_count": {
-										Type:        schema.TypeInt,
-										Optional:    true,
-										Description: `Maximum number of serving instances that this resource should have.`,
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `Maximum number of serving instances that this resource should have. Must not be less than minimum instance count. If absent, Cloud Run will calculate
+a default value based on the project's available container instances quota in the region and specified instance size.`,
 									},
 									"min_instance_count": {
 										Type:        schema.TypeInt,
 										Optional:    true,
-										Description: `Minimum number of serving instances that this resource should have.`,
+										Description: `Minimum number of serving instances that this resource should have. Defaults to 0. Must not be greater than maximum instance count.`,
 									},
 								},
 							},
