@@ -1,0 +1,3 @@
+```release-note:bug
+compute: Allowed Service attachment with Project Number to be used as ForwardingRule.Target 
+```
