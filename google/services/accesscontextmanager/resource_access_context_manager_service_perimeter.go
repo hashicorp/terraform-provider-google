@@ -76,6 +76,48 @@ func AccessContextManagerServicePerimeterIngressToResourcesDiffSuppressFunc(_, _
 	return slices.Equal(oldResources, newResources)
 }
 
+func AccessContextManagerServicePerimeterEgressFromIdentitiesDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
+	old, new := d.GetChange("egress_from.0.identities")
+
+	oldResources, err := tpgresource.InterfaceSliceToStringSlice(old)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert egress from identities config value: %s", err)
+		return false
+	}
+
+	newResources, err := tpgresource.InterfaceSliceToStringSlice(new)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert egress from identities api value: %s", err)
+		return false
+	}
+
+	sort.Strings(oldResources)
+	sort.Strings(newResources)
+
+	return slices.Equal(oldResources, newResources)
+}
+
+func AccessContextManagerServicePerimeterIngressFromIdentitiesDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
+	old, new := d.GetChange("ingress_from.0.identities")
+
+	oldResources, err := tpgresource.InterfaceSliceToStringSlice(old)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert ingress from identities config value: %s", err)
+		return false
+	}
+
+	newResources, err := tpgresource.InterfaceSliceToStringSlice(new)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert ingress from identities api value: %s", err)
+		return false
+	}
+
+	sort.Strings(oldResources)
+	sort.Strings(newResources)
+
+	return slices.Equal(oldResources, newResources)
+}
+
 func AccessContextManagerServicePerimeterIdentityTypeDiffSuppressFunc(_, old, new string, _ *schema.ResourceData) bool {
 	if old == "" && new == "IDENTITY_TYPE_UNSPECIFIED" {
 		return true

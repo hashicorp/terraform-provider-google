@@ -75,6 +75,48 @@ func AccessContextManagerServicePerimeterDryRunEgressPolicyIngressToResourcesDif
 	return slices.Equal(oldResources, newResources)
 }
 
+func AccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromIdentitiesDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
+	old, new := d.GetChange("egress_from.0.identities")
+
+	oldResources, err := tpgresource.InterfaceSliceToStringSlice(old)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert egress from identities config value: %s", err)
+		return false
+	}
+
+	newResources, err := tpgresource.InterfaceSliceToStringSlice(new)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert egress from identities api value: %s", err)
+		return false
+	}
+
+	sort.Strings(oldResources)
+	sort.Strings(newResources)
+
+	return slices.Equal(oldResources, newResources)
+}
+
+func AccessContextManagerServicePerimeterDryRunEgressPolicyIngressFromIdentitiesDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
+	old, new := d.GetChange("ingress_from.0.identities")
+
+	oldResources, err := tpgresource.InterfaceSliceToStringSlice(old)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert ingress from identities config value: %s", err)
+		return false
+	}
+
+	newResources, err := tpgresource.InterfaceSliceToStringSlice(new)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert ingress from identities api value: %s", err)
+		return false
+	}
+
+	sort.Strings(oldResources)
+	sort.Strings(newResources)
+
+	return slices.Equal(oldResources, newResources)
+}
+
 func AccessContextManagerServicePerimeterDryRunEgressPolicyIdentityTypeDiffSuppressFunc(_, old, new string, _ *schema.ResourceData) bool {
 	if old == "" && new == "IDENTITY_TYPE_UNSPECIFIED" {
 		return true
@@ -111,9 +153,10 @@ func ResourceAccessContextManagerServicePerimeterDryRunEgressPolicy() *schema.Re
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"identities": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeList,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: AccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromIdentitiesDiffSuppressFunc,
 							Description: `Identities can be an individual user, service account, Google group,
 or third-party identity. For third-party identity, only single identities
 are supported and other identity types are not supported.The v1 identities
@@ -508,7 +551,30 @@ func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFr
 }
 
 func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromIdentities(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	rawConfigValue := d.Get("egress_from.0.identities")
+	// Convert config value to []string
+	configValue, err := tpgresource.InterfaceSliceToStringSlice(rawConfigValue)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert egress from identities config value: %s", err)
+		return v
+	}
+	sortedConfigValue := append([]string{}, configValue...)
+	sort.Strings(sortedConfigValue)
+
+	// Convert v to []string
+	apiValue, err := tpgresource.InterfaceSliceToStringSlice(v)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert egress from identities API value: %s", err)
+		return v
+	}
+	sortedApiValue := append([]string{}, apiValue...)
+	sort.Strings(sortedApiValue)
+
+	if slices.Equal(sortedApiValue, sortedConfigValue) {
+		return configValue
+	}
+
+	return apiValue
 }
 
 func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

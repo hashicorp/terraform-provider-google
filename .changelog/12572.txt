@@ -1,0 +1,12 @@
+```release-note:bug
+accesscontextmanager: fixed permadiff due to reordering on `google_access_context_manager_service_perimeter_dry_run_egress_policy` `egress_from.identities`
+```
+```release-note:bug
+accesscontextmanager: fixed permadiff due to reordering on `google_access_context_manager_service_perimeter_dry_run_ingress_policy` `ingress_from.identities`
+```
+```release-note:bug
+accesscontextmanager: fixed permadiff due to reordering on `google_access_context_manager_service_perimeter_egress_policy` `egress_from.identities`
+```
+```release-note:bug
+accesscontextmanager: fixed permadiff due to reordering on `google_access_context_manager_service_perimeter_ingress_policy` `ingress_from.identities`
+```
