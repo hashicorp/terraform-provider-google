@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed DROP COLUMN error with bigquery flexible column names in `google_bigquery_table`
+```
