@@ -415,9 +415,9 @@ func testAccBigLakeManagedTable(bucketName, connectionID, datasetID, tableID, sc
 			  file_format = "PARQUET"
 			  table_format = "ICEBERG"
 			}
-		
+
 			schema = jsonencode(%s)
-		
+
 			depends_on = [
 			  google_project_iam_member.test
 			]
@@ -2162,6 +2162,14 @@ resource "google_bigquery_table" "test" {
   {
     "name": "some_int",
     "type": "INTEGER"
+  },
+  {
+    "name": "reserved_word_for",
+    "type": "STRING"
+  },
+  {
+    "name": "flexible-column-name-dash",
+    "type": "STRING"
   }
 ]
 EOH
@@ -3070,7 +3078,7 @@ resource "google_bigquery_table" "test" {
   # Depends on Iceberg Table Files
   depends_on = [
 	google_storage_bucket_object.empty_data_folder,
-	google_storage_bucket_object.metadata, 
+	google_storage_bucket_object.metadata,
   ]
 }
 `, datasetID, bucketName, tableID)
@@ -3098,7 +3106,7 @@ resource "google_storage_bucket_object" "datafile" {
 
 # Upload Metadata file
 resource "google_storage_bucket_object" "manifest" {
-	name = "%s" 
+	name = "%s"
 	content = "gs://${google_storage_bucket.test.name}/${google_storage_bucket_object.datafile.name}"
 	bucket = google_storage_bucket.test.name
 }

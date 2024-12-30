@@ -1982,7 +1982,11 @@ func resourceBigQueryTableColumnDrop(config *transport_tpg.Config, userAgent str
 	}
 
 	if len(droppedColumns) > 0 {
-		droppedColumnsString := strings.Join(droppedColumns, ", DROP COLUMN ")
+		backquotedDroppedColumns := []string{}
+		for _, column := range droppedColumns {
+			backquotedDroppedColumns = append(backquotedDroppedColumns, fmt.Sprintf("`%s`", column))
+		}
+		droppedColumnsString := strings.Join(backquotedDroppedColumns, ", DROP COLUMN ")
 
 		dropColumnsDDL := fmt.Sprintf("ALTER TABLE `%s.%s.%s` DROP COLUMN %s", tableReference.project, tableReference.datasetID, tableReference.tableID, droppedColumnsString)
 		log.Printf("[INFO] Dropping columns in-place: %s", dropColumnsDDL)
