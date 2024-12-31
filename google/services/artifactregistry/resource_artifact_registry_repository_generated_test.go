@@ -906,9 +906,10 @@ resource "google_artifact_registry_repository" "my-repo" {
   remote_repository_config {
     description = "pull-through cache of another Artifact Registry repository by URL"
     common_repository {
-      uri         = "https://us-central1-docker.pkg.dev//tf-test-example-upstream-repo%{random_suffix}"
+      uri         = "https://us-central1-docker.pkg.dev/${data.google_project.project.project_id}/tf-test-example-upstream-repo%{random_suffix}"
     }
   }
+  depends_on = [google_artifact_registry_repository.upstream_repo]
 }
 `, context)
 }
