@@ -28,6 +28,14 @@ type KmsKeyHandleId struct {
 	Name     string
 }
 
+type KmsAutokeyConfigId struct {
+	Folder string
+}
+
+func (s *KmsAutokeyConfigId) AutokeyConfigId() string {
+	return fmt.Sprintf("%s/autokeyConfig", s.Folder)
+}
+
 func (s *KmsKeyHandleId) KeyHandleId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/keyHandles/%s", s.Project, s.Location, s.Name)
 }
