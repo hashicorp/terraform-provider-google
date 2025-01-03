@@ -102,8 +102,8 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_service_account" "test" {
-	account_id   = "%s"
-	display_name = "KMS Ops Account"
+  account_id   = "%s"
+  display_name = "KMS Ops Account"
 }
 
 resource "google_kms_crypto_key_iam_member" "example-key" {
@@ -119,9 +119,10 @@ resource "google_compute_disk" "foobar" {
   zone = "us-central1-a"
 
   disk_encryption_key {
-	kms_key_self_link = "%s"
-	kms_key_service_account = google_service_account.test.email
+    kms_key_self_link = "%s"
+    kms_key_service_account = google_service_account.test.email
   }
+  depends_on = [google_kms_crypto_key_iam_member.example-key]
 }
 
 resource "google_compute_snapshot" "foobar" {
@@ -129,9 +130,9 @@ resource "google_compute_snapshot" "foobar" {
   source_disk = google_compute_disk.foobar.name
   zone        = "us-central1-a"
   snapshot_encryption_key {
-	kms_key_self_link = "%s"
-	kms_key_service_account = google_service_account.test.email
+    kms_key_self_link = "%s"
+    kms_key_service_account = google_service_account.test.email
   }
 }
-`, diskName, kmsKeyName, kmsKeyName, diskName, snapshotName, kmsKeyName)
+`, diskName, kmsKeyName, diskName, kmsKeyName, snapshotName, kmsKeyName)
 }
