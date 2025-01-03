@@ -1,0 +1,3 @@
+```release-note: note
+chronicle: added support for optional `watchlist_id` in `google_chronicle_watchlist` resource.
+```
