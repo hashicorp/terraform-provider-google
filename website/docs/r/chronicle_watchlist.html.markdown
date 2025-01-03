@@ -38,7 +38,28 @@ resource "google_chronicle_watchlist" "example" {
   provider = "google-beta"
   location = "us"
   instance = "00000000-0000-0000-0000-000000000000"
-  watchlist_id = "watchlist-name"
+  watchlist_id = "watchlist-id"
+  description = "watchlist-description"
+  display_name = "watchlist_name"
+  multiplying_factor = 1
+  entity_population_mechanism {
+    manual {
+
+    }
+  }
+  watchlist_user_preferences {
+    pinned = true
+  }
+}
+```
+## Example Usage - Chronicle Watchlist Without Id
+
+
+```hcl
+resource "google_chronicle_watchlist" "example" {
+  provider = "google-beta"
+  location = "us"
+  instance = "00000000-0000-0000-0000-000000000000"
   description = "watchlist-description"
   display_name = "watchlist-name"
   multiplying_factor = 1
@@ -77,13 +98,6 @@ The following arguments are supported:
   (Required)
   The unique identifier for the Chronicle instance, which is the same as the customer ID.
 
-* `watchlist_id` -
-  (Required)
-  Optional. The ID to use for the watchlist,
-  which will become the final component of the watchlist's resource name.
-  This value should be 4-63 characters, and valid characters
-  are /a-z-/.
-
 
 <a name="nested_entity_population_mechanism"></a>The `entity_population_mechanism` block supports:
 
@@ -108,6 +122,13 @@ The following arguments are supported:
   (Optional)
   A collection of user preferences for watchlist UI configuration.
   Structure is [documented below](#nested_watchlist_user_preferences).
+
+* `watchlist_id` -
+  (Optional)
+  Optional. The ID to use for the watchlist,
+  which will become the final component of the watchlist's resource name.
+  This value should be 4-63 characters, and valid characters
+  are /a-z-/.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
