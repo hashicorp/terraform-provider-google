@@ -56,8 +56,7 @@ BUG FIXES:
 * compute: fixed perma-destroy for `psc_data` in `google_compute_region_network_endpoint_group` resource ([#20783](https://github.com/hashicorp/terraform-provider-google/pull/20783))
 * integrationconnectors: allowed `AUTH_TYPE_UNSPECIFIED` option in `google_integration_connectors_connection` resource to support non-standard auth types ([#20782](https://github.com/hashicorp/terraform-provider-google/pull/20782))
 * networkconnectivity: made `includeExportRanges`, `excludeExportRanges` mutable in `google_network_connectivity_spoke` to avoid recreation of resources (b/383149651) ([#20742](https://github.com/hashicorp/terraform-provider-google/pull/20742))
-* storage: mafe `resource_google_storage_bucket_object` generate diff for `md5hash`, `generation`, `crc32c` if content changes ([#20687](https://github.com/hashicorp/terraform-provider-google/pull/20687))
-* storage: fix a failing testcase, create and update the bucket in same region ([#20771](https://github.com/hashicorp/terraform-provider-google/pull/20771))
+* storage: made `resource_google_storage_bucket_object` generate diff for `md5hash`, `generation`, `crc32c` if content changes ([#20687](https://github.com/hashicorp/terraform-provider-google/pull/20687))
 * vertexai: made `contents_delta_uri` a optional field in `google_vertex_ai_index` ([#20780](https://github.com/hashicorp/terraform-provider-google/pull/20780))
 * workbench: fixed an issue where a server-added `metadata` tag of `"resource-url"` would not be ignored ([#20717](https://github.com/hashicorp/terraform-provider-google/pull/20717))
 
