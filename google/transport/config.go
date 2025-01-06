@@ -240,6 +240,7 @@ type Config struct {
 	DataprocMetastoreBasePath        string
 	DatastreamBasePath               string
 	DeploymentManagerBasePath        string
+	DeveloperConnectBasePath         string
 	DialogflowBasePath               string
 	DialogflowCXBasePath             string
 	DiscoveryEngineBasePath          string
@@ -388,6 +389,7 @@ const DataprocGdcBasePathKey = "DataprocGdc"
 const DataprocMetastoreBasePathKey = "DataprocMetastore"
 const DatastreamBasePathKey = "Datastream"
 const DeploymentManagerBasePathKey = "DeploymentManager"
+const DeveloperConnectBasePathKey = "DeveloperConnect"
 const DialogflowBasePathKey = "Dialogflow"
 const DialogflowCXBasePathKey = "DialogflowCX"
 const DiscoveryEngineBasePathKey = "DiscoveryEngine"
@@ -530,6 +532,7 @@ var DefaultBasePaths = map[string]string{
 	DataprocMetastoreBasePathKey:        "https://metastore.googleapis.com/v1/",
 	DatastreamBasePathKey:               "https://datastream.googleapis.com/v1/",
 	DeploymentManagerBasePathKey:        "https://www.googleapis.com/deploymentmanager/v2/",
+	DeveloperConnectBasePathKey:         "https://developerconnect.googleapis.com/v1/",
 	DialogflowBasePathKey:               "https://dialogflow.googleapis.com/v2/",
 	DialogflowCXBasePathKey:             "https://{{location}}-dialogflow.googleapis.com/v3/",
 	DiscoveryEngineBasePathKey:          "https://{{location}}-discoveryengine.googleapis.com/v1/",
@@ -950,6 +953,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("deployment_manager_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_DEPLOYMENT_MANAGER_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[DeploymentManagerBasePathKey]))
+	}
+	if d.Get("developer_connect_custom_endpoint") == "" {
+		d.Set("developer_connect_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_DEVELOPER_CONNECT_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[DeveloperConnectBasePathKey]))
 	}
 	if d.Get("dialogflow_custom_endpoint") == "" {
 		d.Set("dialogflow_custom_endpoint", MultiEnvDefault([]string{
@@ -2295,6 +2303,7 @@ func ConfigureBasePaths(c *Config) {
 	c.DataprocMetastoreBasePath = DefaultBasePaths[DataprocMetastoreBasePathKey]
 	c.DatastreamBasePath = DefaultBasePaths[DatastreamBasePathKey]
 	c.DeploymentManagerBasePath = DefaultBasePaths[DeploymentManagerBasePathKey]
+	c.DeveloperConnectBasePath = DefaultBasePaths[DeveloperConnectBasePathKey]
 	c.DialogflowBasePath = DefaultBasePaths[DialogflowBasePathKey]
 	c.DialogflowCXBasePath = DefaultBasePaths[DialogflowCXBasePathKey]
 	c.DiscoveryEngineBasePath = DefaultBasePaths[DiscoveryEngineBasePathKey]

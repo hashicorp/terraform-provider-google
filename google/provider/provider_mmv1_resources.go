@@ -56,6 +56,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/dataprocmetastore"
 	"github.com/hashicorp/terraform-provider-google/google/services/datastream"
 	"github.com/hashicorp/terraform-provider-google/google/services/deploymentmanager"
+	"github.com/hashicorp/terraform-provider-google/google/services/developerconnect"
 	"github.com/hashicorp/terraform-provider-google/google/services/dialogflow"
 	"github.com/hashicorp/terraform-provider-google/google/services/dialogflowcx"
 	"github.com/hashicorp/terraform-provider-google/google/services/discoveryengine"
@@ -463,9 +464,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 501
+// Generated resources: 503
 // Generated IAM resources: 261
-// Total generated resources: 762
+// Total generated resources: 764
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -821,6 +822,8 @@ var generatedResources = map[string]*schema.Resource{
 	"google_datastream_private_connection":                                       datastream.ResourceDatastreamPrivateConnection(),
 	"google_datastream_stream":                                                   datastream.ResourceDatastreamStream(),
 	"google_deployment_manager_deployment":                                       deploymentmanager.ResourceDeploymentManagerDeployment(),
+	"google_developer_connect_connection":                                        developerconnect.ResourceDeveloperConnectConnection(),
+	"google_developer_connect_git_repository_link":                               developerconnect.ResourceDeveloperConnectGitRepositoryLink(),
 	"google_dialogflow_agent":                                                    dialogflow.ResourceDialogflowAgent(),
 	"google_dialogflow_entity_type":                                              dialogflow.ResourceDialogflowEntityType(),
 	"google_dialogflow_fulfillment":                                              dialogflow.ResourceDialogflowFulfillment(),

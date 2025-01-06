@@ -14,15 +14,13 @@
 # ----------------------------------------------------------------------------
 subcategory: "Developer Connect"
 description: |-
-  A connection to a GitHub App installation.
+  A connection for GitHub, GitHub Enterprise, GitLab, and GitLab Enterprise.
 ---
 
 # google_developer_connect_connection
 
-A connection to a GitHub App installation.
+A connection for GitHub, GitHub Enterprise, GitLab, and GitLab Enterprise.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Developer Connect Connection New
@@ -33,29 +31,22 @@ resource "google_developer_connect_connection" "my-connection" {
   provider = google-beta
   location = "us-central1"
   connection_id = "tf-test-connection-new"
-
   github_config {
     github_app = "FIREBASE"
   }
-
   depends_on = [google_project_iam_member.devconnect-secret]
 }
-
 output "next_steps" {
   description = "Follow the action_uri if present to continue setup"
   value = google_developer_connect_connection.my-connection.installation_state
 }
-
 # Setup permissions. Only needed once per project
 resource "google_project_service_identity" "devconnect-p4sa" {
   provider = google-beta
-
   service = "developerconnect.googleapis.com"
 }
-
 resource "google_project_iam_member" "devconnect-secret" {
   provider = google-beta
-
   project  = "my-project-name"
   role     = "roles/secretmanager.admin"
   member   = google_project_service_identity.devconnect-p4sa.member
@@ -71,7 +62,6 @@ resource "google_project_iam_member" "devconnect-secret" {
 
 ```hcl
 resource "google_developer_connect_connection" "my-connection" {
-  provider = google-beta
   location = "us-central1"
   connection_id = "tf-test-connection-cred"
 
@@ -95,7 +85,6 @@ output "next_steps" {
 ```hcl
 resource "google_secret_manager_secret" "github-token-secret" {
 
-  provider = google-beta
   secret_id = "github-token-secret"
 
   replication {
@@ -104,15 +93,11 @@ resource "google_secret_manager_secret" "github-token-secret" {
 }
 
 resource "google_secret_manager_secret_version" "github-token-secret-version" {
-
-  provider = google-beta
   secret = google_secret_manager_secret.github-token-secret.id
   secret_data = file("my-github-token.txt")
 }
 
 resource "google_project_service_identity" "devconnect-p4sa" {
-  provider = google-beta
-
   service = "developerconnect.googleapis.com"
 }
 
@@ -126,14 +111,12 @@ data "google_iam_policy" "p4sa-secretAccessor" {
 
 resource "google_secret_manager_secret_iam_policy" "policy" {
   
-  provider = google-beta
   secret_id = google_secret_manager_secret.github-token-secret.secret_id
   policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
 }
 
 resource "google_developer_connect_connection" "my-connection" {
 
-  provider = google-beta
   location = "us-central1"
   connection_id = "my-connection"
 
@@ -146,6 +129,391 @@ resource "google_developer_connect_connection" "my-connection" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_connection_github&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Developer Connect Connection Github
+
+
+```hcl
+resource "google_developer_connect_connection" "my-connection" {
+  location = "us-central1"
+  connection_id = "tf-test-connection"
+
+  github_config {
+    github_app = "DEVELOPER_CONNECT"
+
+    authorizer_credential {
+      oauth_token_secret_version = "projects/devconnect-terraform-creds/secrets/tf-test-do-not-change-github-oauthtoken-e0b9e7/versions/1"
+    }
+  }
+}
+```
+## Example Usage - Developer Connect Connection Github Doc
+
+
+```hcl
+resource "google_secret_manager_secret" "github-token-secret" {
+
+  secret_id = "github-token-secret"
+
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "github-token-secret-version" {
+
+  secret = google_secret_manager_secret.github-token-secret.id
+  secret_data = file("my-github-token.txt")
+}
+
+data "google_iam_policy" "p4sa-secretAccessor" {
+  binding {
+    role = "roles/secretmanager.secretAccessor"
+    // Here, 123456789 is the Google Cloud project number for the project that contains the connection.
+    members = ["serviceAccount:service-123456789@gcp-sa-devconnect.iam.gserviceaccount.com"]
+  }
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy" {
+  
+  secret_id = google_secret_manager_secret.github-token-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_developer_connect_connection" "my-connection" {
+
+  location = "us-central1"
+  connection_id = "my-connection"
+
+  github_config {
+    github_app = "DEVELOPER_CONNECT"
+    app_installation_id = 123123
+    authorizer_credential {
+      oauth_token_secret_version = google_secret_manager_secret_version.github-token-secret-version.id
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_connection_github_enterprise&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Developer Connect Connection Github Enterprise
+
+
+```hcl
+resource "google_developer_connect_connection" "my-connection" {
+  location = "us-central1"
+  connection_id = "tf-test-connection"
+
+  github_enterprise_config {
+    host_uri = "https://ghe.proctor-staging-test.com"
+    app_id = 864434
+    private_key_secret_version = "projects/devconnect-terraform-creds/secrets/tf-test-ghe-do-not-change-ghe-private-key-f522d2/versions/latest"
+    webhook_secret_secret_version = "projects/devconnect-terraform-creds/secrets/tf-test-ghe-do-not-change-ghe-webhook-secret-3c806f/versions/latest"
+    app_installation_id = 837537
+  }
+}
+```
+## Example Usage - Developer Connect Connection Github Enterprise Doc
+
+
+```hcl
+resource "google_secret_manager_secret" "private-key-secret" {
+  secret_id = "ghe-pk-secret"
+
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "private-key-secret-version" {
+  secret = google_secret_manager_secret.private-key-secret.id
+  secret_data = file("private-key.pem")
+}
+
+resource "google_secret_manager_secret" "webhook-secret-secret" {
+  secret_id = "ghe-token-secret"
+
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "webhook-secret-secret-version" {
+  secret = google_secret_manager_secret.webhook-secret-secret.id
+  secret_data = "<webhook-secret-data>"
+}
+
+data "google_iam_policy" "p4sa-secretAccessor" {
+  binding {
+    role = "roles/secretmanager.secretAccessor"
+    // Here, 123456789 is the Google Cloud project number for the project that contains the connection.
+    members = ["serviceAccount:service-123456789@gcp-sa-devconnect.iam.gserviceaccount.com"]
+  }
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-pk" {
+  secret_id = google_secret_manager_secret.private-key-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-whs" {
+  secret_id = google_secret_manager_secret.webhook-secret-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_developer_connect_connection" "my-connection" {
+  location = "us-central1"
+  connection_id = "my-connection"
+
+  github_enterprise_config {
+    host_uri = "https://ghe.com"
+    private_key_secret_version = google_secret_manager_secret_version.private-key-secret-version.id
+    webhook_secret_secret_version = google_secret_manager_secret_version.webhook-secret-secret-version.id
+    app_id = 100
+    app_installation_id = 123123
+  }
+
+  depends_on = [
+    google_secret_manager_secret_iam_policy.policy-pk,
+    google_secret_manager_secret_iam_policy.policy-whs
+  ]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_connection_gitlab&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Developer Connect Connection Gitlab
+
+
+```hcl
+resource "google_developer_connect_connection" "my-connection" {
+  location = "us-central1"
+  connection_id = "tf-test-connection"
+
+  gitlab_config {
+    webhook_secret_secret_version = "projects/devconnect-terraform-creds/secrets/gitlab-webhook/versions/latest"
+    
+    read_authorizer_credential {
+      user_token_secret_version = "projects/devconnect-terraform-creds/secrets/gitlab-read-cred/versions/latest"
+    }
+    
+    authorizer_credential {
+      user_token_secret_version = "projects/devconnect-terraform-creds/secrets/gitlab-auth-cred/versions/latest"
+    }
+  }
+}
+```
+## Example Usage - Developer Connect Connection Gitlab Doc
+
+
+```hcl
+resource "google_secret_manager_secret" "gitlab-read-cred-secret" {
+  secret_id = "gitlab-read-cred"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "gitlab-read-cred-secret-version" {
+  secret = google_secret_manager_secret.gitlab-read-cred-secret.id
+  secret_data = file("my-gitlab-read-cred.txt")
+}
+
+resource "google_secret_manager_secret" "gitlab-auth-cred-secret" {
+  secret_id = "gitlab-auth-cred"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "gitlab-auth-cred-secret-version" {
+  secret = google_secret_manager_secret.gitlab-auth-cred-secret.id
+  secret_data = file("my-gitlab-auth-cred.txt")
+}
+
+resource "google_secret_manager_secret" "gitlab-webhook-secret-secret" {
+  secret_id = "gitlab-webhook-secret"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "gitlab-webhook-secret-secret-version" {
+  secret = google_secret_manager_secret.gitlab-webhook-secret-secret.id
+  secret_data = file("my-gitlab-webhook-secret.txt")
+
+data "google_iam_policy" "p4sa-secretAccessor" {
+  binding {
+    role = "roles/secretmanager.secretAccessor"
+    // Here, 123456789 is the Google Cloud project number for the project that contains the connection.
+    members = ["serviceAccount:service-123456789@gcp-sa-devconnect.iam.gserviceaccount.com"]
+  }
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-rc" {
+  secret_id = google_secret_manager_secret.gitlab-read-cred-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-ac" {
+  secret_id = google_secret_manager_secret.gitlab-auth-cred-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-wh" {
+  secret_id = google_secret_manager_secret.gitlab-webhook-secret-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_developer_connect_connection" "my-connection" {
+
+  location = "us-central1"
+  connection_id = "my-connection"
+
+  gitlab_config {
+    webhook_secret_secret_version = google_secret_manager_secret_version.gitlab-webhook-secret-secret-version.id
+  
+    read_authorizer_credential {
+      user_token_secret_version = google_secret_manager_secret_version.gitlab-read-cred-secret-version.id
+    }
+
+    authorizer_credential {
+      user_token_secret_version = google_secret_manager_secret_version.gitlab-auth-cred-secret-version.id
+    }    
+  }
+ 
+  depends_on = [
+    google_secret_manager_secret_iam_policy.policy-rc,
+    google_secret_manager_secret_iam_policy.policy-ac,
+    google_secret_manager_secret_iam_policy.policy-wh
+  ]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_connection_gitlab_enterprise&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Developer Connect Connection Gitlab Enterprise
+
+
+```hcl
+resource "google_developer_connect_connection" "my-connection" {
+  location = "us-central1"
+  connection_id = "tf-test-connection"
+
+  gitlab_enterprise_config {
+    host_uri = "https://gle-us-central1.gcb-test.com"
+    
+    webhook_secret_secret_version = "projects/devconnect-terraform-creds/secrets/gitlab-enterprise-webhook/versions/latest"
+
+    read_authorizer_credential {
+      user_token_secret_version = "projects/devconnect-terraform-creds/secrets/gitlab-enterprise-read-cred/versions/latest"
+    }
+
+    authorizer_credential {
+      user_token_secret_version = "projects/devconnect-terraform-creds/secrets/gitlab-enterprise-auth-cred/versions/latest"
+    }
+  }
+}
+```
+## Example Usage - Developer Connect Connection Gitlab Enterprise Doc
+
+
+```hcl
+resource "google_secret_manager_secret" "gitlab-read-cred-secret" {
+  secret_id = "gitlab-read-cred"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "gitlab-read-cred-secret-version" {
+  secret = google_secret_manager_secret.gitlab-read-cred-secret.id
+  secret_data = file("my-gitlab-read-cred.txt")
+}
+
+resource "google_secret_manager_secret" "gitlab-auth-cred-secret" {
+  secret_id = "gitlab-auth-cred"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "gitlab-auth-cred-secret-version" {
+  secret = google_secret_manager_secret.gitlab-auth-cred-secret.id
+  secret_data = file("my-gitlab-auth-cred.txt")
+}
+
+resource "google_secret_manager_secret" "gitlab-webhook-secret-secret" {
+  secret_id = "gitlab-webhook-secret"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "gitlab-webhook-secret-secret-version" {
+  secret = google_secret_manager_secret.gitlab-webhook-secret-secret.id
+  secret_data = file("my-gitlab-webhook-secret.txt")
+
+data "google_iam_policy" "p4sa-secretAccessor" {
+  binding {
+    role = "roles/secretmanager.secretAccessor"
+    // Here, 123456789 is the Google Cloud project number for the project that contains the connection.
+    members = ["serviceAccount:service-123456789@gcp-sa-devconnect.iam.gserviceaccount.com"]
+  }
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-rc" {
+  secret_id = google_secret_manager_secret.gitlab-read-cred-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-ac" {
+  secret_id = google_secret_manager_secret.gitlab-auth-cred-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-wh" {
+  secret_id = google_secret_manager_secret.gitlab-webhook-secret-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_developer_connect_connection" "my-connection" {
+
+  location = "us-central1"
+  connection_id = "my-connection"
+
+  gitlab_enterprise_config {
+    host_uri = "https://gle.com"
+
+    webhook_secret_secret_version = google_secret_manager_secret_version.gitlab-webhook-secret-secret-version.id
+
+    read_authorizer_credential {
+      user_token_secret_version = google_secret_manager_secret_version.gitlab-read-cred-secret-version.id
+    }
+
+    authorizer_credential {
+      user_token_secret_version = google_secret_manager_secret_version.gitlab-auth-cred-secret-version.id
+    }
+  }
+
+  depends_on = [
+    google_secret_manager_secret_iam_policy.policy-rc,
+    google_secret_manager_secret_iam_policy.policy-ac,
+    google_secret_manager_secret_iam_policy.policy-wh
+  ]
+}
+```
 
 ## Argument Reference
 
@@ -154,14 +522,13 @@ The following arguments are supported:
 
 * `location` -
   (Required)
-  Resource ID segment making up resource `name`. It identifies the resource
-  within its parent collection as described in https://google.aip.dev/122. See documentation
-  for resource type `developerconnect.googleapis.com/GitRepositoryLink`.
+  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
 
 * `connection_id` -
   (Required)
-  Required. Id of the requesting object. If auto-generating Id server-side,
-  remove this field and connection_id from the method_signature of Create RPC.
+  Required. Id of the requesting object
+  If auto-generating Id server-side, remove this field and
+  connection_id from the method_signature of Create RPC
 
 
 - - -
@@ -172,29 +539,50 @@ The following arguments are supported:
   Configuration for connections to github.com.
   Structure is [documented below](#nested_github_config).
 
+* `github_enterprise_config` -
+  (Optional)
+  Configuration for connections to an instance of GitHub Enterprise.
+  Structure is [documented below](#nested_github_enterprise_config).
+
 * `labels` -
   (Optional)
   Optional. Labels as key value pairs
-
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `etag` -
+  (Optional)
+  Optional. This checksum is computed by the server based on the value of other
+  fields, and may be sent on update and delete requests to ensure the
+  client has an up-to-date value before proceeding.
+
+* `gitlab_enterprise_config` -
+  (Optional)
+  Configuration for connections to an instance of GitLab Enterprise.
+  Structure is [documented below](#nested_gitlab_enterprise_config).
+
 * `disabled` -
   (Optional)
-  Optional. If disabled is set to true, functionality is disabled for this connection. Repository based API methods and webhooks processing for repositories in this connection will be disabled.
+  Optional. If disabled is set to true, functionality is disabled for this connection.
+  Repository based API methods and webhooks processing for repositories in
+  this connection will be disabled.
 
 * `annotations` -
   (Optional)
   Optional. Allows clients to store small amounts of arbitrary data.
-
   **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
   Please refer to the field `effective_annotations` for all of the annotations present on the resource.
 
-* `etag` -
+* `gitlab_config` -
   (Optional)
-  Optional. This checksum is computed by the server based on the value
-  of other fields, and may be sent on update and delete requests to ensure the
-  client has an up-to-date value before proceeding.
+  Configuration for connections to gitlab.com.
+  Structure is [documented below](#nested_gitlab_config).
+
+* `crypto_key_config` -
+  (Optional)
+  The crypto key configuration. This field is used by the Customer-managed
+  encryption keys (CMEK) feature.
+  Structure is [documented below](#nested_crypto_key_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -202,42 +590,222 @@ The following arguments are supported:
 
 <a name="nested_github_config"></a>The `github_config` block supports:
 
+* `installation_uri` -
+  (Output)
+  Output only. The URI to navigate to in order to manage the installation associated
+  with this GitHubConfig.
+
 * `github_app` -
   (Required)
-  Required. Immutable. The GitHub Application that was installed to
-  the GitHub user or organization.
+  Required. Immutable. The GitHub Application that was installed to the GitHub user or
+  organization.
   Possible values:
-    GIT_HUB_APP_UNSPECIFIED
-    DEVELOPER_CONNECT
-    FIREBASE"
+  GIT_HUB_APP_UNSPECIFIED
+  DEVELOPER_CONNECT
+  FIREBASE
 
 * `authorizer_credential` -
   (Optional)
-  Represents an OAuth token of the account that authorized the Connection,and
-  associated metadata.
+  Represents an OAuth token of the account that authorized the Connection,
+  and associated metadata.
   Structure is [documented below](#nested_github_config_authorizer_credential).
 
 * `app_installation_id` -
   (Optional)
   Optional. GitHub App installation id.
 
-* `installation_uri` -
-  (Output)
-  Output only. The URI to navigate to in order to manage the installation
-  associated with this GitHubConfig.
-
 
 <a name="nested_github_config_authorizer_credential"></a>The `authorizer_credential` block supports:
 
 * `oauth_token_secret_version` -
   (Required)
-  Required. A SecretManager resource containing the OAuth token
-  that authorizes the connection.
-  Format: `projects/*/secrets/*/versions/*`.
+  Required. A SecretManager resource containing the OAuth token that authorizes
+  the connection. Format: `projects/*/secrets/*/versions/*`.
 
 * `username` -
   (Output)
   Output only. The username associated with this token.
+
+<a name="nested_github_enterprise_config"></a>The `github_enterprise_config` block supports:
+
+* `app_slug` -
+  (Output)
+  Output only. The URL-friendly name of the GitHub App.
+
+* `private_key_secret_version` -
+  (Optional)
+  Optional. SecretManager resource containing the private key of the GitHub App,
+  formatted as `projects/*/secrets/*/versions/*`.
+
+* `installation_uri` -
+  (Output)
+  Output only. The URI to navigate to in order to manage the installation associated
+  with this GitHubEnterpriseConfig.
+
+* `service_directory_config` -
+  (Optional)
+  ServiceDirectoryConfig represents Service Directory configuration for a
+  connection.
+  Structure is [documented below](#nested_github_enterprise_config_service_directory_config).
+
+* `server_version` -
+  (Output)
+  Output only. GitHub Enterprise version installed at the host_uri.
+
+* `ssl_ca_certificate` -
+  (Optional)
+  Optional. SSL certificate to use for requests to GitHub Enterprise.
+
+* `host_uri` -
+  (Required)
+  Required. The URI of the GitHub Enterprise host this connection is for.
+
+* `app_id` -
+  (Optional)
+  Optional. ID of the GitHub App created from the manifest.
+
+* `webhook_secret_secret_version` -
+  (Optional)
+  Optional. SecretManager resource containing the webhook secret of the GitHub App,
+  formatted as `projects/*/secrets/*/versions/*`.
+
+* `app_installation_id` -
+  (Optional)
+  Optional. ID of the installation of the GitHub App.
+
+
+<a name="nested_github_enterprise_config_service_directory_config"></a>The `service_directory_config` block supports:
+
+* `service` -
+  (Required)
+  Required. The Service Directory service name.
+  Format:
+  projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}.
+
+<a name="nested_gitlab_enterprise_config"></a>The `gitlab_enterprise_config` block supports:
+
+* `authorizer_credential` -
+  (Required)
+  Represents a personal access token that authorized the Connection,
+  and associated metadata.
+  Structure is [documented below](#nested_gitlab_enterprise_config_authorizer_credential).
+
+* `service_directory_config` -
+  (Optional)
+  ServiceDirectoryConfig represents Service Directory configuration for a
+  connection.
+  Structure is [documented below](#nested_gitlab_enterprise_config_service_directory_config).
+
+* `ssl_ca_certificate` -
+  (Optional)
+  Optional. SSL Certificate Authority certificate to use for requests to GitLab
+  Enterprise instance.
+
+* `server_version` -
+  (Output)
+  Output only. Version of the GitLab Enterprise server running on the `host_uri`.
+
+* `host_uri` -
+  (Required)
+  Required. The URI of the GitLab Enterprise host this connection is for.
+
+* `webhook_secret_secret_version` -
+  (Required)
+  Required. Immutable. SecretManager resource containing the webhook secret of a GitLab project,
+  formatted as `projects/*/secrets/*/versions/*`. This is used to validate
+  webhooks.
+
+* `read_authorizer_credential` -
+  (Required)
+  Represents a personal access token that authorized the Connection,
+  and associated metadata.
+  Structure is [documented below](#nested_gitlab_enterprise_config_read_authorizer_credential).
+
+
+<a name="nested_gitlab_enterprise_config_authorizer_credential"></a>The `authorizer_credential` block supports:
+
+* `user_token_secret_version` -
+  (Required)
+  Required. A SecretManager resource containing the user token that authorizes
+  the Developer Connect connection. Format:
+  `projects/*/secrets/*/versions/*`.
+
+* `username` -
+  (Output)
+  Output only. The username associated with this token.
+
+<a name="nested_gitlab_enterprise_config_service_directory_config"></a>The `service_directory_config` block supports:
+
+* `service` -
+  (Required)
+  Required. The Service Directory service name.
+  Format:
+  projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}.
+
+<a name="nested_gitlab_enterprise_config_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
+
+* `user_token_secret_version` -
+  (Required)
+  Required. A SecretManager resource containing the user token that authorizes
+  the Developer Connect connection. Format:
+  `projects/*/secrets/*/versions/*`.
+
+* `username` -
+  (Output)
+  Output only. The username associated with this token.
+
+<a name="nested_gitlab_config"></a>The `gitlab_config` block supports:
+
+* `webhook_secret_secret_version` -
+  (Required)
+  Required. Immutable. SecretManager resource containing the webhook secret of a GitLab project,
+  formatted as `projects/*/secrets/*/versions/*`. This is used to validate
+  webhooks.
+
+* `read_authorizer_credential` -
+  (Required)
+  Represents a personal access token that authorized the Connection,
+  and associated metadata.
+  Structure is [documented below](#nested_gitlab_config_read_authorizer_credential).
+
+* `authorizer_credential` -
+  (Required)
+  Represents a personal access token that authorized the Connection,
+  and associated metadata.
+  Structure is [documented below](#nested_gitlab_config_authorizer_credential).
+
+
+<a name="nested_gitlab_config_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
+
+* `user_token_secret_version` -
+  (Required)
+  Required. A SecretManager resource containing the user token that authorizes
+  the Developer Connect connection. Format:
+  `projects/*/secrets/*/versions/*`.
+
+* `username` -
+  (Output)
+  Output only. The username associated with this token.
+
+<a name="nested_gitlab_config_authorizer_credential"></a>The `authorizer_credential` block supports:
+
+* `user_token_secret_version` -
+  (Required)
+  Required. A SecretManager resource containing the user token that authorizes
+  the Developer Connect connection. Format:
+  `projects/*/secrets/*/versions/*`.
+
+* `username` -
+  (Output)
+  Output only. The username associated with this token.
+
+<a name="nested_crypto_key_config"></a>The `crypto_key_config` block supports:
+
+* `key_reference` -
+  (Required)
+  Required. The name of the key which is used to encrypt/decrypt customer data. For key
+  in Cloud KMS, the key should be in the format of
+  `projects/*/locations/*/keyRings/*/cryptoKeys/*`.
 
 ## Attributes Reference
 
@@ -245,12 +813,16 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/connections/{{connection_id}}`
 
+* `uid` -
+  Output only. A system-assigned unique identifier for a the GitRepositoryLink.
+
 * `name` -
   Identifier. The resource name of the connection, in the format
   `projects/{project}/locations/{location}/connections/{connection_id}`.
 
-* `create_time` -
-  Output only. [Output only] Create timestamp
+* `reconciling` -
+  Output only. Set to true when the connection is being set up or updated in the
+  background.
 
 * `update_time` -
   Output only. [Output only] Update timestamp
@@ -259,16 +831,13 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. [Output only] Delete timestamp
 
 * `installation_state` -
-  Describes stage and necessary actions to be taken by the user to complete the installation.
-  Used for GitHub and GitHub Enterprise based connections.
+  Describes stage and necessary actions to be taken by the
+  user to complete the installation. Used for GitHub and GitHub Enterprise
+  based connections.
   Structure is [documented below](#nested_installation_state).
 
-* `reconciling` -
-  Output only. Set to true when the connection is being set up or updated
-  in the background.
-
-* `uid` -
-  Output only. A system-assigned unique identifier for a the GitRepositoryLink.
+* `create_time` -
+  Output only. [Output only] Create timestamp
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
@@ -283,25 +852,25 @@ In addition to the arguments listed above, the following computed attributes are
 
 <a name="nested_installation_state"></a>The `installation_state` block contains:
 
+* `message` -
+  (Optional)
+  Output only. Message of what the user should do next to continue the installation.
+  Empty string if the installation is already complete.
+
+* `action_uri` -
+  (Optional)
+  Output only. Link to follow for next action. Empty string if the installation is already
+  complete.
+
 * `stage` -
   (Output)
   Output only. Current step of the installation process.
   Possible values:
-    STAGE_UNSPECIFIED
-    PENDING_CREATE_APP
-    PENDING_USER_OAUTH
-    PENDING_INSTALL_APP
-    COMPLETE
-
-* `message` -
-  (Optional)
-  Output only. Message of what the user should do next to continue
-  the installation.Empty string if the installation is already complete.
-
-* `action_uri` -
-  (Optional)
-  Output only. Link to follow for next action. Empty string if the
-  installation is already complete.
+  STAGE_UNSPECIFIED
+  PENDING_CREATE_APP
+  PENDING_USER_OAUTH
+  PENDING_INSTALL_APP
+  COMPLETE
 
 ## Timeouts
 

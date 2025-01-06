@@ -82,6 +82,7 @@ type ProviderModel struct {
 	DataprocMetastoreCustomEndpoint        types.String `tfsdk:"dataproc_metastore_custom_endpoint"`
 	DatastreamCustomEndpoint               types.String `tfsdk:"datastream_custom_endpoint"`
 	DeploymentManagerCustomEndpoint        types.String `tfsdk:"deployment_manager_custom_endpoint"`
+	DeveloperConnectCustomEndpoint         types.String `tfsdk:"developer_connect_custom_endpoint"`
 	DialogflowCustomEndpoint               types.String `tfsdk:"dialogflow_custom_endpoint"`
 	DialogflowCXCustomEndpoint             types.String `tfsdk:"dialogflow_cx_custom_endpoint"`
 	DiscoveryEngineCustomEndpoint          types.String `tfsdk:"discovery_engine_custom_endpoint"`
