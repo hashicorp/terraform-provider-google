@@ -256,6 +256,31 @@ func TestAccDataprocCluster_withInternalIpOnlyTrueAndShieldedConfig(t *testing.T
 	})
 }
 
+func TestAccDataprocCluster_withShieldedConfig(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withShieldedConfig(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
+
+					// Testing behavior for Dataproc to use only internal IP addresses
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_integrity_monitoring", "false"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_secure_boot", "false"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_vtpm", "false"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withConfidentialCompute(t *testing.T) {
 	t.Parallel()
 
@@ -1581,6 +1606,25 @@ resource "google_dataproc_cluster" "basic" {
   }
 }
 `, rnd, rnd, rnd, rnd)
+}
+
+func testAccDataprocCluster_withShieldedConfig(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+    gce_cluster_config {
+      shielded_instance_config {
+        enable_integrity_monitoring = false
+        enable_secure_boot          = false
+        enable_vtpm                 = false
+      }
+    }
+  }
+}
+`, rnd)
 }
 
 func testAccDataprocCluster_withConfidentialCompute(rnd, subnetworkName string, imageUri string) string {

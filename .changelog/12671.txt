@@ -1,0 +1,3 @@
+```release-note:bug
+dataproc: fixed boolean fields in the `shielded_instance_config` 
+```
