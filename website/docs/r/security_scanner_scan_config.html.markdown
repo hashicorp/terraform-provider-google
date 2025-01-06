@@ -120,15 +120,15 @@ The following arguments are supported:
 * `google_account` -
   (Optional)
   Describes authentication configuration that uses a Google account.
-  Structure is [documented below](#nested_google_account).
+  Structure is [documented below](#nested_authentication_google_account).
 
 * `custom_account` -
   (Optional)
   Describes authentication configuration that uses a custom account.
-  Structure is [documented below](#nested_custom_account).
+  Structure is [documented below](#nested_authentication_custom_account).
 
 
-<a name="nested_google_account"></a>The `google_account` block supports:
+<a name="nested_authentication_google_account"></a>The `google_account` block supports:
 
 * `username` -
   (Required)
@@ -140,7 +140,7 @@ The following arguments are supported:
   in GCP.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-<a name="nested_custom_account"></a>The `custom_account` block supports:
+<a name="nested_authentication_custom_account"></a>The `custom_account` block supports:
 
 * `username` -
   (Required)

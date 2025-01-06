@@ -369,14 +369,14 @@ The following arguments are supported:
 * `autotuning_config` -
   (Optional)
   Optional. Autotuning configuration of the workload.
-  Structure is [documented below](#nested_autotuning_config).
+  Structure is [documented below](#nested_runtime_config_autotuning_config).
 
 * `cohort` -
   (Optional)
   Optional. Cohort identifier. Identifies families of the workloads having the same shape, e.g. daily ETL jobs.
 
 
-<a name="nested_autotuning_config"></a>The `autotuning_config` block supports:
+<a name="nested_runtime_config_autotuning_config"></a>The `autotuning_config` block supports:
 
 * `scenarios` -
   (Optional)
@@ -388,15 +388,15 @@ The following arguments are supported:
 * `execution_config` -
   (Optional)
   Execution configuration for a workload.
-  Structure is [documented below](#nested_execution_config).
+  Structure is [documented below](#nested_environment_config_execution_config).
 
 * `peripherals_config` -
   (Optional)
   Peripherals configuration that workload has access to.
-  Structure is [documented below](#nested_peripherals_config).
+  Structure is [documented below](#nested_environment_config_peripherals_config).
 
 
-<a name="nested_execution_config"></a>The `execution_config` block supports:
+<a name="nested_environment_config_execution_config"></a>The `execution_config` block supports:
 
 * `service_account` -
   (Optional)
@@ -437,7 +437,7 @@ The following arguments are supported:
   (Optional)
   Subnetwork configuration for workload execution.
 
-<a name="nested_peripherals_config"></a>The `peripherals_config` block supports:
+<a name="nested_environment_config_peripherals_config"></a>The `peripherals_config` block supports:
 
 * `metastore_service` -
   (Optional)
@@ -446,10 +446,10 @@ The following arguments are supported:
 * `spark_history_server_config` -
   (Optional)
   The Spark History Server configuration for the workload.
-  Structure is [documented below](#nested_spark_history_server_config).
+  Structure is [documented below](#nested_environment_config_peripherals_config_spark_history_server_config).
 
 
-<a name="nested_spark_history_server_config"></a>The `spark_history_server_config` block supports:
+<a name="nested_environment_config_peripherals_config_spark_history_server_config"></a>The `spark_history_server_config` block supports:
 
 * `dataproc_cluster` -
   (Optional)
@@ -610,15 +610,15 @@ In addition to the arguments listed above, the following computed attributes are
 * `approximate_usage` -
   (Output)
   Approximate workload resource usage, calculated when the workload completes(see [Dataproc Serverless pricing](https://cloud.google.com/dataproc-serverless/pricing))
-  Structure is [documented below](#nested_approximate_usage).
+  Structure is [documented below](#nested_runtime_info_approximate_usage).
 
 * `current_usage` -
   (Output)
   Snapshot of current workload resource usage(see [Dataproc Serverless pricing](https://cloud.google.com/dataproc-serverless/pricing))
-  Structure is [documented below](#nested_current_usage).
+  Structure is [documented below](#nested_runtime_info_current_usage).
 
 
-<a name="nested_approximate_usage"></a>The `approximate_usage` block contains:
+<a name="nested_runtime_info_approximate_usage"></a>The `approximate_usage` block contains:
 
 * `milli_dcu_seconds` -
   (Output)
@@ -636,7 +636,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Accelerator type being used, if any
 
-<a name="nested_current_usage"></a>The `current_usage` block contains:
+<a name="nested_runtime_info_current_usage"></a>The `current_usage` block contains:
 
 * `milli_dcu` -
   (Output)

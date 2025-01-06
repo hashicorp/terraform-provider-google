@@ -151,22 +151,22 @@ The following arguments are supported:
 * `access_config` -
   (Required)
   The configuration of access to the Kafka cluster.
-  Structure is [documented below](#nested_access_config).
+  Structure is [documented below](#nested_gcp_config_access_config).
 
 * `kms_key` -
   (Optional)
   The Cloud KMS Key name to use for encryption. The key must be located in the same region as the cluster and cannot be changed. Must be in the format `projects/PROJECT_ID/locations/LOCATION/keyRings/KEY_RING/cryptoKeys/KEY`.
 
 
-<a name="nested_access_config"></a>The `access_config` block supports:
+<a name="nested_gcp_config_access_config"></a>The `access_config` block supports:
 
 * `network_configs` -
   (Required)
   Virtual Private Cloud (VPC) subnets where IP addresses for the Kafka cluster are allocated. To make the cluster available in a VPC, you must specify at least one subnet per network. You must specify between 1 and 10 subnets. Additional subnets may be specified with additional `network_configs` blocks.
-  Structure is [documented below](#nested_network_configs).
+  Structure is [documented below](#nested_gcp_config_access_config_network_configs).
 
 
-<a name="nested_network_configs"></a>The `network_configs` block supports:
+<a name="nested_gcp_config_access_config_network_configs"></a>The `network_configs` block supports:
 
 * `subnet` -
   (Required)

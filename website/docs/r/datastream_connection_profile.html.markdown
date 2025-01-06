@@ -444,10 +444,10 @@ The following arguments are supported:
 * `ssl_config` -
   (Optional)
   SSL configuration for the MySQL connection.
-  Structure is [documented below](#nested_ssl_config).
+  Structure is [documented below](#nested_mysql_profile_ssl_config).
 
 
-<a name="nested_ssl_config"></a>The `ssl_config` block supports:
+<a name="nested_mysql_profile_ssl_config"></a>The `ssl_config` block supports:
 
 * `client_key` -
   (Optional)

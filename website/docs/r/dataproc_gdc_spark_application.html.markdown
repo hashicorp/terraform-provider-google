@@ -356,7 +356,7 @@ The following arguments are supported:
 * `query_list` -
   (Optional)
   Represents a list of queries.
-  Structure is [documented below](#nested_query_list).
+  Structure is [documented below](#nested_spark_sql_application_config_query_list).
 
 * `script_variables` -
   (Optional)
@@ -367,7 +367,7 @@ The following arguments are supported:
   HCFS URIs of jar files to be added to the Spark CLASSPATH.
 
 
-<a name="nested_query_list"></a>The `query_list` block supports:
+<a name="nested_spark_sql_application_config_query_list"></a>The `query_list` block supports:
 
 * `queries` -
   (Required)

@@ -282,22 +282,22 @@ The following arguments are supported:
   (Optional)
   An array of objects (called rewrite rules), where each rule specifies a URL pattern that, if matched to the
   request URL path, triggers Hosting to respond as if the service were given the specified destination URL.
-  Structure is [documented below](#nested_rewrites).
+  Structure is [documented below](#nested_config_rewrites).
 
 * `redirects` -
   (Optional)
   An array of objects (called redirect rules), where each rule specifies a URL pattern that, if matched to the request URL path,
   triggers Hosting to respond with a redirect to the specified destination path.
-  Structure is [documented below](#nested_redirects).
+  Structure is [documented below](#nested_config_redirects).
 
 * `headers` -
   (Optional)
   An array of objects, where each object specifies a URL pattern that, if matched to the request URL path,
   triggers Hosting to apply the specified custom response headers.
-  Structure is [documented below](#nested_headers).
+  Structure is [documented below](#nested_config_headers).
 
 
-<a name="nested_rewrites"></a>The `rewrites` block supports:
+<a name="nested_config_rewrites"></a>The `rewrites` block supports:
 
 * `glob` -
   (Optional)
@@ -318,10 +318,10 @@ The following arguments are supported:
 * `run` -
   (Optional)
   The request will be forwarded to Cloud Run.
-  Structure is [documented below](#nested_run).
+  Structure is [documented below](#nested_config_rewrites_rewrites_run).
 
 
-<a name="nested_run"></a>The `run` block supports:
+<a name="nested_config_rewrites_rewrites_run"></a>The `run` block supports:
 
 * `service_id` -
   (Required)
@@ -331,7 +331,7 @@ The following arguments are supported:
   (Optional)
   Optional. User-provided region where the Cloud Run service is hosted. Defaults to `us-central1` if not supplied.
 
-<a name="nested_redirects"></a>The `redirects` block supports:
+<a name="nested_config_redirects"></a>The `redirects` block supports:
 
 * `glob` -
   (Optional)
@@ -358,7 +358,7 @@ The following arguments are supported:
   }
   ```
 
-<a name="nested_headers"></a>The `headers` block supports:
+<a name="nested_config_headers"></a>The `headers` block supports:
 
 * `glob` -
   (Optional)

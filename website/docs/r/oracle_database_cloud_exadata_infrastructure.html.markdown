@@ -167,7 +167,7 @@ The following arguments are supported:
   (Optional)
   Maintenance window as defined by Oracle.
   https://docs.oracle.com/en-us/iaas/api/#/en/database/20160918/datatypes/MaintenanceWindow
-  Structure is [documented below](#nested_maintenance_window).
+  Structure is [documented below](#nested_properties_maintenance_window).
 
 * `state` -
   (Output)
@@ -258,7 +258,7 @@ The following arguments are supported:
 * `customer_contacts` -
   (Optional)
   The list of customer contacts.
-  Structure is [documented below](#nested_customer_contacts).
+  Structure is [documented below](#nested_properties_customer_contacts).
 
 * `monthly_storage_server_version` -
   (Output)
@@ -271,7 +271,7 @@ The following arguments are supported:
   in the Exadata Infrastructure. Example: 20.1.15
 
 
-<a name="nested_maintenance_window"></a>The `maintenance_window` block supports:
+<a name="nested_properties_maintenance_window"></a>The `maintenance_window` block supports:
 
 * `preference` -
   (Optional)
@@ -331,7 +331,7 @@ The following arguments are supported:
   If true, enables the configuration of a custom action timeout (waiting
   period) between database server patching operations.
 
-<a name="nested_customer_contacts"></a>The `customer_contacts` block supports:
+<a name="nested_properties_customer_contacts"></a>The `customer_contacts` block supports:
 
 * `email` -
   (Required)

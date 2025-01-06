@@ -320,15 +320,15 @@ The following arguments are supported:
 * `rdb_config` -
   (Optional)
   Configuration for RDB based persistence.
-  Structure is [documented below](#nested_rdb_config).
+  Structure is [documented below](#nested_persistence_config_rdb_config).
 
 * `aof_config` -
   (Optional)
   Configuration for AOF based persistence.
-  Structure is [documented below](#nested_aof_config).
+  Structure is [documented below](#nested_persistence_config_aof_config).
 
 
-<a name="nested_rdb_config"></a>The `rdb_config` block supports:
+<a name="nested_persistence_config_rdb_config"></a>The `rdb_config` block supports:
 
 * `rdb_snapshot_period` -
   (Optional)
@@ -345,7 +345,7 @@ The following arguments are supported:
   snapshots will be aligned. If not provided, the current time will be
   used.
 
-<a name="nested_aof_config"></a>The `aof_config` block supports:
+<a name="nested_persistence_config_aof_config"></a>The `aof_config` block supports:
 
 * `append_fsync` -
   (Optional)
@@ -430,10 +430,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `update_info` -
   (Output)
   Represents information about instance with state UPDATING.
-  Structure is [documented below](#nested_update_info).
+  Structure is [documented below](#nested_state_info_update_info).
 
 
-<a name="nested_update_info"></a>The `update_info` block contains:
+<a name="nested_state_info_update_info"></a>The `update_info` block contains:
 
 * `target_shard_count` -
   (Output)

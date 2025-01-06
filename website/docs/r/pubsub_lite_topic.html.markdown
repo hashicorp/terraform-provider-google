@@ -117,10 +117,10 @@ The following arguments are supported:
 * `capacity` -
   (Optional)
   The capacity configuration.
-  Structure is [documented below](#nested_capacity).
+  Structure is [documented below](#nested_partition_config_capacity).
 
 
-<a name="nested_capacity"></a>The `capacity` block supports:
+<a name="nested_partition_config_capacity"></a>The `capacity` block supports:
 
 * `publish_mib_per_sec` -
   (Required)

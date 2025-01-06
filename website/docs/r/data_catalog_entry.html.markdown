@@ -230,10 +230,10 @@ The following arguments are supported:
 * `sample_gcs_file_specs` -
   (Output)
   Sample files contained in this fileset, not all files contained in this fileset are represented here.
-  Structure is [documented below](#nested_sample_gcs_file_specs).
+  Structure is [documented below](#nested_gcs_fileset_spec_sample_gcs_file_specs).
 
 
-<a name="nested_sample_gcs_file_specs"></a>The `sample_gcs_file_specs` block contains:
+<a name="nested_gcs_fileset_spec_sample_gcs_file_specs"></a>The `sample_gcs_file_specs` block contains:
 
 * `file_path` -
   (Output)
@@ -276,21 +276,21 @@ In addition to the arguments listed above, the following computed attributes are
 * `view_spec` -
   (Output)
   Table view specification. This field should only be populated if tableSourceType is BIGQUERY_VIEW.
-  Structure is [documented below](#nested_view_spec).
+  Structure is [documented below](#nested_bigquery_table_spec_view_spec).
 
 * `table_spec` -
   (Output)
   Spec of a BigQuery table. This field should only be populated if tableSourceType is BIGQUERY_TABLE.
-  Structure is [documented below](#nested_table_spec).
+  Structure is [documented below](#nested_bigquery_table_spec_table_spec).
 
 
-<a name="nested_view_spec"></a>The `view_spec` block contains:
+<a name="nested_bigquery_table_spec_view_spec"></a>The `view_spec` block contains:
 
 * `view_query` -
   (Output)
   The query that defines the table view.
 
-<a name="nested_table_spec"></a>The `table_spec` block contains:
+<a name="nested_bigquery_table_spec_table_spec"></a>The `table_spec` block contains:
 
 * `grouped_entry` -
   (Output)

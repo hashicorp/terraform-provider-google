@@ -152,7 +152,7 @@ The following arguments are supported:
   (Optional)
   The configuration to generate the Dialogflow agent that is associated to this Engine.
   Exactly one of `agent_creation_config` or `dialogflow_agent_to_link` must be set.
-  Structure is [documented below](#nested_agent_creation_config).
+  Structure is [documented below](#nested_chat_engine_config_agent_creation_config).
 
 * `dialogflow_agent_to_link` -
   (Optional)
@@ -160,7 +160,7 @@ The following arguments are supported:
   Exactly one of `agent_creation_config` or `dialogflow_agent_to_link` must be set.
 
 
-<a name="nested_agent_creation_config"></a>The `agent_creation_config` block supports:
+<a name="nested_chat_engine_config_agent_creation_config"></a>The `agent_creation_config` block supports:
 
 * `business` -
   (Optional)

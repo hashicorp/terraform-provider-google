@@ -214,7 +214,7 @@ The following arguments are supported:
 * `taints` -
   (Optional)
   The initial taints assigned to nodes of this node pool.
-  Structure is [documented below](#nested_taints).
+  Structure is [documented below](#nested_config_taints).
 
 * `labels` -
   (Optional)
@@ -228,7 +228,7 @@ The following arguments are supported:
 * `vsphere_config` -
   (Optional)
   Specifies the vSphere config for node pool.
-  Structure is [documented below](#nested_vsphere_config).
+  Structure is [documented below](#nested_config_vsphere_config).
 
 * `enable_load_balancer` -
   (Optional)
@@ -236,7 +236,7 @@ The following arguments are supported:
   MetalLB load balancers.
 
 
-<a name="nested_taints"></a>The `taints` block supports:
+<a name="nested_config_taints"></a>The `taints` block supports:
 
 * `key` -
   (Required)
@@ -251,7 +251,7 @@ The following arguments are supported:
   Available taint effects.
   Possible values are: `EFFECT_UNSPECIFIED`, `NO_SCHEDULE`, `PREFER_NO_SCHEDULE`, `NO_EXECUTE`.
 
-<a name="nested_vsphere_config"></a>The `vsphere_config` block supports:
+<a name="nested_config_vsphere_config"></a>The `vsphere_config` block supports:
 
 * `datastore` -
   (Optional)
@@ -260,14 +260,14 @@ The following arguments are supported:
 * `tags` -
   (Optional)
   Tags to apply to VMs.
-  Structure is [documented below](#nested_tags).
+  Structure is [documented below](#nested_config_vsphere_config_tags).
 
 * `host_groups` -
   (Optional)
   Vsphere host groups to apply to all VMs in the node pool
 
 
-<a name="nested_tags"></a>The `tags` block supports:
+<a name="nested_config_vsphere_config_tags"></a>The `tags` block supports:
 
 * `category` -
   (Optional)
@@ -372,10 +372,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `conditions` -
   (Output)
   ResourceConditions provide a standard mechanism for higher-level status reporting from user cluster controller.
-  Structure is [documented below](#nested_conditions).
+  Structure is [documented below](#nested_status_conditions).
 
 
-<a name="nested_conditions"></a>The `conditions` block contains:
+<a name="nested_status_conditions"></a>The `conditions` block contains:
 
 * `type` -
   (Output)

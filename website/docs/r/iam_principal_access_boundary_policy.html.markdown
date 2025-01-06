@@ -85,7 +85,7 @@ The following arguments are supported:
 * `rules` -
   (Required)
   A list of principal access boundary policy rules. The number of rules in a policy is limited to 500.
-  Structure is [documented below](#nested_rules).
+  Structure is [documented below](#nested_details_rules).
 
 * `enforcement_version` -
   (Optional)
@@ -95,7 +95,7 @@ The following arguments are supported:
   won't get updated when new versions are released.
 
 
-<a name="nested_rules"></a>The `rules` block supports:
+<a name="nested_details_rules"></a>The `rules` block supports:
 
 * `description` -
   (Optional)

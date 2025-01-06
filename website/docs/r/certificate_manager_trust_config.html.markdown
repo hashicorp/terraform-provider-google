@@ -135,16 +135,16 @@ The following arguments are supported:
 * `trust_anchors` -
   (Optional)
   List of Trust Anchors to be used while performing validation against a given TrustStore.
-  Structure is [documented below](#nested_trust_anchors).
+  Structure is [documented below](#nested_trust_stores_trust_stores_trust_anchors).
 
 * `intermediate_cas` -
   (Optional)
   Set of intermediate CA certificates used for the path building phase of chain validation.
   The field is currently not supported if trust config is used for the workload certificate feature.
-  Structure is [documented below](#nested_intermediate_cas).
+  Structure is [documented below](#nested_trust_stores_trust_stores_intermediate_cas).
 
 
-<a name="nested_trust_anchors"></a>The `trust_anchors` block supports:
+<a name="nested_trust_stores_trust_stores_trust_anchors"></a>The `trust_anchors` block supports:
 
 * `pem_certificate` -
   (Optional)
@@ -152,7 +152,7 @@ The following arguments are supported:
   Each certificate provided in PEM format may occupy up to 5kB.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-<a name="nested_intermediate_cas"></a>The `intermediate_cas` block supports:
+<a name="nested_trust_stores_trust_stores_intermediate_cas"></a>The `intermediate_cas` block supports:
 
 * `pem_certificate` -
   (Optional)

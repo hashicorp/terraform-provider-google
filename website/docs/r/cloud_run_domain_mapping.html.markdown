@@ -196,7 +196,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Array of observed DomainMappingConditions, indicating the current state
   of the DomainMapping.
-  Structure is [documented below](#nested_conditions).
+  Structure is [documented below](#nested_status_conditions).
 
 * `observed_generation` -
   (Output)
@@ -208,14 +208,14 @@ In addition to the arguments listed above, the following computed attributes are
   The resource records required to configure this domain mapping. These
   records must be added to the domain's DNS configuration in order to
   serve the application via this domain mapping.
-  Structure is [documented below](#nested_resource_records).
+  Structure is [documented below](#nested_status_resource_records).
 
 * `mapped_route_name` -
   (Output)
   The name of the route that the mapping currently points to.
 
 
-<a name="nested_conditions"></a>The `conditions` block contains:
+<a name="nested_status_conditions"></a>The `conditions` block contains:
 
 * `message` -
   (Output)
@@ -233,7 +233,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Type of domain mapping condition.
 
-<a name="nested_resource_records"></a>The `resource_records` block supports:
+<a name="nested_status_resource_records"></a>The `resource_records` block supports:
 
 * `type` -
   (Optional)

@@ -113,10 +113,10 @@ The following arguments are supported:
 * `local_datas` -
   (Required)
   All resource record sets for this selector, one per resource record type. The name must match the dns_name.
-  Structure is [documented below](#nested_local_datas).
+  Structure is [documented below](#nested_local_data_local_datas).
 
 
-<a name="nested_local_datas"></a>The `local_datas` block supports:
+<a name="nested_local_data_local_datas"></a>The `local_datas` block supports:
 
 * `name` -
   (Required)

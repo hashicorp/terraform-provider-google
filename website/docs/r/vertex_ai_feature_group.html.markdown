@@ -123,14 +123,14 @@ The following arguments are supported:
 * `big_query_source` -
   (Required)
   The BigQuery source URI that points to either a BigQuery Table or View.
-  Structure is [documented below](#nested_big_query_source).
+  Structure is [documented below](#nested_big_query_big_query_source).
 
 * `entity_id_columns` -
   (Optional)
   Columns to construct entityId / row keys. If not provided defaults to entityId.
 
 
-<a name="nested_big_query_source"></a>The `big_query_source` block supports:
+<a name="nested_big_query_big_query_source"></a>The `big_query_source` block supports:
 
 * `input_uri` -
   (Required)

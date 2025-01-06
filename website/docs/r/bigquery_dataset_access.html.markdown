@@ -259,7 +259,7 @@ The following arguments are supported:
 * `dataset` -
   (Required)
   The dataset this entry applies to
-  Structure is [documented below](#nested_dataset).
+  Structure is [documented below](#nested_dataset_dataset).
 
 * `target_types` -
   (Required)
@@ -267,7 +267,7 @@ The following arguments are supported:
   but additional target types may be added in the future. Possible values: VIEWS
 
 
-<a name="nested_dataset"></a>The `dataset` block supports:
+<a name="nested_dataset_dataset"></a>The `dataset` block supports:
 
 * `dataset_id` -
   (Required)

@@ -352,12 +352,12 @@ The following arguments are supported:
 * `mapping_config` -
   (Required)
   The location of the mapping configuration.
-  Structure is [documented below](#nested_mapping_config).
+  Structure is [documented below](#nested_mapping_pipeline_job_mapping_config).
 
 * `fhir_streaming_source` -
   (Optional)
   A streaming FHIR data source.
-  Structure is [documented below](#nested_fhir_streaming_source).
+  Structure is [documented below](#nested_mapping_pipeline_job_fhir_streaming_source).
 
 * `fhir_store_destination` -
   (Optional)
@@ -379,7 +379,7 @@ The following arguments are supported:
   with a reconciliation destination can be created.
 
 
-<a name="nested_mapping_config"></a>The `mapping_config` block supports:
+<a name="nested_mapping_pipeline_job_mapping_config"></a>The `mapping_config` block supports:
 
 * `description` -
   (Optional)
@@ -388,10 +388,10 @@ The following arguments are supported:
 * `whistle_config_source` -
   (Optional)
   Specifies the path to the mapping configuration for harmonization pipeline.
-  Structure is [documented below](#nested_whistle_config_source).
+  Structure is [documented below](#nested_mapping_pipeline_job_mapping_config_whistle_config_source).
 
 
-<a name="nested_whistle_config_source"></a>The `whistle_config_source` block supports:
+<a name="nested_mapping_pipeline_job_mapping_config_whistle_config_source"></a>The `whistle_config_source` block supports:
 
 * `uri` -
   (Required)
@@ -403,7 +403,7 @@ The following arguments are supported:
   Directory path where all the Whistle files are located.
   Example: gs://{bucket-id}/{path/to/import-root/dir}
 
-<a name="nested_fhir_streaming_source"></a>The `fhir_streaming_source` block supports:
+<a name="nested_mapping_pipeline_job_fhir_streaming_source"></a>The `fhir_streaming_source` block supports:
 
 * `fhir_store` -
   (Required)
@@ -418,7 +418,7 @@ The following arguments are supported:
 * `merge_config` -
   (Required)
   Specifies the location of the reconciliation configuration.
-  Structure is [documented below](#nested_merge_config).
+  Structure is [documented below](#nested_reconciliation_pipeline_job_merge_config).
 
 * `matching_uri_prefix` -
   (Required)
@@ -433,7 +433,7 @@ The following arguments are supported:
   in the format of: project/{projectID}/locations/{locationID}/datasets/{datasetName}/fhirStores/{id}
 
 
-<a name="nested_merge_config"></a>The `merge_config` block supports:
+<a name="nested_reconciliation_pipeline_job_merge_config"></a>The `merge_config` block supports:
 
 * `description` -
   (Optional)
@@ -442,10 +442,10 @@ The following arguments are supported:
 * `whistle_config_source` -
   (Required)
   Specifies the path to the mapping configuration for harmonization pipeline.
-  Structure is [documented below](#nested_whistle_config_source).
+  Structure is [documented below](#nested_reconciliation_pipeline_job_merge_config_whistle_config_source).
 
 
-<a name="nested_whistle_config_source"></a>The `whistle_config_source` block supports:
+<a name="nested_reconciliation_pipeline_job_merge_config_whistle_config_source"></a>The `whistle_config_source` block supports:
 
 * `uri` -
   (Required)

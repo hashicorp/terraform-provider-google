@@ -177,14 +177,14 @@ The following arguments are supported:
 * `ssh_authentication_config` -
   (Optional)
   Authentication fields for remote uris using SSH protocol.
-  Structure is [documented below](#nested_ssh_authentication_config).
+  Structure is [documented below](#nested_git_remote_settings_ssh_authentication_config).
 
 * `token_status` -
   (Output)
   Indicates the status of the Git access token. https://cloud.google.com/dataform/reference/rest/v1beta1/projects.locations.repositories#TokenStatus
 
 
-<a name="nested_ssh_authentication_config"></a>The `ssh_authentication_config` block supports:
+<a name="nested_git_remote_settings_ssh_authentication_config"></a>The `ssh_authentication_config` block supports:
 
 * `user_private_key_secret_version` -
   (Required)

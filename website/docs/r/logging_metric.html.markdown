@@ -252,7 +252,7 @@ The following arguments are supported:
   example, the appengine.googleapis.com/http/server/response_latencies metric type has a label
   for the HTTP response code, response_code, so you can look at latencies for successful responses
   or just for responses that failed.
-  Structure is [documented below](#nested_labels).
+  Structure is [documented below](#nested_metric_descriptor_labels).
 
 * `display_name` -
   (Optional)
@@ -261,7 +261,7 @@ The following arguments are supported:
   recommended to be set for any metrics associated with user-visible concepts, such as Quota.
 
 
-<a name="nested_labels"></a>The `labels` block supports:
+<a name="nested_metric_descriptor_labels"></a>The `labels` block supports:
 
 * `key` -
   (Required)
@@ -283,21 +283,21 @@ The following arguments are supported:
   (Optional)
   Specifies a linear sequence of buckets that all have the same width (except overflow and underflow).
   Each bucket represents a constant absolute uncertainty on the specific value in the bucket.
-  Structure is [documented below](#nested_linear_buckets).
+  Structure is [documented below](#nested_bucket_options_linear_buckets).
 
 * `exponential_buckets` -
   (Optional)
   Specifies an exponential sequence of buckets that have a width that is proportional to the value of
   the lower bound. Each bucket represents a constant relative uncertainty on a specific value in the bucket.
-  Structure is [documented below](#nested_exponential_buckets).
+  Structure is [documented below](#nested_bucket_options_exponential_buckets).
 
 * `explicit_buckets` -
   (Optional)
   Specifies a set of buckets with arbitrary widths.
-  Structure is [documented below](#nested_explicit_buckets).
+  Structure is [documented below](#nested_bucket_options_explicit_buckets).
 
 
-<a name="nested_linear_buckets"></a>The `linear_buckets` block supports:
+<a name="nested_bucket_options_linear_buckets"></a>The `linear_buckets` block supports:
 
 * `num_finite_buckets` -
   (Required)
@@ -311,7 +311,7 @@ The following arguments are supported:
   (Required)
   Lower bound of the first bucket.
 
-<a name="nested_exponential_buckets"></a>The `exponential_buckets` block supports:
+<a name="nested_bucket_options_exponential_buckets"></a>The `exponential_buckets` block supports:
 
 * `num_finite_buckets` -
   (Required)
@@ -325,7 +325,7 @@ The following arguments are supported:
   (Required)
   Must be greater than 0.
 
-<a name="nested_explicit_buckets"></a>The `explicit_buckets` block supports:
+<a name="nested_bucket_options_explicit_buckets"></a>The `explicit_buckets` block supports:
 
 * `bounds` -
   (Required)

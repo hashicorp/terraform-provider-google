@@ -449,10 +449,10 @@ Possible values: DEFAULT, FORCE
 * `encryption_config` -
   (Optional)
   EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).
-  Structure is [documented below](#nested_encryption_config).
+  Structure is [documented below](#nested_continuous_backup_config_encryption_config).
 
 
-<a name="nested_encryption_config"></a>The `encryption_config` block supports:
+<a name="nested_continuous_backup_config_encryption_config"></a>The `encryption_config` block supports:
 
 * `kms_key_name` -
   (Optional)
@@ -477,35 +477,35 @@ Possible values: DEFAULT, FORCE
 * `encryption_config` -
   (Optional)
   EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).
-  Structure is [documented below](#nested_encryption_config).
+  Structure is [documented below](#nested_automated_backup_policy_encryption_config).
 
 * `weekly_schedule` -
   (Optional)
   Weekly schedule for the Backup.
-  Structure is [documented below](#nested_weekly_schedule).
+  Structure is [documented below](#nested_automated_backup_policy_weekly_schedule).
 
 * `time_based_retention` -
   (Optional)
   Time-based Backup retention policy. Conflicts with 'quantity_based_retention', both can't be set together.
-  Structure is [documented below](#nested_time_based_retention).
+  Structure is [documented below](#nested_automated_backup_policy_time_based_retention).
 
 * `quantity_based_retention` -
   (Optional)
   Quantity-based Backup retention policy to retain recent backups. Conflicts with 'time_based_retention', both can't be set together.
-  Structure is [documented below](#nested_quantity_based_retention).
+  Structure is [documented below](#nested_automated_backup_policy_quantity_based_retention).
 
 * `enabled` -
   (Optional)
   Whether automated backups are enabled.
 
 
-<a name="nested_encryption_config"></a>The `encryption_config` block supports:
+<a name="nested_automated_backup_policy_encryption_config"></a>The `encryption_config` block supports:
 
 * `kms_key_name` -
   (Optional)
   The fully-qualified resource name of the KMS key. Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].
 
-<a name="nested_weekly_schedule"></a>The `weekly_schedule` block supports:
+<a name="nested_automated_backup_policy_weekly_schedule"></a>The `weekly_schedule` block supports:
 
 * `days_of_week` -
   (Optional)
@@ -515,10 +515,10 @@ Possible values: DEFAULT, FORCE
 * `start_times` -
   (Required)
   The times during the day to start a backup. At least one start time must be provided. The start times are assumed to be in UTC and to be an exact hour (e.g., 04:00:00).
-  Structure is [documented below](#nested_start_times).
+  Structure is [documented below](#nested_automated_backup_policy_weekly_schedule_start_times).
 
 
-<a name="nested_start_times"></a>The `start_times` block supports:
+<a name="nested_automated_backup_policy_weekly_schedule_start_times"></a>The `start_times` block supports:
 
 * `hours` -
   (Optional)
@@ -536,14 +536,14 @@ Possible values: DEFAULT, FORCE
   (Optional)
   Fractions of seconds in nanoseconds. Currently, only the value 0 is supported.
 
-<a name="nested_time_based_retention"></a>The `time_based_retention` block supports:
+<a name="nested_automated_backup_policy_time_based_retention"></a>The `time_based_retention` block supports:
 
 * `retention_period` -
   (Optional)
   The retention period.
   A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
 
-<a name="nested_quantity_based_retention"></a>The `quantity_based_retention` block supports:
+<a name="nested_automated_backup_policy_quantity_based_retention"></a>The `quantity_based_retention` block supports:
 
 * `count` -
   (Optional)
@@ -561,10 +561,10 @@ Possible values: DEFAULT, FORCE
 * `maintenance_windows` -
   (Optional)
   Preferred windows to perform maintenance. Currently limited to 1.
-  Structure is [documented below](#nested_maintenance_windows).
+  Structure is [documented below](#nested_maintenance_update_policy_maintenance_windows).
 
 
-<a name="nested_maintenance_windows"></a>The `maintenance_windows` block supports:
+<a name="nested_maintenance_update_policy_maintenance_windows"></a>The `maintenance_windows` block supports:
 
 * `day` -
   (Required)
@@ -574,10 +574,10 @@ Possible values: DEFAULT, FORCE
 * `start_time` -
   (Required)
   Preferred time to start the maintenance operation on the specified day. Maintenance will start within 1 hour of this time.
-  Structure is [documented below](#nested_start_time).
+  Structure is [documented below](#nested_maintenance_update_policy_maintenance_windows_maintenance_windows_start_time).
 
 
-<a name="nested_start_time"></a>The `start_time` block supports:
+<a name="nested_maintenance_update_policy_maintenance_windows_maintenance_windows_start_time"></a>The `start_time` block supports:
 
 * `hours` -
   (Required)
@@ -673,10 +673,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `encryption_info` -
   (Output)
   Output only. The encryption information for the WALs and backups required for ContinuousBackup.
-  Structure is [documented below](#nested_encryption_info).
+  Structure is [documented below](#nested_continuous_backup_info_encryption_info).
 
 
-<a name="nested_encryption_info"></a>The `encryption_info` block contains:
+<a name="nested_continuous_backup_info_encryption_info"></a>The `encryption_info` block contains:
 
 * `encryption_type` -
   (Output)

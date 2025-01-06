@@ -134,10 +134,10 @@ The following arguments are supported:
 * `sources` -
   (Optional)
   Sources that this `IngressPolicy` authorizes access from.
-  Structure is [documented below](#nested_sources).
+  Structure is [documented below](#nested_ingress_from_sources).
 
 
-<a name="nested_sources"></a>The `sources` block supports:
+<a name="nested_ingress_from_sources"></a>The `sources` block supports:
 
 * `access_level` -
   (Optional)
@@ -179,10 +179,10 @@ The following arguments are supported:
   (Optional)
   A list of `ApiOperations` the sources specified in corresponding `IngressFrom`
   are allowed to perform in this `ServicePerimeter`.
-  Structure is [documented below](#nested_operations).
+  Structure is [documented below](#nested_ingress_to_operations).
 
 
-<a name="nested_operations"></a>The `operations` block supports:
+<a name="nested_ingress_to_operations"></a>The `operations` block supports:
 
 * `service_name` -
   (Optional)
@@ -196,10 +196,10 @@ The following arguments are supported:
   the service specified by serviceName field. A single `MethodSelector` entry
   with `*` specified for the method field will allow all methods AND
   permissions for the service specified in `serviceName`.
-  Structure is [documented below](#nested_method_selectors).
+  Structure is [documented below](#nested_ingress_to_operations_operations_method_selectors).
 
 
-<a name="nested_method_selectors"></a>The `method_selectors` block supports:
+<a name="nested_ingress_to_operations_operations_method_selectors"></a>The `method_selectors` block supports:
 
 * `method` -
   (Optional)

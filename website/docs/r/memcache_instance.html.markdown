@@ -208,10 +208,10 @@ The following arguments are supported:
   Required. Maintenance window that is applied to resources covered by this policy.
   Minimum 1. For the current version, the maximum number of weekly_maintenance_windows
   is expected to be one.
-  Structure is [documented below](#nested_weekly_maintenance_window).
+  Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_window).
 
 
-<a name="nested_weekly_maintenance_window"></a>The `weekly_maintenance_window` block supports:
+<a name="nested_maintenance_policy_weekly_maintenance_window"></a>The `weekly_maintenance_window` block supports:
 
 * `day` -
   (Required)
@@ -235,10 +235,10 @@ The following arguments are supported:
 * `start_time` -
   (Required)
   Required. Start time of the window in UTC time.
-  Structure is [documented below](#nested_start_time).
+  Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_window_weekly_maintenance_window_start_time).
 
 
-<a name="nested_start_time"></a>The `start_time` block supports:
+<a name="nested_maintenance_policy_weekly_maintenance_window_weekly_maintenance_window_start_time"></a>The `start_time` block supports:
 
 * `hours` -
   (Optional)

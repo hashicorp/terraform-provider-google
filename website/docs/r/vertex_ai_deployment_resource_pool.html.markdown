@@ -89,7 +89,7 @@ The following arguments are supported:
 * `machine_spec` -
   (Required)
   The specification of a single machine used by the prediction
-  Structure is [documented below](#nested_machine_spec).
+  Structure is [documented below](#nested_dedicated_resources_machine_spec).
 
 * `min_replica_count` -
   (Required)
@@ -102,10 +102,10 @@ The following arguments are supported:
 * `autoscaling_metric_specs` -
   (Optional)
   A list of the metric specifications that overrides a resource utilization metric.
-  Structure is [documented below](#nested_autoscaling_metric_specs).
+  Structure is [documented below](#nested_dedicated_resources_autoscaling_metric_specs).
 
 
-<a name="nested_machine_spec"></a>The `machine_spec` block supports:
+<a name="nested_dedicated_resources_machine_spec"></a>The `machine_spec` block supports:
 
 * `machine_type` -
   (Optional)
@@ -119,7 +119,7 @@ The following arguments are supported:
   (Optional)
   The number of accelerators to attach to the machine.
 
-<a name="nested_autoscaling_metric_specs"></a>The `autoscaling_metric_specs` block supports:
+<a name="nested_dedicated_resources_autoscaling_metric_specs"></a>The `autoscaling_metric_specs` block supports:
 
 * `metric_name` -
   (Required)

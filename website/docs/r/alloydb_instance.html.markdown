@@ -337,10 +337,10 @@ The following arguments are supported:
 * `ssl_config` -
   (Optional)
   SSL config option for this instance.
-  Structure is [documented below](#nested_ssl_config).
+  Structure is [documented below](#nested_client_connection_config_ssl_config).
 
 
-<a name="nested_ssl_config"></a>The `ssl_config` block supports:
+<a name="nested_client_connection_config_ssl_config"></a>The `ssl_config` block supports:
 
 * `ssl_mode` -
   (Optional)
@@ -372,7 +372,7 @@ The following arguments are supported:
   A list of external networks authorized to access this instance. This
   field is only allowed to be set when `enable_public_ip` is set to
   true.
-  Structure is [documented below](#nested_authorized_external_networks).
+  Structure is [documented below](#nested_network_config_authorized_external_networks).
 
 * `enable_public_ip` -
   (Optional)
@@ -385,7 +385,7 @@ The following arguments are supported:
   Enabling outbound public ip for the instance.
 
 
-<a name="nested_authorized_external_networks"></a>The `authorized_external_networks` block supports:
+<a name="nested_network_config_authorized_external_networks"></a>The `authorized_external_networks` block supports:
 
 * `cidr_range` -
   (Optional)

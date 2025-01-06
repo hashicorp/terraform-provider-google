@@ -158,16 +158,16 @@ The following arguments are supported:
 * `zip` -
   (Optional)
   Zip File
-  Structure is [documented below](#nested_zip).
+  Structure is [documented below](#nested_deployment_zip).
 
 * `files` -
   (Optional)
   Manifest of the files stored in Google Cloud Storage that are included as part of this version.
   All files must be readable using the credentials supplied with this call.
-  Structure is [documented below](#nested_files).
+  Structure is [documented below](#nested_deployment_files).
 
 
-<a name="nested_zip"></a>The `zip` block supports:
+<a name="nested_deployment_zip"></a>The `zip` block supports:
 
 * `source_url` -
   (Required)
@@ -177,7 +177,7 @@ The following arguments are supported:
   (Optional)
   files count
 
-<a name="nested_files"></a>The `files` block supports:
+<a name="nested_deployment_files"></a>The `files` block supports:
 
 * `name` - (Required) The identifier for this object. Format specified above.
 
@@ -306,21 +306,21 @@ The following arguments are supported:
   (Optional)
   Executes a script to handle the requests that match this URL pattern.
   Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".
-  Structure is [documented below](#nested_script).
+  Structure is [documented below](#nested_handlers_handlers_script).
 
 * `static_files` -
   (Optional)
   Files served directly to the user for a given URL, such as images, CSS stylesheets, or JavaScript source files. Static file handlers describe which files in the application directory are static files, and which URLs serve them.
-  Structure is [documented below](#nested_static_files).
+  Structure is [documented below](#nested_handlers_handlers_static_files).
 
 
-<a name="nested_script"></a>The `script` block supports:
+<a name="nested_handlers_handlers_script"></a>The `script` block supports:
 
 * `script_path` -
   (Required)
   Path to the script from the application root directory.
 
-<a name="nested_static_files"></a>The `static_files` block supports:
+<a name="nested_handlers_handlers_static_files"></a>The `static_files` block supports:
 
 * `path` -
   (Optional)
@@ -403,10 +403,10 @@ The following arguments are supported:
 * `standard_scheduler_settings` -
   (Optional)
   Scheduler settings for standard environment.
-  Structure is [documented below](#nested_standard_scheduler_settings).
+  Structure is [documented below](#nested_automatic_scaling_standard_scheduler_settings).
 
 
-<a name="nested_standard_scheduler_settings"></a>The `standard_scheduler_settings` block supports:
+<a name="nested_automatic_scaling_standard_scheduler_settings"></a>The `standard_scheduler_settings` block supports:
 
 * `target_cpu_utilization` -
   (Optional)

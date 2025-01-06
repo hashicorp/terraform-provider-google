@@ -344,7 +344,7 @@ The following arguments are supported:
 * `app_engine_routing` -
   (Optional)
   App Engine Routing setting for the job.
-  Structure is [documented below](#nested_app_engine_routing).
+  Structure is [documented below](#nested_app_engine_http_target_app_engine_routing).
 
 * `relative_uri` -
   (Required)
@@ -368,7 +368,7 @@ The following arguments are supported:
   Headers can be set when the job is created.
 
 
-<a name="nested_app_engine_routing"></a>The `app_engine_routing` block supports:
+<a name="nested_app_engine_http_target_app_engine_routing"></a>The `app_engine_routing` block supports:
 
 * `service` -
   (Optional)
@@ -411,16 +411,16 @@ The following arguments are supported:
   (Optional)
   Contains information needed for generating an OAuth token.
   This type of authorization should be used when sending requests to a GCP endpoint.
-  Structure is [documented below](#nested_oauth_token).
+  Structure is [documented below](#nested_http_target_oauth_token).
 
 * `oidc_token` -
   (Optional)
   Contains information needed for generating an OpenID Connect token.
   This type of authorization should be used when sending requests to third party endpoints or Cloud Run.
-  Structure is [documented below](#nested_oidc_token).
+  Structure is [documented below](#nested_http_target_oidc_token).
 
 
-<a name="nested_oauth_token"></a>The `oauth_token` block supports:
+<a name="nested_http_target_oauth_token"></a>The `oauth_token` block supports:
 
 * `service_account_email` -
   (Required)
@@ -432,7 +432,7 @@ The following arguments are supported:
   OAuth scope to be used for generating OAuth access token. If not specified,
   "https://www.googleapis.com/auth/cloud-platform" will be used.
 
-<a name="nested_oidc_token"></a>The `oidc_token` block supports:
+<a name="nested_http_target_oidc_token"></a>The `oidc_token` block supports:
 
 * `service_account_email` -
   (Required)

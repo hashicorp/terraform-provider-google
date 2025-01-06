@@ -143,10 +143,10 @@ The following arguments are supported:
 * `scaling` -
   (Optional)
   Online serving scaling configuration. Only one of fixedNodeCount and scaling can be set. Setting one will reset the other.
-  Structure is [documented below](#nested_scaling).
+  Structure is [documented below](#nested_online_serving_config_scaling).
 
 
-<a name="nested_scaling"></a>The `scaling` block supports:
+<a name="nested_online_serving_config_scaling"></a>The `scaling` block supports:
 
 * `min_node_count` -
   (Required)

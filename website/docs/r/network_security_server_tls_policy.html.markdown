@@ -205,22 +205,22 @@ The following arguments are supported:
 * `grpc_endpoint` -
   (Optional)
   gRPC specific configuration to access the gRPC server to obtain the cert and private key.
-  Structure is [documented below](#nested_grpc_endpoint).
+  Structure is [documented below](#nested_server_certificate_grpc_endpoint).
 
 * `certificate_provider_instance` -
   (Optional)
   Optional if policy is to be used with Traffic Director. For external HTTPS load balancer must be empty.
   Defines a mechanism to provision server identity (public and private keys). Cannot be combined with allowOpen as a permissive mode that allows both plain text and TLS is not supported.
-  Structure is [documented below](#nested_certificate_provider_instance).
+  Structure is [documented below](#nested_server_certificate_certificate_provider_instance).
 
 
-<a name="nested_grpc_endpoint"></a>The `grpc_endpoint` block supports:
+<a name="nested_server_certificate_grpc_endpoint"></a>The `grpc_endpoint` block supports:
 
 * `target_uri` -
   (Required)
   The target URI of the gRPC endpoint. Only UDS path is supported, and should start with "unix:".
 
-<a name="nested_certificate_provider_instance"></a>The `certificate_provider_instance` block supports:
+<a name="nested_server_certificate_certificate_provider_instance"></a>The `certificate_provider_instance` block supports:
 
 * `plugin_instance` -
   (Required)
@@ -244,30 +244,30 @@ The following arguments are supported:
   (Optional)
   Required if the policy is to be used with Traffic Director. For external HTTPS load balancers it must be empty.
   Defines the mechanism to obtain the Certificate Authority certificate to validate the client certificate.
-  Structure is [documented below](#nested_client_validation_ca).
+  Structure is [documented below](#nested_mtls_policy_client_validation_ca).
 
 
-<a name="nested_client_validation_ca"></a>The `client_validation_ca` block supports:
+<a name="nested_mtls_policy_client_validation_ca"></a>The `client_validation_ca` block supports:
 
 * `grpc_endpoint` -
   (Optional)
   gRPC specific configuration to access the gRPC server to obtain the cert and private key.
-  Structure is [documented below](#nested_grpc_endpoint).
+  Structure is [documented below](#nested_mtls_policy_client_validation_ca_client_validation_ca_grpc_endpoint).
 
 * `certificate_provider_instance` -
   (Optional)
   Optional if policy is to be used with Traffic Director. For external HTTPS load balancer must be empty.
   Defines a mechanism to provision server identity (public and private keys). Cannot be combined with allowOpen as a permissive mode that allows both plain text and TLS is not supported.
-  Structure is [documented below](#nested_certificate_provider_instance).
+  Structure is [documented below](#nested_mtls_policy_client_validation_ca_client_validation_ca_certificate_provider_instance).
 
 
-<a name="nested_grpc_endpoint"></a>The `grpc_endpoint` block supports:
+<a name="nested_mtls_policy_client_validation_ca_client_validation_ca_grpc_endpoint"></a>The `grpc_endpoint` block supports:
 
 * `target_uri` -
   (Required)
   The target URI of the gRPC endpoint. Only UDS path is supported, and should start with "unix:".
 
-<a name="nested_certificate_provider_instance"></a>The `certificate_provider_instance` block supports:
+<a name="nested_mtls_policy_client_validation_ca_client_validation_ca_certificate_provider_instance"></a>The `certificate_provider_instance` block supports:
 
 * `plugin_instance` -
   (Required)

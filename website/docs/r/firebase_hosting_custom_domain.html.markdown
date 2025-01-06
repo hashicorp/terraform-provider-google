@@ -284,15 +284,15 @@ In addition to the arguments listed above, the following computed attributes are
 * `discovered` -
   (Optional)
   The set of DNS records Hosting discovered when inspecting a domain
-  Structure is [documented below](#nested_discovered).
+  Structure is [documented below](#nested_required_dns_updates_discovered).
 
 * `desired` -
   (Optional)
   The set of DNS records Hosting needs to serve secure content on the domain.
-  Structure is [documented below](#nested_desired).
+  Structure is [documented below](#nested_required_dns_updates_desired).
 
 
-<a name="nested_discovered"></a>The `discovered` block supports:
+<a name="nested_required_dns_updates_discovered"></a>The `discovered` block supports:
 
 * `domain_name` -
   (Optional)
@@ -301,10 +301,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `records` -
   (Optional)
   Records on the domain
-  Structure is [documented below](#nested_records).
+  Structure is [documented below](#nested_required_dns_updates_discovered_discovered_records).
 
 
-<a name="nested_records"></a>The `records` block supports:
+<a name="nested_required_dns_updates_discovered_discovered_records"></a>The `records` block supports:
 
 * `domain_name` -
   (Optional)
@@ -328,7 +328,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Optional)
   Indicates the a required action for this record.
 
-<a name="nested_desired"></a>The `desired` block supports:
+<a name="nested_required_dns_updates_desired"></a>The `desired` block supports:
 
 * `domain_name` -
   (Optional)
@@ -337,10 +337,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `records` -
   (Optional)
   Records on the domain
-  Structure is [documented below](#nested_records).
+  Structure is [documented below](#nested_required_dns_updates_desired_desired_records).
 
 
-<a name="nested_records"></a>The `records` block supports:
+<a name="nested_required_dns_updates_desired_desired_records"></a>The `records` block supports:
 
 * `domain_name` -
   (Optional)
@@ -399,25 +399,25 @@ In addition to the arguments listed above, the following computed attributes are
   for your domain name before you point traffic toward hosting. You can use
   thse challenges as part of a zero downtime transition from your old
   provider to Hosting.
-  Structure is [documented below](#nested_verification).
+  Structure is [documented below](#nested_cert_verification).
 
 
-<a name="nested_verification"></a>The `verification` block supports:
+<a name="nested_cert_verification"></a>The `verification` block supports:
 
 * `dns` -
   (Optional)
   A `TXT` record to add to your DNS records that confirms your intent to
   let Hosting create an SSL cert for your domain name.
-  Structure is [documented below](#nested_dns).
+  Structure is [documented below](#nested_cert_verification_dns).
 
 * `http` -
   (Optional)
   A file to add to your existing, non-Hosting hosting service that confirms
   your intent to let Hosting create an SSL cert for your domain name.
-  Structure is [documented below](#nested_http).
+  Structure is [documented below](#nested_cert_verification_http).
 
 
-<a name="nested_dns"></a>The `dns` block supports:
+<a name="nested_cert_verification_dns"></a>The `dns` block supports:
 
 * `check_time` -
   (Output)
@@ -426,15 +426,15 @@ In addition to the arguments listed above, the following computed attributes are
 * `discovered` -
   (Optional)
   The set of DNS records Hosting discovered when inspecting a domain
-  Structure is [documented below](#nested_discovered).
+  Structure is [documented below](#nested_cert_verification_dns_discovered).
 
 * `desired` -
   (Optional)
   The set of DNS records Hosting needs to serve secure content on the domain.
-  Structure is [documented below](#nested_desired).
+  Structure is [documented below](#nested_cert_verification_dns_desired).
 
 
-<a name="nested_discovered"></a>The `discovered` block supports:
+<a name="nested_cert_verification_dns_discovered"></a>The `discovered` block supports:
 
 * `domain_name` -
   (Optional)
@@ -443,10 +443,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `records` -
   (Optional)
   Records on the domain
-  Structure is [documented below](#nested_records).
+  Structure is [documented below](#nested_cert_verification_dns_discovered_discovered_records).
 
 
-<a name="nested_records"></a>The `records` block supports:
+<a name="nested_cert_verification_dns_discovered_discovered_records"></a>The `records` block supports:
 
 * `domain_name` -
   (Optional)
@@ -470,7 +470,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Optional)
   Indicates the a required action for this record.
 
-<a name="nested_desired"></a>The `desired` block supports:
+<a name="nested_cert_verification_dns_desired"></a>The `desired` block supports:
 
 * `domain_name` -
   (Optional)
@@ -479,10 +479,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `records` -
   (Optional)
   Records on the domain
-  Structure is [documented below](#nested_records).
+  Structure is [documented below](#nested_cert_verification_dns_desired_desired_records).
 
 
-<a name="nested_records"></a>The `records` block supports:
+<a name="nested_cert_verification_dns_desired_desired_records"></a>The `records` block supports:
 
 * `domain_name` -
   (Optional)
@@ -506,7 +506,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Optional)
   Indicates the a required action for this record.
 
-<a name="nested_http"></a>The `http` block supports:
+<a name="nested_cert_verification_http"></a>The `http` block supports:
 
 * `path` -
   (Optional)

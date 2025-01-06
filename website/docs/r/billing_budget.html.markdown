@@ -281,7 +281,7 @@ The following arguments are supported:
   A specified amount to use as the budget. currencyCode is
   optional. If specified, it must match the currency of the
   billing account. The currencyCode is provided on output.
-  Structure is [documented below](#nested_specified_amount).
+  Structure is [documented below](#nested_amount_specified_amount).
 
 * `last_period_amount` -
   (Optional)
@@ -291,7 +291,7 @@ The following arguments are supported:
   use the `specified_amount` block.
 
 
-<a name="nested_specified_amount"></a>The `specified_amount` block supports:
+<a name="nested_amount_specified_amount"></a>The `specified_amount` block supports:
 
 * `currency_code` -
   (Optional)
@@ -414,24 +414,24 @@ The following arguments are supported:
   Specifies to track usage from any start date (required) to any end date (optional).
   This time period is static, it does not recur.
   Exactly one of `calendar_period`, `custom_period` must be provided.
-  Structure is [documented below](#nested_custom_period).
+  Structure is [documented below](#nested_budget_filter_custom_period).
 
 
-<a name="nested_custom_period"></a>The `custom_period` block supports:
+<a name="nested_budget_filter_custom_period"></a>The `custom_period` block supports:
 
 * `start_date` -
   (Required)
   A start date is required. The start date must be after January 1, 2017.
-  Structure is [documented below](#nested_start_date).
+  Structure is [documented below](#nested_budget_filter_custom_period_start_date).
 
 * `end_date` -
   (Optional)
   Optional. The end date of the time period. Budgets with elapsed end date won't be processed.
   If unset, specifies to track all usage incurred since the startDate.
-  Structure is [documented below](#nested_end_date).
+  Structure is [documented below](#nested_budget_filter_custom_period_end_date).
 
 
-<a name="nested_start_date"></a>The `start_date` block supports:
+<a name="nested_budget_filter_custom_period_start_date"></a>The `start_date` block supports:
 
 * `year` -
   (Required)
@@ -445,7 +445,7 @@ The following arguments are supported:
   (Required)
   Day of a month. Must be from 1 to 31 and valid for the year and month.
 
-<a name="nested_end_date"></a>The `end_date` block supports:
+<a name="nested_budget_filter_custom_period_end_date"></a>The `end_date` block supports:
 
 * `year` -
   (Required)

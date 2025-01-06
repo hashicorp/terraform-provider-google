@@ -129,7 +129,7 @@ The following arguments are supported:
 * `sources` -
   (Optional)
   Sources that this EgressPolicy authorizes access from.
-  Structure is [documented below](#nested_sources).
+  Structure is [documented below](#nested_egress_from_sources).
 
 * `source_restriction` -
   (Optional)
@@ -137,7 +137,7 @@ The following arguments are supported:
   Possible values are: `SOURCE_RESTRICTION_UNSPECIFIED`, `SOURCE_RESTRICTION_ENABLED`, `SOURCE_RESTRICTION_DISABLED`.
 
 
-<a name="nested_sources"></a>The `sources` block supports:
+<a name="nested_egress_from_sources"></a>The `sources` block supports:
 
 * `access_level` -
   (Optional)
@@ -163,10 +163,10 @@ The following arguments are supported:
   (Optional)
   A list of `ApiOperations` that this egress rule applies to. A request matches
   if it contains an operation/service in this list.
-  Structure is [documented below](#nested_operations).
+  Structure is [documented below](#nested_egress_to_operations).
 
 
-<a name="nested_operations"></a>The `operations` block supports:
+<a name="nested_egress_to_operations"></a>The `operations` block supports:
 
 * `service_name` -
   (Optional)
@@ -180,10 +180,10 @@ The following arguments are supported:
   to the service specified by `serviceName` field. A single MethodSelector
   entry with `*` specified for the `method` field will allow all methods
   AND permissions for the service specified in `serviceName`.
-  Structure is [documented below](#nested_method_selectors).
+  Structure is [documented below](#nested_egress_to_operations_operations_method_selectors).
 
 
-<a name="nested_method_selectors"></a>The `method_selectors` block supports:
+<a name="nested_egress_to_operations_operations_method_selectors"></a>The `method_selectors` block supports:
 
 * `method` -
   (Optional)

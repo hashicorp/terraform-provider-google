@@ -221,14 +221,14 @@ The following arguments are supported:
 * `authorizer_credential` -
   (Optional)
   OAuth credential of the account that authorized the Cloud Build GitHub App. It is recommended to use a robot account instead of a human user account. The OAuth token must be tied to the Cloud Build GitHub App.
-  Structure is [documented below](#nested_authorizer_credential).
+  Structure is [documented below](#nested_github_config_authorizer_credential).
 
 * `app_installation_id` -
   (Optional)
   GitHub App installation id.
 
 
-<a name="nested_authorizer_credential"></a>The `authorizer_credential` block supports:
+<a name="nested_github_config_authorizer_credential"></a>The `authorizer_credential` block supports:
 
 * `oauth_token_secret_version` -
   (Optional)
@@ -267,14 +267,14 @@ The following arguments are supported:
 * `service_directory_config` -
   (Optional)
   Configuration for using Service Directory to privately connect to a GitHub Enterprise server. This should only be set if the GitHub Enterprise server is hosted on-premises and not reachable by public internet. If this field is left empty, calls to the GitHub Enterprise server will be made over the public internet.
-  Structure is [documented below](#nested_service_directory_config).
+  Structure is [documented below](#nested_github_enterprise_config_service_directory_config).
 
 * `ssl_ca` -
   (Optional)
   SSL certificate to use for requests to GitHub Enterprise.
 
 
-<a name="nested_service_directory_config"></a>The `service_directory_config` block supports:
+<a name="nested_github_enterprise_config_service_directory_config"></a>The `service_directory_config` block supports:
 
 * `service` -
   (Required)
@@ -293,17 +293,17 @@ The following arguments are supported:
 * `read_authorizer_credential` -
   (Required)
   Required. A GitLab personal access token with the minimum `read_api` scope access.
-  Structure is [documented below](#nested_read_authorizer_credential).
+  Structure is [documented below](#nested_gitlab_config_read_authorizer_credential).
 
 * `authorizer_credential` -
   (Required)
   Required. A GitLab personal access token with the `api` scope access.
-  Structure is [documented below](#nested_authorizer_credential).
+  Structure is [documented below](#nested_gitlab_config_authorizer_credential).
 
 * `service_directory_config` -
   (Optional)
   Configuration for using Service Directory to privately connect to a GitLab Enterprise server. This should only be set if the GitLab Enterprise server is hosted on-premises and not reachable by public internet. If this field is left empty, calls to the GitLab Enterprise server will be made over the public internet.
-  Structure is [documented below](#nested_service_directory_config).
+  Structure is [documented below](#nested_gitlab_config_service_directory_config).
 
 * `ssl_ca` -
   (Optional)
@@ -314,7 +314,7 @@ The following arguments are supported:
   Output only. Version of the GitLab Enterprise server running on the `host_uri`.
 
 
-<a name="nested_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
+<a name="nested_gitlab_config_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
 
 * `user_token_secret_version` -
   (Required)
@@ -324,7 +324,7 @@ The following arguments are supported:
   (Output)
   Output only. The username associated to this token.
 
-<a name="nested_authorizer_credential"></a>The `authorizer_credential` block supports:
+<a name="nested_gitlab_config_authorizer_credential"></a>The `authorizer_credential` block supports:
 
 * `user_token_secret_version` -
   (Required)
@@ -334,7 +334,7 @@ The following arguments are supported:
   (Output)
   Output only. The username associated to this token.
 
-<a name="nested_service_directory_config"></a>The `service_directory_config` block supports:
+<a name="nested_gitlab_config_service_directory_config"></a>The `service_directory_config` block supports:
 
 * `service` -
   (Required)
@@ -353,17 +353,17 @@ The following arguments are supported:
 * `read_authorizer_credential` -
   (Required)
   Required. A http access token with the `REPO_READ` access.
-  Structure is [documented below](#nested_read_authorizer_credential).
+  Structure is [documented below](#nested_bitbucket_data_center_config_read_authorizer_credential).
 
 * `authorizer_credential` -
   (Required)
   Required. A http access token with the `REPO_ADMIN` scope access.
-  Structure is [documented below](#nested_authorizer_credential).
+  Structure is [documented below](#nested_bitbucket_data_center_config_authorizer_credential).
 
 * `service_directory_config` -
   (Optional)
   Configuration for using Service Directory to privately connect to a Bitbucket Data Center. This should only be set if the Bitbucket Data Center is hosted on-premises and not reachable by public internet. If this field is left empty, calls to the Bitbucket Data Center will be made over the public internet.
-  Structure is [documented below](#nested_service_directory_config).
+  Structure is [documented below](#nested_bitbucket_data_center_config_service_directory_config).
 
 * `ssl_ca` -
   (Optional)
@@ -374,7 +374,7 @@ The following arguments are supported:
   Output only. Version of the Bitbucket Data Center running on the `host_uri`.
 
 
-<a name="nested_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
+<a name="nested_bitbucket_data_center_config_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
 
 * `user_token_secret_version` -
   (Required)
@@ -384,7 +384,7 @@ The following arguments are supported:
   (Output)
   Output only. The username associated to this token.
 
-<a name="nested_authorizer_credential"></a>The `authorizer_credential` block supports:
+<a name="nested_bitbucket_data_center_config_authorizer_credential"></a>The `authorizer_credential` block supports:
 
 * `user_token_secret_version` -
   (Required)
@@ -394,7 +394,7 @@ The following arguments are supported:
   (Output)
   Output only. The username associated to this token.
 
-<a name="nested_service_directory_config"></a>The `service_directory_config` block supports:
+<a name="nested_bitbucket_data_center_config_service_directory_config"></a>The `service_directory_config` block supports:
 
 * `service` -
   (Required)
@@ -413,15 +413,15 @@ The following arguments are supported:
 * `read_authorizer_credential` -
   (Required)
   Required. An access token with the `repository` access. It can be either a workspace, project or repository access token. It's recommended to use a system account to generate the credentials.
-  Structure is [documented below](#nested_read_authorizer_credential).
+  Structure is [documented below](#nested_bitbucket_cloud_config_read_authorizer_credential).
 
 * `authorizer_credential` -
   (Required)
   Required. An access token with the `webhook`, `repository`, `repository:admin` and `pullrequest` scope access. It can be either a workspace, project or repository access token. It's recommended to use a system account to generate these credentials.
-  Structure is [documented below](#nested_authorizer_credential).
+  Structure is [documented below](#nested_bitbucket_cloud_config_authorizer_credential).
 
 
-<a name="nested_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
+<a name="nested_bitbucket_cloud_config_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
 
 * `user_token_secret_version` -
   (Required)
@@ -431,7 +431,7 @@ The following arguments are supported:
   (Output)
   Output only. The username associated to this token.
 
-<a name="nested_authorizer_credential"></a>The `authorizer_credential` block supports:
+<a name="nested_bitbucket_cloud_config_authorizer_credential"></a>The `authorizer_credential` block supports:
 
 * `user_token_secret_version` -
   (Required)

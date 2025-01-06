@@ -351,7 +351,7 @@ The following arguments are supported:
 * `island_mode_cidr` -
   (Optional)
   A nested object resource.
-  Structure is [documented below](#nested_island_mode_cidr).
+  Structure is [documented below](#nested_network_config_island_mode_cidr).
 
 * `advanced_networking` -
   (Optional)
@@ -363,15 +363,15 @@ The following arguments are supported:
 * `multiple_network_interfaces_config` -
   (Optional)
   Configuration for multiple network interfaces.
-  Structure is [documented below](#nested_multiple_network_interfaces_config).
+  Structure is [documented below](#nested_network_config_multiple_network_interfaces_config).
 
 * `sr_iov_config` -
   (Optional)
   Configuration for SR-IOV.
-  Structure is [documented below](#nested_sr_iov_config).
+  Structure is [documented below](#nested_network_config_sr_iov_config).
 
 
-<a name="nested_island_mode_cidr"></a>The `island_mode_cidr` block supports:
+<a name="nested_network_config_island_mode_cidr"></a>The `island_mode_cidr` block supports:
 
 * `service_address_cidr_blocks` -
   (Required)
@@ -381,7 +381,7 @@ The following arguments are supported:
   (Required)
   All pods in the cluster are assigned an RFC1918 IPv4 address from these ranges. This field cannot be changed after creation.
 
-<a name="nested_multiple_network_interfaces_config"></a>The `multiple_network_interfaces_config` block supports:
+<a name="nested_network_config_multiple_network_interfaces_config"></a>The `multiple_network_interfaces_config` block supports:
 
 * `enabled` -
   (Optional)
@@ -389,7 +389,7 @@ The following arguments are supported:
   When set network_config.advanced_networking is automatically
   set to true.
 
-<a name="nested_sr_iov_config"></a>The `sr_iov_config` block supports:
+<a name="nested_network_config_sr_iov_config"></a>The `sr_iov_config` block supports:
 
 * `enabled` -
   (Optional)
@@ -400,7 +400,7 @@ The following arguments are supported:
 * `control_plane_node_pool_config` -
   (Required)
   Configures the node pool running the control plane. If specified the corresponding NodePool will be created for the cluster's control plane. The NodePool will have the same name and namespace as the cluster.
-  Structure is [documented below](#nested_control_plane_node_pool_config).
+  Structure is [documented below](#nested_control_plane_control_plane_node_pool_config).
 
 * `api_server_args` -
   (Optional)
@@ -408,23 +408,23 @@ The following arguments are supported:
   customized flags are supported. Please refer to the API server
   documentation below to know the exact format:
   https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/
-  Structure is [documented below](#nested_api_server_args).
+  Structure is [documented below](#nested_control_plane_api_server_args).
 
 
-<a name="nested_control_plane_node_pool_config"></a>The `control_plane_node_pool_config` block supports:
+<a name="nested_control_plane_control_plane_node_pool_config"></a>The `control_plane_node_pool_config` block supports:
 
 * `node_pool_config` -
   (Required)
   The generic configuration for a node pool running the control plane.
-  Structure is [documented below](#nested_node_pool_config).
+  Structure is [documented below](#nested_control_plane_control_plane_node_pool_config_node_pool_config).
 
 
-<a name="nested_node_pool_config"></a>The `node_pool_config` block supports:
+<a name="nested_control_plane_control_plane_node_pool_config_node_pool_config"></a>The `node_pool_config` block supports:
 
 * `node_configs` -
   (Optional)
   The list of machine addresses in the Bare Metal Node Pool.
-  Structure is [documented below](#nested_node_configs).
+  Structure is [documented below](#nested_control_plane_control_plane_node_pool_config_node_pool_config_node_configs).
 
 * `operating_system` -
   (Optional)
@@ -433,7 +433,7 @@ The following arguments are supported:
 * `taints` -
   (Optional)
   The initial taints assigned to nodes of this node pool.
-  Structure is [documented below](#nested_taints).
+  Structure is [documented below](#nested_control_plane_control_plane_node_pool_config_node_pool_config_taints).
 
 * `labels` -
   (Optional)
@@ -449,7 +449,7 @@ The following arguments are supported:
   For example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
 
-<a name="nested_node_configs"></a>The `node_configs` block supports:
+<a name="nested_control_plane_control_plane_node_pool_config_node_pool_config_node_configs"></a>The `node_configs` block supports:
 
 * `node_ip` -
   (Optional)
@@ -469,7 +469,7 @@ The following arguments are supported:
   An object containing a list of "key": value pairs.
   Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
-<a name="nested_taints"></a>The `taints` block supports:
+<a name="nested_control_plane_control_plane_node_pool_config_node_pool_config_taints"></a>The `taints` block supports:
 
 * `key` -
   (Optional)
@@ -484,7 +484,7 @@ The following arguments are supported:
   Specifies the nodes operating system (default: LINUX).
   Possible values are: `EFFECT_UNSPECIFIED`, `PREFER_NO_SCHEDULE`, `NO_EXECUTE`.
 
-<a name="nested_api_server_args"></a>The `api_server_args` block supports:
+<a name="nested_control_plane_api_server_args"></a>The `api_server_args` block supports:
 
 * `argument` -
   (Required)
@@ -499,30 +499,30 @@ The following arguments are supported:
 * `vip_config` -
   (Required)
   Specified the Bare Metal Load Balancer Config
-  Structure is [documented below](#nested_vip_config).
+  Structure is [documented below](#nested_load_balancer_vip_config).
 
 * `port_config` -
   (Required)
   Specifies the load balancer ports.
-  Structure is [documented below](#nested_port_config).
+  Structure is [documented below](#nested_load_balancer_port_config).
 
 * `metal_lb_config` -
   (Optional)
   A nested object resource.
-  Structure is [documented below](#nested_metal_lb_config).
+  Structure is [documented below](#nested_load_balancer_metal_lb_config).
 
 * `manual_lb_config` -
   (Optional)
   A nested object resource.
-  Structure is [documented below](#nested_manual_lb_config).
+  Structure is [documented below](#nested_load_balancer_manual_lb_config).
 
 * `bgp_lb_config` -
   (Optional)
   Configuration for BGP typed load balancers.
-  Structure is [documented below](#nested_bgp_lb_config).
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config).
 
 
-<a name="nested_vip_config"></a>The `vip_config` block supports:
+<a name="nested_load_balancer_vip_config"></a>The `vip_config` block supports:
 
 * `control_plane_vip` -
   (Required)
@@ -532,28 +532,28 @@ The following arguments are supported:
   (Required)
   The VIP which you previously set aside for ingress traffic into this Bare Metal User Cluster.
 
-<a name="nested_port_config"></a>The `port_config` block supports:
+<a name="nested_load_balancer_port_config"></a>The `port_config` block supports:
 
 * `control_plane_load_balancer_port` -
   (Required)
   The port that control plane hosted load balancers will listen on.
 
-<a name="nested_metal_lb_config"></a>The `metal_lb_config` block supports:
+<a name="nested_load_balancer_metal_lb_config"></a>The `metal_lb_config` block supports:
 
 * `address_pools` -
   (Required)
   AddressPools is a list of non-overlapping IP pools used by load balancer
   typed services. All addresses must be routable to load balancer nodes.
   IngressVIP must be included in the pools.
-  Structure is [documented below](#nested_address_pools).
+  Structure is [documented below](#nested_load_balancer_metal_lb_config_address_pools).
 
 * `load_balancer_node_pool_config` -
   (Optional)
   Specifies the load balancer's node pool configuration.
-  Structure is [documented below](#nested_load_balancer_node_pool_config).
+  Structure is [documented below](#nested_load_balancer_metal_lb_config_load_balancer_node_pool_config).
 
 
-<a name="nested_address_pools"></a>The `address_pools` block supports:
+<a name="nested_load_balancer_metal_lb_config_address_pools"></a>The `address_pools` block supports:
 
 * `pool` -
   (Required)
@@ -572,20 +572,20 @@ The following arguments are supported:
   (Optional)
   If true, prevent IP addresses from being automatically assigned.
 
-<a name="nested_load_balancer_node_pool_config"></a>The `load_balancer_node_pool_config` block supports:
+<a name="nested_load_balancer_metal_lb_config_load_balancer_node_pool_config"></a>The `load_balancer_node_pool_config` block supports:
 
 * `node_pool_config` -
   (Optional)
   The generic configuration for a node pool running a load balancer.
-  Structure is [documented below](#nested_node_pool_config).
+  Structure is [documented below](#nested_load_balancer_metal_lb_config_load_balancer_node_pool_config_node_pool_config).
 
 
-<a name="nested_node_pool_config"></a>The `node_pool_config` block supports:
+<a name="nested_load_balancer_metal_lb_config_load_balancer_node_pool_config_node_pool_config"></a>The `node_pool_config` block supports:
 
 * `node_configs` -
   (Optional)
   The list of machine addresses in the Bare Metal Node Pool.
-  Structure is [documented below](#nested_node_configs).
+  Structure is [documented below](#nested_load_balancer_metal_lb_config_load_balancer_node_pool_config_node_pool_config_node_configs).
 
 * `operating_system` -
   (Optional)
@@ -594,7 +594,7 @@ The following arguments are supported:
 * `taints` -
   (Optional)
   The initial taints assigned to nodes of this node pool.
-  Structure is [documented below](#nested_taints).
+  Structure is [documented below](#nested_load_balancer_metal_lb_config_load_balancer_node_pool_config_node_pool_config_taints).
 
 * `labels` -
   (Optional)
@@ -610,7 +610,7 @@ The following arguments are supported:
   For example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
 
-<a name="nested_node_configs"></a>The `node_configs` block supports:
+<a name="nested_load_balancer_metal_lb_config_load_balancer_node_pool_config_node_pool_config_node_configs"></a>The `node_configs` block supports:
 
 * `node_ip` -
   (Optional)
@@ -630,7 +630,7 @@ The following arguments are supported:
   An object containing a list of "key": value pairs.
   For example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
-<a name="nested_taints"></a>The `taints` block supports:
+<a name="nested_load_balancer_metal_lb_config_load_balancer_node_pool_config_node_pool_config_taints"></a>The `taints` block supports:
 
 * `key` -
   (Optional)
@@ -645,13 +645,13 @@ The following arguments are supported:
   Specifies the nodes operating system (default: LINUX).
   Possible values are: `EFFECT_UNSPECIFIED`, `PREFER_NO_SCHEDULE`, `NO_EXECUTE`.
 
-<a name="nested_manual_lb_config"></a>The `manual_lb_config` block supports:
+<a name="nested_load_balancer_manual_lb_config"></a>The `manual_lb_config` block supports:
 
 * `enabled` -
   (Required)
   Whether manual load balancing is enabled.
 
-<a name="nested_bgp_lb_config"></a>The `bgp_lb_config` block supports:
+<a name="nested_load_balancer_bgp_lb_config"></a>The `bgp_lb_config` block supports:
 
 * `asn` -
   (Required)
@@ -665,24 +665,24 @@ The following arguments are supported:
   Control plane nodes will connect to these peers to advertise the control
   plane VIP. The Services load balancer also uses these peers by default.
   This field can be updated after cluster creation.
-  Structure is [documented below](#nested_bgp_peer_configs).
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config_bgp_peer_configs).
 
 * `address_pools` -
   (Required)
   AddressPools is a list of non-overlapping IP pools used by load balancer
   typed services. All addresses must be routable to load balancer nodes.
   IngressVIP must be included in the pools.
-  Structure is [documented below](#nested_address_pools).
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config_address_pools).
 
 * `load_balancer_node_pool_config` -
   (Optional)
   Specifies the node pool running data plane load balancing. L2 connectivity
   is required among nodes in this pool. If missing, the control plane node
   pool is used for data plane load balancing.
-  Structure is [documented below](#nested_load_balancer_node_pool_config).
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config).
 
 
-<a name="nested_bgp_peer_configs"></a>The `bgp_peer_configs` block supports:
+<a name="nested_load_balancer_bgp_lb_config_bgp_peer_configs"></a>The `bgp_peer_configs` block supports:
 
 * `asn` -
   (Required)
@@ -701,7 +701,7 @@ The following arguments are supported:
   can connect to the external peer. If you specify one or more IP addresses,
   only the nodes specified participate in peering sessions.
 
-<a name="nested_address_pools"></a>The `address_pools` block supports:
+<a name="nested_load_balancer_bgp_lb_config_address_pools"></a>The `address_pools` block supports:
 
 * `pool` -
   (Required)
@@ -720,20 +720,20 @@ The following arguments are supported:
   (Optional)
   If true, prevent IP addresses from being automatically assigned.
 
-<a name="nested_load_balancer_node_pool_config"></a>The `load_balancer_node_pool_config` block supports:
+<a name="nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config"></a>The `load_balancer_node_pool_config` block supports:
 
 * `node_pool_config` -
   (Optional)
   The generic configuration for a node pool running a load balancer.
-  Structure is [documented below](#nested_node_pool_config).
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config).
 
 
-<a name="nested_node_pool_config"></a>The `node_pool_config` block supports:
+<a name="nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config"></a>The `node_pool_config` block supports:
 
 * `node_configs` -
   (Optional)
   The list of machine addresses in the Bare Metal Node Pool.
-  Structure is [documented below](#nested_node_configs).
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config_node_configs).
 
 * `operating_system` -
   (Optional)
@@ -742,7 +742,7 @@ The following arguments are supported:
 * `taints` -
   (Optional)
   The initial taints assigned to nodes of this node pool.
-  Structure is [documented below](#nested_taints).
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config_taints).
 
 * `labels` -
   (Optional)
@@ -760,10 +760,10 @@ The following arguments are supported:
 * `kubelet_config` -
   (Optional)
   The modifiable kubelet configurations for the baremetal machines.
-  Structure is [documented below](#nested_kubelet_config).
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config_kubelet_config).
 
 
-<a name="nested_node_configs"></a>The `node_configs` block supports:
+<a name="nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config_node_configs"></a>The `node_configs` block supports:
 
 * `node_ip` -
   (Optional)
@@ -783,7 +783,7 @@ The following arguments are supported:
   An object containing a list of "key": value pairs.
   For example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
-<a name="nested_taints"></a>The `taints` block supports:
+<a name="nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config_taints"></a>The `taints` block supports:
 
 * `key` -
   (Optional)
@@ -798,7 +798,7 @@ The following arguments are supported:
   Specifies the nodes operating system (default: LINUX).
   Possible values are: `EFFECT_UNSPECIFIED`, `PREFER_NO_SCHEDULE`, `NO_EXECUTE`.
 
-<a name="nested_kubelet_config"></a>The `kubelet_config` block supports:
+<a name="nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config_kubelet_config"></a>The `kubelet_config` block supports:
 
 * `registry_pull_qps` -
   (Optional)
@@ -832,29 +832,29 @@ The following arguments are supported:
   Specifies the config for local PersistentVolumes backed by
   subdirectories in a shared filesystem. These subdirectores are
   automatically created during cluster creation.
-  Structure is [documented below](#nested_lvp_share_config).
+  Structure is [documented below](#nested_storage_lvp_share_config).
 
 * `lvp_node_mounts_config` -
   (Required)
   Specifies the config for local PersistentVolumes backed
   by mounted node disks. These disks need to be formatted and mounted by the
   user, which can be done before or after cluster creation.
-  Structure is [documented below](#nested_lvp_node_mounts_config).
+  Structure is [documented below](#nested_storage_lvp_node_mounts_config).
 
 
-<a name="nested_lvp_share_config"></a>The `lvp_share_config` block supports:
+<a name="nested_storage_lvp_share_config"></a>The `lvp_share_config` block supports:
 
 * `lvp_config` -
   (Required)
   Defines the machine path and storage class for the LVP Share.
-  Structure is [documented below](#nested_lvp_config).
+  Structure is [documented below](#nested_storage_lvp_share_config_lvp_config).
 
 * `shared_path_pv_count` -
   (Optional)
   The number of subdirectories to create under path.
 
 
-<a name="nested_lvp_config"></a>The `lvp_config` block supports:
+<a name="nested_storage_lvp_share_config_lvp_config"></a>The `lvp_config` block supports:
 
 * `path` -
   (Required)
@@ -864,7 +864,7 @@ The following arguments are supported:
   (Required)
   The StorageClass name that PVs will be created with.
 
-<a name="nested_lvp_node_mounts_config"></a>The `lvp_node_mounts_config` block supports:
+<a name="nested_storage_lvp_node_mounts_config"></a>The `lvp_node_mounts_config` block supports:
 
 * `path` -
   (Required)
@@ -1004,18 +1004,18 @@ The following arguments are supported:
 * `authorization` -
   (Optional)
   Configures user access to the Bare Metal User cluster.
-  Structure is [documented below](#nested_authorization).
+  Structure is [documented below](#nested_security_config_authorization).
 
 
-<a name="nested_authorization"></a>The `authorization` block supports:
+<a name="nested_security_config_authorization"></a>The `authorization` block supports:
 
 * `admin_users` -
   (Required)
   Users that will be granted the cluster-admin role on the cluster, providing full access to the cluster.
-  Structure is [documented below](#nested_admin_users).
+  Structure is [documented below](#nested_security_config_authorization_admin_users).
 
 
-<a name="nested_admin_users"></a>The `admin_users` block supports:
+<a name="nested_security_config_authorization_admin_users"></a>The `admin_users` block supports:
 
 * `username` -
   (Required)
@@ -1124,10 +1124,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `conditions` -
   (Output)
   ResourceConditions provide a standard mechanism for higher-level status reporting from user cluster controller.
-  Structure is [documented below](#nested_conditions).
+  Structure is [documented below](#nested_status_conditions).
 
 
-<a name="nested_conditions"></a>The `conditions` block contains:
+<a name="nested_status_conditions"></a>The `conditions` block contains:
 
 * `type` -
   (Optional)
@@ -1159,22 +1159,22 @@ In addition to the arguments listed above, the following computed attributes are
 * `status` -
   (Output)
   Specifies the detailed validation check status
-  Structure is [documented below](#nested_status).
+  Structure is [documented below](#nested_validation_check_status).
 
 * `scenario` -
   (Output)
   The scenario when the preflight checks were run..
 
 
-<a name="nested_status"></a>The `status` block contains:
+<a name="nested_validation_check_status"></a>The `status` block contains:
 
 * `result` -
   (Output)
   Individual checks which failed as part of the Preflight check execution.
-  Structure is [documented below](#nested_result).
+  Structure is [documented below](#nested_validation_check_status_result).
 
 
-<a name="nested_result"></a>The `result` block contains:
+<a name="nested_validation_check_status_result"></a>The `result` block contains:
 
 * `options` -
   (Output)

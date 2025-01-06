@@ -420,7 +420,7 @@ The following arguments are supported:
 * `credential` -
   (Required)
   Cloud SQL properties.
-  Structure is [documented below](#nested_credential).
+  Structure is [documented below](#nested_cloud_sql_credential).
 
 * `type` -
   (Required)
@@ -432,7 +432,7 @@ The following arguments are supported:
   When the connection is used in the context of an operation in BigQuery, this service account will serve as the identity being used for connecting to the CloudSQL instance specified in this connection.
 
 
-<a name="nested_credential"></a>The `credential` block supports:
+<a name="nested_cloud_sql_credential"></a>The `credential` block supports:
 
 * `username` -
   (Required)
@@ -448,10 +448,10 @@ The following arguments are supported:
 * `access_role` -
   (Required)
   Authentication using Google owned service account to assume into customer's AWS IAM Role.
-  Structure is [documented below](#nested_access_role).
+  Structure is [documented below](#nested_aws_access_role).
 
 
-<a name="nested_access_role"></a>The `access_role` block supports:
+<a name="nested_aws_access_role"></a>The `access_role` block supports:
 
 * `iam_role_id` -
   (Required)
@@ -534,21 +534,21 @@ The following arguments are supported:
 * `metastore_service_config` -
   (Optional)
   Dataproc Metastore Service configuration for the connection.
-  Structure is [documented below](#nested_metastore_service_config).
+  Structure is [documented below](#nested_spark_metastore_service_config).
 
 * `spark_history_server_config` -
   (Optional)
   Spark History Server configuration for the connection.
-  Structure is [documented below](#nested_spark_history_server_config).
+  Structure is [documented below](#nested_spark_spark_history_server_config).
 
 
-<a name="nested_metastore_service_config"></a>The `metastore_service_config` block supports:
+<a name="nested_spark_metastore_service_config"></a>The `metastore_service_config` block supports:
 
 * `metastore_service` -
   (Optional)
   Resource name of an existing Dataproc Metastore service in the form of projects/[projectId]/locations/[region]/services/[serviceId].
 
-<a name="nested_spark_history_server_config"></a>The `spark_history_server_config` block supports:
+<a name="nested_spark_spark_history_server_config"></a>The `spark_history_server_config` block supports:
 
 * `dataproc_cluster` -
   (Optional)

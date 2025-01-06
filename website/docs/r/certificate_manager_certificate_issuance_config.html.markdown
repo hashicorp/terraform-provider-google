@@ -137,10 +137,10 @@ The following arguments are supported:
 * `certificate_authority_service_config` -
   (Optional)
   Defines a CertificateAuthorityServiceConfig.
-  Structure is [documented below](#nested_certificate_authority_service_config).
+  Structure is [documented below](#nested_certificate_authority_config_certificate_authority_service_config).
 
 
-<a name="nested_certificate_authority_service_config"></a>The `certificate_authority_service_config` block supports:
+<a name="nested_certificate_authority_config_certificate_authority_service_config"></a>The `certificate_authority_service_config` block supports:
 
 * `ca_pool` -
   (Required)

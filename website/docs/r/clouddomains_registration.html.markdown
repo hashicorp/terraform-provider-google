@@ -145,24 +145,24 @@ The following arguments are supported:
   Caution: Anyone with access to this email address, phone number, and/or postal address can take control of the domain.
   Warning: For new Registrations, the registrant receives an email confirmation that they must complete within 15 days to
   avoid domain suspension.
-  Structure is [documented below](#nested_registrant_contact).
+  Structure is [documented below](#nested_contact_settings_registrant_contact).
 
 * `admin_contact` -
   (Required)
   Caution: Anyone with access to this email address, phone number, and/or postal address can take control of the domain.
   Warning: For new Registrations, the registrant receives an email confirmation that they must complete within 15 days to
   avoid domain suspension.
-  Structure is [documented below](#nested_admin_contact).
+  Structure is [documented below](#nested_contact_settings_admin_contact).
 
 * `technical_contact` -
   (Required)
   Caution: Anyone with access to this email address, phone number, and/or postal address can take control of the domain.
   Warning: For new Registrations, the registrant receives an email confirmation that they must complete within 15 days to
   avoid domain suspension.
-  Structure is [documented below](#nested_technical_contact).
+  Structure is [documented below](#nested_contact_settings_technical_contact).
 
 
-<a name="nested_registrant_contact"></a>The `registrant_contact` block supports:
+<a name="nested_contact_settings_registrant_contact"></a>The `registrant_contact` block supports:
 
 * `email` -
   (Required)
@@ -179,10 +179,10 @@ The following arguments are supported:
 * `postal_address` -
   (Required)
   Required. Postal address of the contact.
-  Structure is [documented below](#nested_postal_address).
+  Structure is [documented below](#nested_contact_settings_registrant_contact_postal_address).
 
 
-<a name="nested_postal_address"></a>The `postal_address` block supports:
+<a name="nested_contact_settings_registrant_contact_postal_address"></a>The `postal_address` block supports:
 
 * `region_code` -
   (Required)
@@ -225,7 +225,7 @@ The following arguments are supported:
   The recipient at the address. This field may, under certain circumstances, contain multiline information. For example,
   it might contain "care of" information.
 
-<a name="nested_admin_contact"></a>The `admin_contact` block supports:
+<a name="nested_contact_settings_admin_contact"></a>The `admin_contact` block supports:
 
 * `email` -
   (Required)
@@ -242,10 +242,10 @@ The following arguments are supported:
 * `postal_address` -
   (Required)
   Required. Postal address of the contact.
-  Structure is [documented below](#nested_postal_address).
+  Structure is [documented below](#nested_contact_settings_admin_contact_postal_address).
 
 
-<a name="nested_postal_address"></a>The `postal_address` block supports:
+<a name="nested_contact_settings_admin_contact_postal_address"></a>The `postal_address` block supports:
 
 * `region_code` -
   (Required)
@@ -288,7 +288,7 @@ The following arguments are supported:
   The recipient at the address. This field may, under certain circumstances, contain multiline information. For example,
   it might contain "care of" information.
 
-<a name="nested_technical_contact"></a>The `technical_contact` block supports:
+<a name="nested_contact_settings_technical_contact"></a>The `technical_contact` block supports:
 
 * `email` -
   (Required)
@@ -305,10 +305,10 @@ The following arguments are supported:
 * `postal_address` -
   (Required)
   Required. Postal address of the contact.
-  Structure is [documented below](#nested_postal_address).
+  Structure is [documented below](#nested_contact_settings_technical_contact_postal_address).
 
 
-<a name="nested_postal_address"></a>The `postal_address` block supports:
+<a name="nested_contact_settings_technical_contact_postal_address"></a>The `postal_address` block supports:
 
 * `region_code` -
   (Required)
@@ -410,15 +410,15 @@ The following arguments are supported:
 * `custom_dns` -
   (Optional)
   Configuration for an arbitrary DNS provider.
-  Structure is [documented below](#nested_custom_dns).
+  Structure is [documented below](#nested_dns_settings_custom_dns).
 
 * `glue_records` -
   (Optional)
   The list of glue records for this Registration. Commonly empty.
-  Structure is [documented below](#nested_glue_records).
+  Structure is [documented below](#nested_dns_settings_glue_records).
 
 
-<a name="nested_custom_dns"></a>The `custom_dns` block supports:
+<a name="nested_dns_settings_custom_dns"></a>The `custom_dns` block supports:
 
 * `name_servers` -
   (Required)
@@ -429,10 +429,10 @@ The following arguments are supported:
   (Optional)
   The list of DS records for this domain, which are used to enable DNSSEC. The domain's DNS provider can provide
   the values to set here. If this field is empty, DNSSEC is disabled.
-  Structure is [documented below](#nested_ds_records).
+  Structure is [documented below](#nested_dns_settings_custom_dns_ds_records).
 
 
-<a name="nested_ds_records"></a>The `ds_records` block supports:
+<a name="nested_dns_settings_custom_dns_ds_records"></a>The `ds_records` block supports:
 
 * `key_tag` -
   (Optional)
@@ -450,7 +450,7 @@ The following arguments are supported:
   (Optional)
   The digest generated from the referenced DNSKEY.
 
-<a name="nested_glue_records"></a>The `glue_records` block supports:
+<a name="nested_dns_settings_glue_records"></a>The `glue_records` block supports:
 
 * `host_name` -
   (Required)

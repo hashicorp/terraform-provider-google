@@ -427,15 +427,15 @@ The following arguments are supported:
 * `host_rule` -
   (Required)
   The list of hostRules to match against. These rules define which hostnames the EdgeCacheService will match against, and which route configurations apply.
-  Structure is [documented below](#nested_host_rule).
+  Structure is [documented below](#nested_routing_host_rule).
 
 * `path_matcher` -
   (Required)
   The list of pathMatchers referenced via name by hostRules. PathMatcher is used to match the path portion of the URL when a HostRule matches the URL's host portion.
-  Structure is [documented below](#nested_path_matcher).
+  Structure is [documented below](#nested_routing_path_matcher).
 
 
-<a name="nested_host_rule"></a>The `host_rule` block supports:
+<a name="nested_routing_host_rule"></a>The `host_rule` block supports:
 
 * `description` -
   (Optional)
@@ -459,7 +459,7 @@ The following arguments are supported:
   (Required)
   The name of the pathMatcher associated with this hostRule.
 
-<a name="nested_path_matcher"></a>The `path_matcher` block supports:
+<a name="nested_routing_path_matcher"></a>The `path_matcher` block supports:
 
 * `name` -
   (Required)
@@ -472,10 +472,10 @@ The following arguments are supported:
 * `route_rule` -
   (Required)
   The routeRules to match against. routeRules support advanced routing behaviour, and can match on paths, headers and query parameters, as well as status codes and HTTP methods.
-  Structure is [documented below](#nested_route_rule).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule).
 
 
-<a name="nested_route_rule"></a>The `route_rule` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule"></a>The `route_rule` block supports:
 
 * `priority` -
   (Required)
@@ -492,17 +492,17 @@ The following arguments are supported:
   (Required)
   The list of criteria for matching attributes of a request to this routeRule. This list has OR semantics: the request matches this routeRule when any of the matchRules are satisfied. However predicates
   within a given matchRule have AND semantics. All predicates within a matchRule must match for the request to match the rule.
-  Structure is [documented below](#nested_match_rule).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_match_rule).
 
 * `header_action` -
   (Optional)
   The header actions, including adding & removing headers, for requests that match this route.
-  Structure is [documented below](#nested_header_action).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action).
 
 * `route_action` -
   (Optional)
   In response to a matching path, the routeAction performs advanced routing actions like URL rewrites, header transformations, etc. prior to forwarding the request to the selected origin.
-  Structure is [documented below](#nested_route_action).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action).
 
 * `origin` -
   (Optional)
@@ -512,10 +512,10 @@ The following arguments are supported:
 * `url_redirect` -
   (Optional)
   The URL redirect configuration for requests that match this route.
-  Structure is [documented below](#nested_url_redirect).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_url_redirect).
 
 
-<a name="nested_match_rule"></a>The `match_rule` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_match_rule"></a>The `match_rule` block supports:
 
 * `ignore_case` -
   (Optional)
@@ -524,12 +524,12 @@ The following arguments are supported:
 * `header_match` -
   (Optional)
   Specifies a list of header match criteria, all of which must match corresponding headers in the request.
-  Structure is [documented below](#nested_header_match).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_match_rule_match_rule_header_match).
 
 * `query_parameter_match` -
   (Optional)
   Specifies a list of query parameter match criteria, all of which must match corresponding query parameters in the request.
-  Structure is [documented below](#nested_query_parameter_match).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_match_rule_match_rule_query_parameter_match).
 
 * `prefix_match` -
   (Optional)
@@ -551,7 +551,7 @@ The following arguments are supported:
   For satisfying the matchRule condition, the path of the request must exactly match the value specified in fullPathMatch after removing any query parameters and anchor that may be part of the original URL.
 
 
-<a name="nested_header_match"></a>The `header_match` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_match_rule_match_rule_header_match"></a>The `header_match` block supports:
 
 * `header_name` -
   (Required)
@@ -578,7 +578,7 @@ The following arguments are supported:
   If set to false (default), the headerMatch is considered a match if the match criteria above are met.
   If set to true, the headerMatch is considered a match if the match criteria above are NOT met.
 
-<a name="nested_query_parameter_match"></a>The `query_parameter_match` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_match_rule_match_rule_query_parameter_match"></a>The `query_parameter_match` block supports:
 
 * `name` -
   (Required)
@@ -592,45 +592,31 @@ The following arguments are supported:
   (Optional)
   The queryParameterMatch matches if the value of the parameter exactly matches the contents of exactMatch.
 
-<a name="nested_header_action"></a>The `header_action` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action"></a>The `header_action` block supports:
 
 * `request_header_to_add` -
   (Optional)
   Describes a header to add.
-  Structure is [documented below](#nested_request_header_to_add).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action_request_header_to_add).
 
 * `response_header_to_add` -
   (Optional)
   Headers to add to the response prior to sending it back to the client.
   Response headers are only sent to the client, and do not have an effect on the cache serving the response.
-  Structure is [documented below](#nested_response_header_to_add).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action_response_header_to_add).
 
 * `request_header_to_remove` -
   (Optional)
   A list of header names for headers that need to be removed from the request prior to forwarding the request to the origin.
-  Structure is [documented below](#nested_request_header_to_remove).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action_request_header_to_remove).
 
 * `response_header_to_remove` -
   (Optional)
   A list of header names for headers that need to be removed from the request prior to forwarding the request to the origin.
-  Structure is [documented below](#nested_response_header_to_remove).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action_response_header_to_remove).
 
 
-<a name="nested_request_header_to_add"></a>The `request_header_to_add` block supports:
-
-* `header_name` -
-  (Required)
-  The name of the header to add.
-
-* `header_value` -
-  (Required)
-  The value of the header to add.
-
-* `replace` -
-  (Optional)
-  Whether to replace all existing headers with the same name.
-
-<a name="nested_response_header_to_add"></a>The `response_header_to_add` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action_request_header_to_add"></a>The `request_header_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -644,38 +630,52 @@ The following arguments are supported:
   (Optional)
   Whether to replace all existing headers with the same name.
 
-<a name="nested_request_header_to_remove"></a>The `request_header_to_remove` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action_response_header_to_add"></a>The `response_header_to_add` block supports:
+
+* `header_name` -
+  (Required)
+  The name of the header to add.
+
+* `header_value` -
+  (Required)
+  The value of the header to add.
+
+* `replace` -
+  (Optional)
+  Whether to replace all existing headers with the same name.
+
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action_request_header_to_remove"></a>The `request_header_to_remove` block supports:
 
 * `header_name` -
   (Required)
   The name of the header to remove.
 
-<a name="nested_response_header_to_remove"></a>The `response_header_to_remove` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action_response_header_to_remove"></a>The `response_header_to_remove` block supports:
 
 * `header_name` -
   (Required)
   Headers to remove from the response prior to sending it back to the client.
   Response headers are only sent to the client, and do not have an effect on the cache serving the response.
 
-<a name="nested_route_action"></a>The `route_action` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action"></a>The `route_action` block supports:
 
 * `cdn_policy` -
   (Optional)
   The policy to use for defining caching and signed request behaviour for requests that match this route.
-  Structure is [documented below](#nested_cdn_policy).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cdn_policy).
 
 * `url_rewrite` -
   (Optional)
   The URL rewrite configuration for requests that match this route.
-  Structure is [documented below](#nested_url_rewrite).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_url_rewrite).
 
 * `cors_policy` -
   (Optional)
   CORSPolicy defines Cross-Origin-Resource-Sharing configuration, including which CORS response headers will be set.
-  Structure is [documented below](#nested_cors_policy).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cors_policy).
 
 
-<a name="nested_cdn_policy"></a>The `cdn_policy` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cdn_policy"></a>The `cdn_policy` block supports:
 
 * `cache_mode` -
   (Optional)
@@ -721,7 +721,7 @@ The following arguments are supported:
 * `cache_key_policy` -
   (Optional)
   Defines the request parameters that contribute to the cache key.
-  Structure is [documented below](#nested_cache_key_policy).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cdn_policy_cache_key_policy).
 
 * `negative_caching` -
   (Optional)
@@ -754,13 +754,13 @@ The following arguments are supported:
   (Optional)
   Additional options for signed tokens.
   signedTokenOptions may only be specified when signedRequestMode is REQUIRE_TOKENS.
-  Structure is [documented below](#nested_signed_token_options).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cdn_policy_signed_token_options).
 
 * `add_signatures` -
   (Optional)
   Enable signature generation or propagation on this route.
   This field may only be specified when signedRequestMode is set to REQUIRE_TOKENS.
-  Structure is [documented below](#nested_add_signatures).
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cdn_policy_add_signatures).
 
 * `signed_request_maximum_expiration_ttl` -
   (Optional)
@@ -771,7 +771,7 @@ The following arguments are supported:
   By default, signedRequestMaximumExpirationTtl is not set and the expiration time of a signed request may be arbitrarily far into future.
 
 
-<a name="nested_cache_key_policy"></a>The `cache_key_policy` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cdn_policy_cache_key_policy"></a>The `cache_key_policy` block supports:
 
 * `include_protocol` -
   (Optional)
@@ -819,7 +819,7 @@ The following arguments are supported:
     Note that specifying several cookies, and/or cookies that have a large range of values (e.g., per-user) will dramatically impact the cache hit rate, and may result in a higher eviction rate and reduced performance.
     You may specify up to three cookie names.
 
-<a name="nested_signed_token_options"></a>The `signed_token_options` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cdn_policy_signed_token_options"></a>The `signed_token_options` block supports:
 
 * `token_query_parameter` -
   (Optional)
@@ -834,7 +834,7 @@ The following arguments are supported:
   You may specify up to 3 signature algorithms to use.
   Each value may be one of: `ED25519`, `HMAC_SHA_256`, `HMAC_SHA1`.
 
-<a name="nested_add_signatures"></a>The `add_signatures` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cdn_policy_add_signatures"></a>The `add_signatures` block supports:
 
 * `actions` -
   (Required)
@@ -882,7 +882,7 @@ The following arguments are supported:
   You may specify up to 6 parameters to copy.  A given parameter is be copied only if the parameter exists in the verified token.  Parameter names are matched exactly as specified.  The order of the parameters does not matter.  Duplicates are not allowed.
   This field may only be specified when the GENERATE_COOKIE or GENERATE_TOKEN_HLS_COOKIELESS actions are specified.
 
-<a name="nested_url_rewrite"></a>The `url_rewrite` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_url_rewrite"></a>The `url_rewrite` block supports:
 
 * `path_prefix_rewrite` -
   (Optional)
@@ -906,7 +906,7 @@ The following arguments are supported:
   Only one of pathPrefixRewrite and pathTemplateRewrite may be
   specified.
 
-<a name="nested_cors_policy"></a>The `cors_policy` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cors_policy"></a>The `cors_policy` block supports:
 
 * `max_age` -
   (Required)
@@ -942,7 +942,7 @@ The following arguments are supported:
   (Optional)
   If true, specifies the CORS policy is disabled. The default value is false, which indicates that the CORS policy is in effect.
 
-<a name="nested_url_redirect"></a>The `url_redirect` block supports:
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_url_redirect"></a>The `url_redirect` block supports:
 
 * `host_redirect` -
   (Optional)

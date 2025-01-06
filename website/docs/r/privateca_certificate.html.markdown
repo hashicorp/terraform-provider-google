@@ -591,35 +591,35 @@ The following arguments are supported:
 * `x509_config` -
   (Required)
   Describes how some of the technical X.509 fields in a certificate should be populated.
-  Structure is [documented below](#nested_x509_config).
+  Structure is [documented below](#nested_config_x509_config).
 
 * `subject_config` -
   (Required)
   Specifies some of the values in a certificate that are related to the subject.
-  Structure is [documented below](#nested_subject_config).
+  Structure is [documented below](#nested_config_subject_config).
 
 * `subject_key_id` -
   (Optional)
   When specified this provides a custom SKI to be used in the certificate. This should only be used to maintain a SKI of an existing CA originally created outside CA service, which was not generated using method (1) described in RFC 5280 section 4.2.1.2..
-  Structure is [documented below](#nested_subject_key_id).
+  Structure is [documented below](#nested_config_subject_key_id).
 
 * `public_key` -
   (Required)
   A PublicKey describes a public key.
-  Structure is [documented below](#nested_public_key).
+  Structure is [documented below](#nested_config_public_key).
 
 
-<a name="nested_x509_config"></a>The `x509_config` block supports:
+<a name="nested_config_x509_config"></a>The `x509_config` block supports:
 
 * `additional_extensions` -
   (Optional)
   Specifies an X.509 extension, which may be used in different parts of X.509 objects like certificates, CSRs, and CRLs.
-  Structure is [documented below](#nested_additional_extensions).
+  Structure is [documented below](#nested_config_x509_config_additional_extensions).
 
 * `policy_ids` -
   (Optional)
   Describes the X.509 certificate policy object identifiers, per https://tools.ietf.org/html/rfc5280#section-4.2.1.4.
-  Structure is [documented below](#nested_policy_ids).
+  Structure is [documented below](#nested_config_x509_config_policy_ids).
 
 * `aia_ocsp_servers` -
   (Optional)
@@ -629,20 +629,20 @@ The following arguments are supported:
 * `ca_options` -
   (Optional)
   Describes values that are relevant in a CA certificate.
-  Structure is [documented below](#nested_ca_options).
+  Structure is [documented below](#nested_config_x509_config_ca_options).
 
 * `key_usage` -
   (Required)
   Indicates the intended use for keys that correspond to a certificate.
-  Structure is [documented below](#nested_key_usage).
+  Structure is [documented below](#nested_config_x509_config_key_usage).
 
 * `name_constraints` -
   (Optional)
   Describes the X.509 name constraints extension.
-  Structure is [documented below](#nested_name_constraints).
+  Structure is [documented below](#nested_config_x509_config_name_constraints).
 
 
-<a name="nested_additional_extensions"></a>The `additional_extensions` block supports:
+<a name="nested_config_x509_config_additional_extensions"></a>The `additional_extensions` block supports:
 
 * `critical` -
   (Required)
@@ -656,22 +656,22 @@ The following arguments are supported:
 * `object_id` -
   (Required)
   Describes values that are relevant in a CA certificate.
-  Structure is [documented below](#nested_object_id).
+  Structure is [documented below](#nested_config_x509_config_additional_extensions_additional_extensions_object_id).
 
 
-<a name="nested_object_id"></a>The `object_id` block supports:
-
-* `object_id_path` -
-  (Required)
-  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
-
-<a name="nested_policy_ids"></a>The `policy_ids` block supports:
+<a name="nested_config_x509_config_additional_extensions_additional_extensions_object_id"></a>The `object_id` block supports:
 
 * `object_id_path` -
   (Required)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
-<a name="nested_ca_options"></a>The `ca_options` block supports:
+<a name="nested_config_x509_config_policy_ids"></a>The `policy_ids` block supports:
+
+* `object_id_path` -
+  (Required)
+  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
+
+<a name="nested_config_x509_config_ca_options"></a>The `ca_options` block supports:
 
 * `is_ca` -
   (Optional)
@@ -693,25 +693,25 @@ The following arguments are supported:
   if both `max_issuer_path_length` and `zero_max_issuer_path_length` are unset,
   the max path length will be omitted from the CA certificate.
 
-<a name="nested_key_usage"></a>The `key_usage` block supports:
+<a name="nested_config_x509_config_key_usage"></a>The `key_usage` block supports:
 
 * `base_key_usage` -
   (Required)
   Describes high-level ways in which a key may be used.
-  Structure is [documented below](#nested_base_key_usage).
+  Structure is [documented below](#nested_config_x509_config_key_usage_base_key_usage).
 
 * `extended_key_usage` -
   (Required)
   Describes high-level ways in which a key may be used.
-  Structure is [documented below](#nested_extended_key_usage).
+  Structure is [documented below](#nested_config_x509_config_key_usage_extended_key_usage).
 
 * `unknown_extended_key_usages` -
   (Optional)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
-  Structure is [documented below](#nested_unknown_extended_key_usages).
+  Structure is [documented below](#nested_config_x509_config_key_usage_unknown_extended_key_usages).
 
 
-<a name="nested_base_key_usage"></a>The `base_key_usage` block supports:
+<a name="nested_config_x509_config_key_usage_base_key_usage"></a>The `base_key_usage` block supports:
 
 * `digital_signature` -
   (Optional)
@@ -749,7 +749,7 @@ The following arguments are supported:
   (Optional)
   The key may be used to decipher only.
 
-<a name="nested_extended_key_usage"></a>The `extended_key_usage` block supports:
+<a name="nested_config_x509_config_key_usage_extended_key_usage"></a>The `extended_key_usage` block supports:
 
 * `server_auth` -
   (Optional)
@@ -775,13 +775,13 @@ The following arguments are supported:
   (Optional)
   Corresponds to OID 1.3.6.1.5.5.7.3.9. Officially described as "Signing OCSP responses".
 
-<a name="nested_unknown_extended_key_usages"></a>The `unknown_extended_key_usages` block supports:
+<a name="nested_config_x509_config_key_usage_unknown_extended_key_usages"></a>The `unknown_extended_key_usages` block supports:
 
 * `object_id_path` -
   (Required)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
-<a name="nested_name_constraints"></a>The `name_constraints` block supports:
+<a name="nested_config_x509_config_name_constraints"></a>The `name_constraints` block supports:
 
 * `critical` -
   (Required)
@@ -843,20 +843,20 @@ The following arguments are supported:
   The value can be a hostname or a domain with a
   leading period (like `.example.com`)
 
-<a name="nested_subject_config"></a>The `subject_config` block supports:
+<a name="nested_config_subject_config"></a>The `subject_config` block supports:
 
 * `subject` -
   (Required)
   Contains distinguished name fields such as the location and organization.
-  Structure is [documented below](#nested_subject).
+  Structure is [documented below](#nested_config_subject_config_subject).
 
 * `subject_alt_name` -
   (Optional)
   The subject alternative name fields.
-  Structure is [documented below](#nested_subject_alt_name).
+  Structure is [documented below](#nested_config_subject_config_subject_alt_name).
 
 
-<a name="nested_subject"></a>The `subject` block supports:
+<a name="nested_config_subject_config_subject"></a>The `subject` block supports:
 
 * `country_code` -
   (Optional)
@@ -890,7 +890,7 @@ The following arguments are supported:
   (Required)
   The common name of the distinguished name.
 
-<a name="nested_subject_alt_name"></a>The `subject_alt_name` block supports:
+<a name="nested_config_subject_config_subject_alt_name"></a>The `subject_alt_name` block supports:
 
 * `dns_names` -
   (Optional)
@@ -908,13 +908,13 @@ The following arguments are supported:
   (Optional)
   Contains only valid 32-bit IPv4 addresses or RFC 4291 IPv6 addresses.
 
-<a name="nested_subject_key_id"></a>The `subject_key_id` block supports:
+<a name="nested_config_subject_key_id"></a>The `subject_key_id` block supports:
 
 * `key_id` -
   (Optional)
   The value of the KeyId in lowercase hexadecimal.
 
-<a name="nested_public_key"></a>The `public_key` block supports:
+<a name="nested_config_public_key"></a>The `public_key` block supports:
 
 * `key` -
   (Optional)
@@ -980,27 +980,27 @@ In addition to the arguments listed above, the following computed attributes are
 * `subject_description` -
   (Output)
   Describes some of the values in a certificate that are related to the subject and lifetime.
-  Structure is [documented below](#nested_subject_description).
+  Structure is [documented below](#nested_certificate_description_subject_description).
 
 * `x509_description` -
   (Output)
   A structured description of the issued X.509 certificate.
-  Structure is [documented below](#nested_x509_description).
+  Structure is [documented below](#nested_certificate_description_x509_description).
 
 * `public_key` -
   (Output)
   A PublicKey describes a public key.
-  Structure is [documented below](#nested_public_key).
+  Structure is [documented below](#nested_certificate_description_public_key).
 
 * `subject_key_id` -
   (Output)
   Provides a means of identifiying certificates that contain a particular public key, per https://tools.ietf.org/html/rfc5280#section-4.2.1.2.
-  Structure is [documented below](#nested_subject_key_id).
+  Structure is [documented below](#nested_certificate_description_subject_key_id).
 
 * `authority_key_id` -
   (Output)
   Identifies the subjectKeyId of the parent certificate, per https://tools.ietf.org/html/rfc5280#section-4.2.1.1
-  Structure is [documented below](#nested_authority_key_id).
+  Structure is [documented below](#nested_certificate_description_authority_key_id).
 
 * `crl_distribution_points` -
   (Output)
@@ -1013,20 +1013,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `cert_fingerprint` -
   (Output)
   The hash of the x.509 certificate.
-  Structure is [documented below](#nested_cert_fingerprint).
+  Structure is [documented below](#nested_certificate_description_cert_fingerprint).
 
 
-<a name="nested_subject_description"></a>The `subject_description` block contains:
+<a name="nested_certificate_description_subject_description"></a>The `subject_description` block contains:
 
 * `subject` -
   (Output)
   Contains distinguished name fields such as the location and organization.
-  Structure is [documented below](#nested_subject).
+  Structure is [documented below](#nested_certificate_description_subject_description_subject).
 
 * `subject_alt_name` -
   (Output)
   The subject alternative name fields.
-  Structure is [documented below](#nested_subject_alt_name).
+  Structure is [documented below](#nested_certificate_description_subject_description_subject_alt_name).
 
 * `hex_serial_number` -
   (Output)
@@ -1045,7 +1045,7 @@ In addition to the arguments listed above, the following computed attributes are
   The time at which the certificate expires.
 
 
-<a name="nested_subject"></a>The `subject` block contains:
+<a name="nested_certificate_description_subject_description_subject"></a>The `subject` block contains:
 
 * `country_code` -
   (Output)
@@ -1079,7 +1079,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The "common name" of the distinguished name.
 
-<a name="nested_subject_alt_name"></a>The `subject_alt_name` block contains:
+<a name="nested_certificate_description_subject_description_subject_alt_name"></a>The `subject_alt_name` block contains:
 
 * `dns_names` -
   (Output)
@@ -1100,15 +1100,15 @@ In addition to the arguments listed above, the following computed attributes are
 * `custom_sans` -
   (Output)
   Contains additional subject alternative name values.
-  Structure is [documented below](#nested_custom_sans).
+  Structure is [documented below](#nested_certificate_description_subject_description_subject_alt_name_custom_sans).
 
 
-<a name="nested_custom_sans"></a>The `custom_sans` block contains:
+<a name="nested_certificate_description_subject_description_subject_alt_name_custom_sans"></a>The `custom_sans` block contains:
 
 * `obect_id` -
   (Output)
   Describes how some of the technical fields in a certificate should be populated.
-  Structure is [documented below](#nested_obect_id).
+  Structure is [documented below](#nested_certificate_description_subject_description_subject_alt_name_custom_sans_custom_sans_obect_id).
 
 * `critical` -
   (Output)
@@ -1119,23 +1119,23 @@ In addition to the arguments listed above, the following computed attributes are
   The value of this X.509 extension.
 
 
-<a name="nested_obect_id"></a>The `obect_id` block contains:
+<a name="nested_certificate_description_subject_description_subject_alt_name_custom_sans_custom_sans_obect_id"></a>The `obect_id` block contains:
 
 * `object_id_path` -
   (Output)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
-<a name="nested_x509_description"></a>The `x509_description` block contains:
+<a name="nested_certificate_description_x509_description"></a>The `x509_description` block contains:
 
 * `additional_extensions` -
   (Output)
   Describes custom X.509 extensions.
-  Structure is [documented below](#nested_additional_extensions).
+  Structure is [documented below](#nested_certificate_description_x509_description_additional_extensions).
 
 * `policy_ids` -
   (Output)
   Describes the X.509 certificate policy object identifiers, per https://tools.ietf.org/html/rfc5280#section-4.2.1.4.
-  Structure is [documented below](#nested_policy_ids).
+  Structure is [documented below](#nested_certificate_description_x509_description_policy_ids).
 
 * `aia_ocsp_servers` -
   (Output)
@@ -1145,20 +1145,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `ca_options` -
   (Output)
   Describes values that are relevant in a CA certificate.
-  Structure is [documented below](#nested_ca_options).
+  Structure is [documented below](#nested_certificate_description_x509_description_ca_options).
 
 * `key_usage` -
   (Output)
   Indicates the intended use for keys that correspond to a certificate.
-  Structure is [documented below](#nested_key_usage).
+  Structure is [documented below](#nested_certificate_description_x509_description_key_usage).
 
 * `name_constraints` -
   (Output)
   Describes the X.509 name constraints extension.
-  Structure is [documented below](#nested_name_constraints).
+  Structure is [documented below](#nested_certificate_description_x509_description_name_constraints).
 
 
-<a name="nested_additional_extensions"></a>The `additional_extensions` block contains:
+<a name="nested_certificate_description_x509_description_additional_extensions"></a>The `additional_extensions` block contains:
 
 * `critical` -
   (Output)
@@ -1172,22 +1172,22 @@ In addition to the arguments listed above, the following computed attributes are
 * `object_id` -
   (Output)
   Describes values that are relevant in a CA certificate.
-  Structure is [documented below](#nested_object_id).
+  Structure is [documented below](#nested_certificate_description_x509_description_additional_extensions_additional_extensions_object_id).
 
 
-<a name="nested_object_id"></a>The `object_id` block contains:
-
-* `object_id_path` -
-  (Output)
-  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
-
-<a name="nested_policy_ids"></a>The `policy_ids` block contains:
+<a name="nested_certificate_description_x509_description_additional_extensions_additional_extensions_object_id"></a>The `object_id` block contains:
 
 * `object_id_path` -
   (Output)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
-<a name="nested_ca_options"></a>The `ca_options` block contains:
+<a name="nested_certificate_description_x509_description_policy_ids"></a>The `policy_ids` block contains:
+
+* `object_id_path` -
+  (Output)
+  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
+
+<a name="nested_certificate_description_x509_description_ca_options"></a>The `ca_options` block contains:
 
 * `is_ca` -
   (Output)
@@ -1198,25 +1198,25 @@ In addition to the arguments listed above, the following computed attributes are
   Refers to the "path length constraint" in Basic Constraints extension. For a CA certificate, this value describes the depth of
   subordinate CA certificates that are allowed. If this value is less than 0, the request will fail.
 
-<a name="nested_key_usage"></a>The `key_usage` block contains:
+<a name="nested_certificate_description_x509_description_key_usage"></a>The `key_usage` block contains:
 
 * `base_key_usage` -
   (Output)
   Describes high-level ways in which a key may be used.
-  Structure is [documented below](#nested_base_key_usage).
+  Structure is [documented below](#nested_certificate_description_x509_description_key_usage_base_key_usage).
 
 * `extended_key_usage` -
   (Output)
   Describes high-level ways in which a key may be used.
-  Structure is [documented below](#nested_extended_key_usage).
+  Structure is [documented below](#nested_certificate_description_x509_description_key_usage_extended_key_usage).
 
 * `unknown_extended_key_usages` -
   (Output)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
-  Structure is [documented below](#nested_unknown_extended_key_usages).
+  Structure is [documented below](#nested_certificate_description_x509_description_key_usage_unknown_extended_key_usages).
 
 
-<a name="nested_base_key_usage"></a>The `base_key_usage` block contains:
+<a name="nested_certificate_description_x509_description_key_usage_base_key_usage"></a>The `base_key_usage` block contains:
 
 * `digital_signature` -
   (Output)
@@ -1254,7 +1254,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The key may be used to decipher only.
 
-<a name="nested_extended_key_usage"></a>The `extended_key_usage` block contains:
+<a name="nested_certificate_description_x509_description_key_usage_extended_key_usage"></a>The `extended_key_usage` block contains:
 
 * `server_auth` -
   (Output)
@@ -1280,13 +1280,13 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Corresponds to OID 1.3.6.1.5.5.7.3.9. Officially described as "Signing OCSP responses".
 
-<a name="nested_unknown_extended_key_usages"></a>The `unknown_extended_key_usages` block contains:
+<a name="nested_certificate_description_x509_description_key_usage_unknown_extended_key_usages"></a>The `unknown_extended_key_usages` block contains:
 
 * `object_id_path` -
   (Output)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
-<a name="nested_name_constraints"></a>The `name_constraints` block contains:
+<a name="nested_certificate_description_x509_description_name_constraints"></a>The `name_constraints` block contains:
 
 * `critical` -
   (Output)
@@ -1348,7 +1348,7 @@ In addition to the arguments listed above, the following computed attributes are
   The value can be a hostname or a domain with a
   leading period (like `.example.com`)
 
-<a name="nested_public_key"></a>The `public_key` block contains:
+<a name="nested_certificate_description_public_key"></a>The `public_key` block contains:
 
 * `key` -
   (Output)
@@ -1358,19 +1358,19 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The format of the public key. Currently, only PEM format is supported.
 
-<a name="nested_subject_key_id"></a>The `subject_key_id` block contains:
+<a name="nested_certificate_description_subject_key_id"></a>The `subject_key_id` block contains:
 
 * `key_id` -
   (Output)
   Optional. The value of this KeyId encoded in lowercase hexadecimal. This is most likely the 160 bit SHA-1 hash of the public key.
 
-<a name="nested_authority_key_id"></a>The `authority_key_id` block contains:
+<a name="nested_certificate_description_authority_key_id"></a>The `authority_key_id` block contains:
 
 * `key_id` -
   (Output)
   Optional. The value of this KeyId encoded in lowercase hexadecimal. This is most likely the 160 bit SHA-1 hash of the public key.
 
-<a name="nested_cert_fingerprint"></a>The `cert_fingerprint` block contains:
+<a name="nested_certificate_description_cert_fingerprint"></a>The `cert_fingerprint` block contains:
 
 * `sha256_hash` -
   (Output)

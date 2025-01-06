@@ -931,15 +931,15 @@ The following arguments are supported:
 * `pull_request` -
   (Optional)
   Contains filter properties for matching Pull Requests.
-  Structure is [documented below](#nested_pull_request).
+  Structure is [documented below](#nested_repository_event_config_pull_request).
 
 * `push` -
   (Optional)
   Contains filter properties for matching git pushes.
-  Structure is [documented below](#nested_push).
+  Structure is [documented below](#nested_repository_event_config_push).
 
 
-<a name="nested_pull_request"></a>The `pull_request` block supports:
+<a name="nested_repository_event_config_pull_request"></a>The `pull_request` block supports:
 
 * `branch` -
   (Optional)
@@ -956,7 +956,7 @@ The following arguments are supported:
   Configure builds to run whether a repository owner or collaborator need to comment `/gcbrun`.
   Possible values are: `COMMENTS_DISABLED`, `COMMENTS_ENABLED`, `COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY`.
 
-<a name="nested_push"></a>The `push` block supports:
+<a name="nested_repository_event_config_push"></a>The `push` block supports:
 
 * `branch` -
   (Optional)
@@ -1056,12 +1056,12 @@ The following arguments are supported:
 * `pull_request` -
   (Optional)
   filter to match changes in pull requests. Specify only one of `pull_request` or `push`.
-  Structure is [documented below](#nested_pull_request).
+  Structure is [documented below](#nested_github_pull_request).
 
 * `push` -
   (Optional)
   filter to match changes in refs, like branches or tags. Specify only one of `pull_request` or `push`.
-  Structure is [documented below](#nested_push).
+  Structure is [documented below](#nested_github_push).
 
 * `enterprise_config_resource_name` -
   (Optional)
@@ -1069,7 +1069,7 @@ The following arguments are supported:
   For example: "projects/{$projectId}/locations/{$locationId}/githubEnterpriseConfigs/{$configId}"
 
 
-<a name="nested_pull_request"></a>The `pull_request` block supports:
+<a name="nested_github_pull_request"></a>The `pull_request` block supports:
 
 * `branch` -
   (Required)
@@ -1084,7 +1084,7 @@ The following arguments are supported:
   (Optional)
   If true, branches that do NOT match the git_ref will trigger a build.
 
-<a name="nested_push"></a>The `push` block supports:
+<a name="nested_github_push"></a>The `push` block supports:
 
 * `invert_regex` -
   (Optional)
@@ -1116,15 +1116,15 @@ The following arguments are supported:
 * `pull_request` -
   (Optional)
   Filter to match changes in pull requests.
-  Structure is [documented below](#nested_pull_request).
+  Structure is [documented below](#nested_bitbucket_server_trigger_config_pull_request).
 
 * `push` -
   (Optional)
   Filter to match changes in refs like branches, tags.
-  Structure is [documented below](#nested_push).
+  Structure is [documented below](#nested_bitbucket_server_trigger_config_push).
 
 
-<a name="nested_pull_request"></a>The `pull_request` block supports:
+<a name="nested_bitbucket_server_trigger_config_pull_request"></a>The `pull_request` block supports:
 
 * `branch` -
   (Required)
@@ -1140,7 +1140,7 @@ The following arguments are supported:
   (Optional)
   If true, branches that do NOT match the git_ref will trigger a build.
 
-<a name="nested_push"></a>The `push` block supports:
+<a name="nested_bitbucket_server_trigger_config_push"></a>The `push` block supports:
 
 * `invert_regex` -
   (Optional)
@@ -1197,7 +1197,7 @@ The following arguments are supported:
   (Optional)
   The location of the source files to build.
   One of `storageSource` or `repoSource` must be provided.
-  Structure is [documented below](#nested_source).
+  Structure is [documented below](#nested_build_source).
 
 * `tags` -
   (Optional)
@@ -1237,43 +1237,43 @@ The following arguments are supported:
 * `secret` -
   (Optional)
   Secrets to decrypt using Cloud Key Management Service.
-  Structure is [documented below](#nested_secret).
+  Structure is [documented below](#nested_build_secret).
 
 * `available_secrets` -
   (Optional)
   Secrets and secret environment variables.
-  Structure is [documented below](#nested_available_secrets).
+  Structure is [documented below](#nested_build_available_secrets).
 
 * `step` -
   (Required)
   The operations to be performed on the workspace.
-  Structure is [documented below](#nested_step).
+  Structure is [documented below](#nested_build_step).
 
 * `artifacts` -
   (Optional)
   Artifacts produced by the build that should be uploaded upon successful completion of all build steps.
-  Structure is [documented below](#nested_artifacts).
+  Structure is [documented below](#nested_build_artifacts).
 
 * `options` -
   (Optional)
   Special options for this build.
-  Structure is [documented below](#nested_options).
+  Structure is [documented below](#nested_build_options).
 
 
-<a name="nested_source"></a>The `source` block supports:
+<a name="nested_build_source"></a>The `source` block supports:
 
 * `storage_source` -
   (Optional)
   Location of the source in an archive file in Google Cloud Storage.
-  Structure is [documented below](#nested_storage_source).
+  Structure is [documented below](#nested_build_source_storage_source).
 
 * `repo_source` -
   (Optional)
   Location of the source in a Google Cloud Source Repository.
-  Structure is [documented below](#nested_repo_source).
+  Structure is [documented below](#nested_build_source_repo_source).
 
 
-<a name="nested_storage_source"></a>The `storage_source` block supports:
+<a name="nested_build_source_storage_source"></a>The `storage_source` block supports:
 
 * `bucket` -
   (Required)
@@ -1289,7 +1289,7 @@ The following arguments are supported:
   Google Cloud Storage generation for the object.
   If the generation is omitted, the latest generation will be used
 
-<a name="nested_repo_source"></a>The `repo_source` block supports:
+<a name="nested_build_source_repo_source"></a>The `repo_source` block supports:
 
 * `project_id` -
   (Optional)
@@ -1330,7 +1330,7 @@ The following arguments are supported:
   (Optional)
   Explicit commit SHA to build. Exactly one a of branch name, tag, or commit SHA must be provided.
 
-<a name="nested_secret"></a>The `secret` block supports:
+<a name="nested_build_secret"></a>The `secret` block supports:
 
 * `kms_key_name` -
   (Required)
@@ -1343,15 +1343,15 @@ The following arguments are supported:
   and must be used by at least one build step. Values can be at most 64 KB in size.
   There can be at most 100 secret values across all of a build's secrets.
 
-<a name="nested_available_secrets"></a>The `available_secrets` block supports:
+<a name="nested_build_available_secrets"></a>The `available_secrets` block supports:
 
 * `secret_manager` -
   (Required)
   Pairs a secret environment variable with a SecretVersion in Secret Manager.
-  Structure is [documented below](#nested_secret_manager).
+  Structure is [documented below](#nested_build_available_secrets_secret_manager).
 
 
-<a name="nested_secret_manager"></a>The `secret_manager` block supports:
+<a name="nested_build_available_secrets_secret_manager"></a>The `secret_manager` block supports:
 
 * `version_name` -
   (Required)
@@ -1363,7 +1363,7 @@ The following arguments are supported:
   variables must be unique across all of a build's secrets, and must be used
   by at least one build step.
 
-<a name="nested_step"></a>The `step` block supports:
+<a name="nested_build_step"></a>The `step` block supports:
 
 * `name` -
   (Required)
@@ -1446,7 +1446,7 @@ The following arguments are supported:
   are discarded.
   Using a named volume in only one step is not valid as it is
   indicative of a build request with an incorrect configuration.
-  Structure is [documented below](#nested_volumes).
+  Structure is [documented below](#nested_build_step_step_volumes).
 
 * `wait_for` -
   (Optional)
@@ -1476,7 +1476,7 @@ The following arguments are supported:
   If `allowFailure` is also specified, this field will take precedence.
 
 
-<a name="nested_volumes"></a>The `volumes` block supports:
+<a name="nested_build_step_step_volumes"></a>The `volumes` block supports:
 
 * `name` -
   (Required)
@@ -1490,7 +1490,7 @@ The following arguments are supported:
   Paths must be absolute and cannot conflict with other volume paths on
   the same build step or with certain reserved volume paths.
 
-<a name="nested_artifacts"></a>The `artifacts` block supports:
+<a name="nested_build_artifacts"></a>The `artifacts` block supports:
 
 * `images` -
   (Optional)
@@ -1506,31 +1506,31 @@ The following arguments are supported:
   Cloud Storage location using the builder service account's credentials.
   The location and generation of the uploaded objects will be stored in the Build resource's results field.
   If any objects fail to be pushed, the build is marked FAILURE.
-  Structure is [documented below](#nested_objects).
+  Structure is [documented below](#nested_build_artifacts_objects).
 
 * `maven_artifacts` -
   (Optional)
   A Maven artifact to upload to Artifact Registry upon successful completion of all build steps.
   The location and generation of the uploaded objects will be stored in the Build resource's results field.
   If any objects fail to be pushed, the build is marked FAILURE.
-  Structure is [documented below](#nested_maven_artifacts).
+  Structure is [documented below](#nested_build_artifacts_maven_artifacts).
 
 * `python_packages` -
   (Optional)
   Python package to upload to Artifact Registry upon successful completion of all build steps. A package can encapsulate multiple objects to be uploaded to a single repository.
   The location and generation of the uploaded objects will be stored in the Build resource's results field.
   If any objects fail to be pushed, the build is marked FAILURE.
-  Structure is [documented below](#nested_python_packages).
+  Structure is [documented below](#nested_build_artifacts_python_packages).
 
 * `npm_packages` -
   (Optional)
   Npm package to upload to Artifact Registry upon successful completion of all build steps.
   The location and generation of the uploaded objects will be stored in the Build resource's results field.
   If any objects fail to be pushed, the build is marked FAILURE.
-  Structure is [documented below](#nested_npm_packages).
+  Structure is [documented below](#nested_build_artifacts_npm_packages).
 
 
-<a name="nested_objects"></a>The `objects` block supports:
+<a name="nested_build_artifacts_objects"></a>The `objects` block supports:
 
 * `location` -
   (Optional)
@@ -1545,10 +1545,10 @@ The following arguments are supported:
 * `timing` -
   (Output)
   Output only. Stores timing information for pushing all artifact objects.
-  Structure is [documented below](#nested_timing).
+  Structure is [documented below](#nested_build_artifacts_objects_timing).
 
 
-<a name="nested_timing"></a>The `timing` block contains:
+<a name="nested_build_artifacts_objects_timing"></a>The `timing` block contains:
 
 * `start_time` -
   (Optional)
@@ -1562,7 +1562,7 @@ The following arguments are supported:
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
   nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
 
-<a name="nested_maven_artifacts"></a>The `maven_artifacts` block supports:
+<a name="nested_build_artifacts_maven_artifacts"></a>The `maven_artifacts` block supports:
 
 * `repository` -
   (Optional)
@@ -1585,7 +1585,7 @@ The following arguments are supported:
   (Optional)
   Maven version value used when uploading the artifact to Artifact Registry.
 
-<a name="nested_python_packages"></a>The `python_packages` block supports:
+<a name="nested_build_artifacts_python_packages"></a>The `python_packages` block supports:
 
 * `repository` -
   (Optional)
@@ -1596,7 +1596,7 @@ The following arguments are supported:
   (Optional)
   Path globs used to match files in the build's workspace. For Python/ Twine, this is usually dist/*, and sometimes additionally an .asc file.
 
-<a name="nested_npm_packages"></a>The `npm_packages` block supports:
+<a name="nested_build_artifacts_npm_packages"></a>The `npm_packages` block supports:
 
 * `repository` -
   (Optional)
@@ -1607,7 +1607,7 @@ The following arguments are supported:
   (Optional)
   Path to the package.json. e.g. workspace/path/to/package
 
-<a name="nested_options"></a>The `options` block supports:
+<a name="nested_build_options"></a>The `options` block supports:
 
 * `source_provenance_hash` -
   (Optional)
@@ -1679,10 +1679,10 @@ The following arguments are supported:
   volume names and paths cannot conflict with the volumes defined a build step.
   Using a global volume in a build with only one step is not valid as it is indicative
   of a build request with an incorrect configuration.
-  Structure is [documented below](#nested_volumes).
+  Structure is [documented below](#nested_build_options_volumes).
 
 
-<a name="nested_volumes"></a>The `volumes` block supports:
+<a name="nested_build_options_volumes"></a>The `volumes` block supports:
 
 * `name` -
   (Optional)

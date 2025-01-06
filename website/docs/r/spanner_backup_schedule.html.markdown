@@ -187,10 +187,10 @@ The following arguments are supported:
 * `cron_spec` -
   (Optional)
   Cron style schedule specification..
-  Structure is [documented below](#nested_cron_spec).
+  Structure is [documented below](#nested_spec_cron_spec).
 
 
-<a name="nested_cron_spec"></a>The `cron_spec` block supports:
+<a name="nested_spec_cron_spec"></a>The `cron_spec` block supports:
 
 * `text` -
   (Optional)

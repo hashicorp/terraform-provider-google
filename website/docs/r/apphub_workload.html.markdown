@@ -356,44 +356,44 @@ The following arguments are supported:
 * `criticality` -
   (Optional)
   Criticality of the Application, Service, or Workload
-  Structure is [documented below](#nested_criticality).
+  Structure is [documented below](#nested_attributes_criticality).
 
 * `environment` -
   (Optional)
   Environment of the Application, Service, or Workload
-  Structure is [documented below](#nested_environment).
+  Structure is [documented below](#nested_attributes_environment).
 
 * `developer_owners` -
   (Optional)
   Developer team that owns development and coding.
-  Structure is [documented below](#nested_developer_owners).
+  Structure is [documented below](#nested_attributes_developer_owners).
 
 * `operator_owners` -
   (Optional)
   Operator team that ensures runtime and operations.
-  Structure is [documented below](#nested_operator_owners).
+  Structure is [documented below](#nested_attributes_operator_owners).
 
 * `business_owners` -
   (Optional)
   Business team that ensures user needs are met and value is delivered
-  Structure is [documented below](#nested_business_owners).
+  Structure is [documented below](#nested_attributes_business_owners).
 
 
-<a name="nested_criticality"></a>The `criticality` block supports:
+<a name="nested_attributes_criticality"></a>The `criticality` block supports:
 
 * `type` -
   (Required)
   Criticality type.
   Possible values are: `MISSION_CRITICAL`, `HIGH`, `MEDIUM`, `LOW`.
 
-<a name="nested_environment"></a>The `environment` block supports:
+<a name="nested_attributes_environment"></a>The `environment` block supports:
 
 * `type` -
   (Required)
   Environment type.
   Possible values are: `PRODUCTION`, `STAGING`, `TEST`, `DEVELOPMENT`.
 
-<a name="nested_developer_owners"></a>The `developer_owners` block supports:
+<a name="nested_attributes_developer_owners"></a>The `developer_owners` block supports:
 
 * `display_name` -
   (Optional)
@@ -403,7 +403,7 @@ The following arguments are supported:
   (Required)
   Email address of the contacts.
 
-<a name="nested_operator_owners"></a>The `operator_owners` block supports:
+<a name="nested_attributes_operator_owners"></a>The `operator_owners` block supports:
 
 * `display_name` -
   (Optional)
@@ -413,7 +413,7 @@ The following arguments are supported:
   (Required)
   Email address of the contacts.
 
-<a name="nested_business_owners"></a>The `business_owners` block supports:
+<a name="nested_attributes_business_owners"></a>The `business_owners` block supports:
 
 * `display_name` -
   (Optional)

@@ -178,17 +178,17 @@ The following arguments are supported:
 * `email` -
   (Optional)
   Configuration options related to authenticating a user by their email address.
-  Structure is [documented below](#nested_email).
+  Structure is [documented below](#nested_sign_in_email).
 
 * `phone_number` -
   (Optional)
   Configuration options related to authenticated a user by their phone number.
-  Structure is [documented below](#nested_phone_number).
+  Structure is [documented below](#nested_sign_in_phone_number).
 
 * `anonymous` -
   (Optional)
   Configuration options related to authenticating an anonymous user.
-  Structure is [documented below](#nested_anonymous).
+  Structure is [documented below](#nested_sign_in_anonymous).
 
 * `allow_duplicate_emails` -
   (Optional)
@@ -197,10 +197,10 @@ The following arguments are supported:
 * `hash_config` -
   (Output)
   Output only. Hash config information.
-  Structure is [documented below](#nested_hash_config).
+  Structure is [documented below](#nested_sign_in_hash_config).
 
 
-<a name="nested_email"></a>The `email` block supports:
+<a name="nested_sign_in_email"></a>The `email` block supports:
 
 * `enabled` -
   (Required)
@@ -212,7 +212,7 @@ The following arguments are supported:
   password must be provided to sign in. If false, a user may sign in via either
   email/password or email link.
 
-<a name="nested_phone_number"></a>The `phone_number` block supports:
+<a name="nested_sign_in_phone_number"></a>The `phone_number` block supports:
 
 * `enabled` -
   (Required)
@@ -222,13 +222,13 @@ The following arguments are supported:
   (Optional)
   A map of <test phone number, fake code> that can be used for phone auth testing.
 
-<a name="nested_anonymous"></a>The `anonymous` block supports:
+<a name="nested_sign_in_anonymous"></a>The `anonymous` block supports:
 
 * `enabled` -
   (Required)
   Whether anonymous user auth is enabled for the project or not.
 
-<a name="nested_hash_config"></a>The `hash_config` block contains:
+<a name="nested_sign_in_hash_config"></a>The `hash_config` block contains:
 
 * `algorithm` -
   (Output)
@@ -255,15 +255,15 @@ The following arguments are supported:
 * `triggers` -
   (Required)
   Map of Trigger to event type. Key should be one of the supported event types: "beforeCreate", "beforeSignIn".
-  Structure is [documented below](#nested_triggers).
+  Structure is [documented below](#nested_blocking_functions_triggers).
 
 * `forward_inbound_credentials` -
   (Optional)
   The user credentials to include in the JWT payload that is sent to the registered Blocking Functions.
-  Structure is [documented below](#nested_forward_inbound_credentials).
+  Structure is [documented below](#nested_blocking_functions_forward_inbound_credentials).
 
 
-<a name="nested_triggers"></a>The `triggers` block supports:
+<a name="nested_blocking_functions_triggers"></a>The `triggers` block supports:
 
 * `event_type` - (Required) The identifier for this object. Format specified above.
 
@@ -275,7 +275,7 @@ The following arguments are supported:
   (Output)
   When the trigger was changed.
 
-<a name="nested_forward_inbound_credentials"></a>The `forward_inbound_credentials` block supports:
+<a name="nested_blocking_functions_forward_inbound_credentials"></a>The `forward_inbound_credentials` block supports:
 
 * `id_token` -
   (Optional)
@@ -294,10 +294,10 @@ The following arguments are supported:
 * `sign_up_quota_config` -
   (Optional)
   Quota for the Signup endpoint, if overwritten. Signup quota is measured in sign ups per project per hour per IP. None of quota, startTime, or quotaDuration can be skipped.
-  Structure is [documented below](#nested_sign_up_quota_config).
+  Structure is [documented below](#nested_quota_sign_up_quota_config).
 
 
-<a name="nested_sign_up_quota_config"></a>The `sign_up_quota_config` block supports:
+<a name="nested_quota_sign_up_quota_config"></a>The `sign_up_quota_config` block supports:
 
 * `quota` -
   (Optional)
@@ -316,21 +316,21 @@ The following arguments are supported:
 * `allow_by_default` -
   (Optional)
   A policy of allowing SMS to every region by default and adding disallowed regions to a disallow list.
-  Structure is [documented below](#nested_allow_by_default).
+  Structure is [documented below](#nested_sms_region_config_allow_by_default).
 
 * `allowlist_only` -
   (Optional)
   A policy of only allowing regions by explicitly adding them to an allowlist.
-  Structure is [documented below](#nested_allowlist_only).
+  Structure is [documented below](#nested_sms_region_config_allowlist_only).
 
 
-<a name="nested_allow_by_default"></a>The `allow_by_default` block supports:
+<a name="nested_sms_region_config_allow_by_default"></a>The `allow_by_default` block supports:
 
 * `disallowed_regions` -
   (Optional)
   Two letter unicode region codes to disallow as defined by https://cldr.unicode.org/ The full list of these region codes is here: https://github.com/unicode-cldr/cldr-localenames-full/blob/master/main/en/territories.json
 
-<a name="nested_allowlist_only"></a>The `allowlist_only` block supports:
+<a name="nested_sms_region_config_allowlist_only"></a>The `allowlist_only` block supports:
 
 * `allowed_regions` -
   (Optional)
@@ -341,7 +341,7 @@ The following arguments are supported:
 * `permissions` -
   (Optional)
   Configuration related to restricting a user's ability to affect their account.
-  Structure is [documented below](#nested_permissions).
+  Structure is [documented below](#nested_client_permissions).
 
 * `api_key` -
   (Output)
@@ -353,7 +353,7 @@ The following arguments are supported:
   Firebase subdomain.
 
 
-<a name="nested_permissions"></a>The `permissions` block supports:
+<a name="nested_client_permissions"></a>The `permissions` block supports:
 
 * `disabled_user_signup` -
   (Optional)
@@ -379,10 +379,10 @@ The following arguments are supported:
   (Optional)
   A list of usable second factors for this project along with their configurations.
   This field does not support phone based MFA, for that use the 'enabledProviders' field.
-  Structure is [documented below](#nested_provider_configs).
+  Structure is [documented below](#nested_mfa_provider_configs).
 
 
-<a name="nested_provider_configs"></a>The `provider_configs` block supports:
+<a name="nested_mfa_provider_configs"></a>The `provider_configs` block supports:
 
 * `state` -
   (Optional)
@@ -392,10 +392,10 @@ The following arguments are supported:
 * `totp_provider_config` -
   (Optional)
   TOTP MFA provider config for this project.
-  Structure is [documented below](#nested_totp_provider_config).
+  Structure is [documented below](#nested_mfa_provider_configs_provider_configs_totp_provider_config).
 
 
-<a name="nested_totp_provider_config"></a>The `totp_provider_config` block supports:
+<a name="nested_mfa_provider_configs_provider_configs_totp_provider_config"></a>The `totp_provider_config` block supports:
 
 * `adjacent_intervals` -
   (Optional)
@@ -418,10 +418,10 @@ The following arguments are supported:
 * `request_logging` -
   (Optional)
   Configuration for logging requests made to this project to Stackdriver Logging
-  Structure is [documented below](#nested_request_logging).
+  Structure is [documented below](#nested_monitoring_request_logging).
 
 
-<a name="nested_request_logging"></a>The `request_logging` block supports:
+<a name="nested_monitoring_request_logging"></a>The `request_logging` block supports:
 
 * `enabled` -
   (Optional)

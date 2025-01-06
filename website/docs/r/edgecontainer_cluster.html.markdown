@@ -238,10 +238,10 @@ The following arguments are supported:
   User that will be granted the cluster-admin role on the cluster, providing
   full access to the cluster. Currently, this is a singular field, but will
   be expanded to allow multiple admins in the future.
-  Structure is [documented below](#nested_admin_users).
+  Structure is [documented below](#nested_authorization_admin_users).
 
 
-<a name="nested_admin_users"></a>The `admin_users` block supports:
+<a name="nested_authorization_admin_users"></a>The `admin_users` block supports:
 
 * `username` -
   (Required)
@@ -305,30 +305,30 @@ The following arguments are supported:
 * `window` -
   (Required)
   Specifies the maintenance window in which maintenance may be performed.
-  Structure is [documented below](#nested_window).
+  Structure is [documented below](#nested_maintenance_policy_window).
 
 * `maintenance_exclusions` -
   (Optional)
   Exclusions to automatic maintenance. Non-emergency maintenance should not occur
   in these windows. Each exclusion has a unique name and may be active or expired.
   The max number of maintenance exclusions allowed at a given time is 3.
-  Structure is [documented below](#nested_maintenance_exclusions).
+  Structure is [documented below](#nested_maintenance_policy_maintenance_exclusions).
 
 
-<a name="nested_window"></a>The `window` block supports:
+<a name="nested_maintenance_policy_window"></a>The `window` block supports:
 
 * `recurring_window` -
   (Required)
   Represents an arbitrary window of time that recurs.
-  Structure is [documented below](#nested_recurring_window).
+  Structure is [documented below](#nested_maintenance_policy_window_recurring_window).
 
 
-<a name="nested_recurring_window"></a>The `recurring_window` block supports:
+<a name="nested_maintenance_policy_window_recurring_window"></a>The `recurring_window` block supports:
 
 * `window` -
   (Optional)
   Represents an arbitrary window of time.
-  Structure is [documented below](#nested_window).
+  Structure is [documented below](#nested_maintenance_policy_window_recurring_window_window).
 
 * `recurrence` -
   (Optional)
@@ -337,7 +337,7 @@ The following arguments are supported:
   end time.
 
 
-<a name="nested_window"></a>The `window` block supports:
+<a name="nested_maintenance_policy_window_recurring_window_window"></a>The `window` block supports:
 
 * `start_time` -
   (Optional)
@@ -348,19 +348,19 @@ The following arguments are supported:
   The time that the window ends. The end time must take place after the
   start time.
 
-<a name="nested_maintenance_exclusions"></a>The `maintenance_exclusions` block supports:
+<a name="nested_maintenance_policy_maintenance_exclusions"></a>The `maintenance_exclusions` block supports:
 
 * `window` -
   (Optional)
   Represents an arbitrary window of time.
-  Structure is [documented below](#nested_window).
+  Structure is [documented below](#nested_maintenance_policy_maintenance_exclusions_maintenance_exclusions_window).
 
 * `id` -
   (Optional)
   A unique (per cluster) id for the window.
 
 
-<a name="nested_window"></a>The `window` block supports:
+<a name="nested_maintenance_policy_maintenance_exclusions_maintenance_exclusions_window"></a>The `window` block supports:
 
 * `start_time` -
   (Optional)
@@ -376,22 +376,22 @@ The following arguments are supported:
 * `remote` -
   (Optional)
   Remote control plane configuration.
-  Structure is [documented below](#nested_remote).
+  Structure is [documented below](#nested_control_plane_remote).
 
 * `local` -
   (Optional)
   Local control plane configuration.
-  Structure is [documented below](#nested_local).
+  Structure is [documented below](#nested_control_plane_local).
 
 
-<a name="nested_remote"></a>The `remote` block supports:
+<a name="nested_control_plane_remote"></a>The `remote` block supports:
 
 * `node_location` -
   (Optional)
   Name of the Google Distributed Cloud Edge zones where this node pool
   will be created. For example: `us-central1-edge-customer-a`.
 
-<a name="nested_local"></a>The `local` block supports:
+<a name="nested_control_plane_local"></a>The `local` block supports:
 
 * `node_location` -
   (Optional)
@@ -421,10 +421,10 @@ The following arguments are supported:
   Config for the Ingress add-on which allows customers to create an Ingress
   object to manage external access to the servers in a cluster. The add-on
   consists of istiod and istio-ingress.
-  Structure is [documented below](#nested_ingress).
+  Structure is [documented below](#nested_system_addons_config_ingress).
 
 
-<a name="nested_ingress"></a>The `ingress` block supports:
+<a name="nested_system_addons_config_ingress"></a>The `ingress` block supports:
 
 * `disabled` -
   (Optional)
@@ -460,10 +460,10 @@ The following arguments are supported:
   Error status returned by Cloud KMS when using this key. This field may be
   populated only if `kms_key_state` is not `KMS_KEY_STATE_KEY_AVAILABLE`.
   If populated, this field contains the error status reported by Cloud KMS.
-  Structure is [documented below](#nested_kms_status).
+  Structure is [documented below](#nested_control_plane_encryption_kms_status).
 
 
-<a name="nested_kms_status"></a>The `kms_status` block contains:
+<a name="nested_control_plane_encryption_kms_status"></a>The `kms_status` block contains:
 
 * `code` -
   (Output)

@@ -448,16 +448,16 @@ The following arguments are supported:
 * `provisioning_issue` -
   (Output)
   Information about issues with provisioning this Managed Certificate.
-  Structure is [documented below](#nested_provisioning_issue).
+  Structure is [documented below](#nested_managed_provisioning_issue).
 
 * `authorization_attempt_info` -
   (Output)
   Detailed state of the latest authorization attempt for each domain
   specified for this Managed Certificate.
-  Structure is [documented below](#nested_authorization_attempt_info).
+  Structure is [documented below](#nested_managed_authorization_attempt_info).
 
 
-<a name="nested_provisioning_issue"></a>The `provisioning_issue` block contains:
+<a name="nested_managed_provisioning_issue"></a>The `provisioning_issue` block contains:
 
 * `reason` -
   (Output)
@@ -469,7 +469,7 @@ The following arguments are supported:
   the configuration issues.
   Not guaranteed to be stable. For programmatic access use `reason` field.
 
-<a name="nested_authorization_attempt_info"></a>The `authorization_attempt_info` block contains:
+<a name="nested_managed_authorization_attempt_info"></a>The `authorization_attempt_info` block contains:
 
 * `domain` -
   (Output)

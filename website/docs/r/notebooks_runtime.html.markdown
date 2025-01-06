@@ -270,10 +270,10 @@ The following arguments are supported:
 * `virtual_machine_config` -
   (Optional)
   Virtual Machine configuration settings.
-  Structure is [documented below](#nested_virtual_machine_config).
+  Structure is [documented below](#nested_virtual_machine_virtual_machine_config).
 
 
-<a name="nested_virtual_machine_config"></a>The `virtual_machine_config` block supports:
+<a name="nested_virtual_machine_virtual_machine_config"></a>The `virtual_machine_config` block supports:
 
 * `zone` -
   (Output)
@@ -286,27 +286,27 @@ The following arguments are supported:
 * `data_disk` -
   (Required)
   Data disk option configuration settings.
-  Structure is [documented below](#nested_data_disk).
+  Structure is [documented below](#nested_virtual_machine_virtual_machine_config_data_disk).
 
 * `container_images` -
   (Optional)
   Use a list of container images to start the notebook instance.
-  Structure is [documented below](#nested_container_images).
+  Structure is [documented below](#nested_virtual_machine_virtual_machine_config_container_images).
 
 * `encryption_config` -
   (Optional)
   Encryption settings for virtual machine data disk.
-  Structure is [documented below](#nested_encryption_config).
+  Structure is [documented below](#nested_virtual_machine_virtual_machine_config_encryption_config).
 
 * `shielded_instance_config` -
   (Optional)
   Shielded VM Instance configuration settings.
-  Structure is [documented below](#nested_shielded_instance_config).
+  Structure is [documented below](#nested_virtual_machine_virtual_machine_config_shielded_instance_config).
 
 * `accelerator_config` -
   (Optional)
   The Compute Engine accelerator configuration for this runtime.
-  Structure is [documented below](#nested_accelerator_config).
+  Structure is [documented below](#nested_virtual_machine_virtual_machine_config_accelerator_config).
 
 * `network` -
   (Optional)
@@ -383,7 +383,7 @@ The following arguments are supported:
   subnetwork allocation will use the range *name* if it's assigned.
 
 
-<a name="nested_data_disk"></a>The `data_disk` block supports:
+<a name="nested_virtual_machine_virtual_machine_config_data_disk"></a>The `data_disk` block supports:
 
 * `auto_delete` -
   (Output)
@@ -431,7 +431,7 @@ The following arguments are supported:
   new instance. This property is mutually exclusive with the
   source property; you can only define one or the other, but not
   both.
-  Structure is [documented below](#nested_initialize_params).
+  Structure is [documented below](#nested_virtual_machine_virtual_machine_config_data_disk_initialize_params).
 
 * `interface` -
   (Optional)
@@ -468,7 +468,7 @@ The following arguments are supported:
   If not specified, the default is PERSISTENT.
 
 
-<a name="nested_initialize_params"></a>The `initialize_params` block supports:
+<a name="nested_virtual_machine_virtual_machine_config_data_disk_initialize_params"></a>The `initialize_params` block supports:
 
 * `description` -
   (Optional)
@@ -501,7 +501,7 @@ The following arguments are supported:
   by the disks.setLabels method. This field is only
   applicable for persistent disks.
 
-<a name="nested_container_images"></a>The `container_images` block supports:
+<a name="nested_virtual_machine_virtual_machine_config_container_images"></a>The `container_images` block supports:
 
 * `repository` -
   (Required)
@@ -512,7 +512,7 @@ The following arguments are supported:
   (Optional)
   The tag of the container image. If not specified, this defaults to the latest tag.
 
-<a name="nested_encryption_config"></a>The `encryption_config` block supports:
+<a name="nested_virtual_machine_virtual_machine_config_encryption_config"></a>The `encryption_config` block supports:
 
 * `kms_key` -
   (Optional)
@@ -522,7 +522,7 @@ The following arguments are supported:
   `projects/{PROJECT_ID}/locations/{REGION}/keyRings/
   {KEY_RING_NAME}/cryptoKeys/{KEY_NAME}`
 
-<a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
+<a name="nested_virtual_machine_virtual_machine_config_shielded_instance_config"></a>The `shielded_instance_config` block supports:
 
 * `enable_secure_boot` -
   (Optional)
@@ -546,7 +546,7 @@ The following arguments are supported:
   from the implicitly trusted boot image when the instance is
   created. Enabled by default.
 
-<a name="nested_accelerator_config"></a>The `accelerator_config` block supports:
+<a name="nested_virtual_machine_virtual_machine_config_accelerator_config"></a>The `accelerator_config` block supports:
 
 * `type` -
   (Optional)
@@ -623,10 +623,10 @@ The following arguments are supported:
 * `kernels` -
   (Optional)
   Use a list of container images to use as Kernels in the notebook instance.
-  Structure is [documented below](#nested_kernels).
+  Structure is [documented below](#nested_software_config_kernels).
 
 
-<a name="nested_kernels"></a>The `kernels` block supports:
+<a name="nested_software_config_kernels"></a>The `kernels` block supports:
 
 * `repository` -
   (Required)

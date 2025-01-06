@@ -215,7 +215,7 @@ The following arguments are supported:
   (Optional)
   Represents an OAuth token of the account that authorized the Connection,and
   associated metadata.
-  Structure is [documented below](#nested_authorizer_credential).
+  Structure is [documented below](#nested_github_config_authorizer_credential).
 
 * `app_installation_id` -
   (Optional)
@@ -227,7 +227,7 @@ The following arguments are supported:
   associated with this GitHubConfig.
 
 
-<a name="nested_authorizer_credential"></a>The `authorizer_credential` block supports:
+<a name="nested_github_config_authorizer_credential"></a>The `authorizer_credential` block supports:
 
 * `oauth_token_secret_version` -
   (Required)

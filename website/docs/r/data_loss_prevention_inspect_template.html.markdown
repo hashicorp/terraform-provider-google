@@ -353,7 +353,7 @@ The following arguments are supported:
 * `limits` -
   (Optional)
   Configuration to control the number of findings returned.
-  Structure is [documented below](#nested_limits).
+  Structure is [documented below](#nested_inspect_config_limits).
 
 * `info_types` -
   (Optional)
@@ -361,7 +361,7 @@ The following arguments are supported:
   or listed at https://cloud.google.com/dlp/docs/infotypes-reference.
   When no InfoTypes or CustomInfoTypes are specified in a request, the system may automatically choose what detectors to run.
   By default this may be all types, but may change over time as detectors are updated.
-  Structure is [documented below](#nested_info_types).
+  Structure is [documented below](#nested_inspect_config_info_types).
 
 * `content_options` -
   (Optional)
@@ -372,15 +372,15 @@ The following arguments are supported:
   (Optional)
   Set of rules to apply to the findings for this InspectConfig. Exclusion rules, contained in the set are executed in the end,
   other rules are executed in the order they are specified for each info type.
-  Structure is [documented below](#nested_rule_set).
+  Structure is [documented below](#nested_inspect_config_rule_set).
 
 * `custom_info_types` -
   (Optional)
   Custom info types to be used. See https://cloud.google.com/dlp/docs/creating-custom-infotypes to learn more.
-  Structure is [documented below](#nested_custom_info_types).
+  Structure is [documented below](#nested_inspect_config_custom_info_types).
 
 
-<a name="nested_limits"></a>The `limits` block supports:
+<a name="nested_inspect_config_limits"></a>The `limits` block supports:
 
 * `max_findings_per_item` -
   (Required)
@@ -393,24 +393,24 @@ The following arguments are supported:
 * `max_findings_per_info_type` -
   (Optional)
   Configuration of findings limit given for specified infoTypes.
-  Structure is [documented below](#nested_max_findings_per_info_type).
+  Structure is [documented below](#nested_inspect_config_limits_max_findings_per_info_type).
 
 
-<a name="nested_max_findings_per_info_type"></a>The `max_findings_per_info_type` block supports:
+<a name="nested_inspect_config_limits_max_findings_per_info_type"></a>The `max_findings_per_info_type` block supports:
 
 * `info_type` -
   (Optional)
   Type of information the findings limit applies to. Only one limit per infoType should be provided. If InfoTypeLimit does
   not have an infoType, the DLP API applies the limit against all infoTypes that are found but not
   specified in another InfoTypeLimit.
-  Structure is [documented below](#nested_info_type).
+  Structure is [documented below](#nested_inspect_config_limits_max_findings_per_info_type_max_findings_per_info_type_info_type).
 
 * `max_findings` -
   (Required)
   Max findings limit for the given infoType.
 
 
-<a name="nested_info_type"></a>The `info_type` block supports:
+<a name="nested_inspect_config_limits_max_findings_per_info_type_max_findings_per_info_type_info_type"></a>The `info_type` block supports:
 
 * `name` -
   (Required)
@@ -424,17 +424,17 @@ The following arguments are supported:
 * `sensitivity_score` -
   (Optional)
   Optional custom sensitivity for this InfoType. This only applies to data profiling.
-  Structure is [documented below](#nested_sensitivity_score).
+  Structure is [documented below](#nested_inspect_config_limits_max_findings_per_info_type_max_findings_per_info_type_info_type_sensitivity_score).
 
 
-<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_inspect_config_limits_max_findings_per_info_type_max_findings_per_info_type_info_type_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_info_types"></a>The `info_types` block supports:
+<a name="nested_inspect_config_info_types"></a>The `info_types` block supports:
 
 * `name` -
   (Required)
@@ -448,30 +448,30 @@ The following arguments are supported:
 * `sensitivity_score` -
   (Optional)
   Optional custom sensitivity for this InfoType. This only applies to data profiling.
-  Structure is [documented below](#nested_sensitivity_score).
+  Structure is [documented below](#nested_inspect_config_info_types_info_types_sensitivity_score).
 
 
-<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_inspect_config_info_types_info_types_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_rule_set"></a>The `rule_set` block supports:
+<a name="nested_inspect_config_rule_set"></a>The `rule_set` block supports:
 
 * `info_types` -
   (Required)
   List of infoTypes this rule set is applied to.
-  Structure is [documented below](#nested_info_types).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_info_types).
 
 * `rules` -
   (Required)
   Set of rules to be applied to infoTypes. The rules are applied in order.
-  Structure is [documented below](#nested_rules).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules).
 
 
-<a name="nested_info_types"></a>The `info_types` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_info_types"></a>The `info_types` block supports:
 
 * `name` -
   (Required)
@@ -485,35 +485,35 @@ The following arguments are supported:
 * `sensitivity_score` -
   (Optional)
   Optional custom sensitivity for this InfoType. This only applies to data profiling.
-  Structure is [documented below](#nested_sensitivity_score).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_info_types_info_types_sensitivity_score).
 
 
-<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_info_types_info_types_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_rules"></a>The `rules` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules"></a>The `rules` block supports:
 
 * `hotword_rule` -
   (Optional)
   Hotword-based detection rule.
-  Structure is [documented below](#nested_hotword_rule).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_hotword_rule).
 
 * `exclusion_rule` -
   (Optional)
   The rule that specifies conditions when findings of infoTypes specified in InspectionRuleSet are removed from results.
-  Structure is [documented below](#nested_exclusion_rule).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule).
 
 
-<a name="nested_hotword_rule"></a>The `hotword_rule` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_hotword_rule"></a>The `hotword_rule` block supports:
 
 * `hotword_regex` -
   (Required)
   Regular expression pattern defining what qualifies as a hotword.
-  Structure is [documented below](#nested_hotword_regex).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_hotword_rule_hotword_regex).
 
 * `proximity` -
   (Required)
@@ -522,15 +522,15 @@ The following arguments are supported:
   used to match substrings of the finding itself. For example, the certainty of a phone number regex
   `(\d{3}) \d{3}-\d{4}` could be adjusted upwards if the area code is known to be the local area code of a company
   office using the hotword regex `(xxx)`, where `xxx` is the area code in question.
-  Structure is [documented below](#nested_proximity).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_hotword_rule_proximity).
 
 * `likelihood_adjustment` -
   (Required)
   Likelihood adjustment to apply to all matching findings.
-  Structure is [documented below](#nested_likelihood_adjustment).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_hotword_rule_likelihood_adjustment).
 
 
-<a name="nested_hotword_regex"></a>The `hotword_regex` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_hotword_rule_hotword_regex"></a>The `hotword_regex` block supports:
 
 * `pattern` -
   (Required)
@@ -542,7 +542,7 @@ The following arguments are supported:
   The index of the submatch to extract as findings. When not specified,
   the entire match is returned. No more than 3 may be included.
 
-<a name="nested_proximity"></a>The `proximity` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_hotword_rule_proximity"></a>The `proximity` block supports:
 
 * `window_before` -
   (Optional)
@@ -552,7 +552,7 @@ The following arguments are supported:
   (Optional)
   Number of characters after the finding to consider. Either this or window_before must be specified
 
-<a name="nested_likelihood_adjustment"></a>The `likelihood_adjustment` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_hotword_rule_likelihood_adjustment"></a>The `likelihood_adjustment` block supports:
 
 * `fixed_likelihood` -
   (Optional)
@@ -568,7 +568,7 @@ The following arguments are supported:
   adjustment of 1 followed by an adjustment of -1 when base likelihood is VERY_LIKELY
   will result in a final likelihood of LIKELY. Either this or fixed_likelihood can be set.
 
-<a name="nested_exclusion_rule"></a>The `exclusion_rule` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule"></a>The `exclusion_rule` block supports:
 
 * `matching_type` -
   (Required)
@@ -578,52 +578,52 @@ The following arguments are supported:
 * `dictionary` -
   (Optional)
   Dictionary which defines the rule.
-  Structure is [documented below](#nested_dictionary).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_dictionary).
 
 * `regex` -
   (Optional)
   Regular expression which defines the rule.
-  Structure is [documented below](#nested_regex).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_regex).
 
 * `exclude_info_types` -
   (Optional)
   Set of infoTypes for which findings would affect this rule.
-  Structure is [documented below](#nested_exclude_info_types).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_info_types).
 
 * `exclude_by_hotword` -
   (Optional)
   Drop if the hotword rule is contained in the proximate context.
   For tabular data, the context includes the column name.
-  Structure is [documented below](#nested_exclude_by_hotword).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_by_hotword).
 
 
-<a name="nested_dictionary"></a>The `dictionary` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_dictionary"></a>The `dictionary` block supports:
 
 * `word_list` -
   (Optional)
   List of words or phrases to search for.
-  Structure is [documented below](#nested_word_list).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_dictionary_word_list).
 
 * `cloud_storage_path` -
   (Optional)
   Newline-delimited file of words in Cloud Storage. Only a single file is accepted.
-  Structure is [documented below](#nested_cloud_storage_path).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_dictionary_cloud_storage_path).
 
 
-<a name="nested_word_list"></a>The `word_list` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_dictionary_word_list"></a>The `word_list` block supports:
 
 * `words` -
   (Required)
   Words or phrases defining the dictionary. The dictionary must contain at least one
   phrase and every phrase must contain at least 2 characters that are letters or digits.
 
-<a name="nested_cloud_storage_path"></a>The `cloud_storage_path` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_dictionary_cloud_storage_path"></a>The `cloud_storage_path` block supports:
 
 * `path` -
   (Required)
   A url representing a file or path (no wildcards) in Cloud Storage. Example: `gs://[BUCKET_NAME]/dictionary.txt`
 
-<a name="nested_regex"></a>The `regex` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_regex"></a>The `regex` block supports:
 
 * `pattern` -
   (Required)
@@ -634,15 +634,15 @@ The following arguments are supported:
   (Optional)
   The index of the submatch to extract as findings. When not specified, the entire match is returned. No more than 3 may be included.
 
-<a name="nested_exclude_info_types"></a>The `exclude_info_types` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_info_types"></a>The `exclude_info_types` block supports:
 
 * `info_types` -
   (Required)
   If a finding is matched by any of the infoType detectors listed here, the finding will be excluded from the scan results.
-  Structure is [documented below](#nested_info_types).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_info_types_info_types).
 
 
-<a name="nested_info_types"></a>The `info_types` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_info_types_info_types"></a>The `info_types` block supports:
 
 * `name` -
   (Required)
@@ -656,22 +656,22 @@ The following arguments are supported:
 * `sensitivity_score` -
   (Optional)
   Optional custom sensitivity for this InfoType. This only applies to data profiling.
-  Structure is [documented below](#nested_sensitivity_score).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_info_types_info_types_info_types_sensitivity_score).
 
 
-<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_info_types_info_types_info_types_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_exclude_by_hotword"></a>The `exclude_by_hotword` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_by_hotword"></a>The `exclude_by_hotword` block supports:
 
 * `hotword_regex` -
   (Required)
   Regular expression pattern defining what qualifies as a hotword.
-  Structure is [documented below](#nested_hotword_regex).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_by_hotword_hotword_regex).
 
 * `proximity` -
   (Required)
@@ -680,10 +680,10 @@ The following arguments are supported:
   used to match substrings of the finding itself. For example, the certainty of a phone number regex
   `(\d{3}) \d{3}-\d{4}` could be adjusted upwards if the area code is known to be the local area code of a company
   office using the hotword regex `(xxx)`, where `xxx` is the area code in question.
-  Structure is [documented below](#nested_proximity).
+  Structure is [documented below](#nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_by_hotword_proximity).
 
 
-<a name="nested_hotword_regex"></a>The `hotword_regex` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_by_hotword_hotword_regex"></a>The `hotword_regex` block supports:
 
 * `pattern` -
   (Required)
@@ -695,7 +695,7 @@ The following arguments are supported:
   The index of the submatch to extract as findings. When not specified,
   the entire match is returned. No more than 3 may be included.
 
-<a name="nested_proximity"></a>The `proximity` block supports:
+<a name="nested_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_by_hotword_proximity"></a>The `proximity` block supports:
 
 * `window_before` -
   (Optional)
@@ -705,7 +705,7 @@ The following arguments are supported:
   (Optional)
   Number of characters after the finding to consider.
 
-<a name="nested_custom_info_types"></a>The `custom_info_types` block supports:
+<a name="nested_inspect_config_custom_info_types"></a>The `custom_info_types` block supports:
 
 * `info_type` -
   (Required)
@@ -713,7 +713,7 @@ The following arguments are supported:
   infoTypes and that infoType is specified in `info_types` field. Specifying the latter adds findings to the
   one detected by the system. If built-in info type is not specified in `info_types` list then the name is
   treated as a custom info type.
-  Structure is [documented below](#nested_info_type).
+  Structure is [documented below](#nested_inspect_config_custom_info_types_custom_info_types_info_type).
 
 * `likelihood` -
   (Optional)
@@ -730,17 +730,17 @@ The following arguments are supported:
 * `sensitivity_score` -
   (Optional)
   Optional custom sensitivity for this InfoType. This only applies to data profiling.
-  Structure is [documented below](#nested_sensitivity_score).
+  Structure is [documented below](#nested_inspect_config_custom_info_types_custom_info_types_sensitivity_score).
 
 * `regex` -
   (Optional)
   Regular expression which defines the rule.
-  Structure is [documented below](#nested_regex).
+  Structure is [documented below](#nested_inspect_config_custom_info_types_custom_info_types_regex).
 
 * `dictionary` -
   (Optional)
   Dictionary which defines the rule.
-  Structure is [documented below](#nested_dictionary).
+  Structure is [documented below](#nested_inspect_config_custom_info_types_custom_info_types_dictionary).
 
 * `surrogate_type` -
   (Optional)
@@ -749,10 +749,10 @@ The following arguments are supported:
 * `stored_type` -
   (Optional)
   A reference to a StoredInfoType to use with scanning.
-  Structure is [documented below](#nested_stored_type).
+  Structure is [documented below](#nested_inspect_config_custom_info_types_custom_info_types_stored_type).
 
 
-<a name="nested_info_type"></a>The `info_type` block supports:
+<a name="nested_inspect_config_custom_info_types_custom_info_types_info_type"></a>The `info_type` block supports:
 
 * `name` -
   (Required)
@@ -766,24 +766,24 @@ The following arguments are supported:
 * `sensitivity_score` -
   (Optional)
   Optional custom sensitivity for this InfoType. This only applies to data profiling.
-  Structure is [documented below](#nested_sensitivity_score).
+  Structure is [documented below](#nested_inspect_config_custom_info_types_custom_info_types_info_type_sensitivity_score).
 
 
-<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
-
-* `score` -
-  (Required)
-  The sensitivity score applied to the resource.
-  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
-
-<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_inspect_config_custom_info_types_custom_info_types_info_type_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_regex"></a>The `regex` block supports:
+<a name="nested_inspect_config_custom_info_types_custom_info_types_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
+<a name="nested_inspect_config_custom_info_types_custom_info_types_regex"></a>The `regex` block supports:
 
 * `pattern` -
   (Required)
@@ -794,33 +794,33 @@ The following arguments are supported:
   (Optional)
   The index of the submatch to extract as findings. When not specified, the entire match is returned. No more than 3 may be included.
 
-<a name="nested_dictionary"></a>The `dictionary` block supports:
+<a name="nested_inspect_config_custom_info_types_custom_info_types_dictionary"></a>The `dictionary` block supports:
 
 * `word_list` -
   (Optional)
   List of words or phrases to search for.
-  Structure is [documented below](#nested_word_list).
+  Structure is [documented below](#nested_inspect_config_custom_info_types_custom_info_types_dictionary_word_list).
 
 * `cloud_storage_path` -
   (Optional)
   Newline-delimited file of words in Cloud Storage. Only a single file is accepted.
-  Structure is [documented below](#nested_cloud_storage_path).
+  Structure is [documented below](#nested_inspect_config_custom_info_types_custom_info_types_dictionary_cloud_storage_path).
 
 
-<a name="nested_word_list"></a>The `word_list` block supports:
+<a name="nested_inspect_config_custom_info_types_custom_info_types_dictionary_word_list"></a>The `word_list` block supports:
 
 * `words` -
   (Required)
   Words or phrases defining the dictionary. The dictionary must contain at least one
   phrase and every phrase must contain at least 2 characters that are letters or digits.
 
-<a name="nested_cloud_storage_path"></a>The `cloud_storage_path` block supports:
+<a name="nested_inspect_config_custom_info_types_custom_info_types_dictionary_cloud_storage_path"></a>The `cloud_storage_path` block supports:
 
 * `path` -
   (Required)
   A url representing a file or path (no wildcards) in Cloud Storage. Example: `gs://[BUCKET_NAME]/dictionary.txt`
 
-<a name="nested_stored_type"></a>The `stored_type` block supports:
+<a name="nested_inspect_config_custom_info_types_custom_info_types_stored_type"></a>The `stored_type` block supports:
 
 * `name` -
   (Required)

@@ -409,10 +409,10 @@ The following arguments are supported:
 * `volumes` -
   (Optional)
   List of ports, or port pairs, to forward from the virtual machine to the application container.
-  Structure is [documented below](#nested_volumes).
+  Structure is [documented below](#nested_resources_volumes).
 
 
-<a name="nested_volumes"></a>The `volumes` block supports:
+<a name="nested_resources_volumes"></a>The `volumes` block supports:
 
 * `name` -
   (Required)
@@ -467,22 +467,22 @@ The following arguments are supported:
   (Optional)
   Executes a script to handle the requests that match this URL pattern.
   Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".
-  Structure is [documented below](#nested_script).
+  Structure is [documented below](#nested_handlers_handlers_script).
 
 * `static_files` -
   (Optional)
   Files served directly to the user for a given URL, such as images, CSS stylesheets, or JavaScript source files.
   Static file handlers describe which files in the application directory are static files, and which URLs serve them.
-  Structure is [documented below](#nested_static_files).
+  Structure is [documented below](#nested_handlers_handlers_static_files).
 
 
-<a name="nested_script"></a>The `script` block supports:
+<a name="nested_handlers_handlers_script"></a>The `script` block supports:
 
 * `script_path` -
   (Required)
   Path to the script from the application root directory.
 
-<a name="nested_static_files"></a>The `static_files` block supports:
+<a name="nested_handlers_handlers_static_files"></a>The `static_files` block supports:
 
 * `path` -
   (Optional)
@@ -551,26 +551,26 @@ The following arguments are supported:
 * `zip` -
   (Optional)
   Zip File
-  Structure is [documented below](#nested_zip).
+  Structure is [documented below](#nested_deployment_zip).
 
 * `files` -
   (Optional)
   Manifest of the files stored in Google Cloud Storage that are included as part of this version.
   All files must be readable using the credentials supplied with this call.
-  Structure is [documented below](#nested_files).
+  Structure is [documented below](#nested_deployment_files).
 
 * `container` -
   (Optional)
   The Docker image for the container that runs the version.
-  Structure is [documented below](#nested_container).
+  Structure is [documented below](#nested_deployment_container).
 
 * `cloud_build_options` -
   (Optional)
   Options for the build operations performed as a part of the version deployment. Only applicable when creating a version using source code directly.
-  Structure is [documented below](#nested_cloud_build_options).
+  Structure is [documented below](#nested_deployment_cloud_build_options).
 
 
-<a name="nested_zip"></a>The `zip` block supports:
+<a name="nested_deployment_zip"></a>The `zip` block supports:
 
 * `source_url` -
   (Required)
@@ -580,7 +580,7 @@ The following arguments are supported:
   (Optional)
   files count
 
-<a name="nested_files"></a>The `files` block supports:
+<a name="nested_deployment_files"></a>The `files` block supports:
 
 * `name` - (Required) The identifier for this object. Format specified above.
 
@@ -592,14 +592,14 @@ The following arguments are supported:
   (Required)
   Source URL
 
-<a name="nested_container"></a>The `container` block supports:
+<a name="nested_deployment_container"></a>The `container` block supports:
 
 * `image` -
   (Required)
   URI to the hosted container image in Google Container Registry. The URI must be fully qualified and include a tag or digest.
   Examples: "gcr.io/my-project/image:tag" or "gcr.io/my-project/image@digest"
 
-<a name="nested_cloud_build_options"></a>The `cloud_build_options` block supports:
+<a name="nested_deployment_cloud_build_options"></a>The `cloud_build_options` block supports:
 
 * `app_yaml_path` -
   (Required)
@@ -659,7 +659,7 @@ The following arguments are supported:
 * `cpu_utilization` -
   (Required)
   Target scaling by CPU usage.
-  Structure is [documented below](#nested_cpu_utilization).
+  Structure is [documented below](#nested_automatic_scaling_cpu_utilization).
 
 * `max_concurrent_requests` -
   (Optional)
@@ -693,20 +693,20 @@ The following arguments are supported:
 * `request_utilization` -
   (Optional)
   Target scaling by request utilization.
-  Structure is [documented below](#nested_request_utilization).
+  Structure is [documented below](#nested_automatic_scaling_request_utilization).
 
 * `disk_utilization` -
   (Optional)
   Target scaling by disk usage.
-  Structure is [documented below](#nested_disk_utilization).
+  Structure is [documented below](#nested_automatic_scaling_disk_utilization).
 
 * `network_utilization` -
   (Optional)
   Target scaling by network usage.
-  Structure is [documented below](#nested_network_utilization).
+  Structure is [documented below](#nested_automatic_scaling_network_utilization).
 
 
-<a name="nested_cpu_utilization"></a>The `cpu_utilization` block supports:
+<a name="nested_automatic_scaling_cpu_utilization"></a>The `cpu_utilization` block supports:
 
 * `aggregation_window_length` -
   (Optional)
@@ -716,7 +716,7 @@ The following arguments are supported:
   (Required)
   Target CPU utilization ratio to maintain when scaling. Must be between 0 and 1.
 
-<a name="nested_request_utilization"></a>The `request_utilization` block supports:
+<a name="nested_automatic_scaling_request_utilization"></a>The `request_utilization` block supports:
 
 * `target_request_count_per_second` -
   (Optional)
@@ -726,7 +726,7 @@ The following arguments are supported:
   (Optional)
   Target number of concurrent requests.
 
-<a name="nested_disk_utilization"></a>The `disk_utilization` block supports:
+<a name="nested_automatic_scaling_disk_utilization"></a>The `disk_utilization` block supports:
 
 * `target_write_bytes_per_second` -
   (Optional)
@@ -744,7 +744,7 @@ The following arguments are supported:
   (Optional)
   Target ops read per seconds.
 
-<a name="nested_network_utilization"></a>The `network_utilization` block supports:
+<a name="nested_automatic_scaling_network_utilization"></a>The `network_utilization` block supports:
 
 * `target_sent_bytes_per_second` -
   (Optional)

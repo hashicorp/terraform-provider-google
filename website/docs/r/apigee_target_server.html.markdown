@@ -188,10 +188,10 @@ The following arguments are supported:
 * `common_name` -
   (Optional)
   The TLS Common Name of the certificate.
-  Structure is [documented below](#nested_common_name).
+  Structure is [documented below](#nested_s_sl_info_common_name).
 
 
-<a name="nested_common_name"></a>The `common_name` block supports:
+<a name="nested_s_sl_info_common_name"></a>The `common_name` block supports:
 
 * `value` -
   (Optional)

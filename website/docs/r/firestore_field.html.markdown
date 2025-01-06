@@ -170,10 +170,10 @@ The following arguments are supported:
 * `indexes` -
   (Optional)
   The indexes to configure on the field. Order or array contains must be specified.
-  Structure is [documented below](#nested_indexes).
+  Structure is [documented below](#nested_index_config_indexes).
 
 
-<a name="nested_indexes"></a>The `indexes` block supports:
+<a name="nested_index_config_indexes"></a>The `indexes` block supports:
 
 * `query_scope` -
   (Optional)

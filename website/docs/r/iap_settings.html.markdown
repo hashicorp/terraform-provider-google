@@ -151,33 +151,33 @@ The following arguments are supported:
 * `gcip_settings` -
   (Optional)
   GCIP claims and endpoint configurations for 3p identity providers.
-  Structure is [documented below](#nested_gcip_settings).
+  Structure is [documented below](#nested_access_settings_gcip_settings).
 
 * `cors_settings` -
   (Optional)
   Configuration to allow cross-origin requests via IAP.
-  Structure is [documented below](#nested_cors_settings).
+  Structure is [documented below](#nested_access_settings_cors_settings).
 
 * `oauth_settings` -
   (Optional)
   Settings to configure IAP's OAuth behavior.
-  Structure is [documented below](#nested_oauth_settings).
+  Structure is [documented below](#nested_access_settings_oauth_settings).
 
 * `reauth_settings` -
   (Optional)
   Settings to configure reauthentication policies in IAP.
-  Structure is [documented below](#nested_reauth_settings).
+  Structure is [documented below](#nested_access_settings_reauth_settings).
 
 * `allowed_domains_settings` -
   (Optional)
   Settings to configure and enable allowed domains.
-  Structure is [documented below](#nested_allowed_domains_settings).
+  Structure is [documented below](#nested_access_settings_allowed_domains_settings).
 
 * `workforce_identity_settings` -
   (Optional)
   Settings to configure the workforce identity federation, including workforce pools
   and OAuth 2.0 settings.
-  Structure is [documented below](#nested_workforce_identity_settings).
+  Structure is [documented below](#nested_access_settings_workforce_identity_settings).
 
 * `identity_sources` -
   (Optional)
@@ -188,7 +188,7 @@ The following arguments are supported:
   Each value may be one of: `WORKFORCE_IDENTITY_FEDERATION`.
 
 
-<a name="nested_gcip_settings"></a>The `gcip_settings` block supports:
+<a name="nested_access_settings_gcip_settings"></a>The `gcip_settings` block supports:
 
 * `tenant_ids` -
   (Optional)
@@ -204,14 +204,14 @@ The following arguments are supported:
   the same project share the same login page, though it could be overridden at the
   sub resource level.
 
-<a name="nested_cors_settings"></a>The `cors_settings` block supports:
+<a name="nested_access_settings_cors_settings"></a>The `cors_settings` block supports:
 
 * `allow_http_options` -
   (Optional)
   Configuration to allow HTTP OPTIONS calls to skip authorization.
   If undefined, IAP will not apply any special logic to OPTIONS requests.
 
-<a name="nested_oauth_settings"></a>The `oauth_settings` block supports:
+<a name="nested_access_settings_oauth_settings"></a>The `oauth_settings` block supports:
 
 * `login_hint` -
   (Optional)
@@ -225,7 +225,7 @@ The following arguments are supported:
   (Optional)
   List of client ids allowed to use IAP programmatically.
 
-<a name="nested_reauth_settings"></a>The `reauth_settings` block supports:
+<a name="nested_access_settings_reauth_settings"></a>The `reauth_settings` block supports:
 
 * `method` -
   (Required)
@@ -251,7 +251,7 @@ The following arguments are supported:
   * `DEFAULT`: This policy acts as a default if no other reauth policy is set.
   Possible values are: `MINIMUM`, `DEFAULT`.
 
-<a name="nested_allowed_domains_settings"></a>The `allowed_domains_settings` block supports:
+<a name="nested_access_settings_allowed_domains_settings"></a>The `allowed_domains_settings` block supports:
 
 * `domains` -
   (Optional)
@@ -261,7 +261,7 @@ The following arguments are supported:
   (Optional)
   Configuration for customers to opt in for the feature.
 
-<a name="nested_workforce_identity_settings"></a>The `workforce_identity_settings` block supports:
+<a name="nested_access_settings_workforce_identity_settings"></a>The `workforce_identity_settings` block supports:
 
 * `workforce_pools` -
   (Optional)
@@ -271,10 +271,10 @@ The following arguments are supported:
   (Optional)
   OAuth 2.0 settings for IAP to perform OIDC flow with workforce identity
   federation services.
-  Structure is [documented below](#nested_oauth2).
+  Structure is [documented below](#nested_access_settings_workforce_identity_settings_oauth2).
 
 
-<a name="nested_oauth2"></a>The `oauth2` block supports:
+<a name="nested_access_settings_workforce_identity_settings_oauth2"></a>The `oauth2` block supports:
 
 * `client_id` -
   (Optional)
@@ -297,14 +297,14 @@ The following arguments are supported:
 * `csm_settings` -
   (Optional)
   Settings to configure IAP's behavior for a service mesh.
-  Structure is [documented below](#nested_csm_settings).
+  Structure is [documented below](#nested_application_settings_csm_settings).
 
 * `access_denied_page_settings` -
   (Optional)
   Customization for Access Denied page. IAP allows customers to define a custom URI
   to use as the error page when access is denied to users. If IAP prevents access
   to this page, the default IAP error page will be displayed instead.
-  Structure is [documented below](#nested_access_denied_page_settings).
+  Structure is [documented below](#nested_application_settings_access_denied_page_settings).
 
 * `cookie_domain` -
   (Optional)
@@ -314,16 +314,16 @@ The following arguments are supported:
 * `attribute_propagation_settings` -
   (Optional)
   Settings to configure attribute propagation.
-  Structure is [documented below](#nested_attribute_propagation_settings).
+  Structure is [documented below](#nested_application_settings_attribute_propagation_settings).
 
 
-<a name="nested_csm_settings"></a>The `csm_settings` block supports:
+<a name="nested_application_settings_csm_settings"></a>The `csm_settings` block supports:
 
 * `rctoken_aud` -
   (Optional)
   Audience claim set in the generated RCToken. This value is not validated by IAP.
 
-<a name="nested_access_denied_page_settings"></a>The `access_denied_page_settings` block supports:
+<a name="nested_application_settings_access_denied_page_settings"></a>The `access_denied_page_settings` block supports:
 
 * `access_denied_page_uri` -
   (Optional)
@@ -337,7 +337,7 @@ The following arguments are supported:
   (Optional)
   Whether to generate remediation token on access denied events to this application.
 
-<a name="nested_attribute_propagation_settings"></a>The `attribute_propagation_settings` block supports:
+<a name="nested_application_settings_attribute_propagation_settings"></a>The `attribute_propagation_settings` block supports:
 
 * `output_credentials` -
   (Optional)

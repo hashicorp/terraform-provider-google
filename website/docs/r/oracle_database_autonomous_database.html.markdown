@@ -226,7 +226,7 @@ The following arguments are supported:
 * `customer_contacts` -
   (Optional)
   The list of customer contacts.
-  Structure is [documented below](#nested_customer_contacts).
+  Structure is [documented below](#nested_properties_customer_contacts).
 
 * `maintenance_schedule_type` -
   (Optional)
@@ -260,7 +260,7 @@ The following arguments are supported:
   (Output)
   Oracle APEX Application Development.
   https://docs.oracle.com/en-us/iaas/api/#/en/database/20160918/datatypes/AutonomousDatabaseApex
-  Structure is [documented below](#nested_apex_details).
+  Structure is [documented below](#nested_properties_apex_details).
 
 * `are_primary_allowlisted_ips_used` -
   (Output)
@@ -316,14 +316,14 @@ The following arguments are supported:
   (Output)
   The connection string used to connect to the Autonomous Database.
   https://docs.oracle.com/en-us/iaas/api/#/en/database/20160918/datatypes/AutonomousDatabaseConnectionStrings
-  Structure is [documented below](#nested_connection_strings).
+  Structure is [documented below](#nested_properties_connection_strings).
 
 * `connection_urls` -
   (Output)
   The URLs for accessing Oracle Application Express (APEX) and SQL Developer
   Web with a browser from a Compute instance.
   https://docs.oracle.com/en-us/iaas/api/#/en/database/20160918/datatypes/AutonomousDatabaseConnectionUrls
-  Structure is [documented below](#nested_connection_urls).
+  Structure is [documented below](#nested_properties_connection_urls).
 
 * `failed_data_recovery_duration` -
   (Output)
@@ -348,7 +348,7 @@ The following arguments are supported:
   (Output)
   Autonomous Data Guard standby database details.
   https://docs.oracle.com/en-us/iaas/api/#/en/database/20160918/datatypes/AutonomousDatabaseStandbySummary
-  Structure is [documented below](#nested_local_standby_db).
+  Structure is [documented below](#nested_properties_local_standby_db).
 
 * `memory_per_oracle_compute_unit_gbs` -
   (Output)
@@ -454,7 +454,7 @@ The following arguments are supported:
   (Output)
   The list and details of the scheduled operations of the Autonomous
   Database.
-  Structure is [documented below](#nested_scheduled_operation_details).
+  Structure is [documented below](#nested_properties_scheduled_operation_details).
 
 * `sql_web_developer_url` -
   (Output)
@@ -491,14 +491,14 @@ The following arguments are supported:
   The date and time when maintenance will end.
 
 
-<a name="nested_customer_contacts"></a>The `customer_contacts` block supports:
+<a name="nested_properties_customer_contacts"></a>The `customer_contacts` block supports:
 
 * `email` -
   (Required)
   The email address used by Oracle to send notifications regarding databases
   and infrastructure.
 
-<a name="nested_apex_details"></a>The `apex_details` block contains:
+<a name="nested_properties_apex_details"></a>The `apex_details` block contains:
 
 * `apex_version` -
   (Output)
@@ -508,13 +508,13 @@ The following arguments are supported:
   (Output)
   The Oracle REST Data Services (ORDS) version.
 
-<a name="nested_connection_strings"></a>The `connection_strings` block contains:
+<a name="nested_properties_connection_strings"></a>The `connection_strings` block contains:
 
 * `all_connection_strings` -
   (Output)
   A list of all connection strings that can be used to connect to the
   Autonomous Database.
-  Structure is [documented below](#nested_all_connection_strings).
+  Structure is [documented below](#nested_properties_connection_strings_all_connection_strings).
 
 * `dedicated` -
   (Output)
@@ -540,10 +540,10 @@ The following arguments are supported:
   (Output)
   A list of connection string profiles to allow clients to group, filter, and
   select values based on the structured metadata.
-  Structure is [documented below](#nested_profiles).
+  Structure is [documented below](#nested_properties_connection_strings_profiles).
 
 
-<a name="nested_all_connection_strings"></a>The `all_connection_strings` block contains:
+<a name="nested_properties_connection_strings_all_connection_strings"></a>The `all_connection_strings` block contains:
 
 * `high` -
   (Output)
@@ -560,7 +560,7 @@ The following arguments are supported:
   The database service provides a lower level of resources to each SQL
   statement.
 
-<a name="nested_profiles"></a>The `profiles` block contains:
+<a name="nested_properties_connection_strings_profiles"></a>The `profiles` block contains:
 
 * `consumer_group` -
   (Output)
@@ -627,7 +627,7 @@ The following arguments are supported:
   (Output)
   The value of the connection string.
 
-<a name="nested_connection_urls"></a>The `connection_urls` block contains:
+<a name="nested_properties_connection_urls"></a>The `connection_urls` block contains:
 
 * `apex_uri` -
   (Output)
@@ -663,7 +663,7 @@ The following arguments are supported:
   (Output)
   The URL of the Oracle SQL Developer Web for the Autonomous Database.
 
-<a name="nested_local_standby_db"></a>The `local_standby_db` block contains:
+<a name="nested_properties_local_standby_db"></a>The `local_standby_db` block contains:
 
 * `lag_time_duration` -
   (Output)
@@ -711,7 +711,7 @@ The following arguments are supported:
   The date and time the Disaster Recovery role was switched for the standby
   Autonomous Database.
 
-<a name="nested_scheduled_operation_details"></a>The `scheduled_operation_details` block contains:
+<a name="nested_properties_scheduled_operation_details"></a>The `scheduled_operation_details` block contains:
 
 * `day_of_week` -
   (Output)
@@ -730,17 +730,17 @@ The following arguments are supported:
   Represents a time of day. The date and time zone are either not significant
   or are specified elsewhere. An API may choose to allow leap seconds. Related
   types are google.type.Date and `google.protobuf.Timestamp`.
-  Structure is [documented below](#nested_start_time).
+  Structure is [documented below](#nested_properties_scheduled_operation_details_scheduled_operation_details_start_time).
 
 * `stop_time` -
   (Output)
   Represents a time of day. The date and time zone are either not significant
   or are specified elsewhere. An API may choose to allow leap seconds. Related
   types are google.type.Date and `google.protobuf.Timestamp`.
-  Structure is [documented below](#nested_stop_time).
+  Structure is [documented below](#nested_properties_scheduled_operation_details_scheduled_operation_details_stop_time).
 
 
-<a name="nested_start_time"></a>The `start_time` block contains:
+<a name="nested_properties_scheduled_operation_details_scheduled_operation_details_start_time"></a>The `start_time` block contains:
 
 * `hours` -
   (Output)
@@ -760,7 +760,7 @@ The following arguments are supported:
   (Output)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_stop_time"></a>The `stop_time` block contains:
+<a name="nested_properties_scheduled_operation_details_scheduled_operation_details_stop_time"></a>The `stop_time` block contains:
 
 * `hours` -
   (Output)

@@ -281,10 +281,10 @@ The following arguments are supported:
 * `component_config` -
   (Optional)
   The configuration of the logging components
-  Structure is [documented below](#nested_component_config).
+  Structure is [documented below](#nested_logging_config_component_config).
 
 
-<a name="nested_component_config"></a>The `component_config` block supports:
+<a name="nested_logging_config_component_config"></a>The `component_config` block supports:
 
 * `enable_components` -
   (Optional)
@@ -314,10 +314,10 @@ The following arguments are supported:
 * `managed_prometheus_config` -
   (Optional)
   Enable Google Cloud Managed Service for Prometheus in the cluster.
-  Structure is [documented below](#nested_managed_prometheus_config).
+  Structure is [documented below](#nested_monitoring_config_managed_prometheus_config).
 
 
-<a name="nested_managed_prometheus_config"></a>The `managed_prometheus_config` block supports:
+<a name="nested_monitoring_config_managed_prometheus_config"></a>The `managed_prometheus_config` block supports:
 
 * `enabled` -
   (Optional)
@@ -335,10 +335,10 @@ The following arguments are supported:
 * `kubernetes_secret` -
   (Optional)
   The Kubernetes Secret resource that contains the HTTP(S) proxy configuration.
-  Structure is [documented below](#nested_kubernetes_secret).
+  Structure is [documented below](#nested_proxy_config_kubernetes_secret).
 
 
-<a name="nested_kubernetes_secret"></a>The `kubernetes_secret` block supports:
+<a name="nested_proxy_config_kubernetes_secret"></a>The `kubernetes_secret` block supports:
 
 * `name` -
   (Required)

@@ -120,7 +120,7 @@ The following arguments are supported:
   (Optional)
   Services allowed for web sign-in with the workforce pool.
   If not set by default there are no restrictions.
-  Structure is [documented below](#nested_allowed_services).
+  Structure is [documented below](#nested_access_restrictions_allowed_services).
 
 * `disable_programmatic_signin` -
   (Optional)
@@ -128,7 +128,7 @@ The following arguments are supported:
   See [Security Token Service API](https://cloud.google.com/iam/docs/reference/sts/rest).
 
 
-<a name="nested_allowed_services"></a>The `allowed_services` block supports:
+<a name="nested_access_restrictions_allowed_services"></a>The `allowed_services` block supports:
 
 * `domain` -
   (Optional)

@@ -152,15 +152,15 @@ The following arguments are supported:
 * `start_date` -
   (Required)
   The date to start generating inventory reports. For example, {"day": 15, "month": 8, "year": 2022}.
-  Structure is [documented below](#nested_start_date).
+  Structure is [documented below](#nested_frequency_options_start_date).
 
 * `end_date` -
   (Required)
   The date to stop generating inventory reports. For example, {"day": 15, "month": 9, "year": 2022}.
-  Structure is [documented below](#nested_end_date).
+  Structure is [documented below](#nested_frequency_options_end_date).
 
 
-<a name="nested_start_date"></a>The `start_date` block supports:
+<a name="nested_frequency_options_start_date"></a>The `start_date` block supports:
 
 * `day` -
   (Required)
@@ -174,7 +174,7 @@ The following arguments are supported:
   (Required)
   The year to start generating inventory reports
 
-<a name="nested_end_date"></a>The `end_date` block supports:
+<a name="nested_frequency_options_end_date"></a>The `end_date` block supports:
 
 * `day` -
   (Required)
@@ -197,21 +197,21 @@ The following arguments are supported:
 * `storage_filters` -
   (Optional)
   A nested object resource.
-  Structure is [documented below](#nested_storage_filters).
+  Structure is [documented below](#nested_object_metadata_report_options_storage_filters).
 
 * `storage_destination_options` -
   (Required)
   Options for where the inventory reports are stored.
-  Structure is [documented below](#nested_storage_destination_options).
+  Structure is [documented below](#nested_object_metadata_report_options_storage_destination_options).
 
 
-<a name="nested_storage_filters"></a>The `storage_filters` block supports:
+<a name="nested_object_metadata_report_options_storage_filters"></a>The `storage_filters` block supports:
 
 * `bucket` -
   (Optional)
   The filter to use when specifying which bucket to generate inventory reports for.
 
-<a name="nested_storage_destination_options"></a>The `storage_destination_options` block supports:
+<a name="nested_object_metadata_report_options_storage_destination_options"></a>The `storage_destination_options` block supports:
 
 * `bucket` -
   (Required)

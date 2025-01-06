@@ -156,7 +156,7 @@ The following arguments are supported:
   start times. A MACsec CKN/CAK is generated for each key in the key chain.
   Google router automatically picks the key with the most recent startTime when establishing
   or re-establishing a MACsec secure link.
-  Structure is [documented below](#nested_pre_shared_keys).
+  Structure is [documented below](#nested_macsec_pre_shared_keys).
 
 * `fail_open` -
   (Optional)
@@ -167,7 +167,7 @@ The following arguments are supported:
   if the MKA session cannot be established with your router.
 
 
-<a name="nested_pre_shared_keys"></a>The `pre_shared_keys` block supports:
+<a name="nested_macsec_pre_shared_keys"></a>The `pre_shared_keys` block supports:
 
 * `name` -
   (Required)

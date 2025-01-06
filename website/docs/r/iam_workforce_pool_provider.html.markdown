@@ -392,12 +392,12 @@ The following arguments are supported:
 * `client_secret` -
   (Optional)
   The optional client secret. Required to enable Authorization Code flow for web sign-in.
-  Structure is [documented below](#nested_client_secret).
+  Structure is [documented below](#nested_oidc_client_secret).
 
 * `web_sso_config` -
   (Optional)
   Configuration for web single sign-on for the OIDC provider. Here, web sign-in refers to console sign-in and gcloud sign-in through the browser.
-  Structure is [documented below](#nested_web_sso_config).
+  Structure is [documented below](#nested_oidc_web_sso_config).
 
 * `jwks_json` -
   (Optional)
@@ -426,15 +426,15 @@ The following arguments are supported:
   ```
 
 
-<a name="nested_client_secret"></a>The `client_secret` block supports:
+<a name="nested_oidc_client_secret"></a>The `client_secret` block supports:
 
 * `value` -
   (Optional)
   The value of the client secret.
-  Structure is [documented below](#nested_value).
+  Structure is [documented below](#nested_oidc_client_secret_value).
 
 
-<a name="nested_value"></a>The `value` block supports:
+<a name="nested_oidc_client_secret_value"></a>The `value` block supports:
 
 * `plain_text` -
   (Required)
@@ -445,7 +445,7 @@ The following arguments are supported:
   (Output)
   A thumbprint to represent the current client secret value.
 
-<a name="nested_web_sso_config"></a>The `web_sso_config` block supports:
+<a name="nested_oidc_web_sso_config"></a>The `web_sso_config` block supports:
 
 * `response_type` -
   (Required)
@@ -480,7 +480,7 @@ The following arguments are supported:
 * `client_secret` -
   (Required)
   The OAuth 2.0 client secret for retrieving extra attributes from the identity provider. Required to get the Access Token using client credentials grant flow.
-  Structure is [documented below](#nested_client_secret).
+  Structure is [documented below](#nested_extra_attributes_oauth2_client_client_secret).
 
 * `attributes_type` -
   (Required)
@@ -494,18 +494,18 @@ The following arguments are supported:
 * `query_parameters` -
   (Optional)
   Represents the parameters to control which claims are fetched from an IdP.
-  Structure is [documented below](#nested_query_parameters).
+  Structure is [documented below](#nested_extra_attributes_oauth2_client_query_parameters).
 
 
-<a name="nested_client_secret"></a>The `client_secret` block supports:
+<a name="nested_extra_attributes_oauth2_client_client_secret"></a>The `client_secret` block supports:
 
 * `value` -
   (Optional)
   The value of the client secret.
-  Structure is [documented below](#nested_value).
+  Structure is [documented below](#nested_extra_attributes_oauth2_client_client_secret_value).
 
 
-<a name="nested_value"></a>The `value` block supports:
+<a name="nested_extra_attributes_oauth2_client_client_secret_value"></a>The `value` block supports:
 
 * `plain_text` -
   (Required)
@@ -515,7 +515,7 @@ The following arguments are supported:
   (Output)
   A thumbprint to represent the current client secret value.
 
-<a name="nested_query_parameters"></a>The `query_parameters` block supports:
+<a name="nested_extra_attributes_oauth2_client_query_parameters"></a>The `query_parameters` block supports:
 
 * `filter` -
   (Optional)

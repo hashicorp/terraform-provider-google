@@ -168,7 +168,7 @@ The following arguments are supported:
   (Optional)
   A condition that checks that a time series
   continues to receive new data points.
-  Structure is [documented below](#nested_condition_absent).
+  Structure is [documented below](#nested_conditions_conditions_condition_absent).
 
 * `name` -
   (Output)
@@ -182,13 +182,13 @@ The following arguments are supported:
 * `condition_monitoring_query_language` -
   (Optional)
   A Monitoring Query Language query that outputs a boolean stream
-  Structure is [documented below](#nested_condition_monitoring_query_language).
+  Structure is [documented below](#nested_conditions_conditions_condition_monitoring_query_language).
 
 * `condition_threshold` -
   (Optional)
   A condition that compares a time series against a
   threshold.
-  Structure is [documented below](#nested_condition_threshold).
+  Structure is [documented below](#nested_conditions_conditions_condition_threshold).
 
 * `display_name` -
   (Required)
@@ -202,7 +202,7 @@ The following arguments are supported:
   (Optional)
   A condition that checks for log messages matching given constraints.
   If set, no other conditions can be present.
-  Structure is [documented below](#nested_condition_matched_log).
+  Structure is [documented below](#nested_conditions_conditions_condition_matched_log).
 
 * `condition_prometheus_query_language` -
   (Optional)
@@ -210,10 +210,10 @@ The following arguments are supported:
   Prometheus Query Language (PromQL).
   The PrometheusQueryLanguageCondition message contains information
   from a Prometheus alerting rule and its associated rule group.
-  Structure is [documented below](#nested_condition_prometheus_query_language).
+  Structure is [documented below](#nested_conditions_conditions_condition_prometheus_query_language).
 
 
-<a name="nested_condition_absent"></a>The `condition_absent` block supports:
+<a name="nested_conditions_conditions_condition_absent"></a>The `condition_absent` block supports:
 
 * `aggregations` -
   (Optional)
@@ -226,7 +226,7 @@ The following arguments are supported:
   all members of a group of resources).
   Multiple aggregations are applied in the
   order specified.
-  Structure is [documented below](#nested_aggregations).
+  Structure is [documented below](#nested_conditions_conditions_condition_absent_aggregations).
 
 * `trigger` -
   (Optional)
@@ -236,7 +236,7 @@ The following arguments are supported:
   the condition will trigger if the comparison
   is true for any of the time series that have
   been identified by filter and aggregations.
-  Structure is [documented below](#nested_trigger).
+  Structure is [documented below](#nested_conditions_conditions_condition_absent_trigger).
 
 * `duration` -
   (Required)
@@ -262,7 +262,7 @@ The following arguments are supported:
   in length.
 
 
-<a name="nested_aggregations"></a>The `aggregations` block supports:
+<a name="nested_conditions_conditions_condition_absent_aggregations"></a>The `aggregations` block supports:
 
 * `per_series_aligner` -
   (Optional)
@@ -351,7 +351,7 @@ The following arguments are supported:
   returned.
   Possible values are: `REDUCE_NONE`, `REDUCE_MEAN`, `REDUCE_MIN`, `REDUCE_MAX`, `REDUCE_SUM`, `REDUCE_STDDEV`, `REDUCE_COUNT`, `REDUCE_COUNT_TRUE`, `REDUCE_COUNT_FALSE`, `REDUCE_FRACTION_TRUE`, `REDUCE_PERCENTILE_99`, `REDUCE_PERCENTILE_95`, `REDUCE_PERCENTILE_50`, `REDUCE_PERCENTILE_05`.
 
-<a name="nested_trigger"></a>The `trigger` block supports:
+<a name="nested_conditions_conditions_condition_absent_trigger"></a>The `trigger` block supports:
 
 * `percent` -
   (Optional)
@@ -365,7 +365,7 @@ The following arguments are supported:
   that must fail the predicate for the
   condition to be triggered.
 
-<a name="nested_condition_monitoring_query_language"></a>The `condition_monitoring_query_language` block supports:
+<a name="nested_conditions_conditions_condition_monitoring_query_language"></a>The `condition_monitoring_query_language` block supports:
 
 * `query` -
   (Required)
@@ -399,7 +399,7 @@ The following arguments are supported:
   been identified by filter and aggregations,
   or by the ratio, if denominator_filter and
   denominator_aggregations are specified.
-  Structure is [documented below](#nested_trigger).
+  Structure is [documented below](#nested_conditions_conditions_condition_monitoring_query_language_trigger).
 
 * `evaluation_missing_data` -
   (Optional)
@@ -409,7 +409,7 @@ The following arguments are supported:
   Possible values are: `EVALUATION_MISSING_DATA_INACTIVE`, `EVALUATION_MISSING_DATA_ACTIVE`, `EVALUATION_MISSING_DATA_NO_OP`.
 
 
-<a name="nested_trigger"></a>The `trigger` block supports:
+<a name="nested_conditions_conditions_condition_monitoring_query_language_trigger"></a>The `trigger` block supports:
 
 * `percent` -
   (Optional)
@@ -423,7 +423,7 @@ The following arguments are supported:
   that must fail the predicate for the
   condition to be triggered.
 
-<a name="nested_condition_threshold"></a>The `condition_threshold` block supports:
+<a name="nested_conditions_conditions_condition_threshold"></a>The `condition_threshold` block supports:
 
 * `threshold_value` -
   (Optional)
@@ -466,7 +466,7 @@ The following arguments are supported:
   the MetricService.ListTimeSeries request. It
   is advisable to use the ListTimeSeries
   method when debugging this field.
-  Structure is [documented below](#nested_denominator_aggregations).
+  Structure is [documented below](#nested_conditions_conditions_condition_threshold_denominator_aggregations).
 
 * `duration` -
   (Required)
@@ -494,7 +494,7 @@ The following arguments are supported:
   `forecastHorizon`. When this field is not set, the
   `MetricThreshold` tests the current value of the
   timeseries against the threshold.
-  Structure is [documented below](#nested_forecast_options).
+  Structure is [documented below](#nested_conditions_conditions_condition_threshold_forecast_options).
 
 * `comparison` -
   (Required)
@@ -518,7 +518,7 @@ The following arguments are supported:
   been identified by filter and aggregations,
   or by the ratio, if denominator_filter and
   denominator_aggregations are specified.
-  Structure is [documented below](#nested_trigger).
+  Structure is [documented below](#nested_conditions_conditions_condition_threshold_trigger).
 
 * `aggregations` -
   (Optional)
@@ -535,7 +535,7 @@ The following arguments are supported:
   request. It is advisable to use the
   ListTimeSeries method when debugging this
   field.
-  Structure is [documented below](#nested_aggregations).
+  Structure is [documented below](#nested_conditions_conditions_condition_threshold_aggregations).
 
 * `filter` -
   (Optional)
@@ -560,7 +560,7 @@ The following arguments are supported:
   Possible values are: `EVALUATION_MISSING_DATA_INACTIVE`, `EVALUATION_MISSING_DATA_ACTIVE`, `EVALUATION_MISSING_DATA_NO_OP`.
 
 
-<a name="nested_denominator_aggregations"></a>The `denominator_aggregations` block supports:
+<a name="nested_conditions_conditions_condition_threshold_denominator_aggregations"></a>The `denominator_aggregations` block supports:
 
 * `per_series_aligner` -
   (Optional)
@@ -649,7 +649,7 @@ The following arguments are supported:
   returned.
   Possible values are: `REDUCE_NONE`, `REDUCE_MEAN`, `REDUCE_MIN`, `REDUCE_MAX`, `REDUCE_SUM`, `REDUCE_STDDEV`, `REDUCE_COUNT`, `REDUCE_COUNT_TRUE`, `REDUCE_COUNT_FALSE`, `REDUCE_FRACTION_TRUE`, `REDUCE_PERCENTILE_99`, `REDUCE_PERCENTILE_95`, `REDUCE_PERCENTILE_50`, `REDUCE_PERCENTILE_05`.
 
-<a name="nested_forecast_options"></a>The `forecast_options` block supports:
+<a name="nested_conditions_conditions_condition_threshold_forecast_options"></a>The `forecast_options` block supports:
 
 * `forecast_horizon` -
   (Required)
@@ -660,7 +660,7 @@ The following arguments are supported:
   forecasts made for the Configured `duration`,
   then the timeseries is considered to be failing.
 
-<a name="nested_trigger"></a>The `trigger` block supports:
+<a name="nested_conditions_conditions_condition_threshold_trigger"></a>The `trigger` block supports:
 
 * `percent` -
   (Optional)
@@ -674,7 +674,7 @@ The following arguments are supported:
   that must fail the predicate for the
   condition to be triggered.
 
-<a name="nested_aggregations"></a>The `aggregations` block supports:
+<a name="nested_conditions_conditions_condition_threshold_aggregations"></a>The `aggregations` block supports:
 
 * `per_series_aligner` -
   (Optional)
@@ -763,7 +763,7 @@ The following arguments are supported:
   returned.
   Possible values are: `REDUCE_NONE`, `REDUCE_MEAN`, `REDUCE_MIN`, `REDUCE_MAX`, `REDUCE_SUM`, `REDUCE_STDDEV`, `REDUCE_COUNT`, `REDUCE_COUNT_TRUE`, `REDUCE_COUNT_FALSE`, `REDUCE_FRACTION_TRUE`, `REDUCE_PERCENTILE_99`, `REDUCE_PERCENTILE_95`, `REDUCE_PERCENTILE_50`, `REDUCE_PERCENTILE_05`.
 
-<a name="nested_condition_matched_log"></a>The `condition_matched_log` block supports:
+<a name="nested_conditions_conditions_condition_matched_log"></a>The `condition_matched_log` block supports:
 
 * `filter` -
   (Required)
@@ -779,7 +779,7 @@ The following arguments are supported:
   Label keys and corresponding values can be used in notifications
   generated by this condition.
 
-<a name="nested_condition_prometheus_query_language"></a>The `condition_prometheus_query_language` block supports:
+<a name="nested_conditions_conditions_condition_prometheus_query_language"></a>The `condition_prometheus_query_language` block supports:
 
 * `query` -
   (Required)
@@ -898,7 +898,7 @@ The following arguments are supported:
   (Optional)
   Required for alert policies with a LogMatch condition.
   This limit is not implemented for alert policies that are not log-based.
-  Structure is [documented below](#nested_notification_rate_limit).
+  Structure is [documented below](#nested_alert_strategy_notification_rate_limit).
 
 * `auto_close` -
   (Optional)
@@ -913,17 +913,17 @@ The following arguments are supported:
   (Optional)
   Control over how the notification channels in `notification_channels`
   are notified when this alert fires, on a per-channel basis.
-  Structure is [documented below](#nested_notification_channel_strategy).
+  Structure is [documented below](#nested_alert_strategy_notification_channel_strategy).
 
 
-<a name="nested_notification_rate_limit"></a>The `notification_rate_limit` block supports:
+<a name="nested_alert_strategy_notification_rate_limit"></a>The `notification_rate_limit` block supports:
 
 * `period` -
   (Optional)
   Not more than one notification per period.
   A duration in seconds with up to nine fractional digits, terminated by 's'. Example "60.5s".
 
-<a name="nested_notification_channel_strategy"></a>The `notification_channel_strategy` block supports:
+<a name="nested_alert_strategy_notification_channel_strategy"></a>The `notification_channel_strategy` block supports:
 
 * `notification_channel_names` -
   (Optional)
@@ -960,10 +960,10 @@ The following arguments are supported:
 * `links` -
   (Optional)
   Links to content such as playbooks, repositories, and other resources. This field can contain up to 3 entries.
-  Structure is [documented below](#nested_links).
+  Structure is [documented below](#nested_documentation_links).
 
 
-<a name="nested_links"></a>The `links` block supports:
+<a name="nested_documentation_links"></a>The `links` block supports:
 
 * `display_name` -
   (Optional)

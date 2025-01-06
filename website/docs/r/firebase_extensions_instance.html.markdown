@@ -230,15 +230,15 @@ In addition to the arguments listed above, the following computed attributes are
 * `processing_state` -
   (Optional)
   The processing state for the extension instance
-  Structure is [documented below](#nested_processing_state).
+  Structure is [documented below](#nested_runtime_data_processing_state).
 
 * `fatal_error` -
   (Optional)
   The fatal error state for the extension instance
-  Structure is [documented below](#nested_fatal_error).
+  Structure is [documented below](#nested_runtime_data_fatal_error).
 
 
-<a name="nested_processing_state"></a>The `processing_state` block supports:
+<a name="nested_runtime_data_processing_state"></a>The `processing_state` block supports:
 
 * `state` -
   (Optional)
@@ -251,7 +251,7 @@ In addition to the arguments listed above, the following computed attributes are
   This information will be shown in the console on the detail page
   for the extension instance.
 
-<a name="nested_fatal_error"></a>The `fatal_error` block supports:
+<a name="nested_runtime_data_fatal_error"></a>The `fatal_error` block supports:
 
 * `error_message` -
   (Optional)

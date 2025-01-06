@@ -528,34 +528,34 @@ The following arguments are supported:
   the incoming end entity certificate. Follow the x509 guidelines to
   define those PEM encoded certs. Only 1 trust store is currently
   supported.
-  Structure is [documented below](#nested_trust_store).
+  Structure is [documented below](#nested_x509_trust_store).
 
 
-<a name="nested_trust_store"></a>The `trust_store` block supports:
+<a name="nested_x509_trust_store"></a>The `trust_store` block supports:
 
 * `trust_anchors` -
   (Required)
   List of Trust Anchors to be used while performing validation
   against a given TrustStore. The incoming end entity's certificate
   must be chained up to one of the trust anchors here.
-  Structure is [documented below](#nested_trust_anchors).
+  Structure is [documented below](#nested_x509_trust_store_trust_anchors).
 
 * `intermediate_cas` -
   (Optional)
   Set of intermediate CA certificates used for building the trust chain to
   trust anchor.
   IMPORTANT: Intermediate CAs are only supported when configuring x509 federation.
-  Structure is [documented below](#nested_intermediate_cas).
+  Structure is [documented below](#nested_x509_trust_store_intermediate_cas).
 
 
-<a name="nested_trust_anchors"></a>The `trust_anchors` block supports:
+<a name="nested_x509_trust_store_trust_anchors"></a>The `trust_anchors` block supports:
 
 * `pem_certificate` -
   (Optional)
   PEM certificate of the PKI used for validation. Must only contain one
   ca certificate(either root or intermediate cert).
 
-<a name="nested_intermediate_cas"></a>The `intermediate_cas` block supports:
+<a name="nested_x509_trust_store_intermediate_cas"></a>The `intermediate_cas` block supports:
 
 * `pem_certificate` -
   (Optional)

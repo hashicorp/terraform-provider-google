@@ -86,10 +86,10 @@ The following arguments are supported:
 * `node_spec` -
   (Optional)
   The TPU node(s) being requested.
-  Structure is [documented below](#nested_node_spec).
+  Structure is [documented below](#nested_tpu_node_spec).
 
 
-<a name="nested_node_spec"></a>The `node_spec` block supports:
+<a name="nested_tpu_node_spec"></a>The `node_spec` block supports:
 
 * `parent` -
   (Required)
@@ -102,10 +102,10 @@ The following arguments are supported:
 * `node` -
   (Required)
   The node.
-  Structure is [documented below](#nested_node).
+  Structure is [documented below](#nested_tpu_node_spec_node_spec_node).
 
 
-<a name="nested_node"></a>The `node` block supports:
+<a name="nested_tpu_node_spec_node_spec_node"></a>The `node` block supports:
 
 * `runtime_version` -
   (Required)

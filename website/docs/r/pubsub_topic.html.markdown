@@ -251,21 +251,21 @@ The following arguments are supported:
 * `aws_kinesis` -
   (Optional)
   Settings for ingestion from Amazon Kinesis Data Streams.
-  Structure is [documented below](#nested_aws_kinesis).
+  Structure is [documented below](#nested_ingestion_data_source_settings_aws_kinesis).
 
 * `cloud_storage` -
   (Optional)
   Settings for ingestion from Cloud Storage.
-  Structure is [documented below](#nested_cloud_storage).
+  Structure is [documented below](#nested_ingestion_data_source_settings_cloud_storage).
 
 * `platform_logs_settings` -
   (Optional)
   Settings for Platform Logs regarding ingestion to Pub/Sub. If unset,
   no Platform Logs will be generated.'
-  Structure is [documented below](#nested_platform_logs_settings).
+  Structure is [documented below](#nested_ingestion_data_source_settings_platform_logs_settings).
 
 
-<a name="nested_aws_kinesis"></a>The `aws_kinesis` block supports:
+<a name="nested_ingestion_data_source_settings_aws_kinesis"></a>The `aws_kinesis` block supports:
 
 * `stream_arn` -
   (Required)
@@ -290,7 +290,7 @@ The following arguments are supported:
   role). The `awsRoleArn` must be set up with `accounts.google.com:sub`
   equals to this service account number.
 
-<a name="nested_cloud_storage"></a>The `cloud_storage` block supports:
+<a name="nested_ingestion_data_source_settings_cloud_storage"></a>The `cloud_storage` block supports:
 
 * `bucket` -
   (Required)
@@ -303,7 +303,7 @@ The following arguments are supported:
   Configuration for reading Cloud Storage data in text format. Each line of
   text as specified by the delimiter will be set to the `data` field of a
   Pub/Sub message.
-  Structure is [documented below](#nested_text_format).
+  Structure is [documented below](#nested_ingestion_data_source_settings_cloud_storage_text_format).
 
 * `avro_format` -
   (Optional)
@@ -330,7 +330,7 @@ The following arguments are supported:
   https://cloud.google.com/storage/docs/json_api/v1/objects/list#list-objects-and-prefixes-using-glob
 
 
-<a name="nested_text_format"></a>The `text_format` block supports:
+<a name="nested_ingestion_data_source_settings_cloud_storage_text_format"></a>The `text_format` block supports:
 
 * `delimiter` -
   (Optional)
@@ -338,7 +338,7 @@ The following arguments are supported:
   specified by the delimiter will be set to the 'data' field of a Pub/Sub
   message. When unset, '\n' is used.
 
-<a name="nested_platform_logs_settings"></a>The `platform_logs_settings` block supports:
+<a name="nested_ingestion_data_source_settings_platform_logs_settings"></a>The `platform_logs_settings` block supports:
 
 * `severity` -
   (Optional)
