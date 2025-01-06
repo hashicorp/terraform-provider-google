@@ -485,14 +485,14 @@ The following arguments are supported:
 * `ssl` -
   (Optional)
   SSL configuration for the destination to connect to the source database.
-  Structure is [documented below](#nested_ssl).
+  Structure is [documented below](#nested_mysql_ssl).
 
 * `cloud_sql_id` -
   (Optional)
   If the source is a Cloud SQL database, use this field to provide the Cloud SQL instance ID of the source.
 
 
-<a name="nested_ssl"></a>The `ssl` block supports:
+<a name="nested_mysql_ssl"></a>The `ssl` block supports:
 
 * `type` -
   (Output)
@@ -543,7 +543,7 @@ The following arguments are supported:
 * `ssl` -
   (Optional)
   SSL configuration for the destination to connect to the source database.
-  Structure is [documented below](#nested_ssl).
+  Structure is [documented below](#nested_postgresql_ssl).
 
 * `cloud_sql_id` -
   (Optional)
@@ -558,7 +558,7 @@ The following arguments are supported:
   Output only. If the source is a Cloud SQL database, this field indicates the network architecture it's associated with.
 
 
-<a name="nested_ssl"></a>The `ssl` block supports:
+<a name="nested_postgresql_ssl"></a>The `ssl` block supports:
 
 * `type` -
   (Output)
@@ -613,7 +613,7 @@ The following arguments are supported:
 * `ssl` -
   (Optional)
   SSL configuration for the destination to connect to the source database.
-  Structure is [documented below](#nested_ssl).
+  Structure is [documented below](#nested_oracle_ssl).
 
 * `static_service_ip_connectivity` -
   (Optional)
@@ -623,15 +623,15 @@ The following arguments are supported:
 * `forward_ssh_connectivity` -
   (Optional)
   SSL configuration for the destination to connect to the source database.
-  Structure is [documented below](#nested_forward_ssh_connectivity).
+  Structure is [documented below](#nested_oracle_forward_ssh_connectivity).
 
 * `private_connectivity` -
   (Optional)
   Configuration for using a private network to communicate with the source database
-  Structure is [documented below](#nested_private_connectivity).
+  Structure is [documented below](#nested_oracle_private_connectivity).
 
 
-<a name="nested_ssl"></a>The `ssl` block supports:
+<a name="nested_oracle_ssl"></a>The `ssl` block supports:
 
 * `type` -
   (Output)
@@ -655,7 +655,7 @@ The following arguments are supported:
   The replica will use this certificate to verify it's connecting to the right host.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-<a name="nested_forward_ssh_connectivity"></a>The `forward_ssh_connectivity` block supports:
+<a name="nested_oracle_forward_ssh_connectivity"></a>The `forward_ssh_connectivity` block supports:
 
 * `hostname` -
   (Required)
@@ -679,7 +679,7 @@ The following arguments are supported:
   Input only. SSH private key. Only one of `password` and `private_key` can be configured.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-<a name="nested_private_connectivity"></a>The `private_connectivity` block supports:
+<a name="nested_oracle_private_connectivity"></a>The `private_connectivity` block supports:
 
 * `private_connection` -
   (Required)
@@ -694,7 +694,7 @@ The following arguments are supported:
 * `settings` -
   (Optional)
   Immutable. Metadata used to create the destination Cloud SQL database.
-  Structure is [documented below](#nested_settings).
+  Structure is [documented below](#nested_cloudsql_settings).
 
 * `private_ip` -
   (Output)
@@ -705,7 +705,7 @@ The following arguments are supported:
   Output only. The Cloud SQL database instance's public IP.
 
 
-<a name="nested_settings"></a>The `settings` block supports:
+<a name="nested_cloudsql_settings"></a>The `settings` block supports:
 
 * `database_version` -
   (Optional)
@@ -733,7 +733,7 @@ The following arguments are supported:
 * `ip_config` -
   (Optional)
   The settings for IP Management. This allows to enable or disable the instance IP and manage which external networks can connect to the instance. The IPv4 address cannot be disabled.
-  Structure is [documented below](#nested_ip_config).
+  Structure is [documented below](#nested_cloudsql_settings_ip_config).
 
 * `auto_storage_increase` -
   (Optional)
@@ -784,7 +784,7 @@ The following arguments are supported:
   Possible values are: `ENTERPRISE`, `ENTERPRISE_PLUS`.
 
 
-<a name="nested_ip_config"></a>The `ip_config` block supports:
+<a name="nested_cloudsql_settings_ip_config"></a>The `ip_config` block supports:
 
 * `enable_ipv4` -
   (Optional)
@@ -802,10 +802,10 @@ The following arguments are supported:
 * `authorized_networks` -
   (Optional)
   The list of external networks that are allowed to connect to the instance using the IP.
-  Structure is [documented below](#nested_authorized_networks).
+  Structure is [documented below](#nested_cloudsql_settings_ip_config_authorized_networks).
 
 
-<a name="nested_authorized_networks"></a>The `authorized_networks` block supports:
+<a name="nested_cloudsql_settings_ip_config_authorized_networks"></a>The `authorized_networks` block supports:
 
 * `value` -
   (Required)
@@ -832,15 +832,15 @@ The following arguments are supported:
 * `settings` -
   (Optional)
   Immutable. Metadata used to create the destination AlloyDB cluster.
-  Structure is [documented below](#nested_settings).
+  Structure is [documented below](#nested_alloydb_settings).
 
 
-<a name="nested_settings"></a>The `settings` block supports:
+<a name="nested_alloydb_settings"></a>The `settings` block supports:
 
 * `initial_user` -
   (Required)
   Required. Input only. Initial user to setup during cluster creation.
-  Structure is [documented below](#nested_initial_user).
+  Structure is [documented below](#nested_alloydb_settings_initial_user).
 
 * `vpc_network` -
   (Required)
@@ -854,10 +854,10 @@ The following arguments are supported:
 * `primary_instance_settings` -
   (Optional)
   Settings for the cluster's primary instance
-  Structure is [documented below](#nested_primary_instance_settings).
+  Structure is [documented below](#nested_alloydb_settings_primary_instance_settings).
 
 
-<a name="nested_initial_user"></a>The `initial_user` block supports:
+<a name="nested_alloydb_settings_initial_user"></a>The `initial_user` block supports:
 
 * `user` -
   (Required)
@@ -872,7 +872,7 @@ The following arguments are supported:
   (Output)
   Output only. Indicates if the initialUser.password field has been set.
 
-<a name="nested_primary_instance_settings"></a>The `primary_instance_settings` block supports:
+<a name="nested_alloydb_settings_primary_instance_settings"></a>The `primary_instance_settings` block supports:
 
 * `id` -
   (Required)
@@ -881,7 +881,7 @@ The following arguments are supported:
 * `machine_config` -
   (Required)
   Configuration for the machines that host the underlying database engine.
-  Structure is [documented below](#nested_machine_config).
+  Structure is [documented below](#nested_alloydb_settings_primary_instance_settings_machine_config).
 
 * `database_flags` -
   (Optional)
@@ -896,7 +896,7 @@ The following arguments are supported:
   Output only. The private IP address for the Instance. This is the connection endpoint for an end-user application.
 
 
-<a name="nested_machine_config"></a>The `machine_config` block supports:
+<a name="nested_alloydb_settings_primary_instance_settings_machine_config"></a>The `machine_config` block supports:
 
 * `cpu_count` -
   (Required)

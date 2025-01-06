@@ -160,7 +160,7 @@ The following arguments are supported:
   image specified in the admission request.
   If this field is empty, this attestor always returns that no valid
   attestations exist.
-  Structure is [documented below](#nested_public_keys).
+  Structure is [documented below](#nested_attestation_authority_note_public_keys).
 
 * `delegation_service_account_email` -
   (Output)
@@ -175,7 +175,7 @@ The following arguments are supported:
   different naming pattern.
 
 
-<a name="nested_public_keys"></a>The `public_keys` block supports:
+<a name="nested_attestation_authority_note_public_keys"></a>The `public_keys` block supports:
 
 * `comment` -
   (Optional)
@@ -209,10 +209,10 @@ The following arguments are supported:
   type of public key, but it MUST be a valid RFC3986 URI. If id is left
   blank, a default one will be computed based on the digest of the DER
   encoding of the public key.
-  Structure is [documented below](#nested_pkix_public_key).
+  Structure is [documented below](#nested_attestation_authority_note_public_keys_public_keys_pkix_public_key).
 
 
-<a name="nested_pkix_public_key"></a>The `pkix_public_key` block supports:
+<a name="nested_attestation_authority_note_public_keys_public_keys_pkix_public_key"></a>The `pkix_public_key` block supports:
 
 * `public_key_pem` -
   (Optional)

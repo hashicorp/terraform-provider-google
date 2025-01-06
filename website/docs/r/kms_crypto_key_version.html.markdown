@@ -123,17 +123,17 @@ In addition to the arguments listed above, the following computed attributes are
 * `cert_chains` -
   (Optional)
   The certificate chains needed to validate the attestation
-  Structure is [documented below](#nested_cert_chains).
+  Structure is [documented below](#nested_attestation_cert_chains).
 
 * `external_protection_level_options` -
   (Optional, Deprecated)
   ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level and EXTERNAL_VPC protection levels.
-  Structure is [documented below](#nested_external_protection_level_options).
+  Structure is [documented below](#nested_attestation_external_protection_level_options).
 
   ~> **Warning:** `externalProtectionLevelOptions` is being un-nested from the `attestation` field. Please use the top level `externalProtectionLevelOptions` field instead.
 
 
-<a name="nested_cert_chains"></a>The `cert_chains` block supports:
+<a name="nested_attestation_cert_chains"></a>The `cert_chains` block supports:
 
 * `cavium_certs` -
   (Optional)
@@ -147,7 +147,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Optional)
   Google partition certificate chain corresponding to the attestation.
 
-<a name="nested_external_protection_level_options"></a>The `external_protection_level_options` block supports:
+<a name="nested_attestation_external_protection_level_options"></a>The `external_protection_level_options` block supports:
 
 * `external_key_uri` -
   (Optional)

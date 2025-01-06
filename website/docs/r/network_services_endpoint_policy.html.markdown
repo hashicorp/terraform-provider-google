@@ -114,10 +114,10 @@ The following arguments are supported:
 * `metadata_label_matcher` -
   (Required)
   The matcher is based on node metadata presented by xDS clients.
-  Structure is [documented below](#nested_metadata_label_matcher).
+  Structure is [documented below](#nested_endpoint_matcher_metadata_label_matcher).
 
 
-<a name="nested_metadata_label_matcher"></a>The `metadata_label_matcher` block supports:
+<a name="nested_endpoint_matcher_metadata_label_matcher"></a>The `metadata_label_matcher` block supports:
 
 * `metadata_label_match_criteria` -
   (Required)
@@ -127,10 +127,10 @@ The following arguments are supported:
 * `metadata_labels` -
   (Optional)
   The list of label value pairs that must match labels in the provided metadata based on filterMatchCriteria
-  Structure is [documented below](#nested_metadata_labels).
+  Structure is [documented below](#nested_endpoint_matcher_metadata_label_matcher_metadata_labels).
 
 
-<a name="nested_metadata_labels"></a>The `metadata_labels` block supports:
+<a name="nested_endpoint_matcher_metadata_label_matcher_metadata_labels"></a>The `metadata_labels` block supports:
 
 * `label_name` -
   (Required)

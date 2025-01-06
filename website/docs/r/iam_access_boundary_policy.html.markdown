@@ -109,10 +109,10 @@ The following arguments are supported:
 * `access_boundary_rule` -
   (Optional)
   An access boundary rule in an IAM policy.
-  Structure is [documented below](#nested_access_boundary_rule).
+  Structure is [documented below](#nested_rules_rules_access_boundary_rule).
 
 
-<a name="nested_access_boundary_rule"></a>The `access_boundary_rule` block supports:
+<a name="nested_rules_rules_access_boundary_rule"></a>The `access_boundary_rule` block supports:
 
 * `available_resource` -
   (Optional)
@@ -125,10 +125,10 @@ The following arguments are supported:
 * `availability_condition` -
   (Optional)
   The availability condition further constrains the access allowed by the access boundary rule.
-  Structure is [documented below](#nested_availability_condition).
+  Structure is [documented below](#nested_rules_rules_access_boundary_rule_availability_condition).
 
 
-<a name="nested_availability_condition"></a>The `availability_condition` block supports:
+<a name="nested_rules_rules_access_boundary_rule_availability_condition"></a>The `availability_condition` block supports:
 
 * `expression` -
   (Required)

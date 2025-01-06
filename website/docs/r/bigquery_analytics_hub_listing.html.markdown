@@ -210,10 +210,10 @@ The following arguments are supported:
 * `selected_resources` -
   (Optional)
   Resource in this dataset that is selectively shared. This field is required for data clean room exchanges.
-  Structure is [documented below](#nested_selected_resources).
+  Structure is [documented below](#nested_bigquery_dataset_selected_resources).
 
 
-<a name="nested_selected_resources"></a>The `selected_resources` block supports:
+<a name="nested_bigquery_dataset_selected_resources"></a>The `selected_resources` block supports:
 
 * `table` -
   (Optional)

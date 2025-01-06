@@ -144,10 +144,10 @@ The following arguments are supported:
 * `storage_descriptor` -
   (Optional)
   Stores physical storage information on the data.
-  Structure is [documented below](#nested_storage_descriptor).
+  Structure is [documented below](#nested_hive_options_storage_descriptor).
 
 
-<a name="nested_storage_descriptor"></a>The `storage_descriptor` block supports:
+<a name="nested_hive_options_storage_descriptor"></a>The `storage_descriptor` block supports:
 
 * `location_uri` -
   (Optional)

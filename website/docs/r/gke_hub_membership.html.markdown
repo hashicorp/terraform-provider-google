@@ -163,10 +163,10 @@ The following arguments are supported:
 * `gke_cluster` -
   (Optional)
   If this Membership is a Kubernetes API server hosted on GKE, this is a self link to its GCP resource.
-  Structure is [documented below](#nested_gke_cluster).
+  Structure is [documented below](#nested_endpoint_gke_cluster).
 
 
-<a name="nested_gke_cluster"></a>The `gke_cluster` block supports:
+<a name="nested_endpoint_gke_cluster"></a>The `gke_cluster` block supports:
 
 * `resource_link` -
   (Required)

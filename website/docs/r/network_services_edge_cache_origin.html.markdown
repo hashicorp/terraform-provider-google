@@ -296,16 +296,16 @@ The following arguments are supported:
   (Optional)
   The URL rewrite configuration for request that are
   handled by this origin.
-  Structure is [documented below](#nested_url_rewrite).
+  Structure is [documented below](#nested_origin_override_action_url_rewrite).
 
 * `header_action` -
   (Optional)
   The header actions, including adding and removing
   headers, for request handled by this origin.
-  Structure is [documented below](#nested_header_action).
+  Structure is [documented below](#nested_origin_override_action_header_action).
 
 
-<a name="nested_url_rewrite"></a>The `url_rewrite` block supports:
+<a name="nested_origin_override_action_url_rewrite"></a>The `url_rewrite` block supports:
 
 * `host_rewrite` -
   (Optional)
@@ -314,16 +314,16 @@ The following arguments are supported:
   contents of the hostRewrite.
   This value must be between 1 and 255 characters.
 
-<a name="nested_header_action"></a>The `header_action` block supports:
+<a name="nested_origin_override_action_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_add` -
   (Optional)
   Describes a header to add.
   You may add a maximum of 25 request headers.
-  Structure is [documented below](#nested_request_headers_to_add).
+  Structure is [documented below](#nested_origin_override_action_header_action_request_headers_to_add).
 
 
-<a name="nested_request_headers_to_add"></a>The `request_headers_to_add` block supports:
+<a name="nested_origin_override_action_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Required)

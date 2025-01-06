@@ -155,39 +155,39 @@ The following arguments are supported:
 * `auto` -
   (Optional)
   The Secret will automatically be replicated without any restrictions.
-  Structure is [documented below](#nested_auto).
+  Structure is [documented below](#nested_replication_auto).
 
 * `user_managed` -
   (Optional)
   The Secret will be replicated to the regions specified by the user.
-  Structure is [documented below](#nested_user_managed).
+  Structure is [documented below](#nested_replication_user_managed).
 
 
-<a name="nested_auto"></a>The `auto` block supports:
+<a name="nested_replication_auto"></a>The `auto` block supports:
 
 * `customer_managed_encryption` -
   (Optional)
   The customer-managed encryption configuration of the Secret.
   If no configuration is provided, Google-managed default
   encryption is used.
-  Structure is [documented below](#nested_customer_managed_encryption).
+  Structure is [documented below](#nested_replication_auto_customer_managed_encryption).
 
 
-<a name="nested_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
+<a name="nested_replication_auto_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
 
 * `kms_key_name` -
   (Required)
   The resource name of the Cloud KMS CryptoKey used to encrypt secret payloads.
 
-<a name="nested_user_managed"></a>The `user_managed` block supports:
+<a name="nested_replication_user_managed"></a>The `user_managed` block supports:
 
 * `replicas` -
   (Required)
   The list of Replicas for this Secret. Cannot be empty.
-  Structure is [documented below](#nested_replicas).
+  Structure is [documented below](#nested_replication_user_managed_replicas).
 
 
-<a name="nested_replicas"></a>The `replicas` block supports:
+<a name="nested_replication_user_managed_replicas"></a>The `replicas` block supports:
 
 * `location` -
   (Required)
@@ -196,10 +196,10 @@ The following arguments are supported:
 * `customer_managed_encryption` -
   (Optional)
   Customer Managed Encryption for the secret.
-  Structure is [documented below](#nested_customer_managed_encryption).
+  Structure is [documented below](#nested_replication_user_managed_replicas_replicas_customer_managed_encryption).
 
 
-<a name="nested_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
+<a name="nested_replication_user_managed_replicas_replicas_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
 
 * `kms_key_name` -
   (Required)

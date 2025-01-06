@@ -154,16 +154,16 @@ The following arguments are supported:
   (Optional)
   Template information and additional parameters needed to launch a Dataflow job using the standard launch API.
   https://cloud.google.com/dataflow/docs/reference/data-pipelines/rest/v1/projects.locations.pipelines#launchtemplaterequest
-  Structure is [documented below](#nested_dataflow_launch_template_request).
+  Structure is [documented below](#nested_workload_dataflow_launch_template_request).
 
 * `dataflow_flex_template_request` -
   (Optional)
   Template information and additional parameters needed to launch a Dataflow job using the flex launch API.
   https://cloud.google.com/dataflow/docs/reference/data-pipelines/rest/v1/projects.locations.pipelines#launchflextemplaterequest
-  Structure is [documented below](#nested_dataflow_flex_template_request).
+  Structure is [documented below](#nested_workload_dataflow_flex_template_request).
 
 
-<a name="nested_dataflow_launch_template_request"></a>The `dataflow_launch_template_request` block supports:
+<a name="nested_workload_dataflow_launch_template_request"></a>The `dataflow_launch_template_request` block supports:
 
 * `project_id` -
   (Required)
@@ -176,7 +176,7 @@ The following arguments are supported:
   (Optional)
   The parameters of the template to launch. This should be part of the body of the POST request.
   https://cloud.google.com/dataflow/docs/reference/data-pipelines/rest/v1/projects.locations.pipelines#launchtemplateparameters
-  Structure is [documented below](#nested_launch_parameters).
+  Structure is [documented below](#nested_workload_dataflow_launch_template_request_launch_parameters).
 
 * `location` -
   (Optional)
@@ -187,7 +187,7 @@ The following arguments are supported:
   A Cloud Storage path to the template from which to create the job. Must be a valid Cloud Storage URL, beginning with 'gs://'.
 
 
-<a name="nested_launch_parameters"></a>The `launch_parameters` block supports:
+<a name="nested_workload_dataflow_launch_template_request_launch_parameters"></a>The `launch_parameters` block supports:
 
 * `job_name` -
   (Required)
@@ -202,7 +202,7 @@ The following arguments are supported:
   (Optional)
   The runtime environment for the job.
   https://cloud.google.com/dataflow/docs/reference/data-pipelines/rest/v1/projects.locations.pipelines#RuntimeEnvironment
-  Structure is [documented below](#nested_environment).
+  Structure is [documented below](#nested_workload_dataflow_launch_template_request_launch_parameters_environment).
 
 * `update` -
   (Optional)
@@ -214,7 +214,7 @@ The following arguments are supported:
   'An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.'
 
 
-<a name="nested_environment"></a>The `environment` block supports:
+<a name="nested_workload_dataflow_launch_template_request_launch_parameters_environment"></a>The `environment` block supports:
 
 * `num_workers` -
   (Optional)
@@ -284,7 +284,7 @@ The following arguments are supported:
   (Optional)
   Whether to enable Streaming Engine for the job.
 
-<a name="nested_dataflow_flex_template_request"></a>The `dataflow_flex_template_request` block supports:
+<a name="nested_workload_dataflow_flex_template_request"></a>The `dataflow_flex_template_request` block supports:
 
 * `project_id` -
   (Required)
@@ -294,7 +294,7 @@ The following arguments are supported:
   (Required)
   Parameter to launch a job from a Flex Template.
   https://cloud.google.com/dataflow/docs/reference/data-pipelines/rest/v1/projects.locations.pipelines#launchflextemplateparameter
-  Structure is [documented below](#nested_launch_parameter).
+  Structure is [documented below](#nested_workload_dataflow_flex_template_request_launch_parameter).
 
 * `location` -
   (Required)
@@ -305,7 +305,7 @@ The following arguments are supported:
   If true, the request is validated but not actually executed. Defaults to false.
 
 
-<a name="nested_launch_parameter"></a>The `launch_parameter` block supports:
+<a name="nested_workload_dataflow_flex_template_request_launch_parameter"></a>The `launch_parameter` block supports:
 
 * `job_name` -
   (Required)
@@ -325,7 +325,7 @@ The following arguments are supported:
   (Optional)
   The runtime environment for the Flex Template job.
   https://cloud.google.com/dataflow/docs/reference/data-pipelines/rest/v1/projects.locations.pipelines#FlexTemplateRuntimeEnvironment
-  Structure is [documented below](#nested_environment).
+  Structure is [documented below](#nested_workload_dataflow_flex_template_request_launch_parameter_environment).
 
 * `update` -
   (Optional)
@@ -341,7 +341,7 @@ The following arguments are supported:
   Cloud Storage path to a file with a JSON-serialized ContainerSpec as content.
 
 
-<a name="nested_environment"></a>The `environment` block supports:
+<a name="nested_workload_dataflow_flex_template_request_launch_parameter_environment"></a>The `environment` block supports:
 
 * `num_workers` -
   (Optional)

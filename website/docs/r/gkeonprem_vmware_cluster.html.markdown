@@ -286,21 +286,21 @@ The following arguments are supported:
 * `auto_resize_config` -
   (Optional)
   AutoResizeConfig provides auto resizing configurations.
-  Structure is [documented below](#nested_auto_resize_config).
+  Structure is [documented below](#nested_control_plane_node_auto_resize_config).
 
 * `vsphere_config` -
   (Output)
   Vsphere-specific config.
-  Structure is [documented below](#nested_vsphere_config).
+  Structure is [documented below](#nested_control_plane_node_vsphere_config).
 
 
-<a name="nested_auto_resize_config"></a>The `auto_resize_config` block supports:
+<a name="nested_control_plane_node_auto_resize_config"></a>The `auto_resize_config` block supports:
 
 * `enabled` -
   (Required)
   Whether to enable control plane node auto resizing.
 
-<a name="nested_vsphere_config"></a>The `vsphere_config` block contains:
+<a name="nested_control_plane_node_vsphere_config"></a>The `vsphere_config` block contains:
 
 * `datastore` -
   (Output)
@@ -425,12 +425,12 @@ The following arguments are supported:
 * `static_ip_config` -
   (Optional)
   Configuration settings for a static IP configuration.
-  Structure is [documented below](#nested_static_ip_config).
+  Structure is [documented below](#nested_network_config_static_ip_config).
 
 * `dhcp_ip_config` -
   (Optional)
   Configuration settings for a DHCP IP configuration.
-  Structure is [documented below](#nested_dhcp_ip_config).
+  Structure is [documented below](#nested_network_config_dhcp_ip_config).
 
 * `vcenter_network` -
   (Optional)
@@ -439,23 +439,23 @@ The following arguments are supported:
 * `host_config` -
   (Optional)
   Represents common network settings irrespective of the host's IP address.
-  Structure is [documented below](#nested_host_config).
+  Structure is [documented below](#nested_network_config_host_config).
 
 * `control_plane_v2_config` -
   (Optional)
   Configuration for control plane V2 mode.
-  Structure is [documented below](#nested_control_plane_v2_config).
+  Structure is [documented below](#nested_network_config_control_plane_v2_config).
 
 
-<a name="nested_static_ip_config"></a>The `static_ip_config` block supports:
+<a name="nested_network_config_static_ip_config"></a>The `static_ip_config` block supports:
 
 * `ip_blocks` -
   (Required)
   Represents the configuration values for static IP allocation to nodes.
-  Structure is [documented below](#nested_ip_blocks).
+  Structure is [documented below](#nested_network_config_static_ip_config_ip_blocks).
 
 
-<a name="nested_ip_blocks"></a>The `ip_blocks` block supports:
+<a name="nested_network_config_static_ip_config_ip_blocks"></a>The `ip_blocks` block supports:
 
 * `netmask` -
   (Required)
@@ -468,10 +468,10 @@ The following arguments are supported:
 * `ips` -
   (Required)
   The node's network configurations used by the VMware User Cluster.
-  Structure is [documented below](#nested_ips).
+  Structure is [documented below](#nested_network_config_static_ip_config_ip_blocks_ip_blocks_ips).
 
 
-<a name="nested_ips"></a>The `ips` block supports:
+<a name="nested_network_config_static_ip_config_ip_blocks_ip_blocks_ips"></a>The `ips` block supports:
 
 * `ip` -
   (Required)
@@ -481,14 +481,14 @@ The following arguments are supported:
   (Optional)
   Hostname of the machine. VM's name will be used if this field is empty.
 
-<a name="nested_dhcp_ip_config"></a>The `dhcp_ip_config` block supports:
+<a name="nested_network_config_dhcp_ip_config"></a>The `dhcp_ip_config` block supports:
 
 * `enabled` -
   (Required)
   enabled is a flag to mark if DHCP IP allocation is
   used for VMware user clusters.
 
-<a name="nested_host_config"></a>The `host_config` block supports:
+<a name="nested_network_config_host_config"></a>The `host_config` block supports:
 
 * `dns_servers` -
   (Optional)
@@ -502,15 +502,15 @@ The following arguments are supported:
   (Optional)
   DNS search domains.
 
-<a name="nested_control_plane_v2_config"></a>The `control_plane_v2_config` block supports:
+<a name="nested_network_config_control_plane_v2_config"></a>The `control_plane_v2_config` block supports:
 
 * `control_plane_ip_block` -
   (Optional)
   Static IP addresses for the control plane nodes.
-  Structure is [documented below](#nested_control_plane_ip_block).
+  Structure is [documented below](#nested_network_config_control_plane_v2_config_control_plane_ip_block).
 
 
-<a name="nested_control_plane_ip_block"></a>The `control_plane_ip_block` block supports:
+<a name="nested_network_config_control_plane_v2_config_control_plane_ip_block"></a>The `control_plane_ip_block` block supports:
 
 * `netmask` -
   (Optional)
@@ -523,10 +523,10 @@ The following arguments are supported:
 * `ips` -
   (Optional)
   The node's network configurations used by the VMware User Cluster.
-  Structure is [documented below](#nested_ips).
+  Structure is [documented below](#nested_network_config_control_plane_v2_config_control_plane_ip_block_ips).
 
 
-<a name="nested_ips"></a>The `ips` block supports:
+<a name="nested_network_config_control_plane_v2_config_control_plane_ip_block_ips"></a>The `ips` block supports:
 
 * `ip` -
   (Optional)
@@ -541,25 +541,25 @@ The following arguments are supported:
 * `vip_config` -
   (Optional)
   The VIPs used by the load balancer.
-  Structure is [documented below](#nested_vip_config).
+  Structure is [documented below](#nested_load_balancer_vip_config).
 
 * `f5_config` -
   (Optional)
   Configuration for F5 Big IP typed load balancers.
-  Structure is [documented below](#nested_f5_config).
+  Structure is [documented below](#nested_load_balancer_f5_config).
 
 * `manual_lb_config` -
   (Optional)
   Manually configured load balancers.
-  Structure is [documented below](#nested_manual_lb_config).
+  Structure is [documented below](#nested_load_balancer_manual_lb_config).
 
 * `metal_lb_config` -
   (Optional)
   Configuration for MetalLB typed load balancers.
-  Structure is [documented below](#nested_metal_lb_config).
+  Structure is [documented below](#nested_load_balancer_metal_lb_config).
 
 
-<a name="nested_vip_config"></a>The `vip_config` block supports:
+<a name="nested_load_balancer_vip_config"></a>The `vip_config` block supports:
 
 * `control_plane_vip` -
   (Optional)
@@ -569,7 +569,7 @@ The following arguments are supported:
   (Optional)
   The VIP which you previously set aside for ingress traffic into this cluster.
 
-<a name="nested_f5_config"></a>The `f5_config` block supports:
+<a name="nested_load_balancer_f5_config"></a>The `f5_config` block supports:
 
 * `address` -
   (Optional)
@@ -585,7 +585,7 @@ The following arguments are supported:
   (Optional)
   The pool name. Only necessary, if using SNAT.
 
-<a name="nested_manual_lb_config"></a>The `manual_lb_config` block supports:
+<a name="nested_load_balancer_manual_lb_config"></a>The `manual_lb_config` block supports:
 
 * `ingress_http_node_port` -
   (Optional)
@@ -607,17 +607,17 @@ The following arguments are supported:
   NodePort for konnectivity server service running as a sidecar in each
   kube-apiserver pod (ex. 30564).
 
-<a name="nested_metal_lb_config"></a>The `metal_lb_config` block supports:
+<a name="nested_load_balancer_metal_lb_config"></a>The `metal_lb_config` block supports:
 
 * `address_pools` -
   (Required)
   AddressPools is a list of non-overlapping IP pools used by load balancer
   typed services. All addresses must be routable to load balancer nodes.
   IngressVIP must be included in the pools.
-  Structure is [documented below](#nested_address_pools).
+  Structure is [documented below](#nested_load_balancer_metal_lb_config_address_pools).
 
 
-<a name="nested_address_pools"></a>The `address_pools` block supports:
+<a name="nested_load_balancer_metal_lb_config_address_pools"></a>The `address_pools` block supports:
 
 * `pool` -
   (Required)
@@ -665,10 +665,10 @@ The following arguments are supported:
   (Optional)
   Users that will be granted the cluster-admin role on the cluster, providing
   full access to the cluster.
-  Structure is [documented below](#nested_admin_users).
+  Structure is [documented below](#nested_authorization_admin_users).
 
 
-<a name="nested_admin_users"></a>The `admin_users` block supports:
+<a name="nested_authorization_admin_users"></a>The `admin_users` block supports:
 
 * `username` -
   (Required)
@@ -785,22 +785,22 @@ In addition to the arguments listed above, the following computed attributes are
 * `status` -
   (Output)
   Specifies the detailed validation check status
-  Structure is [documented below](#nested_status).
+  Structure is [documented below](#nested_validation_check_status).
 
 * `scenario` -
   (Output)
   The scenario when the preflight checks were run..
 
 
-<a name="nested_status"></a>The `status` block contains:
+<a name="nested_validation_check_status"></a>The `status` block contains:
 
 * `result` -
   (Output)
   Individual checks which failed as part of the Preflight check execution.
-  Structure is [documented below](#nested_result).
+  Structure is [documented below](#nested_validation_check_status_result).
 
 
-<a name="nested_result"></a>The `result` block contains:
+<a name="nested_validation_check_status_result"></a>The `result` block contains:
 
 * `options` -
   (Output)
@@ -843,10 +843,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `conditions` -
   (Output)
   ResourceConditions provide a standard mechanism for higher-level status reporting from user cluster controller.
-  Structure is [documented below](#nested_conditions).
+  Structure is [documented below](#nested_status_conditions).
 
 
-<a name="nested_conditions"></a>The `conditions` block contains:
+<a name="nested_status_conditions"></a>The `conditions` block contains:
 
 * `type` -
   (Output)

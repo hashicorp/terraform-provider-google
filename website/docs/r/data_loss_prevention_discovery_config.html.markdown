@@ -564,10 +564,10 @@ The following arguments are supported:
 * `location` -
   (Optional)
   The data to scan folder org or project
-  Structure is [documented below](#nested_location).
+  Structure is [documented below](#nested_org_config_location).
 
 
-<a name="nested_location"></a>The `location` block supports:
+<a name="nested_org_config_location"></a>The `location` block supports:
 
 * `organization_id` -
   (Optional)
@@ -582,28 +582,28 @@ The following arguments are supported:
 * `export_data` -
   (Optional)
   Export data profiles into a provided location
-  Structure is [documented below](#nested_export_data).
+  Structure is [documented below](#nested_actions_actions_export_data).
 
 * `pub_sub_notification` -
   (Optional)
   Publish a message into the Pub/Sub topic.
-  Structure is [documented below](#nested_pub_sub_notification).
+  Structure is [documented below](#nested_actions_actions_pub_sub_notification).
 
 * `tag_resources` -
   (Optional)
   Publish a message into the Pub/Sub topic.
-  Structure is [documented below](#nested_tag_resources).
+  Structure is [documented below](#nested_actions_actions_tag_resources).
 
 
-<a name="nested_export_data"></a>The `export_data` block supports:
+<a name="nested_actions_actions_export_data"></a>The `export_data` block supports:
 
 * `profile_table` -
   (Optional)
   Store all table and column profiles in an existing table or a new table in an existing dataset. Each re-generation will result in a new row in BigQuery
-  Structure is [documented below](#nested_profile_table).
+  Structure is [documented below](#nested_actions_actions_export_data_profile_table).
 
 
-<a name="nested_profile_table"></a>The `profile_table` block supports:
+<a name="nested_actions_actions_export_data_profile_table"></a>The `profile_table` block supports:
 
 * `project_id` -
   (Optional)
@@ -617,7 +617,7 @@ The following arguments are supported:
   (Optional)
   Name of the table
 
-<a name="nested_pub_sub_notification"></a>The `pub_sub_notification` block supports:
+<a name="nested_actions_actions_pub_sub_notification"></a>The `pub_sub_notification` block supports:
 
 * `topic` -
   (Optional)
@@ -631,7 +631,7 @@ The following arguments are supported:
 * `pubsub_condition` -
   (Optional)
   Conditions for triggering pubsub
-  Structure is [documented below](#nested_pubsub_condition).
+  Structure is [documented below](#nested_actions_actions_pub_sub_notification_pubsub_condition).
 
 * `detail_of_message` -
   (Optional)
@@ -639,15 +639,15 @@ The following arguments are supported:
   Possible values are: `TABLE_PROFILE`, `RESOURCE_NAME`.
 
 
-<a name="nested_pubsub_condition"></a>The `pubsub_condition` block supports:
+<a name="nested_actions_actions_pub_sub_notification_pubsub_condition"></a>The `pubsub_condition` block supports:
 
 * `expressions` -
   (Optional)
   An expression
-  Structure is [documented below](#nested_expressions).
+  Structure is [documented below](#nested_actions_actions_pub_sub_notification_pubsub_condition_expressions).
 
 
-<a name="nested_expressions"></a>The `expressions` block supports:
+<a name="nested_actions_actions_pub_sub_notification_pubsub_condition_expressions"></a>The `expressions` block supports:
 
 * `logical_operator` -
   (Optional)
@@ -657,10 +657,10 @@ The following arguments are supported:
 * `conditions` -
   (Optional)
   Conditions to apply to the expression
-  Structure is [documented below](#nested_conditions).
+  Structure is [documented below](#nested_actions_actions_pub_sub_notification_pubsub_condition_expressions_conditions).
 
 
-<a name="nested_conditions"></a>The `conditions` block supports:
+<a name="nested_actions_actions_pub_sub_notification_pubsub_condition_expressions_conditions"></a>The `conditions` block supports:
 
 * `minimum_risk_score` -
   (Optional)
@@ -672,12 +672,12 @@ The following arguments are supported:
   The minimum sensitivity level that triggers the condition.
   Possible values are: `HIGH`, `MEDIUM_OR_HIGH`.
 
-<a name="nested_tag_resources"></a>The `tag_resources` block supports:
+<a name="nested_actions_actions_tag_resources"></a>The `tag_resources` block supports:
 
 * `tag_conditions` -
   (Optional)
   The tags to associate with different conditions.
-  Structure is [documented below](#nested_tag_conditions).
+  Structure is [documented below](#nested_actions_actions_tag_resources_tag_conditions).
 
 * `profile_generations_to_tag` -
   (Optional)
@@ -689,26 +689,26 @@ The following arguments are supported:
   Whether applying a tag to a resource should lower the risk of the profile for that resource. For example, in conjunction with an [IAM deny policy](https://cloud.google.com/iam/docs/deny-overview), you can deny all principals a permission if a tag value is present, mitigating the risk of the resource. This also lowers the data risk of resources at the lower levels of the resource hierarchy. For example, reducing the data risk of a table data profile also reduces the data risk of the constituent column data profiles.
 
 
-<a name="nested_tag_conditions"></a>The `tag_conditions` block supports:
+<a name="nested_actions_actions_tag_resources_tag_conditions"></a>The `tag_conditions` block supports:
 
 * `tag` -
   (Optional)
   The tag value to attach to resources.
-  Structure is [documented below](#nested_tag).
+  Structure is [documented below](#nested_actions_actions_tag_resources_tag_conditions_tag_conditions_tag).
 
 * `sensitivity_score` -
   (Optional)
   Conditions attaching the tag to a resource on its profile having this sensitivity score.
-  Structure is [documented below](#nested_sensitivity_score).
+  Structure is [documented below](#nested_actions_actions_tag_resources_tag_conditions_tag_conditions_sensitivity_score).
 
 
-<a name="nested_tag"></a>The `tag` block supports:
+<a name="nested_actions_actions_tag_resources_tag_conditions_tag_conditions_tag"></a>The `tag` block supports:
 
 * `namespaced_value` -
   (Optional)
   The namespaced name for the tag value to attach to resources. Must be in the format `{parent_id}/{tag_key_short_name}/{short_name}`, for example, "123456/environment/prod".
 
-<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_actions_actions_tag_resources_tag_conditions_tag_conditions_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
@@ -720,12 +720,12 @@ The following arguments are supported:
 * `big_query_target` -
   (Optional)
   BigQuery target for Discovery. The first target to match a table will be the one applied.
-  Structure is [documented below](#nested_big_query_target).
+  Structure is [documented below](#nested_targets_targets_big_query_target).
 
 * `cloud_sql_target` -
   (Optional)
   Cloud SQL target for Discovery. The first target to match a table will be the one applied.
-  Structure is [documented below](#nested_cloud_sql_target).
+  Structure is [documented below](#nested_targets_targets_cloud_sql_target).
 
 * `secrets_target` -
   (Optional)
@@ -734,37 +734,37 @@ The following arguments are supported:
 * `cloud_storage_target` -
   (Optional)
   Cloud Storage target for Discovery. The first target to match a bucket will be the one applied.
-  Structure is [documented below](#nested_cloud_storage_target).
+  Structure is [documented below](#nested_targets_targets_cloud_storage_target).
 
 
-<a name="nested_big_query_target"></a>The `big_query_target` block supports:
+<a name="nested_targets_targets_big_query_target"></a>The `big_query_target` block supports:
 
 * `filter` -
   (Optional)
   Required. The tables the discovery cadence applies to. The first target with a matching filter will be the one to apply to a table
-  Structure is [documented below](#nested_filter).
+  Structure is [documented below](#nested_targets_targets_big_query_target_filter).
 
 * `conditions` -
   (Optional)
   In addition to matching the filter, these conditions must be true before a profile is generated
-  Structure is [documented below](#nested_conditions).
+  Structure is [documented below](#nested_targets_targets_big_query_target_conditions).
 
 * `cadence` -
   (Optional)
   How often and when to update profiles. New tables that match both the fiter and conditions are scanned as quickly as possible depending on system capacity.
-  Structure is [documented below](#nested_cadence).
+  Structure is [documented below](#nested_targets_targets_big_query_target_cadence).
 
 * `disabled` -
   (Optional)
   Tables that match this filter will not have profiles created.
 
 
-<a name="nested_filter"></a>The `filter` block supports:
+<a name="nested_targets_targets_big_query_target_filter"></a>The `filter` block supports:
 
 * `tables` -
   (Optional)
   A specific set of tables for this filter to apply to. A table collection must be specified in only one filter per config.
-  Structure is [documented below](#nested_tables).
+  Structure is [documented below](#nested_targets_targets_big_query_target_filter_tables).
 
 * `other_tables` -
   (Optional)
@@ -773,26 +773,26 @@ The following arguments are supported:
 * `table_reference` -
   (Optional)
   The table to scan. Discovery configurations including this can only include one DiscoveryTarget (the DiscoveryTarget with this TableReference).
-  Structure is [documented below](#nested_table_reference).
+  Structure is [documented below](#nested_targets_targets_big_query_target_filter_table_reference).
 
 
-<a name="nested_tables"></a>The `tables` block supports:
+<a name="nested_targets_targets_big_query_target_filter_tables"></a>The `tables` block supports:
 
 * `include_regexes` -
   (Optional)
   A collection of regular expressions to match a BQ table against.
-  Structure is [documented below](#nested_include_regexes).
+  Structure is [documented below](#nested_targets_targets_big_query_target_filter_tables_include_regexes).
 
 
-<a name="nested_include_regexes"></a>The `include_regexes` block supports:
+<a name="nested_targets_targets_big_query_target_filter_tables_include_regexes"></a>The `include_regexes` block supports:
 
 * `patterns` -
   (Optional)
   A single BigQuery regular expression pattern to match against one or more tables, datasets, or projects that contain BigQuery tables.
-  Structure is [documented below](#nested_patterns).
+  Structure is [documented below](#nested_targets_targets_big_query_target_filter_tables_include_regexes_patterns).
 
 
-<a name="nested_patterns"></a>The `patterns` block supports:
+<a name="nested_targets_targets_big_query_target_filter_tables_include_regexes_patterns"></a>The `patterns` block supports:
 
 * `project_id_regex` -
   (Optional)
@@ -806,7 +806,7 @@ The following arguments are supported:
   (Optional)
   if unset, this property matches all tables
 
-<a name="nested_table_reference"></a>The `table_reference` block supports:
+<a name="nested_targets_targets_big_query_target_filter_table_reference"></a>The `table_reference` block supports:
 
 * `dataset_id` -
   (Required)
@@ -816,7 +816,7 @@ The following arguments are supported:
   (Required)
   Name of the table.
 
-<a name="nested_conditions"></a>The `conditions` block supports:
+<a name="nested_targets_targets_big_query_target_conditions"></a>The `conditions` block supports:
 
 * `created_after` -
   (Optional)
@@ -825,12 +825,12 @@ The following arguments are supported:
 * `or_conditions` -
   (Optional)
   At least one of the conditions must be true for a table to be scanned.
-  Structure is [documented below](#nested_or_conditions).
+  Structure is [documented below](#nested_targets_targets_big_query_target_conditions_or_conditions).
 
 * `types` -
   (Optional)
   Restrict discovery to specific table type
-  Structure is [documented below](#nested_types).
+  Structure is [documented below](#nested_targets_targets_big_query_target_conditions_types).
 
 * `type_collection` -
   (Optional)
@@ -838,7 +838,7 @@ The following arguments are supported:
   Possible values are: `BIG_QUERY_COLLECTION_ALL_TYPES`, `BIG_QUERY_COLLECTION_ONLY_SUPPORTED_TYPES`.
 
 
-<a name="nested_or_conditions"></a>The `or_conditions` block supports:
+<a name="nested_targets_targets_big_query_target_conditions_or_conditions"></a>The `or_conditions` block supports:
 
 * `min_age` -
   (Optional)
@@ -848,32 +848,32 @@ The following arguments are supported:
   (Optional)
   Minimum number of rows that should be present before Cloud DLP profiles as a table.
 
-<a name="nested_types"></a>The `types` block supports:
+<a name="nested_targets_targets_big_query_target_conditions_types"></a>The `types` block supports:
 
 * `types` -
   (Optional)
   A set of BiqQuery table types
   Each value may be one of: `BIG_QUERY_TABLE_TYPE_TABLE`, `BIG_QUERY_TABLE_TYPE_EXTERNAL_BIG_LAKE`.
 
-<a name="nested_cadence"></a>The `cadence` block supports:
+<a name="nested_targets_targets_big_query_target_cadence"></a>The `cadence` block supports:
 
 * `schema_modified_cadence` -
   (Optional)
   Governs when to update data profiles when a schema is modified
-  Structure is [documented below](#nested_schema_modified_cadence).
+  Structure is [documented below](#nested_targets_targets_big_query_target_cadence_schema_modified_cadence).
 
 * `table_modified_cadence` -
   (Optional)
   Governs when to update profile when a table is modified.
-  Structure is [documented below](#nested_table_modified_cadence).
+  Structure is [documented below](#nested_targets_targets_big_query_target_cadence_table_modified_cadence).
 
 * `inspect_template_modified_cadence` -
   (Optional)
   Governs when to update data profiles when the inspection rules defined by the `InspectTemplate` change. If not set, changing the template will not cause a data profile to update.
-  Structure is [documented below](#nested_inspect_template_modified_cadence).
+  Structure is [documented below](#nested_targets_targets_big_query_target_cadence_inspect_template_modified_cadence).
 
 
-<a name="nested_schema_modified_cadence"></a>The `schema_modified_cadence` block supports:
+<a name="nested_targets_targets_big_query_target_cadence_schema_modified_cadence"></a>The `schema_modified_cadence` block supports:
 
 * `types` -
   (Optional)
@@ -885,7 +885,7 @@ The following arguments are supported:
   How frequently profiles may be updated when schemas are modified. Default to monthly
   Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
 
-<a name="nested_table_modified_cadence"></a>The `table_modified_cadence` block supports:
+<a name="nested_targets_targets_big_query_target_cadence_table_modified_cadence"></a>The `table_modified_cadence` block supports:
 
 * `types` -
   (Optional)
@@ -897,41 +897,41 @@ The following arguments are supported:
   How frequently data profiles can be updated when tables are modified. Defaults to never.
   Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
 
-<a name="nested_inspect_template_modified_cadence"></a>The `inspect_template_modified_cadence` block supports:
+<a name="nested_targets_targets_big_query_target_cadence_inspect_template_modified_cadence"></a>The `inspect_template_modified_cadence` block supports:
 
 * `frequency` -
   (Optional)
   How frequently data profiles can be updated when the template is modified. Defaults to never.
   Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
 
-<a name="nested_cloud_sql_target"></a>The `cloud_sql_target` block supports:
+<a name="nested_targets_targets_cloud_sql_target"></a>The `cloud_sql_target` block supports:
 
 * `filter` -
   (Required)
   Required. The tables the discovery cadence applies to. The first target with a matching filter will be the one to apply to a table.
-  Structure is [documented below](#nested_filter).
+  Structure is [documented below](#nested_targets_targets_cloud_sql_target_filter).
 
 * `conditions` -
   (Optional)
   In addition to matching the filter, these conditions must be true before a profile is generated.
-  Structure is [documented below](#nested_conditions).
+  Structure is [documented below](#nested_targets_targets_cloud_sql_target_conditions).
 
 * `generation_cadence` -
   (Optional)
   How often and when to update profiles. New tables that match both the filter and conditions are scanned as quickly as possible depending on system capacity.
-  Structure is [documented below](#nested_generation_cadence).
+  Structure is [documented below](#nested_targets_targets_cloud_sql_target_generation_cadence).
 
 * `disabled` -
   (Optional)
   Disable profiling for database resources that match this filter.
 
 
-<a name="nested_filter"></a>The `filter` block supports:
+<a name="nested_targets_targets_cloud_sql_target_filter"></a>The `filter` block supports:
 
 * `collection` -
   (Optional)
   A specific set of database resources for this filter to apply to.
-  Structure is [documented below](#nested_collection).
+  Structure is [documented below](#nested_targets_targets_cloud_sql_target_filter_collection).
 
 * `others` -
   (Optional)
@@ -940,26 +940,26 @@ The following arguments are supported:
 * `database_resource_reference` -
   (Optional)
   The database resource to scan. Targets including this can only include one target (the target with this database resource reference).
-  Structure is [documented below](#nested_database_resource_reference).
+  Structure is [documented below](#nested_targets_targets_cloud_sql_target_filter_database_resource_reference).
 
 
-<a name="nested_collection"></a>The `collection` block supports:
+<a name="nested_targets_targets_cloud_sql_target_filter_collection"></a>The `collection` block supports:
 
 * `include_regexes` -
   (Optional)
   A collection of regular expressions to match a database resource against.
-  Structure is [documented below](#nested_include_regexes).
+  Structure is [documented below](#nested_targets_targets_cloud_sql_target_filter_collection_include_regexes).
 
 
-<a name="nested_include_regexes"></a>The `include_regexes` block supports:
+<a name="nested_targets_targets_cloud_sql_target_filter_collection_include_regexes"></a>The `include_regexes` block supports:
 
 * `patterns` -
   (Optional)
   A group of regular expression patterns to match against one or more database resources. Maximum of 100 entries. The sum of all regular expressions' length can't exceed 10 KiB.
-  Structure is [documented below](#nested_patterns).
+  Structure is [documented below](#nested_targets_targets_cloud_sql_target_filter_collection_include_regexes_patterns).
 
 
-<a name="nested_patterns"></a>The `patterns` block supports:
+<a name="nested_targets_targets_cloud_sql_target_filter_collection_include_regexes_patterns"></a>The `patterns` block supports:
 
 * `project_id_regex` -
   (Optional)
@@ -977,7 +977,7 @@ The following arguments are supported:
   (Optional)
   Regex to test the database resource's name against. An example of a database resource name is a table's name. Other database resource names like view names could be included in the future. If empty, all database resources match.'
 
-<a name="nested_database_resource_reference"></a>The `database_resource_reference` block supports:
+<a name="nested_targets_targets_cloud_sql_target_filter_database_resource_reference"></a>The `database_resource_reference` block supports:
 
 * `project_id` -
   (Required)
@@ -995,7 +995,7 @@ The following arguments are supported:
   (Required)
   Required. Name of a database resource, for example, a table within the database.
 
-<a name="nested_conditions"></a>The `conditions` block supports:
+<a name="nested_targets_targets_cloud_sql_target_conditions"></a>The `conditions` block supports:
 
 * `database_engines` -
   (Optional)
@@ -1007,12 +1007,12 @@ The following arguments are supported:
   Data profiles will only be generated for the database resource types specified in this field. If not specified, defaults to [DATABASE_RESOURCE_TYPE_ALL_SUPPORTED_TYPES].
   Each value may be one of: `DATABASE_RESOURCE_TYPE_ALL_SUPPORTED_TYPES`, `DATABASE_RESOURCE_TYPE_TABLE`.
 
-<a name="nested_generation_cadence"></a>The `generation_cadence` block supports:
+<a name="nested_targets_targets_cloud_sql_target_generation_cadence"></a>The `generation_cadence` block supports:
 
 * `schema_modified_cadence` -
   (Optional)
   Governs when to update data profiles when a schema is modified
-  Structure is [documented below](#nested_schema_modified_cadence).
+  Structure is [documented below](#nested_targets_targets_cloud_sql_target_generation_cadence_schema_modified_cadence).
 
 * `refresh_frequency` -
   (Optional)
@@ -1022,10 +1022,10 @@ The following arguments are supported:
 * `inspect_template_modified_cadence` -
   (Optional)
   Governs when to update data profiles when the inspection rules defined by the `InspectTemplate` change. If not set, changing the template will not cause a data profile to update.
-  Structure is [documented below](#nested_inspect_template_modified_cadence).
+  Structure is [documented below](#nested_targets_targets_cloud_sql_target_generation_cadence_inspect_template_modified_cadence).
 
 
-<a name="nested_schema_modified_cadence"></a>The `schema_modified_cadence` block supports:
+<a name="nested_targets_targets_cloud_sql_target_generation_cadence_schema_modified_cadence"></a>The `schema_modified_cadence` block supports:
 
 * `types` -
   (Optional)
@@ -1037,77 +1037,77 @@ The following arguments are supported:
   Frequency to regenerate data profiles when the schema is modified. Defaults to monthly.
   Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
 
-<a name="nested_inspect_template_modified_cadence"></a>The `inspect_template_modified_cadence` block supports:
+<a name="nested_targets_targets_cloud_sql_target_generation_cadence_inspect_template_modified_cadence"></a>The `inspect_template_modified_cadence` block supports:
 
 * `frequency` -
   (Required)
   How frequently data profiles can be updated when the template is modified. Defaults to never.
   Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
 
-<a name="nested_cloud_storage_target"></a>The `cloud_storage_target` block supports:
+<a name="nested_targets_targets_cloud_storage_target"></a>The `cloud_storage_target` block supports:
 
 * `filter` -
   (Required)
   The buckets the generation_cadence applies to. The first target with a matching filter will be the one to apply to a bucket.
-  Structure is [documented below](#nested_filter).
+  Structure is [documented below](#nested_targets_targets_cloud_storage_target_filter).
 
 * `conditions` -
   (Optional)
   In addition to matching the filter, these conditions must be true before a profile is generated.
-  Structure is [documented below](#nested_conditions).
+  Structure is [documented below](#nested_targets_targets_cloud_storage_target_conditions).
 
 * `generation_cadence` -
   (Optional)
   How often and when to update profiles. New buckets that match both the filter and conditions are scanned as quickly as possible depending on system capacity.
-  Structure is [documented below](#nested_generation_cadence).
+  Structure is [documented below](#nested_targets_targets_cloud_storage_target_generation_cadence).
 
 * `disabled` -
   (Optional)
   Disable profiling for buckets that match this filter.
 
 
-<a name="nested_filter"></a>The `filter` block supports:
+<a name="nested_targets_targets_cloud_storage_target_filter"></a>The `filter` block supports:
 
 * `collection` -
   (Optional)
   A specific set of buckets for this filter to apply to.
-  Structure is [documented below](#nested_collection).
+  Structure is [documented below](#nested_targets_targets_cloud_storage_target_filter_collection).
 
 * `cloud_storage_resource_reference` -
   (Optional)
   The bucket to scan. Targets including this can only include one target (the target with this bucket). This enables profiling the contents of a single bucket, while the other options allow for easy profiling of many buckets within a project or an organization.
-  Structure is [documented below](#nested_cloud_storage_resource_reference).
+  Structure is [documented below](#nested_targets_targets_cloud_storage_target_filter_cloud_storage_resource_reference).
 
 * `others` -
   (Optional)
   Match discovery resources not covered by any other filter.
 
 
-<a name="nested_collection"></a>The `collection` block supports:
+<a name="nested_targets_targets_cloud_storage_target_filter_collection"></a>The `collection` block supports:
 
 * `include_regexes` -
   (Optional)
   A collection of regular expressions to match a file store against.
-  Structure is [documented below](#nested_include_regexes).
+  Structure is [documented below](#nested_targets_targets_cloud_storage_target_filter_collection_include_regexes).
 
 
-<a name="nested_include_regexes"></a>The `include_regexes` block supports:
+<a name="nested_targets_targets_cloud_storage_target_filter_collection_include_regexes"></a>The `include_regexes` block supports:
 
 * `patterns` -
   (Optional)
   The group of regular expression patterns to match against one or more file stores. Maximum of 100 entries. The sum of all lengths of regular expressions can't exceed 10 KiB.
-  Structure is [documented below](#nested_patterns).
+  Structure is [documented below](#nested_targets_targets_cloud_storage_target_filter_collection_include_regexes_patterns).
 
 
-<a name="nested_patterns"></a>The `patterns` block supports:
+<a name="nested_targets_targets_cloud_storage_target_filter_collection_include_regexes_patterns"></a>The `patterns` block supports:
 
 * `cloud_storage_regex` -
   (Optional)
   Regex for Cloud Storage.
-  Structure is [documented below](#nested_cloud_storage_regex).
+  Structure is [documented below](#nested_targets_targets_cloud_storage_target_filter_collection_include_regexes_patterns_patterns_cloud_storage_regex).
 
 
-<a name="nested_cloud_storage_regex"></a>The `cloud_storage_regex` block supports:
+<a name="nested_targets_targets_cloud_storage_target_filter_collection_include_regexes_patterns_patterns_cloud_storage_regex"></a>The `cloud_storage_regex` block supports:
 
 * `project_id_regex` -
   (Optional)
@@ -1117,7 +1117,7 @@ The following arguments are supported:
   (Optional)
   Regex to test the bucket name against. If empty, all buckets match. Example: "marketing2021" or "(marketing)\d{4}" will both match the bucket gs://marketing2021
 
-<a name="nested_cloud_storage_resource_reference"></a>The `cloud_storage_resource_reference` block supports:
+<a name="nested_targets_targets_cloud_storage_target_filter_cloud_storage_resource_reference"></a>The `cloud_storage_resource_reference` block supports:
 
 * `bucket_name` -
   (Optional)
@@ -1127,7 +1127,7 @@ The following arguments are supported:
   (Optional)
   If within a project-level config, then this must match the config's project id.
 
-<a name="nested_conditions"></a>The `conditions` block supports:
+<a name="nested_targets_targets_cloud_storage_target_conditions"></a>The `conditions` block supports:
 
 * `created_after` -
   (Optional)
@@ -1140,10 +1140,10 @@ The following arguments are supported:
 * `cloud_storage_conditions` -
   (Optional)
   Cloud Storage conditions.
-  Structure is [documented below](#nested_cloud_storage_conditions).
+  Structure is [documented below](#nested_targets_targets_cloud_storage_target_conditions_cloud_storage_conditions).
 
 
-<a name="nested_cloud_storage_conditions"></a>The `cloud_storage_conditions` block supports:
+<a name="nested_targets_targets_cloud_storage_target_conditions_cloud_storage_conditions"></a>The `cloud_storage_conditions` block supports:
 
 * `included_object_attributes` -
   (Optional)
@@ -1155,7 +1155,7 @@ The following arguments are supported:
   Only objects with the specified attributes will be scanned. Defaults to [ALL_SUPPORTED_BUCKETS] if unset.
   Each value may be one of: `ALL_SUPPORTED_BUCKETS`, `AUTOCLASS_DISABLED`, `AUTOCLASS_ENABLED`.
 
-<a name="nested_generation_cadence"></a>The `generation_cadence` block supports:
+<a name="nested_targets_targets_cloud_storage_target_generation_cadence"></a>The `generation_cadence` block supports:
 
 * `refresh_frequency` -
   (Optional)
@@ -1165,10 +1165,10 @@ The following arguments are supported:
 * `inspect_template_modified_cadence` -
   (Optional)
   Governs when to update data profiles when the inspection rules defined by the `InspectTemplate` change. If not set, changing the template will not cause a data profile to update.
-  Structure is [documented below](#nested_inspect_template_modified_cadence).
+  Structure is [documented below](#nested_targets_targets_cloud_storage_target_generation_cadence_inspect_template_modified_cadence).
 
 
-<a name="nested_inspect_template_modified_cadence"></a>The `inspect_template_modified_cadence` block supports:
+<a name="nested_targets_targets_cloud_storage_target_generation_cadence_inspect_template_modified_cadence"></a>The `inspect_template_modified_cadence` block supports:
 
 * `frequency` -
   (Optional)
@@ -1203,14 +1203,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `details` -
   (Optional)
   Detailed error codes and messages.
-  Structure is [documented below](#nested_details).
+  Structure is [documented below](#nested_errors_errors_details).
 
 * `timestamp` -
   (Optional)
   The times the error occurred. List includes the oldest timestamp and the last 9 timestamps.
 
 
-<a name="nested_details"></a>The `details` block supports:
+<a name="nested_errors_errors_details"></a>The `details` block supports:
 
 * `code` -
   (Optional)

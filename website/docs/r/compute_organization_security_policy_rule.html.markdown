@@ -106,10 +106,10 @@ The following arguments are supported:
 * `config` -
   (Required)
   The configuration options for matching the rule.
-  Structure is [documented below](#nested_config).
+  Structure is [documented below](#nested_match_config).
 
 
-<a name="nested_config"></a>The `config` block supports:
+<a name="nested_match_config"></a>The `config` block supports:
 
 * `src_ip_ranges` -
   (Optional)
@@ -124,10 +124,10 @@ The following arguments are supported:
 * `layer4_config` -
   (Required)
   Pairs of IP protocols and ports that the rule should match.
-  Structure is [documented below](#nested_layer4_config).
+  Structure is [documented below](#nested_match_config_layer4_config).
 
 
-<a name="nested_layer4_config"></a>The `layer4_config` block supports:
+<a name="nested_match_config_layer4_config"></a>The `layer4_config` block supports:
 
 * `ip_protocol` -
   (Required)

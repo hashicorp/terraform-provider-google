@@ -134,10 +134,10 @@ The following arguments are supported:
 * `generic_web_service` -
   (Required)
   The name of Service Directory service.
-  Structure is [documented below](#nested_generic_web_service).
+  Structure is [documented below](#nested_service_directory_generic_web_service).
 
 
-<a name="nested_generic_web_service"></a>The `generic_web_service` block supports:
+<a name="nested_service_directory_generic_web_service"></a>The `generic_web_service` block supports:
 
 * `uri` -
   (Required)

@@ -331,10 +331,10 @@ The following arguments are supported:
 * `json_path_matcher` -
   (Optional)
   Information needed to perform a JSONPath content match. Used for `ContentMatcherOption::MATCHES_JSON_PATH` and `ContentMatcherOption::NOT_MATCHES_JSON_PATH`.
-  Structure is [documented below](#nested_json_path_matcher).
+  Structure is [documented below](#nested_content_matchers_content_matchers_json_path_matcher).
 
 
-<a name="nested_json_path_matcher"></a>The `json_path_matcher` block supports:
+<a name="nested_content_matchers_content_matchers_json_path_matcher"></a>The `json_path_matcher` block supports:
 
 * `json_path` -
   (Required)
@@ -366,12 +366,12 @@ The following arguments are supported:
 * `auth_info` -
   (Optional)
   The authentication information using username and password. Optional when creating an HTTP check; defaults to empty. Do not use with other authentication fields.
-  Structure is [documented below](#nested_auth_info).
+  Structure is [documented below](#nested_http_check_auth_info).
 
 * `service_agent_authentication` -
   (Optional)
   The authentication information using the Monitoring Service Agent. Optional when creating an HTTPS check; defaults to empty. Do not use with other authentication fields.
-  Structure is [documented below](#nested_service_agent_authentication).
+  Structure is [documented below](#nested_http_check_service_agent_authentication).
 
 * `port` -
   (Optional)
@@ -404,15 +404,15 @@ The following arguments are supported:
 * `accepted_response_status_codes` -
   (Optional)
   If present, the check will only pass if the HTTP response status code is in this set of status codes. If empty, the HTTP status code will only pass if the HTTP status code is 200-299.
-  Structure is [documented below](#nested_accepted_response_status_codes).
+  Structure is [documented below](#nested_http_check_accepted_response_status_codes).
 
 * `ping_config` -
   (Optional)
   Contains information needed to add pings to an HTTP check.
-  Structure is [documented below](#nested_ping_config).
+  Structure is [documented below](#nested_http_check_ping_config).
 
 
-<a name="nested_auth_info"></a>The `auth_info` block supports:
+<a name="nested_http_check_auth_info"></a>The `auth_info` block supports:
 
 * `password` -
   (Required)
@@ -423,14 +423,14 @@ The following arguments are supported:
   (Required)
   The username to authenticate.
 
-<a name="nested_service_agent_authentication"></a>The `service_agent_authentication` block supports:
+<a name="nested_http_check_service_agent_authentication"></a>The `service_agent_authentication` block supports:
 
 * `type` -
   (Optional)
   The type of authentication to use.
   Possible values are: `SERVICE_AGENT_AUTHENTICATION_TYPE_UNSPECIFIED`, `OIDC_TOKEN`.
 
-<a name="nested_accepted_response_status_codes"></a>The `accepted_response_status_codes` block supports:
+<a name="nested_http_check_accepted_response_status_codes"></a>The `accepted_response_status_codes` block supports:
 
 * `status_value` -
   (Optional)
@@ -441,7 +441,7 @@ The following arguments are supported:
   A class of status codes to accept.
   Possible values are: `STATUS_CLASS_1XX`, `STATUS_CLASS_2XX`, `STATUS_CLASS_3XX`, `STATUS_CLASS_4XX`, `STATUS_CLASS_5XX`, `STATUS_CLASS_ANY`.
 
-<a name="nested_ping_config"></a>The `ping_config` block supports:
+<a name="nested_http_check_ping_config"></a>The `ping_config` block supports:
 
 * `pings_count` -
   (Required)
@@ -456,10 +456,10 @@ The following arguments are supported:
 * `ping_config` -
   (Optional)
   Contains information needed to add pings to a TCP check.
-  Structure is [documented below](#nested_ping_config).
+  Structure is [documented below](#nested_tcp_check_ping_config).
 
 
-<a name="nested_ping_config"></a>The `ping_config` block supports:
+<a name="nested_tcp_check_ping_config"></a>The `ping_config` block supports:
 
 * `pings_count` -
   (Required)
@@ -491,10 +491,10 @@ The following arguments are supported:
 * `cloud_function_v2` -
   (Required)
   Target a Synthetic Monitor GCFv2 Instance
-  Structure is [documented below](#nested_cloud_function_v2).
+  Structure is [documented below](#nested_synthetic_monitor_cloud_function_v2).
 
 
-<a name="nested_cloud_function_v2"></a>The `cloud_function_v2` block supports:
+<a name="nested_synthetic_monitor_cloud_function_v2"></a>The `cloud_function_v2` block supports:
 
 * `name` -
   (Required)

@@ -202,10 +202,10 @@ The following arguments are supported:
 * `nfs_export_options` -
   (Optional)
   Nfs Export Options. There is a limit of 10 export options per file share.
-  Structure is [documented below](#nested_nfs_export_options).
+  Structure is [documented below](#nested_file_shares_file_shares_nfs_export_options).
 
 
-<a name="nested_nfs_export_options"></a>The `nfs_export_options` block supports:
+<a name="nested_file_shares_file_shares_nfs_export_options"></a>The `nfs_export_options` block supports:
 
 * `ip_ranges` -
   (Optional)
@@ -330,17 +330,17 @@ The following arguments are supported:
   (Optional)
   The instance provisioned IOPS will change dynamically
   based on the capacity of the instance.
-  Structure is [documented below](#nested_iops_per_tb).
+  Structure is [documented below](#nested_performance_config_iops_per_tb).
 
 * `fixed_iops` -
   (Optional)
   The instance will have a fixed provisioned IOPS value,
   which will remain constant regardless of instance
   capacity.
-  Structure is [documented below](#nested_fixed_iops).
+  Structure is [documented below](#nested_performance_config_fixed_iops).
 
 
-<a name="nested_iops_per_tb"></a>The `iops_per_tb` block supports:
+<a name="nested_performance_config_iops_per_tb"></a>The `iops_per_tb` block supports:
 
 * `max_iops_per_tb` -
   (Optional)
@@ -350,7 +350,7 @@ The following arguments are supported:
   will be changed dynamically based on the instance
   capacity.
 
-<a name="nested_fixed_iops"></a>The `fixed_iops` block supports:
+<a name="nested_performance_config_fixed_iops"></a>The `fixed_iops` block supports:
 
 * `max_iops` -
   (Optional)

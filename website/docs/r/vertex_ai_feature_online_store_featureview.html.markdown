@@ -547,14 +547,14 @@ The following arguments are supported:
 * `feature_groups` -
   (Required)
   List of features that need to be synced to Online Store.
-  Structure is [documented below](#nested_feature_groups).
+  Structure is [documented below](#nested_feature_registry_source_feature_groups).
 
 * `project_number` -
   (Optional)
   The project number of the parent project of the feature Groups.
 
 
-<a name="nested_feature_groups"></a>The `feature_groups` block supports:
+<a name="nested_feature_registry_source_feature_groups"></a>The `feature_groups` block supports:
 
 * `feature_group_id` -
   (Required)
@@ -587,7 +587,7 @@ The following arguments are supported:
 * `tree_ah_config` -
   (Optional)
   Configuration options for the tree-AH algorithm (Shallow tree + Asymmetric Hashing). Please refer to this paper for more details: https://arxiv.org/abs/1908.10396
-  Structure is [documented below](#nested_tree_ah_config).
+  Structure is [documented below](#nested_vector_search_config_tree_ah_config).
 
 * `brute_force_config` -
   (Optional)
@@ -598,7 +598,7 @@ The following arguments are supported:
   The number of dimensions of the input embedding.
 
 
-<a name="nested_tree_ah_config"></a>The `tree_ah_config` block supports:
+<a name="nested_vector_search_config_tree_ah_config"></a>The `tree_ah_config` block supports:
 
 * `leaf_node_embedding_count` -
   (Optional)

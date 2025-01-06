@@ -117,10 +117,10 @@ The following arguments are supported:
   these hints should NOT be used to look up AttestationAuthorities
   in security sensitive contexts, such as when looking up
   Attestations to verify.
-  Structure is [documented below](#nested_hint).
+  Structure is [documented below](#nested_attestation_authority_hint).
 
 
-<a name="nested_hint"></a>The `hint` block supports:
+<a name="nested_attestation_authority_hint"></a>The `hint` block supports:
 
 * `human_readable_name` -
   (Required)

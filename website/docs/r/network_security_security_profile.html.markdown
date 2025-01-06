@@ -122,17 +122,17 @@ The following arguments are supported:
 * `severity_overrides` -
   (Optional)
   The configuration for overriding threats actions by severity match.
-  Structure is [documented below](#nested_severity_overrides).
+  Structure is [documented below](#nested_threat_prevention_profile_severity_overrides).
 
 * `threat_overrides` -
   (Optional)
   The configuration for overriding threats actions by threat id match.
   If a threat is matched both by configuration provided in severity overrides
   and threat overrides, the threat overrides action is applied.
-  Structure is [documented below](#nested_threat_overrides).
+  Structure is [documented below](#nested_threat_prevention_profile_threat_overrides).
 
 
-<a name="nested_severity_overrides"></a>The `severity_overrides` block supports:
+<a name="nested_threat_prevention_profile_severity_overrides"></a>The `severity_overrides` block supports:
 
 * `action` -
   (Required)
@@ -144,7 +144,7 @@ The following arguments are supported:
   Severity level to match.
   Possible values are: `CRITICAL`, `HIGH`, `INFORMATIONAL`, `LOW`, `MEDIUM`.
 
-<a name="nested_threat_overrides"></a>The `threat_overrides` block supports:
+<a name="nested_threat_prevention_profile_threat_overrides"></a>The `threat_overrides` block supports:
 
 * `action` -
   (Required)

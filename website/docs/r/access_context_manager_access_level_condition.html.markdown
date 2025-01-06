@@ -191,7 +191,7 @@ The following arguments are supported:
   (Optional)
   A list of allowed OS versions.
   An empty list allows all types and all versions.
-  Structure is [documented below](#nested_os_constraints).
+  Structure is [documented below](#nested_device_policy_os_constraints).
 
 * `require_admin_approval` -
   (Optional)
@@ -202,7 +202,7 @@ The following arguments are supported:
   Whether the device needs to be corp owned.
 
 
-<a name="nested_os_constraints"></a>The `os_constraints` block supports:
+<a name="nested_device_policy_os_constraints"></a>The `os_constraints` block supports:
 
 * `minimum_version` -
   (Optional)
@@ -220,10 +220,10 @@ The following arguments are supported:
 * `vpc_subnetwork` -
   (Optional)
   Sub networks within a VPC network.
-  Structure is [documented below](#nested_vpc_subnetwork).
+  Structure is [documented below](#nested_vpc_network_sources_vpc_network_sources_vpc_subnetwork).
 
 
-<a name="nested_vpc_subnetwork"></a>The `vpc_subnetwork` block supports:
+<a name="nested_vpc_network_sources_vpc_network_sources_vpc_subnetwork"></a>The `vpc_subnetwork` block supports:
 
 * `network` -
   (Required)

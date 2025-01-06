@@ -196,7 +196,7 @@ The following arguments are supported:
 * `cache_key_policy` -
   (Optional)
   The CacheKeyPolicy for this CdnPolicy.
-  Structure is [documented below](#nested_cache_key_policy).
+  Structure is [documented below](#nested_cdn_policy_cache_key_policy).
 
 * `signed_url_cache_max_age_sec` -
   (Optional)
@@ -230,7 +230,7 @@ The following arguments are supported:
   (Optional)
   Sets a cache TTL for the specified HTTP status code. negativeCaching must be enabled to configure negativeCachingPolicy.
   Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's default cache TTLs.
-  Structure is [documented below](#nested_negative_caching_policy).
+  Structure is [documented below](#nested_cdn_policy_negative_caching_policy).
 
 * `cache_mode` -
   (Optional)
@@ -249,10 +249,10 @@ The following arguments are supported:
 * `bypass_cache_on_request_headers` -
   (Optional)
   Bypass the cache when the specified request headers are matched - e.g. Pragma or Authorization headers. Up to 5 headers can be specified. The cache is bypassed for all cdnPolicy.cacheMode settings.
-  Structure is [documented below](#nested_bypass_cache_on_request_headers).
+  Structure is [documented below](#nested_cdn_policy_bypass_cache_on_request_headers).
 
 
-<a name="nested_cache_key_policy"></a>The `cache_key_policy` block supports:
+<a name="nested_cdn_policy_cache_key_policy"></a>The `cache_key_policy` block supports:
 
 * `query_string_whitelist` -
   (Optional)
@@ -265,7 +265,7 @@ The following arguments are supported:
   Allows HTTP request headers (by name) to be used in the
   cache key.
 
-<a name="nested_negative_caching_policy"></a>The `negative_caching_policy` block supports:
+<a name="nested_cdn_policy_negative_caching_policy"></a>The `negative_caching_policy` block supports:
 
 * `code` -
   (Optional)
@@ -277,7 +277,7 @@ The following arguments are supported:
   The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
   (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
 
-<a name="nested_bypass_cache_on_request_headers"></a>The `bypass_cache_on_request_headers` block supports:
+<a name="nested_cdn_policy_bypass_cache_on_request_headers"></a>The `bypass_cache_on_request_headers` block supports:
 
 * `header_name` -
   (Optional)

@@ -524,10 +524,10 @@ The following arguments are supported:
 * `autoscaling_config` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Represents the autoscaling configuration of a metastore service.
-  Structure is [documented below](#nested_autoscaling_config).
+  Structure is [documented below](#nested_scaling_config_autoscaling_config).
 
 
-<a name="nested_autoscaling_config"></a>The `autoscaling_config` block supports:
+<a name="nested_scaling_config_autoscaling_config"></a>The `autoscaling_config` block supports:
 
 * `autoscaling_enabled` -
   (Optional)
@@ -536,10 +536,10 @@ The following arguments are supported:
 * `limit_config` -
   (Optional)
   Represents the limit configuration of a metastore service.
-  Structure is [documented below](#nested_limit_config).
+  Structure is [documented below](#nested_scaling_config_autoscaling_config_limit_config).
 
 
-<a name="nested_limit_config"></a>The `limit_config` block supports:
+<a name="nested_scaling_config_autoscaling_config_limit_config"></a>The `limit_config` block supports:
 
 * `min_scaling_factor` -
   (Optional)
@@ -605,7 +605,7 @@ The following arguments are supported:
 * `kerberos_config` -
   (Optional)
   Information used to configure the Hive metastore service as a service principal in a Kerberos realm.
-  Structure is [documented below](#nested_kerberos_config).
+  Structure is [documented below](#nested_hive_metastore_config_kerberos_config).
 
 * `auxiliary_versions` -
   (Optional)
@@ -614,15 +614,15 @@ The following arguments are supported:
   All auxiliary versions must be less than the service's primary version.
   The key is the auxiliary service name and it must match the regular expression a-z?.
   This means that the first character must be a lowercase letter, and all the following characters must be hyphens, lowercase letters, or digits, except the last character, which cannot be a hyphen.
-  Structure is [documented below](#nested_auxiliary_versions).
+  Structure is [documented below](#nested_hive_metastore_config_auxiliary_versions).
 
 
-<a name="nested_kerberos_config"></a>The `kerberos_config` block supports:
+<a name="nested_hive_metastore_config_kerberos_config"></a>The `kerberos_config` block supports:
 
 * `keytab` -
   (Required)
   A Kerberos keytab file that can be used to authenticate a service principal with a Kerberos Key Distribution Center (KDC).
-  Structure is [documented below](#nested_keytab).
+  Structure is [documented below](#nested_hive_metastore_config_kerberos_config_keytab).
 
 * `principal` -
   (Required)
@@ -633,14 +633,14 @@ The following arguments are supported:
   A Cloud Storage URI that specifies the path to a krb5.conf file. It is of the form gs://{bucket_name}/path/to/krb5.conf, although the file does not need to be named krb5.conf explicitly.
 
 
-<a name="nested_keytab"></a>The `keytab` block supports:
+<a name="nested_hive_metastore_config_kerberos_config_keytab"></a>The `keytab` block supports:
 
 * `cloud_secret` -
   (Required)
   The relative resource name of a Secret Manager secret version, in the following form:
   "projects/{projectNumber}/secrets/{secret_id}/versions/{version_id}".
 
-<a name="nested_auxiliary_versions"></a>The `auxiliary_versions` block supports:
+<a name="nested_hive_metastore_config_auxiliary_versions"></a>The `auxiliary_versions` block supports:
 
 * `key` - (Required) The identifier for this object. Format specified above.
 
@@ -658,14 +658,14 @@ The following arguments are supported:
 * `consumers` -
   (Required)
   The consumer-side network configuration for the Dataproc Metastore instance.
-  Structure is [documented below](#nested_consumers).
+  Structure is [documented below](#nested_network_config_consumers).
 
 * `custom_routes_enabled` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Enables custom routes to be imported and exported for the Dataproc Metastore service's peered VPC network.
 
 
-<a name="nested_consumers"></a>The `consumers` block supports:
+<a name="nested_network_config_consumers"></a>The `consumers` block supports:
 
 * `endpoint_uri` -
   (Output)
@@ -683,10 +683,10 @@ The following arguments are supported:
 * `data_catalog_config` -
   (Required)
   The integration config for the Data Catalog service.
-  Structure is [documented below](#nested_data_catalog_config).
+  Structure is [documented below](#nested_metadata_integration_data_catalog_config).
 
 
-<a name="nested_data_catalog_config"></a>The `data_catalog_config` block supports:
+<a name="nested_metadata_integration_data_catalog_config"></a>The `data_catalog_config` block supports:
 
 * `enabled` -
   (Required)

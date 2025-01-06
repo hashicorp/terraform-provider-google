@@ -329,7 +329,7 @@ The following arguments are supported:
 * `infrastructure_spec` -
   (Optional)
   Infrastructure specification for the execution.
-  Structure is [documented below](#nested_infrastructure_spec).
+  Structure is [documented below](#nested_spark_infrastructure_spec).
 
 * `main_jar_file_uri` -
   (Optional)
@@ -352,25 +352,25 @@ The following arguments are supported:
   The query text. The execution args are used to declare a set of script variables (set key='value';).
 
 
-<a name="nested_infrastructure_spec"></a>The `infrastructure_spec` block supports:
+<a name="nested_spark_infrastructure_spec"></a>The `infrastructure_spec` block supports:
 
 * `batch` -
   (Optional)
   Compute resources needed for a Task when using Dataproc Serverless.
-  Structure is [documented below](#nested_batch).
+  Structure is [documented below](#nested_spark_infrastructure_spec_batch).
 
 * `container_image` -
   (Optional)
   Container Image Runtime Configuration.
-  Structure is [documented below](#nested_container_image).
+  Structure is [documented below](#nested_spark_infrastructure_spec_container_image).
 
 * `vpc_network` -
   (Optional)
   Vpc network.
-  Structure is [documented below](#nested_vpc_network).
+  Structure is [documented below](#nested_spark_infrastructure_spec_vpc_network).
 
 
-<a name="nested_batch"></a>The `batch` block supports:
+<a name="nested_spark_infrastructure_spec_batch"></a>The `batch` block supports:
 
 * `executors_count` -
   (Optional)
@@ -380,7 +380,7 @@ The following arguments are supported:
   (Optional)
   Max configurable executors. If maxExecutorsCount > executorsCount, then auto-scaling is enabled. Max Executor Count should be between 2 and 1000. [Default=1000]
 
-<a name="nested_container_image"></a>The `container_image` block supports:
+<a name="nested_spark_infrastructure_spec_container_image"></a>The `container_image` block supports:
 
 * `image` -
   (Optional)
@@ -398,7 +398,7 @@ The following arguments are supported:
   (Optional)
   Override to common configuration of open source components installed on the Dataproc cluster. The properties to set on daemon config files. Property keys are specified in prefix:property format, for example core:hadoop.tmp.dir. For more information, see Cluster properties.
 
-<a name="nested_vpc_network"></a>The `vpc_network` block supports:
+<a name="nested_spark_infrastructure_spec_vpc_network"></a>The `vpc_network` block supports:
 
 * `network_tags` -
   (Optional)
@@ -421,7 +421,7 @@ The following arguments are supported:
 * `infrastructure_spec` -
   (Optional)
   Infrastructure specification for the execution.
-  Structure is [documented below](#nested_infrastructure_spec).
+  Structure is [documented below](#nested_notebook_infrastructure_spec).
 
 * `file_uris` -
   (Optional)
@@ -432,25 +432,25 @@ The following arguments are supported:
   Cloud Storage URIs of archives to be extracted into the working directory of each executor. Supported file types: .jar, .tar, .tar.gz, .tgz, and .zip.
 
 
-<a name="nested_infrastructure_spec"></a>The `infrastructure_spec` block supports:
+<a name="nested_notebook_infrastructure_spec"></a>The `infrastructure_spec` block supports:
 
 * `batch` -
   (Optional)
   Compute resources needed for a Task when using Dataproc Serverless.
-  Structure is [documented below](#nested_batch).
+  Structure is [documented below](#nested_notebook_infrastructure_spec_batch).
 
 * `container_image` -
   (Optional)
   Container Image Runtime Configuration.
-  Structure is [documented below](#nested_container_image).
+  Structure is [documented below](#nested_notebook_infrastructure_spec_container_image).
 
 * `vpc_network` -
   (Optional)
   Vpc network.
-  Structure is [documented below](#nested_vpc_network).
+  Structure is [documented below](#nested_notebook_infrastructure_spec_vpc_network).
 
 
-<a name="nested_batch"></a>The `batch` block supports:
+<a name="nested_notebook_infrastructure_spec_batch"></a>The `batch` block supports:
 
 * `executors_count` -
   (Optional)
@@ -460,7 +460,7 @@ The following arguments are supported:
   (Optional)
   Max configurable executors. If maxExecutorsCount > executorsCount, then auto-scaling is enabled. Max Executor Count should be between 2 and 1000. [Default=1000]
 
-<a name="nested_container_image"></a>The `container_image` block supports:
+<a name="nested_notebook_infrastructure_spec_container_image"></a>The `container_image` block supports:
 
 * `image` -
   (Optional)
@@ -478,7 +478,7 @@ The following arguments are supported:
   (Optional)
   Override to common configuration of open source components installed on the Dataproc cluster. The properties to set on daemon config files. Property keys are specified in prefix:property format, for example core:hadoop.tmp.dir. For more information, see Cluster properties.
 
-<a name="nested_vpc_network"></a>The `vpc_network` block supports:
+<a name="nested_notebook_infrastructure_spec_vpc_network"></a>The `vpc_network` block supports:
 
 * `network_tags` -
   (Optional)
@@ -534,10 +534,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `latest_job` -
   (Output)
   latest job execution.
-  Structure is [documented below](#nested_latest_job).
+  Structure is [documented below](#nested_execution_status_latest_job).
 
 
-<a name="nested_latest_job"></a>The `latest_job` block contains:
+<a name="nested_execution_status_latest_job"></a>The `latest_job` block contains:
 
 * `name` -
   (Output)

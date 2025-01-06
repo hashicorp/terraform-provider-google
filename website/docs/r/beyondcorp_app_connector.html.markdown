@@ -105,10 +105,10 @@ The following arguments are supported:
 * `service_account` -
   (Required)
   ServiceAccount represents a GCP service account.
-  Structure is [documented below](#nested_service_account).
+  Structure is [documented below](#nested_principal_info_service_account).
 
 
-<a name="nested_service_account"></a>The `service_account` block supports:
+<a name="nested_principal_info_service_account"></a>The `service_account` block supports:
 
 * `email` -
   (Required)

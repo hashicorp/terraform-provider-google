@@ -135,17 +135,17 @@ The following arguments are supported:
 * `validator_config` -
   (Optional)
   Configuration for validator-related parameters on the beacon client, and for any managed validator client.
-  Structure is [documented below](#nested_validator_config).
+  Structure is [documented below](#nested_ethereum_details_validator_config).
 
 * `geth_details` -
   (Optional)
   User-provided key-value pairs
-  Structure is [documented below](#nested_geth_details).
+  Structure is [documented below](#nested_ethereum_details_geth_details).
 
 * `additional_endpoints` -
   (Output)
   User-provided key-value pairs
-  Structure is [documented below](#nested_additional_endpoints).
+  Structure is [documented below](#nested_ethereum_details_additional_endpoints).
 
 * `network` -
   (Optional)
@@ -176,20 +176,20 @@ The following arguments are supported:
   Enables JSON-RPC access to functions in the debug namespace. Defaults to false.
 
 
-<a name="nested_validator_config"></a>The `validator_config` block supports:
+<a name="nested_ethereum_details_validator_config"></a>The `validator_config` block supports:
 
 * `mev_relay_urls` -
   (Optional)
   URLs for MEV-relay services to use for block building. When set, a managed MEV-boost service is configured on the beacon client.
 
-<a name="nested_geth_details"></a>The `geth_details` block supports:
+<a name="nested_ethereum_details_geth_details"></a>The `geth_details` block supports:
 
 * `garbage_collection_mode` -
   (Optional)
   Blockchain garbage collection modes. Only applicable when NodeType is FULL or ARCHIVE.
   Possible values are: `FULL`, `ARCHIVE`.
 
-<a name="nested_additional_endpoints"></a>The `additional_endpoints` block contains:
+<a name="nested_ethereum_details_additional_endpoints"></a>The `additional_endpoints` block contains:
 
 * `beacon_api_endpoint` -
   (Output)
@@ -239,10 +239,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `endpoint_info` -
   (Output)
   The endpoint information through which to interact with a blockchain node.
-  Structure is [documented below](#nested_endpoint_info).
+  Structure is [documented below](#nested_connection_info_endpoint_info).
 
 
-<a name="nested_endpoint_info"></a>The `endpoint_info` block contains:
+<a name="nested_connection_info_endpoint_info"></a>The `endpoint_info` block contains:
 
 * `json_rpc_api_endpoint` -
   (Output)

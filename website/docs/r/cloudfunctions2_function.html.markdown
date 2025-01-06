@@ -1067,7 +1067,7 @@ The following arguments are supported:
 * `source` -
   (Optional)
   The location of the function source code.
-  Structure is [documented below](#nested_source).
+  Structure is [documented below](#nested_build_config_source).
 
 * `worker_pool` -
   (Optional)
@@ -1093,23 +1093,23 @@ The following arguments are supported:
 * `on_deploy_update_policy` -
   (Optional)
   Security patches are only applied when a function is redeployed.
-  Structure is [documented below](#nested_on_deploy_update_policy).
+  Structure is [documented below](#nested_build_config_on_deploy_update_policy).
 
 
-<a name="nested_source"></a>The `source` block supports:
+<a name="nested_build_config_source"></a>The `source` block supports:
 
 * `storage_source` -
   (Optional)
   If provided, get the source from this location in Google Cloud Storage.
-  Structure is [documented below](#nested_storage_source).
+  Structure is [documented below](#nested_build_config_source_storage_source).
 
 * `repo_source` -
   (Optional)
   If provided, get the source from this location in a Cloud Source Repository.
-  Structure is [documented below](#nested_repo_source).
+  Structure is [documented below](#nested_build_config_source_repo_source).
 
 
-<a name="nested_storage_source"></a>The `storage_source` block supports:
+<a name="nested_build_config_source_storage_source"></a>The `storage_source` block supports:
 
 * `bucket` -
   (Optional)
@@ -1124,7 +1124,7 @@ The following arguments are supported:
   Google Cloud Storage generation for the object. If the generation
   is omitted, the latest generation will be used.
 
-<a name="nested_repo_source"></a>The `repo_source` block supports:
+<a name="nested_build_config_source_repo_source"></a>The `repo_source` block supports:
 
 * `project_id` -
   (Optional)
@@ -1156,7 +1156,7 @@ The following arguments are supported:
   Only trigger a build if the revision regex does
   NOT match the revision regex.
 
-<a name="nested_on_deploy_update_policy"></a>The `on_deploy_update_policy` block supports:
+<a name="nested_build_config_on_deploy_update_policy"></a>The `on_deploy_update_policy` block supports:
 
 * `runtime_version` -
   (Output)
@@ -1236,15 +1236,15 @@ The following arguments are supported:
 * `secret_environment_variables` -
   (Optional)
   Secret environment variables configuration.
-  Structure is [documented below](#nested_secret_environment_variables).
+  Structure is [documented below](#nested_service_config_secret_environment_variables).
 
 * `secret_volumes` -
   (Optional)
   Secret volumes configuration.
-  Structure is [documented below](#nested_secret_volumes).
+  Structure is [documented below](#nested_service_config_secret_volumes).
 
 
-<a name="nested_secret_environment_variables"></a>The `secret_environment_variables` block supports:
+<a name="nested_service_config_secret_environment_variables"></a>The `secret_environment_variables` block supports:
 
 * `key` -
   (Required)
@@ -1262,7 +1262,7 @@ The following arguments are supported:
   (Required)
   Version of the secret (version number or the string 'latest'). It is recommended to use a numeric version for secret environment variables as any updates to the secret value is not reflected until new instances start.
 
-<a name="nested_secret_volumes"></a>The `secret_volumes` block supports:
+<a name="nested_service_config_secret_volumes"></a>The `secret_volumes` block supports:
 
 * `mount_path` -
   (Required)
@@ -1279,10 +1279,10 @@ The following arguments are supported:
 * `versions` -
   (Optional)
   List of secret versions to mount for this secret. If empty, the latest version of the secret will be made available in a file named after the secret under the mount point.'
-  Structure is [documented below](#nested_versions).
+  Structure is [documented below](#nested_service_config_secret_volumes_secret_volumes_versions).
 
 
-<a name="nested_versions"></a>The `versions` block supports:
+<a name="nested_service_config_secret_volumes_secret_volumes_versions"></a>The `versions` block supports:
 
 * `version` -
   (Required)
@@ -1312,7 +1312,7 @@ The following arguments are supported:
 * `event_filters` -
   (Optional)
   Criteria used to filter events.
-  Structure is [documented below](#nested_event_filters).
+  Structure is [documented below](#nested_event_trigger_event_filters).
 
 * `pubsub_topic` -
   (Optional)
@@ -1332,7 +1332,7 @@ The following arguments are supported:
   Possible values are: `RETRY_POLICY_UNSPECIFIED`, `RETRY_POLICY_DO_NOT_RETRY`, `RETRY_POLICY_RETRY`.
 
 
-<a name="nested_event_filters"></a>The `event_filters` block supports:
+<a name="nested_event_trigger_event_filters"></a>The `event_filters` block supports:
 
 * `attribute` -
   (Required)

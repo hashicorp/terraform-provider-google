@@ -233,7 +233,7 @@ The following arguments are supported:
   (Optional)
   Represents a time zone from the
   [IANA Time Zone Database](https://www.iana.org/time-zones).
-  Structure is [documented below](#nested_time_zone).
+  Structure is [documented below](#nested_properties_time_zone).
 
 * `ssh_public_keys` -
   (Optional)
@@ -290,7 +290,7 @@ The following arguments are supported:
 * `diagnostics_data_collection_options` -
   (Optional)
   Data collection options for diagnostics.
-  Structure is [documented below](#nested_diagnostics_data_collection_options).
+  Structure is [documented below](#nested_properties_diagnostics_data_collection_options).
 
 * `state` -
   (Output)
@@ -366,13 +366,13 @@ The following arguments are supported:
   OCI Cluster name.
 
 
-<a name="nested_time_zone"></a>The `time_zone` block supports:
+<a name="nested_properties_time_zone"></a>The `time_zone` block supports:
 
 * `id` -
   (Optional)
   IANA Time Zone Database time zone, e.g. "America/New_York".
 
-<a name="nested_diagnostics_data_collection_options"></a>The `diagnostics_data_collection_options` block supports:
+<a name="nested_properties_diagnostics_data_collection_options"></a>The `diagnostics_data_collection_options` block supports:
 
 * `diagnostics_events_enabled` -
   (Optional)

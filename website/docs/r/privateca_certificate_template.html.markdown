@@ -168,17 +168,17 @@ The following arguments are supported:
 * `key_usage` -
   (Optional)
   Optional. Indicates the intended use for keys that correspond to a certificate.
-  Structure is [documented below](#nested_key_usage).
+  Structure is [documented below](#nested_predefined_values_key_usage).
 
 * `ca_options` -
   (Optional)
   Optional. Describes options in this X509Parameters that are relevant in a CA certificate.
-  Structure is [documented below](#nested_ca_options).
+  Structure is [documented below](#nested_predefined_values_ca_options).
 
 * `policy_ids` -
   (Optional)
   Optional. Describes the X.509 certificate policy object identifiers, per https://tools.ietf.org/html/rfc5280#section-4.2.1.4.
-  Structure is [documented below](#nested_policy_ids).
+  Structure is [documented below](#nested_predefined_values_policy_ids).
 
 * `aia_ocsp_servers` -
   (Optional)
@@ -187,28 +187,28 @@ The following arguments are supported:
 * `additional_extensions` -
   (Optional)
   Optional. Describes custom X.509 extensions.
-  Structure is [documented below](#nested_additional_extensions).
+  Structure is [documented below](#nested_predefined_values_additional_extensions).
 
 
-<a name="nested_key_usage"></a>The `key_usage` block supports:
+<a name="nested_predefined_values_key_usage"></a>The `key_usage` block supports:
 
 * `base_key_usage` -
   (Optional)
   Describes high-level ways in which a key may be used.
-  Structure is [documented below](#nested_base_key_usage).
+  Structure is [documented below](#nested_predefined_values_key_usage_base_key_usage).
 
 * `extended_key_usage` -
   (Optional)
   Detailed scenarios in which a key may be used.
-  Structure is [documented below](#nested_extended_key_usage).
+  Structure is [documented below](#nested_predefined_values_key_usage_extended_key_usage).
 
 * `unknown_extended_key_usages` -
   (Optional)
   Used to describe extended key usages that are not listed in the KeyUsage.ExtendedKeyUsageOptions message.
-  Structure is [documented below](#nested_unknown_extended_key_usages).
+  Structure is [documented below](#nested_predefined_values_key_usage_unknown_extended_key_usages).
 
 
-<a name="nested_base_key_usage"></a>The `base_key_usage` block supports:
+<a name="nested_predefined_values_key_usage_base_key_usage"></a>The `base_key_usage` block supports:
 
 * `digital_signature` -
   (Optional)
@@ -246,7 +246,7 @@ The following arguments are supported:
   (Optional)
   The key may be used to decipher only.
 
-<a name="nested_extended_key_usage"></a>The `extended_key_usage` block supports:
+<a name="nested_predefined_values_key_usage_extended_key_usage"></a>The `extended_key_usage` block supports:
 
 * `server_auth` -
   (Optional)
@@ -272,13 +272,13 @@ The following arguments are supported:
   (Optional)
   Corresponds to OID 1.3.6.1.5.5.7.3.9. Officially described as "Signing OCSP responses".
 
-<a name="nested_unknown_extended_key_usages"></a>The `unknown_extended_key_usages` block supports:
+<a name="nested_predefined_values_key_usage_unknown_extended_key_usages"></a>The `unknown_extended_key_usages` block supports:
 
 * `object_id_path` -
   (Required)
   Required. The parts of an OID path. The most significant parts of the path come first.
 
-<a name="nested_ca_options"></a>The `ca_options` block supports:
+<a name="nested_predefined_values_ca_options"></a>The `ca_options` block supports:
 
 * `is_ca` -
   (Optional)
@@ -288,18 +288,18 @@ The following arguments are supported:
   (Optional)
   Optional. Refers to the path length restriction X.509 extension. For a CA certificate, this value describes the depth of subordinate CA certificates that are allowed. If this value is less than 0, the request will fail. If this value is missing, the max path length will be omitted from the CA certificate.
 
-<a name="nested_policy_ids"></a>The `policy_ids` block supports:
+<a name="nested_predefined_values_policy_ids"></a>The `policy_ids` block supports:
 
 * `object_id_path` -
   (Required)
   Required. The parts of an OID path. The most significant parts of the path come first.
 
-<a name="nested_additional_extensions"></a>The `additional_extensions` block supports:
+<a name="nested_predefined_values_additional_extensions"></a>The `additional_extensions` block supports:
 
 * `object_id` -
   (Required)
   Required. The OID for this X.509 extension.
-  Structure is [documented below](#nested_object_id).
+  Structure is [documented below](#nested_predefined_values_additional_extensions_additional_extensions_object_id).
 
 * `critical` -
   (Optional)
@@ -310,7 +310,7 @@ The following arguments are supported:
   Required. The value of this X.509 extension.
 
 
-<a name="nested_object_id"></a>The `object_id` block supports:
+<a name="nested_predefined_values_additional_extensions_additional_extensions_object_id"></a>The `object_id` block supports:
 
 * `object_id_path` -
   (Required)
@@ -321,7 +321,7 @@ The following arguments are supported:
 * `cel_expression` -
   (Optional)
   Optional. A CEL expression that may be used to validate the resolved X.509 Subject and/or Subject Alternative Name before a certificate is signed. To see the full allowed syntax and some examples, see https://cloud.google.com/certificate-authority-service/docs/using-cel
-  Structure is [documented below](#nested_cel_expression).
+  Structure is [documented below](#nested_identity_constraints_cel_expression).
 
 * `allow_subject_passthrough` -
   (Required)
@@ -332,7 +332,7 @@ The following arguments are supported:
   Required. If this is true, the SubjectAltNames extension may be copied from a certificate request into the signed certificate. Otherwise, the requested SubjectAltNames will be discarded.
 
 
-<a name="nested_cel_expression"></a>The `cel_expression` block supports:
+<a name="nested_identity_constraints_cel_expression"></a>The `cel_expression` block supports:
 
 * `expression` -
   (Optional)
@@ -359,10 +359,10 @@ The following arguments are supported:
 * `additional_extensions` -
   (Optional)
   Optional. A set of ObjectIds identifying custom X.509 extensions. Will be combined with known_extensions to determine the full set of X.509 extensions.
-  Structure is [documented below](#nested_additional_extensions).
+  Structure is [documented below](#nested_passthrough_extensions_additional_extensions).
 
 
-<a name="nested_additional_extensions"></a>The `additional_extensions` block supports:
+<a name="nested_passthrough_extensions_additional_extensions"></a>The `additional_extensions` block supports:
 
 * `object_id_path` -
   (Required)

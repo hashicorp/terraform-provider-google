@@ -772,7 +772,7 @@ The following arguments are supported:
 * `connect_timeout` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The timeout for new network connections to hosts.
-  Structure is [documented below](#nested_connect_timeout).
+  Structure is [documented below](#nested_circuit_breakers_connect_timeout).
 
 * `max_requests_per_connection` -
   (Optional)
@@ -802,7 +802,7 @@ The following arguments are supported:
   Defaults to 3.
 
 
-<a name="nested_connect_timeout"></a>The `connect_timeout` block supports:
+<a name="nested_circuit_breakers_connect_timeout"></a>The `connect_timeout` block supports:
 
 * `seconds` -
   (Required)
@@ -824,7 +824,7 @@ The following arguments are supported:
   that will be used as the hash key for the consistent hash load
   balancer. If the cookie is not present, it will be generated.
   This field is applicable if the sessionAffinity is set to HTTP_COOKIE.
-  Structure is [documented below](#nested_http_cookie).
+  Structure is [documented below](#nested_consistent_hash_http_cookie).
 
 * `http_header_name` -
   (Optional)
@@ -841,12 +841,12 @@ The following arguments are supported:
   Defaults to 1024.
 
 
-<a name="nested_http_cookie"></a>The `http_cookie` block supports:
+<a name="nested_consistent_hash_http_cookie"></a>The `http_cookie` block supports:
 
 * `ttl` -
   (Optional)
   Lifetime of the cookie.
-  Structure is [documented below](#nested_ttl).
+  Structure is [documented below](#nested_consistent_hash_http_cookie_ttl).
 
 * `name` -
   (Optional)
@@ -857,7 +857,7 @@ The following arguments are supported:
   Path to set for the cookie.
 
 
-<a name="nested_ttl"></a>The `ttl` block supports:
+<a name="nested_consistent_hash_http_cookie_ttl"></a>The `ttl` block supports:
 
 * `seconds` -
   (Required)
@@ -876,7 +876,7 @@ The following arguments are supported:
 * `cache_key_policy` -
   (Optional)
   The CacheKeyPolicy for this CdnPolicy.
-  Structure is [documented below](#nested_cache_key_policy).
+  Structure is [documented below](#nested_cdn_policy_cache_key_policy).
 
 * `signed_url_cache_max_age_sec` -
   (Optional)
@@ -911,7 +911,7 @@ The following arguments are supported:
   (Optional)
   Sets a cache TTL for the specified HTTP status code. negativeCaching must be enabled to configure negativeCachingPolicy.
   Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's default cache TTLs.
-  Structure is [documented below](#nested_negative_caching_policy).
+  Structure is [documented below](#nested_cdn_policy_negative_caching_policy).
 
 * `cache_mode` -
   (Optional)
@@ -924,7 +924,7 @@ The following arguments are supported:
   Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.
 
 
-<a name="nested_cache_key_policy"></a>The `cache_key_policy` block supports:
+<a name="nested_cdn_policy_cache_key_policy"></a>The `cache_key_policy` block supports:
 
 * `include_host` -
   (Optional)
@@ -963,7 +963,7 @@ The following arguments are supported:
   (Optional)
   Names of cookies to include in cache keys.
 
-<a name="nested_negative_caching_policy"></a>The `negative_caching_policy` block supports:
+<a name="nested_cdn_policy_negative_caching_policy"></a>The `negative_caching_policy` block supports:
 
 * `code` -
   (Optional)
@@ -1033,7 +1033,7 @@ The following arguments are supported:
   The base time that a host is ejected for. The real time is equal to the base
   time multiplied by the number of times the host has been ejected. Defaults to
   30000ms or 30s.
-  Structure is [documented below](#nested_base_ejection_time).
+  Structure is [documented below](#nested_outlier_detection_base_ejection_time).
 
 * `consecutive_errors` -
   (Optional)
@@ -1069,7 +1069,7 @@ The following arguments are supported:
   (Optional)
   Time interval between ejection sweep analysis. This can result in both new
   ejections as well as hosts being returned to service. Defaults to 10 seconds.
-  Structure is [documented below](#nested_interval).
+  Structure is [documented below](#nested_outlier_detection_interval).
 
 * `max_ejection_percent` -
   (Optional)
@@ -1101,7 +1101,7 @@ The following arguments are supported:
   runtime value should be 1900. Defaults to 1900.
 
 
-<a name="nested_base_ejection_time"></a>The `base_ejection_time` block supports:
+<a name="nested_outlier_detection_base_ejection_time"></a>The `base_ejection_time` block supports:
 
 * `seconds` -
   (Required)
@@ -1114,7 +1114,7 @@ The following arguments are supported:
   less than one second are represented with a 0 `seconds` field and a positive
   `nanos` field. Must be from 0 to 999,999,999 inclusive.
 
-<a name="nested_interval"></a>The `interval` block supports:
+<a name="nested_outlier_detection_interval"></a>The `interval` block supports:
 
 * `seconds` -
   (Required)
@@ -1132,7 +1132,7 @@ The following arguments are supported:
 * `ttl` -
   (Optional)
   Lifetime of the cookie.
-  Structure is [documented below](#nested_ttl).
+  Structure is [documented below](#nested_strong_session_affinity_cookie_ttl).
 
 * `name` -
   (Optional)
@@ -1143,7 +1143,7 @@ The following arguments are supported:
   Path to set for the cookie.
 
 
-<a name="nested_ttl"></a>The `ttl` block supports:
+<a name="nested_strong_session_affinity_cookie_ttl"></a>The `ttl` block supports:
 
 * `seconds` -
   (Required)

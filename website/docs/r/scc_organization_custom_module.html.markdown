@@ -128,18 +128,18 @@ The following arguments are supported:
   (Required)
   The CEL expression to evaluate to produce findings. When the expression evaluates
   to true against a resource, a finding is generated.
-  Structure is [documented below](#nested_predicate).
+  Structure is [documented below](#nested_custom_config_predicate).
 
 * `custom_output` -
   (Optional)
   Custom output properties.
-  Structure is [documented below](#nested_custom_output).
+  Structure is [documented below](#nested_custom_config_custom_output).
 
 * `resource_selector` -
   (Required)
   The resource types that the custom module operates on. Each custom module
   can specify up to 5 resource types.
-  Structure is [documented below](#nested_resource_selector).
+  Structure is [documented below](#nested_custom_config_resource_selector).
 
 * `severity` -
   (Required)
@@ -159,7 +159,7 @@ The following arguments are supported:
   this module in the nextSteps property of the finding JSON.
 
 
-<a name="nested_predicate"></a>The `predicate` block supports:
+<a name="nested_custom_config_predicate"></a>The `predicate` block supports:
 
 * `expression` -
   (Required)
@@ -180,15 +180,15 @@ The following arguments are supported:
   String indicating the location of the expression for error reporting, e.g. a
   file name and a position in the file.
 
-<a name="nested_custom_output"></a>The `custom_output` block supports:
+<a name="nested_custom_config_custom_output"></a>The `custom_output` block supports:
 
 * `properties` -
   (Optional)
   A list of custom output properties to add to the finding.
-  Structure is [documented below](#nested_properties).
+  Structure is [documented below](#nested_custom_config_custom_output_properties).
 
 
-<a name="nested_properties"></a>The `properties` block supports:
+<a name="nested_custom_config_custom_output_properties"></a>The `properties` block supports:
 
 * `name` -
   (Optional)
@@ -198,10 +198,10 @@ The following arguments are supported:
   (Optional)
   The CEL expression for the custom output. A resource property can be specified
   to return the value of the property or a text string enclosed in quotation marks.
-  Structure is [documented below](#nested_value_expression).
+  Structure is [documented below](#nested_custom_config_custom_output_properties_properties_value_expression).
 
 
-<a name="nested_value_expression"></a>The `value_expression` block supports:
+<a name="nested_custom_config_custom_output_properties_properties_value_expression"></a>The `value_expression` block supports:
 
 * `expression` -
   (Required)
@@ -222,7 +222,7 @@ The following arguments are supported:
   String indicating the location of the expression for error reporting, e.g. a
   file name and a position in the file.
 
-<a name="nested_resource_selector"></a>The `resource_selector` block supports:
+<a name="nested_custom_config_resource_selector"></a>The `resource_selector` block supports:
 
 * `resource_types` -
   (Required)

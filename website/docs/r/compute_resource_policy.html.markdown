@@ -252,38 +252,38 @@ The following arguments are supported:
 * `schedule` -
   (Required)
   Contains one of an `hourlySchedule`, `dailySchedule`, or `weeklySchedule`.
-  Structure is [documented below](#nested_schedule).
+  Structure is [documented below](#nested_snapshot_schedule_policy_schedule).
 
 * `retention_policy` -
   (Optional)
   Retention policy applied to snapshots created by this resource policy.
-  Structure is [documented below](#nested_retention_policy).
+  Structure is [documented below](#nested_snapshot_schedule_policy_retention_policy).
 
 * `snapshot_properties` -
   (Optional)
   Properties with which the snapshots are created, such as labels.
-  Structure is [documented below](#nested_snapshot_properties).
+  Structure is [documented below](#nested_snapshot_schedule_policy_snapshot_properties).
 
 
-<a name="nested_schedule"></a>The `schedule` block supports:
+<a name="nested_snapshot_schedule_policy_schedule"></a>The `schedule` block supports:
 
 * `hourly_schedule` -
   (Optional)
   The policy will execute every nth hour starting at the specified time.
-  Structure is [documented below](#nested_hourly_schedule).
+  Structure is [documented below](#nested_snapshot_schedule_policy_schedule_hourly_schedule).
 
 * `daily_schedule` -
   (Optional)
   The policy will execute every nth day at the specified time.
-  Structure is [documented below](#nested_daily_schedule).
+  Structure is [documented below](#nested_snapshot_schedule_policy_schedule_daily_schedule).
 
 * `weekly_schedule` -
   (Optional)
   Allows specifying a snapshot time for each day of the week.
-  Structure is [documented below](#nested_weekly_schedule).
+  Structure is [documented below](#nested_snapshot_schedule_policy_schedule_weekly_schedule).
 
 
-<a name="nested_hourly_schedule"></a>The `hourly_schedule` block supports:
+<a name="nested_snapshot_schedule_policy_schedule_hourly_schedule"></a>The `hourly_schedule` block supports:
 
 * `hours_in_cycle` -
   (Required)
@@ -295,7 +295,7 @@ The following arguments are supported:
   It must be in an hourly format "HH:MM",
   where HH : [00-23] and MM : [00] GMT. eg: 21:00
 
-<a name="nested_daily_schedule"></a>The `daily_schedule` block supports:
+<a name="nested_snapshot_schedule_policy_schedule_daily_schedule"></a>The `daily_schedule` block supports:
 
 * `days_in_cycle` -
   (Required)
@@ -307,15 +307,15 @@ The following arguments are supported:
   00:00, 04:00, 08:00, 12:00, 16:00, or 20:00. For example,
   both 13:00-5 and 08:00 are valid.
 
-<a name="nested_weekly_schedule"></a>The `weekly_schedule` block supports:
+<a name="nested_snapshot_schedule_policy_schedule_weekly_schedule"></a>The `weekly_schedule` block supports:
 
 * `day_of_weeks` -
   (Required)
   May contain up to seven (one for each day of the week) snapshot times.
-  Structure is [documented below](#nested_day_of_weeks).
+  Structure is [documented below](#nested_snapshot_schedule_policy_schedule_weekly_schedule_day_of_weeks).
 
 
-<a name="nested_day_of_weeks"></a>The `day_of_weeks` block supports:
+<a name="nested_snapshot_schedule_policy_schedule_weekly_schedule_day_of_weeks"></a>The `day_of_weeks` block supports:
 
 * `start_time` -
   (Required)
@@ -327,7 +327,7 @@ The following arguments are supported:
   The day of the week to create the snapshot. e.g. MONDAY
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
-<a name="nested_retention_policy"></a>The `retention_policy` block supports:
+<a name="nested_snapshot_schedule_policy_retention_policy"></a>The `retention_policy` block supports:
 
 * `max_retention_days` -
   (Required)
@@ -340,7 +340,7 @@ The following arguments are supported:
   Default value is `KEEP_AUTO_SNAPSHOTS`.
   Possible values are: `KEEP_AUTO_SNAPSHOTS`, `APPLY_RETENTION_POLICY`.
 
-<a name="nested_snapshot_properties"></a>The `snapshot_properties` block supports:
+<a name="nested_snapshot_schedule_policy_snapshot_properties"></a>The `snapshot_properties` block supports:
 
 * `labels` -
   (Optional)
@@ -391,12 +391,12 @@ The following arguments are supported:
 * `vm_start_schedule` -
   (Optional)
   Specifies the schedule for starting instances.
-  Structure is [documented below](#nested_vm_start_schedule).
+  Structure is [documented below](#nested_instance_schedule_policy_vm_start_schedule).
 
 * `vm_stop_schedule` -
   (Optional)
   Specifies the schedule for stopping instances.
-  Structure is [documented below](#nested_vm_stop_schedule).
+  Structure is [documented below](#nested_instance_schedule_policy_vm_stop_schedule).
 
 * `time_zone` -
   (Required)
@@ -412,13 +412,13 @@ The following arguments are supported:
   The expiration time of the schedule. The timestamp is an RFC3339 string.
 
 
-<a name="nested_vm_start_schedule"></a>The `vm_start_schedule` block supports:
+<a name="nested_instance_schedule_policy_vm_start_schedule"></a>The `vm_start_schedule` block supports:
 
 * `schedule` -
   (Required)
   Specifies the frequency for the operation, using the unix-cron format.
 
-<a name="nested_vm_stop_schedule"></a>The `vm_stop_schedule` block supports:
+<a name="nested_instance_schedule_policy_vm_stop_schedule"></a>The `vm_stop_schedule` block supports:
 
 * `schedule` -
   (Required)

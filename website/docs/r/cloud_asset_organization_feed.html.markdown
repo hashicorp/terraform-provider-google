@@ -104,10 +104,10 @@ The following arguments are supported:
 * `pubsub_destination` -
   (Required)
   Destination on Cloud Pubsub.
-  Structure is [documented below](#nested_pubsub_destination).
+  Structure is [documented below](#nested_feed_output_config_pubsub_destination).
 
 
-<a name="nested_pubsub_destination"></a>The `pubsub_destination` block supports:
+<a name="nested_feed_output_config_pubsub_destination"></a>The `pubsub_destination` block supports:
 
 * `topic` -
   (Required)

@@ -373,10 +373,10 @@ The following arguments are supported:
   (Optional)
   Optional. Configuration for Private Service Connect.
   This is required only when using connection type PRIVATE_SERVICE_CONNECT_INTERFACES.
-  Structure is [documented below](#nested_private_service_connect_config).
+  Structure is [documented below](#nested_network_config_private_service_connect_config).
 
 
-<a name="nested_private_service_connect_config"></a>The `private_service_connect_config` block supports:
+<a name="nested_network_config_private_service_connect_config"></a>The `private_service_connect_config` block supports:
 
 * `network_attachment` -
   (Optional)

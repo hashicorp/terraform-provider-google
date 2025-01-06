@@ -275,10 +275,10 @@ The following arguments are supported:
 * `property` -
   (Optional)
   List of all properties in the object.
-  Structure is [documented below](#nested_property).
+  Structure is [documented below](#nested_properties_property).
 
 
-<a name="nested_property"></a>The `property` block supports:
+<a name="nested_properties_property"></a>The `property` block supports:
 
 * `name` -
   (Optional)

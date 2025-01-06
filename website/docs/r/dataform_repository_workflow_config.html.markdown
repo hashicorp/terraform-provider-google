@@ -189,7 +189,7 @@ The following arguments are supported:
 * `included_targets` -
   (Optional)
   Optional. The set of action identifiers to include.
-  Structure is [documented below](#nested_included_targets).
+  Structure is [documented below](#nested_invocation_config_included_targets).
 
 * `included_tags` -
   (Optional)
@@ -212,7 +212,7 @@ The following arguments are supported:
   Optional. The service account to run workflow invocations under.
 
 
-<a name="nested_included_targets"></a>The `included_targets` block supports:
+<a name="nested_invocation_config_included_targets"></a>The `included_targets` block supports:
 
 * `database` -
   (Optional)
@@ -250,10 +250,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `error_status` -
   (Output)
   The error status encountered upon this attempt to create the workflow invocation, if the attempt was unsuccessful.
-  Structure is [documented below](#nested_error_status).
+  Structure is [documented below](#nested_recent_scheduled_execution_records_recent_scheduled_execution_records_error_status).
 
 
-<a name="nested_error_status"></a>The `error_status` block contains:
+<a name="nested_recent_scheduled_execution_records_recent_scheduled_execution_records_error_status"></a>The `error_status` block contains:
 
 * `code` -
   (Output)

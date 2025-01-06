@@ -113,23 +113,23 @@ The following arguments are supported:
 * `config` -
   (Required)
   The root configuration file to use for this deployment.
-  Structure is [documented below](#nested_config).
+  Structure is [documented below](#nested_target_config).
 
 * `imports` -
   (Optional)
   Specifies import files for this configuration. This can be
   used to import templates or other files. For example, you might
   import a text file in order to use the file in a template.
-  Structure is [documented below](#nested_imports).
+  Structure is [documented below](#nested_target_imports).
 
 
-<a name="nested_config"></a>The `config` block supports:
+<a name="nested_target_config"></a>The `config` block supports:
 
 * `content` -
   (Required)
   The full YAML contents of your configuration file.
 
-<a name="nested_imports"></a>The `imports` block supports:
+<a name="nested_target_imports"></a>The `imports` block supports:
 
 * `content` -
   (Optional)

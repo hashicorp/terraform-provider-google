@@ -334,7 +334,7 @@ The following arguments are supported:
   (Optional)
   URI override.
   When specified, overrides the execution URI for all the tasks in the queue.
-  Structure is [documented below](#nested_uri_override).
+  Structure is [documented below](#nested_http_target_uri_override).
 
 * `header_overrides` -
   (Optional)
@@ -345,24 +345,24 @@ The following arguments are supported:
   Some HTTP request headers will be ignored or replaced.
   Headers which can have multiple values (according to RFC2616) can be specified using comma-separated values.
   The size of the headers must be less than 80KB. Queue-level headers to override headers of all the tasks in the queue.
-  Structure is [documented below](#nested_header_overrides).
+  Structure is [documented below](#nested_http_target_header_overrides).
 
 * `oauth_token` -
   (Optional)
   If specified, an OAuth token is generated and attached as the Authorization header in the HTTP request.
   This type of authorization should generally be used only when calling Google APIs hosted on *.googleapis.com.
   Note that both the service account email and the scope MUST be specified when using the queue-level authorization override.
-  Structure is [documented below](#nested_oauth_token).
+  Structure is [documented below](#nested_http_target_oauth_token).
 
 * `oidc_token` -
   (Optional)
   If specified, an OIDC token is generated and attached as an Authorization header in the HTTP request.
   This type of authorization can be used for many scenarios, including calling Cloud Run, or endpoints where you intend to validate the token yourself.
   Note that both the service account email and the audience MUST be specified when using the queue-level authorization override.
-  Structure is [documented below](#nested_oidc_token).
+  Structure is [documented below](#nested_http_target_oidc_token).
 
 
-<a name="nested_uri_override"></a>The `uri_override` block supports:
+<a name="nested_http_target_uri_override"></a>The `uri_override` block supports:
 
 * `scheme` -
   (Optional)
@@ -391,13 +391,13 @@ The following arguments are supported:
   URI path.
   When specified, replaces the existing path of the task URL.
   Setting the path value to an empty string clears the URI path segment.
-  Structure is [documented below](#nested_path_override).
+  Structure is [documented below](#nested_http_target_uri_override_path_override).
 
 * `query_override` -
   (Optional)
   URI query.
   When specified, replaces the query part of the task URI. Setting the query value to an empty string clears the URI query segment.
-  Structure is [documented below](#nested_query_override).
+  Structure is [documented below](#nested_http_target_uri_override_query_override).
 
 * `uri_override_enforce_mode` -
   (Optional)
@@ -406,27 +406,27 @@ The following arguments are supported:
   Possible values are: `ALWAYS`, `IF_NOT_EXISTS`.
 
 
-<a name="nested_path_override"></a>The `path_override` block supports:
+<a name="nested_http_target_uri_override_path_override"></a>The `path_override` block supports:
 
 * `path` -
   (Optional)
   The URI path (e.g., /users/1234). Default is an empty string.
 
-<a name="nested_query_override"></a>The `query_override` block supports:
+<a name="nested_http_target_uri_override_query_override"></a>The `query_override` block supports:
 
 * `query_params` -
   (Optional)
   The query parameters (e.g., qparam1=123&qparam2=456). Default is an empty string.
 
-<a name="nested_header_overrides"></a>The `header_overrides` block supports:
+<a name="nested_http_target_header_overrides"></a>The `header_overrides` block supports:
 
 * `header` -
   (Required)
   Header embodying a key and a value.
-  Structure is [documented below](#nested_header).
+  Structure is [documented below](#nested_http_target_header_overrides_header_overrides_header).
 
 
-<a name="nested_header"></a>The `header` block supports:
+<a name="nested_http_target_header_overrides_header_overrides_header"></a>The `header` block supports:
 
 * `key` -
   (Required)
@@ -436,7 +436,7 @@ The following arguments are supported:
   (Required)
   The Value of the header.
 
-<a name="nested_oauth_token"></a>The `oauth_token` block supports:
+<a name="nested_http_target_oauth_token"></a>The `oauth_token` block supports:
 
 * `service_account_email` -
   (Required)
@@ -449,7 +449,7 @@ The following arguments are supported:
   OAuth scope to be used for generating OAuth access token.
   If not specified, "https://www.googleapis.com/auth/cloud-platform" will be used.
 
-<a name="nested_oidc_token"></a>The `oidc_token` block supports:
+<a name="nested_http_target_oidc_token"></a>The `oidc_token` block supports:
 
 * `service_account_email` -
   (Required)

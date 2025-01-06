@@ -165,25 +165,25 @@ The following arguments are supported:
 * `subnetworks` -
   (Optional)
   All instances in one of these subnetworks will be mirrored.
-  Structure is [documented below](#nested_subnetworks).
+  Structure is [documented below](#nested_mirrored_resources_subnetworks).
 
 * `instances` -
   (Optional)
   All the listed instances will be mirrored.  Specify at most 50.
-  Structure is [documented below](#nested_instances).
+  Structure is [documented below](#nested_mirrored_resources_instances).
 
 * `tags` -
   (Optional)
   All instances with these tags will be mirrored.
 
 
-<a name="nested_subnetworks"></a>The `subnetworks` block supports:
+<a name="nested_mirrored_resources_subnetworks"></a>The `subnetworks` block supports:
 
 * `url` -
   (Required)
   The URL of the subnetwork where this rule should be active.
 
-<a name="nested_instances"></a>The `instances` block supports:
+<a name="nested_mirrored_resources_instances"></a>The `instances` block supports:
 
 * `url` -
   (Required)

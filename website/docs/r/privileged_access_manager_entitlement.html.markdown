@@ -129,10 +129,10 @@ The following arguments are supported:
 * `gcp_iam_access` -
   (Required)
   GcpIamAccess represents IAM based access control on a GCP resource. Refer to https://cloud.google.com/iam/docs to understand more about IAM.
-  Structure is [documented below](#nested_gcp_iam_access).
+  Structure is [documented below](#nested_privileged_access_gcp_iam_access).
 
 
-<a name="nested_gcp_iam_access"></a>The `gcp_iam_access` block supports:
+<a name="nested_privileged_access_gcp_iam_access"></a>The `gcp_iam_access` block supports:
 
 * `resource_type` -
   (Required)
@@ -145,10 +145,10 @@ The following arguments are supported:
 * `role_bindings` -
   (Required)
   Role bindings to be created on successful grant.
-  Structure is [documented below](#nested_role_bindings).
+  Structure is [documented below](#nested_privileged_access_gcp_iam_access_role_bindings).
 
 
-<a name="nested_role_bindings"></a>The `role_bindings` block supports:
+<a name="nested_privileged_access_gcp_iam_access_role_bindings"></a>The `role_bindings` block supports:
 
 * `role` -
   (Required)
@@ -195,10 +195,10 @@ The following arguments are supported:
   * Require an approval from any k number of users from a Group G.
   * Require an approval from any user in a group G and then from a user U. etc.
   A single user might be part of `approvers` ACL for multiple steps in this workflow but they can only approve once and that approval will only be considered to satisfy the approval step at which it was granted.
-  Structure is [documented below](#nested_manual_approvals).
+  Structure is [documented below](#nested_approval_workflow_manual_approvals).
 
 
-<a name="nested_manual_approvals"></a>The `manual_approvals` block supports:
+<a name="nested_approval_workflow_manual_approvals"></a>The `manual_approvals` block supports:
 
 * `require_approver_justification` -
   (Optional)
@@ -207,15 +207,15 @@ The following arguments are supported:
 * `steps` -
   (Required)
   List of approval steps in this workflow. These steps would be followed in the specified order sequentially.  1 step is supported for now.
-  Structure is [documented below](#nested_steps).
+  Structure is [documented below](#nested_approval_workflow_manual_approvals_steps).
 
 
-<a name="nested_steps"></a>The `steps` block supports:
+<a name="nested_approval_workflow_manual_approvals_steps"></a>The `steps` block supports:
 
 * `approvers` -
   (Required)
   The potential set of approvers in this step. This list should contain at only one entry.
-  Structure is [documented below](#nested_approvers).
+  Structure is [documented below](#nested_approval_workflow_manual_approvals_steps_steps_approvers).
 
 * `approvals_needed` -
   (Optional)
@@ -229,7 +229,7 @@ The following arguments are supported:
   Optional. Additional email addresses to be notified when a grant is pending approval.
 
 
-<a name="nested_approvers"></a>The `approvers` block supports:
+<a name="nested_approval_workflow_manual_approvals_steps_steps_approvers"></a>The `approvers` block supports:
 
 * `principals` -
   (Required)

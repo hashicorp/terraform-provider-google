@@ -418,10 +418,10 @@ The following arguments are supported:
   for this ManagedZone. If you provide a spec for keySigning or zoneSigning,
   you must also provide one for the other.
   default_key_specs can only be updated when the state is `off`.
-  Structure is [documented below](#nested_default_key_specs).
+  Structure is [documented below](#nested_dnssec_config_default_key_specs).
 
 
-<a name="nested_default_key_specs"></a>The `default_key_specs` block supports:
+<a name="nested_dnssec_config_default_key_specs"></a>The `default_key_specs` block supports:
 
 * `algorithm` -
   (Optional)
@@ -451,7 +451,7 @@ The following arguments are supported:
 * `gke_clusters` -
   (Optional)
   The list of Google Kubernetes Engine clusters that can see this zone.
-  Structure is [documented below](#nested_gke_clusters).
+  Structure is [documented below](#nested_private_visibility_config_gke_clusters).
 
 * `networks` -
   (Optional)
@@ -460,10 +460,10 @@ The following arguments are supported:
   add another `networks` block while keeping the old block, Terraform will see an incorrect diff
   and apply an incorrect update to the resource. If you encounter this issue, remove all `networks`
   blocks in an update and then apply another update adding all of them back simultaneously.
-  Structure is [documented below](#nested_networks).
+  Structure is [documented below](#nested_private_visibility_config_networks).
 
 
-<a name="nested_gke_clusters"></a>The `gke_clusters` block supports:
+<a name="nested_private_visibility_config_gke_clusters"></a>The `gke_clusters` block supports:
 
 * `gke_cluster_name` -
   (Required)
@@ -471,7 +471,7 @@ The following arguments are supported:
   This should be specified in the format like
   `projects/*/locations/*/clusters/*`
 
-<a name="nested_networks"></a>The `networks` block supports:
+<a name="nested_private_visibility_config_networks"></a>The `networks` block supports:
 
 * `network_url` -
   (Required)
@@ -486,10 +486,10 @@ The following arguments are supported:
   List of target name servers to forward to. Cloud DNS will
   select the best available name server if more than
   one target is given.
-  Structure is [documented below](#nested_target_name_servers).
+  Structure is [documented below](#nested_forwarding_config_target_name_servers).
 
 
-<a name="nested_target_name_servers"></a>The `target_name_servers` block supports:
+<a name="nested_forwarding_config_target_name_servers"></a>The `target_name_servers` block supports:
 
 * `ipv4_address` -
   (Required)
@@ -507,10 +507,10 @@ The following arguments are supported:
 * `target_network` -
   (Required)
   The network with which to peer.
-  Structure is [documented below](#nested_target_network).
+  Structure is [documented below](#nested_peering_config_target_network).
 
 
-<a name="nested_target_network"></a>The `target_network` block supports:
+<a name="nested_peering_config_target_network"></a>The `target_network` block supports:
 
 * `network_url` -
   (Required)
@@ -523,10 +523,10 @@ The following arguments are supported:
 * `namespace` -
   (Required)
   The namespace associated with the zone.
-  Structure is [documented below](#nested_namespace).
+  Structure is [documented below](#nested_service_directory_config_namespace).
 
 
-<a name="nested_namespace"></a>The `namespace` block supports:
+<a name="nested_service_directory_config_namespace"></a>The `namespace` block supports:
 
 * `namespace_url` -
   (Required)

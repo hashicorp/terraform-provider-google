@@ -186,7 +186,7 @@ The following arguments are supported:
     * Complies with [RFC 1034](https://datatracker.ietf.org/doc/html/rfc1034) (section 3.5)
   Currently the map must contain only one element
   that describes the autoscaling policy for compute nodes.
-  Structure is [documented below](#nested_autoscaling_policies).
+  Structure is [documented below](#nested_autoscaling_settings_autoscaling_policies).
 
 * `min_cluster_node_count` -
   (Optional)
@@ -207,7 +207,7 @@ The following arguments are supported:
   Mandatory for successful addition of autoscaling settings in cluster.
 
 
-<a name="nested_autoscaling_policies"></a>The `autoscaling_policies` block supports:
+<a name="nested_autoscaling_settings_autoscaling_policies"></a>The `autoscaling_policies` block supports:
 
 * `autoscale_policy_id` - (Required) The identifier for this object. Format specified above.
 
@@ -223,30 +223,20 @@ The following arguments are supported:
 * `cpu_thresholds` -
   (Optional)
   Utilization thresholds pertaining to CPU utilization.
-  Structure is [documented below](#nested_cpu_thresholds).
+  Structure is [documented below](#nested_autoscaling_settings_autoscaling_policies_autoscaling_policy_cpu_thresholds).
 
 * `consumed_memory_thresholds` -
   (Optional)
   Utilization thresholds pertaining to amount of consumed memory.
-  Structure is [documented below](#nested_consumed_memory_thresholds).
+  Structure is [documented below](#nested_autoscaling_settings_autoscaling_policies_autoscaling_policy_consumed_memory_thresholds).
 
 * `storage_thresholds` -
   (Optional)
   Utilization thresholds pertaining to amount of consumed storage.
-  Structure is [documented below](#nested_storage_thresholds).
+  Structure is [documented below](#nested_autoscaling_settings_autoscaling_policies_autoscaling_policy_storage_thresholds).
 
 
-<a name="nested_cpu_thresholds"></a>The `cpu_thresholds` block supports:
-
-* `scale_out` -
-  (Required)
-  The utilization triggering the scale-out operation in percent.
-
-* `scale_in` -
-  (Required)
-  The utilization triggering the scale-in operation in percent.
-
-<a name="nested_consumed_memory_thresholds"></a>The `consumed_memory_thresholds` block supports:
+<a name="nested_autoscaling_settings_autoscaling_policies_autoscaling_policy_cpu_thresholds"></a>The `cpu_thresholds` block supports:
 
 * `scale_out` -
   (Required)
@@ -256,7 +246,17 @@ The following arguments are supported:
   (Required)
   The utilization triggering the scale-in operation in percent.
 
-<a name="nested_storage_thresholds"></a>The `storage_thresholds` block supports:
+<a name="nested_autoscaling_settings_autoscaling_policies_autoscaling_policy_consumed_memory_thresholds"></a>The `consumed_memory_thresholds` block supports:
+
+* `scale_out` -
+  (Required)
+  The utilization triggering the scale-out operation in percent.
+
+* `scale_in` -
+  (Required)
+  The utilization triggering the scale-in operation in percent.
+
+<a name="nested_autoscaling_settings_autoscaling_policies_autoscaling_policy_storage_thresholds"></a>The `storage_thresholds` block supports:
 
 * `scale_out` -
   (Required)

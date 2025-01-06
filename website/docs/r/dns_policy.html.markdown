@@ -126,10 +126,10 @@ The following arguments are supported:
   Sets an alternative name server for the associated networks. When specified,
   all DNS queries are forwarded to a name server that you choose. Names such as .internal
   are not available when an alternative name server is specified.
-  Structure is [documented below](#nested_target_name_servers).
+  Structure is [documented below](#nested_alternative_name_server_config_target_name_servers).
 
 
-<a name="nested_target_name_servers"></a>The `target_name_servers` block supports:
+<a name="nested_alternative_name_server_config_target_name_servers"></a>The `target_name_servers` block supports:
 
 * `ipv4_address` -
   (Required)

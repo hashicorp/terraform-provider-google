@@ -155,14 +155,14 @@ The following arguments are supported:
 * `chunking_config` -
   (Optional)
   Whether chunking mode is enabled.
-  Structure is [documented below](#nested_chunking_config).
+  Structure is [documented below](#nested_document_processing_config_chunking_config).
 
 * `default_parsing_config` -
   (Optional)
   Configurations for default Document parser. If not specified, this resource
   will be configured to use a default DigitalParsingConfig, and the default parsing
   config will be applied to all file types for Document parsing.
-  Structure is [documented below](#nested_default_parsing_config).
+  Structure is [documented below](#nested_document_processing_config_default_parsing_config).
 
 * `parsing_config_overrides` -
   (Optional)
@@ -170,18 +170,18 @@ The following arguments are supported:
     * `pdf`: Override parsing config for PDF files, either digital parsing, ocr parsing or layout parsing is supported.
     * `html`: Override parsing config for HTML files, only digital parsing and or layout parsing are supported.
     * `docx`: Override parsing config for DOCX files, only digital parsing and or layout parsing are supported.
-  Structure is [documented below](#nested_parsing_config_overrides).
+  Structure is [documented below](#nested_document_processing_config_parsing_config_overrides).
 
 
-<a name="nested_chunking_config"></a>The `chunking_config` block supports:
+<a name="nested_document_processing_config_chunking_config"></a>The `chunking_config` block supports:
 
 * `layout_based_chunking_config` -
   (Optional)
   Configuration for the layout based chunking.
-  Structure is [documented below](#nested_layout_based_chunking_config).
+  Structure is [documented below](#nested_document_processing_config_chunking_config_layout_based_chunking_config).
 
 
-<a name="nested_layout_based_chunking_config"></a>The `layout_based_chunking_config` block supports:
+<a name="nested_document_processing_config_chunking_config_layout_based_chunking_config"></a>The `layout_based_chunking_config` block supports:
 
 * `chunk_size` -
   (Optional)
@@ -193,7 +193,7 @@ The following arguments are supported:
   Whether to include appending different levels of headings to chunks from the middle of the document to prevent context loss.
   Default value: False.
 
-<a name="nested_default_parsing_config"></a>The `default_parsing_config` block supports:
+<a name="nested_document_processing_config_default_parsing_config"></a>The `default_parsing_config` block supports:
 
 * `digital_parsing_config` -
   (Optional)
@@ -202,20 +202,20 @@ The following arguments are supported:
 * `ocr_parsing_config` -
   (Optional)
   Configurations applied to OCR parser. Currently it only applies to PDFs.
-  Structure is [documented below](#nested_ocr_parsing_config).
+  Structure is [documented below](#nested_document_processing_config_default_parsing_config_ocr_parsing_config).
 
 * `layout_parsing_config` -
   (Optional)
   Configurations applied to layout parser.
 
 
-<a name="nested_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
+<a name="nested_document_processing_config_default_parsing_config_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
 
 * `use_native_text` -
   (Optional)
   If true, will use native text instead of OCR text on pages containing native text.
 
-<a name="nested_parsing_config_overrides"></a>The `parsing_config_overrides` block supports:
+<a name="nested_document_processing_config_parsing_config_overrides"></a>The `parsing_config_overrides` block supports:
 
 * `file_type` - (Required) The identifier for this object. Format specified above.
 
@@ -226,14 +226,14 @@ The following arguments are supported:
 * `ocr_parsing_config` -
   (Optional)
   Configurations applied to OCR parser. Currently it only applies to PDFs.
-  Structure is [documented below](#nested_ocr_parsing_config).
+  Structure is [documented below](#nested_document_processing_config_parsing_config_overrides_parsing_config_overrides_ocr_parsing_config).
 
 * `layout_parsing_config` -
   (Optional)
   Configurations applied to layout parser.
 
 
-<a name="nested_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
+<a name="nested_document_processing_config_parsing_config_overrides_parsing_config_overrides_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
 
 * `use_native_text` -
   (Optional)

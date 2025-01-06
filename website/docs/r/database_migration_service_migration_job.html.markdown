@@ -460,10 +460,10 @@ The following arguments are supported:
 * `dump_flags` -
   (Optional)
   A list of dump flags
-  Structure is [documented below](#nested_dump_flags).
+  Structure is [documented below](#nested_dump_flags_dump_flags).
 
 
-<a name="nested_dump_flags"></a>The `dump_flags` block supports:
+<a name="nested_dump_flags_dump_flags"></a>The `dump_flags` block supports:
 
 * `name` -
   (Optional)

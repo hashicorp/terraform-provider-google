@@ -221,35 +221,35 @@ The following arguments are supported:
 * `expr` -
   (Optional)
   User defined CEVAL expression. A CEVAL expression is used to specify match criteria such as origin.ip, source.region_code and contents in the request header.
-  Structure is [documented below](#nested_expr).
+  Structure is [documented below](#nested_match_expr).
 
 * `expr_options` -
   (Optional)
   The configuration options available when specifying a user defined CEVAL expression (i.e., 'expr').
-  Structure is [documented below](#nested_expr_options).
+  Structure is [documented below](#nested_match_expr_options).
 
 * `config` -
   (Optional)
   The configuration options available when specifying versionedExpr.
   This field must be specified if versionedExpr is specified and cannot be specified if versionedExpr is not specified.
-  Structure is [documented below](#nested_config).
+  Structure is [documented below](#nested_match_config).
 
 
-<a name="nested_expr"></a>The `expr` block supports:
+<a name="nested_match_expr"></a>The `expr` block supports:
 
 * `expression` -
   (Required)
   Textual representation of an expression in Common Expression Language syntax. The application context of the containing message determines which well-known feature set of CEL is supported.
 
-<a name="nested_expr_options"></a>The `expr_options` block supports:
+<a name="nested_match_expr_options"></a>The `expr_options` block supports:
 
 * `recaptcha_options` -
   (Required)
   reCAPTCHA configuration options to be applied for the rule. If the rule does not evaluate reCAPTCHA tokens, this field has no effect.
-  Structure is [documented below](#nested_recaptcha_options).
+  Structure is [documented below](#nested_match_expr_options_recaptcha_options).
 
 
-<a name="nested_recaptcha_options"></a>The `recaptcha_options` block supports:
+<a name="nested_match_expr_options_recaptcha_options"></a>The `recaptcha_options` block supports:
 
 * `action_token_site_keys` -
   (Optional)
@@ -259,7 +259,7 @@ The following arguments are supported:
   (Optional)
   A list of site keys to be used during the validation of reCAPTCHA session-tokens. The provided site keys need to be created from reCAPTCHA API under the same project where the security policy is created.
 
-<a name="nested_config"></a>The `config` block supports:
+<a name="nested_match_config"></a>The `config` block supports:
 
 * `src_ip_ranges` -
   (Optional)
@@ -270,32 +270,32 @@ The following arguments are supported:
 * `exclusion` -
   (Optional)
   An exclusion to apply during preconfigured WAF evaluation.
-  Structure is [documented below](#nested_exclusion).
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion).
 
 
-<a name="nested_exclusion"></a>The `exclusion` block supports:
+<a name="nested_preconfigured_waf_config_exclusion"></a>The `exclusion` block supports:
 
 * `request_header` -
   (Optional)
   Request header whose value will be excluded from inspection during preconfigured WAF evaluation.
-  Structure is [documented below](#nested_request_header).
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_exclusion_request_header).
 
 * `request_cookie` -
   (Optional)
   Request cookie whose value will be excluded from inspection during preconfigured WAF evaluation.
-  Structure is [documented below](#nested_request_cookie).
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_exclusion_request_cookie).
 
 * `request_uri` -
   (Optional)
   Request URI from the request line to be excluded from inspection during preconfigured WAF evaluation.
   When specifying this field, the query or fragment part should be excluded.
-  Structure is [documented below](#nested_request_uri).
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_exclusion_request_uri).
 
 * `request_query_param` -
   (Optional)
   Request query parameter whose value will be excluded from inspection during preconfigured WAF evaluation.
   Note that the parameter can be in the query string or in the POST body.
-  Structure is [documented below](#nested_request_query_param).
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_exclusion_request_query_param).
 
 * `target_rule_set` -
   (Required)
@@ -307,7 +307,7 @@ The following arguments are supported:
   If omitted, it refers to all the rule IDs under the WAF rule set.
 
 
-<a name="nested_request_header"></a>The `request_header` block supports:
+<a name="nested_preconfigured_waf_config_exclusion_exclusion_request_header"></a>The `request_header` block supports:
 
 * `operator` -
   (Required)
@@ -324,7 +324,7 @@ The following arguments are supported:
   A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
   The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
 
-<a name="nested_request_cookie"></a>The `request_cookie` block supports:
+<a name="nested_preconfigured_waf_config_exclusion_exclusion_request_cookie"></a>The `request_cookie` block supports:
 
 * `operator` -
   (Required)
@@ -341,7 +341,7 @@ The following arguments are supported:
   A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
   The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
 
-<a name="nested_request_uri"></a>The `request_uri` block supports:
+<a name="nested_preconfigured_waf_config_exclusion_exclusion_request_uri"></a>The `request_uri` block supports:
 
 * `operator` -
   (Required)
@@ -358,7 +358,7 @@ The following arguments are supported:
   A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
   The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
 
-<a name="nested_request_query_param"></a>The `request_query_param` block supports:
+<a name="nested_preconfigured_waf_config_exclusion_exclusion_request_query_param"></a>The `request_query_param` block supports:
 
 * `operator` -
   (Required)
@@ -380,7 +380,7 @@ The following arguments are supported:
 * `rate_limit_threshold` -
   (Optional)
   Threshold at which to begin ratelimiting.
-  Structure is [documented below](#nested_rate_limit_threshold).
+  Structure is [documented below](#nested_rate_limit_options_rate_limit_threshold).
 
 * `conform_action` -
   (Optional)
@@ -390,7 +390,7 @@ The following arguments are supported:
 * `exceed_redirect_options` -
   (Optional)
   Parameters defining the redirect action that is used as the exceed action. Cannot be specified if the exceed action is not redirect. This field is only supported in Global Security Policies of type CLOUD_ARMOR.
-  Structure is [documented below](#nested_exceed_redirect_options).
+  Structure is [documented below](#nested_rate_limit_options_exceed_redirect_options).
 
 * `exceed_action` -
   (Optional)
@@ -423,13 +423,13 @@ The following arguments are supported:
   If specified, any combination of values of enforceOnKeyType/enforceOnKeyName is treated as the key on which ratelimit threshold/action is enforced.
   You can specify up to 3 enforceOnKeyConfigs.
   If enforceOnKeyConfigs is specified, enforceOnKey must not be specified.
-  Structure is [documented below](#nested_enforce_on_key_configs).
+  Structure is [documented below](#nested_rate_limit_options_enforce_on_key_configs).
 
 * `ban_threshold` -
   (Optional)
   Can only be specified if the action for the rule is "rate_based_ban".
   If specified, the key will be banned for the configured 'banDurationSec' when the number of requests that exceed the 'rateLimitThreshold' also exceed this 'banThreshold'.
-  Structure is [documented below](#nested_ban_threshold).
+  Structure is [documented below](#nested_rate_limit_options_ban_threshold).
 
 * `ban_duration_sec` -
   (Optional)
@@ -437,7 +437,7 @@ The following arguments are supported:
   If specified, determines the time (in seconds) the traffic will continue to be banned by the rate limit after the rate falls below the threshold.
 
 
-<a name="nested_rate_limit_threshold"></a>The `rate_limit_threshold` block supports:
+<a name="nested_rate_limit_options_rate_limit_threshold"></a>The `rate_limit_threshold` block supports:
 
 * `count` -
   (Optional)
@@ -447,7 +447,7 @@ The following arguments are supported:
   (Optional)
   Interval over which the threshold is computed.
 
-<a name="nested_exceed_redirect_options"></a>The `exceed_redirect_options` block supports:
+<a name="nested_rate_limit_options_exceed_redirect_options"></a>The `exceed_redirect_options` block supports:
 
 * `type` -
   (Optional)
@@ -457,7 +457,7 @@ The following arguments are supported:
   (Optional)
   Target for the redirect action. This is required if the type is EXTERNAL_302 and cannot be specified for GOOGLE_RECAPTCHA.
 
-<a name="nested_enforce_on_key_configs"></a>The `enforce_on_key_configs` block supports:
+<a name="nested_rate_limit_options_enforce_on_key_configs"></a>The `enforce_on_key_configs` block supports:
 
 * `enforce_on_key_type` -
   (Optional)
@@ -480,7 +480,7 @@ The following arguments are supported:
   HTTP_HEADER -- Name of the HTTP header whose value is taken as the key value.
   HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.
 
-<a name="nested_ban_threshold"></a>The `ban_threshold` block supports:
+<a name="nested_rate_limit_options_ban_threshold"></a>The `ban_threshold` block supports:
 
 * `count` -
   (Optional)
@@ -505,10 +505,10 @@ The following arguments are supported:
 * `request_headers_to_adds` -
   (Optional)
   The list of request headers to add or overwrite if they're already present.
-  Structure is [documented below](#nested_request_headers_to_adds).
+  Structure is [documented below](#nested_header_action_request_headers_to_adds).
 
 
-<a name="nested_request_headers_to_adds"></a>The `request_headers_to_adds` block supports:
+<a name="nested_header_action_request_headers_to_adds"></a>The `request_headers_to_adds` block supports:
 
 * `header_name` -
   (Optional)

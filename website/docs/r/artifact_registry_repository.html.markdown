@@ -788,10 +788,10 @@ The following arguments are supported:
   (Optional)
   Policies that configure the upstream artifacts distributed by the Virtual
   Repository. Upstream policies cannot be set on a standard repository.
-  Structure is [documented below](#nested_upstream_policies).
+  Structure is [documented below](#nested_virtual_repository_config_upstream_policies).
 
 
-<a name="nested_upstream_policies"></a>The `upstream_policies` block supports:
+<a name="nested_virtual_repository_config_upstream_policies"></a>The `upstream_policies` block supports:
 
 * `id` -
   (Optional)
@@ -818,16 +818,16 @@ The following arguments are supported:
 * `condition` -
   (Optional)
   Policy condition for matching versions.
-  Structure is [documented below](#nested_condition).
+  Structure is [documented below](#nested_cleanup_policies_cleanup_policies_condition).
 
 * `most_recent_versions` -
   (Optional)
   Policy condition for retaining a minimum number of versions. May only be
   specified with a Keep action.
-  Structure is [documented below](#nested_most_recent_versions).
+  Structure is [documented below](#nested_cleanup_policies_cleanup_policies_most_recent_versions).
 
 
-<a name="nested_condition"></a>The `condition` block supports:
+<a name="nested_cleanup_policies_cleanup_policies_condition"></a>The `condition` block supports:
 
 * `tag_state` -
   (Optional)
@@ -855,7 +855,7 @@ The following arguments are supported:
   (Optional)
   Match versions newer than a duration.
 
-<a name="nested_most_recent_versions"></a>The `most_recent_versions` block supports:
+<a name="nested_cleanup_policies_cleanup_policies_most_recent_versions"></a>The `most_recent_versions` block supports:
 
 * `package_name_prefixes` -
   (Optional)
@@ -874,42 +874,42 @@ The following arguments are supported:
 * `apt_repository` -
   (Optional)
   Specific settings for an Apt remote repository.
-  Structure is [documented below](#nested_apt_repository).
+  Structure is [documented below](#nested_remote_repository_config_apt_repository).
 
 * `docker_repository` -
   (Optional)
   Specific settings for a Docker remote repository.
-  Structure is [documented below](#nested_docker_repository).
+  Structure is [documented below](#nested_remote_repository_config_docker_repository).
 
 * `maven_repository` -
   (Optional)
   Specific settings for a Maven remote repository.
-  Structure is [documented below](#nested_maven_repository).
+  Structure is [documented below](#nested_remote_repository_config_maven_repository).
 
 * `npm_repository` -
   (Optional)
   Specific settings for an Npm remote repository.
-  Structure is [documented below](#nested_npm_repository).
+  Structure is [documented below](#nested_remote_repository_config_npm_repository).
 
 * `python_repository` -
   (Optional)
   Specific settings for a Python remote repository.
-  Structure is [documented below](#nested_python_repository).
+  Structure is [documented below](#nested_remote_repository_config_python_repository).
 
 * `yum_repository` -
   (Optional)
   Specific settings for an Yum remote repository.
-  Structure is [documented below](#nested_yum_repository).
+  Structure is [documented below](#nested_remote_repository_config_yum_repository).
 
 * `common_repository` -
   (Optional)
   Specific settings for an Artifact Registory remote repository.
-  Structure is [documented below](#nested_common_repository).
+  Structure is [documented below](#nested_remote_repository_config_common_repository).
 
 * `upstream_credentials` -
   (Optional)
   The credentials used to access the remote repository.
-  Structure is [documented below](#nested_upstream_credentials).
+  Structure is [documented below](#nested_remote_repository_config_upstream_credentials).
 
 * `disable_upstream_validation` -
   (Optional)
@@ -917,15 +917,15 @@ The following arguments are supported:
   not be validated.
 
 
-<a name="nested_apt_repository"></a>The `apt_repository` block supports:
+<a name="nested_remote_repository_config_apt_repository"></a>The `apt_repository` block supports:
 
 * `public_repository` -
   (Optional)
   One of the publicly available Apt repositories supported by Artifact Registry.
-  Structure is [documented below](#nested_public_repository).
+  Structure is [documented below](#nested_remote_repository_config_apt_repository_public_repository).
 
 
-<a name="nested_public_repository"></a>The `public_repository` block supports:
+<a name="nested_remote_repository_config_apt_repository_public_repository"></a>The `public_repository` block supports:
 
 * `repository_base` -
   (Required)
@@ -936,7 +936,7 @@ The following arguments are supported:
   (Required)
   Specific repository from the base.
 
-<a name="nested_docker_repository"></a>The `docker_repository` block supports:
+<a name="nested_remote_repository_config_docker_repository"></a>The `docker_repository` block supports:
 
 * `public_repository` -
   (Optional)
@@ -947,16 +947,16 @@ The following arguments are supported:
 * `custom_repository` -
   (Optional)
   [Deprecated, please use commonRepository instead] Settings for a remote repository with a custom uri.
-  Structure is [documented below](#nested_custom_repository).
+  Structure is [documented below](#nested_remote_repository_config_docker_repository_custom_repository).
 
 
-<a name="nested_custom_repository"></a>The `custom_repository` block supports:
+<a name="nested_remote_repository_config_docker_repository_custom_repository"></a>The `custom_repository` block supports:
 
 * `uri` -
   (Optional)
   Specific uri to the registry, e.g. `"https://registry-1.docker.io"`
 
-<a name="nested_maven_repository"></a>The `maven_repository` block supports:
+<a name="nested_remote_repository_config_maven_repository"></a>The `maven_repository` block supports:
 
 * `public_repository` -
   (Optional)
@@ -967,16 +967,16 @@ The following arguments are supported:
 * `custom_repository` -
   (Optional)
   [Deprecated, please use commonRepository instead] Settings for a remote repository with a custom uri.
-  Structure is [documented below](#nested_custom_repository).
+  Structure is [documented below](#nested_remote_repository_config_maven_repository_custom_repository).
 
 
-<a name="nested_custom_repository"></a>The `custom_repository` block supports:
+<a name="nested_remote_repository_config_maven_repository_custom_repository"></a>The `custom_repository` block supports:
 
 * `uri` -
   (Optional)
   Specific uri to the registry, e.g. `"https://repo.maven.apache.org/maven2"`
 
-<a name="nested_npm_repository"></a>The `npm_repository` block supports:
+<a name="nested_remote_repository_config_npm_repository"></a>The `npm_repository` block supports:
 
 * `public_repository` -
   (Optional)
@@ -987,16 +987,16 @@ The following arguments are supported:
 * `custom_repository` -
   (Optional)
   [Deprecated, please use commonRepository instead] Settings for a remote repository with a custom uri.
-  Structure is [documented below](#nested_custom_repository).
+  Structure is [documented below](#nested_remote_repository_config_npm_repository_custom_repository).
 
 
-<a name="nested_custom_repository"></a>The `custom_repository` block supports:
+<a name="nested_remote_repository_config_npm_repository_custom_repository"></a>The `custom_repository` block supports:
 
 * `uri` -
   (Optional)
   Specific uri to the registry, e.g. `"https://registry.npmjs.org"`
 
-<a name="nested_python_repository"></a>The `python_repository` block supports:
+<a name="nested_remote_repository_config_python_repository"></a>The `python_repository` block supports:
 
 * `public_repository` -
   (Optional)
@@ -1007,24 +1007,24 @@ The following arguments are supported:
 * `custom_repository` -
   (Optional)
   [Deprecated, please use commonRepository instead] Settings for a remote repository with a custom uri.
-  Structure is [documented below](#nested_custom_repository).
+  Structure is [documented below](#nested_remote_repository_config_python_repository_custom_repository).
 
 
-<a name="nested_custom_repository"></a>The `custom_repository` block supports:
+<a name="nested_remote_repository_config_python_repository_custom_repository"></a>The `custom_repository` block supports:
 
 * `uri` -
   (Optional)
   Specific uri to the registry, e.g. `"https://pypi.io"`
 
-<a name="nested_yum_repository"></a>The `yum_repository` block supports:
+<a name="nested_remote_repository_config_yum_repository"></a>The `yum_repository` block supports:
 
 * `public_repository` -
   (Optional)
   One of the publicly available Yum repositories supported by Artifact Registry.
-  Structure is [documented below](#nested_public_repository).
+  Structure is [documented below](#nested_remote_repository_config_yum_repository_public_repository).
 
 
-<a name="nested_public_repository"></a>The `public_repository` block supports:
+<a name="nested_remote_repository_config_yum_repository_public_repository"></a>The `public_repository` block supports:
 
 * `repository_base` -
   (Required)
@@ -1035,7 +1035,7 @@ The following arguments are supported:
   (Required)
   Specific repository from the base, e.g. `"pub/rocky/9/BaseOS/x86_64/os"`
 
-<a name="nested_common_repository"></a>The `common_repository` block supports:
+<a name="nested_remote_repository_config_common_repository"></a>The `common_repository` block supports:
 
 * `uri` -
   (Required)
@@ -1044,15 +1044,15 @@ The following arguments are supported:
   b. URI to the registry, e.g. `"https://registry-1.docker.io"`
   c. URI to Artifact Registry Repository, e.g. `"https://REGION-docker.pkg.dev/UPSTREAM_PROJECT_ID/UPSTREAM_REPOSITORY"`
 
-<a name="nested_upstream_credentials"></a>The `upstream_credentials` block supports:
+<a name="nested_remote_repository_config_upstream_credentials"></a>The `upstream_credentials` block supports:
 
 * `username_password_credentials` -
   (Optional)
   Use username and password to access the remote repository.
-  Structure is [documented below](#nested_username_password_credentials).
+  Structure is [documented below](#nested_remote_repository_config_upstream_credentials_username_password_credentials).
 
 
-<a name="nested_username_password_credentials"></a>The `username_password_credentials` block supports:
+<a name="nested_remote_repository_config_upstream_credentials_username_password_credentials"></a>The `username_password_credentials` block supports:
 
 * `username` -
   (Optional)
