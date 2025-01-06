@@ -393,6 +393,40 @@ func TestAccInstanceGroupManager_stateful(t *testing.T) {
 	})
 }
 
+func TestAccInstanceGroupManager_stoppedSuspendedTargetSize(t *testing.T) {
+	t.Parallel()
+
+	template := fmt.Sprintf("tf-test-igm-%s", acctest.RandString(t, 10))
+	igm := fmt.Sprintf("tf-test-igm-%s", acctest.RandString(t, 10))
+	network := fmt.Sprintf("tf-test-igm-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccInstanceGroupManager_stoppedSuspendedTargetSize(template, network, igm),
+			},
+			{
+				ResourceName:            "google_compute_instance_group_manager.sr-igm",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+			{
+				Config: testAccInstanceGroupManager_stoppedSuspendedTargetSizeUpdate(template, network, igm),
+			},
+			{
+				ResourceName:            "google_compute_instance_group_manager.sr-igm",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+		},
+	})
+}
+
 func TestAccInstanceGroupManager_waitForStatus(t *testing.T) {
 	t.Parallel()
 
@@ -1673,6 +1707,98 @@ resource "google_compute_instance_group_manager" "igm-basic" {
   target_size        = 2
 }
 `, network, template, target, igm)
+}
+
+func testAccInstanceGroupManager_stoppedSuspendedTargetSize(network, template, igm string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_network" "sr-igm" {
+  name = "%s"
+}
+
+resource "google_compute_instance_template" "sr-igm" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "stateful-disk"
+  }
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_instance_group_manager" "sr-igm" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+
+  version {
+    instance_template = google_compute_instance_template.sr-igm.self_link
+    name              = "primary"
+  }
+
+  base_instance_name        = "tf-test-sr-igm"
+  zone                      = "us-central1-c"
+  target_size               = 2
+  standby_policy {
+    initial_delay_sec           = 20
+    mode                        = "MANUAL"
+  }
+  target_suspended_size         = 2
+  target_stopped_size           = 1
+}
+`, network, template, igm)
+}
+
+func testAccInstanceGroupManager_stoppedSuspendedTargetSizeUpdate(network, template, igm string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_network" "sr-igm" {
+  name = "%s"
+}
+
+resource "google_compute_instance_template" "sr-igm" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "stateful-disk"
+  }
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_instance_group_manager" "sr-igm" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+
+  version {
+    instance_template = google_compute_instance_template.sr-igm.self_link
+    name              = "primary"
+  }
+
+  base_instance_name        = "tf-test-sr-igm"
+  zone                      = "us-central1-c"
+  target_size               = 2
+  standby_policy {
+    mode                        = "SCALE_OUT_POOL"
+  }
+  target_suspended_size         = 1
+}
+`, network, template, igm)
 }
 
 func testAccInstanceGroupManager_waitForStatus(template, target, igm, perInstanceConfig string) string {

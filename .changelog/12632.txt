@@ -1,0 +1,3 @@
+```release-note: enhancement
+compute: Promoting 'standby_policy', 'target_suspended_size', 'target_stopped_size' fields of 'resource_compute_region_instance_group_manager' & 'resource_compute_nstance_group_manager' to ga.
+```

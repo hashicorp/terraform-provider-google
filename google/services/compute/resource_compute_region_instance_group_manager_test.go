@@ -396,6 +396,40 @@ func TestAccRegionInstanceGroupManager_stateful(t *testing.T) {
 	})
 }
 
+func TestAccRegionInstanceGroupManager_stoppedSuspendedTargetSize(t *testing.T) {
+	t.Parallel()
+
+	template := fmt.Sprintf("tf-test-rigm-%s", acctest.RandString(t, 10))
+	igm := fmt.Sprintf("tf-test-rigm-%s", acctest.RandString(t, 10))
+	network := fmt.Sprintf("tf-test-igm-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRegionInstanceGroupManager_stoppedSuspendedTargetSize(template, network, igm),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_group_manager.sr-igm",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+			{
+				Config: testAccRegionInstanceGroupManager_stoppedSuspendedTargetSizeUpdate(template, network, igm),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_group_manager.sr-igm",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+		},
+	})
+}
+
 func TestAccRegionInstanceGroupManager_instanceFlexibilityPolicy(t *testing.T) {
 	t.Parallel()
 
@@ -1789,6 +1823,115 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
 
 }
 `, context)
+}
+
+func testAccRegionInstanceGroupManager_stoppedSuspendedTargetSize(network, template, igm string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_network" "sr-igm" {
+  name = "%s"
+}
+
+resource "google_compute_instance_template" "sr-igm" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "stateful-disk"
+  }
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "sr-igm" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+
+  version {
+    instance_template = google_compute_instance_template.sr-igm.self_link
+    name              = "primary"
+  }
+
+  base_instance_name        = "tf-test-sr-igm"
+  region                    = "us-central1"
+  target_size               = 2
+  distribution_policy_target_shape = "ANY_SINGLE_ZONE"
+  update_policy {
+    instance_redistribution_type = "NONE"
+    type                         = "OPPORTUNISTIC"
+    minimal_action               = "REPLACE"
+    max_surge_fixed              = 0
+    max_unavailable_fixed        = 6
+  }
+  standby_policy {
+    initial_delay_sec           = 20
+    mode                        = "SCALE_OUT_POOL"
+  }
+  target_suspended_size         = 2
+  target_stopped_size           = 1
+}
+`, network, template, igm)
+}
+
+func testAccRegionInstanceGroupManager_stoppedSuspendedTargetSizeUpdate(network, template, igm string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_network" "sr-igm" {
+  name = "%s"
+}
+
+resource "google_compute_instance_template" "sr-igm" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "stateful-disk"
+  }
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "sr-igm" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+
+  version {
+    instance_template = google_compute_instance_template.sr-igm.self_link
+    name              = "primary"
+  }
+
+  base_instance_name        = "tf-test-sr-igm"
+  region                    = "us-central1"
+  target_size               = 2
+  distribution_policy_target_shape = "ANY_SINGLE_ZONE"
+  update_policy {
+    instance_redistribution_type = "NONE"
+    type                         = "OPPORTUNISTIC"
+    minimal_action               = "REPLACE"
+    max_surge_fixed              = 0
+    max_unavailable_fixed        = 6
+  }
+  standby_policy {
+    initial_delay_sec           = 30
+  }
+  target_suspended_size         = 1
+  target_stopped_size           = 2
+}
+`, network, template, igm)
 }
 
 func testAccRegionInstanceGroupManager_instanceFlexibilityPolicy(network, template, igm string) string {
