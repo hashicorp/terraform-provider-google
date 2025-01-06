@@ -324,6 +324,47 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 				},
 			},
 
+			"standby_policy": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `Standby policy for stopped and suspended instances.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"initial_delay_sec": {
+							Computed:     true,
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(0, 3600),
+							Description:  `Specifies the number of seconds that the MIG should wait to suspend or stop a VM after that VM was created. The initial delay gives the initialization script the time to prepare your VM for a quick scale out. The value of initial delay must be between 0 and 3600 seconds. The default value is 0.`,
+						},
+
+						"mode": {
+							Computed:     true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"MANUAL", "SCALE_OUT_POOL"}, true),
+							Description:  `Defines how a MIG resumes or starts VMs from a standby pool when the group scales out. The default mode is "MANUAL".`,
+						},
+					},
+				},
+			},
+
+			"target_suspended_size": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				Description: `The target number of suspended instances for this managed instance group.`,
+			},
+
+			"target_stopped_size": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				Description: `The target number of stopped instances for this managed instance group.`,
+			},
+
 			"update_policy": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -597,6 +638,9 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		TargetPools:                 tpgresource.ConvertStringSet(d.Get("target_pools").(*schema.Set)),
 		AutoHealingPolicies:         expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{})),
 		Versions:                    expandVersions(d.Get("version").([]interface{})),
+		StandbyPolicy:               expandStandbyPolicy(d),
+		TargetSuspendedSize:         int64(d.Get("target_suspended_size").(int)),
+		TargetStoppedSize:           int64(d.Get("target_stopped_size").(int)),
 		InstanceFlexibilityPolicy:   expandInstanceFlexibilityPolicy(d),
 		UpdatePolicy:                expandRegionUpdatePolicy(d.Get("update_policy").([]interface{})),
 		InstanceLifecyclePolicy:     expandInstanceLifecyclePolicy(d.Get("instance_lifecycle_policy").([]interface{})),
@@ -790,6 +834,15 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	if err := d.Set("version", flattenVersions(manager.Versions)); err != nil {
 		return err
 	}
+	if err = d.Set("standby_policy", flattenStandbyPolicy(manager.StandbyPolicy)); err != nil {
+		return fmt.Errorf("Error setting standby_policy in state: %s", err.Error())
+	}
+	if err := d.Set("target_suspended_size", manager.TargetSuspendedSize); err != nil {
+		return fmt.Errorf("Error setting target_suspended_size: %s", err)
+	}
+	if err := d.Set("target_stopped_size", manager.TargetStoppedSize); err != nil {
+		return fmt.Errorf("Error setting target_stopped_size: %s", err)
+	}
 	if err := d.Set("instance_flexibility_policy", flattenInstanceFlexibilityPolicy(manager.InstanceFlexibilityPolicy)); err != nil {
 		return err
 	}
@@ -881,6 +934,23 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 
 	if d.HasChange("distribution_policy_target_shape") {
 		updatedManager.DistributionPolicy = expandDistributionPolicyForUpdate(d)
+		change = true
+	}
+
+	if d.HasChange("standby_policy") {
+		updatedManager.StandbyPolicy = expandStandbyPolicy(d)
+		change = true
+	}
+
+	if d.HasChange("target_suspended_size") {
+		updatedManager.TargetSuspendedSize = int64(d.Get("target_suspended_size").(int))
+		updatedManager.ForceSendFields = append(updatedManager.ForceSendFields, "TargetSuspendedSize")
+		change = true
+	}
+
+	if d.HasChange("target_stopped_size") {
+		updatedManager.TargetStoppedSize = int64(d.Get("target_stopped_size").(int))
+		updatedManager.ForceSendFields = append(updatedManager.ForceSendFields, "TargetStoppedSize")
 		change = true
 	}
 
