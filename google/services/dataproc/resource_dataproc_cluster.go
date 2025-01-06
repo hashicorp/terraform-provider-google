@@ -2243,6 +2243,7 @@ func expandGceClusterConfig(d *schema.ResourceData, config *transport_tpg.Config
 	if v, ok := d.GetOk("cluster_config.0.gce_cluster_config.0.shielded_instance_config"); ok {
 		cfgSic := v.([]interface{})[0].(map[string]interface{})
 		conf.ShieldedInstanceConfig = &dataproc.ShieldedInstanceConfig{}
+		conf.ShieldedInstanceConfig.ForceSendFields = []string{"EnableIntegrityMonitoring", "EnableSecureBoot", "EnableVtpm"}
 		if v, ok := cfgSic["enable_integrity_monitoring"]; ok {
 			conf.ShieldedInstanceConfig.EnableIntegrityMonitoring = v.(bool)
 		}
