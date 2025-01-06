@@ -113,10 +113,11 @@ If undefined, IAP will not apply any special logic to OPTIONS requests.`,
 							},
 						},
 						"gcip_settings": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							Description: `GCIP claims and endpoint configurations for 3p identity providers.`,
-							MaxItems:    1,
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `GCIP claims and endpoint configurations for 3p identity providers.
+* Enabling gcipSetting significantly changes the way IAP authenticates users. Identity Platform does not support IAM, so IAP will not enforce any IAM policies for requests to your application.`,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"login_page_uri": {
@@ -168,7 +169,8 @@ can be configured. The possible values are:
 Enables redirect to primary IDP by skipping Google's login screen.
 (https://developers.google.com/identity/protocols/OpenIDConnect#hd-param)
 Note: IAP does not verify that the id token's hd claim matches this value
-since access behavior is managed by IAM policies.`,
+since access behavior is managed by IAM policies.
+* loginHint setting is not a replacement for access control. Always enforce an appropriate access policy if you want to restrict access to users outside your domain.`,
 									},
 									"programmatic_clients": {
 										Type:        schema.TypeList,

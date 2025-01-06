@@ -1,0 +1,3 @@
+```release-note:none
+Add warning notes for field loginHint and gcipSettings in IAP Settings.
+```
