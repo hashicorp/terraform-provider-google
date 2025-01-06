@@ -1,0 +1,3 @@
+```release-note:bug
+kms: added 5 second sleep post-create / post-update to `google_kms_autokey_config`
+```
