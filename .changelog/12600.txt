@@ -1,0 +1,3 @@
+```release-note:bug
+networkservices: fix `google_network_services_gateway` resource so that it correctly waits for the router to be deleted on `terraform destroy`
+```
