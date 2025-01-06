@@ -1,0 +1,9 @@
+```release-note:enhancement
+developerconnect: added `crypto_key_config`, `github_enterprise_config`, `gitlab_config` , and `gitlab_enterprise_config` fields to `google_developer_connect_connection` resource (beta)
+```
+```release-note:new-resource
+`google_developer_connect_git_repository_link` (ga)
+```
+```release-note:new-resource
+`google_developer_connect_connection` (ga)
+```
