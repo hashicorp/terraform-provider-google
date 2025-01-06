@@ -8,9 +8,6 @@ DEPRECATIONS:
 
 FEATURES:
 * **New Data Source:** `google_gke_hub_feature` ([#20721](https://github.com/hashicorp/terraform-provider-google/pull/20721))
-* **New Data Source:** `google_kms_autokey_config` ([#20807](https://github.com/hashicorp/terraform-provider-google/pull/20807))
-* **New Data Source:** `google_kms_key_handle` ([#20724](https://github.com/hashicorp/terraform-provider-google/pull/20724))
-* **New Resource:** `google_gkeonprem_vmware_admin_cluster` ([#20723](https://github.com/hashicorp/terraform-provider-google/pull/20723))
 * **New Resource:** `google_storage_folder` ([#20767](https://github.com/hashicorp/terraform-provider-google/pull/20767))
 
 IMPROVEMENTS:
