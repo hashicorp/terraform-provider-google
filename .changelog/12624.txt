@@ -1,0 +1,3 @@
+```release-note: bug
+gkeonprem: fixed by marking `vcenter` field in `google_gkeonprem_vmware_cluster` as default from api to ignore the diffs for update
+```

@@ -638,6 +638,7 @@ Enabled by default.`,
 			},
 			"vcenter": {
 				Type:     schema.TypeList,
+				Computed: true,
 				Optional: true,
 				Description: `VmwareVCenterConfig specifies vCenter config for the user cluster.
 Inherited from the admin cluster.`,
@@ -646,36 +647,43 @@ Inherited from the admin cluster.`,
 					Schema: map[string]*schema.Schema{
 						"ca_cert_data": {
 							Type:        schema.TypeString,
+							Computed:    true,
 							Optional:    true,
 							Description: `Contains the vCenter CA certificate public key for SSL verification.`,
 						},
 						"cluster": {
 							Type:        schema.TypeString,
+							Computed:    true,
 							Optional:    true,
 							Description: `The name of the vCenter cluster for the user cluster.`,
 						},
 						"datacenter": {
 							Type:        schema.TypeString,
+							Computed:    true,
 							Optional:    true,
 							Description: `The name of the vCenter datacenter for the user cluster.`,
 						},
 						"datastore": {
 							Type:        schema.TypeString,
+							Computed:    true,
 							Optional:    true,
 							Description: `The name of the vCenter datastore for the user cluster.`,
 						},
 						"folder": {
 							Type:        schema.TypeString,
+							Computed:    true,
 							Optional:    true,
 							Description: `The name of the vCenter folder for the user cluster.`,
 						},
 						"resource_pool": {
 							Type:        schema.TypeString,
+							Computed:    true,
 							Optional:    true,
 							Description: `The name of the vCenter resource pool for the user cluster.`,
 						},
 						"storage_policy_name": {
 							Type:        schema.TypeString,
+							Computed:    true,
 							Optional:    true,
 							Description: `The name of the vCenter storage policy for the user cluster.`,
 						},
