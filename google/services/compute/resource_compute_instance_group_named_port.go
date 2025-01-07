@@ -537,7 +537,6 @@ func resourceComputeInstanceGroupNamedPortListForPatch(d *schema.ResourceData, m
 	if err != nil {
 		return nil, err
 	}
-
 	var v interface{}
 	var ok bool
 

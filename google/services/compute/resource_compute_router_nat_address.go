@@ -798,7 +798,6 @@ func resourceComputeRouterNatAddressListForPatch(d *schema.ResourceData, meta in
 	if err != nil {
 		return nil, err
 	}
-
 	var v interface{}
 	var ok bool
 

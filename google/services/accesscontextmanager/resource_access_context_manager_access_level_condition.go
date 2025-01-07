@@ -1034,7 +1034,6 @@ func resourceAccessContextManagerAccessLevelConditionListForPatch(d *schema.Reso
 	if err != nil {
 		return nil, err
 	}
-
 	var v interface{}
 	var ok bool
 	if v, ok = res["basic"]; ok && v != nil {
