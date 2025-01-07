@@ -1427,11 +1427,20 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	}
 
 	c.TokenSource = tokenSource
-
 	cleanCtx := context.WithValue(ctx, oauth2.HTTPClient, cleanhttp.DefaultClient())
+	clientOptions := []option.ClientOption{option.WithTokenSource(tokenSource)}
+
+	// The client libraries allow setting the GOOGLE_CLOUD_QUOTA_PROJECT environment variable
+	// directly, which unintentionally takes precedence over provider settings. Ensure that
+	// provider settings take precedence by applying to the client library's client directly
+	// b/360405077#comment8 - go/tpg-issue/17882
+	if c.UserProjectOverride && c.BillingProject != "" {
+		quotaProject := c.BillingProject
+		clientOptions = append(clientOptions, option.WithQuotaProject(quotaProject))
+	}
 
 	// 1. MTLS TRANSPORT/CLIENT - sets up proper auth headers
-	client, _, err := transport.NewHTTPClient(cleanCtx, option.WithTokenSource(tokenSource))
+	client, _, err := transport.NewHTTPClient(cleanCtx, clientOptions...)
 	if err != nil {
 		return err
 	}
@@ -1460,6 +1469,10 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 
 	// Ensure $userProject is set for all HTTP requests using the client if specified by the provider config
 	// See https://cloud.google.com/apis/docs/system-parameters
+	// option.WithQuotaProject automatically sets the quota project in the client.
+	// However, this setting won't appear in our request logs since our logging
+	// transport sits above the Google client's internal transport. To ensure
+	// visibility in debug logging, we explicitly set the quota project here as well.
 	if c.UserProjectOverride && c.BillingProject != "" {
 		headerTransport.Set("X-Goog-User-Project", c.BillingProject)
 	}
