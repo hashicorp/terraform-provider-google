@@ -760,6 +760,9 @@ func resourceVmwareenginePrivateCloudRead(d *schema.ResourceData, meta interface
 	if err := d.Set("vcenter", flattenVmwareenginePrivateCloudVcenter(res["vcenter"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PrivateCloud: %s", err)
 	}
+	if err := d.Set("type", flattenVmwareenginePrivateCloudType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
 
 	return nil
 }
@@ -1530,6 +1533,10 @@ func flattenVmwareenginePrivateCloudVcenterState(v interface{}, d *schema.Resour
 }
 
 func flattenVmwareenginePrivateCloudVcenterFqdn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareenginePrivateCloudType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
