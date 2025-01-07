@@ -83,6 +83,7 @@ var (
 		"settings.0.ip_configuration.0.psc_config",
 		"settings.0.ip_configuration.0.ssl_mode",
 		"settings.0.ip_configuration.0.server_ca_mode",
+		"settings.0.ip_configuration.0.server_ca_pool",
 	}
 
 	maintenanceWindowKeys = []string{
@@ -525,8 +526,14 @@ is set to true. Defaults to ZONAL.`,
 										Type:         schema.TypeString,
 										Optional:     true,
 										Computed:     true,
-										ValidateFunc: validation.StringInSlice([]string{"CA_MODE_UNSPECIFIED", "GOOGLE_MANAGED_INTERNAL_CA", "GOOGLE_MANAGED_CAS_CA"}, false),
+										ValidateFunc: validation.StringInSlice([]string{"CA_MODE_UNSPECIFIED", "GOOGLE_MANAGED_INTERNAL_CA", "GOOGLE_MANAGED_CAS_CA", "CUSTOMER_MANAGED_CAS_CA"}, false),
 										Description:  `Specify how the server certificate's Certificate Authority is hosted.`,
+										AtLeastOneOf: ipConfigurationKeys,
+									},
+									"server_ca_pool": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `The resource name of the server CA pool for an instance with "CUSTOMER_MANAGED_CAS_CA" as the "server_ca_mode".`,
 										AtLeastOneOf: ipConfigurationKeys,
 									},
 								},
@@ -1455,6 +1462,7 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 		PscConfig:                               expandPscConfig(_ipConfiguration["psc_config"].(*schema.Set).List()),
 		SslMode:                                 _ipConfiguration["ssl_mode"].(string),
 		ServerCaMode:                            _ipConfiguration["server_ca_mode"].(string),
+		ServerCaPool:                            _ipConfiguration["server_ca_pool"].(string),
 	}
 }
 
@@ -2379,6 +2387,7 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema
 		"enable_private_path_for_google_cloud_services": ipConfiguration.EnablePrivatePathForGoogleCloudServices,
 		"ssl_mode":       ipConfiguration.SslMode,
 		"server_ca_mode": ipConfiguration.ServerCaMode,
+		"server_ca_pool": ipConfiguration.ServerCaPool,
 	}
 
 	if ipConfiguration.AuthorizedNetworks != nil {
