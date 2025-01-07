@@ -1,0 +1,3 @@
+```release-note:enhancement
+dns: added `health_check` and `external_endpoints` fields to `google_dns_record_set` resource
+```

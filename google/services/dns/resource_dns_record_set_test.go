@@ -348,6 +348,9 @@ func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccDnsRecordSet_routingPolicyRegionalL7XLBPrimaryBackup(networkName, proxySubnetName, httpHealthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName, zoneName, 300),
+			},
 		},
 	})
 }
@@ -1314,4 +1317,208 @@ resource "google_dns_record_set" "foobar" {
   ttl          = 10
 }
 `, zoneName, zoneName, zoneName)
+}
+
+func testAccDnsRecordSet_routingPolicyRegionalL7XLBPrimaryBackup(networkName, proxySubnetName, healthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName, zoneName string, ttl int) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "default" {
+  name = "%s"
+}
+
+resource "google_compute_subnetwork" "proxy_subnet" {
+  name          = "%s"
+  ip_cidr_range = "10.100.0.0/24"
+  region        = "us-central1"
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_subnetwork" "backup_proxy_subnet" {
+  name          = "${google_compute_subnetwork.proxy_subnet.name}-usw1"
+  ip_cidr_range = "10.100.1.0/24"
+  region        = "us-west1"
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_region_health_check" "health_check" {
+  name   = "%s"
+  region = "us-central1"
+
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_compute_region_health_check" "backup_health_check" {
+  name   = "${google_compute_region_health_check.health_check.name}-usw1"
+  region = "us-west1"
+
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_compute_region_backend_service" "backend" {
+  name                  = "%s"
+  region                = "us-central1"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol              = "HTTP"
+  health_checks         = [google_compute_region_health_check.health_check.id]
+}
+
+resource "google_compute_region_backend_service" "backup_backend" {
+  name                  = "${google_compute_region_backend_service.backend.name}-usw1"
+  region                = "us-west1"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol              = "HTTP"
+  health_checks         = [google_compute_region_health_check.backup_health_check.id]
+}
+
+resource "google_compute_region_url_map" "url_map" {
+  name            = "%s"
+  region          = "us-central1"
+  default_service = google_compute_region_backend_service.backend.id
+}
+
+resource "google_compute_region_url_map" "backup_url_map" {
+  name            = "${google_compute_region_url_map.url_map.name}-usw1"
+  region          = "us-west1"
+  default_service = google_compute_region_backend_service.backup_backend.id
+}
+
+resource "google_compute_region_target_http_proxy" "http_proxy" {
+  name    = "%s"
+  region  = "us-central1"
+  url_map = google_compute_region_url_map.url_map.id
+}
+
+resource "google_compute_region_target_http_proxy" "backup_http_proxy" {
+  name    = "${google_compute_region_target_http_proxy.http_proxy.name}-usw1"
+  region  = "us-west1"
+  url_map = google_compute_region_url_map.backup_url_map.id
+}
+
+resource "google_compute_forwarding_rule" "default" {
+  name                  = "%s"
+  region                = "us-central1"
+  depends_on            = [google_compute_subnetwork.proxy_subnet]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  target                = google_compute_region_target_http_proxy.http_proxy.id
+  port_range            = "80"
+  network               = google_compute_network.default.name
+  ip_protocol           = "TCP"
+}
+
+resource "google_compute_forwarding_rule" "backup" {
+  name                  = "${google_compute_forwarding_rule.default.name}-usw1"
+  region                = "us-west1"
+  depends_on            = [google_compute_subnetwork.backup_proxy_subnet]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  target                = google_compute_region_target_http_proxy.backup_http_proxy.id
+  port_range            = "80"
+  network               = google_compute_network.default.name
+  ip_protocol           = "TCP"
+}
+
+resource "google_compute_health_check" "health_check" {
+  name   = "${google_compute_region_health_check.health_check.name}-dns"
+
+  timeout_sec         = 5
+  check_interval_sec  = 30
+  healthy_threshold   = 4
+  unhealthy_threshold = 5
+  
+  http_health_check {
+    port = 80
+  }
+
+  source_regions = ["us-central1", "us-west1", "us-east1"]
+}
+
+resource "google_dns_managed_zone" "parent-zone" {
+  name        = "%s"
+  dns_name    = "%s.hashicorptest.com."
+  description = "Test Description"
+  visibility  = "public"
+}
+
+resource "google_dns_record_set" "failover" {
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = "failover-test-record.%s.hashicorptest.com."
+  type         = "A"
+  ttl          = %d
+
+  routing_policy {
+    health_check = google_compute_health_check.health_check.id
+    primary_backup {
+      trickle_ratio                  = 0.1
+      enable_geo_fencing_for_backups = true
+
+      primary {
+        external_endpoints = [google_compute_forwarding_rule.default.ip_address]
+      }
+
+      backup_geo {
+        location = "us-west1"
+        health_checked_targets {
+          external_endpoints = [google_compute_forwarding_rule.backup.ip_address]
+        }
+      }
+    }
+  }
+}
+
+resource "google_dns_record_set" "wrr" {
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = replace(google_dns_record_set.failover.name, "failover-test-record", "wrr-test-record")
+  type         = "A"
+  ttl          = google_dns_record_set.failover.ttl
+
+  routing_policy {
+    health_check = google_compute_health_check.health_check.id
+    wrr {
+      weight             = 0.8
+      rrdatas            = [google_compute_forwarding_rule.default.ip_address]
+      health_checked_targets {
+        external_endpoints = [google_compute_forwarding_rule.default.ip_address]
+      }
+    }
+    wrr {
+      weight             = 0.2
+      rrdatas            = [google_compute_forwarding_rule.backup.ip_address]
+      health_checked_targets {
+        external_endpoints = [google_compute_forwarding_rule.backup.ip_address]
+      }
+    }
+  }
+}
+
+resource "google_dns_record_set" "geo" {
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = replace(google_dns_record_set.failover.name, "failover-test-record", "geo-test-record")
+  type         = "A"
+  ttl          = google_dns_record_set.failover.ttl
+
+  routing_policy {
+    health_check = google_compute_health_check.health_check.id
+    geo {
+      location           = "us-central1"
+      rrdatas            = [google_compute_forwarding_rule.default.ip_address]
+      health_checked_targets {
+        external_endpoints = [google_compute_forwarding_rule.default.ip_address]
+      }
+    }
+    geo {
+      location           = "us-west1"
+      rrdatas            = [google_compute_forwarding_rule.backup.ip_address]
+      health_checked_targets {
+        external_endpoints = [google_compute_forwarding_rule.backup.ip_address]
+      }
+    }
+  }
+}
+`, networkName, proxySubnetName, healthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName, zoneName, zoneName, zoneName, ttl)
 }
