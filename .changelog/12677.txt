@@ -1,0 +1,3 @@
+```release-note:bug
+iap: fixed typo in reference formats in `google_iap_settings` docs
+```
