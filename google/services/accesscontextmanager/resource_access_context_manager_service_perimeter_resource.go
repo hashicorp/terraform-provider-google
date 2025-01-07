@@ -202,6 +202,10 @@ func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.Resource
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerServicePerimeterResource %q", d.Id()))
 	}
+	// post_read template for access_context_manager_service_perimeter_resource
+
+	// this is a placeholder for now but in the future we can use this to access
+	// the etag from the read response
 
 	res, err = flattenNestedAccessContextManagerServicePerimeterResource(d, meta, res)
 	if err != nil {
@@ -457,7 +461,10 @@ func resourceAccessContextManagerServicePerimeterResourceListForPatch(d *schema.
 	if err != nil {
 		return nil, err
 	}
+	// post_read template for access_context_manager_service_perimeter_resource
 
+	// this is a placeholder for now but in the future we can use this to access
+	// the etag from the read response
 	var v interface{}
 	var ok bool
 	if v, ok = res["status"]; ok && v != nil {

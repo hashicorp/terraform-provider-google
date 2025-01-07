@@ -1881,7 +1881,6 @@ func resourceComputeRouterNatListForPatch(d *schema.ResourceData, meta interface
 	if err != nil {
 		return nil, err
 	}
-
 	var v interface{}
 	var ok bool
 

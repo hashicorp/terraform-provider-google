@@ -438,7 +438,6 @@ func resourceAccessContextManagerEgressPolicyListForPatch(d *schema.ResourceData
 	if err != nil {
 		return nil, err
 	}
-
 	var v interface{}
 	var ok bool
 	if v, ok = res["status"]; ok && v != nil {
