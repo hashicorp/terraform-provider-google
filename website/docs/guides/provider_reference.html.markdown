@@ -67,11 +67,15 @@ If you are using Terraform on your workstation we recommend that you install
 as a primary authentication method. You can enable ADCs by running the command
 `gcloud auth application-default login`.
 
+<!-- 
+TODO: quota project is not currently read from ADC file b/360405077#comment8
+
 Google Cloud reads the quota project for requests will be read automatically
 from the `core/project` value. You can override this project by specifying the
 `--project` flag when running `gcloud auth application-default login`. `gcloud`
 should return this message if you have set the correct billing project:
-`Quota project "your-project" was added to ADC which can be used by Google client libraries for billing and quota.`
+`Quota project "your-project" was added to ADC which can be used by Google client libraries for billing and quota.` 
+-->
 
 ### Running Terraform on Google Cloud
 
