@@ -1,0 +1,3 @@
+```release-note:enhancement
+vmwareengine: allowed import of non-STANDARD private clouds in `google_vmwareengine_private_cloud`
+```
