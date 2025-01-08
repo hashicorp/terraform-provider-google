@@ -215,6 +215,91 @@ resource "google_compute_network" "custom-test" {
 `, context)
 }
 
+func TestAccComputeSubnetwork_subnetworkIpv6OnlyInternalExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_subnetworkIpv6OnlyInternalExample(context),
+			},
+			{
+				ResourceName:            "google_compute_subnetwork.subnetwork-ipv6-only",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region", "reserved_internal_range"},
+			},
+		},
+	})
+}
+
+func testAccComputeSubnetwork_subnetworkIpv6OnlyInternalExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_subnetwork" "subnetwork-ipv6-only" {
+  name          = "tf-test-subnet-ipv6-only%{random_suffix}"
+  region        = "us-central1"
+  network       = google_compute_network.custom-test.id
+  stack_type    = "IPV6_ONLY"
+  ipv6_access_type = "INTERNAL"
+}
+
+resource "google_compute_network" "custom-test" {
+  name                    = "tf-test-network-ipv6-only%{random_suffix}"
+  auto_create_subnetworks = false
+  enable_ula_internal_ipv6 = true
+}
+`, context)
+}
+
+func TestAccComputeSubnetwork_subnetworkIpv6OnlyExternalExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_subnetworkIpv6OnlyExternalExample(context),
+			},
+			{
+				ResourceName:            "google_compute_subnetwork.subnetwork-ipv6-only",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region", "reserved_internal_range"},
+			},
+		},
+	})
+}
+
+func testAccComputeSubnetwork_subnetworkIpv6OnlyExternalExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_subnetwork" "subnetwork-ipv6-only" {
+  name          = "tf-test-subnet-ipv6-only%{random_suffix}"
+  region        = "us-central1"
+  network       = google_compute_network.custom-test.id
+  stack_type    = "IPV6_ONLY"
+  ipv6_access_type = "EXTERNAL"
+}
+
+resource "google_compute_network" "custom-test" {
+  name                    = "tf-test-network-ipv6-only%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
 func testAccCheckComputeSubnetworkDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
