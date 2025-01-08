@@ -1,13 +1,34 @@
 name: ensure-service-team-labels
 
+permissions: 
+  issues: write 
+
 on:
   schedule:
+    # Runs at 00:00 UTC every day
     - cron: '0 0 * * *'
-  workflow_dispatch: # allows manual trigger
-
-permissions:
-  issues: write
-
+  workflow_dispatch:
+  workflow_call:
+ 
 jobs:
   modify-labels:
-    uses: GoogleCloudPlatform/magic-modules/.github/workflows/ensure-service-team-labels.yml@main
+    if: github.repository == 'GoogleCloudPlatform/magic-modules' ||  github.repository == 'hashicorp/terraform-provider-google'
+    runs-on: ubuntu-22.04
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.2
+        with:
+          repository: GoogleCloudPlatform/magic-modules
+      - name: Set up Go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        with:
+          go-version: '^1.23.0'
+      - name: Build issue-labeler
+        run: |
+          cd tools/issue-labeler
+          go build
+      - name: Run issue-labeler
+        run: |
+          cd tools/issue-labeler
+          ./issue-labeler setup-labels ${{  github.repository  }}
