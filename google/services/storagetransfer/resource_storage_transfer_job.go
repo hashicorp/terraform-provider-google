@@ -1133,7 +1133,7 @@ func flattenAwsS3Data(awsS3Data *storagetransfer.AwsS3Data, d *schema.ResourceDa
 		"path":        awsS3Data.Path,
 		"role_arn":    awsS3Data.RoleArn,
 	}
-	if _, exist := d.GetOkExists("transfer_spec.0.aws_s3_data_source.0.aws_access_key"); exist {
+	if _, exist := d.GetOk("transfer_spec.0.aws_s3_data_source.0.aws_access_key"); exist {
 		data["aws_access_key"] = flattenAwsAccessKeys(d)
 	}
 	return []map[string]interface{}{data}

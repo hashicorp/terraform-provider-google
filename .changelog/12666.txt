@@ -1,0 +1,3 @@
+```release-note:bug
+storagetransfer: fixed a permadiff with `transfer_spec.aws_s3_data_source.aws_access_key` in `google_storage_transfer_job`
+```
