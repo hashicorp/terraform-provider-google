@@ -241,6 +241,54 @@ resource "google_compute_network" "prod" {
 }
 ```
 
+#### Public zone failover
+
+```hcl
+resource "google_dns_record_set" "a" {
+  name         = "backend.${google_dns_managed_zone.prod.dns_name}"
+  managed_zone = google_dns_managed_zone.prod.name
+  type         = "A"
+  ttl          = 300
+
+  routing_policy {
+    health_check = google_compute_health_check.http-health-check.id
+    primary_backup {
+      trickle_ratio = 0.1
+
+      primary {
+        external_endpoints = ["10.128.1.1"]
+      }
+
+      backup_geo {
+        location = "us-west1"
+        health_checked_targets {
+          external_endpoints = ["10.130.1.1"]
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_health_check" "http-health-check" {
+  name        = "http-health-check"
+  description = "Health check via http"
+
+  timeout_sec         = 5
+  check_interval_sec  = 30
+  healthy_threshold   = 4
+  unhealthy_threshold = 5
+
+  http_health_check {
+    port_specification = "USE_SERVING_PORT"
+  }
+}
+
+resource "google_dns_managed_zone" "prod" {
+  name     = "prod-zone"
+  dns_name = "prod.mydomain.com."
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -279,6 +327,8 @@ The following arguments are supported:
 * `primary_backup` - (Optional) The configuration for a failover policy with global to regional failover. Queries are responded to with the global primary targets, but if none of the primary targets are healthy, then we fallback to a regional failover policy.
     Structure is [documented below](#nested_primary_backup).
 
+* `health_check` - (Optional) Specifies the health check (used with external endpoints).
+
 <a name="nested_wrr"></a>The `wrr` block supports:
 
 * `weight`  - (Required) The ratio of traffic routed to the target.
@@ -311,8 +361,10 @@ The following arguments are supported:
 
 <a name="nested_health_checked_targets"></a>The `health_checked_targets` block supports:
 
-* `internal_load_balancers` - (Required) The list of internal load balancers to health check.
+* `internal_load_balancers` - (Optional) The list of internal load balancers to health check.
     Structure is [documented below](#nested_internal_load_balancers).
+
+* `external_endpoints` - (Optional) The list of external endpoint addresses to health check.
 
 <a name="nested_internal_load_balancers"></a>The `internal_load_balancers` block supports:
 

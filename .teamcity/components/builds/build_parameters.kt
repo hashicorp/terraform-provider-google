@@ -61,6 +61,11 @@ class AllContextParameters(
     val chronicleInstanceIdBeta: String,
     val chronicleInstanceIdVcr: String,
 
+    // GOOGLE_VMWAREENGINE_PROJECT
+    val vmwareengineProjectGa: String,
+    val vmwareengineProjectBeta: String,
+    val vmwareengineProjectVcr: String,
+
     // Values that are the same across GA, Beta, and VCR testing environments
     val billingAccount: String,   // GOOGLE_BILLING_ACCOUNT
     val billingAccount2: String,  // GOOGLE_BILLING_ACCOUNT_2
@@ -94,6 +99,7 @@ class AccTestConfiguration(
     val projectNumber: String,
     val region: String,
     val serviceAccount: String,
+    val vmwareengineProject: String,
     val zone: String,
 
     // VCR specific
@@ -120,6 +126,7 @@ fun getGaAcceptanceTestConfig(allConfig: AllContextParameters): AccTestConfigura
         allConfig.projectNumberGa,
         allConfig.region,
         allConfig.serviceAccountGa,
+        allConfig.vmwareengineProjectGa,
         allConfig.zone,
         allConfig.infraProject,
         allConfig.vcrBucketName,
@@ -143,6 +150,7 @@ fun getBetaAcceptanceTestConfig(allConfig: AllContextParameters): AccTestConfigu
         allConfig.projectNumberBeta,
         allConfig.region,
         allConfig.serviceAccountBeta,
+        allConfig.vmwareengineProjectBeta,
         allConfig.zone,
         allConfig.infraProject,
         allConfig.vcrBucketName,
@@ -166,6 +174,7 @@ fun getVcrAcceptanceTestConfig(allConfig: AllContextParameters): AccTestConfigur
         allConfig.projectNumberVcr,
         allConfig.region,
         allConfig.serviceAccountVcr,
+        allConfig.vmwareengineProjectVcr,
         allConfig.zone,
         allConfig.infraProject,
         allConfig.vcrBucketName,
@@ -190,6 +199,7 @@ fun ParametrizedWithType.configureGoogleSpecificTestParameters(config: AccTestCo
     hiddenVariable("env.GOOGLE_ZONE", config.zone, "The google zone to use")
     hiddenVariable("env.GOOGLE_IDENTITY_USER", config.identityUser, "The user for the identity platform")
     hiddenVariable("env.GOOGLE_CHRONICLE_INSTANCE_ID", config.chronicleInstanceId, "The id of the Chronicle instance")
+    hiddenVariable("env.GOOGLE_VMWAREENGINE_PROJECT", config.vmwareengineProject, "The project used for vmwareengine tests")
     hiddenPasswordVariable("env.GOOGLE_CREDENTIALS", config.credentials, "The Google credentials for this test runner")
 }
 

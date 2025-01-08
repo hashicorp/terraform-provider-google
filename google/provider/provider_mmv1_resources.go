@@ -464,9 +464,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 503
+// Generated resources: 506
 // Generated IAM resources: 261
-// Total generated resources: 764
+// Total generated resources: 767
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -508,6 +508,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_apigee_environment_iam_binding":                                      tpgiamresource.ResourceIamBinding(apigee.ApigeeEnvironmentIamSchema, apigee.ApigeeEnvironmentIamUpdaterProducer, apigee.ApigeeEnvironmentIdParseFunc),
 	"google_apigee_environment_iam_member":                                       tpgiamresource.ResourceIamMember(apigee.ApigeeEnvironmentIamSchema, apigee.ApigeeEnvironmentIamUpdaterProducer, apigee.ApigeeEnvironmentIdParseFunc),
 	"google_apigee_environment_iam_policy":                                       tpgiamresource.ResourceIamPolicy(apigee.ApigeeEnvironmentIamSchema, apigee.ApigeeEnvironmentIamUpdaterProducer, apigee.ApigeeEnvironmentIdParseFunc),
+	"google_apigee_environment_addons_config":                                    apigee.ResourceApigeeEnvironmentAddonsConfig(),
 	"google_apigee_environment_keyvaluemaps":                                     apigee.ResourceApigeeEnvironmentKeyvaluemaps(),
 	"google_apigee_environment_keyvaluemaps_entries":                             apigee.ResourceApigeeEnvironmentKeyvaluemapsEntries(),
 	"google_apigee_instance":                                                     apigee.ResourceApigeeInstance(),
@@ -536,6 +537,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_beyondcorp_app_connection":                                           beyondcorp.ResourceBeyondcorpAppConnection(),
 	"google_beyondcorp_app_connector":                                            beyondcorp.ResourceBeyondcorpAppConnector(),
 	"google_beyondcorp_app_gateway":                                              beyondcorp.ResourceBeyondcorpAppGateway(),
+	"google_beyondcorp_security_gateway":                                         beyondcorp.ResourceBeyondcorpSecurityGateway(),
 	"google_biglake_catalog":                                                     biglake.ResourceBiglakeCatalog(),
 	"google_biglake_database":                                                    biglake.ResourceBiglakeDatabase(),
 	"google_biglake_table":                                                       biglake.ResourceBiglakeTable(),
@@ -857,6 +859,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_edgecontainer_cluster":                                               edgecontainer.ResourceEdgecontainerCluster(),
 	"google_edgecontainer_node_pool":                                             edgecontainer.ResourceEdgecontainerNodePool(),
 	"google_edgecontainer_vpn_connection":                                        edgecontainer.ResourceEdgecontainerVpnConnection(),
+	"google_edgenetwork_interconnect_attachment":                                 edgenetwork.ResourceEdgenetworkInterconnectAttachment(),
 	"google_edgenetwork_network":                                                 edgenetwork.ResourceEdgenetworkNetwork(),
 	"google_edgenetwork_subnet":                                                  edgenetwork.ResourceEdgenetworkSubnet(),
 	"google_essential_contacts_contact":                                          essentialcontacts.ResourceEssentialContactsContact(),

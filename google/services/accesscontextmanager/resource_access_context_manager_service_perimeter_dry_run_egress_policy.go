@@ -1041,7 +1041,6 @@ func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyListForPatch(
 	if err != nil {
 		return nil, err
 	}
-
 	var v interface{}
 	var ok bool
 	if v, ok = res["spec"]; ok && v != nil {

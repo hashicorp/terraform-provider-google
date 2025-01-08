@@ -213,6 +213,12 @@ func ResourceDnsRecordSet() *schema.Resource {
 							ExactlyOneOf:  []string{"routing_policy.0.wrr", "routing_policy.0.geo", "routing_policy.0.primary_backup"},
 							ConflictsWith: []string{"routing_policy.0.enable_geo_fencing"},
 						},
+						"health_check": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "Specifies the health check.",
+						},
 					},
 				},
 				ExactlyOneOf: []string{"rrdatas", "routing_policy"},
@@ -270,7 +276,7 @@ var healthCheckedTargetSchema *schema.Resource = &schema.Resource{
 	Schema: map[string]*schema.Schema{
 		"internal_load_balancers": {
 			Type:        schema.TypeList,
-			Required:    true,
+			Optional:    true,
 			Description: "The list of internal load balancers to health check.",
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
@@ -314,6 +320,14 @@ var healthCheckedTargetSchema *schema.Resource = &schema.Resource{
 						Description: "The region of the load balancer. Only needed for regional load balancers.",
 					},
 				},
+			},
+		},
+		"external_endpoints": {
+			Type:        schema.TypeList,
+			Description: "The Internet IP addresses to be health checked.",
+			Optional:    true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
 			},
 		},
 	},
@@ -672,11 +686,13 @@ func expandDnsRecordSetRoutingPolicy(configured []interface{}, d tpgresource.Ter
 		if err != nil {
 			return nil, err
 		}
-		return &dns.RRSetRoutingPolicy{
+		rp := &dns.RRSetRoutingPolicy{
+			HealthCheck: data["health_check"].(string),
 			Wrr: &dns.RRSetRoutingPolicyWrrPolicy{
 				Items: wrrItems,
 			},
-		}, nil
+		}
+		return rp, nil
 	}
 
 	if len(geoRawItems) > 0 {
@@ -684,12 +700,14 @@ func expandDnsRecordSetRoutingPolicy(configured []interface{}, d tpgresource.Ter
 		if err != nil {
 			return nil, err
 		}
-		return &dns.RRSetRoutingPolicy{
+		rp := &dns.RRSetRoutingPolicy{
+			HealthCheck: data["health_check"].(string),
 			Geo: &dns.RRSetRoutingPolicyGeoPolicy{
 				Items:         geoItems,
 				EnableFencing: data["enable_geo_fencing"].(bool),
 			},
-		}, nil
+		}
+		return rp, nil
 	}
 
 	if len(rawPrimaryBackup) > 0 {
@@ -697,9 +715,12 @@ func expandDnsRecordSetRoutingPolicy(configured []interface{}, d tpgresource.Ter
 		if err != nil {
 			return nil, err
 		}
-		return &dns.RRSetRoutingPolicy{
+
+		rp := &dns.RRSetRoutingPolicy{
+			HealthCheck:   data["health_check"].(string),
 			PrimaryBackup: primaryBackup,
-		}, nil
+		}
+		return rp, nil
 	}
 
 	return nil, nil // unreachable here if ps is valid data
@@ -761,13 +782,22 @@ func expandDnsRecordSetHealthCheckedTargets(configured []interface{}, d tpgresou
 	}
 
 	data := configured[0].(map[string]interface{})
-	internalLoadBalancers, err := expandDnsRecordSetHealthCheckedTargetsInternalLoadBalancers(data["internal_load_balancers"].([]interface{}), d, config)
-	if err != nil {
-		return nil, err
+	if ilbs := data["internal_load_balancers"].([]interface{}); len(ilbs) > 0 {
+		internalLoadBalancers, err := expandDnsRecordSetHealthCheckedTargetsInternalLoadBalancers(ilbs, d, config)
+		if err != nil {
+			return nil, err
+		}
+		return &dns.RRSetRoutingPolicyHealthCheckTargets{
+			InternalLoadBalancers: internalLoadBalancers,
+		}, nil
 	}
-	return &dns.RRSetRoutingPolicyHealthCheckTargets{
-		InternalLoadBalancers: internalLoadBalancers,
-	}, nil
+
+	if endpoints := data["external_endpoints"].([]interface{}); len(endpoints) > 0 {
+		return &dns.RRSetRoutingPolicyHealthCheckTargets{
+			ExternalEndpoints: tpgresource.ConvertStringArr(endpoints),
+		}, nil
+	}
+	return nil, fmt.Errorf("specify internal load balancers or external endpoints")
 }
 
 func expandDnsRecordSetHealthCheckedTargetsInternalLoadBalancers(configured []interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) ([]*dns.RRSetRoutingPolicyLoadBalancerTarget, error) {
@@ -857,6 +887,7 @@ func flattenDnsRecordSetRoutingPolicy(policy *dns.RRSetRoutingPolicy) []interfac
 	if policy.PrimaryBackup != nil {
 		p["primary_backup"] = flattenDnsRecordSetRoutingPolicyPrimaryBackup(policy.PrimaryBackup)
 	}
+	p["health_check"] = policy.HealthCheck
 	return append(ps, p)
 }
 
@@ -891,6 +922,7 @@ func flattenDnsRecordSetHealthCheckedTargets(targets *dns.RRSetRoutingPolicyHeal
 
 	data := map[string]interface{}{
 		"internal_load_balancers": flattenDnsRecordSetInternalLoadBalancers(targets.InternalLoadBalancers),
+		"external_endpoints":      targets.ExternalEndpoints,
 	}
 
 	return []map[string]interface{}{data}
