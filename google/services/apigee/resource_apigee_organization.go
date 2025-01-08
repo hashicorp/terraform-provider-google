@@ -552,14 +552,6 @@ func resourceApigeeOrganizationUpdate(d *schema.ResourceData, meta interface{}) 
 		log.Printf("[DEBUG] Finished updating Organization %q: %#v", d.Id(), res)
 	}
 
-	err = ApigeeOperationWaitTime(
-		config, res, "Updating Organization", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
-
-	if err != nil {
-		return err
-	}
-
 	return resourceApigeeOrganizationRead(d, meta)
 }
 
