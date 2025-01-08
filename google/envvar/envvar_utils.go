@@ -117,6 +117,12 @@ var ImpersonateServiceAccountEnvVars = []string{
 	"GOOGLE_IMPERSONATE_SERVICE_ACCOUNT",
 }
 
+// This value is the project used for vmwareengine tests. A separate project is needed
+// due to the limited quota allocated to each testing project
+var vmwareengineProjectEnvVars = []string{
+	"GOOGLE_VMWAREENGINE_PROJECT",
+}
+
 // AccTestPreCheck ensures at least one of the project env variables is set.
 func GetTestProjectNumberFromEnv() string {
 	return transport_tpg.MultiEnvSearch(ProjectNumberEnvVars)
@@ -215,6 +221,11 @@ func GetTestPublicAdvertisedPrefixDescriptionFromEnv(t *testing.T) string {
 func GetTestChronicleInstanceIdFromEnv(t *testing.T) string {
 	SkipIfEnvNotSet(t, ChronicleInstanceIdEnvVars...)
 	return transport_tpg.MultiEnvSearch(ChronicleInstanceIdEnvVars)
+}
+
+func GetTestVmwareengineProjectFromEnv(t *testing.T) string {
+	SkipIfEnvNotSet(t, vmwareengineProjectEnvVars...)
+	return transport_tpg.MultiEnvSearch(vmwareengineProjectEnvVars)
 }
 
 func SkipIfEnvNotSet(t *testing.T, envs ...string) {
