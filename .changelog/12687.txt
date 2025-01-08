@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: `sql_source_representation_instance` now uses `string` representation of `databaseVersion`
+```
