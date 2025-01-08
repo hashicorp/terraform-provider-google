@@ -514,7 +514,7 @@ Google Cloud KMS.`,
 							Optional:     true,
 							Computed:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"IPV4_ONLY", "IPV4_IPV6", ""}, false),
+							ValidateFunc: validation.StringInSlice([]string{"IPV4_ONLY", "IPV4_IPV6", "IPV6_ONLY", ""}, false),
 							Description:  `The stack type for this network interface to identify whether the IPv6 feature is enabled or not. If not specified, IPV4_ONLY will be used.`,
 						},
 

@@ -421,7 +421,7 @@ The following arguments are supported:
   (Optional)
   The stack type for this subnet to identify whether the IPv6 feature is enabled or not.
   If not specified IPV4_ONLY will be used.
-  Possible values are: `IPV4_ONLY`, `IPV4_IPV6`.
+  Possible values are: `IPV4_ONLY`, `IPV4_IPV6`, `IPV6_ONLY`.
 
 * `ipv6_access_type` -
   (Optional)

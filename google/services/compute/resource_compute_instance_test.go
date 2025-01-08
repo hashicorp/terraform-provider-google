@@ -3690,6 +3690,26 @@ func TestAccComputeInstance_NicStackTypeUpdate(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_NicStackType_IPV6(t *testing.T) {
+	t.Parallel()
+	context := map[string]interface{}{
+		"instance_name": fmt.Sprintf("tf-test-compute-instance-%s", acctest.RandString(t, 10)),
+		"suffix":        acctest.RandString(t, 10),
+		"env_region":    envvar.GetTestRegionFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_nicStackTypeUpdate_ipv6(context),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -9604,6 +9624,50 @@ resource "google_compute_instance" "foobar" {
 	}
 
 	key_revocation_action_type = %{key_revocation_action_type}
+}
+`, context)
+}
+
+func testAccComputeInstance_nicStackTypeUpdate_ipv6(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-11"
+	project = "debian-cloud"
+}
+
+resource "google_compute_network" "inst-test-network" {
+	name = "tf-test-network-%{suffix}"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "inst-test-subnetwork" {
+	name          = "tf-test-compute-subnet-%{suffix}"
+	region        = "%{env_region}"
+	ipv6_access_type = "EXTERNAL"
+	stack_type = "IPV6_ONLY"
+	network       = google_compute_network.inst-test-network.id
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%{instance_name}"
+	machine_type = "e2-medium"
+	zone         = "%{env_region}-a"
+
+	boot_disk {
+		initialize_params {
+			image = data.google_compute_image.my_image.self_link
+		}
+	}
+
+	network_interface {
+		network = google_compute_network.inst-test-network.id
+		subnetwork = google_compute_subnetwork.inst-test-subnetwork.id
+		stack_type = "IPV6_ONLY"
+
+		ipv6_access_config {
+			network_tier = "PREMIUM"
+	  	}
+	}
 }
 `, context)
 }
