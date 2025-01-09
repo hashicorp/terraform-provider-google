@@ -115,7 +115,7 @@ resource "google_compute_interconnect" "foobar" {
   interconnect_type    = "DEDICATED"
   link_type            = "LINK_TYPE_ETHERNET_10G_LR"
   requested_link_count = 1
-  location             = "https://www.googleapis.com/compute/v1/projects/${data.google_project.project.name}/global/interconnectLocations/z2z-us-east4-zone1-lciadl-a" # Special location only available for Google testing.
+  location             = "https://www.googleapis.com/compute/v1/projects/${data.google_project.project.name}/global/interconnectLocations/z2z-us-east4-zone1-nciadf-a" # Special location only available for Google testing.
 }
 
 resource "google_compute_interconnect_attachment" "on_prem" {

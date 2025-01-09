@@ -53,7 +53,7 @@ resource "google_compute_interconnect" "example-interconnect" {
   customer_name        = "internal_customer" # Special customer only available for Google testing.
   interconnect_type    = "DEDICATED"
   link_type            = "LINK_TYPE_ETHERNET_100G_LR"
-  location             = "https://www.googleapis.com/compute/v1/projects/${data.google_project.project.name}/global/interconnectLocations/z2z-us-east4-zone1-lciadl-a" # Special location only available for Google testing.
+  location             = "https://www.googleapis.com/compute/v1/projects/${data.google_project.project.name}/global/interconnectLocations/z2z-us-east4-zone1-lciadl-z" # Special location only available for Google testing.
   requested_link_count = 1
   admin_enabled        = true
   description          = "example description"
@@ -76,7 +76,7 @@ resource "google_compute_interconnect" "example-interconnect" {
   customer_name        = "internal_customer" # Special customer only available for Google testing.
   interconnect_type    = "DEDICATED"
   link_type            = "LINK_TYPE_ETHERNET_100G_LR"
-  location             = "https://www.googleapis.com/compute/v1/projects/${data.google_project.project.name}/global/interconnectLocations/z2z-us-east4-zone1-lciadl-a" # Special location only available for Google testing.
+  location             = "https://www.googleapis.com/compute/v1/projects/${data.google_project.project.name}/global/interconnectLocations/z2z-us-east4-zone1-lciadl-z" # Special location only available for Google testing.
   requested_link_count = 1
   admin_enabled        = true
   description          = "example description"
