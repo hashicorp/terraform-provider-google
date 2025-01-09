@@ -135,6 +135,115 @@ resource "google_compute_network" "vpc_network" {
 `, context)
 }
 
+func TestAccComputeNetwork_networkBgpBestPathSelectionModeExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_networkBgpBestPathSelectionModeExample(context),
+			},
+			{
+				ResourceName:      "google_compute_network.vpc_network",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeNetwork_networkBgpBestPathSelectionModeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "vpc_network" {
+  project                                   = "%{project}"
+  name                                      = "tf-test-vpc-network%{random_suffix}"
+  routing_mode                              = "GLOBAL"
+}
+`, context)
+}
+
+func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_networkBgpBestPathSelectionModeStandardExample(context),
+			},
+			{
+				ResourceName:      "google_compute_network.vpc_network",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeNetwork_networkBgpBestPathSelectionModeStandardExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "vpc_network" {
+  project                                   = "%{project}"
+  name                                      = "tf-test-vpc-network%{random_suffix}"
+  routing_mode                              = "GLOBAL"
+  bgp_best_path_selection_mode              = "STANDARD"
+}
+`, context)
+}
+
+func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardCustomFieldsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_networkBgpBestPathSelectionModeStandardCustomFieldsExample(context),
+			},
+			{
+				ResourceName:      "google_compute_network.vpc_network",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeNetwork_networkBgpBestPathSelectionModeStandardCustomFieldsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "vpc_network" {
+  project                                   = "%{project}"
+  name                                      = "tf-test-vpc-network%{random_suffix}"
+  routing_mode                              = "GLOBAL"
+  bgp_best_path_selection_mode              = "STANDARD"
+  bgp_always_compare_med                    = true
+  bgp_inter_region_cost                     = "ADD_COST_TO_MED"
+}
+`, context)
+}
+
 func testAccCheckComputeNetworkDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

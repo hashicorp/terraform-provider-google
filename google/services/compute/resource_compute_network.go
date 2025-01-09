@@ -124,6 +124,27 @@ with varying MTUs.`,
 				Description:  `Set the order that Firewall Rules and Firewall Policies are evaluated. Default value: "AFTER_CLASSIC_FIREWALL" Possible values: ["BEFORE_CLASSIC_FIREWALL", "AFTER_CLASSIC_FIREWALL"]`,
 				Default:      "AFTER_CLASSIC_FIREWALL",
 			},
+			"bgp_always_compare_med": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				Description: `Enables/disables the comparison of MED across routes with different Neighbor ASNs.
+This value can only be set if the --bgp-best-path-selection-mode is STANDARD`,
+			},
+			"bgp_best_path_selection_mode": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"LEGACY", "STANDARD", ""}),
+				Description:  `The BGP best selection algorithm to be employed. MODE can be LEGACY or STANDARD. Possible values: ["LEGACY", "STANDARD"]`,
+			},
+			"bgp_inter_region_cost": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"DEFAULT", "ADD_COST_TO_MED", ""}),
+				Description:  `Choice of the behavior of inter-regional cost and MED in the BPS algorithm. Possible values: ["DEFAULT", "ADD_COST_TO_MED"]`,
+			},
 			"routing_mode": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -454,7 +475,7 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	d.Partial(true)
 
-	if d.HasChange("routing_mode") || d.HasChange("network_firewall_policy_enforcement_order") {
+	if d.HasChange("routing_mode") || d.HasChange("bgp_best_path_selection_mode") || d.HasChange("bgp_always_compare_med") || d.HasChange("bgp_inter_region_cost") || d.HasChange("network_firewall_policy_enforcement_order") {
 		obj := make(map[string]interface{})
 
 		routingConfigProp, err := expandComputeNetworkRoutingConfig(nil, d, config)
@@ -632,9 +653,27 @@ func flattenComputeNetworkRoutingConfig(v interface{}, d *schema.ResourceData, c
 	transformed := make(map[string]interface{})
 	transformed["routing_mode"] =
 		flattenComputeNetworkRoutingConfigRoutingMode(original["routingMode"], d, config)
+	transformed["bgp_best_path_selection_mode"] =
+		flattenComputeNetworkRoutingConfigBgpBestPathSelectionMode(original["bgpBestPathSelectionMode"], d, config)
+	transformed["bgp_always_compare_med"] =
+		flattenComputeNetworkRoutingConfigBgpAlwaysCompareMed(original["bgpAlwaysCompareMed"], d, config)
+	transformed["bgp_inter_region_cost"] =
+		flattenComputeNetworkRoutingConfigBgpInterRegionCost(original["bgpInterRegionCost"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeNetworkRoutingConfigRoutingMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeNetworkRoutingConfigBgpBestPathSelectionMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeNetworkRoutingConfigBgpAlwaysCompareMed(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeNetworkRoutingConfigBgpInterRegionCost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -688,10 +727,43 @@ func expandComputeNetworkRoutingConfig(v interface{}, d tpgresource.TerraformRes
 		transformed["routingMode"] = transformedRoutingMode
 	}
 
+	transformedBgpBestPathSelectionMode, err := expandComputeNetworkRoutingConfigBgpBestPathSelectionMode(d.Get("bgp_best_path_selection_mode"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBgpBestPathSelectionMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bgpBestPathSelectionMode"] = transformedBgpBestPathSelectionMode
+	}
+
+	transformedBgpAlwaysCompareMed, err := expandComputeNetworkRoutingConfigBgpAlwaysCompareMed(d.Get("bgp_always_compare_med"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBgpAlwaysCompareMed); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bgpAlwaysCompareMed"] = transformedBgpAlwaysCompareMed
+	}
+
+	transformedBgpInterRegionCost, err := expandComputeNetworkRoutingConfigBgpInterRegionCost(d.Get("bgp_inter_region_cost"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBgpInterRegionCost); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bgpInterRegionCost"] = transformedBgpInterRegionCost
+	}
+
 	return transformed, nil
 }
 
 func expandComputeNetworkRoutingConfigRoutingMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNetworkRoutingConfigBgpBestPathSelectionMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNetworkRoutingConfigBgpAlwaysCompareMed(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNetworkRoutingConfigBgpInterRegionCost(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
