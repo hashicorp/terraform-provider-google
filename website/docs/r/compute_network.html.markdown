@@ -68,7 +68,6 @@ resource "google_compute_network" "vpc_network" {
 
 ```hcl
 resource "google_compute_network" "vpc_network" {
-  provider                                  = google-beta
   project                                   = "my-project-name"
   name                                      = "vpc-network"
   routing_mode                              = "GLOBAL"
@@ -79,7 +78,6 @@ resource "google_compute_network" "vpc_network" {
 
 ```hcl
 resource "google_compute_network" "vpc_network" {
-  provider                                  = google-beta
   project                                   = "my-project-name"
   name                                      = "vpc-network"
   routing_mode                              = "GLOBAL"
@@ -91,7 +89,6 @@ resource "google_compute_network" "vpc_network" {
 
 ```hcl
 resource "google_compute_network" "vpc_network" {
-  provider                                  = google-beta
   project                                   = "my-project-name"
   name                                      = "vpc-network"
   routing_mode                              = "GLOBAL"
@@ -143,17 +140,17 @@ The following arguments are supported:
   Possible values are: `REGIONAL`, `GLOBAL`.
 
 * `bgp_best_path_selection_mode` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The BGP best selection algorithm to be employed. MODE can be LEGACY or STANDARD.
   Possible values are: `LEGACY`, `STANDARD`.
 
 * `bgp_always_compare_med` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Enables/disables the comparison of MED across routes with different Neighbor ASNs.
   This value can only be set if the --bgp-best-path-selection-mode is STANDARD
 
 * `bgp_inter_region_cost` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Choice of the behavior of inter-regional cost and MED in the BPS algorithm.
   Possible values are: `DEFAULT`, `ADD_COST_TO_MED`.
 

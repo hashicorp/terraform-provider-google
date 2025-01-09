@@ -189,10 +189,25 @@ Default value is 1000. Valid range is 0 through 65535.`,
 				},
 				Set: schema.HashString,
 			},
+			"next_hop_inter_region_cost": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Internal fixed region-to-region cost that Google Cloud calculates based on factors such as network performance, distance, and available bandwidth between regions.`,
+			},
+			"next_hop_med": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Multi-Exit Discriminator, a BGP route metric that indicates the desirability of a particular route in a network.`,
+			},
 			"next_hop_network": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `URL to a Network that should handle matching packets.`,
+			},
+			"next_hop_origin": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the origin of the route. Can be IGP (Interior Gateway Protocol), EGP (Exterior Gateway Protocol), or INCOMPLETE.`,
 			},
 			"next_hop_instance_zone": {
 				Type:        schema.TypeString,
@@ -443,6 +458,15 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("next_hop_network", flattenComputeRouteNextHopNetwork(res["nextHopNetwork"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
+	if err := d.Set("next_hop_origin", flattenComputeRouteNextHopOrigin(res["nextHopOrigin"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Route: %s", err)
+	}
+	if err := d.Set("next_hop_med", flattenComputeRouteNextHopMed(res["nextHopMed"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Route: %s", err)
+	}
+	if err := d.Set("next_hop_inter_region_cost", flattenComputeRouteNextHopInterRegionCost(res["nextHopInterRegionCost"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Route: %s", err)
+	}
 	if err := d.Set("next_hop_ilb", flattenComputeRouteNextHopIlb(res["nextHopIlb"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
@@ -603,6 +627,18 @@ func flattenComputeRouteNextHopVpnTunnel(v interface{}, d *schema.ResourceData, 
 }
 
 func flattenComputeRouteNextHopNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouteNextHopOrigin(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouteNextHopMed(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouteNextHopInterRegionCost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

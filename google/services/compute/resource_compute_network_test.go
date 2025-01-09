@@ -110,6 +110,106 @@ func TestAccComputeNetwork_routingModeAndUpdate(t *testing.T) {
 	})
 }
 
+func TestAccComputeNetwork_bgpBestPathSelectionModeAndUpdate(t *testing.T) {
+	t.Parallel()
+
+	var network compute.Network
+	suffixName := acctest.RandString(t, 10)
+	networkName := fmt.Sprintf("tf-best-bgp-path-selection-mode-%s", suffixName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_best_bgp_path_selection_mode(networkName, "LEGACY"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.acc_network_bgp_best_path_selection_mode", &network),
+					resource.TestCheckResourceAttr("google_compute_network.acc_network_bgp_best_path_selection_mode", "bgp_best_path_selection_mode", "LEGACY"),
+				),
+			},
+			// Test updating the best bgp path selection field (only updatable field).
+			{
+				Config: testAccComputeNetwork_best_bgp_path_selection_mode(networkName, "STANDARD"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.acc_network_bgp_best_path_selection_mode", &network),
+					resource.TestCheckResourceAttr("google_compute_network.acc_network_bgp_best_path_selection_mode", "bgp_best_path_selection_mode", "STANDARD"),
+				),
+			},
+		},
+	},
+	)
+}
+
+func TestAccComputeNetwork_bgpAlwaysCompareMedAndUpdate(t *testing.T) {
+	t.Parallel()
+
+	var network compute.Network
+	suffixName := acctest.RandString(t, 10)
+	networkName := fmt.Sprintf("tf-bgp-always-compare-med-%s", suffixName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_bgp_always_compare_med(networkName, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.acc_network_bgp_always_compare_med", &network),
+					resource.TestCheckResourceAttr("google_compute_network.acc_network_bgp_always_compare_med", "bgp_always_compare_med", "false"),
+				),
+			},
+			// Test updating the bgpAlwaysCompareMed field (only updatable field).
+			{
+				Config: testAccComputeNetwork_bgp_always_compare_med(networkName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.acc_network_bgp_always_compare_med", &network),
+					resource.TestCheckResourceAttr("google_compute_network.acc_network_bgp_always_compare_med", "bgp_always_compare_med", "true"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeNetwork_bgpInterRegionCostAndUpdate(t *testing.T) {
+	t.Parallel()
+
+	var network compute.Network
+	suffixName := acctest.RandString(t, 10)
+	networkName := fmt.Sprintf("tf-bgp-inter-region-cost-%s", suffixName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_bgp_inter_region_cost(networkName, "DEFAULT"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.acc_network_bgp_inter_region_cost", &network),
+					resource.TestCheckResourceAttr("google_compute_network.acc_network_bgp_inter_region_cost", "bgp_inter_region_cost", "DEFAULT"),
+				),
+			},
+			// Test updating the bgpInterRegionCost field (only updatable field).
+			{
+				Config: testAccComputeNetwork_bgp_inter_region_cost(networkName, "ADD_COST_TO_MED"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.acc_network_bgp_inter_region_cost", &network),
+					resource.TestCheckResourceAttr("google_compute_network.acc_network_bgp_inter_region_cost", "bgp_inter_region_cost", "ADD_COST_TO_MED"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeNetwork_numericId(t *testing.T) {
 	t.Parallel()
 	suffixName := acctest.RandString(t, 10)
@@ -160,6 +260,58 @@ func TestAccComputeNetwork_default_routing_mode(t *testing.T) {
 						t, "google_compute_network.bar", &network),
 					testAccCheckComputeNetworkHasRoutingMode(
 						t, "google_compute_network.bar", &network, expectedRoutingMode),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeNetwork_default_bgp_best_path_selection_mode(t *testing.T) {
+	t.Parallel()
+
+	var network compute.Network
+	suffixName := acctest.RandString(t, 10)
+	networkName := fmt.Sprintf("tf-test-bgp-best-path-selection-default-routes-%s", suffixName)
+
+	expectedBgpBestPathSelection := "LEGACY"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_basic(networkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.bar", &network),
+					resource.TestCheckResourceAttr("google_compute_network.bar", "bgp_best_path_selection_mode", expectedBgpBestPathSelection),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeNetwork_default_bgp_always_compare_med(t *testing.T) {
+	t.Parallel()
+
+	var network compute.Network
+	suffixName := acctest.RandString(t, 10)
+	networkName := fmt.Sprintf("tf-test-bgp-always-compare-med-default-routes-%s", suffixName)
+
+	expectedBgpAlwaysCompareMed := "false"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_best_bgp_path_selection_mode(networkName, "STANDARD"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.acc_network_bgp_best_path_selection_mode", &network),
+					resource.TestCheckResourceAttr("google_compute_network.acc_network_bgp_best_path_selection_mode", "bgp_always_compare_med", expectedBgpAlwaysCompareMed),
 				),
 			},
 		},
@@ -434,6 +586,38 @@ resource "google_compute_network" "acc_network_routing_mode" {
   routing_mode = "%s"
 }
 `, networkName, routingMode)
+}
+
+func testAccComputeNetwork_best_bgp_path_selection_mode(networkName, bgpBestPathSelection string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "acc_network_bgp_best_path_selection_mode" {
+ name         = "%s"
+ routing_mode = "GLOBAL"
+ bgp_best_path_selection_mode = "%s"
+}
+`, networkName, bgpBestPathSelection)
+}
+
+func testAccComputeNetwork_bgp_always_compare_med(networkName string, bgpAlwaysCompareMed bool) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "acc_network_bgp_always_compare_med" {
+ name         = "%s"
+ routing_mode = "GLOBAL"
+ bgp_best_path_selection_mode = "STANDARD"
+ bgp_always_compare_med = %t
+}
+`, networkName, bgpAlwaysCompareMed)
+}
+
+func testAccComputeNetwork_bgp_inter_region_cost(networkName, bgpInterRegionCost string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "acc_network_bgp_inter_region_cost" {
+ name         = "%s"
+ routing_mode = "GLOBAL"
+ bgp_best_path_selection_mode = "STANDARD"
+ bgp_inter_region_cost = "%s"
+}
+`, networkName, bgpInterRegionCost)
 }
 
 func testAccComputeNetwork_deleteDefaultRoute(networkName string) string {
