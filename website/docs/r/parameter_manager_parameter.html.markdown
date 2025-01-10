@@ -14,64 +14,61 @@
 # ----------------------------------------------------------------------------
 subcategory: "Parameter Manager"
 description: |-
-  A Regional Parameter is a logical regional parameter.
+  A Parameter resource is a logical parameter.
 ---
 
-# google_parameter_manager_regional_parameter
+# google_parameter_manager_parameter
 
-A Regional Parameter is a logical regional parameter.
+A Parameter resource is a logical parameter.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
-To get more information about RegionalParameter, see:
+To get more information about Parameter, see:
 
 * [API documentation](https://cloud.google.com/secret-manager/parameter-manager/docs/reference/rest/v1/projects.locations.parameters)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=regional_parameter_basic&open_in_editor=main.tf" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=parameter_config_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Regional Parameter Basic
+## Example Usage - Parameter Config Basic
 
 
 ```hcl
-resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
+resource "google_parameter_manager_parameter" "parameter-basic" {
   provider = google-beta
-  parameter_id = "regional_parameter"
-  location = "us-central1"
+  parameter_id = "parameter"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=regional_parameter_with_format&open_in_editor=main.tf" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=parameter_with_format&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Regional Parameter With Format
+## Example Usage - Parameter With Format
 
 
 ```hcl
-resource "google_parameter_manager_regional_parameter" "regional-parameter-with-format" {
+resource "google_parameter_manager_parameter" "parameter-with-format" {
   provider = google-beta
-  parameter_id = "regional_parameter"
-  location = "us-central1"
+  parameter_id = "parameter"
   format = "JSON"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=regional_parameter_with_labels&open_in_editor=main.tf" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=parameter_with_labels&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Regional Parameter With Labels
+## Example Usage - Parameter With Labels
 
 
 ```hcl
-resource "google_parameter_manager_regional_parameter" "regional-parameter-with-labels" {
+resource "google_parameter_manager_parameter" "parameter-with-labels" {
   provider = google-beta
-  parameter_id = "regional_parameter"
-  location = "us-central1"
+  parameter_id = "parameter"
 
   labels = {
     key1 = "val1"
@@ -88,10 +85,6 @@ resource "google_parameter_manager_regional_parameter" "regional-parameter-with-
 The following arguments are supported:
 
 
-* `location` -
-  (Required)
-  The location of the regional parameter. eg us-central1
-
 * `parameter_id` -
   (Required)
   This must be unique within the project.
@@ -102,7 +95,7 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  The labels assigned to this regional Parameter.
+  The labels assigned to this Parameter.
   Label keys must be between 1 and 63 characters long, have a UTF-8 encoding of maximum 128 bytes,
   and must conform to the following PCRE regular expression: [\p{Ll}\p{Lo}][\p{Ll}\p{Lo}\p{N}_-]{0,62}
   Label values must be between 0 and 63 characters long, have a UTF-8 encoding of maximum 128 bytes,
@@ -116,7 +109,7 @@ The following arguments are supported:
 
 * `format` -
   (Optional)
-  The format type of the regional parameter.
+  The format type of the parameter resource.
   Default value is `UNFORMATTED`.
   Possible values are: `UNFORMATTED`, `YAML`, `JSON`.
 
@@ -128,20 +121,20 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/parameters/{{parameter_id}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/global/parameters/{{parameter_id}}`
 
 * `name` -
-  The resource name of the regional Parameter. Format:
-  `projects/{{project}}/locations/{{location}}/parameters/{{parameter_id}}`
+  The resource name of the Parameter. Format:
+  `projects/{{project}}/locations/global/parameters/{{parameter_id}}`
 
 * `create_time` -
-  The time at which the regional Parameter was created.
+  The time at which the Parameter was created.
 
 * `update_time` -
-  The time at which the regional Parameter was updated.
+  The time at which the Parameter was updated.
 
 * `policy_member` -
-  An object containing a unique resource identity tied to the regional parameter.
+  Policy member strings of a Google Cloud resource.
   Structure is [documented below](#nested_policy_member).
 
 * `terraform_labels` -
@@ -156,16 +149,17 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `iam_policy_uid_principal` -
   (Output)
-  IAM policy binding member referring to a Google Cloud resource by system-assigned unique identifier. If
-  a resource is deleted and recreated with the same name, the binding will not be applicable to the new
-  resource. Format:
-  `principal://parametermanager.googleapis.com/projects/{{project}}/uid/locations/{{location}}/parameters/{{uid}}`
+  IAM policy binding member referring to a Google Cloud resource by system-assigned unique identifier.
+  If a resource is deleted and recreated with the same name, the binding will not be applicable to the
+  new resource. Format:
+  `principal://parametermanager.googleapis.com/projects/{{project}}/uid/locations/global/parameters/{{uid}}`
 
 * `iam_policy_name_principal` -
   (Output)
-  IAM policy binding member referring to a Google Cloud resource by user-assigned name. If a resource is
-  deleted and recreated with the same name, the binding will be applicable to the new resource. Format:
-  `principal://parametermanager.googleapis.com/projects/{{project}}/name/locations/{{location}}/parameters/{{parameter_id}}`
+  IAM policy binding member referring to a Google Cloud resource by user-assigned name. If a
+  resource is deleted and recreated with the same name, the binding will be applicable to the
+  new resource. Format:
+  `principal://parametermanager.googleapis.com/projects/{{project}}/name/locations/global/parameters/{{parameter_id}}`
 
 ## Timeouts
 
@@ -179,28 +173,28 @@ This resource provides the following
 ## Import
 
 
-RegionalParameter can be imported using any of these accepted formats:
+Parameter can be imported using any of these accepted formats:
 
-* `projects/{{project}}/locations/{{location}}/parameters/{{parameter_id}}`
-* `{{project}}/{{location}}/{{parameter_id}}`
-* `{{location}}/{{parameter_id}}`
+* `projects/{{project}}/locations/global/parameters/{{parameter_id}}`
+* `{{project}}/{{parameter_id}}`
+* `{{parameter_id}}`
 
 
-In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RegionalParameter using one of the formats above. For example:
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Parameter using one of the formats above. For example:
 
 ```tf
 import {
-  id = "projects/{{project}}/locations/{{location}}/parameters/{{parameter_id}}"
-  to = google_parameter_manager_regional_parameter.default
+  id = "projects/{{project}}/locations/global/parameters/{{parameter_id}}"
+  to = google_parameter_manager_parameter.default
 }
 ```
 
-When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), RegionalParameter can be imported using one of the formats above. For example:
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Parameter can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_parameter_manager_regional_parameter.default projects/{{project}}/locations/{{location}}/parameters/{{parameter_id}}
-$ terraform import google_parameter_manager_regional_parameter.default {{project}}/{{location}}/{{parameter_id}}
-$ terraform import google_parameter_manager_regional_parameter.default {{location}}/{{parameter_id}}
+$ terraform import google_parameter_manager_parameter.default projects/{{project}}/locations/global/parameters/{{parameter_id}}
+$ terraform import google_parameter_manager_parameter.default {{project}}/{{parameter_id}}
+$ terraform import google_parameter_manager_parameter.default {{parameter_id}}
 ```
 
 ## User Project Overrides
