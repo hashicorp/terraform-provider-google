@@ -36,4 +36,4 @@ jobs:
         SINCE: ${{ inputs.since || '1973-01-01' }}
       run: |
         cd magic-modules/tools/issue-labeler
-        ./issue-labeler backfill-issue-labels --since=$(date -d ${{env.SINCE}} +"%Y-%m-%dT%H:%M:%S%:z")
+        ./issue-labeler backfill-issue-labels --since="2006-01-02T15:04:05Z07:00"
