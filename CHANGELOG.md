@@ -1,5 +1,22 @@
 ## 6.16.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_beyondcorp_security_gateway` ([#20844](https://github.com/hashicorp/terraform-provider-google/pull/20844))
+* **New Resource:** `google_developer_connect_connection` ([#20823](https://github.com/hashicorp/terraform-provider-google/pull/20823))
+* **New Resource:** `google_developer_connect_git_repository_link` ([#20823](https://github.com/hashicorp/terraform-provider-google/pull/20823))
+
+IMPROVEMENTS:
+* compute: promoted `standby_policy`, `target_suspended_size`, and `target_stopped_size` fields in `google_compute_region_instance_group_manager` and `google_compute_instance_group_manager` resource from beta to ga ([#20821](https://github.com/hashicorp/terraform-provider-google/pull/20821))
+* dns: added `health_check` and `external_endpoints` fields to `google_dns_record_set` resource ([#20843](https://github.com/hashicorp/terraform-provider-google/pull/20843))
+* sql: added `server_ca_pool` field to `google_sql_database_instance` resource ([#20834](https://github.com/hashicorp/terraform-provider-google/pull/20834))
+* vmwareengine: allowed import of non-STANDARD private clouds in `google_vmwareengine_private_cloud` ([#20832](https://github.com/hashicorp/terraform-provider-google/pull/20832))
+
+BUG FIXES:
+* dataproc: fixed boolean fields in `shielded_instance_config` in the `google_dataproc_cluster` resource ([#20828](https://github.com/hashicorp/terraform-provider-google/pull/20828))
+* gkeonprem: fixed permadiff on `vcenter` field in `google_gkeonprem_vmware_cluster` resource ([#20837](https://github.com/hashicorp/terraform-provider-google/pull/20837))
+* networkservices: fixed `google_network_services_gateway` resource so that it correctly waits for the router to be deleted on `terraform destroy` ([#20817](https://github.com/hashicorp/terraform-provider-google/pull/20817))
+* provider: fixed issue where `GOOGLE_CLOUD_QUOTA_PROJECT` env var would override explicit `billing_project` ([#20839](https://github.com/hashicorp/terraform-provider-google/pull/20839))
+
 ## 6.15.0 (January 6, 2025)
 
 NOTES:
