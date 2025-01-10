@@ -1,0 +1,3 @@
+```release-note: enhancement
+gemini: added `force_destroy` field to resource `google_code_repository_index`, enabling deletion of the resource even when it has dependent RepositoryGroups
+```
