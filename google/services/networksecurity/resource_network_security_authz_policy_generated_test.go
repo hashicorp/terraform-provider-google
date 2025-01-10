@@ -83,6 +83,78 @@ resource "google_compute_subnetwork" "proxy_only" {
   network       = google_compute_network.default.id
 }
 
+resource "google_compute_instance" "callouts_instance" {
+  name                = "tf-test-l7-ilb-callouts-ins%{random_suffix}"
+  zone                = "us-west1-a"
+  machine_type        = "e2-small"
+  tags                = ["allow-ssh","load-balanced-backend"]
+  deletion_protection = false
+
+  labels = {
+    "container-vm" = "cos-stable-109-17800-147-54"
+  }
+
+  network_interface {
+    network    = google_compute_network.default.id
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {
+      # add external ip to fetch packages
+    }
+
+  }
+
+  boot_disk {
+    auto_delete  = true
+    initialize_params {
+      type  = "pd-standard"
+      size  = 10
+      image = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-109-17800-147-54"
+    }
+  }
+
+  metadata = {
+    gce-container-declaration = "# DISCLAIMER:\n# This container declaration format is not a public API and may change without\n# notice. Please use gcloud command-line tool or Google Cloud Console to run\n# Containers on Google Compute Engine.\n\nspec:\n  containers:\n  - image: us-docker.pkg.dev/service-extensions/ext-proc/service-callout-basic-example-python:latest\n    name: callouts-vm\n    securityContext:\n      privileged: false\n    stdin: false\n    tty: false\n    volumeMounts: []\n  restartPolicy: Always\n  volumes: []\n"
+    google-logging-enabled = "true"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "google_compute_instance_group" "callouts_instance_group" {
+  name        = "tf-test-l7-ilb-callouts-ins-group%{random_suffix}"
+  description = "Terraform test instance group"
+  zone        = "us-west1-a"
+
+  instances = [
+    google_compute_instance.callouts_instance.id,
+  ]
+
+  named_port {
+    name = "http"
+    port = "80"
+  }
+
+  named_port {
+    name = "grpc"
+    port = "443"
+  }
+}
+
+resource "google_compute_region_health_check" "callouts_health_check" {
+  name     = "tf-test-l7-ilb-callouts-healthcheck%{random_suffix}"
+  region   = "us-west1"
+
+  http_health_check {
+    port = 80
+  }
+
+  depends_on = [
+    google_compute_region_health_check.default
+  ]
+}
+
 resource "google_compute_address" "default" {
   name         = "tf-test-l7-ilb-ip-address%{random_suffix}"
   project      = "%{project}"
@@ -148,6 +220,13 @@ resource "google_compute_region_backend_service" "authz_extension" {
   protocol              = "HTTP2"
   load_balancing_scheme = "INTERNAL_MANAGED"
   port_name             = "grpc"
+
+  health_checks = [google_compute_region_health_check.callouts_health_check.id] 
+  backend {
+    group = google_compute_instance_group.callouts_instance_group.id
+    balancing_mode = "UTILIZATION"
+    capacity_scaler = 1.0
+  }
 }
 
 resource "google_network_services_authz_extension" "default" {
@@ -179,6 +258,29 @@ resource "google_network_security_authz_policy" "default" {
   custom_provider {
     authz_extension {
       resources = [ google_network_services_authz_extension.default.id ]
+    }
+  }
+
+  http_rules {
+    from {
+      not_sources {
+        principals {
+          exact = "dummy-principal"
+        }
+      }
+    }
+    to {
+      operations {
+        header_set {
+          headers {
+            name = "test-header"
+            value {
+              exact = "test-value"
+              ignore_case = true
+            }
+          }
+        }
+      }
     }
   }
 }
