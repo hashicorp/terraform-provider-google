@@ -557,6 +557,12 @@ block during resource creation/update will trigger the restore action after the 
 
 * `project` - (Optional) The full project ID of the source instance.`
 
+The optional, computed `replication_cluster` block represents a primary instance and disaster recovery replica pair. Applicable to MySQL and PostgreSQL. This field can be set only after both the primary and replica are created. This block supports:
+
+* `failover_dr_replica_name`: (Optional) If the instance is a primary instance, then this field identifies the disaster recovery (DR) replica. The standard format of this field is "your-project:your-instance". You can also set this field to "your-instance", but cloud SQL backend will convert it to the aforementioned standard format.
+
+* `dr_replica`: Read-only field that indicates whether the replica is a DR replica.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -620,8 +626,8 @@ performing filtering in a Terraform config.
 
 * `server_ca_cert.0.sha1_fingerprint` - SHA Fingerprint of the CA Cert.
 
-## Switchover (SQL Server Only)
-Users can perform a switchover on any direct `cascadable` replica by following the steps below.
+## Switchover
+Users can perform a switchover on a replica by following the steps below.
 
   ~>**WARNING:** Failure to follow these steps can lead to data loss (You will be warned during plan stage). To prevent data loss during a switchover, please verify your plan with the checklist below.
 
@@ -629,22 +635,26 @@ For a more in-depth walkthrough with example code, see the [Switchover Guide](..
 
 ### Steps to Invoke Switchover
 
-Create a `cascadable` replica in a different region from the primary (`cascadable_replica` is set to true in `replica_configuration`)
+MySQL/PostgreSQL: Create a cross-region, Enterprise Plus edition primary and replica pair, then set the value of primary's `replication_cluster.failover_dr_replica_name` as the replica.
+
+SQL Server: Create a `cascadable` replica in a different region from the primary (`cascadable_replica` is set to true in `replica_configuration`)
 
 #### Invoking switchover in the replica resource:
 1. Change instance_type from `READ_REPLICA_INSTANCE` to `CLOUD_SQL_INSTANCE`
 2. Remove `master_instance_name`
-3. Remove `replica_configuration`
+3. (SQL Server) Remove `replica_configuration`
 4. Add current primary's name to the replica's `replica_names` list
+5. (MySQL/PostgreSQL) Add current primary's name to the replica's `replication_cluster.failover_dr_replica_name`.
+6. (MySQL/PostgreSQL) Adjust `backup_configuration`. See [Switchover Guide](../guides/sql_instance_switchover.html.markdown) for details.
 
 #### Updating the primary resource:
 1. Change `instance_type` from `CLOUD_SQL_INSTANCE` to `READ_REPLICA_INSTANCE`
 2. Set `master_instance_name` to the original replica (which will be primary after switchover)
-3. Set `replica_configuration` and set `cascadable_replica` to `true`
+3. (SQL Server) Set `replica_configuration` and set `cascadable_replica` to `true`
 4. Remove original replica from `replica_names`
-
-    ~> **NOTE**: Do **not** delete the replica_names field, even if it has no replicas remaining. Set replica_names = [ ] to indicate it having no replicas.
-
+   * **NOTE**: Do **not** delete the replica_names field, even if it has no replicas remaining. Set replica_names = [ ] to indicate it having no replicas.
+5. (MySQL/PostgreSQL) Set `replication_cluster.failover_dr_replica_name` as the empty string.
+6. (MySQL/PostgreSQL) Adjust `backup_configuration`. See [Switchover Guide](../guides/sql_instance_switchover.html.markdown) for details.
 #### Plan and verify that:
 - `terraform plan` outputs **"0 to add, 0 to destroy"**
 - `terraform plan` does not say **"must be replaced"** for any resource

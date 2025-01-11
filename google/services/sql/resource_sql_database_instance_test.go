@@ -2585,6 +2585,158 @@ func TestAccSqlDatabaseInstance_SwitchoverSuccess(t *testing.T) {
 	})
 }
 
+// Switchover for MySQL.
+func TestAccSqlDatabaseInstance_MysqlSwitchoverSuccess(t *testing.T) {
+	t.Parallel()
+	primaryName := "tf-test-mysql-sw-primary-" + acctest.RandString(t, 10)
+	replicaName := "tf-test-mysql-sw-replica-" + acctest.RandString(t, 10)
+	project := envvar.GetTestProjectFromEnv()
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_mysqlEplusWithReplica(project, primaryName, replicaName),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: ignoredReplicaConfigurationFields,
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-replica",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: ignoredReplicaConfigurationFields,
+			},
+			// Let's make sure that setting and unsetting failover replica works.
+			{
+				Config: googleSqlDatabaseInstance_mysqlSetFailoverReplica(project, primaryName, replicaName),
+			},
+			{
+				Config: googleSqlDatabaseInstance_mysqlUnsetFailoverReplica(project, primaryName, replicaName),
+			},
+			{
+				Config: googleSqlDatabaseInstance_mysqlSetFailoverReplica(project, primaryName, replicaName),
+			},
+			{
+				// Split into two configs because current TestStep implementation checks diff before refreshing.
+				Config: googleSqlDatabaseInstance_mysqlSwitchoverOnReplica(project, primaryName, replicaName),
+				// Original primary needs to be updated at the next step.
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: googleSqlDatabaseInstance_mysqlUpdatePrimaryAfterSwitchover(project, primaryName, replicaName),
+			},
+			{
+				RefreshState: true,
+				Check:        resource.ComposeTestCheckFunc(resource.TestCheckTypeSetElemAttr("google_sql_database_instance.original-replica", "replica_names.*", primaryName), checkSwitchoverOriginalReplicaConfigurations("google_sql_database_instance.original-replica"), checkSwitchoverOriginalPrimaryConfigurations("google_sql_database_instance.original-primary", replicaName)),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: ignoredReplicaConfigurationFields,
+			},
+			{
+				ResourceName:      "google_sql_database_instance.original-replica",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// original-replica is no longer a replica, but replica_configuration is O + C and cannot be unset
+				ImportStateVerifyIgnore: []string{"replica_configuration", "deletion_protection", "root_password"},
+			},
+			{
+				// Delete replica first so PostTestDestroy doesn't fail when deleting instances which have replicas. We've already validated switchover behavior, the remaining steps are cleanup
+				Config: googleSqlDatabaseInstance_mysqlDeleteReplicasAfterSwitchover(project, primaryName, replicaName),
+				// We delete replica, but haven't updated the master's replica_names
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				// Remove replica from primary's resource
+				Config: googleSqlDatabaseInstance_mysqlRemoveReplicaFromPrimaryAfterSwitchover(project, replicaName),
+			},
+		},
+	})
+}
+
+// Switchover for PostgreSQL.
+func TestAccSqlDatabaseInstance_PostgresSwitchoverSuccess(t *testing.T) {
+	t.Parallel()
+	primaryName := "tf-test-pg-sw-primary-" + acctest.RandString(t, 10)
+	replicaName := "tf-test-pg-sw-replica-" + acctest.RandString(t, 10)
+	project := envvar.GetTestProjectFromEnv()
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_postgresEplusWithReplica(project, primaryName, replicaName),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: ignoredReplicaConfigurationFields,
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-replica",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: ignoredReplicaConfigurationFields,
+			},
+			// Let's make sure that setting and unsetting failover replica works.
+			{
+				Config: googleSqlDatabaseInstance_postgresSetFailoverReplica(project, primaryName, replicaName),
+			},
+			{
+				Config: googleSqlDatabaseInstance_postgresUnsetFailoverReplica(project, primaryName, replicaName),
+			},
+			{
+				Config: googleSqlDatabaseInstance_postgresSetFailoverReplica(project, primaryName, replicaName),
+			},
+			{
+				// Split into two configs because current TestStep implementation checks diff before refreshing.
+				Config: googleSqlDatabaseInstance_postgresSwitchoverOnReplica(project, primaryName, replicaName),
+				// Original primary needs to be updated at the next step.
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: googleSqlDatabaseInstance_postgresUpdatePrimaryAfterSwitchover(project, primaryName, replicaName),
+			},
+			{
+				RefreshState: true,
+				Check:        resource.ComposeTestCheckFunc(resource.TestCheckTypeSetElemAttr("google_sql_database_instance.original-replica", "replica_names.*", primaryName), checkSwitchoverOriginalReplicaConfigurations("google_sql_database_instance.original-replica"), checkSwitchoverOriginalPrimaryConfigurations("google_sql_database_instance.original-primary", replicaName)),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: ignoredReplicaConfigurationFields,
+			},
+			{
+				ResourceName:      "google_sql_database_instance.original-replica",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// original-replica is no longer a replica, but replica_configuration is O + C and cannot be unset
+				ImportStateVerifyIgnore: []string{"replica_configuration", "deletion_protection", "root_password"},
+			},
+			{
+				// Delete replica first so PostTestDestroy doesn't fail when deleting instances which have replicas. We've already validated switchover behavior, the remaining steps are cleanup
+				Config: googleSqlDatabaseInstance_postgresDeleteReplicasAfterSwitchover(project, primaryName, replicaName),
+				// We delete replica, but haven't updated the master's replica_names
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				// Remove replica from primary's resource
+				Config: googleSqlDatabaseInstance_postgresRemoveReplicaFromPrimaryAfterSwitchover(project, replicaName),
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_updateSslOptionsForPostgreSQL(t *testing.T) {
 	t.Parallel()
 
@@ -3468,6 +3620,554 @@ resource "google_sql_database_instance" "original-replica" {
   }
 }
 `, replicaName)
+}
+
+func testGoogleSqlDatabaseInstanceConfig_mysqlEplusWithReplica(project, primaryName, replicaName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "MYSQL_8_0"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "original-replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "MYSQL_8_0"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = google_sql_database_instance.original-primary.name
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+  }
+}
+`, project, primaryName, project, replicaName)
+}
+
+func googleSqlDatabaseInstance_mysqlSetFailoverReplica(project, primaryName, replicaName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "MYSQL_8_0"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  replication_cluster {
+    failover_dr_replica_name = "%s:%s"
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "original-replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "MYSQL_8_0"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = "%s"
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+  }
+}
+`, project, primaryName, project, replicaName, project, replicaName, primaryName)
+}
+
+func googleSqlDatabaseInstance_mysqlUnsetFailoverReplica(project, primaryName, replicaName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "MYSQL_8_0"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  replication_cluster {
+    failover_dr_replica_name = ""
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "original-replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "MYSQL_8_0"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = "%s"
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+  }
+}
+`, project, primaryName, project, replicaName, primaryName)
+}
+
+func googleSqlDatabaseInstance_mysqlSwitchoverOnReplica(project, primaryName, replicaName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "MYSQL_8_0"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  replication_cluster {
+    failover_dr_replica_name = "%s:%s"
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "original-replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "MYSQL_8_0"
+  instance_type        = "CLOUD_SQL_INSTANCE"
+  replica_names        = ["%s"]
+  deletion_protection  = false
+
+  replication_cluster {
+    failover_dr_replica_name = "%s:%s"
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+  }
+}
+`, project, primaryName, project, replicaName, project, replicaName, primaryName, project, primaryName)
+}
+
+func googleSqlDatabaseInstance_mysqlUpdatePrimaryAfterSwitchover(project, primaryName, replicaName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-primary" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-east1"
+  database_version     = "MYSQL_8_0"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = "%s"
+  deletion_protection  = false
+
+  replication_cluster {
+    failover_dr_replica_name = ""
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled            = false
+      binary_log_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "original-replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "MYSQL_8_0"
+  instance_type        = "CLOUD_SQL_INSTANCE"
+  replica_names        = ["%s"]
+  deletion_protection  = false
+
+  replication_cluster {
+    failover_dr_replica_name = "%s:%s"
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+  }
+}
+`, project, primaryName, replicaName, project, replicaName, primaryName, project, primaryName)
+}
+
+// After a switchover, the original-primary is now the replica and must be removed first.
+func googleSqlDatabaseInstance_mysqlDeleteReplicasAfterSwitchover(project, primaryName, replicaName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "MYSQL_8_0"
+  instance_type        = "CLOUD_SQL_INSTANCE"
+  replica_names        = ["%s"]
+  deletion_protection  = false
+
+  replication_cluster {
+    failover_dr_replica_name = "%s:%s"
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+  }
+}
+`, project, replicaName, primaryName, project, primaryName)
+}
+
+// Update original-replica replica_names after deleting original-primary
+func googleSqlDatabaseInstance_mysqlRemoveReplicaFromPrimaryAfterSwitchover(project, replicaName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "MYSQL_8_0"
+  instance_type        = "CLOUD_SQL_INSTANCE"
+  replica_names        = []
+  deletion_protection  = false
+
+  replication_cluster {
+    failover_dr_replica_name = ""
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+  }
+}
+`, project, replicaName)
+}
+
+func testGoogleSqlDatabaseInstanceConfig_postgresEplusWithReplica(project, primaryName, replicaName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "POSTGRES_12"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "original-replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "POSTGRES_12"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = google_sql_database_instance.original-primary.name
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+  }
+}
+`, project, primaryName, project, replicaName)
+}
+
+func googleSqlDatabaseInstance_postgresSetFailoverReplica(project, primaryName, replicaName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "POSTGRES_12"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  replication_cluster {
+    failover_dr_replica_name = "%s:%s"
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "original-replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "POSTGRES_12"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = "%s"
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+  }
+}
+`, project, primaryName, project, replicaName, project, replicaName, primaryName)
+}
+
+func googleSqlDatabaseInstance_postgresUnsetFailoverReplica(project, primaryName, replicaName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "POSTGRES_12"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  replication_cluster {
+    failover_dr_replica_name = ""
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "original-replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "POSTGRES_12"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = "%s"
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+  }
+}
+`, project, primaryName, project, replicaName, primaryName)
+}
+
+func googleSqlDatabaseInstance_postgresSwitchoverOnReplica(project, primaryName, replicaName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "POSTGRES_12"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  replication_cluster {
+    failover_dr_replica_name = "%s:%s"
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "original-replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "POSTGRES_12"
+  instance_type        = "CLOUD_SQL_INSTANCE"
+  replica_names        = ["%s"]
+  deletion_protection  = false
+
+  replication_cluster {
+    failover_dr_replica_name = "%s:%s"
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+    }
+  }
+}
+`, project, primaryName, project, replicaName, project, replicaName, primaryName, project, primaryName)
+}
+
+func googleSqlDatabaseInstance_postgresUpdatePrimaryAfterSwitchover(project, primaryName, replicaName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-primary" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-east1"
+  database_version     = "POSTGRES_12"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = "%s"
+  deletion_protection  = false
+
+  replication_cluster {
+    failover_dr_replica_name = ""
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled                        = false
+      point_in_time_recovery_enabled = false
+    }
+  }
+}
+
+resource "google_sql_database_instance" "original-replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "POSTGRES_12"
+  instance_type        = "CLOUD_SQL_INSTANCE"
+  replica_names        = ["%s"]
+  deletion_protection  = false
+
+  replication_cluster {
+    failover_dr_replica_name = "%s:%s"
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+    }
+  }
+}
+`, project, primaryName, replicaName, project, replicaName, primaryName, project, primaryName)
+}
+
+// After a switchover, the original-primary is now the replica and must be removed first.
+func googleSqlDatabaseInstance_postgresDeleteReplicasAfterSwitchover(project, primaryName, replicaName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "POSTGRES_12"
+  instance_type        = "CLOUD_SQL_INSTANCE"
+  replica_names        = ["%s"]
+  deletion_protection  = false
+
+  replication_cluster {
+    failover_dr_replica_name = "%s:%s"
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+    }
+  }
+}
+`, project, replicaName, primaryName, project, primaryName)
+}
+
+// Update original-replica replica_names after deleting original-primary
+func googleSqlDatabaseInstance_postgresRemoveReplicaFromPrimaryAfterSwitchover(project, replicaName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "POSTGRES_12"
+  instance_type        = "CLOUD_SQL_INSTANCE"
+  replica_names        = []
+  deletion_protection  = false
+
+  replication_cluster {
+    failover_dr_replica_name = ""
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+    }
+  }
+}
+`, project, replicaName)
 }
 
 func testAccSqlDatabaseInstance_basicInstanceForPsc(instanceName string, projectId string, orgId string, billingAccount string) string {

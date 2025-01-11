@@ -927,6 +927,27 @@ is set to true. Defaults to ZONAL.`,
 				},
 				Description: `The replicas of the instance.`,
 			},
+			"replication_cluster": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"failover_dr_replica_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: fmt.Sprintf(`If the instance is a primary instance, then this field identifies the disaster recovery (DR) replica. The standard format of this field is "your-project:your-instance". You can also set this field to "your-instance", but cloud SQL backend will convert it to the aforementioned standard format.`),
+						},
+						"dr_replica": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Read-only field that indicates whether the replica is a DR replica.`,
+						},
+					},
+				},
+				Description: "A primary instance and disaster recovery replica pair. Applicable to MySQL and PostgreSQL. This field can be set only after both the primary and replica are created.",
+			},
 			"server_ca_cert": {
 				Type:      schema.TypeList,
 				Computed:  true,
@@ -1721,6 +1742,11 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("replica_names", instance.ReplicaNames); err != nil {
 		return fmt.Errorf("Error setting replica_names: %w", err)
 	}
+
+	// We always set replication_cluster because it is computed+optional.
+	if err := d.Set("replication_cluster", flattenReplicationCluster(instance.ReplicationCluster, d)); err != nil {
+		return fmt.Errorf("Error setting replication_cluster: %w", err)
+	}
 	ipAddresses := flattenIpAddresses(instance.IpAddresses)
 	if err := d.Set("ip_address", ipAddresses); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance IP Addresses")
@@ -1983,7 +2009,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
 		})
 		if err != nil {
-			return fmt.Errorf("Error, failed to promote read replica instance as primary stand-alone %s: %s", instance.Name, err)
+			return fmt.Errorf("Error, failed to promote read replica instance as primary stand-alone %s: %s", d.Get("name"), err)
 		}
 		err = SqlAdminOperationWaitTime(config, op, project, "Promote Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
@@ -2050,6 +2076,13 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	// Database Version is required for all calls with Google ML integration enabled or it will be rejected by the API.
 	if d.Get("settings.0.enable_google_ml_integration").(bool) {
 		instance.DatabaseVersion = databaseVersion
+	}
+
+	failoverDrReplicaName := d.Get("replication_cluster.0.failover_dr_replica_name").(string)
+	if failoverDrReplicaName != "" {
+		instance.ReplicationCluster = &sqladmin.ReplicationCluster{
+			FailoverDrReplicaName: failoverDrReplicaName,
+		}
 	}
 
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
@@ -2379,6 +2412,22 @@ func flattenDatabaseFlags(databaseFlags []*sqladmin.DatabaseFlags) []map[string]
 	return flags
 }
 
+// flattenReplicationCluster converts cloud SQL backend ReplicationCluster (proto) to
+// terraform replication_cluster. We explicitly allow the case when ReplicationCluster
+// is nil since replication_cluster is computed+optional.
+func flattenReplicationCluster(replicationCluster *sqladmin.ReplicationCluster, d *schema.ResourceData) []map[string]interface{} {
+	data := make(map[string]interface{})
+	data["failover_dr_replica_name"] = ""
+	if replicationCluster != nil && replicationCluster.FailoverDrReplicaName != "" {
+		data["failover_dr_replica_name"] = replicationCluster.FailoverDrReplicaName
+	}
+	data["dr_replica"] = false
+	if replicationCluster != nil {
+		data["dr_replica"] = replicationCluster.DrReplica
+	}
+	return []map[string]interface{}{data}
+}
+
 func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema.ResourceData) interface{} {
 	data := map[string]interface{}{
 		"ipv4_enabled":       ipConfiguration.Ipv4Enabled,
@@ -2661,11 +2710,6 @@ func isSwitchoverRequested(d *schema.ResourceData) bool {
 	if !slices.Contains(newReplicaNames.([]interface{}), originalPrimaryName) {
 		return false
 	}
-	dbVersion := d.Get("database_version")
-	if !strings.HasPrefix(dbVersion.(string), "SQLSERVER") {
-		log.Printf("[WARN] Switchover is only supported for SQL Server %q", dbVersion)
-		return false
-	}
 	return true
 }
 
@@ -2683,10 +2727,6 @@ func isReplicaPromoteRequested(_ context.Context, oldInstanceType interface{}, n
 // Check if this resource change is the manual update done on old primary after a switchover. If true, no replacement is needed.
 func isSwitchoverFromOldPrimarySide(d *schema.ResourceDiff) bool {
 	dbVersion := d.Get("database_version")
-	if !strings.HasPrefix(dbVersion.(string), "SQLSERVER") {
-		log.Printf("[WARN] Switchover is only supported for SQL Server %q", dbVersion)
-		return false
-	}
 	oldInstanceType, newInstanceType := d.GetChange("instance_type")
 	oldReplicaNames, newReplicaNames := d.GetChange("replica_names")
 	_, newMasterInstanceName := d.GetChange("master_instance_name")
@@ -2701,11 +2741,12 @@ func isSwitchoverFromOldPrimarySide(d *schema.ResourceDiff) bool {
 	newMasterInOldReplicaNames := slices.Contains(oldReplicaNames.([]interface{}), newMasterInstanceName)
 	newMasterNotInNewReplicaNames := !slices.Contains(newReplicaNames.([]interface{}), newMasterInstanceName)
 	isCascadableReplica := cascadableReplicaFieldExists && cascadableReplica.(bool)
+	isSQLServer := strings.HasPrefix(dbVersion.(string), "SQLSERVER")
 
 	return newMasterInstanceName != nil &&
 		instanceTypeChangedFromPrimaryToReplica &&
-		newMasterInOldReplicaNames && newMasterNotInNewReplicaNames &&
-		isCascadableReplica
+		newMasterInOldReplicaNames && newMasterNotInNewReplicaNames && (!isSQLServer ||
+		isCascadableReplica)
 }
 
 func checkPromoteConfigurations(d *schema.ResourceData) error {
