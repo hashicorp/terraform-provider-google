@@ -22,6 +22,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -61,6 +62,11 @@ func ResourceAccessContextManagerServicePerimeterResource() *schema.Resource {
 Currently only projects are allowed.
 Format: projects/{project_number}`,
 			},
+			"access_policy_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The name of the Access Policy this resource belongs to.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -81,7 +87,12 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 		obj["resource"] = resourceProp
 	}
 
-	lockName, err := tpgresource.ReplaceVars(d, config, "{{perimeter_name}}")
+	obj, err = resourceAccessContextManagerServicePerimeterResourceEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{access_policy_id}}")
 	if err != nil {
 		return err
 	}
@@ -235,7 +246,7 @@ func resourceAccessContextManagerServicePerimeterResourceDelete(d *schema.Resour
 
 	billingProject := ""
 
-	lockName, err := tpgresource.ReplaceVars(d, config, "{{perimeter_name}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{access_policy_id}}")
 	if err != nil {
 		return err
 	}
@@ -301,6 +312,9 @@ func resourceAccessContextManagerServicePerimeterResourceImport(d *schema.Resour
 		return nil, err
 	}
 
+	if err := d.Set("access_policy_id", fmt.Sprintf("accessPolicies/%s", parts["accessPolicy"])); err != nil {
+		return nil, fmt.Errorf("Error setting access_policy_id: %s", err)
+	}
 	if err := d.Set("perimeter_name", fmt.Sprintf("accessPolicies/%s/servicePerimeters/%s", parts["accessPolicy"], parts["perimeter"])); err != nil {
 		return nil, fmt.Errorf("Error setting perimeter_name: %s", err)
 	}
@@ -316,6 +330,17 @@ func flattenNestedAccessContextManagerServicePerimeterResourceResource(v interfa
 
 func expandNestedAccessContextManagerServicePerimeterResourceResource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceAccessContextManagerServicePerimeterResourceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// Set the access_policy_id field from part of the perimeter_name parameter.
+
+	// The is logic is inside the encoder since the access_policy_id field is part of
+	// the mutex lock and encoders run before the lock is set.
+	parts := strings.Split(d.Get("perimeter_name").(string), "/")
+	d.Set("access_policy_id", fmt.Sprintf("accessPolicies/%s", parts[1]))
+
+	return obj, nil
 }
 
 func flattenNestedAccessContextManagerServicePerimeterResource(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
