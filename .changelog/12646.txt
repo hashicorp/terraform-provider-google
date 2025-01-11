@@ -1,0 +1,6 @@
+```release-note:enhancement
+sql: added `replication_cluster` field to `google_sql_database_instance` resource
+```
+```release-note:enhancement 
+sql: added support of switchover for MySQL and PostgreSQL in `google_sql_database_instance` resource
+```

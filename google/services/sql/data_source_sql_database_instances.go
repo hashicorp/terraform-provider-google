@@ -155,6 +155,7 @@ func flattenDatasourceGoogleDatabaseInstancesList(fetchedInstances []*sqladmin.D
 		}
 
 		instance["replica_configuration"] = flattenReplicaConfigurationforDataSource(rawInstance.ReplicaConfiguration)
+		instance["replication_cluster"] = flattenReplicationClusterForDataSource(rawInstance.ReplicationCluster)
 
 		ipAddresses := flattenIpAddresses(rawInstance.IpAddresses)
 		instance["ip_address"] = ipAddresses
@@ -199,4 +200,20 @@ func flattenReplicaConfigurationforDataSource(replicaConfiguration *sqladmin.Rep
 	}
 
 	return rc
+}
+
+// flattenReplicationClusterForDataSource converts cloud SQL backend ReplicationCluster (proto) to
+// terraform replication_cluster. We explicitly allow the case when ReplicationCluster
+// is nil since replication_cluster is computed+optional.
+func flattenReplicationClusterForDataSource(replicationCluster *sqladmin.ReplicationCluster) []map[string]interface{} {
+	data := make(map[string]interface{})
+	data["failover_dr_replica_name"] = ""
+	if replicationCluster != nil && replicationCluster.FailoverDrReplicaName != "" {
+		data["failover_dr_replica_name"] = replicationCluster.FailoverDrReplicaName
+	}
+	data["dr_replica"] = false
+	if replicationCluster != nil {
+		data["dr_replica"] = replicationCluster.DrReplica
+	}
+	return []map[string]interface{}{data}
 }
