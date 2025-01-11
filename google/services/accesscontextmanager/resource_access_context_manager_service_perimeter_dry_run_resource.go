@@ -299,6 +299,9 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceImport(d *schema.
 		return nil, err
 	}
 
+	if err := d.Set("access_policy_id", fmt.Sprintf("accessPolicies/%s", parts["accessPolicy"])); err != nil {
+		return nil, fmt.Errorf("Error setting access_policy_id: %s", err)
+	}
 	if err := d.Set("perimeter_name", fmt.Sprintf("accessPolicies/%s/servicePerimeters/%s", parts["accessPolicy"], parts["perimeter"])); err != nil {
 		return nil, fmt.Errorf("Error setting perimeter_name: %s", err)
 	}
