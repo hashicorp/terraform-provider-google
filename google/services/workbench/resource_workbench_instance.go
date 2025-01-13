@@ -1118,6 +1118,10 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	if d.HasChange("effective_labels") {
 		newUpdateMask = append(newUpdateMask, "labels")
 	}
+	if d.HasChange("gce_setup.0.container_image") {
+		newUpdateMask = append(newUpdateMask, "gce_setup.container_image")
+		stopInstance = true
+	}
 	updateMask = newUpdateMask
 	// Overwrite the previously set mask.
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(newUpdateMask, ",")})
