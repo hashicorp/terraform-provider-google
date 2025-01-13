@@ -1,0 +1,3 @@
+```release-note:note
+workbench: Changed `container_Image` field of `google_workbench_instance` resource to modifiable.
+```
