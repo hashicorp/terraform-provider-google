@@ -1,0 +1,3 @@
+```release-note:none
+Updated data_access_label_id description for google_chronicle_data_access_label resource
+```
