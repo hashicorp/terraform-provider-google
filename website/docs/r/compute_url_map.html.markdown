@@ -27,6 +27,8 @@ that you define for the host and path of an incoming URL.
 To get more information about UrlMap, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/urlMaps)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/load-balancing/docs/url-map-concepts)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_bucket_and_service&open_in_editor=main.tf" target="_blank">
