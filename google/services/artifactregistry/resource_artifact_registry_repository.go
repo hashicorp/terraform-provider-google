@@ -22,6 +22,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -65,6 +66,58 @@ func upstreamPoliciesDiffSuppress(k, old, new string, d *schema.ResourceData) bo
 	oldSet := schema.NewSet(schema.HashString, oldHashes)
 	newSet := schema.NewSet(schema.HashString, newHashes)
 	return oldSet.Equal(newSet)
+}
+
+func parseDurationAsSeconds(v string) (int, bool) {
+	if len(v) == 0 {
+		return 0, false
+	}
+	n, err := strconv.Atoi(v[:len(v)-1])
+	if err != nil {
+		return 0, false
+	}
+	switch v[len(v)-1] {
+	case 's':
+		return n, true
+	case 'm':
+		return n * 60, true
+	case 'h':
+		return n * 3600, true
+	case 'd':
+		return n * 86400, true
+	default:
+		return 0, false
+	}
+}
+
+// Like tpgresource.DurationDiffSuppress, but supports 'd'
+func durationDiffSuppress(k, oldr, newr string, d *schema.ResourceData) bool {
+	o, n := d.GetChange(k)
+	old, ok := o.(string)
+	if !ok {
+		return false
+	}
+	new, ok := n.(string)
+	if !ok {
+		return false
+	}
+	if old == new {
+		return true
+	}
+	oldSeconds, ok := parseDurationAsSeconds(old)
+	if !ok {
+		return false
+	}
+	newSeconds, ok := parseDurationAsSeconds(new)
+	if !ok {
+		return false
+	}
+	return oldSeconds == newSeconds
+}
+
+func mapHashID(v any) int {
+	obj := v.(map[string]any)
+	return schema.HashString(obj["id"])
 }
 
 func ResourceArtifactRegistryRepository() *schema.Resource {
@@ -136,13 +189,13 @@ unique within a repository and be under 128 characters in length.`,
 									"newer_than": {
 										Type:             schema.TypeString,
 										Optional:         true,
-										DiffSuppressFunc: tpgresource.DurationDiffSuppress,
+										DiffSuppressFunc: durationDiffSuppress,
 										Description:      `Match versions newer than a duration.`,
 									},
 									"older_than": {
 										Type:             schema.TypeString,
 										Optional:         true,
-										DiffSuppressFunc: tpgresource.DurationDiffSuppress,
+										DiffSuppressFunc: durationDiffSuppress,
 										Description:      `Match versions older than a duration.`,
 									},
 									"package_name_prefixes": {
@@ -205,6 +258,7 @@ specified with a Keep action.`,
 						},
 					},
 				},
+				Set: mapHashID,
 			},
 			"cleanup_policy_dry_run": {
 				Type:     schema.TypeBool,
@@ -2095,11 +2149,67 @@ func expandArtifactRegistryRepositoryCleanupPoliciesConditionPackageNamePrefixes
 }
 
 func expandArtifactRegistryRepositoryCleanupPoliciesConditionOlderThan(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+	if v == nil {
+		return nil, nil
+	}
+	val, ok := v.(string)
+	if !ok {
+		return nil, fmt.Errorf("unexpected value is not string: %v", v)
+	}
+	if len(val) == 0 {
+		return nil, nil
+	}
+	n, err := strconv.Atoi(val[:len(val)-1])
+	if err != nil {
+		return nil, fmt.Errorf("unexpected value is not duration: %v", v)
+	}
+	// time.ParseDuration does not support 'd'
+	var seconds int
+	switch val[len(val)-1] {
+	case 's':
+		seconds = n
+	case 'm':
+		seconds = n * 60
+	case 'h':
+		seconds = n * 3600
+	case 'd':
+		seconds = n * 86400
+	default:
+		return nil, fmt.Errorf("unexpected duration has unknown unit: %c", val[len(val)-1])
+	}
+	return fmt.Sprintf("%ds", seconds), nil
 }
 
 func expandArtifactRegistryRepositoryCleanupPoliciesConditionNewerThan(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+	if v == nil {
+		return nil, nil
+	}
+	val, ok := v.(string)
+	if !ok {
+		return nil, fmt.Errorf("unexpected value is not string: %v", v)
+	}
+	if len(val) == 0 {
+		return nil, nil
+	}
+	n, err := strconv.Atoi(val[:len(val)-1])
+	if err != nil {
+		return nil, fmt.Errorf("unexpected value is not duration: %v", v)
+	}
+	// time.ParseDuration does not support 'd'
+	var seconds int
+	switch val[len(val)-1] {
+	case 's':
+		seconds = n
+	case 'm':
+		seconds = n * 60
+	case 'h':
+		seconds = n * 3600
+	case 'd':
+		seconds = n * 86400
+	default:
+		return nil, fmt.Errorf("unexpected duration has unknown unit: %c", val[len(val)-1])
+	}
+	return fmt.Sprintf("%ds", seconds), nil
 }
 
 func expandArtifactRegistryRepositoryCleanupPoliciesMostRecentVersions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

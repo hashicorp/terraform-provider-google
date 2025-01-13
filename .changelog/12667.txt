@@ -1,0 +1,3 @@
+```release-note:bug
+artifactregistry: fix `artifact_registry_repository` not accepting durations with 'm', 'h' or 'd'
+```

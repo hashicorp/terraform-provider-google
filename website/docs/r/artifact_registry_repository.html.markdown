@@ -243,12 +243,27 @@ resource "google_artifact_registry_repository" "my-repo" {
   format        = "DOCKER"
   cleanup_policy_dry_run = false
   cleanup_policies {
+    id     = "delete-untagged"
+    action = "DELETE"
+    condition {
+      tag_state    = "UNTAGGED"
+    }
+  }
+  cleanup_policies {
+    id     = "keep-new-untagged"
+    action = "KEEP"
+    condition {
+      tag_state    = "UNTAGGED"
+      newer_than   = "7d"
+    }
+  }
+  cleanup_policies {
     id     = "delete-prerelease"
     action = "DELETE"
     condition {
       tag_state    = "TAGGED"
       tag_prefixes = ["alpha", "v0"]
-      older_than   = "2592000s"
+      older_than   = "30d"
     }
   }
   cleanup_policies {
