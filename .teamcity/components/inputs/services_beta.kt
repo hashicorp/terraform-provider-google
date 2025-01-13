@@ -216,6 +216,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Cloudtasks",
         "path" to "./google-beta/services/cloudtasks"
     ),
+    "colab" to mapOf(
+        "name" to "colab",
+        "displayName" to "Colab",
+        "path" to "./google-beta/services/colab"
+    ),
     "composer" to mapOf(
         "name" to "composer",
         "displayName" to "Composer",

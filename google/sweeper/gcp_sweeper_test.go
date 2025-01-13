@@ -42,6 +42,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudrunv2"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudscheduler"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudtasks"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/colab"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/composer"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/containeranalysis"
