@@ -67,6 +67,11 @@ Format: projects/{project_number}`,
 				Computed:    true,
 				Description: `The name of the Access Policy this resource belongs to.`,
 			},
+			"etag": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The perimeter etag is internally used to prevent overwriting the list of perimeter resources on PATCH calls. It is retrieved from the same GET perimeter API call that's used to get the current list of resources. The resource to add or remove is merged into that list and then this etag is sent with the PATCH call along with the updated resource list.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -122,6 +127,21 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 	}
 
 	headers := make(http.Header)
+	etag := d.Get("etag").(string)
+
+	if etag == "" {
+		log.Printf("[ERROR] Unable to get etag: %s", err)
+		return nil
+	}
+	obj["etag"] = etag
+
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	updateMask := []string{"status.resources", "etag"}
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",
@@ -213,10 +233,9 @@ func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.Resource
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerServicePerimeterResource %q", d.Id()))
 	}
-	// post_read template for access_context_manager_service_perimeter_resource
-
-	// this is a placeholder for now but in the future we can use this to access
-	// the etag from the read response
+	if err := d.Set("etag", res["etag"]); err != nil {
+		log.Printf("[ERROR] Unable to set etag: %s", err)
+	}
 
 	res, err = flattenNestedAccessContextManagerServicePerimeterResource(d, meta, res)
 	if err != nil {
@@ -231,6 +250,9 @@ func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.Resource
 	}
 
 	if err := d.Set("resource", flattenNestedAccessContextManagerServicePerimeterResourceResource(res["resource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterResource: %s", err)
+	}
+	if err := d.Set("etag", flattenNestedAccessContextManagerServicePerimeterResourceEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeterResource: %s", err)
 	}
 
@@ -275,6 +297,21 @@ func resourceAccessContextManagerServicePerimeterResourceDelete(d *schema.Resour
 	}
 
 	headers := make(http.Header)
+	etag := d.Get("etag").(string)
+
+	if etag == "" {
+		log.Printf("[ERROR] Unable to get etag: %s", err)
+		return nil
+	}
+	obj["etag"] = etag
+
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	updateMask := []string{"status.resources", "etag"}
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 
 	log.Printf("[DEBUG] Deleting ServicePerimeterResource %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -325,6 +362,10 @@ func resourceAccessContextManagerServicePerimeterResourceImport(d *schema.Resour
 }
 
 func flattenNestedAccessContextManagerServicePerimeterResourceResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedAccessContextManagerServicePerimeterResourceEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -486,10 +527,9 @@ func resourceAccessContextManagerServicePerimeterResourceListForPatch(d *schema.
 	if err != nil {
 		return nil, err
 	}
-	// post_read template for access_context_manager_service_perimeter_resource
-
-	// this is a placeholder for now but in the future we can use this to access
-	// the etag from the read response
+	if err := d.Set("etag", res["etag"]); err != nil {
+		log.Printf("[ERROR] Unable to set etag: %s", err)
+	}
 	var v interface{}
 	var ok bool
 	if v, ok = res["status"]; ok && v != nil {
