@@ -22,6 +22,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -59,6 +60,11 @@ func ResourceAccessContextManagerIngressPolicy() *schema.Resource {
 				ForceNew:    true,
 				Description: `A GCP resource that is inside of the service perimeter.`,
 			},
+			"access_policy_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The name of the Access Policy this resource belongs to.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -78,6 +84,18 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 	} else if v, ok := d.GetOkExists("resource"); !tpgresource.IsEmptyValue(reflect.ValueOf(resourceProp)) && (ok || !reflect.DeepEqual(v, resourceProp)) {
 		obj["resource"] = resourceProp
 	}
+
+	obj, err = resourceAccessContextManagerIngressPolicyEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{access_policy_id}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{ingress_policy_name}}")
 	if err != nil {
@@ -222,6 +240,13 @@ func resourceAccessContextManagerIngressPolicyDelete(d *schema.ResourceData, met
 
 	billingProject := ""
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{access_policy_id}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{ingress_policy_name}}")
 	if err != nil {
 		return err
@@ -281,6 +306,9 @@ func resourceAccessContextManagerIngressPolicyImport(d *schema.ResourceData, met
 		return nil, err
 	}
 
+	if err := d.Set("access_policy_id", fmt.Sprintf("accessPolicies/%s", parts["accessPolicy"])); err != nil {
+		return nil, fmt.Errorf("Error setting access_policy_id: %s", err)
+	}
 	if err := d.Set("perimeter", fmt.Sprintf("accessPolicies/%s/servicePerimeters/%s", parts["accessPolicy"], parts["perimeter"])); err != nil {
 		return nil, fmt.Errorf("Error setting perimeter: %s", err)
 	}
@@ -293,6 +321,17 @@ func flattenNestedAccessContextManagerIngressPolicyResource(v interface{}, d *sc
 
 func expandNestedAccessContextManagerIngressPolicyResource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceAccessContextManagerIngressPolicyEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// Set the access_policy_id field from part of the ingress_policy_name parameter.
+
+	// The is logic is inside the encoder since the access_policy_id field is part of
+	// the mutex lock and encoders run before the lock is set.
+	parts := strings.Split(d.Get("ingress_policy_name").(string), "/")
+	d.Set("access_policy_id", fmt.Sprintf("accessPolicies/%s", parts[1]))
+
+	return obj, nil
 }
 
 func flattenNestedAccessContextManagerIngressPolicy(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {

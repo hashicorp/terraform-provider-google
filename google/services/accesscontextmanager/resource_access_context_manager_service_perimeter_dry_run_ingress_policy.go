@@ -24,6 +24,7 @@ import (
 	"reflect"
 	"slices"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -290,6 +291,11 @@ also matches the 'operations' field.`,
 					},
 				},
 			},
+			"access_policy_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The name of the Access Policy this resource belongs to.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -316,7 +322,12 @@ func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyCreate(d *sc
 		obj["ingressTo"] = ingressToProp
 	}
 
-	lockName, err := tpgresource.ReplaceVars(d, config, "{{perimeter}}")
+	obj, err = resourceAccessContextManagerServicePerimeterDryRunIngressPolicyEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{access_policy_id}}")
 	if err != nil {
 		return err
 	}
@@ -473,7 +484,7 @@ func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyDelete(d *sc
 
 	billingProject := ""
 
-	lockName, err := tpgresource.ReplaceVars(d, config, "{{perimeter}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{access_policy_id}}")
 	if err != nil {
 		return err
 	}
@@ -874,6 +885,17 @@ func expandNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressT
 
 func expandNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressToOperationsMethodSelectorsPermission(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// Set the access_policy_id field from part of the perimeter parameter.
+
+	// The is logic is inside the encoder since the access_policy_id field is part of
+	// the mutex lock and encoders run before the lock is set.
+	parts := strings.Split(d.Get("perimeter").(string), "/")
+	d.Set("access_policy_id", fmt.Sprintf("accessPolicies/%s", parts[1]))
+
+	return obj, nil
 }
 
 func flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicy(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
