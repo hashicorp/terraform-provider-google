@@ -81,6 +81,31 @@ resource "google_discovery_engine_data_store" "document_processing_config" {
   }        
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=discoveryengine_datastore_advanced_site_search_config&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Discoveryengine Datastore Advanced Site Search Config
+
+
+```hcl
+resource "google_discovery_engine_data_store" "advanced_site_search_config" {
+  location                     = "global"
+  data_store_id                = "data-store-id"
+  display_name                 = "tf-test-advanced-site-search-config-datastore"
+  industry_vertical            = "GENERIC"
+  content_config               = "PUBLIC_WEBSITE"
+  solution_types               = ["SOLUTION_TYPE_CHAT"]
+  create_advanced_site_search  = true
+  skip_default_schema_creation = false
+
+  advanced_site_search_config {
+    disable_initial_index = true
+    disable_automatic_refresh = true
+  }
+}
+```
 
 ## Argument Reference
 
@@ -120,6 +145,11 @@ The following arguments are supported:
   The solutions that the data store enrolls.
   Each value may be one of: `SOLUTION_TYPE_RECOMMENDATION`, `SOLUTION_TYPE_SEARCH`, `SOLUTION_TYPE_CHAT`, `SOLUTION_TYPE_GENERATIVE_CHAT`.
 
+* `advanced_site_search_config` -
+  (Optional)
+  Configuration data for advance site search.
+  Structure is [documented below](#nested_advanced_site_search_config).
+
 * `document_processing_config` -
   (Optional)
   Configuration for Document understanding and enrichment.
@@ -144,6 +174,16 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_advanced_site_search_config"></a>The `advanced_site_search_config` block supports:
+
+* `disable_initial_index` -
+  (Optional)
+  If set true, initial indexing is disabled for the DataStore.
+
+* `disable_automatic_refresh` -
+  (Optional)
+  If set true, automatic refresh is disabled for the DataStore.
 
 <a name="nested_document_processing_config"></a>The `document_processing_config` block supports:
 

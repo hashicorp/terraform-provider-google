@@ -88,6 +88,27 @@ string with a length limit of 128 characters.`,
 				Description: `The geographic location where the data store should reside. The value can
 only be one of "global", "us" and "eu".`,
 			},
+			"advanced_site_search_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Configuration data for advance site search.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disable_automatic_refresh": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If set true, automatic refresh is disabled for the DataStore.`,
+						},
+						"disable_initial_index": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If set true, initial indexing is disabled for the DataStore.`,
+						},
+					},
+				},
+			},
 			"create_advanced_site_search": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -328,6 +349,12 @@ func resourceDiscoveryEngineDataStoreCreate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("content_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(contentConfigProp)) && (ok || !reflect.DeepEqual(v, contentConfigProp)) {
 		obj["contentConfig"] = contentConfigProp
 	}
+	advancedSiteSearchConfigProp, err := expandDiscoveryEngineDataStoreAdvancedSiteSearchConfig(d.Get("advanced_site_search_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("advanced_site_search_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(advancedSiteSearchConfigProp)) && (ok || !reflect.DeepEqual(v, advancedSiteSearchConfigProp)) {
+		obj["advancedSiteSearchConfig"] = advancedSiteSearchConfigProp
+	}
 	documentProcessingConfigProp, err := expandDiscoveryEngineDataStoreDocumentProcessingConfig(d.Get("document_processing_config"), d, config)
 	if err != nil {
 		return err
@@ -449,6 +476,9 @@ func resourceDiscoveryEngineDataStoreRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading DataStore: %s", err)
 	}
 	if err := d.Set("content_config", flattenDiscoveryEngineDataStoreContentConfig(res["contentConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataStore: %s", err)
+	}
+	if err := d.Set("advanced_site_search_config", flattenDiscoveryEngineDataStoreAdvancedSiteSearchConfig(res["advancedSiteSearchConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataStore: %s", err)
 	}
 	if err := d.Set("document_processing_config", flattenDiscoveryEngineDataStoreDocumentProcessingConfig(res["documentProcessingConfig"], d, config)); err != nil {
@@ -629,6 +659,29 @@ func flattenDiscoveryEngineDataStoreDefaultSchemaId(v interface{}, d *schema.Res
 }
 
 func flattenDiscoveryEngineDataStoreContentConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreAdvancedSiteSearchConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["disable_initial_index"] =
+		flattenDiscoveryEngineDataStoreAdvancedSiteSearchConfigDisableInitialIndex(original["disableInitialIndex"], d, config)
+	transformed["disable_automatic_refresh"] =
+		flattenDiscoveryEngineDataStoreAdvancedSiteSearchConfigDisableAutomaticRefresh(original["disableAutomaticRefresh"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDiscoveryEngineDataStoreAdvancedSiteSearchConfigDisableInitialIndex(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreAdvancedSiteSearchConfigDisableAutomaticRefresh(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -818,6 +871,40 @@ func expandDiscoveryEngineDataStoreSolutionTypes(v interface{}, d tpgresource.Te
 }
 
 func expandDiscoveryEngineDataStoreContentConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreAdvancedSiteSearchConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDisableInitialIndex, err := expandDiscoveryEngineDataStoreAdvancedSiteSearchConfigDisableInitialIndex(original["disable_initial_index"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisableInitialIndex); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["disableInitialIndex"] = transformedDisableInitialIndex
+	}
+
+	transformedDisableAutomaticRefresh, err := expandDiscoveryEngineDataStoreAdvancedSiteSearchConfigDisableAutomaticRefresh(original["disable_automatic_refresh"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisableAutomaticRefresh); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["disableAutomaticRefresh"] = transformedDisableAutomaticRefresh
+	}
+
+	return transformed, nil
+}
+
+func expandDiscoveryEngineDataStoreAdvancedSiteSearchConfigDisableInitialIndex(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreAdvancedSiteSearchConfigDisableAutomaticRefresh(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
