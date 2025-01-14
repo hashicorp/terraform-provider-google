@@ -886,6 +886,13 @@ func resourceAccessContextManagerServicePerimetersCreate(d *schema.ResourceData,
 		obj["parent"] = parentProp
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{parent}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters:replaceAll")
 	if err != nil {
 		return err
@@ -997,6 +1004,13 @@ func resourceAccessContextManagerServicePerimetersUpdate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("parent"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, parentProp)) {
 		obj["parent"] = parentProp
 	}
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{parent}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters:replaceAll")
 	if err != nil {

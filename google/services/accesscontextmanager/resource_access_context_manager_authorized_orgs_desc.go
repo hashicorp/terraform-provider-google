@@ -180,6 +180,13 @@ func resourceAccessContextManagerAuthorizedOrgsDescCreate(d *schema.ResourceData
 		return err
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{parent}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/authorizedOrgsDescs")
 	if err != nil {
 		return err
@@ -328,6 +335,13 @@ func resourceAccessContextManagerAuthorizedOrgsDescUpdate(d *schema.ResourceData
 		return err
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{parent}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
@@ -388,6 +402,13 @@ func resourceAccessContextManagerAuthorizedOrgsDescDelete(d *schema.ResourceData
 	}
 
 	billingProject := ""
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{parent}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {

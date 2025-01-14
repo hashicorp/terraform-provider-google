@@ -375,6 +375,13 @@ func resourceAccessContextManagerAccessLevelCreate(d *schema.ResourceData, meta 
 		return err
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{parent}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels")
 	if err != nil {
 		return err
@@ -530,6 +537,13 @@ func resourceAccessContextManagerAccessLevelUpdate(d *schema.ResourceData, meta 
 		return err
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{parent}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
@@ -605,6 +619,13 @@ func resourceAccessContextManagerAccessLevelDelete(d *schema.ResourceData, meta 
 	}
 
 	billingProject := ""
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{parent}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {

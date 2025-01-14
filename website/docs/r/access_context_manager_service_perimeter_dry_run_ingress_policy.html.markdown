@@ -215,6 +215,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `{{perimeter}}`
 
+* `access_policy_id` -
+  The name of the Access Policy this resource belongs to.
+
 
 ## Timeouts
 

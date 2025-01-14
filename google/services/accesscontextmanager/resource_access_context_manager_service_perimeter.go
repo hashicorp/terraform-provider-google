@@ -1023,7 +1023,7 @@ func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, 
 		return err
 	}
 
-	lockName, err := tpgresource.ReplaceVars(d, config, "{{name}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{parent}}")
 	if err != nil {
 		return err
 	}
@@ -1203,7 +1203,7 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 		return err
 	}
 
-	lockName, err := tpgresource.ReplaceVars(d, config, "{{name}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{parent}}")
 	if err != nil {
 		return err
 	}
@@ -1290,7 +1290,7 @@ func resourceAccessContextManagerServicePerimeterDelete(d *schema.ResourceData, 
 
 	billingProject := ""
 
-	lockName, err := tpgresource.ReplaceVars(d, config, "{{name}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{parent}}")
 	if err != nil {
 		return err
 	}

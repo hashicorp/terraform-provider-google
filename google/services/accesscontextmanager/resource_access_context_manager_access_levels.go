@@ -346,6 +346,13 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 		obj["accessLevels"] = accessLevelsProp
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{parent}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
 	if err != nil {
 		return err
@@ -451,6 +458,13 @@ func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("access_levels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessLevelsProp)) {
 		obj["accessLevels"] = accessLevelsProp
 	}
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{parent}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
 	if err != nil {

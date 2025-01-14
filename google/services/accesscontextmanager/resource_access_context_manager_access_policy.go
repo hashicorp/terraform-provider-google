@@ -118,6 +118,13 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 		obj["scopes"] = scopesProp
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "accessPolicies/{{name}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies")
 	if err != nil {
 		return err
@@ -271,6 +278,13 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 		obj["scopes"] = scopesProp
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "accessPolicies/{{name}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
 		return err
@@ -338,6 +352,13 @@ func resourceAccessContextManagerAccessPolicyDelete(d *schema.ResourceData, meta
 	}
 
 	billingProject := ""
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "accessPolicies/{{name}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
