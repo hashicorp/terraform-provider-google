@@ -1,0 +1,6 @@
+```release-note:enhancement
+networkservices: added in-place update support for `ports` field on `google_network_services_gateway` resource
+```
+```release-note:bug
+networkservices: fixed bug where `google_network_services_gateway` could not be updated in place
+```

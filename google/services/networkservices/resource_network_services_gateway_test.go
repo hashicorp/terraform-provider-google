@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 )
 
 func TestAccNetworkServicesGateway_update(t *testing.T) {
@@ -32,6 +33,11 @@ func TestAccNetworkServicesGateway_update(t *testing.T) {
 			},
 			{
 				Config: testAccNetworkServicesGateway_update(gatewayName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_services_gateway.foobar", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_network_services_gateway.foobar",
@@ -61,7 +67,7 @@ resource "google_network_services_gateway" "foobar" {
   name        = "%s"
   scope       = "default-scope-update"
   type        = "OPEN_MESH"
-  ports       = [443]
+  ports       = [1000]
   description = "update description"
   labels      = {
     foo = "bar"
