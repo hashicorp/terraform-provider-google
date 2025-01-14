@@ -185,7 +185,6 @@ func ResourceNetworkServicesGateway() *schema.Resource {
 			"ports": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
 				Description: `One or more port numbers (1-65535), on which the Gateway will receive traffic.
 The proxy binds to the specified ports. Gateways of type 'SECURE_WEB_GATEWAY' are
 limited to 1 port. Gateways of type 'OPEN_MESH' listen on 0.0.0.0 and support multiple ports.`,
@@ -594,6 +593,12 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	portsProp, err := expandNetworkServicesGatewayPorts(d.Get("ports"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ports"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, portsProp)) {
+		obj["ports"] = portsProp
+	}
 	serverTlsPolicyProp, err := expandNetworkServicesGatewayServerTlsPolicy(d.Get("server_tls_policy"), d, config)
 	if err != nil {
 		return err
@@ -625,6 +630,11 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 		obj["labels"] = labelsProp
 	}
 
+	obj, err = resourceNetworkServicesGatewayUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/gateways/{{name}}")
 	if err != nil {
 		return err
@@ -636,6 +646,10 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("ports") {
+		updateMask = append(updateMask, "ports")
 	}
 
 	if d.HasChange("server_tls_policy") {
@@ -662,11 +676,6 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
-	}
-	if d.Get("type") == "SECURE_WEB_GATEWAY" {
-		obj["name"] = d.Get("name")
-		obj["type"] = d.Get("type")
-		obj["routingMode"] = d.Get("routingMode")
 	}
 
 	// err == nil indicates that the billing_project value was found
@@ -944,4 +953,15 @@ func expandNetworkServicesGatewayEffectiveLabels(v interface{}, d tpgresource.Te
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceNetworkServicesGatewayUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// Always force-send some attributes even if they were not modified. This works around extra API-side requirements.
+	obj["scope"] = d.Get("scope")
+	if d.Get("type") == "SECURE_WEB_GATEWAY" {
+		obj["name"] = d.Get("name")
+		obj["type"] = d.Get("type")
+		obj["routingMode"] = d.Get("routingMode")
+	}
+	return obj, nil
 }
