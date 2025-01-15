@@ -1,10 +1,9 @@
 ## 6.17.0 (Unreleased)
 
 NOTES:
-* workbench: Changed `container_image` field of `google_workbench_instance` resource to modifiable. ([#20894](https://github.com/hashicorp/terraform-provider-google/pull/20894))
+* workbench: changed `container_image` field of `google_workbench_instance` resource to modifiable. ([#20894](https://github.com/hashicorp/terraform-provider-google/pull/20894))
 
 FEATURES:
-* **New Data Source:** `google_parameter_manager_regional_parameter` (beta) ([#20866](https://github.com/hashicorp/terraform-provider-google/pull/20866))
 * **New Resource:** `google_apigee_environment_addons_config` ([#20851](https://github.com/hashicorp/terraform-provider-google/pull/20851))
 * **New Resource:** `google_beyondcorp_security_gateway` ([#20844](https://github.com/hashicorp/terraform-provider-google/pull/20844))
 * **New Resource:** `google_chronicle_reference_list` (beta) ([#20895](https://github.com/hashicorp/terraform-provider-google/pull/20895))
@@ -31,7 +30,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * apigee: fixed error 404 for `organization` update requests. ([#20854](https://github.com/hashicorp/terraform-provider-google/pull/20854))
-* artifactregistry: fix `artifact_registry_repository` not accepting durations with 'm', 'h' or 'd' ([#20902](https://github.com/hashicorp/terraform-provider-google/pull/20902))
+* artifactregistry: fixed `artifact_registry_repository` not accepting durations with 'm', 'h' or 'd' ([#20902](https://github.com/hashicorp/terraform-provider-google/pull/20902))
 * networkservices: fixed bug where `google_network_services_gateway` could not be updated in place ([#20908](https://github.com/hashicorp/terraform-provider-google/pull/20908))
 * storagetransfer: fixed a permadiff with `transfer_spec.aws_s3_data_source.aws_access_key` in `google_storage_transfer_job` ([#20849](https://github.com/hashicorp/terraform-provider-google/pull/20849))
 
