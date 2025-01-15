@@ -3,6 +3,7 @@
 package vmwareengine_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -11,13 +12,13 @@ import (
 )
 
 func TestAccVmwareengineNetworkPeering_update(t *testing.T) {
-	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20719")
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(t, 10),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"random_suffix":        acctest.RandString(t, 10),
+		"org_id":               envvar.GetTestOrgFromEnv(t),
+		"billing_account":      envvar.GetTestBillingAccountFromEnv(t),
+		"vmwareengine_project": os.Getenv("GOOGLE_VMWAREENGINE_PROJECT"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -30,6 +31,9 @@ func TestAccVmwareengineNetworkPeering_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVmwareengineNetworkPeering_config(context, "Sample description."),
+				Check: resource.ComposeTestCheckFunc(
+					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_vmwareengine_network_peering.ds", "google_vmwareengine_network_peering.vmw-engine-network-peering", map[string]struct{}{}),
+				),
 			},
 			{
 				ResourceName:            "google_vmwareengine_network_peering.vmw-engine-network-peering",
@@ -54,23 +58,31 @@ func testAccVmwareengineNetworkPeering_config(context map[string]interface{}, de
 	context["description"] = description
 	return acctest.Nprintf(`
 resource "google_vmwareengine_network" "network-peering-nw" {
+  project           = "%{vmwareengine_project}"
   name              = "tf-test-sample-nw%{random_suffix}"
   location          = "global"
   type              = "STANDARD"
 }
 
 resource "google_vmwareengine_network" "network-peering-peer-nw" {
+  project           = "%{vmwareengine_project}"
   name              = "tf-test-peer-nw%{random_suffix}"
   location          = "global"
   type              = "STANDARD"
 }
 
 resource "google_vmwareengine_network_peering" "vmw-engine-network-peering" {
+  project = "%{vmwareengine_project}"
   name = "tf-test-sample-network-peering%{random_suffix}"
   description = "%{description}"
   vmware_engine_network = google_vmwareengine_network.network-peering-nw.id
   peer_network = google_vmwareengine_network.network-peering-peer-nw.id
   peer_network_type = "VMWARE_ENGINE_NETWORK"
+}
+
+data "google_vmwareengine_network_peering" "ds" {
+  project = "%{vmwareengine_project}"
+  name = google_vmwareengine_network_peering.vmw-engine-network-peering.name
 }
 `, context)
 }
