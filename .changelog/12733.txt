@@ -1,0 +1,3 @@
+```release-note:none
+kms: turn on `google_kms_key_handle` tests in vcr
+```
