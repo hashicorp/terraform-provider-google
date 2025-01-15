@@ -4,6 +4,7 @@ package vmwareengine_test
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 
@@ -16,14 +17,14 @@ import (
 )
 
 func TestAccVmwareengineExternalAddress_vmwareEngineExternalAddressUpdate(t *testing.T) {
-	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20719")
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"region":          "me-west1", // region with allocated quota
-		"random_suffix":   acctest.RandString(t, 10),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"region":               "me-west1", // region with allocated quota
+		"random_suffix":        acctest.RandString(t, 10),
+		"org_id":               envvar.GetTestOrgFromEnv(t),
+		"billing_account":      envvar.GetTestBillingAccountFromEnv(t),
+		"vmwareengine_project": os.Getenv("GOOGLE_VMWAREENGINE_PROJECT"),
 	}
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -104,12 +105,14 @@ func testVmwareengineExternalAccessRuleUpdateConfig(context map[string]interface
 func testVmwareengineBaseConfig(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vmwareengine_network" "vmw-engine-ea-ear-nw" {
+  project     = "%{vmwareengine_project}"
   name        = "tf-test-sample-ea-ear-nw%{random_suffix}"
   location    = "global"
   type        = "STANDARD"
   description = "PC network description."
 }
 resource "google_vmwareengine_private_cloud" "vmw-engine-ea-ear-pc" {
+  project     = "%{vmwareengine_project}"
   location    = "%{region}-b"
   name        = "tf-test-sample-ea-ear-pc%{random_suffix}"
   type        = "TIME_LIMITED"
@@ -130,6 +133,7 @@ resource "google_vmwareengine_private_cloud" "vmw-engine-ea-ear-pc" {
 }
 
 resource "google_vmwareengine_network_policy" "vmw-engine-ea-ear-np" {
+  project = "%{vmwareengine_project}"
   location = "%{region}"
   name = "tf-test-sample-ea-ear-np%{random_suffix}"
   edge_services_cidr = "192.168.0.0/26"
