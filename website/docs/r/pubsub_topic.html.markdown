@@ -159,6 +159,32 @@ resource "google_pubsub_topic" "example" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=pubsub_topic_ingestion_azure_event_hubs&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Topic Ingestion Azure Event Hubs
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+
+  # Outside of automated terraform-provider-google CI tests, these values must be of actual Azure resources for the test to pass.
+  ingestion_data_source_settings {
+    azure_event_hubs {
+        resource_group = "azure-ingestion-resource-group"
+        namespace = "azure-ingestion-namespace"
+        event_hub = "azure-ingestion-event-hub"
+        client_id = "aZZZZZZZ-YYYY-HHHH-GGGG-abcdef569123"
+        tenant_id = "0XXXXXXX-YYYY-HHHH-GGGG-123456789123"
+        subscription_id = "bXXXXXXX-YYYY-HHHH-GGGG-123456789123"
+        gcp_service_account = "fake-service-account@fake-gcp-project.iam.gserviceaccount.com"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -264,6 +290,11 @@ The following arguments are supported:
   no Platform Logs will be generated.'
   Structure is [documented below](#nested_ingestion_data_source_settings_platform_logs_settings).
 
+* `azure_event_hubs` -
+  (Optional)
+  Settings for ingestion from Azure Event Hubs.
+  Structure is [documented below](#nested_ingestion_data_source_settings_azure_event_hubs).
+
 
 <a name="nested_ingestion_data_source_settings_aws_kinesis"></a>The `aws_kinesis` block supports:
 
@@ -346,6 +377,38 @@ The following arguments are supported:
   no Platform Logs will be written.
   Default value is `SEVERITY_UNSPECIFIED`.
   Possible values are: `SEVERITY_UNSPECIFIED`, `DISABLED`, `DEBUG`, `INFO`, `WARNING`, `ERROR`.
+
+<a name="nested_ingestion_data_source_settings_azure_event_hubs"></a>The `azure_event_hubs` block supports:
+
+* `resource_group` -
+  (Optional)
+  The name of the resource group within an Azure subscription.
+
+* `namespace` -
+  (Optional)
+  The Azure event hub namespace to ingest data from.
+
+* `event_hub` -
+  (Optional)
+  The Azure event hub to ingest data from.
+
+* `client_id` -
+  (Optional)
+  The Azure event hub client ID to use for ingestion.
+
+* `tenant_id` -
+  (Optional)
+  The Azure event hub tenant ID to use for ingestion.
+
+* `subscription_id` -
+  (Optional)
+  The Azure event hub subscription ID to use for ingestion.
+
+* `gcp_service_account` -
+  (Optional)
+  The GCP service account to be used for Federated Identity authentication
+  with Azure (via a `AssumeRoleWithWebIdentity` call for the provided
+  role).
 
 ## Attributes Reference
 

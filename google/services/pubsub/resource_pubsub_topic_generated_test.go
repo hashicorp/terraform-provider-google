@@ -246,6 +246,52 @@ resource "google_pubsub_topic" "example" {
 `, context)
 }
 
+func TestAccPubsubTopic_pubsubTopicIngestionAzureEventHubsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubTopicDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubTopic_pubsubTopicIngestionAzureEventHubsExample(context),
+			},
+			{
+				ResourceName:            "google_pubsub_topic.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccPubsubTopic_pubsubTopicIngestionAzureEventHubsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_pubsub_topic" "example" {
+  name = "tf-test-example-topic%{random_suffix}"
+
+  # Outside of automated terraform-provider-google CI tests, these values must be of actual Azure resources for the test to pass.
+  ingestion_data_source_settings {
+    azure_event_hubs {
+        resource_group = "azure-ingestion-resource-group"
+        namespace = "azure-ingestion-namespace"
+        event_hub = "azure-ingestion-event-hub"
+        client_id = "aZZZZZZZ-YYYY-HHHH-GGGG-abcdef569123"
+        tenant_id = "0XXXXXXX-YYYY-HHHH-GGGG-123456789123"
+        subscription_id = "bXXXXXXX-YYYY-HHHH-GGGG-123456789123"
+        gcp_service_account = "fake-service-account@fake-gcp-project.iam.gserviceaccount.com"
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckPubsubTopicDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
