@@ -1,8 +1,5 @@
 ## 6.17.0 (Unreleased)
 
-NOTES:
-* workbench: changed `container_image` field of `google_workbench_instance` resource to modifiable. ([#20894](https://github.com/hashicorp/terraform-provider-google/pull/20894))
-
 FEATURES:
 * **New Resource:** `google_apigee_environment_addons_config` ([#20851](https://github.com/hashicorp/terraform-provider-google/pull/20851))
 * **New Resource:** `google_beyondcorp_security_gateway` ([#20844](https://github.com/hashicorp/terraform-provider-google/pull/20844))
@@ -27,6 +24,7 @@ IMPROVEMENTS:
 * sql: `sql_source_representation_instance` now uses `string` representation of `databaseVersion` ([#20859](https://github.com/hashicorp/terraform-provider-google/pull/20859))
 * sql: added `replication_cluster` field to `google_sql_database_instance` resource ([#20889](https://github.com/hashicorp/terraform-provider-google/pull/20889))
 * sql: added support of switchover for MySQL and PostgreSQL in `google_sql_database_instance` resource ([#20889](https://github.com/hashicorp/terraform-provider-google/pull/20889))
+* workbench: changed `container_image` field of `google_workbench_instance` resource to modifiable. ([#20894](https://github.com/hashicorp/terraform-provider-google/pull/20894))
 
 BUG FIXES:
 * apigee: fixed error 404 for `organization` update requests. ([#20854](https://github.com/hashicorp/terraform-provider-google/pull/20854))
