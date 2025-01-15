@@ -108,6 +108,54 @@ equals to this service account number.`,
 							},
 							ConflictsWith: []string{},
 						},
+						"azure_event_hubs": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Settings for ingestion from Azure Event Hubs.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"client_id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The Azure event hub client ID to use for ingestion.`,
+									},
+									"event_hub": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The Azure event hub to ingest data from.`,
+									},
+									"gcp_service_account": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `The GCP service account to be used for Federated Identity authentication
+with Azure (via a 'AssumeRoleWithWebIdentity' call for the provided
+role).`,
+									},
+									"namespace": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The Azure event hub namespace to ingest data from.`,
+									},
+									"resource_group": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The name of the resource group within an Azure subscription.`,
+									},
+									"subscription_id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The Azure event hub subscription ID to use for ingestion.`,
+									},
+									"tenant_id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The Azure event hub tenant ID to use for ingestion.`,
+									},
+								},
+							},
+							ConflictsWith: []string{},
+						},
 						"cloud_storage": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -819,6 +867,8 @@ func flattenPubsubTopicIngestionDataSourceSettings(v interface{}, d *schema.Reso
 		flattenPubsubTopicIngestionDataSourceSettingsCloudStorage(original["cloudStorage"], d, config)
 	transformed["platform_logs_settings"] =
 		flattenPubsubTopicIngestionDataSourceSettingsPlatformLogsSettings(original["platformLogsSettings"], d, config)
+	transformed["azure_event_hubs"] =
+		flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubs(original["azureEventHubs"], d, config)
 	return []interface{}{transformed}
 }
 func flattenPubsubTopicIngestionDataSourceSettingsAwsKinesis(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -941,6 +991,59 @@ func flattenPubsubTopicIngestionDataSourceSettingsPlatformLogsSettingsSeverity(v
 	return v
 }
 
+func flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["resource_group"] =
+		flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubsResourceGroup(original["resourceGroup"], d, config)
+	transformed["namespace"] =
+		flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubsNamespace(original["namespace"], d, config)
+	transformed["event_hub"] =
+		flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubsEventHub(original["eventHub"], d, config)
+	transformed["client_id"] =
+		flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubsClientId(original["clientId"], d, config)
+	transformed["tenant_id"] =
+		flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubsTenantId(original["tenantId"], d, config)
+	transformed["subscription_id"] =
+		flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubsSubscriptionId(original["subscriptionId"], d, config)
+	transformed["gcp_service_account"] =
+		flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubsGcpServiceAccount(original["gcpServiceAccount"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubsResourceGroup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubsNamespace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubsEventHub(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubsClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubsTenantId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubsSubscriptionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsAzureEventHubsGcpServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenPubsubTopicTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1057,6 +1160,13 @@ func expandPubsubTopicIngestionDataSourceSettings(v interface{}, d tpgresource.T
 		return nil, err
 	} else if val := reflect.ValueOf(transformedPlatformLogsSettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["platformLogsSettings"] = transformedPlatformLogsSettings
+	}
+
+	transformedAzureEventHubs, err := expandPubsubTopicIngestionDataSourceSettingsAzureEventHubs(original["azure_event_hubs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAzureEventHubs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["azureEventHubs"] = transformedAzureEventHubs
 	}
 
 	return transformed, nil
@@ -1257,6 +1367,95 @@ func expandPubsubTopicIngestionDataSourceSettingsPlatformLogsSettings(v interfac
 }
 
 func expandPubsubTopicIngestionDataSourceSettingsPlatformLogsSettingsSeverity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsAzureEventHubs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedResourceGroup, err := expandPubsubTopicIngestionDataSourceSettingsAzureEventHubsResourceGroup(original["resource_group"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResourceGroup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["resourceGroup"] = transformedResourceGroup
+	}
+
+	transformedNamespace, err := expandPubsubTopicIngestionDataSourceSettingsAzureEventHubsNamespace(original["namespace"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNamespace); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["namespace"] = transformedNamespace
+	}
+
+	transformedEventHub, err := expandPubsubTopicIngestionDataSourceSettingsAzureEventHubsEventHub(original["event_hub"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEventHub); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["eventHub"] = transformedEventHub
+	}
+
+	transformedClientId, err := expandPubsubTopicIngestionDataSourceSettingsAzureEventHubsClientId(original["client_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["clientId"] = transformedClientId
+	}
+
+	transformedTenantId, err := expandPubsubTopicIngestionDataSourceSettingsAzureEventHubsTenantId(original["tenant_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTenantId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tenantId"] = transformedTenantId
+	}
+
+	transformedSubscriptionId, err := expandPubsubTopicIngestionDataSourceSettingsAzureEventHubsSubscriptionId(original["subscription_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSubscriptionId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["subscriptionId"] = transformedSubscriptionId
+	}
+
+	transformedGcpServiceAccount, err := expandPubsubTopicIngestionDataSourceSettingsAzureEventHubsGcpServiceAccount(original["gcp_service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGcpServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["gcpServiceAccount"] = transformedGcpServiceAccount
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsAzureEventHubsResourceGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsAzureEventHubsNamespace(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsAzureEventHubsEventHub(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsAzureEventHubsClientId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsAzureEventHubsTenantId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsAzureEventHubsSubscriptionId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsAzureEventHubsGcpServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
