@@ -309,6 +309,14 @@ and is not a valid configuration.`,
 								Type: schema.TypeString,
 							},
 						},
+						"enforce_in_transit": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `If true, 'allowedPersistenceRegions' is also used to enforce in-transit
+guarantees for messages. That is, Pub/Sub will fail topics.publish
+operations on this topic and subscribe operations on any subscription
+attached to this topic in any region that is not in 'allowedPersistenceRegions'.`,
+						},
 					},
 				},
 			},
@@ -819,9 +827,15 @@ func flattenPubsubTopicMessageStoragePolicy(v interface{}, d *schema.ResourceDat
 	transformed := make(map[string]interface{})
 	transformed["allowed_persistence_regions"] =
 		flattenPubsubTopicMessageStoragePolicyAllowedPersistenceRegions(original["allowedPersistenceRegions"], d, config)
+	transformed["enforce_in_transit"] =
+		flattenPubsubTopicMessageStoragePolicyEnforceInTransit(original["enforceInTransit"], d, config)
 	return []interface{}{transformed}
 }
 func flattenPubsubTopicMessageStoragePolicyAllowedPersistenceRegions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicMessageStoragePolicyEnforceInTransit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1087,10 +1101,21 @@ func expandPubsubTopicMessageStoragePolicy(v interface{}, d tpgresource.Terrafor
 		transformed["allowedPersistenceRegions"] = transformedAllowedPersistenceRegions
 	}
 
+	transformedEnforceInTransit, err := expandPubsubTopicMessageStoragePolicyEnforceInTransit(original["enforce_in_transit"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnforceInTransit); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enforceInTransit"] = transformedEnforceInTransit
+	}
+
 	return transformed, nil
 }
 
 func expandPubsubTopicMessageStoragePolicyAllowedPersistenceRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicMessageStoragePolicyEnforceInTransit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
