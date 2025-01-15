@@ -321,7 +321,8 @@ The following arguments are supported:
 
 * `database_version` -
   (Optional)
-  The database engine major version. This is an optional field and it's populated at the Cluster creation time. This field cannot be changed after cluster creation.
+  The database engine major version. This is an optional field and it's populated at the Cluster creation time.
+  Note: Changing this field to a higer version results in upgrading the AlloyDB cluster which is an irreversible change.
 
 * `psc_config` -
   (Optional)
@@ -382,6 +383,10 @@ The following arguments are supported:
 Deleting a cluster forcefully, deletes the cluster and all its associated instances within the cluster.
 Deleting a Secondary cluster with a secondary instance REQUIRES setting deletion_policy = "FORCE" otherwise an error is returned. This is needed as there is no support to delete just the secondary instance, and the only way to delete secondary instance is to delete the associated secondary cluster forcefully which also deletes the secondary instance.
 Possible values: DEFAULT, FORCE
+
+* `skip_await_major_version_upgrade` - (Optional) Set to true to skip awaiting on the major version upgrade of the cluster.
+Possible values: true, false
+Default value: "true"
 
 
 <a name="nested_encryption_config"></a>The `encryption_config` block supports:
