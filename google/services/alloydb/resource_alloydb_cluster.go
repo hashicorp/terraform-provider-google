@@ -267,10 +267,11 @@ If not set, defaults to 14 days.`,
 				},
 			},
 			"database_version": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				Description: `The database engine major version. This is an optional field and it's populated at the Cluster creation time. This field cannot be changed after cluster creation.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				Description: `The database engine major version. This is an optional field and it's populated at the Cluster creation time.
+Note: Changing this field to a higer version results in upgrading the AlloyDB cluster which is an irreversible change.`,
 			},
 			"display_name": {
 				Type:        schema.TypeString,
@@ -676,6 +677,14 @@ Deleting a Secondary cluster with a secondary instance REQUIRES setting deletion
 Possible values: DEFAULT, FORCE`,
 				Default: "DEFAULT",
 			},
+			"skip_await_major_version_upgrade": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Set to true to skip awaiting on the major version upgrade of the cluster.
+Possible values: true, false
+Default value: "true"`,
+				Default: true,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -962,6 +971,11 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 			return fmt.Errorf("Error setting deletion_policy: %s", err)
 		}
 	}
+	if _, ok := d.GetOkExists("skip_await_major_version_upgrade"); !ok {
+		if err := d.Set("skip_await_major_version_upgrade", true); err != nil {
+			return fmt.Errorf("Error setting skip_await_major_version_upgrade: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -1229,6 +1243,8 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
+	//
+
 	// Restrict setting secondary_config if cluster_type is PRIMARY
 	if d.Get("cluster_type") == "PRIMARY" && !tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("secondary_config"))) {
 		return fmt.Errorf("Can not set secondary config for primary cluster.")
@@ -1414,6 +1430,9 @@ func resourceAlloydbClusterImport(d *schema.ResourceData, meta interface{}) ([]*
 	// Explicitly set virtual fields to default values on import
 	if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
 		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
+	}
+	if err := d.Set("skip_await_major_version_upgrade", true); err != nil {
+		return nil, fmt.Errorf("Error setting skip_await_major_version_upgrade: %s", err)
 	}
 
 	return []*schema.ResourceData{d}, nil
