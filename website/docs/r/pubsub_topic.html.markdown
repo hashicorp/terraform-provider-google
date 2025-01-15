@@ -85,6 +85,7 @@ resource "google_pubsub_topic" "example" {
     allowed_persistence_regions = [
       "europe-west3",
     ]
+    enforce_in_transit = true
   }
 }
 ```
@@ -256,6 +257,13 @@ The following arguments are supported:
   of GCP altogether) will be routed for storage in one of the
   allowed regions. An empty list means that no regions are allowed,
   and is not a valid configuration.
+
+* `enforce_in_transit` -
+  (Optional)
+  If true, `allowedPersistenceRegions` is also used to enforce in-transit
+  guarantees for messages. That is, Pub/Sub will fail topics.publish
+  operations on this topic and subscribe operations on any subscription
+  attached to this topic in any region that is not in `allowedPersistenceRegions`.
 
 <a name="nested_schema_settings"></a>The `schema_settings` block supports:
 

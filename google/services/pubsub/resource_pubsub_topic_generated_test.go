@@ -104,6 +104,7 @@ resource "google_pubsub_topic" "example" {
     allowed_persistence_regions = [
       "europe-west3",
     ]
+    enforce_in_transit = true
   }
 }
 `, context)
