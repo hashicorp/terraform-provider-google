@@ -21,18 +21,20 @@ description: |-
 
 The resource for managing Code Repository Index for Gemini Code Assist.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
+To get more information about CodeRepositoryIndex, see:
+
+* [API documentation](https://cloud.google.com/gemini/docs/api/reference/rest/v1/projects.locations.codeRepositoryIndexes)
+* How-to Guides
+    * [Gemini Code Assist overview](https://cloud.google.com/gemini/docs/codeassist/overview)
 
 ## Example Usage - Gemini Code Repository Index Basic
 
 
 ```hcl
 resource "google_gemini_code_repository_index" "example" {
-  provider = google-beta
   location = "us-central1"
-  code_repository_index_id = ""
+  code_repository_index_id = "code-repository-index-example"
   kms_key = "projects/projectExample/locations/locationExample/keyRings/keyRingExample/cryptoKeys/cryptoKeyExample"
 }
 ```
@@ -63,7 +65,7 @@ The following arguments are supported:
 * `kms_key` -
   (Optional)
   Optional. Immutable. Customer-managed encryption key name, in the format
-  projects/*/locations/*/keyRings/*/cryptoKeys/*.
+  `projects/*/locations/*/keyRings/*/cryptoKeys/*`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -81,12 +83,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `state` -
   Output only. Code Repository Index instance State.
-  Possible values:
-  STATE_UNSPECIFIED
-  CREATING
-  ACTIVE
-  DELETING
-  SUSPENDED
+  Possible values are: `STATE_UNSPECIFIED`, `CREATING`, `ACTIVE`, `DELETING`, `SUSPENDED`.
 
 * `name` -
   Immutable. Identifier. Name of Code Repository Index.

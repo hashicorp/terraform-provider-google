@@ -20,15 +20,12 @@ description: |-
 
 # `google_gemini_repository_group_iam_policy`
 Retrieves the current IAM policy data for repositorygroup
-~> **Warning:** This datasource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## example
 
 ```hcl
 data "google_gemini_repository_group_iam_policy" "policy" {
-  provider = google-beta
   project = google_gemini_repository_group.example.project
   location = google_gemini_repository_group.example.location
   code_repository_index = google_gemini_repository_group.example.code_repository_index

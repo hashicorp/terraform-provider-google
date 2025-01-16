@@ -21,19 +21,19 @@ description: |-
 
 The resource for managing Repository Group for Gemini Code Assist.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
+To get more information about RepositoryGroup, see:
+
+* [API documentation](https://cloud.google.com/gemini/docs/api/reference/rest/v1/projects.locations.codeRepositoryIndexes.repositoryGroups)
 
 ## Example Usage - Gemini Repository Group Basic
 
 
 ```hcl
 resource "google_gemini_repository_group" "example" {
-  provider = google-beta
   location = "us-central1"
-  code_repository_index = "%{cri_id}"
-  repository_group_id = "gen-repository-group-"
+  code_repository_index = "example-cri"
+  repository_group_id = "example-repository-group"
   repositories {
     resource = "projects/example-project/locations/us-central1/connections/example-connection/gitRepositoryLinks/example-repo"
     branch_pattern = "main"
@@ -49,7 +49,7 @@ The following arguments are supported:
 
 * `repositories` -
   (Required)
-  Required. List of repositories to group
+  Required. List of repositories to group.
   Structure is [documented below](#nested_repositories).
 
 * `location` -
@@ -82,7 +82,7 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Optional. Labels as key value pairs
+  Optional. Labels as key value pairs.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
@@ -97,13 +97,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/codeRepositoryIndexes/{{code_repository_index}}/repositoryGroups/{{repository_group_id}}`
 
 * `name` -
-  Immutable. Identifier. name of resource
+  Immutable. Identifier. Name of Repository Group.
 
 * `create_time` -
-  Output only. Create time stamp
+  Output only. Create time stamp.
 
 * `update_time` -
-  Output only. Update time stamp
+  Output only. Update time stamp.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

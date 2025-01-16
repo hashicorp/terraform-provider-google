@@ -72,6 +72,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/filestore"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/firebaseappcheck"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/firestore"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/gemini"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gkebackup"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gkehub"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gkehub2"
