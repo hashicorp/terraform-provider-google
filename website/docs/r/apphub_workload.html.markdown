@@ -423,7 +423,6 @@ The following arguments are supported:
   (Required)
   Email address of the contacts.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

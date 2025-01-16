@@ -261,7 +261,6 @@ The following arguments are supported:
   The Compute Billing Owner for this Data Boost App Profile.
   Possible values are: `HOST_PAYS`.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

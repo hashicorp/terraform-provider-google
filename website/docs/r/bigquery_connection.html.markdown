@@ -554,7 +554,6 @@ The following arguments are supported:
   (Optional)
   Resource name of an existing Dataproc Cluster to act as a Spark History Server for the connection if the form of projects/[projectId]/regions/[region]/clusters/[cluster_name].
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

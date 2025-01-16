@@ -287,7 +287,6 @@ The following arguments are supported:
   A-Z), numbers (0-9), or underscores (_). The maximum length
   is 256 characters.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

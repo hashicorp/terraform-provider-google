@@ -370,7 +370,6 @@ The following arguments are supported:
   SINGLE_ZONE
   Possible values are: `MULTI_ZONE`, `SINGLE_ZONE`.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

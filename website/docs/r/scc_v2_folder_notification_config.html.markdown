@@ -120,7 +120,6 @@ The following arguments are supported:
   Location ID of the parent organization. If not provided, 'global' will be used as the default location.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

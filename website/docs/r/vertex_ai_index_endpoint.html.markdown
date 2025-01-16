@@ -168,7 +168,6 @@ The following arguments are supported:
   (Optional)
   A list of Projects from which the forwarding rule will target the service attachment.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

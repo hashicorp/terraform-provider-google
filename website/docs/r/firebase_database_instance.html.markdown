@@ -141,7 +141,6 @@ The following arguments are supported:
 * `desired_state` - (Optional) The intended database state. Possible values: ACTIVE, DISABLED.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

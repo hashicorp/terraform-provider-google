@@ -492,7 +492,6 @@ The following arguments are supported:
   This is only supported on patch/update, and these subnetworks must have previously been used as active ranges in this NAT Rule.
   This field is used for private NAT.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

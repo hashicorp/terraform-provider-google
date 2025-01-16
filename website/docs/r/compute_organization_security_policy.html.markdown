@@ -72,7 +72,6 @@ The following arguments are supported:
   Possible values are: `FIREWALL`.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

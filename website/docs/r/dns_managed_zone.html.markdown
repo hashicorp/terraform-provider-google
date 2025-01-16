@@ -542,7 +542,6 @@ The following arguments are supported:
   (Required)
   If set, enable query logging for this ManagedZone. False by default, making logging opt-in.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

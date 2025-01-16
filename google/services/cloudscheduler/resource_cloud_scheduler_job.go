@@ -1365,6 +1365,17 @@ func expandCloudSchedulerJobPubsubTargetData(v interface{}, d tpgresource.Terraf
 	return v, nil
 }
 
+func expandCloudSchedulerJobPubsubTargetAttributes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
 func expandCloudSchedulerJobAppEngineHttpTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -1469,6 +1480,17 @@ func expandCloudSchedulerJobAppEngineHttpTargetBody(v interface{}, d tpgresource
 	return v, nil
 }
 
+func expandCloudSchedulerJobAppEngineHttpTargetHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
 func expandCloudSchedulerJobHttpTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -1533,6 +1555,17 @@ func expandCloudSchedulerJobHttpTargetHttpMethod(v interface{}, d tpgresource.Te
 
 func expandCloudSchedulerJobHttpTargetBody(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCloudSchedulerJobHttpTargetHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandCloudSchedulerJobHttpTargetOauthToken(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

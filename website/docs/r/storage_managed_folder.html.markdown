@@ -84,7 +84,6 @@ within the folder will remain in a simulated folder with the
 same name.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

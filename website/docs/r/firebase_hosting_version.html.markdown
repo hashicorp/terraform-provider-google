@@ -372,7 +372,6 @@ The following arguments are supported:
   (Required)
   The additional headers to add to the response. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

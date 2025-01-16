@@ -280,7 +280,6 @@ See also `delete_protection`.
   The expected format is
   `projects/{project_id}/locations/{kms_location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}/cryptoKeyVersions/{key_version}`.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

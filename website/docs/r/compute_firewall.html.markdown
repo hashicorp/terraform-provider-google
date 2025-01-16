@@ -270,7 +270,6 @@ If logging is enabled, logs will be exported to Stackdriver. Deprecated in favor
   This field denotes whether to include or exclude metadata for firewall logs.
   Possible values are: `EXCLUDE_ALL_METADATA`, `INCLUDE_ALL_METADATA`.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

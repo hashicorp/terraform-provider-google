@@ -165,7 +165,6 @@ The following arguments are supported:
   (Optional)
   Label to describe usage of the URL
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

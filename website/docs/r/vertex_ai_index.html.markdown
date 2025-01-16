@@ -246,7 +246,6 @@ The following arguments are supported:
   The default percentage of leaf nodes that any query may be searched. Must be in
   range 1-100, inclusive. The default value is 10 (means 10%) if not set.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

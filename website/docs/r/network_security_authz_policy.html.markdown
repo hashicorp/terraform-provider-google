@@ -615,7 +615,6 @@ The following arguments are supported:
   (Required)
   A list of references to authorization extensions that will be invoked for requests matching this policy. Limited to 1 custom provider.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

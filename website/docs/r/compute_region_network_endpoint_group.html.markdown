@@ -573,7 +573,6 @@ The following arguments are supported:
   The fields parsed by this template are platform-specific and are as follows: API Gateway: The gateway ID,
   App Engine: The service and version, Cloud Functions: The function name, Cloud Run: The service and tag
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -137,7 +137,6 @@ The following arguments are supported:
   The name of the parent this address group belongs to. Format: organizations/{organization_id} or projects/{project_id}.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

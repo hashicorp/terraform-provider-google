@@ -1243,7 +1243,6 @@ The following arguments are supported:
   where 1.0 means all logged requests are reported and 0.0 means no logged requests are reported.
   The default value is 1.0.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

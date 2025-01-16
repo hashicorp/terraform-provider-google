@@ -523,7 +523,6 @@ The following arguments are supported:
   filter used to request specific groups for users from IdP. By default, all of the groups associated with the user are fetched. The
   groups should be mail enabled and security enabled. See https://learn.microsoft.com/en-us/graph/search-query-parameter for more details.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

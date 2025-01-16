@@ -60,7 +60,6 @@ The following arguments are supported:
   Optional. A human-readable description of this reference.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

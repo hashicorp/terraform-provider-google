@@ -558,7 +558,6 @@ The following arguments are supported:
   (Optional)
   Mapping of query variable names to values (equivalent to the Spark SQL command: SET name="value";).
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

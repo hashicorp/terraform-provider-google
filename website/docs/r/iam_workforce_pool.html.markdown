@@ -135,7 +135,6 @@ The following arguments are supported:
   Domain name of the service.
   Example: console.cloud.google
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

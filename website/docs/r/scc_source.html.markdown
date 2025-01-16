@@ -69,7 +69,6 @@ The following arguments are supported:
   The description of the source (max of 1024 characters).
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -233,7 +233,6 @@ The following arguments are supported:
   Default value is `BOTH`.
   Possible values are: `INGRESS`, `EGRESS`, `BOTH`.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

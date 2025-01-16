@@ -512,7 +512,6 @@ Defaults to false.
   https://cloud.google.com/vpc/docs/flow-logs#filtering for details on how to format this field.
   The default value is 'true', which evaluates to include everything.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

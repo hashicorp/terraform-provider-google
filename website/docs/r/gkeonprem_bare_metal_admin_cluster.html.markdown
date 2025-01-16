@@ -543,7 +543,6 @@ The following arguments are supported:
   (Required)
   The name of the user, e.g. `my-gcp-id@gmail.com`.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

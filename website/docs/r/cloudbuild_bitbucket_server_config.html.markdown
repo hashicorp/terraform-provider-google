@@ -210,7 +210,6 @@ The following arguments are supported:
   (Required)
   Identifier for the repository.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

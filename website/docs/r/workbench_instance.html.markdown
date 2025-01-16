@@ -493,7 +493,6 @@ The following arguments are supported:
   specify a static external IP address, it must live in the same region as
   the zone of the instance.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

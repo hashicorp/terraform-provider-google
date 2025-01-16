@@ -112,7 +112,6 @@ The following arguments are supported:
   the caller needs to have iam.serviceAccounts.actAs permission on this service account.
   If unspecified, it defaults to the compute engine default service account.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

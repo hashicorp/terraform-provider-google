@@ -1353,7 +1353,6 @@ The following arguments are supported:
   The only allowed value is `match-path-pattern`.
   [See documentation on path patterns here](https://cloud.google.com/eventarc/docs/path-patterns)'
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

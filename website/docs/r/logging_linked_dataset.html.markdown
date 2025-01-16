@@ -97,7 +97,6 @@ The following arguments are supported:
   The location of the linked dataset.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

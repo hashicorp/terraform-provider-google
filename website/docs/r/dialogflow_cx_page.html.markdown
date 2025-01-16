@@ -1627,7 +1627,6 @@ The following arguments are supported:
   (Optional)
   The digit that terminates a DTMF digit sequence.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

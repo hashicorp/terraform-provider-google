@@ -833,7 +833,6 @@ The following arguments are supported:
   (Optional)
   Specifies the relative value defined as a percentage, which will be multiplied by a reference value.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

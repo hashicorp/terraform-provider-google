@@ -143,7 +143,6 @@ The following arguments are supported:
   (Optional)
   Project in which the subnet exists. If not set, this project is assumed to be the project for which the connector create request was issued.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

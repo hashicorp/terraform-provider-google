@@ -153,7 +153,6 @@ The following arguments are supported:
   This should be specified in the format like
   `projects/*/locations/*/clusters/*`
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

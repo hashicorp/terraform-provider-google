@@ -331,7 +331,6 @@ The following arguments are supported:
 * `send_deletion_delay_hours_if_zero` - (Optional) While set true, deletion_delay_hours value will be sent in the request even for zero value of the field. This field is only useful for setting 0 value to the deletion_delay_hours field. It can be used both alone and together with deletion_delay_hours.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -68,7 +68,6 @@ The following arguments are supported:
   User-assigned description of the TagValue. Must not exceed 256 characters.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

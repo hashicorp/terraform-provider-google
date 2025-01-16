@@ -181,7 +181,6 @@ The following arguments are supported:
   instances that are applied with this rule.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -189,7 +189,6 @@ The following arguments are supported:
   (Required)
   The value of the header must match the regular expression specified in regexMatch. For regular expression grammar, please see: en.cppreference.com/w/cpp/regex/ecmascript For matching against a port specified in the HTTP request, use a headerMatch with headerName set to Host and a regular expression that satisfies the RFC2616 Host header's port specifier.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

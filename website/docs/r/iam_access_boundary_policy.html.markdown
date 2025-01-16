@@ -157,7 +157,6 @@ The following arguments are supported:
   The display name of the rule.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

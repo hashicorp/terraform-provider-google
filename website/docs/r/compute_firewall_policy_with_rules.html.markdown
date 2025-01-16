@@ -303,7 +303,6 @@ The following arguments are supported:
   An optional description of this resource.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

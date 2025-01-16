@@ -128,7 +128,6 @@ The following arguments are supported:
   The BigQuery export configuration is stored in this location. If not provided, Use global as default.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -206,7 +206,6 @@ The following arguments are supported:
   The namespace must correspond to an identity source created in Admin Console
   and must be in the form of `identitysources/{identity_source_id}`.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

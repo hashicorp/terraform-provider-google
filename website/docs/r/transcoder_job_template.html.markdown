@@ -907,7 +907,6 @@ The following arguments are supported:
   (Required)
   The name of the Secret Version containing the encryption key in the following format: projects/{project}/secrets/{secret_id}/versions/{version_number}.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

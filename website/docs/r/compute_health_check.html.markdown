@@ -795,7 +795,6 @@ The following arguments are supported:
   Indicates whether or not to export logs. This is false by default,
   which means no health check logging will be done.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

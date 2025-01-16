@@ -166,7 +166,6 @@ The following arguments are supported:
   (Required)
   PEM certificate that is allowlisted. The certificate can be up to 5k bytes, and must be a parseable X.509 certificate.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

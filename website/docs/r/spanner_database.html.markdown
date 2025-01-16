@@ -140,7 +140,6 @@ When the field is set to false, deleting the database is allowed.
   Fully qualified name of the KMS keys to use to encrypt this database. The keys must exist
   in the same locations as the Spanner Database.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

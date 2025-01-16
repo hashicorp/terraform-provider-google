@@ -245,7 +245,6 @@ The following arguments are supported:
   (Optional)
   Optional. Additional email address to be notified about an eligible entitlement.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

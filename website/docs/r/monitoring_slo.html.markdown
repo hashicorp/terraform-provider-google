@@ -740,7 +740,6 @@ The following arguments are supported:
   will be set to "infinity", defining an open range
   ">= range.min"
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

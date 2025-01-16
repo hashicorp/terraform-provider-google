@@ -473,7 +473,6 @@ The following arguments are supported:
   (Output)
   A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the google.rpc.Status.details field, or localized by the client.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

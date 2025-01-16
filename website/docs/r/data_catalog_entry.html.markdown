@@ -243,7 +243,6 @@ The following arguments are supported:
   (Output)
   The size of the file, in bytes.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

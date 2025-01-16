@@ -151,7 +151,6 @@ The following arguments are supported:
   (Optional)
   The Reservation to use for this topic's throughput capacity.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

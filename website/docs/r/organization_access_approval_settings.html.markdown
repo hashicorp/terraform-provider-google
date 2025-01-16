@@ -152,7 +152,6 @@ The following arguments are supported:
   Empty active_key_version indicates that a Google-managed key should be used for signing.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

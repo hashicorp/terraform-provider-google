@@ -83,7 +83,6 @@ The following arguments are supported:
   (Optional)
   The ID of the table in the above dataset.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

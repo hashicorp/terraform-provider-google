@@ -397,7 +397,6 @@ The following arguments are supported:
   all entries in that group.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

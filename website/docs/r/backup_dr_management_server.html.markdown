@@ -108,7 +108,6 @@ The following arguments are supported:
   Default value is `PRIVATE_SERVICE_ACCESS`.
   Possible values are: `PRIVATE_SERVICE_ACCESS`.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

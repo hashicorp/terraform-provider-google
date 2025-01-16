@@ -156,7 +156,6 @@ The following arguments are supported:
   (Optional)
   The name of the BigQuery routine that contains the custom masking routine, in the format of projects/{projectNumber}/datasets/{dataset_id}/routines/{routine_id}.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

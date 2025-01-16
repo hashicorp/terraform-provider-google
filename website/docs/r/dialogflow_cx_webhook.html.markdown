@@ -151,7 +151,6 @@ The following arguments are supported:
   (Optional)
   Specifies a list of allowed custom CA certificates (in DER format) for HTTPS verification.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

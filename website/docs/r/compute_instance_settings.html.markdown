@@ -76,7 +76,6 @@ The following arguments are supported:
   (Optional)
   A metadata key/value items map. The total size of all keys and values must be less than 512KB
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
