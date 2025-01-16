@@ -3434,7 +3434,10 @@ func TestAccContainerCluster_withAutopilotKubeletConfig(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withAutopilot_withNodePoolDefaults(t *testing.T) {
+// func TestAccContainerCluster_withAutopilot_withNodePoolDefaults(t *testing.T) {
+// nodePoolDefaults is not allowed on GKE Autopilot clusters, error from GKE is:
+// `Setting node_pool_defaults.node_config_defaults.node_kubelet_config is not allowed on GKE Autopilot clusters.`
+func TestAccContainerCluster_withAutopilot_withNodePoolAutoConfig(t *testing.T) {
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -3448,7 +3451,33 @@ func TestAccContainerCluster_withAutopilot_withNodePoolDefaults(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withAutopilot_withNodePoolDefaults(clusterName, networkName, subnetworkName),
+				Config: testAccContainerCluster_withAutopilot_withNodePoolAutoConfig(clusterName, networkName, subnetworkName, "FALSE"),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withStandard_withNodePoolDefaults(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randomSuffix)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withStandard_withNodePoolDefaults(clusterName, networkName, subnetworkName, "FALSE"),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -10482,8 +10511,8 @@ resource "google_container_cluster" "primary" {
   location         = "us-central1"
   enable_autopilot = true
 
-  node_pool_defaults {
-    node_config_defaults {
+	node_pool_defaults {
+    node_kubelet_config {
     }
   }
 
@@ -10492,6 +10521,46 @@ resource "google_container_cluster" "primary" {
   subnetwork          = "%s"
 }
 `, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withAutopilot_withNodePoolAutoConfig(name, networkName, subnetworkName string, insecureKubeletReadonlyPortEnabled string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name             = "%s"
+  location         = "us-central1"
+  enable_autopilot = true
+
+	node_pool_auto_config {
+    node_kubelet_config {
+      insecure_kubelet_readonly_port_enabled = "%s"
+    }
+  }
+
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
+}
+`, name, insecureKubeletReadonlyPortEnabled, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withStandard_withNodePoolDefaults(name, networkName, subnetworkName string, insecureKubeletReadonlyPortEnabled string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name             = "%s"
+  location         = "us-central1-a"
+	initial_node_count = 1
+
+  node_pool_defaults {
+    node_config_defaults {
+      insecure_kubelet_readonly_port_enabled = "%s"
+    }
+  }
+
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
+}
+`, name, insecureKubeletReadonlyPortEnabled, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_resourceManagerTags(projectID, clusterName, networkName, subnetworkName, randomSuffix string, tagResourceNumber int) string {

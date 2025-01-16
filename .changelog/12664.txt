@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed propagation of `node_pool_defaults.node_config_defaults.insecure_kubelet_readonly_port_enabled` in node config.
+```
