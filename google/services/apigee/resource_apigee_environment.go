@@ -132,6 +132,35 @@ all instances.`,
 					},
 				},
 			},
+			"properties": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Key-value pairs that may be used for customizing the environment.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"property": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `List of all properties in the object.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The property key.`,
+									},
+									"value": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The property value.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"type": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -202,6 +231,12 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("forward_proxy_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(forwardProxyUriProp)) && (ok || !reflect.DeepEqual(v, forwardProxyUriProp)) {
 		obj["forwardProxyUri"] = forwardProxyUriProp
+	}
+	propertiesProp, err := expandApigeeEnvironmentProperties(d.Get("properties"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("properties"); !tpgresource.IsEmptyValue(reflect.ValueOf(propertiesProp)) && (ok || !reflect.DeepEqual(v, propertiesProp)) {
+		obj["properties"] = propertiesProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments")
@@ -324,6 +359,9 @@ func resourceApigeeEnvironmentRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("forward_proxy_uri", flattenApigeeEnvironmentForwardProxyUri(res["forwardProxyUri"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
+	if err := d.Set("properties", flattenApigeeEnvironmentProperties(res["properties"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
 
 	return nil
 }
@@ -368,6 +406,12 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("forward_proxy_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, forwardProxyUriProp)) {
 		obj["forwardProxyUri"] = forwardProxyUriProp
 	}
+	propertiesProp, err := expandApigeeEnvironmentProperties(d.Get("properties"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("properties"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, propertiesProp)) {
+		obj["properties"] = propertiesProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
 	if err != nil {
@@ -396,6 +440,10 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("forward_proxy_uri") {
 		updateMask = append(updateMask, "forwardProxyUri")
+	}
+
+	if d.HasChange("properties") {
+		updateMask = append(updateMask, "properties")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -585,6 +633,46 @@ func flattenApigeeEnvironmentForwardProxyUri(v interface{}, d *schema.ResourceDa
 	return v
 }
 
+func flattenApigeeEnvironmentProperties(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["property"] =
+		flattenApigeeEnvironmentPropertiesProperty(original["property"], d, config)
+	return []interface{}{transformed}
+}
+func flattenApigeeEnvironmentPropertiesProperty(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":  flattenApigeeEnvironmentPropertiesPropertyName(original["name"], d, config),
+			"value": flattenApigeeEnvironmentPropertiesPropertyValue(original["value"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenApigeeEnvironmentPropertiesPropertyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApigeeEnvironmentPropertiesPropertyValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandApigeeEnvironmentName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -655,5 +743,61 @@ func expandApigeeEnvironmentType(v interface{}, d tpgresource.TerraformResourceD
 }
 
 func expandApigeeEnvironmentForwardProxyUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeEnvironmentProperties(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedProperty, err := expandApigeeEnvironmentPropertiesProperty(original["property"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProperty); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["property"] = transformedProperty
+	}
+
+	return transformed, nil
+}
+
+func expandApigeeEnvironmentPropertiesProperty(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandApigeeEnvironmentPropertiesPropertyName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedValue, err := expandApigeeEnvironmentPropertiesPropertyValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandApigeeEnvironmentPropertiesPropertyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeEnvironmentPropertiesPropertyValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

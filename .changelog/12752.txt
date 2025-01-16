@@ -1,0 +1,3 @@
+```release-note:enhancement 
+apigee: added `properties` field to `google_apigee_environment` resource
+```
