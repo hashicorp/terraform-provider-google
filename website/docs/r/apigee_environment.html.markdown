@@ -127,6 +127,11 @@ The following arguments are supported:
   (Optional)
   Optional. URI of the forward proxy to be applied to the runtime instances in this environment. Must be in the format of {scheme}://{hostname}:{port}. Note that the scheme must be one of "http" or "https", and the port must be supplied.
 
+* `properties` -
+  (Optional)
+  Key-value pairs that may be used for customizing the environment.
+  Structure is [documented below](#nested_properties).
+
 
 <a name="nested_node_config"></a>The `node_config` block supports:
 
@@ -146,6 +151,24 @@ The following arguments are supported:
   (Output)
   The current total number of gateway nodes that each environment currently has across
   all instances.
+
+<a name="nested_properties"></a>The `properties` block supports:
+
+* `property` -
+  (Optional)
+  List of all properties in the object.
+  Structure is [documented below](#nested_properties_property).
+
+
+<a name="nested_properties_property"></a>The `property` block supports:
+
+* `name` -
+  (Optional)
+  The property key.
+
+* `value` -
+  (Optional)
+  The property value.
 
 ## Attributes Reference
 

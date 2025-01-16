@@ -120,6 +120,12 @@ resource "google_apigee_environment" "apigee_environment" {
   name         = "tf-test%{random_suffix}"
   description  = "Updated Apigee Environment Description"
   display_name = "environment-1-updated"
+  properties {
+	property {
+		name  = "property-1-key"
+        value = "property-1-value"
+	}
+  }
 }
 `, context)
 }
