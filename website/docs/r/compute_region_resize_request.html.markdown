@@ -171,7 +171,6 @@ The following arguments are supported:
   (Optional)
   Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are represented with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

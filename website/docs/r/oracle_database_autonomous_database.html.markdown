@@ -803,7 +803,6 @@ The following arguments are supported:
 
 * `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

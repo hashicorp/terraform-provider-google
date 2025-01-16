@@ -167,7 +167,6 @@ The following arguments are supported:
   List of database roles this database user has.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

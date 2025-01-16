@@ -266,7 +266,6 @@ The following arguments are supported:
   (Required)
   The utilization triggering the scale-in operation in percent.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

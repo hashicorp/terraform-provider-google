@@ -85,7 +85,6 @@ The following arguments are supported:
   location Id is provided by organization. If not provided, Use global as default.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

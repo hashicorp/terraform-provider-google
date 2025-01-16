@@ -317,7 +317,6 @@ The following arguments are supported:
   (Required)
   Maximum number of replicas in the NodePool.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

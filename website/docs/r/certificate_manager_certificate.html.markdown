@@ -489,7 +489,6 @@ The following arguments are supported:
   address the configuration issues.
   Not guaranteed to be stable. For programmatic access use `failure_reason` field.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

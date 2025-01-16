@@ -492,7 +492,6 @@ The following arguments are supported:
   (Optional)
   The Cloud VPC sub-network in which the job is run.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

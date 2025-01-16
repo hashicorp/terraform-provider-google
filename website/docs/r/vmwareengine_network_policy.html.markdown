@@ -140,7 +140,6 @@ The following arguments are supported:
   (Output)
   State of the service. New values may be added to this enum when appropriate.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

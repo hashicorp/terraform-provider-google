@@ -176,7 +176,6 @@ The following arguments are supported:
   (Optional)
   Specifies the core range of the instance for which this license applies.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

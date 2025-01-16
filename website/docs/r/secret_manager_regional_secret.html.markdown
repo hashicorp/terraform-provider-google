@@ -324,7 +324,6 @@ The following arguments are supported:
   be set. `next_rotation_time` will be advanced by this period when the service
   automatically sends rotation notifications.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

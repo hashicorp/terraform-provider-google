@@ -299,7 +299,6 @@ The following arguments are supported:
   (Optional)
   If true, restrict export of query result derived from restricted linked dataset table.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

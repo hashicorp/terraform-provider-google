@@ -100,7 +100,6 @@ The following arguments are supported:
   field will be left empty. To remove SSL support while there is still a pending managed certificate, clear the
   `certificateId` field with an update request.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

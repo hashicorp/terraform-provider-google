@@ -201,7 +201,6 @@ The following arguments are supported:
   (Output)
   The state of TTL (time-to-live) configuration for documents that have this Field set.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

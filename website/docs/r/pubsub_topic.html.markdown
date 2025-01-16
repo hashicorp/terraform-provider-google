@@ -347,7 +347,6 @@ The following arguments are supported:
   Default value is `SEVERITY_UNSPECIFIED`.
   Possible values are: `SEVERITY_UNSPECIFIED`, `DISABLED`, `DEBUG`, `INFO`, `WARNING`, `ERROR`.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

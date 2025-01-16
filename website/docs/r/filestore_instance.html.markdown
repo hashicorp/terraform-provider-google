@@ -357,7 +357,6 @@ The following arguments are supported:
   The number of IOPS to provision for the instance.
   max_iops must be in multiple of 1000.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

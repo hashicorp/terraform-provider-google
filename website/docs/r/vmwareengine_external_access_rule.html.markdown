@@ -197,7 +197,6 @@ The following arguments are supported:
   User-provided description for the external access rule.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -158,7 +158,6 @@ deleted in a delete operation.
   An servicekey token for a notification channel. Channel types that support this field include: pagerduty
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

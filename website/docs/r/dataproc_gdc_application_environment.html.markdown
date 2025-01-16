@@ -136,7 +136,6 @@ The following arguments are supported:
   (Optional)
   The default Dataproc version to use for applications submitted to this application environment
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

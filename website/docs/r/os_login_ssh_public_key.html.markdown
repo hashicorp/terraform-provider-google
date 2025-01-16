@@ -72,7 +72,6 @@ The following arguments are supported:
   The project ID of the Google Cloud Platform project.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

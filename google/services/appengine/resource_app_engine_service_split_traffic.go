@@ -392,3 +392,14 @@ func expandAppEngineServiceSplitTrafficSplit(v interface{}, d tpgresource.Terraf
 func expandAppEngineServiceSplitTrafficSplitShardBy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
+
+func expandAppEngineServiceSplitTrafficSplitAllocations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}

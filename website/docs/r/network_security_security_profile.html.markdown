@@ -159,7 +159,6 @@ The following arguments are supported:
   (Output)
   Type of threat.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -355,7 +355,6 @@ The following arguments are supported:
   Sets the mode of the Kubernetes security posture API's workload vulnerability scanning.
   Possible values are: `VULNERABILITY_DISABLED`, `VULNERABILITY_ENTERPRISE`.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

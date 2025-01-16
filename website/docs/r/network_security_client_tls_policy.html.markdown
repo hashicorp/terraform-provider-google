@@ -170,7 +170,6 @@ The following arguments are supported:
   (Required)
   Plugin instance name, used to locate and load CertificateProvider instance configuration. Set to "google_cloud_private_spiffe" to use Certificate Authority Service certificate provider instance.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

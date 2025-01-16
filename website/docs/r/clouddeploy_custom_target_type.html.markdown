@@ -256,7 +256,6 @@ The following arguments are supported:
   (Optional)
   Branch or tag to use when cloning the repository.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

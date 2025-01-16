@@ -109,7 +109,6 @@ rather than deleted upon `terraform destroy`. This is useful because the Apple m
 serving traffic. Set to `DELETE` to delete the Apple. Defaults to `DELETE`.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

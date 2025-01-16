@@ -427,7 +427,6 @@ The following arguments are supported:
   (Optional)
   Whether logging is enabled for this project or not.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -562,7 +562,6 @@ The following arguments are supported:
   will be published in PEM.
   Possible values are: `PEM`, `DER`.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

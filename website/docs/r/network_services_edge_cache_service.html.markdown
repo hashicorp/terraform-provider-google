@@ -1042,7 +1042,6 @@ The following arguments are supported:
   Configures the sampling rate of requests, where 1.0 means all logged requests are reported and 0.0 means no logged requests are reported. The default value is 1.0, and the value of the field must be in [0, 1].
   This field can only be specified if logging is enabled for this service.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

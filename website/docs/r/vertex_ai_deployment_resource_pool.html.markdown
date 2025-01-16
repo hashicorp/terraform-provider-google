@@ -129,7 +129,6 @@ The following arguments are supported:
   (Optional)
   The target resource utilization in percentage (1% - 100%) for the given metric; once the real usage deviates from the target by a certain percentage, the machine replicas change. The default value is 60 (representing 60%) if not provided.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

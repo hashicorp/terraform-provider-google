@@ -601,7 +601,6 @@ The following arguments are supported:
   Only top-level field names for nested fields are supported.
   For instance, if 'x' is of nested field type, listing 'x' is supported but 'x.y.z' is not supported. Here 'y' and 'y.z' are nested fields of 'x'.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

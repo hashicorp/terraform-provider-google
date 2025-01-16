@@ -362,7 +362,6 @@ The following arguments are supported:
   Whether the provided attribute propagation settings should be evaluated on user requests.
   If set to true, attributes returned from the expression will be propagated in the set output credentials.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

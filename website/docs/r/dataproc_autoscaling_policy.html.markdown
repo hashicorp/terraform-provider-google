@@ -210,7 +210,6 @@ The following arguments are supported:
   means the autoscaler will scale down on any recommended change.
   Bounds: [0.0, 1.0]. Default: 0.0.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

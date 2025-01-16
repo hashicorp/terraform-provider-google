@@ -486,7 +486,6 @@ The following arguments are supported:
   Max number of rows in each batch sent to the remote service. If absent or if 0,
   BigQuery dynamically decides the number of rows in a batch.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

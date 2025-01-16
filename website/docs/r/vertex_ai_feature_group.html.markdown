@@ -136,7 +136,6 @@ The following arguments are supported:
   (Required)
   BigQuery URI to a table, up to 2000 characters long. For example: `bq://projectId.bqDatasetId.bqTableId.`
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

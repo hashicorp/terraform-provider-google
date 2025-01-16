@@ -191,7 +191,6 @@ create/stop/resume operations, set this parameter to true. Default is false.
   (Optional)
   Description for the destination volume.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -75,7 +75,6 @@ The following arguments are supported:
   The location of the resource. The only supported location is global so far.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

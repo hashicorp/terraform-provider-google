@@ -211,7 +211,6 @@ The following arguments are supported:
   Flag that specifies whether the reserved NAT address should be activate.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

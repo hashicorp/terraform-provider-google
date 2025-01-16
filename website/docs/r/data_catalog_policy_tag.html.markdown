@@ -120,7 +120,6 @@ The following arguments are supported:
   If not set, defaults to an empty string.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

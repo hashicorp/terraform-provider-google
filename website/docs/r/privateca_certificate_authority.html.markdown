@@ -743,7 +743,6 @@ Possible values: ENABLED, DISABLED, STAGED.
   (Optional)
   Expected to be in leaf-to-root order according to RFC 5246.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

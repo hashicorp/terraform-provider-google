@@ -91,7 +91,6 @@ The following arguments are supported:
   Format: 'folders/{{folder_id}}' or 'projects/{{project_number}}'
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

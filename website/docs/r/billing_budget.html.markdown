@@ -509,7 +509,6 @@ The following arguments are supported:
   This field will be ignored if the budget has multiple or no project configured.
   Currently, project level recipients are the users with Owner role on a cloud project.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

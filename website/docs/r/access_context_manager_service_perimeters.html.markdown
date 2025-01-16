@@ -722,7 +722,6 @@ The following arguments are supported:
   Value for permission should be a valid Cloud IAM permission for the
   corresponding `serviceName` in `ApiOperation`.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

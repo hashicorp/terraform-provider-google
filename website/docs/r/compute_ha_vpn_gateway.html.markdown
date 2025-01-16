@@ -216,7 +216,6 @@ The following arguments are supported:
   specified interconnect attachment resource.
   Not currently available publicly.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

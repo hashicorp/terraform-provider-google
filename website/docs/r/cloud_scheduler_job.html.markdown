@@ -444,7 +444,6 @@ The following arguments are supported:
   Audience to be used when generating OIDC token. If not specified,
   the URI specified in target will be used.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

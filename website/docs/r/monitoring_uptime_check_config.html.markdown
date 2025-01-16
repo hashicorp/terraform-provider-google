@@ -500,7 +500,6 @@ The following arguments are supported:
   (Required)
   The fully qualified name of the cloud function resource.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

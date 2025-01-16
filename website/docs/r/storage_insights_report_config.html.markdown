@@ -221,7 +221,6 @@ The following arguments are supported:
   (Optional)
   The path within the destination bucket to store generated inventory reports.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

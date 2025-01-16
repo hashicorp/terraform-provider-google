@@ -206,7 +206,6 @@ The following arguments are supported:
     0 2 * * 0    : once a week every Sunday at 2 past midnight in UTC.
     0 2 8 * *    : once a month on 8th day at 2 past midnight in UTC.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

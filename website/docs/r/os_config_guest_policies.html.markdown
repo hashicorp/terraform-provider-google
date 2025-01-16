@@ -787,7 +787,6 @@ The following arguments are supported:
   which likely only succeed for scripts with shebang lines.
   Possible values are: `SHELL`, `POWERSHELL`.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

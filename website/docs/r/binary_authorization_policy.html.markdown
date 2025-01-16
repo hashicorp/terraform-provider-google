@@ -204,7 +204,6 @@ The following arguments are supported:
   The action when a pod creation is denied by the admission rule.
   Possible values are: `ENFORCED_BLOCK_AND_AUDIT_LOG`, `DRYRUN_AUDIT_LOG_ONLY`.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

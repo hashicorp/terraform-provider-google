@@ -242,7 +242,6 @@ The following arguments are supported:
   (Optional)
   Name of the Sole Tenant node. Consult https://cloud.google.com/compute/docs/nodes/sole-tenant-nodes
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

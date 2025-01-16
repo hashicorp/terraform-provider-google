@@ -595,7 +595,6 @@ Possible values: DEFAULT, FORCE
   (Optional)
   Fractions of seconds in nanoseconds. Currently, only the value 0 is supported.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

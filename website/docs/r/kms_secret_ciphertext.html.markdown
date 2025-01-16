@@ -111,7 +111,6 @@ The following arguments are supported:
   **Note**: This property is sensitive and will not be displayed in the plan.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

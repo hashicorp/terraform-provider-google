@@ -327,7 +327,6 @@ The following arguments are supported:
   * The phone gateway synthesize configuration set via Agent.text_to_speech_settings.
   * How speech is synthesized when invoking session APIs. `Agent.text_to_speech_settings` only applies if `OutputAudioConfig.synthesize_speech_config` is not specified.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

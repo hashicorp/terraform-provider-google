@@ -604,7 +604,6 @@ The following arguments are supported:
   (Optional)
   Number of embeddings on each leaf node. The default value is 1000 if not set.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

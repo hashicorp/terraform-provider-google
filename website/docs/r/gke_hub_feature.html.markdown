@@ -746,7 +746,6 @@ The following arguments are supported:
   (Optional)
   The set of namespaces to be exempted from the bundle.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

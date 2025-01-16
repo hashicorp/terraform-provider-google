@@ -102,7 +102,6 @@ The following arguments are supported:
   Formatted as described in
   https://cloud.google.com/apis/design/resource_names.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

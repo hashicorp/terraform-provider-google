@@ -201,7 +201,6 @@ The following arguments are supported:
   (Optional)
   Indicates whether the cert should be matched against as a wildcard cert.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

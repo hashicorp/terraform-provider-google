@@ -148,7 +148,6 @@ The following arguments are supported:
   ~> **Warning:** `project` is deprecated and will be removed in a future major release. Use `project_id` instead.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

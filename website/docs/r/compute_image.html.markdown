@@ -291,7 +291,6 @@ The following arguments are supported:
   You must provide either this property or the sourceDisk property
   but not both.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

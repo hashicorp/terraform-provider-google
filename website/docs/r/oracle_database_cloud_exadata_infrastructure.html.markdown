@@ -338,7 +338,6 @@ The following arguments are supported:
   The email address used by Oracle to send notifications regarding databases
   and infrastructure.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

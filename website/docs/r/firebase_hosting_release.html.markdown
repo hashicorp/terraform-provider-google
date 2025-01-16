@@ -152,7 +152,6 @@ The following arguments are supported:
   This parameter must be empty if the `type` of the release is `SITE_DISABLE`.
 
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

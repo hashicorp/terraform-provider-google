@@ -535,7 +535,6 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

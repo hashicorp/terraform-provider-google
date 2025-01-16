@@ -148,7 +148,6 @@ The following arguments are supported:
   (Optional)
   Required aspect type for the entry type.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
