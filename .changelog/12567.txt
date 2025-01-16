@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed `additive_vpc_scope_dns_domain` being ignored in Autopilot cluster definition
+```

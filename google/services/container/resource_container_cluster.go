@@ -107,6 +107,14 @@ var (
 
 	suppressDiffForAutopilot = schema.SchemaDiffSuppressFunc(func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 		if v, _ := d.Get("enable_autopilot").(bool); v {
+			if k == "dns_config.0.additive_vpc_scope_dns_domain" {
+				return false
+			}
+			if k == "dns_config.#" {
+				if avpcDomain, _ := d.Get("dns_config.0.additive_vpc_scope_dns_domain").(string); avpcDomain != "" || d.HasChange("dns_config.0.additive_vpc_scope_dns_domain") {
+					return false
+				}
+			}
 			return true
 		}
 		return false
@@ -6545,6 +6553,9 @@ func containerClusterAutopilotCustomizeDiff(_ context.Context, d *schema.Resourc
 		if err := d.SetNew("networking_mode", "VPC_NATIVE"); err != nil {
 			return err
 		}
+	}
+	if d.Get("enable_autopilot").(bool) && d.HasChange("dns_config.0.additive_vpc_scope_dns_domain") {
+		return d.ForceNew("dns_config.0.additive_vpc_scope_dns_domain")
 	}
 	return nil
 }
