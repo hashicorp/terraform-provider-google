@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"maps"
+	"net/http"
 	"os"
 	"strings"
 	"testing"
@@ -1424,6 +1425,316 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 	accessToken := atResp.AccessToken
 
 	return accessToken, nil
+}
+
+// For bootstrapping Developer Connect git repository link
+const SharedGitRepositoryLinkIdPrefix = "tf-bootstrap-git-repository-"
+
+func BootstrapGitRepository(t *testing.T, gitRepositoryLinkId, location, cloneUri, parentConnectionId string) string {
+	gitRepositoryLinkId = SharedGitRepositoryLinkIdPrefix + gitRepositoryLinkId
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		t.Fatal("Could not bootstrap config.")
+	}
+
+	log.Printf("[DEBUG] Getting shared git repository link %q", gitRepositoryLinkId)
+
+	getURL := fmt.Sprintf("%sprojects/%s/locations/%s/connections/%s/gitRepositoryLinks/%s",
+		config.DeveloperConnectBasePath, config.Project, location, parentConnectionId, gitRepositoryLinkId)
+
+	headers := make(http.Header)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    getURL,
+		UserAgent: config.UserAgent,
+		Headers:   headers,
+	})
+
+	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+		log.Printf("[DEBUG] Git repository link %q not found, bootstrapping", gitRepositoryLinkId)
+		obj := map[string]interface{}{
+			"clone_uri":   cloneUri,
+			"annotations": map[string]string{},
+		}
+
+		postURL := fmt.Sprintf("%sprojects/%s/locations/%s/connections/%s/gitRepositoryLinks?gitRepositoryLinkId=%s",
+			config.DeveloperConnectBasePath, config.Project, location, parentConnectionId, gitRepositoryLinkId)
+		headers := make(http.Header)
+		_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   config.Project,
+			RawURL:    postURL,
+			UserAgent: config.UserAgent,
+			Body:      obj,
+			Timeout:   20 * time.Minute,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Fatalf("Error bootstrapping git repository link %q: %s", gitRepositoryLinkId, err)
+		}
+
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    getURL,
+			UserAgent: config.UserAgent,
+			Timeout:   20 * time.Minute,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Fatalf("Error getting git repository link %q: %s", gitRepositoryLinkId, err)
+		}
+	}
+
+	return gitRepositoryLinkId
+}
+
+const SharedConnectionIdPrefix = "tf-bootstrap-developer-connect-connection-"
+
+// For bootstrapping Developer Connect connection resources
+func BootstrapDeveloperConnection(t *testing.T, connectionId, location, tokenResource string, appInstallationId int) string {
+	connectionId = SharedConnectionIdPrefix + connectionId
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		t.Fatal("Could not bootstrap config.")
+	}
+
+	log.Printf("[DEBUG] Getting shared developer connection %q", connectionId)
+
+	getURL := fmt.Sprintf("%sprojects/%s/locations/%s/connections/%s",
+		config.DeveloperConnectBasePath, config.Project, location, connectionId)
+
+	headers := make(http.Header)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    getURL,
+		UserAgent: config.UserAgent,
+		Headers:   headers,
+	})
+
+	if err != nil {
+		log.Printf("[DEBUG] Developer connection %q not found, bootstrapping", connectionId)
+		authorizerCredential := map[string]string{
+			"oauth_token_secret_version": tokenResource,
+		}
+		githubConfig := map[string]interface{}{
+			"github_app":            "DEVELOPER_CONNECT",
+			"app_installation_id":   appInstallationId,
+			"authorizer_credential": authorizerCredential,
+		}
+		obj := map[string]interface{}{
+			"disabled":      false,
+			"github_config": githubConfig,
+		}
+
+		postURL := fmt.Sprintf("%sprojects/%s/locations/%s/connections?connectionId=%s",
+			config.DeveloperConnectBasePath, config.Project, location, connectionId)
+		headers := make(http.Header)
+		_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   config.Project,
+			RawURL:    postURL,
+			UserAgent: config.UserAgent,
+			Body:      obj,
+			Timeout:   20 * time.Minute,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Fatalf("Error bootstrapping developer connection %q: %s", connectionId, err)
+		}
+
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    getURL,
+			UserAgent: config.UserAgent,
+			Timeout:   20 * time.Minute,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Fatalf("Error getting developer connection %q: %s", connectionId, err)
+		}
+	}
+
+	return connectionId
+}
+
+const SharedRepositoryGroupPrefix = "tf-bootstrap-repo-group-"
+
+func BoostrapSharedRepositoryGroup(t *testing.T, repositoryGroupId, location, labels, codeRepositoryIndexId, resource string) string {
+	repositoryGroupId = SharedRepositoryGroupPrefix + repositoryGroupId
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		t.Fatal("Could not bootstrap config.")
+	}
+
+	log.Printf("[DEBUG] Getting shared repository group %q", repositoryGroupId)
+
+	getURL := fmt.Sprintf("%sprojects/%s/locations/%s/codeRepositoryIndexes/%s/repositoryGroups/%s",
+		config.GeminiBasePath, config.Project, location, codeRepositoryIndexId, repositoryGroupId)
+
+	headers := make(http.Header)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    getURL,
+		UserAgent: config.UserAgent,
+		Headers:   headers,
+	})
+	if err != nil {
+		log.Printf("[DEBUG] Repository group %q not found, bootstrapping", codeRepositoryIndexId)
+		repositories := [1]interface{}{map[string]string{
+			"resource":       resource,
+			"branch_pattern": "main",
+		}}
+		postURL := fmt.Sprintf("%sprojects/%s/locations/%s/codeRepositoryIndexes/%s/repositoryGroups?repositoryGroupId=%s",
+			config.GeminiBasePath, config.Project, location, codeRepositoryIndexId, repositoryGroupId)
+		obj := map[string]interface{}{
+			"repositories": repositories,
+		}
+		if labels != "" {
+			obj["labels"] = labels
+		}
+
+		headers := make(http.Header)
+		for {
+			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "POST",
+				Project:   config.Project,
+				RawURL:    postURL,
+				UserAgent: config.UserAgent,
+				Body:      obj,
+				Timeout:   20 * time.Minute,
+				Headers:   headers,
+			})
+			if err != nil {
+				if transport_tpg.IsGoogleApiErrorWithCode(err, 409) {
+					errMsg := fmt.Sprintf("%s", err)
+					if strings.Contains(errMsg, "unable to queue the operation") {
+						log.Printf("[DEBUG] Waiting for enqueued operation to finish before creating RepositoryGroup: %#v", obj)
+						time.Sleep(10 * time.Second)
+					} else if strings.Contains(errMsg, "parent resource not in ready state") {
+						log.Printf("[DEBUG] Waiting for parent resource to become active before creating RepositoryGroup: %#v", obj)
+						time.Sleep(1 * time.Minute)
+					} else {
+						t.Fatalf("Error creating RepositoryGroup: %s", err)
+					}
+				} else {
+					t.Fatalf("Error creating repository group %q: %s", repositoryGroupId, err)
+				}
+			} else {
+				break
+			}
+		}
+
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    getURL,
+			UserAgent: config.UserAgent,
+			Timeout:   20 * time.Minute,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Errorf("Error getting repository group %q: %s", repositoryGroupId, err)
+		}
+	}
+
+	return repositoryGroupId
+}
+
+// BootstrapSharedCodeRepositoryIndex will create a code repository index
+// if it hasn't been created in the test project.
+//
+// BootstrapSharedCodeRepositoryIndex returns a persistent code repository index
+// for a test or set of tests.
+//
+// Deletion of code repository index takes a few minutes, and creation of it
+// currently takes about half an hour.
+// That is the reason to use the shared code repository indexes for test resources.
+const SharedCodeRepositoryIndexPrefix = "tf-bootstrap-cri-"
+
+func BootstrapSharedCodeRepositoryIndex(t *testing.T, codeRepositoryIndexId, location, kmsKey string, labels map[string]string) string {
+	codeRepositoryIndexId = SharedCodeRepositoryIndexPrefix + codeRepositoryIndexId
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		t.Fatal("Could not bootstrap config.")
+	}
+
+	log.Printf("[DEBUG] Getting shared code repository index %q", codeRepositoryIndexId)
+
+	getURL := fmt.Sprintf("%sprojects/%s/locations/%s/codeRepositoryIndexes/%s", config.GeminiBasePath, config.Project, location, codeRepositoryIndexId)
+
+	headers := make(http.Header)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    getURL,
+		UserAgent: config.UserAgent,
+		Timeout:   90 * time.Minute,
+		Headers:   headers,
+	})
+
+	// CRI not found responds with 404 not found
+	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+		log.Printf("[DEBUG] Code repository index %q not found, bootstrapping", codeRepositoryIndexId)
+		postURL := fmt.Sprintf("%sprojects/%s/locations/%s/codeRepositoryIndexes?codeRepositoryIndexId=%s", config.GeminiBasePath, config.Project, location, codeRepositoryIndexId)
+		obj := make(map[string]interface{})
+		if labels != nil {
+			obj["labels"] = labels
+		}
+		if kmsKey != "" {
+			obj["kmsKey"] = kmsKey
+		}
+
+		headers := make(http.Header)
+		_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   config.Project,
+			RawURL:    postURL,
+			UserAgent: config.UserAgent,
+			Body:      obj,
+			Timeout:   90 * time.Minute,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Fatalf("Error creating code repository index %q: %s", codeRepositoryIndexId, err)
+		}
+
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    getURL,
+			UserAgent: config.UserAgent,
+			Timeout:   90 * time.Minute,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Fatalf("Error getting code repository index %q: %s", codeRepositoryIndexId, err)
+		}
+	} else if err != nil {
+		t.Fatalf("Error getting code repository index %q: %s", codeRepositoryIndexId, err)
+	}
+
+	return codeRepositoryIndexId
 }
 
 const sharedTagKeyPrefix = "tf-bootstrap-tagkey"
