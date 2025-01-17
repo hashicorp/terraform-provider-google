@@ -3,9 +3,6 @@
 package sweeper_test
 
 import (
-	"testing"
-
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/accessapproval"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/accesscontextmanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/activedirectory"
@@ -138,6 +135,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/workbench"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/workflows"
+	"testing"
 
 	// Manually add the services for DCL resource and handwritten resource sweepers if they are not in the above list
 	_ "github.com/hashicorp/terraform-provider-google/google/services/apikeys"
@@ -152,8 +150,14 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/firebaserules"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networkconnectivity"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/recaptchaenterprise"
+
+	// TODO: remove dependency on hashicorp flags
+	// need to blank import hashicorp sweeper code to maintain the flags declared in their package
+	_ "github.com/hashicorp/terraform-plugin-testing/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 )
 
-func TestMain(m *testing.M) {
-	resource.TestMain(m)
+func TestSweepers(t *testing.T) {
+	sweeper.ExecuteSweepers(t)
 }
