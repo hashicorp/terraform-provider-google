@@ -167,7 +167,17 @@ CIDR-formatted string.`,
 This value is applied to all custom learned route ranges for the session. You can choose a value
 from 0 to 65335. If you don't provide a value, Google Cloud assigns a priority of 100 to the ranges.`,
 			},
-
+			"zero_custom_learned_route_priority": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `Force the custom_learned_route_priority to be 0.`,
+			},
+			"is_custom_learned_priority_set": {
+				Type:        schema.TypeBool,
+				Computed:    true, // This field is computed by the provider
+				Description: "An internal boolean field for provider use.",
+			},
 			"bfd": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -426,7 +436,19 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("custom_learned_route_priority"); ok || !reflect.DeepEqual(v, customLearnedRoutePriorityProp) {
-		obj["customLearnedRoutePriority"] = customLearnedRoutePriorityProp
+		if !d.Get("zero_custom_learned_route_priority").(bool) && customLearnedRoutePriorityProp == 0 {
+			// Add the condition to check the present value
+			if !d.Get("is_custom_learned_priority_set").(bool) {
+				log.Printf("[WARN] custom_learned_route_priority can't be 0 unless zero_custom_learned_route_priority set to true")
+			} else {
+				return fmt.Errorf("Invalid custom_learned_route_priority value: When zero_custom_learned_route_priority is set to 'false', the custom_learned_route_priority field cannot be 0. Please provide a non-zero value.")
+			}
+		} else if d.Get("zero_custom_learned_route_priority").(bool) && customLearnedRoutePriorityProp != 0 {
+			return fmt.Errorf("[ERROR] custom_learned_route_priority cannot be set to value other than zero unless zero_custom_learned_route_priority is false")
+		} else {
+			obj["customLearnedRoutePriority"] = customLearnedRoutePriorityProp
+			d.Set("is_custom_learned_priority_set", true)
+		}
 	}
 	bfdProp, err := expandNestedComputeRouterBgpPeerBfd(d.Get("bfd"), d, config)
 	if err != nil {
@@ -757,7 +779,19 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("custom_learned_route_priority"); ok || !reflect.DeepEqual(v, customLearnedRoutePriorityProp) {
-		obj["customLearnedRoutePriority"] = customLearnedRoutePriorityProp
+		if !d.Get("zero_custom_learned_route_priority").(bool) && customLearnedRoutePriorityProp == 0 {
+			// Add the condition to check the present value
+			if !d.Get("is_custom_learned_priority_set").(bool) {
+				log.Printf("[WARN] custom_learned_route_priority can't be 0 unless zero_custom_learned_route_priority set to true")
+			} else {
+				return fmt.Errorf("Invalid custom_learned_route_priority value: When zero_custom_learned_route_priority is set to 'false', the custom_learned_route_priority field cannot be 0. Please provide a non-zero value.")
+			}
+		} else if d.Get("zero_custom_learned_route_priority").(bool) && customLearnedRoutePriorityProp != 0 {
+			return fmt.Errorf("[ERROR] custom_learned_route_priority cannot be set to value other than zero unless zero_custom_learned_route_priority is false")
+		} else {
+			obj["customLearnedRoutePriority"] = customLearnedRoutePriorityProp
+			d.Set("is_custom_learned_priority_set", true)
+		}
 	}
 	bfdProp, err := expandNestedComputeRouterBgpPeerBfd(d.Get("bfd"), d, config)
 	if err != nil {

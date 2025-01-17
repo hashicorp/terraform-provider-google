@@ -34,7 +34,7 @@ func TestAccComputeRouterBgpPeer_routerPeerRouterAppliance(t *testing.T) {
 				ResourceName:            "google_compute_router_peer.peer",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"router_appliance_instance", "router", "region"},
+				ImportStateVerifyIgnore: []string{"router_appliance_instance", "router", "region", "zero_custom_learned_route_priority"},
 			},
 		},
 	})
