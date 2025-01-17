@@ -1,5 +1,37 @@
 ## 6.17.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_apigee_environment_addons_config` ([#20851](https://github.com/hashicorp/terraform-provider-google/pull/20851))
+* **New Resource:** `google_beyondcorp_security_gateway` ([#20844](https://github.com/hashicorp/terraform-provider-google/pull/20844))
+* **New Resource:** `google_chronicle_reference_list` (beta) ([#20895](https://github.com/hashicorp/terraform-provider-google/pull/20895))
+* **New Resource:** `google_chronicle_rule_deployment` ([#20888](https://github.com/hashicorp/terraform-provider-google/pull/20888))
+* **New Resource:** `google_chronicle_rule` ([#20868](https://github.com/hashicorp/terraform-provider-google/pull/20868))
+* **New Resource:** `google_colab_runtime_template` ([#20898](https://github.com/hashicorp/terraform-provider-google/pull/20898))
+* **New Resource:** `google_edgenetwork_interconnect_attachment` ([#20856](https://github.com/hashicorp/terraform-provider-google/pull/20856))
+* **New Resource:** `google_parameter_manager_parameter` ([#20886](https://github.com/hashicorp/terraform-provider-google/pull/20886))
+* **New Resource:** `google_parameter_manager_regional_parameter_version` ([#20914](https://github.com/hashicorp/terraform-provider-google/pull/20914))
+* **New Resource:** `google_parameter_manager_regional_parameter` ([#20858](https://github.com/hashicorp/terraform-provider-google/pull/20858))
+
+IMPROVEMENTS:
+* accesscontextmanager: added `etag` to `google_access_context_manager_service_perimeter_resource` to prevent overriding list of resources ([#20910](https://github.com/hashicorp/terraform-provider-google/pull/20910))
+* compute: added `BPS_100G` enum value to `bandwidth` field of `google_compute_interconnect_attachment`. ([#20884](https://github.com/hashicorp/terraform-provider-google/pull/20884))
+* compute: added support for `IPV6_ONLY` stack_type to `google_compute_subnetwork`, `google_compute_instance`, `google_compute_instance_template` and `google_compute_region_instance_template`. ([#20850](https://github.com/hashicorp/terraform-provider-google/pull/20850))
+* compute: promoted `bgp_best_path_selection_mode `,`bgp_bps_always_compare_med` and `bgp_bps_inter_region_cost ` fields in `google_compute_network` from Beta to Ga ([#20865](https://github.com/hashicorp/terraform-provider-google/pull/20865))
+* compute: promoted `next_hop_origin `,`next_hop_med ` and `next_hop_inter_region_cost ` output fields in `google_compute_route` form Beta to GA ([#20865](https://github.com/hashicorp/terraform-provider-google/pull/20865))
+* discoveryengine: added `advanced_site_search_config` field to `google_discovery_engine_data_store` resource ([#20912](https://github.com/hashicorp/terraform-provider-google/pull/20912))
+* gemini: added `force_destroy` field to resource `google_code_repository_index`, enabling deletion of the resource even when it has dependent RepositoryGroups ([#20881](https://github.com/hashicorp/terraform-provider-google/pull/20881))
+* networkservices: added in-place update support for `ports` field on `google_network_services_gateway` resource ([#20908](https://github.com/hashicorp/terraform-provider-google/pull/20908))
+* sql: `sql_source_representation_instance` now uses `string` representation of `databaseVersion` ([#20859](https://github.com/hashicorp/terraform-provider-google/pull/20859))
+* sql: added `replication_cluster` field to `google_sql_database_instance` resource ([#20889](https://github.com/hashicorp/terraform-provider-google/pull/20889))
+* sql: added support of switchover for MySQL and PostgreSQL in `google_sql_database_instance` resource ([#20889](https://github.com/hashicorp/terraform-provider-google/pull/20889))
+* workbench: changed `container_image` field of `google_workbench_instance` resource to modifiable. ([#20894](https://github.com/hashicorp/terraform-provider-google/pull/20894))
+
+BUG FIXES:
+* apigee: fixed error 404 for `organization` update requests. ([#20854](https://github.com/hashicorp/terraform-provider-google/pull/20854))
+* artifactregistry: fixed `artifact_registry_repository` not accepting durations with 'm', 'h' or 'd' ([#20902](https://github.com/hashicorp/terraform-provider-google/pull/20902))
+* networkservices: fixed bug where `google_network_services_gateway` could not be updated in place ([#20908](https://github.com/hashicorp/terraform-provider-google/pull/20908))
+* storagetransfer: fixed a permadiff with `transfer_spec.aws_s3_data_source.aws_access_key` in `google_storage_transfer_job` ([#20849](https://github.com/hashicorp/terraform-provider-google/pull/20849))
+
 ## 6.16.0 (January 13, 2025)
 
 FEATURES:
