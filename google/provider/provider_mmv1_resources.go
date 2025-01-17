@@ -291,6 +291,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_oracle_database_cloud_vm_clusters":             oracledatabase.DataSourceOracleDatabaseCloudVmClusters(),
 	"google_oracle_database_cloud_vm_cluster":              oracledatabase.DataSourceOracleDatabaseCloudVmCluster(),
 	"google_organization":                                  resourcemanager.DataSourceGoogleOrganization(),
+	"google_organizations":                                 resourcemanager.DataSourceGoogleOrganizations(),
 	"google_privateca_certificate_authority":               privateca.DataSourcePrivatecaCertificateAuthority(),
 	"google_privileged_access_manager_entitlement":         privilegedaccessmanager.DataSourceGooglePrivilegedAccessManagerEntitlement(),
 	"google_project":                                       resourcemanager.DataSourceGoogleProject(),
