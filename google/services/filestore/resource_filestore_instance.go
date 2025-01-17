@@ -318,6 +318,21 @@ NFSv4.1 can be used with HIGH_SCALE_SSD, ZONAL, REGIONAL and ENTERPRISE.
 The default is NFSv3. Default value: "NFS_V3" Possible values: ["NFS_V3", "NFS_V4_1"]`,
 				Default: "NFS_V3",
 			},
+			"tags": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Description: `A map of resource manager tags. Resource manager tag keys
+and values have the same definition as resource manager
+tags. Keys must be in the format tagKeys/{tag_key_id},
+and values are in the format tagValues/456. The field is
+ignored when empty. The field is immutable and causes
+resource replacement when mutated. This field is only set
+at create time and modifying this field after creation
+will trigger recreation. To apply tags to an existing
+resource, see the 'google_tags_tag_value' resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"zone": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -423,6 +438,12 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("performance_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(performanceConfigProp)) && (ok || !reflect.DeepEqual(v, performanceConfigProp)) {
 		obj["performanceConfig"] = performanceConfigProp
+	}
+	tagsProp, err := expandFilestoreInstanceTags(d.Get("tags"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tags"); !tpgresource.IsEmptyValue(reflect.ValueOf(tagsProp)) && (ok || !reflect.DeepEqual(v, tagsProp)) {
+		obj["tags"] = tagsProp
 	}
 	labelsProp, err := expandFilestoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -1404,6 +1425,17 @@ func expandFilestoreInstancePerformanceConfigFixedIops(v interface{}, d tpgresou
 
 func expandFilestoreInstancePerformanceConfigFixedIopsMaxIops(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandFilestoreInstanceTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandFilestoreInstanceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
