@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: fixed a issue where `custom_learned_route_priority` was accidentally set to 0 during updates in 'google_compute_router_peer'
+```
+```release-note:enhancement
+bug: added support for setting `custom_learned_route_priority` to 0 in 'google_compute_router_peer' by adding the `zero_custom_learned_route_priority` field
+```
