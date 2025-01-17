@@ -31,7 +31,7 @@ To get more information about FirewallPolicyRule, see:
 
 ```hcl
 resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
-  name        = "address"
+  name        = "address-group"
   parent      = "organizations/123456789"
   description = "Sample global networksecurity_address_group"
   location    = "global"
@@ -48,36 +48,85 @@ resource "google_folder" "folder" {
 
 resource "google_compute_firewall_policy" "default" {
   parent      = google_folder.folder.id
-  short_name  = "policy"
+  short_name  = "fw-policy"
   description = "Resource created for Terraform acceptance testing"
 }
 
-resource "google_compute_firewall_policy_rule" "policy_rule" {
+resource "google_compute_firewall_policy_rule" "primary" {
+  firewall_policy         = google_compute_firewall_policy.default.name
+  description             = "Resource created for Terraform acceptance testing"
+  priority                = 9000
+  enable_logging          = true
+  action                  = "allow"
+  direction               = "EGRESS"
+  disabled                = false
+  target_service_accounts = ["my@service-account.com"]
+
+  match {
+    dest_ip_ranges            = ["11.100.0.1/32"]
+    dest_fqdns                = []
+    dest_region_codes         = ["US"]
+    dest_threat_intelligences = ["iplist-known-malicious-ips"]
+    src_address_groups        = []
+    dest_address_groups       = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
+    dest_network_scope        = "INTERNET"
+
+    layer4_configs {
+      ip_protocol = "tcp"
+      ports       = [8080]
+    }
+
+    layer4_configs {
+      ip_protocol = "udp"
+      ports       = [22]
+    }
+  }
+}
+```
+## Example Usage - Firewall Policy Rule Network Scope
+
+
+```hcl
+resource "google_folder" "folder" {
+  display_name        = "folder"
+  parent              = "organizations/123456789"
+  deletion_protection = false
+}
+
+resource "google_compute_firewall_policy" "default" {
+  parent      = google_folder.folder.id
+  short_name  = "fw-policy"
+  description = "Firewall policy"
+}
+
+resource "google_compute_firewall_policy_rule" "primary" {
   firewall_policy = google_compute_firewall_policy.default.name
-  description     = "Resource created for Terraform acceptance testing"
+  description     = "Firewall policy rule with network scope"
   priority        = 9000
-  enable_logging  = true
   action          = "allow"
-  direction       = "EGRESS"
+  direction       = "INGRESS"
   disabled        = false
 
   match {
+    src_ip_ranges     = ["11.100.0.1/32"]
+    src_network_scope = "VPC_NETWORKS"
+    src_networks      = [google_compute_network.network.id]
+
     layer4_configs {
       ip_protocol = "tcp"
-      ports = [8080]
+      ports       = [8080]
     }
+
     layer4_configs {
       ip_protocol = "udp"
-      ports = [22]
+      ports       = [22]
     }
-    dest_ip_ranges = ["11.100.0.1/32"]
-    dest_fqdns = []
-    dest_region_codes = ["US"]
-    dest_threat_intelligences = ["iplist-known-malicious-ips"]
-    src_address_groups = []
-    dest_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
   }
-  target_service_accounts = ["my@service-account.com"]
+}
+
+resource "google_compute_network" "network" {
+  name                    = "network"
+  auto_create_subnetworks = false
 }
 ```
 
@@ -120,6 +169,20 @@ The following arguments are supported:
 * `dest_ip_ranges` -
   (Optional)
   CIDR IP address range. Maximum number of destination CIDR IP ranges allowed is 5000.
+
+* `src_network_scope` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Network scope of the traffic source.
+  Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
+
+* `src_networks` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Networks of the traffic source. It can be either a full or partial url.
+
+* `dest_network_scope` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Network scope of the traffic destination.
+  Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
 
 * `layer4_configs` -
   (Required)

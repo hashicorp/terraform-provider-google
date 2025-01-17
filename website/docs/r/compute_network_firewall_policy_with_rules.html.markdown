@@ -33,10 +33,10 @@ data "google_project" "project" {
   provider = google-beta
 }
 
-resource "google_compute_network_firewall_policy_with_rules" "network-firewall-policy-with-rules" {
-  name = "tf-fw-policy-with-rules"
-  description = "Terraform test"
+resource "google_compute_network_firewall_policy_with_rules" "primary" {
   provider = google-beta
+  name = "fw-policy"
+  description = "Terraform test"
 
   rule {
     description    = "tcp rule"
@@ -44,65 +44,112 @@ resource "google_compute_network_firewall_policy_with_rules" "network-firewall-p
     enable_logging = true
     action         = "allow"
     direction      = "EGRESS"
+
     match {
+      dest_ip_ranges            = ["11.100.0.1/32"]
+      dest_fqdns                = ["www.yyy.com", "www.zzz.com"]
+      dest_region_codes         = ["HK", "IN"]
+      dest_threat_intelligences = ["iplist-search-engines-crawlers", "iplist-tor-exit-nodes"]
+      dest_address_groups       = [google_network_security_address_group.address_group_1.id]
+
       layer4_config {
         ip_protocol = "tcp"
         ports       = [8080, 7070]
       }
-      dest_ip_ranges = ["11.100.0.1/32"]
-      dest_fqdns = ["www.yyy.com", "www.zzz.com"]
-      dest_region_codes = ["HK", "IN"]
-      dest_threat_intelligences = ["iplist-search-engines-crawlers", "iplist-tor-exit-nodes"]
-      dest_address_groups = [google_network_security_address_group.address_group_1.id]
     }
+
     target_secure_tag {
       name = google_tags_tag_value.secure_tag_value_1.id
     }
   }
+
   rule {
       description    = "udp rule"
       priority       = 2000
       enable_logging = false
       action         = "deny"
       direction      = "INGRESS"
+      disabled       = true
+
       match {
-        layer4_config {
-          ip_protocol = "udp"
-        }
-        src_ip_ranges = ["0.0.0.0/0"]
-        src_fqdns = ["www.abc.com", "www.def.com"]
-        src_region_codes = ["US", "CA"]
+        src_ip_ranges            = ["0.0.0.0/0"]
+        src_fqdns                = ["www.abc.com", "www.def.com"]
+        src_region_codes         = ["US", "CA"]
         src_threat_intelligences = ["iplist-known-malicious-ips", "iplist-public-clouds"]
-        src_address_groups = [google_network_security_address_group.address_group_1.id]
+        src_address_groups       = [google_network_security_address_group.address_group_1.id]
+
         src_secure_tag {
           name = google_tags_tag_value.secure_tag_value_1.id
         }
-      }
-      disabled = true
-   }
 
-    rule {
-         description    = "security profile group rule"
-         rule_name      = "tcp rule"
-         priority       = 3000
-         enable_logging = false
-         action         = "apply_security_profile_group"
-         direction      = "INGRESS"
-         match {
-           layer4_config {
-             ip_protocol = "tcp"
-           }
-           src_ip_ranges = ["0.0.0.0/0"]
-         }
-         target_service_accounts = ["test@google.com"]
-         security_profile_group = "//networksecurity.googleapis.com/${google_network_security_security_profile_group.security_profile_group_1.id}"
-         tls_inspect = true
+        layer4_config {
+          ip_protocol = "udp"
+        }
+      }
+  }
+
+  rule {
+    description             = "security profile group rule"
+    rule_name               = "tcp rule"
+    priority                = 3000
+    enable_logging          = false
+    action                  = "apply_security_profile_group"
+    direction               = "INGRESS"
+    target_service_accounts = ["test@google.com"]
+    security_profile_group  = "//networksecurity.googleapis.com/${google_network_security_security_profile_group.security_profile_group_1.id}"
+    tls_inspect             = true
+
+    match {
+      src_ip_ranges = ["0.0.0.0/0"]
+
+      layer4_config {
+        ip_protocol = "tcp"
+      }
     }
+  }
+
+  rule {
+    description    = "network scope rule 1"
+    rule_name      = "network scope 1"
+    priority       = 4000
+    enable_logging = false
+    action         = "allow"
+    direction      = "INGRESS"
+
+    match {
+      src_ip_ranges     = ["11.100.0.1/32"]
+      src_network_scope = "VPC_NETWORKS"
+      src_networks      = [google_compute_network.network.id]
+
+      layer4_config {
+        ip_protocol = "tcp"
+        ports       = [8080]
+      }
+    }
+  }
+
+  rule {
+    description    = "network scope rule 2"
+    rule_name      = "network scope 2"
+    priority       = 5000
+    enable_logging = false
+    action         = "allow"
+    direction      = "EGRESS"
+    match {
+      dest_ip_ranges     = ["0.0.0.0/0"]
+      dest_network_scope = "INTERNET"
+
+      layer4_config {
+        ip_protocol = "tcp"
+        ports       = [8080]
+      }
+    }
+  }
 }
 
 resource "google_network_security_address_group" "address_group_1" {
   provider    = google-beta
-  name        = "tf-address-group"
+  name        = "address-group"
   parent      = data.google_project.project.id
   description = "Global address group"
   location    = "global"
@@ -116,7 +163,8 @@ resource "google_tags_tag_key" "secure_tag_key_1" {
   description = "Tag key"
   parent      = data.google_project.project.id
   purpose     = "GCE_FIREWALL"
-  short_name  = "tf-tag-key"
+  short_name  = "tag-key"
+
   purpose_data = {
     network = "${data.google_project.project.name}/default"
   }
@@ -126,12 +174,12 @@ resource "google_tags_tag_value" "secure_tag_value_1" {
   provider    = google-beta
   description = "Tag value"
   parent      = google_tags_tag_key.secure_tag_key_1.id
-  short_name  = "tf-tag-value"
+  short_name  = "tag-value"
 }
 
 resource "google_network_security_security_profile_group" "security_profile_group_1" {
   provider                  = google-beta
-  name                      = "tf-security-profile-group"
+  name                      = "spg"
   parent                    = "organizations/123456789"
   description               = "my description"
   threat_prevention_profile = google_network_security_security_profile.security_profile_1.id
@@ -139,10 +187,16 @@ resource "google_network_security_security_profile_group" "security_profile_grou
 
 resource "google_network_security_security_profile" "security_profile_1" {
   provider    = google-beta
-  name        = "tf-security-profile"
+  name        = "sp"
   type        = "THREAT_PREVENTION"
   parent      = "organizations/123456789"
   location    = "global"
+}
+
+resource "google_compute_network" "network" {
+  provider                = google-beta
+  name                    = "network"
+  auto_create_subnetworks = false
 }
 ```
 
@@ -289,6 +343,20 @@ The following arguments are supported:
   of traffic. Should be specified as 2 letter country code defined as per
   ISO 3166 alpha-2 country codes. ex."US"
   Maximum number of destination region codes allowed is 5000.
+
+* `src_network_scope` -
+  (Optional)
+  Network scope of the traffic source.
+  Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
+
+* `src_networks` -
+  (Optional)
+  Networks of the traffic source. It can be either a full or partial url.
+
+* `dest_network_scope` -
+  (Optional)
+  Network scope of the traffic destination.
+  Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
 
 * `src_threat_intelligences` -
   (Optional)
