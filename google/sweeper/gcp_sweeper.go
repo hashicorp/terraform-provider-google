@@ -10,8 +10,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -112,7 +110,7 @@ func AddTestSweepers(name string, sweeper func(region string) error) {
 	hashedFilename := hex.EncodeToString(hash.Sum(nil))
 	uniqueName := name + "_" + hashedFilename
 
-	resource.AddTestSweepers(uniqueName, &resource.Sweeper{
+	addTestSweepers(uniqueName, &Sweeper{
 		Name: name,
 		F:    sweeper,
 	})
