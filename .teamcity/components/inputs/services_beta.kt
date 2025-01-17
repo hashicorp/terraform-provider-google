@@ -46,6 +46,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Apigee",
         "path" to "./google-beta/services/apigee"
     ),
+    "apihub" to mapOf(
+        "name" to "apihub",
+        "displayName" to "Apihub",
+        "path" to "./google-beta/services/apihub"
+    ),
     "apikeys" to mapOf(
         "name" to "apikeys",
         "displayName" to "Apikeys",
