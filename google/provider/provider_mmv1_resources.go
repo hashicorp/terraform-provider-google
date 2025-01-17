@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/activedirectory"
 	"github.com/hashicorp/terraform-provider-google/google/services/alloydb"
 	"github.com/hashicorp/terraform-provider-google/google/services/apigee"
+	"github.com/hashicorp/terraform-provider-google/google/services/apihub"
 	"github.com/hashicorp/terraform-provider-google/google/services/appengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/apphub"
 	"github.com/hashicorp/terraform-provider-google/google/services/artifactregistry"
@@ -467,9 +468,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 510
+// Generated resources: 511
 // Generated IAM resources: 264
-// Total generated resources: 774
+// Total generated resources: 775
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -521,6 +522,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_apigee_organization":                                                 apigee.ResourceApigeeOrganization(),
 	"google_apigee_sync_authorization":                                           apigee.ResourceApigeeSyncAuthorization(),
 	"google_apigee_target_server":                                                apigee.ResourceApigeeTargetServer(),
+	"google_apihub_api_hub_instance":                                             apihub.ResourceApihubApiHubInstance(),
 	"google_app_engine_application_url_dispatch_rules":                           appengine.ResourceAppEngineApplicationUrlDispatchRules(),
 	"google_app_engine_domain_mapping":                                           appengine.ResourceAppEngineDomainMapping(),
 	"google_app_engine_firewall_rule":                                            appengine.ResourceAppEngineFirewallRule(),
