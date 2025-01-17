@@ -1,0 +1,3 @@
+```release-note:new-datasource
+`google_parameter_manager_regional_parameters`
+```
