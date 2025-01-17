@@ -24,14 +24,29 @@ const testComposerNetworkPrefix = "tf-test-composer-net"
 const testComposerBucketPrefix = "tf-test-composer-bucket"
 const testComposerNetworkAttachmentPrefix = "tf-test-composer-nta"
 
-func allComposerServiceAgents() []string {
-	return []string{
-		"cloudcomposer-accounts",
-		"compute-system",
-		"container-engine-robot",
-		"gcp-sa-artifactregistry",
-		"gcp-sa-pubsub",
-	}
+func bootstrapComposerServiceAgents(t *testing.T) {
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@cloudcomposer-accounts.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+		{
+			Member: "serviceAccount:service-{project_number}@compute-system.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+		{
+			Member: "serviceAccount:service-{project_number}@container-engine-robot.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-artifactregistry.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 }
 
 // Checks environment creation with minimum required information.
@@ -246,7 +261,7 @@ func TestAccComposerEnvironment_withEncryptionConfigComposer1(t *testing.T) {
 
 	kms := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-composer1-key1")
 	pid := envvar.GetTestProjectFromEnv()
-	grantServiceAgentsRole(t, "service-", allComposerServiceAgents(), "roles/cloudkms.cryptoKeyEncrypterDecrypter")
+	bootstrapComposerServiceAgents(t)
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
 	subnetwork := network + "-1"
@@ -283,7 +298,7 @@ func TestAccComposerEnvironment_withEncryptionConfigComposer2(t *testing.T) {
 
 	kms := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-composer2-key1")
 	pid := envvar.GetTestProjectFromEnv()
-	grantServiceAgentsRole(t, "service-", allComposerServiceAgents(), "roles/cloudkms.cryptoKeyEncrypterDecrypter")
+	bootstrapComposerServiceAgents(t)
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
 	subnetwork := network + "-1"
@@ -967,14 +982,6 @@ func TestAccComposerEnvironment_fixPyPiPackages(t *testing.T) {
 			},
 		},
 	})
-}
-
-// This bootstraps the IAM roles needed for the service agents.
-func grantServiceAgentsRole(t *testing.T, prefix string, agentNames []string, role string) {
-	if acctest.BootstrapAllPSARole(t, prefix, agentNames, role) {
-		// Fail this test run because the policy needs time to reconcile.
-		t.Fatal("Stopping test because permissions were added.")
-	}
 }
 
 func testAccComposerEnvironmentDestroyProducer(t *testing.T) func(s *terraform.State) error {
