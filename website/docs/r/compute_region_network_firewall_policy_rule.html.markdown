@@ -31,7 +31,7 @@ To get more information about RegionNetworkFirewallPolicyRule, see:
 
 ```hcl
 resource "google_network_security_address_group" "basic_regional_networksecurity_address_group" {
-  name        = "address"
+  name        = "address-group"
   parent      = "projects/my-project-name"
   description = "Sample regional networksecurity_address_group"
   location    = "us-west1"
@@ -41,7 +41,7 @@ resource "google_network_security_address_group" "basic_regional_networksecurity
 }
 
 resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
-  name        = "policy"
+  name        = "fw-policy"
   description = "Sample regional network firewall policy"
   project     = "my-project-name"
   region      = "us-west1"
@@ -60,9 +60,10 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
   target_service_accounts = ["my@service-account.com"]
 
   match {
-    src_ip_ranges = ["10.100.0.1/32"]
-    src_fqdns = ["example.com"]
-    src_region_codes = ["US"]
+    src_address_groups       = [google_network_security_address_group.basic_regional_networksecurity_address_group.id]
+    src_ip_ranges            = ["10.100.0.1/32"]
+    src_fqdns                = ["example.com"]
+    src_region_codes         = ["US"]
     src_threat_intelligences = ["iplist-known-malicious-ips"]
 
     layer4_configs {
@@ -72,8 +73,6 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
     src_secure_tags {
       name = google_tags_tag_value.basic_value.id
     }
-
-    src_address_groups = [google_network_security_address_group.basic_regional_networksecurity_address_group.id]
   }
 }
 
@@ -85,7 +84,7 @@ resource "google_tags_tag_key" "basic_key" {
   description = "For keyname resources."
   parent      = "organizations/123456789"
   purpose     = "GCE_FIREWALL"
-  short_name  = "tagkey"
+  short_name  = "tag-key"
 
   purpose_data = {
     network = "my-project-name/${google_compute_network.basic_network.name}"
@@ -95,7 +94,76 @@ resource "google_tags_tag_key" "basic_key" {
 resource "google_tags_tag_value" "basic_value" {
   description = "For valuename resources."
   parent      = google_tags_tag_key.basic_key.id
-  short_name  = "tagvalue"
+  short_name  = "tag-value"
+}
+```
+## Example Usage - Region Network Firewall Policy Rule Network Scope Egress
+
+
+```hcl
+resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
+  name        = "fw-policy"
+  description = "Sample regional network firewall policy"
+  project     = "my-project-name"
+  region      = "us-west1"
+}
+
+resource "google_compute_region_network_firewall_policy_rule" "primary" {
+  action          = "allow"
+  description     = "This is a simple rule description"
+  direction       = "EGRESS"
+  disabled        = false
+  enable_logging  = true
+  firewall_policy = google_compute_region_network_firewall_policy.basic_regional_network_firewall_policy.name
+  priority        = 1000
+  region          = "us-west1"
+  rule_name       = "test-rule"
+
+  match {
+    dest_ip_ranges     = ["10.100.0.1/32"]
+    dest_network_scope = "INTERNET"
+
+    layer4_configs {
+      ip_protocol = "all"
+    }
+  }
+}
+```
+## Example Usage - Region Network Firewall Policy Rule Network Scope Ingress
+
+
+```hcl
+resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
+  name        = "fw-policy"
+  description = "Sample regional network firewall policy"
+  project     = "my-project-name"
+  region      = "us-west1"
+}
+
+resource "google_compute_region_network_firewall_policy_rule" "primary" {
+  action          = "allow"
+  description     = "This is a simple rule description"
+  direction       = "INGRESS"
+  disabled        = false
+  enable_logging  = true
+  firewall_policy = google_compute_region_network_firewall_policy.basic_regional_network_firewall_policy.name
+  priority        = 1000
+  region          = "us-west1"
+  rule_name       = "test-rule"
+
+  match {
+    src_ip_ranges     = ["10.100.0.1/32"]
+    src_network_scope = "VPC_NETWORKS"
+    src_networks      = [google_compute_network.network.id]
+
+    layer4_configs {
+      ip_protocol = "all"
+    }
+  }
+}
+
+resource "google_compute_network" "network" {
+  name     = "network"
 }
 ```
 
@@ -138,6 +206,20 @@ The following arguments are supported:
 * `dest_ip_ranges` -
   (Optional)
   CIDR IP address range. Maximum number of destination CIDR IP ranges allowed is 5000.
+
+* `src_network_scope` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Network scope of the traffic source.
+  Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
+
+* `src_networks` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Networks of the traffic source. It can be either a full or partial url.
+
+* `dest_network_scope` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Network scope of the traffic destination.
+  Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
 
 * `layer4_configs` -
   (Required)

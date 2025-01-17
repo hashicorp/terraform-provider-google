@@ -1,0 +1,18 @@
+```release-note:enhancement
+compute: added `dest_network_scope`, `src_network_scope` and `src_networks` fields to `google_compute_firewall_policy_rule` resource (beta)
+```
+```release-note:enhancement
+compute: added `dest_network_scope`, `src_network_scope` and `src_networks` fields to `google_compute_firewall_policy_with_rules` resource (beta)
+```
+```release-note:enhancement
+compute: added `dest_network_scope`, `src_network_scope` and `src_networks` fields to `google_compute_network_firewall_policy_rule` resource (beta)
+```
+```release-note:enhancement
+compute: added `dest_network_scope`, `src_network_scope` and `src_networks` fields to `google_compute_network_firewall_policy_with_rules` resource (beta)
+```
+```release-note:enhancement
+compute: added `dest_network_scope`, `src_network_scope` and `src_networks` fields to `google_compute_region_network_firewall_policy_rule` resource (beta)
+```
+```release-note:enhancement
+compute: added `dest_network_scope`, `src_network_scope` and `src_networks` fields to `google_compute_region_network_firewall_policy_with_rules` resource (beta)
+```

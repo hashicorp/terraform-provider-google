@@ -63,7 +63,7 @@ func TestAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRu
 func testAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRuleExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_address_group" "basic_regional_networksecurity_address_group" {
-  name        = "address%{random_suffix}"
+  name        = "tf-test-address-group%{random_suffix}"
   parent      = "projects/%{project_name}"
   description = "Sample regional networksecurity_address_group"
   location    = "%{region}"
@@ -73,7 +73,7 @@ resource "google_network_security_address_group" "basic_regional_networksecurity
 }
 
 resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
-  name        = "policy%{random_suffix}"
+  name        = "tf-test-fw-policy%{random_suffix}"
   description = "Sample regional network firewall policy"
   project     = "%{project_name}"
   region      = "%{region}"
@@ -92,9 +92,10 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
   target_service_accounts = ["%{service_acct}"]
 
   match {
-    src_ip_ranges = ["10.100.0.1/32"]
-    src_fqdns = ["example.com"]
-    src_region_codes = ["US"]
+    src_address_groups       = [google_network_security_address_group.basic_regional_networksecurity_address_group.id]
+    src_ip_ranges            = ["10.100.0.1/32"]
+    src_fqdns                = ["example.com"]
+    src_region_codes         = ["US"]
     src_threat_intelligences = ["iplist-known-malicious-ips"]
 
     layer4_configs {
@@ -104,8 +105,6 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
     src_secure_tags {
       name = google_tags_tag_value.basic_value.id
     }
-
-    src_address_groups = [google_network_security_address_group.basic_regional_networksecurity_address_group.id]
   }
 }
 
@@ -117,7 +116,7 @@ resource "google_tags_tag_key" "basic_key" {
   description = "For keyname resources."
   parent      = "organizations/%{org_id}"
   purpose     = "GCE_FIREWALL"
-  short_name  = "tagkey%{random_suffix}"
+  short_name  = "tf-test-tag-key%{random_suffix}"
 
   purpose_data = {
     network = "%{project_name}/${google_compute_network.basic_network.name}"
@@ -127,7 +126,132 @@ resource "google_tags_tag_key" "basic_key" {
 resource "google_tags_tag_value" "basic_value" {
   description = "For valuename resources."
   parent      = google_tags_tag_key.basic_key.id
-  short_name  = "tagvalue"
+  short_name  = "tf-test-tag-value%{random_suffix}"
+}
+`, context)
+}
+
+func TestAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRuleNetworkScopeEgressExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"region":        envvar.GetTestRegionFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionNetworkFirewallPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRuleNetworkScopeEgressExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_network_firewall_policy_rule.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"firewall_policy", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRuleNetworkScopeEgressExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
+  name        = "tf-test-fw-policy%{random_suffix}"
+  description = "Sample regional network firewall policy"
+  project     = "%{project_name}"
+  region      = "%{region}"
+}
+
+resource "google_compute_region_network_firewall_policy_rule" "primary" {
+  action          = "allow"
+  description     = "This is a simple rule description"
+  direction       = "EGRESS"
+  disabled        = false
+  enable_logging  = true
+  firewall_policy = google_compute_region_network_firewall_policy.basic_regional_network_firewall_policy.name
+  priority        = 1000
+  region          = "%{region}"
+  rule_name       = "test-rule"
+
+  match {
+    dest_ip_ranges     = ["10.100.0.1/32"]
+    dest_network_scope = "INTERNET"
+
+    layer4_configs {
+      ip_protocol = "all"
+    }
+  }
+}
+`, context)
+}
+
+func TestAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRuleNetworkScopeIngressExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"region":        envvar.GetTestRegionFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionNetworkFirewallPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRuleNetworkScopeIngressExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_network_firewall_policy_rule.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"firewall_policy", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRuleNetworkScopeIngressExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
+  name        = "tf-test-fw-policy%{random_suffix}"
+  description = "Sample regional network firewall policy"
+  project     = "%{project_name}"
+  region      = "%{region}"
+}
+
+resource "google_compute_region_network_firewall_policy_rule" "primary" {
+  action          = "allow"
+  description     = "This is a simple rule description"
+  direction       = "INGRESS"
+  disabled        = false
+  enable_logging  = true
+  firewall_policy = google_compute_region_network_firewall_policy.basic_regional_network_firewall_policy.name
+  priority        = 1000
+  region          = "%{region}"
+  rule_name       = "test-rule"
+
+  match {
+    src_ip_ranges     = ["10.100.0.1/32"]
+    src_network_scope = "VPC_NETWORKS"
+    src_networks      = [google_compute_network.network.id]
+
+    layer4_configs {
+      ip_protocol = "all"
+    }
+  }
+}
+
+resource "google_compute_network" "network" {
+  name     = "network%{random_suffix}"
 }
 `, context)
 }

@@ -35,9 +35,9 @@ func TestAccComputeFirewallPolicyRule_firewallPolicyRuleExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"service_acct":  envvar.GetTestServiceAccountFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -49,7 +49,7 @@ func TestAccComputeFirewallPolicyRule_firewallPolicyRuleExample(t *testing.T) {
 				Config: testAccComputeFirewallPolicyRule_firewallPolicyRuleExample(context),
 			},
 			{
-				ResourceName:            "google_compute_firewall_policy_rule.policy_rule",
+				ResourceName:            "google_compute_firewall_policy_rule.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"firewall_policy"},
@@ -61,7 +61,7 @@ func TestAccComputeFirewallPolicyRule_firewallPolicyRuleExample(t *testing.T) {
 func testAccComputeFirewallPolicyRule_firewallPolicyRuleExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
-  name        = "address%{random_suffix}"
+  name        = "tf-test-address-group%{random_suffix}"
   parent      = "organizations/%{org_id}"
   description = "Sample global networksecurity_address_group"
   location    = "global"
@@ -78,36 +78,111 @@ resource "google_folder" "folder" {
 
 resource "google_compute_firewall_policy" "default" {
   parent      = google_folder.folder.id
-  short_name  = "policy%{random_suffix}"
+  short_name  = "tf-test-fw-policy%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
 }
 
-resource "google_compute_firewall_policy_rule" "policy_rule" {
+resource "google_compute_firewall_policy_rule" "primary" {
+  firewall_policy         = google_compute_firewall_policy.default.name
+  description             = "Resource created for Terraform acceptance testing"
+  priority                = 9000
+  enable_logging          = true
+  action                  = "allow"
+  direction               = "EGRESS"
+  disabled                = false
+  target_service_accounts = ["%{service_acct}"]
+
+  match {
+    dest_ip_ranges            = ["11.100.0.1/32"]
+    dest_fqdns                = []
+    dest_region_codes         = ["US"]
+    dest_threat_intelligences = ["iplist-known-malicious-ips"]
+    src_address_groups        = []
+    dest_address_groups       = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
+    dest_network_scope        = "INTERNET"
+
+    layer4_configs {
+      ip_protocol = "tcp"
+      ports       = [8080]
+    }
+
+    layer4_configs {
+      ip_protocol = "udp"
+      ports       = [22]
+    }
+  }
+}
+`, context)
+}
+
+func TestAccComputeFirewallPolicyRule_firewallPolicyRuleNetworkScopeExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeFirewallPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeFirewallPolicyRule_firewallPolicyRuleNetworkScopeExample(context),
+			},
+			{
+				ResourceName:            "google_compute_firewall_policy_rule.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"firewall_policy"},
+			},
+		},
+	})
+}
+
+func testAccComputeFirewallPolicyRule_firewallPolicyRuleNetworkScopeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "folder" {
+  display_name        = "folder%{random_suffix}"
+  parent              = "organizations/%{org_id}"
+  deletion_protection = false
+}
+
+resource "google_compute_firewall_policy" "default" {
+  parent      = google_folder.folder.id
+  short_name  = "tf-test-fw-policy%{random_suffix}"
+  description = "Firewall policy"
+}
+
+resource "google_compute_firewall_policy_rule" "primary" {
   firewall_policy = google_compute_firewall_policy.default.name
-  description     = "Resource created for Terraform acceptance testing"
+  description     = "Firewall policy rule with network scope"
   priority        = 9000
-  enable_logging  = true
   action          = "allow"
-  direction       = "EGRESS"
+  direction       = "INGRESS"
   disabled        = false
 
   match {
+    src_ip_ranges     = ["11.100.0.1/32"]
+    src_network_scope = "VPC_NETWORKS"
+    src_networks      = [google_compute_network.network.id]
+
     layer4_configs {
       ip_protocol = "tcp"
-      ports = [8080]
+      ports       = [8080]
     }
+
     layer4_configs {
       ip_protocol = "udp"
-      ports = [22]
+      ports       = [22]
     }
-    dest_ip_ranges = ["11.100.0.1/32"]
-    dest_fqdns = []
-    dest_region_codes = ["US"]
-    dest_threat_intelligences = ["iplist-known-malicious-ips"]
-    src_address_groups = []
-    dest_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
   }
-  target_service_accounts = ["%{service_account}"]
+}
+
+resource "google_compute_network" "network" {
+  name                    = "network%{random_suffix}"
+  auto_create_subnetworks = false
 }
 `, context)
 }
