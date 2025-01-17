@@ -1,0 +1,12 @@
+```release-note:new-resource
+`google_compute_instance_template_iam_member`
+```
+```release-note:new-resource
+`google_compute_instance_template_iam_policy`
+```
+```release-note:new-resource
+`google_compute_instance_template_iam_binding`
+```
+```release-note:new-datasource
+`google_compute_instance_template_iam_policy`
+```
