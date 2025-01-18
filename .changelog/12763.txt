@@ -1,0 +1,3 @@
+```release-note:bug
+iam: fixed missing result by adding pagination for data source `google_service_accounts`.
+```

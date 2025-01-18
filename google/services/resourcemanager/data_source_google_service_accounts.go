@@ -5,12 +5,14 @@
 package resourcemanager
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"google.golang.org/api/iam/v1"
 )
 
 func DataSourceGoogleServiceAccounts() *schema.Resource {
@@ -75,25 +77,29 @@ func datasourceGoogleServiceAccountsRead(d *schema.ResourceData, meta interface{
 
 	accounts := make([]map[string]interface{}, 0)
 
-	accountList, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.List("projects/" + project).Do()
-	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Service accounts: %s", project))
-	}
+	request := config.NewIamClient(userAgent).Projects.ServiceAccounts.List("projects/" + project)
 
-	for _, account := range accountList.Accounts {
-		accounts = append(accounts, map[string]interface{}{
-			"account_id":   strings.Split(account.Email, "@")[0],
-			"disabled":     account.Disabled,
-			"email":        account.Email,
-			"display_name": account.DisplayName,
-			"member":       "serviceAccount:" + account.Email,
-			"name":         account.Name,
-			"unique_id":    account.UniqueId,
-		})
+	err = request.Pages(context.Background(), func(accountList *iam.ListServiceAccountsResponse) error {
+		for _, account := range accountList.Accounts {
+			accounts = append(accounts, map[string]interface{}{
+				"account_id":   strings.Split(account.Email, "@")[0],
+				"disabled":     account.Disabled,
+				"email":        account.Email,
+				"display_name": account.DisplayName,
+				"member":       "serviceAccount:" + account.Email,
+				"name":         account.Name,
+				"unique_id":    account.UniqueId,
+			})
+		}
+		return nil
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error retrieving service accounts: %s", err)
 	}
 
 	if err := d.Set("accounts", accounts); err != nil {
-		return fmt.Errorf("Error retrieving service accounts: %s", err)
+		return fmt.Errorf("Error setting service accounts: %s", err)
 	}
 
 	d.SetId(fmt.Sprintf(
