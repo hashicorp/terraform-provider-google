@@ -769,6 +769,62 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 					},
 				},
 			},
+			"build_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration for building a Cloud Run function.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"base_image": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The base image used to build the function.`,
+						},
+						"enable_automatic_updates": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Sets whether the function will receive automatic base image updates.`,
+						},
+						"environment_variables": {
+							Type:        schema.TypeMap,
+							Optional:    true,
+							Description: `User-provided build-time environment variables for the function.`,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+						"function_target": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The name of the function (as defined in source code) that will be executed. Defaults to the resource name suffix, if not specified. For backward compatibility, if function with given name is not found, then the system will try to use function named "function".`,
+						},
+						"image_uri": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Artifact Registry URI to store the built image.`,
+						},
+						"service_account": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Service account to be used for building the container. The format of this field is 'projects/{projectId}/serviceAccounts/{serviceAccountEmail}'.`,
+						},
+						"source_location": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The Cloud Storage bucket URI where the function source code is located.`,
+						},
+						"worker_pool": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Name of the Cloud Build Custom Worker Pool that should be used to build the Cloud Run function. The format of this field is 'projects/{project}/locations/{region}/workerPools/{workerPool}' where {project} and {region} are the project id and region respectively where the worker pool is defined and {workerPool} is the short name of the worker pool.`,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The Cloud Build name of the latest successful deployment of the function.`,
+						},
+					},
+				},
+			},
 			"client": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -1255,6 +1311,12 @@ func resourceCloudRunV2ServiceCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("invoker_iam_disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(invokerIamDisabledProp)) && (ok || !reflect.DeepEqual(v, invokerIamDisabledProp)) {
 		obj["invokerIamDisabled"] = invokerIamDisabledProp
 	}
+	buildConfigProp, err := expandCloudRunV2ServiceBuildConfig(d.Get("build_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("build_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(buildConfigProp)) && (ok || !reflect.DeepEqual(v, buildConfigProp)) {
+		obj["buildConfig"] = buildConfigProp
+	}
 	labelsProp, err := expandCloudRunV2ServiceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1466,6 +1528,9 @@ func resourceCloudRunV2ServiceRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("urls", flattenCloudRunV2ServiceUrls(res["urls"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
+	if err := d.Set("build_config", flattenCloudRunV2ServiceBuildConfig(res["buildConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
 	if err := d.Set("reconciling", flattenCloudRunV2ServiceReconciling(res["reconciling"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
@@ -1566,6 +1631,12 @@ func resourceCloudRunV2ServiceUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("invoker_iam_disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, invokerIamDisabledProp)) {
 		obj["invokerIamDisabled"] = invokerIamDisabledProp
+	}
+	buildConfigProp, err := expandCloudRunV2ServiceBuildConfig(d.Get("build_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("build_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, buildConfigProp)) {
+		obj["buildConfig"] = buildConfigProp
 	}
 	labelsProp, err := expandCloudRunV2ServiceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -3138,6 +3209,71 @@ func flattenCloudRunV2ServiceUrls(v interface{}, d *schema.ResourceData, config 
 	return v
 }
 
+func flattenCloudRunV2ServiceBuildConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenCloudRunV2ServiceBuildConfigName(original["name"], d, config)
+	transformed["source_location"] =
+		flattenCloudRunV2ServiceBuildConfigSourceLocation(original["sourceLocation"], d, config)
+	transformed["function_target"] =
+		flattenCloudRunV2ServiceBuildConfigFunctionTarget(original["functionTarget"], d, config)
+	transformed["image_uri"] =
+		flattenCloudRunV2ServiceBuildConfigImageUri(original["imageUri"], d, config)
+	transformed["base_image"] =
+		flattenCloudRunV2ServiceBuildConfigBaseImage(original["baseImage"], d, config)
+	transformed["enable_automatic_updates"] =
+		flattenCloudRunV2ServiceBuildConfigEnableAutomaticUpdates(original["enableAutomaticUpdates"], d, config)
+	transformed["worker_pool"] =
+		flattenCloudRunV2ServiceBuildConfigWorkerPool(original["workerPool"], d, config)
+	transformed["environment_variables"] =
+		flattenCloudRunV2ServiceBuildConfigEnvironmentVariables(original["environmentVariables"], d, config)
+	transformed["service_account"] =
+		flattenCloudRunV2ServiceBuildConfigServiceAccount(original["serviceAccount"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudRunV2ServiceBuildConfigName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceBuildConfigSourceLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceBuildConfigFunctionTarget(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceBuildConfigImageUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceBuildConfigBaseImage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceBuildConfigEnableAutomaticUpdates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceBuildConfigWorkerPool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceBuildConfigEnvironmentVariables(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceBuildConfigServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCloudRunV2ServiceReconciling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -4680,6 +4816,124 @@ func expandCloudRunV2ServiceTrafficTag(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandCloudRunV2ServiceInvokerIamDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceBuildConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandCloudRunV2ServiceBuildConfigName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedSourceLocation, err := expandCloudRunV2ServiceBuildConfigSourceLocation(original["source_location"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceLocation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sourceLocation"] = transformedSourceLocation
+	}
+
+	transformedFunctionTarget, err := expandCloudRunV2ServiceBuildConfigFunctionTarget(original["function_target"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFunctionTarget); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["functionTarget"] = transformedFunctionTarget
+	}
+
+	transformedImageUri, err := expandCloudRunV2ServiceBuildConfigImageUri(original["image_uri"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedImageUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["imageUri"] = transformedImageUri
+	}
+
+	transformedBaseImage, err := expandCloudRunV2ServiceBuildConfigBaseImage(original["base_image"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBaseImage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["baseImage"] = transformedBaseImage
+	}
+
+	transformedEnableAutomaticUpdates, err := expandCloudRunV2ServiceBuildConfigEnableAutomaticUpdates(original["enable_automatic_updates"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableAutomaticUpdates); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableAutomaticUpdates"] = transformedEnableAutomaticUpdates
+	}
+
+	transformedWorkerPool, err := expandCloudRunV2ServiceBuildConfigWorkerPool(original["worker_pool"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWorkerPool); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["workerPool"] = transformedWorkerPool
+	}
+
+	transformedEnvironmentVariables, err := expandCloudRunV2ServiceBuildConfigEnvironmentVariables(original["environment_variables"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnvironmentVariables); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["environmentVariables"] = transformedEnvironmentVariables
+	}
+
+	transformedServiceAccount, err := expandCloudRunV2ServiceBuildConfigServiceAccount(original["service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccount"] = transformedServiceAccount
+	}
+
+	return transformed, nil
+}
+
+func expandCloudRunV2ServiceBuildConfigName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceBuildConfigSourceLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceBuildConfigFunctionTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceBuildConfigImageUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceBuildConfigBaseImage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceBuildConfigEnableAutomaticUpdates(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceBuildConfigWorkerPool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceBuildConfigEnvironmentVariables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandCloudRunV2ServiceBuildConfigServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

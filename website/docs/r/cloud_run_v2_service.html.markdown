@@ -590,6 +590,76 @@ resource "google_cloud_run_v2_service" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_service_function&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Service Function
+
+
+```hcl
+resource "google_cloud_run_v2_service" "default" {
+  name     = "cloudrun-service"
+  location = "us-central1"
+  deletion_protection = false
+  ingress = "INGRESS_TRAFFIC_ALL"
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
+  build_config {
+    source_location = "gs://${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.name}"
+    function_target = "helloHttp"
+    image_uri = "us-docker.pkg.dev/cloudrun/container/hello"
+    base_image = "us-central1-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/nodejs22"
+    enable_automatic_updates = true
+    worker_pool = "worker-pool"
+    environment_variables = {
+      FOO_KEY = "FOO_VALUE"
+      BAR_KEY = "BAR_VALUE"
+    }
+    service_account = google_service_account.cloudbuild_service_account.id
+  }
+  depends_on = [
+    google_project_iam_member.act_as,
+    google_project_iam_member.logs_writer
+  ]
+}
+
+data "google_project" "project" {
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "${data.google_project.project.project_id}-gcf-source"  # Every bucket name must be globally unique
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "object" {
+  name   = "function-source.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "function_source.zip"  # Add path to the zipped function source code
+}
+
+resource "google_service_account" "cloudbuild_service_account" {
+  account_id = "build-sa"
+}
+
+resource "google_project_iam_member" "act_as" {
+  project = data.google_project.project.project_id
+  role    = "roles/iam.serviceAccountUser"
+  member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+}
+
+resource "google_project_iam_member" "logs_writer" {
+  project = data.google_project.project.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+}
+```
 
 ## Argument Reference
 
@@ -1218,6 +1288,11 @@ The following arguments are supported:
   (Optional)
   Disables IAM permission check for run.routes.invoke for callers of this service. This feature is available by invitation only. For more information, visit https://cloud.google.com/run/docs/securing/managing-access#invoker_check.
 
+* `build_config` -
+  (Optional)
+  Configuration for building a Cloud Run function.
+  Structure is [documented below](#nested_build_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -1267,6 +1342,44 @@ When the field is set to false, deleting the service is allowed.
 * `tag` -
   (Optional)
   Indicates a string to be part of the URI to exclusively reference this target.
+
+<a name="nested_build_config"></a>The `build_config` block supports:
+
+* `name` -
+  (Output)
+  The Cloud Build name of the latest successful deployment of the function.
+
+* `source_location` -
+  (Optional)
+  The Cloud Storage bucket URI where the function source code is located.
+
+* `function_target` -
+  (Optional)
+  The name of the function (as defined in source code) that will be executed. Defaults to the resource name suffix, if not specified. For backward compatibility, if function with given name is not found, then the system will try to use function named "function".
+
+* `image_uri` -
+  (Optional)
+  Artifact Registry URI to store the built image.
+
+* `base_image` -
+  (Optional)
+  The base image used to build the function.
+
+* `enable_automatic_updates` -
+  (Optional)
+  Sets whether the function will receive automatic base image updates.
+
+* `worker_pool` -
+  (Optional)
+  Name of the Cloud Build Custom Worker Pool that should be used to build the Cloud Run function. The format of this field is `projects/{project}/locations/{region}/workerPools/{workerPool}` where {project} and {region} are the project id and region respectively where the worker pool is defined and {workerPool} is the short name of the worker pool.
+
+* `environment_variables` -
+  (Optional)
+  User-provided build-time environment variables for the function.
+
+* `service_account` -
+  (Optional)
+  Service account to be used for building the container. The format of this field is `projects/{projectId}/serviceAccounts/{serviceAccountEmail}`.
 
 ## Attributes Reference
 
