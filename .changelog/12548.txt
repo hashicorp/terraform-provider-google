@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_redis_cluster_user_created_connections`
+```
+```release-note:enhancement
+redis: added `psc_service_attachments` field to `google_redis_cluster` resource, to enable use of the fine-grained resource `google_redis_cluster_user_created_connections`
+```

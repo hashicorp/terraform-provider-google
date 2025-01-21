@@ -471,9 +471,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 511
+// Generated resources: 512
 // Generated IAM resources: 270
-// Total generated resources: 781
+// Total generated resources: 782
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1113,6 +1113,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_pubsub_lite_subscription":                                            pubsublite.ResourcePubsubLiteSubscription(),
 	"google_pubsub_lite_topic":                                                   pubsublite.ResourcePubsubLiteTopic(),
 	"google_redis_cluster":                                                       redis.ResourceRedisCluster(),
+	"google_redis_cluster_user_created_connections":                              redis.ResourceRedisClusterUserCreatedConnections(),
 	"google_redis_instance":                                                      redis.ResourceRedisInstance(),
 	"google_resource_manager_lien":                                               resourcemanager.ResourceResourceManagerLien(),
 	"google_secret_manager_secret":                                               secretmanager.ResourceSecretManagerSecret(),

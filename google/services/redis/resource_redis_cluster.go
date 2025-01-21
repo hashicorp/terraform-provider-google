@@ -65,24 +65,6 @@ func ResourceRedisCluster() *schema.Resource {
 				Description: `Unique name of the resource in this scope including project and location using the form:
 projects/{projectId}/locations/{locationId}/clusters/{clusterId}`,
 			},
-			"psc_configs": {
-				Type:     schema.TypeList,
-				Required: true,
-				Description: `Required. Each PscConfig configures the consumer network where two
-network addresses will be designated to the cluster for client access.
-Currently, only one PscConfig is supported.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"network": {
-							Type:     schema.TypeString,
-							Required: true,
-							Description: `Required. The consumer network where the network address of
-the discovery endpoint will be reserved, in the form of
-projects/{network_project_id_or_number}/global/networks/{network_id}.`,
-						},
-					},
-				},
-			},
 			"shard_count": {
 				Type:        schema.TypeInt,
 				Required:    true,
@@ -398,6 +380,24 @@ If not provided, the current time will be used.`,
 					},
 				},
 			},
+			"psc_configs": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Required. Each PscConfig configures the consumer network where two
+network addresses will be designated to the cluster for client access.
+Currently, only one PscConfig is supported.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"network": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `Required. The consumer network where the network address of
+the discovery endpoint will be reserved, in the form of
+projects/{network_project_id_or_number}/global/networks/{network_id}.`,
+						},
+					},
+				},
+			},
 			"redis_configs": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -429,6 +429,7 @@ If not provided, encryption is disabled for the cluster. Default value: "TRANSIT
 			},
 			"zone_distribution_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Immutable. Zone distribution config for Memorystore Redis cluster.`,
@@ -563,6 +564,25 @@ resolution and up to nine fractional digits.`,
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `Output only. The PSC connection id of the forwarding rule connected to the service attachment.`,
+						},
+					},
+				},
+			},
+			"psc_service_attachments": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Service attachment details to configure Psc connections.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"connection_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Type of a PSC connection targeting this service attachment.`,
+						},
+						"service_attachment": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Service attachment URI which your self-created PscConnection should use as`,
 						},
 					},
 				},
@@ -867,6 +887,9 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("cross_cluster_replication_config", flattenRedisClusterCrossClusterReplicationConfig(res["crossClusterReplicationConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("psc_service_attachments", flattenRedisClusterPscServiceAttachments(res["pscServiceAttachments"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 
@@ -1738,6 +1761,33 @@ func flattenRedisClusterCrossClusterReplicationConfigMembershipSecondaryClusters
 }
 
 func flattenRedisClusterCrossClusterReplicationConfigUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenRedisClusterPscServiceAttachments(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"service_attachment": flattenRedisClusterPscServiceAttachmentsServiceAttachment(original["serviceAttachment"], d, config),
+			"connection_type":    flattenRedisClusterPscServiceAttachmentsConnectionType(original["connectionType"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenRedisClusterPscServiceAttachmentsServiceAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenRedisClusterPscServiceAttachmentsConnectionType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
