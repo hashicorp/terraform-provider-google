@@ -218,9 +218,9 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	// Sleep for 10s, letting the billing account settle before other resources
+	// Sleep to let the billing account settle before other resources
 	// try to use this project.
-	time.Sleep(10 * time.Second)
+	time.Sleep(15 * time.Second)
 
 	err = resourceGoogleProjectRead(d, meta)
 	if err != nil {
@@ -247,7 +247,7 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 		err = forceDeleteComputeNetwork(d, config, project.ProjectId, "default")
 		// Retry if API is not yet enabled.
 		if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 403) {
-			time.Sleep(10 * time.Second)
+			time.Sleep(15 * time.Second)
 			err = forceDeleteComputeNetwork(d, config, project.ProjectId, "default")
 		}
 		if err != nil {
