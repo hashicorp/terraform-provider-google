@@ -1,0 +1,3 @@
+```release-note:bug
+metastore: increased timeout on google_dataproc_metastore_service operations to 75m from 60m. This will expose server-returned reasons for operation failure instead of masking them with a Terraform timeout.
+```
