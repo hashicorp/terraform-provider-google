@@ -1054,9 +1054,12 @@ func TestAccDataprocCluster_KMS(t *testing.T) {
 	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
 	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
-	if acctest.BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
-		t.Fatal("Stopping the test because a role was added to the policy.")
-	}
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@compute-system.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	var cluster dataproc.Cluster
 	acctest.VcrTest(t, resource.TestCase{

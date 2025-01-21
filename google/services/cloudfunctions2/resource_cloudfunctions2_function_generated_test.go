@@ -205,10 +205,15 @@ resource "google_cloudfunctions2_function" "function" {
 
 func TestAccCloudfunctions2function_cloudfunctions2BasicGcsExample(t *testing.T) {
 	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
-		"policyChanged":       acctest.BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter"),
 		"primary_resource_id": "terraform-test",
 		"zip_path":            "./test-fixtures/function-source-eventarc-gcs.zip",
 		"random_suffix":       acctest.RandString(t, 10),
@@ -341,10 +346,15 @@ resource "google_cloudfunctions2_function" "function" {
 
 func TestAccCloudfunctions2function_cloudfunctions2BasicAuditlogsExample(t *testing.T) {
 	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
-		"policyChanged":       acctest.BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter"),
 		"primary_resource_id": "terraform-test",
 		"zip_path":            "./test-fixtures/function-source-eventarc-gcs.zip",
 		"random_suffix":       acctest.RandString(t, 10),
@@ -595,11 +605,16 @@ resource "google_cloudfunctions2_function" "function" {
 
 func TestAccCloudfunctions2function_cloudfunctions2SecretEnvExample(t *testing.T) {
 	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
 		"location":      "us-central1",
-		"policyChanged": acctest.BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter"),
 		"zip_path":      "./test-fixtures/function-source.zip",
 		"random_suffix": acctest.RandString(t, 10),
 	}
@@ -694,11 +709,16 @@ resource "google_secret_manager_secret_version" "secret" {
 
 func TestAccCloudfunctions2function_cloudfunctions2SecretVolumeExample(t *testing.T) {
 	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
 		"location":      "us-central1",
-		"policyChanged": acctest.BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter"),
 		"zip_path":      "./test-fixtures/function-source.zip",
 		"random_suffix": acctest.RandString(t, 10),
 	}

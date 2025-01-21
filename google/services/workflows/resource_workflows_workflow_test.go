@@ -289,9 +289,12 @@ func TestAccWorkflowsWorkflow_CMEK(t *testing.T) {
 
 	workflowName := fmt.Sprintf("tf-test-acc-workflow-%d", acctest.RandInt(t))
 	kms := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
-	if acctest.BootstrapPSARole(t, "service-", "gcp-sa-workflows", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
-		t.Fatal("Stopping the test because a role was added to the policy.")
-	}
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-workflows.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
