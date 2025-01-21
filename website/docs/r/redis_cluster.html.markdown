@@ -28,7 +28,11 @@ To get more information about Cluster, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/memorystore/docs/cluster/)
 
-~> **Note:** For [Cross Region Replication](https://cloud.google.com/memorystore/docs/cluster/about-cross-region-replication), please follow the instructions below for performing certain update and failover (switchover and detach) operations
+~> **Note:** For [Multiple VPC Networking](https://cloud.google.com/memorystore/docs/cluster/about-multiple-vpc-networking) if you want to use
+[User-registered PSC Connections](https://cloud.google.com/memorystore/docs/cluster/about-multiple-vpc-networking#psc_connection_types),
+then please use `google_redis_cluster_user_created_connections` resource.
+
+For [Cross Region Replication](https://cloud.google.com/memorystore/docs/cluster/about-cross-region-replication), please follow the instructions below for performing certain update and failover (switchover and detach) operations
 
 **Cross Region Replication**
 
@@ -543,13 +547,6 @@ resource "google_compute_network" "producer_net" {
 The following arguments are supported:
 
 
-* `psc_configs` -
-  (Required)
-  Required. Each PscConfig configures the consumer network where two
-  network addresses will be designated to the cluster for client access.
-  Currently, only one PscConfig is supported.
-  Structure is [documented below](#nested_psc_configs).
-
 * `shard_count` -
   (Required)
   Required. Number of shards for the Redis cluster.
@@ -559,14 +556,6 @@ The following arguments are supported:
   Unique name of the resource in this scope including project and location using the form:
   projects/{projectId}/locations/{locationId}/clusters/{clusterId}
 
-
-<a name="nested_psc_configs"></a>The `psc_configs` block supports:
-
-* `network` -
-  (Required)
-  Required. The consumer network where the network address of
-  the discovery endpoint will be reserved, in the form of
-  projects/{network_project_id_or_number}/global/networks/{network_id}.
 
 - - -
 
@@ -594,6 +583,13 @@ The following arguments are supported:
   (Optional)
   Immutable. Zone distribution config for Memorystore Redis cluster.
   Structure is [documented below](#nested_zone_distribution_config).
+
+* `psc_configs` -
+  (Optional)
+  Required. Each PscConfig configures the consumer network where two
+  network addresses will be designated to the cluster for client access.
+  Currently, only one PscConfig is supported.
+  Structure is [documented below](#nested_psc_configs).
 
 * `replica_count` -
   (Optional)
@@ -645,6 +641,14 @@ The following arguments are supported:
 * `zone` -
   (Optional)
   Immutable. The zone for single zone Memorystore Redis cluster.
+
+<a name="nested_psc_configs"></a>The `psc_configs` block supports:
+
+* `network` -
+  (Required)
+  Required. The consumer network where the network address of
+  the discovery endpoint will be reserved, in the form of
+  projects/{network_project_id_or_number}/global/networks/{network_id}.
 
 <a name="nested_persistence_config"></a>The `persistence_config` block supports:
 
@@ -889,6 +893,10 @@ In addition to the arguments listed above, the following computed attributes are
   Upcoming maintenance schedule.
   Structure is [documented below](#nested_maintenance_schedule).
 
+* `psc_service_attachments` -
+  Service attachment details to configure Psc connections.
+  Structure is [documented below](#nested_psc_service_attachments).
+
 
 <a name="nested_discovery_endpoints"></a>The `discovery_endpoints` block contains:
 
@@ -975,6 +983,16 @@ In addition to the arguments listed above, the following computed attributes are
   can not go beyond, including reschedule.
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
   resolution and up to nine fractional digits.
+
+<a name="nested_psc_service_attachments"></a>The `psc_service_attachments` block contains:
+
+* `service_attachment` -
+  (Output)
+  Service attachment URI which your self-created PscConnection should use as
+
+* `connection_type` -
+  (Output)
+  Type of a PSC connection targeting this service attachment.
 
 ## Timeouts
 
