@@ -91,9 +91,18 @@ resource "google_healthcare_dataset" "dataset" {
 
 func TestAccHealthcareFhirStore_healthcareFhirStoreStreamingConfigExample(t *testing.T) {
 	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-healthcare.iam.gserviceaccount.com",
+			Role:   "roles/bigquery.dataEditor",
+		},
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-healthcare.iam.gserviceaccount.com",
+			Role:   "roles/bigquery.jobUser",
+		},
+	})
 
 	context := map[string]interface{}{
-		"policyChanged": acctest.BootstrapPSARoles(t, "service-", "gcp-sa-healthcare", []string{"roles/bigquery.dataEditor", "roles/bigquery.jobUser"}),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

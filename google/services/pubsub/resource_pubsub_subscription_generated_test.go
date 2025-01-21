@@ -237,10 +237,19 @@ resource "google_pubsub_subscription" "example" {
 
 func TestAccPubsubSubscription_pubsubSubscriptionPushBqExample(t *testing.T) {
 	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com",
+			Role:   "roles/bigquery.dataEditor",
+		},
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com",
+			Role:   "roles/bigquery.metadataViewer",
+		},
+	})
 
 	context := map[string]interface{}{
-		"policy_changed": acctest.BootstrapPSARoles(t, "service-", "gcp-sa-pubsub", []string{"roles/bigquery.dataEditor", "roles/bigquery.metadataViewer"}),
-		"random_suffix":  acctest.RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -304,10 +313,19 @@ EOF
 
 func TestAccPubsubSubscription_pubsubSubscriptionPushBqTableSchemaExample(t *testing.T) {
 	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com",
+			Role:   "roles/bigquery.dataEditor",
+		},
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com",
+			Role:   "roles/bigquery.metadataViewer",
+		},
+	})
 
 	context := map[string]interface{}{
-		"policy_changed": acctest.BootstrapPSARoles(t, "service-", "gcp-sa-pubsub", []string{"roles/bigquery.dataEditor", "roles/bigquery.metadataViewer"}),
-		"random_suffix":  acctest.RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
