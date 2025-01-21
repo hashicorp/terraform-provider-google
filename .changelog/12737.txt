@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fix failure when creating `google_compute_global_forwarding_rule` with labels targeting PSC endpoint
+```
