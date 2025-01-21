@@ -3,3 +3,16 @@ generation_type: 'mmv1'
 api_service_name: 'redis.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Cluster'
+fields:
+  - field: 'cluster_endpoints.connections.psc_connection.address'
+  - field: 'cluster_endpoints.connections.psc_connection.connection_type'
+  - field: 'cluster_endpoints.connections.psc_connection.forwarding_rule'
+  - field: 'cluster_endpoints.connections.psc_connection.network'
+  - field: 'cluster_endpoints.connections.psc_connection.project_id'
+  - field: 'cluster_endpoints.connections.psc_connection.psc_connection_id'
+  - field: 'cluster_endpoints.connections.psc_connection.psc_connection_status'
+  - field: 'cluster_endpoints.connections.psc_connection.service_attachment'
+  - field: 'name'
+    provider_only: true
+  - field: 'region'
+    provider_only: true

@@ -3,3 +3,11 @@ generation_type: 'mmv1'
 api_service_name: 'iam.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'WorkloadIdentityPool'
+fields:
+  - field: 'description'
+  - field: 'disabled'
+  - field: 'display_name'
+  - field: 'name'
+  - field: 'state'
+  - field: 'workload_identity_pool_id'
+    provider_only: true

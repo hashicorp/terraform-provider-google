@@ -3,3 +3,17 @@ generation_type: 'mmv1'
 api_service_name: 'networksecurity.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'TlsInspectionPolicy'
+fields:
+  - field: 'ca_pool'
+  - field: 'create_time'
+  - field: 'custom_tls_features'
+  - field: 'description'
+  - field: 'exclude_public_ca_set'
+  - field: 'location'
+    provider_only: true
+  - field: 'min_tls_version'
+  - field: 'name'
+    provider_only: true
+  - field: 'tls_feature_profile'
+  - field: 'trust_config'
+  - field: 'update_time'

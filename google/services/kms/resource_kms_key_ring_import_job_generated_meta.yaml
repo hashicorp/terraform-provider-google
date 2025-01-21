@@ -3,3 +3,16 @@ generation_type: 'mmv1'
 api_service_name: 'cloudkms.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ImportJob'
+fields:
+  - field: 'attestation.content'
+  - field: 'attestation.format'
+  - field: 'expire_time'
+  - field: 'import_job_id'
+    provider_only: true
+  - field: 'import_method'
+  - field: 'key_ring'
+    provider_only: true
+  - field: 'name'
+  - field: 'protection_level'
+  - field: 'public_key.pem'
+  - field: 'state'

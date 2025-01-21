@@ -3,3 +3,22 @@ generation_type: 'mmv1'
 api_service_name: 'gkehub.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'RBACRoleBinding'
+fields:
+  - field: 'create_time'
+  - field: 'delete_time'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'group'
+  - field: 'labels'
+  - field: 'name'
+  - field: 'role.predefined_role'
+  - field: 'scope_id'
+    provider_only: true
+  - field: 'scope_rbac_role_binding_id'
+    provider_only: true
+  - field: 'state.code'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'
+  - field: 'user'

@@ -3,3 +3,8 @@ generation_type: 'mmv1'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'NetworkEndpointGroup'
+fields:
+  - field: 'default_port'
+  - field: 'description'
+  - field: 'name'
+  - field: 'network_endpoint_type'

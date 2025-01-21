@@ -3,3 +3,19 @@ generation_type: 'mmv1'
 api_service_name: 'certificatemanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'TrustConfig'
+fields:
+  - field: 'allowlisted_certificates.pem_certificate'
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'trust_stores.intermediate_cas.pem_certificate'
+  - field: 'trust_stores.trust_anchors.pem_certificate'
+  - field: 'update_time'

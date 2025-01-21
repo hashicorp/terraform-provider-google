@@ -3,3 +3,19 @@ generation_type: 'mmv1'
 api_service_name: 'managedidentities.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Domain'
+fields:
+  - field: 'admin'
+  - field: 'authorized_networks'
+  - field: 'deletion_protection'
+    provider_only: true
+  - field: 'domain_name'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'fqdn'
+  - field: 'labels'
+  - field: 'locations'
+  - field: 'name'
+  - field: 'reserved_ip_range'
+  - field: 'terraform_labels'
+    provider_only: true

@@ -3,3 +3,21 @@ generation_type: 'mmv1'
 api_service_name: 'deploymentmanager.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'Deployment'
+fields:
+  - field: 'create_policy'
+    provider_only: true
+  - field: 'delete_policy'
+    provider_only: true
+  - field: 'deployment_id'
+    api_field: 'id'
+  - field: 'description'
+  - field: 'labels.key'
+  - field: 'labels.value'
+  - field: 'manifest'
+  - field: 'name'
+  - field: 'preview'
+    provider_only: true
+  - field: 'self_link'
+  - field: 'target.config.content'
+  - field: 'target.imports.content'
+  - field: 'target.imports.name'

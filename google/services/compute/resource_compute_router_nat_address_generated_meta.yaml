@@ -3,3 +3,12 @@ generation_type: 'mmv1'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Router'
+fields:
+  - field: 'drain_nat_ips'
+  - field: 'nat_ips'
+  - field: 'region'
+    provider_only: true
+  - field: 'router'
+    provider_only: true
+  - field: 'router_nat'
+    api_field: 'name'

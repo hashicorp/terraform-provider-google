@@ -3,3 +3,10 @@ generation_type: 'mmv1'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Network'
+fields:
+  - field: 'export_custom_routes'
+  - field: 'import_custom_routes'
+  - field: 'network'
+    provider_only: true
+  - field: 'peering'
+    api_field: 'name'

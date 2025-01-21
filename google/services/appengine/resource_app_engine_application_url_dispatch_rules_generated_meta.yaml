@@ -3,3 +3,7 @@ generation_type: 'mmv1'
 api_service_name: 'appengine.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Application'
+fields:
+  - field: 'dispatch_rules.domain'
+  - field: 'dispatch_rules.path'
+  - field: 'dispatch_rules.service'

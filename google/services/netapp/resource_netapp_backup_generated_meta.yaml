@@ -3,3 +3,23 @@ generation_type: 'mmv1'
 api_service_name: 'netapp.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Backup'
+fields:
+  - field: 'backup_type'
+  - field: 'chain_storage_bytes'
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'source_snapshot'
+  - field: 'source_volume'
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'vault_name'
+    provider_only: true
+  - field: 'volume_usage_bytes'

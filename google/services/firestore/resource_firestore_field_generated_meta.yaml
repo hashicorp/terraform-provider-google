@@ -3,3 +3,15 @@ generation_type: 'mmv1'
 api_service_name: 'firestore.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Field'
+fields:
+  - field: 'collection'
+    provider_only: true
+  - field: 'database'
+    provider_only: true
+  - field: 'field'
+    provider_only: true
+  - field: 'index_config.indexes.array_config'
+  - field: 'index_config.indexes.order'
+  - field: 'index_config.indexes.query_scope'
+  - field: 'name'
+  - field: 'ttl_config.state'

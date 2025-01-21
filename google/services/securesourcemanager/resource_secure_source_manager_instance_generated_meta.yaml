@@ -3,3 +3,28 @@ generation_type: 'mmv1'
 api_service_name: 'securesourcemanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Instance'
+fields:
+  - field: 'create_time'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'host_config.api'
+  - field: 'host_config.git_http'
+  - field: 'host_config.git_ssh'
+  - field: 'host_config.html'
+  - field: 'instance_id'
+    provider_only: true
+  - field: 'kms_key'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'private_config.ca_pool'
+  - field: 'private_config.http_service_attachment'
+  - field: 'private_config.is_private'
+  - field: 'private_config.ssh_service_attachment'
+  - field: 'state'
+  - field: 'state_note'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'
+  - field: 'workforce_identity_federation_config.enabled'

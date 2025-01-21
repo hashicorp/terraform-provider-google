@@ -3,3 +3,12 @@ generation_type: 'mmv1'
 api_service_name: 'dns.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ResponsePolicyRule'
+fields:
+  - field: 'dns_name'
+  - field: 'local_data.local_datas.name'
+  - field: 'local_data.local_datas.rrdatas'
+  - field: 'local_data.local_datas.ttl'
+  - field: 'local_data.local_datas.type'
+  - field: 'response_policy'
+    provider_only: true
+  - field: 'rule_name'

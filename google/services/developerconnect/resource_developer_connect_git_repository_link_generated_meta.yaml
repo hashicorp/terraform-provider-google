@@ -3,3 +3,26 @@ generation_type: 'mmv1'
 api_service_name: 'developerconnect.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'GitRepositoryLink'
+fields:
+  - field: 'annotations'
+  - field: 'clone_uri'
+  - field: 'create_time'
+  - field: 'delete_time'
+  - field: 'effective_annotations'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'etag'
+  - field: 'git_repository_link_id'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'parent_connection'
+    provider_only: true
+  - field: 'reconciling'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'

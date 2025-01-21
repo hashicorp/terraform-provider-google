@@ -3,3 +3,14 @@ generation_type: 'mmv1'
 api_service_name: 'bigqueryreservation.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Reservation'
+fields:
+  - field: 'autoscale.current_slots'
+  - field: 'autoscale.max_slots'
+  - field: 'concurrency'
+  - field: 'edition'
+  - field: 'ignore_idle_slots'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'slot_capacity'

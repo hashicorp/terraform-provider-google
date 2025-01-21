@@ -3,3 +3,9 @@ generation_type: 'mmv1'
 api_service_name: 'securitycenter.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'Source'
+fields:
+  - field: 'description'
+  - field: 'display_name'
+  - field: 'name'
+  - field: 'organization'
+    provider_only: true

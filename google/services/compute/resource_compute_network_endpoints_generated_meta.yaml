@@ -3,3 +3,11 @@ generation_type: 'mmv1'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'NetworkEndpointGroup'
+fields:
+  - field: 'network_endpoint_group'
+    provider_only: true
+  - field: 'network_endpoints.instance'
+  - field: 'network_endpoints.ip_address'
+  - field: 'network_endpoints.port'
+  - field: 'zone'
+    provider_only: true

@@ -3,3 +3,11 @@ generation_type: 'mmv1'
 api_service_name: 'siteverification.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'WebResource'
+fields:
+  - field: 'owners'
+  - field: 'site.identifier'
+  - field: 'site.type'
+  - field: 'verification_method'
+    provider_only: true
+  - field: 'web_resource_id'
+    api_field: 'id'

@@ -3,3 +3,11 @@ generation_type: 'mmv1'
 api_service_name: 'datacatalog.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'PolicyTag'
+fields:
+  - field: 'child_policy_tags'
+  - field: 'description'
+  - field: 'display_name'
+  - field: 'name'
+  - field: 'parent_policy_tag'
+  - field: 'taxonomy'
+    provider_only: true

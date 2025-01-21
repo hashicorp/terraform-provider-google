@@ -3,3 +3,26 @@ generation_type: 'mmv1'
 api_service_name: 'dataprocgdc.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ServiceInstance'
+fields:
+  - field: 'create_time'
+  - field: 'display_name'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'effective_service_account'
+  - field: 'gdce_cluster.gdce_cluster'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'reconciling'
+  - field: 'requested_state'
+  - field: 'service_account'
+  - field: 'service_instance_id'
+    provider_only: true
+  - field: 'spark_service_instance_config'
+  - field: 'state'
+  - field: 'state_message'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'

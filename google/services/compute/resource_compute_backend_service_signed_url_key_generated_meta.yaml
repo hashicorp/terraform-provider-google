@@ -3,3 +3,8 @@ generation_type: 'mmv1'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'BackendService'
+fields:
+  - field: 'backend_service'
+  - field: 'key_value'
+  - field: 'name'
+    api_field: 'key_name'

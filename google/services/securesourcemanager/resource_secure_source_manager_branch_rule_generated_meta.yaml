@@ -3,3 +3,22 @@ generation_type: 'mmv1'
 api_service_name: 'securesourcemanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'BranchRule'
+fields:
+  - field: 'allow_stale_reviews'
+  - field: 'branch_rule_id'
+    provider_only: true
+  - field: 'create_time'
+  - field: 'disabled'
+  - field: 'include_pattern'
+  - field: 'location'
+    provider_only: true
+  - field: 'minimum_approvals_count'
+  - field: 'minimum_reviews_count'
+  - field: 'name'
+  - field: 'repository_id'
+    provider_only: true
+  - field: 'require_comments_resolved'
+  - field: 'require_linear_history'
+  - field: 'require_pull_request'
+  - field: 'uid'
+  - field: 'update_time'

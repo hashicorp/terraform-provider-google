@@ -3,3 +3,12 @@ generation_type: 'mmv1'
 api_service_name: 'logging.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'Settings'
+fields:
+  - field: 'disable_default_sink'
+  - field: 'folder'
+    provider_only: true
+  - field: 'kms_key_name'
+  - field: 'kms_service_account_id'
+  - field: 'logging_service_account_id'
+  - field: 'name'
+  - field: 'storage_location'

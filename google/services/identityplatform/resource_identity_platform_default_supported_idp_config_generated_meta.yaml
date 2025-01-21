@@ -3,3 +3,10 @@ generation_type: 'mmv1'
 api_service_name: 'identitytoolkit.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'DefaultSupportedIdpConfig'
+fields:
+  - field: 'client_id'
+  - field: 'client_secret'
+  - field: 'enabled'
+  - field: 'idp_id'
+    provider_only: true
+  - field: 'name'

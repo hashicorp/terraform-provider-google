@@ -3,3 +3,12 @@ generation_type: 'mmv1'
 api_service_name: 'monitoring.googleapis.com'
 api_version: 'v3'
 api_resource_type_kind: 'Service'
+fields:
+  - field: 'basic_service.service_labels'
+  - field: 'basic_service.service_type'
+  - field: 'display_name'
+  - field: 'name'
+  - field: 'service_id'
+    provider_only: true
+  - field: 'telemetry.resource_name'
+  - field: 'user_labels'

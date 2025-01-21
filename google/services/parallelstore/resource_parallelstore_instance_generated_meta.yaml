@@ -3,3 +3,27 @@ generation_type: 'mmv1'
 api_service_name: 'parallelstore.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Instance'
+fields:
+  - field: 'access_points'
+  - field: 'capacity_gib'
+  - field: 'create_time'
+  - field: 'daos_version'
+  - field: 'deployment_type'
+  - field: 'description'
+  - field: 'directory_stripe_level'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'effective_reserved_ip_range'
+  - field: 'file_stripe_level'
+  - field: 'instance_id'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'network'
+  - field: 'reserved_ip_range'
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

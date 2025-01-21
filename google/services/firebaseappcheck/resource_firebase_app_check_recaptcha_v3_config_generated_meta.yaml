@@ -3,3 +3,10 @@ generation_type: 'mmv1'
 api_service_name: 'firebaseappcheck.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'RecaptchaConfig'
+fields:
+  - field: 'app_id'
+    provider_only: true
+  - field: 'name'
+  - field: 'site_secret'
+  - field: 'site_secret_set'
+  - field: 'token_ttl'

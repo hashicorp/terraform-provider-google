@@ -3,3 +3,19 @@ generation_type: 'mmv1'
 api_service_name: 'datacatalog.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'TagTemplate'
+fields:
+  - field: 'display_name'
+  - field: 'fields.field.description'
+  - field: 'fields.field.display_name'
+  - field: 'fields.field.is_required'
+  - field: 'fields.field.name'
+  - field: 'fields.field.order'
+  - field: 'fields.field.type.enum_type.allowed_values.display_name'
+  - field: 'fields.field.type.primitive_type'
+  - field: 'force_delete'
+    provider_only: true
+  - field: 'name'
+  - field: 'region'
+    provider_only: true
+  - field: 'tag_template_id'
+    provider_only: true

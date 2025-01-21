@@ -3,3 +3,19 @@ generation_type: 'mmv1'
 api_service_name: 'file.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Snapshot'
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'filesystem_used_bytes'
+  - field: 'instance'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true

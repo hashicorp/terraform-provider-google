@@ -3,3 +3,15 @@ generation_type: 'mmv1'
 api_service_name: 'biglake.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Database'
+fields:
+  - field: 'catalog'
+    provider_only: true
+  - field: 'create_time'
+  - field: 'delete_time'
+  - field: 'expire_time'
+  - field: 'hive_options.location_uri'
+  - field: 'hive_options.parameters'
+  - field: 'name'
+    provider_only: true
+  - field: 'type'
+  - field: 'update_time'

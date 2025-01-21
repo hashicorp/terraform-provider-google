@@ -3,3 +3,11 @@ generation_type: 'mmv1'
 api_service_name: 'dialogflow.googleapis.com'
 api_version: 'v3'
 api_resource_type_kind: 'Environment'
+fields:
+  - field: 'description'
+  - field: 'display_name'
+  - field: 'name'
+  - field: 'parent'
+    provider_only: true
+  - field: 'update_time'
+  - field: 'version_configs.version'

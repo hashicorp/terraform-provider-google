@@ -3,3 +3,8 @@ generation_type: 'mmv1'
 api_service_name: 'firebaseappcheck.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'PlayIntegrityConfig'
+fields:
+  - field: 'app_id'
+    provider_only: true
+  - field: 'name'
+  - field: 'token_ttl'

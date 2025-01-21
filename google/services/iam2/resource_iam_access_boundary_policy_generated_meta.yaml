@@ -3,3 +3,17 @@ generation_type: 'mmv1'
 api_service_name: 'iam.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'AccessBoundaryPolicy'
+fields:
+  - field: 'display_name'
+  - field: 'etag'
+  - field: 'name'
+    provider_only: true
+  - field: 'parent'
+    provider_only: true
+  - field: 'rules.access_boundary_rule.availability_condition.description'
+  - field: 'rules.access_boundary_rule.availability_condition.expression'
+  - field: 'rules.access_boundary_rule.availability_condition.location'
+  - field: 'rules.access_boundary_rule.availability_condition.title'
+  - field: 'rules.access_boundary_rule.available_permissions'
+  - field: 'rules.access_boundary_rule.available_resource'
+  - field: 'rules.description'

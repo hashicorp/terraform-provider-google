@@ -3,3 +3,15 @@ generation_type: 'mmv1'
 api_service_name: 'logging.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'LogView'
+fields:
+  - field: 'bucket'
+    provider_only: true
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'filter'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'parent'
+    provider_only: true
+  - field: 'update_time'

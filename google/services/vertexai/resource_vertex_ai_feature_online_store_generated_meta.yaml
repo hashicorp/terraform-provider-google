@@ -3,3 +3,27 @@ generation_type: 'mmv1'
 api_service_name: 'aiplatform.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'FeatureOnlineStore'
+fields:
+  - field: 'bigtable.auto_scaling.cpu_utilization_target'
+  - field: 'bigtable.auto_scaling.max_node_count'
+  - field: 'bigtable.auto_scaling.min_node_count'
+  - field: 'create_time'
+  - field: 'dedicated_serving_endpoint.private_service_connect_config.enable_private_service_connect'
+  - field: 'dedicated_serving_endpoint.private_service_connect_config.project_allowlist'
+  - field: 'dedicated_serving_endpoint.public_endpoint_domain_name'
+  - field: 'dedicated_serving_endpoint.service_attachment'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'etag'
+  - field: 'force_destroy'
+    provider_only: true
+  - field: 'labels'
+  - field: 'name'
+    provider_only: true
+  - field: 'optimized'
+  - field: 'region'
+    provider_only: true
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

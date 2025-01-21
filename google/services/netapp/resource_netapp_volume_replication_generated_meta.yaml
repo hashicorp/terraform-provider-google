@@ -3,3 +3,45 @@ generation_type: 'mmv1'
 api_service_name: 'netapp.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Replication'
+fields:
+  - field: 'create_time'
+  - field: 'delete_destination_volume'
+    provider_only: true
+  - field: 'description'
+  - field: 'destination_volume'
+  - field: 'destination_volume_parameters.description'
+  - field: 'destination_volume_parameters.share_name'
+  - field: 'destination_volume_parameters.storage_pool'
+  - field: 'destination_volume_parameters.volume_id'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'force_stopping'
+    provider_only: true
+  - field: 'healthy'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'mirror_state'
+  - field: 'name'
+    provider_only: true
+  - field: 'replication_enabled'
+    provider_only: true
+  - field: 'replication_schedule'
+  - field: 'role'
+  - field: 'source_volume'
+  - field: 'state'
+  - field: 'state_details'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'transfer_stats.lag_duration'
+  - field: 'transfer_stats.last_transfer_bytes'
+  - field: 'transfer_stats.last_transfer_duration'
+  - field: 'transfer_stats.last_transfer_end_time'
+  - field: 'transfer_stats.last_transfer_error'
+  - field: 'transfer_stats.total_transfer_duration'
+  - field: 'transfer_stats.transfer_bytes'
+  - field: 'transfer_stats.update_time'
+  - field: 'volume_name'
+    provider_only: true
+  - field: 'wait_for_mirror'
+    provider_only: true

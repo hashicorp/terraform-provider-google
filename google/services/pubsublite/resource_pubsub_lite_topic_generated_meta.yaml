@@ -3,3 +3,16 @@ generation_type: 'mmv1'
 api_service_name: 'pubsublite.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Topic'
+fields:
+  - field: 'name'
+    provider_only: true
+  - field: 'partition_config.capacity.publish_mib_per_sec'
+  - field: 'partition_config.capacity.subscribe_mib_per_sec'
+  - field: 'partition_config.count'
+  - field: 'region'
+    provider_only: true
+  - field: 'reservation_config.throughput_reservation'
+  - field: 'retention_config.per_partition_bytes'
+  - field: 'retention_config.period'
+  - field: 'zone'
+    provider_only: true
