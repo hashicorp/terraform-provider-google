@@ -29,6 +29,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceComputePublicAdvertisedPrefix() *schema.Resource {
@@ -79,6 +80,14 @@ except the last character, which cannot be a dash.`,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
+			},
+			"pdp_scope": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"GLOBAL", "REGIONAL", ""}),
+				Description: `Specifies how child public delegated prefix will be scoped. pdpScope
+must be one of: GLOBAL, REGIONAL Possible values: ["GLOBAL", "REGIONAL"]`,
 			},
 			"shared_secret": {
 				Type:        schema.TypeString,
@@ -131,6 +140,12 @@ func resourceComputePublicAdvertisedPrefixCreate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("ip_cidr_range"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipCidrRangeProp)) && (ok || !reflect.DeepEqual(v, ipCidrRangeProp)) {
 		obj["ipCidrRange"] = ipCidrRangeProp
+	}
+	pdpScopeProp, err := expandComputePublicAdvertisedPrefixPdpScope(d.Get("pdp_scope"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("pdp_scope"); !tpgresource.IsEmptyValue(reflect.ValueOf(pdpScopeProp)) && (ok || !reflect.DeepEqual(v, pdpScopeProp)) {
+		obj["pdpScope"] = pdpScopeProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/publicAdvertisedPrefixes")
@@ -243,6 +258,9 @@ func resourceComputePublicAdvertisedPrefixRead(d *schema.ResourceData, meta inte
 	if err := d.Set("ip_cidr_range", flattenComputePublicAdvertisedPrefixIpCidrRange(res["ipCidrRange"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PublicAdvertisedPrefix: %s", err)
 	}
+	if err := d.Set("pdp_scope", flattenComputePublicAdvertisedPrefixPdpScope(res["pdpScope"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicAdvertisedPrefix: %s", err)
+	}
 	if err := d.Set("shared_secret", flattenComputePublicAdvertisedPrefixSharedSecret(res["sharedSecret"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PublicAdvertisedPrefix: %s", err)
 	}
@@ -345,6 +363,10 @@ func flattenComputePublicAdvertisedPrefixIpCidrRange(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenComputePublicAdvertisedPrefixPdpScope(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputePublicAdvertisedPrefixSharedSecret(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -362,5 +384,9 @@ func expandComputePublicAdvertisedPrefixDnsVerificationIp(v interface{}, d tpgre
 }
 
 func expandComputePublicAdvertisedPrefixIpCidrRange(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputePublicAdvertisedPrefixPdpScope(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

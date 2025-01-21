@@ -39,6 +39,18 @@ resource "google_compute_public_advertised_prefix" "prefixes" {
   ip_cidr_range = "127.127.0.0/16"
 }
 ```
+## Example Usage - Public Advertised Prefixes Pdp Scope
+
+
+```hcl
+resource "google_compute_public_advertised_prefix" "prefixes" {
+  name = "my-pap"
+  description = "description"
+  dns_verification_ip = "127.127.0.0"
+  ip_cidr_range = "127.127.0.0/16"
+  pdp_scope = "REGIONAL"
+}
+```
 
 ## Argument Reference
 
@@ -69,6 +81,12 @@ The following arguments are supported:
 * `description` -
   (Optional)
   An optional description of this resource.
+
+* `pdp_scope` -
+  (Optional)
+  Specifies how child public delegated prefix will be scoped. pdpScope
+  must be one of: GLOBAL, REGIONAL
+  Possible values are: `GLOBAL`, `REGIONAL`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
