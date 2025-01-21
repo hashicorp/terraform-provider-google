@@ -50,9 +50,12 @@ func TestAccPubsubTopic_cmek(t *testing.T) {
 	kms := acctest.BootstrapKMSKey(t)
 	topicName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	if acctest.BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
-		t.Fatal("Stopping the test because a role was added to the policy.")
-	}
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

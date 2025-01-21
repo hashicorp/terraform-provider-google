@@ -522,10 +522,12 @@ resource "google_spanner_database" "database" {
 func TestAccSpannerDatabase_cmek(t *testing.T) {
 	t.Parallel()
 
-	// Handle bootstrapping out of band so we don't need beta provider, and for consistency with mrcmek test
-	if acctest.BootstrapPSARole(t, "service-", "gcp-sa-spanner", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
-		t.Fatal("Stopping the test because a role was added to the policy.")
-	}
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-spanner.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	// Make the keys outside of Terraform so that a) the project isn't littered with a key from each run and b) so that VCR
 	// can work.
