@@ -3,3 +3,24 @@ generation_type: 'mmv1'
 api_service_name: 'workflows.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Workflow'
+fields:
+  - field: 'call_log_level'
+  - field: 'create_time'
+  - field: 'crypto_key_name'
+  - field: 'deletion_protection'
+    provider_only: true
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'name'
+  - field: 'region'
+    provider_only: true
+  - field: 'revision_id'
+  - field: 'service_account'
+  - field: 'source_contents'
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'
+  - field: 'user_env_vars'

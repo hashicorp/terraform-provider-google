@@ -3,3 +3,8 @@ generation_type: 'mmv1'
 api_service_name: 'accesscontextmanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ServicePerimeter'
+fields:
+  - field: 'access_policy_id'
+  - field: 'perimeter_name'
+    provider_only: true
+  - field: 'resource'

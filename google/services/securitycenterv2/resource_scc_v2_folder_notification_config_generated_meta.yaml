@@ -3,3 +3,15 @@ generation_type: 'mmv1'
 api_service_name: 'securitycenter.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'NotificationConfig'
+fields:
+  - field: 'config_id'
+    provider_only: true
+  - field: 'description'
+  - field: 'folder'
+    provider_only: true
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'pubsub_topic'
+  - field: 'service_account'
+  - field: 'streaming_config.filter'

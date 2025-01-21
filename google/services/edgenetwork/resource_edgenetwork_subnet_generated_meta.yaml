@@ -3,3 +3,24 @@ generation_type: 'mmv1'
 api_service_name: 'edgenetwork.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Subnet'
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'ipv4_cidr'
+  - field: 'ipv6_cidr'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'network'
+  - field: 'state'
+  - field: 'subnet_id'
+    provider_only: true
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'
+  - field: 'vlan_id'
+  - field: 'zone'
+    provider_only: true

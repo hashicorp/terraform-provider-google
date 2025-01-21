@@ -3,3 +3,26 @@ generation_type: 'mmv1'
 api_service_name: 'netapp.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'StoragePool'
+fields:
+  - field: 'active_directory'
+  - field: 'allow_auto_tiering'
+  - field: 'capacity_gib'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'encryption_type'
+  - field: 'kms_config'
+  - field: 'labels'
+  - field: 'ldap_enabled'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'network'
+  - field: 'replica_zone'
+  - field: 'service_level'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'volume_capacity_gib'
+  - field: 'volume_count'
+  - field: 'zone'

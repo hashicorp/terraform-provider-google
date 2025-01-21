@@ -3,3 +3,19 @@ generation_type: 'mmv1'
 api_service_name: 'certificatemanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'CertificateMapEntry'
+fields:
+  - field: 'certificates'
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'hostname'
+  - field: 'labels'
+  - field: 'map'
+    provider_only: true
+  - field: 'matcher'
+  - field: 'name'
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

@@ -3,3 +3,17 @@ generation_type: 'mmv1'
 api_service_name: 'bigtableadmin.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'AppProfile'
+fields:
+  - field: 'app_profile_id'
+    provider_only: true
+  - field: 'data_boost_isolation_read_only.compute_billing_owner'
+  - field: 'description'
+  - field: 'ignore_warnings'
+    provider_only: true
+  - field: 'instance'
+    provider_only: true
+  - field: 'multi_cluster_routing_use_any'
+  - field: 'name'
+  - field: 'single_cluster_routing.allow_transactional_writes'
+  - field: 'single_cluster_routing.cluster_id'
+  - field: 'standard_isolation.priority'

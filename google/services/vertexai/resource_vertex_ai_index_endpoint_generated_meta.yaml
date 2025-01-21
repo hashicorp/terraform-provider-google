@@ -3,3 +3,22 @@ generation_type: 'mmv1'
 api_service_name: 'aiplatform.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'IndexEndpoint'
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'display_name'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'etag'
+  - field: 'labels'
+  - field: 'name'
+  - field: 'network'
+  - field: 'private_service_connect_config.enable_private_service_connect'
+  - field: 'private_service_connect_config.project_allowlist'
+  - field: 'public_endpoint_domain_name'
+  - field: 'public_endpoint_enabled'
+  - field: 'region'
+    provider_only: true
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

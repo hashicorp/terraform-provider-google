@@ -3,3 +3,23 @@ generation_type: 'mmv1'
 api_service_name: 'iam.googleapis.com'
 api_version: 'v3'
 api_resource_type_kind: 'PrincipalAccessBoundaryPolicy'
+fields:
+  - field: 'annotations'
+  - field: 'create_time'
+  - field: 'details.enforcement_version'
+  - field: 'details.rules.description'
+  - field: 'details.rules.effect'
+  - field: 'details.rules.resources'
+  - field: 'display_name'
+  - field: 'effective_annotations'
+    provider_only: true
+  - field: 'etag'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'organization'
+    provider_only: true
+  - field: 'principal_access_boundary_policy_id'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'

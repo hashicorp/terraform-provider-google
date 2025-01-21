@@ -3,3 +3,7 @@ generation_type: 'mmv1'
 api_service_name: 'cloudresourcemanager.googleapis.com'
 api_version: 'v3'
 api_resource_type_kind: 'TagBinding'
+fields:
+  - field: 'name'
+  - field: 'parent'
+  - field: 'tag_value'

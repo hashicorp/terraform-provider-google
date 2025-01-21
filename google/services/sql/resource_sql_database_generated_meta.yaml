@@ -3,3 +3,10 @@ generation_type: 'mmv1'
 api_service_name: 'sqladmin.googleapis.com'
 api_version: 'v1beta4'
 api_resource_type_kind: 'Database'
+fields:
+  - field: 'charset'
+  - field: 'collation'
+  - field: 'deletion_policy'
+    provider_only: true
+  - field: 'instance'
+  - field: 'name'

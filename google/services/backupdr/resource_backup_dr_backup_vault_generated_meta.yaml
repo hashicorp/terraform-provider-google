@@ -3,3 +3,40 @@ generation_type: 'mmv1'
 api_service_name: 'backupdr.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'BackupVault'
+fields:
+  - field: 'access_restriction'
+  - field: 'allow_missing'
+    provider_only: true
+  - field: 'annotations'
+  - field: 'backup_count'
+  - field: 'backup_minimum_enforced_retention_duration'
+  - field: 'backup_vault_id'
+    provider_only: true
+  - field: 'create_time'
+  - field: 'deletable'
+  - field: 'description'
+  - field: 'effective_annotations'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'effective_time'
+  - field: 'etag'
+  - field: 'force_delete'
+    provider_only: true
+  - field: 'force_update'
+    provider_only: true
+  - field: 'ignore_backup_plan_references'
+    provider_only: true
+  - field: 'ignore_inactive_datasources'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'service_account'
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'total_stored_bytes'
+  - field: 'uid'
+  - field: 'update_time'

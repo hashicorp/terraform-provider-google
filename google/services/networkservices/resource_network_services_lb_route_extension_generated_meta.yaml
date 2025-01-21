@@ -3,3 +3,24 @@ generation_type: 'mmv1'
 api_service_name: 'networkservices.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'LbRouteExtension'
+fields:
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'extension_chains.extensions.authority'
+  - field: 'extension_chains.extensions.fail_open'
+  - field: 'extension_chains.extensions.forward_headers'
+  - field: 'extension_chains.extensions.name'
+  - field: 'extension_chains.extensions.service'
+  - field: 'extension_chains.extensions.timeout'
+  - field: 'extension_chains.match_condition.cel_expression'
+  - field: 'extension_chains.name'
+  - field: 'forwarding_rules'
+  - field: 'labels'
+  - field: 'load_balancing_scheme'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'terraform_labels'
+    provider_only: true

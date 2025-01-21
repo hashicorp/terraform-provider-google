@@ -3,3 +3,19 @@ generation_type: 'mmv1'
 api_service_name: 'networkservices.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'EdgeCacheKeyset'
+fields:
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'name'
+    provider_only: true
+  - field: 'public_key.id'
+    api_field: 'public_keys.id'
+  - field: 'public_key.managed'
+    api_field: 'public_keys.managed'
+  - field: 'public_key.value'
+    api_field: 'public_keys.value'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'validation_shared_keys.secret_version'

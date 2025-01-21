@@ -3,3 +3,21 @@ generation_type: 'mmv1'
 api_service_name: 'netapp.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'BackupPolicy'
+fields:
+  - field: 'assigned_volume_count'
+  - field: 'create_time'
+  - field: 'daily_backup_limit'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'enabled'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'monthly_backup_limit'
+  - field: 'name'
+    provider_only: true
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'weekly_backup_limit'

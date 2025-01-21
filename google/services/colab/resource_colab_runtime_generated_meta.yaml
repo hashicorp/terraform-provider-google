@@ -3,3 +3,12 @@ generation_type: 'mmv1'
 api_service_name: 'aiplatform.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Runtime'
+fields:
+  - field: 'description'
+  - field: 'display_name'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'notebook_runtime_template_ref.notebook_runtime_template'
+  - field: 'runtime_user'

@@ -3,3 +3,24 @@ generation_type: 'mmv1'
 api_service_name: 'aiplatform.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'EntityType'
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'etag'
+  - field: 'featurestore'
+    provider_only: true
+  - field: 'labels'
+  - field: 'monitoring_config.categorical_threshold_config.value'
+  - field: 'monitoring_config.import_features_analysis.anomaly_detection_baseline'
+  - field: 'monitoring_config.import_features_analysis.state'
+  - field: 'monitoring_config.numerical_threshold_config.value'
+  - field: 'monitoring_config.snapshot_analysis.disabled'
+  - field: 'monitoring_config.snapshot_analysis.monitoring_interval_days'
+  - field: 'monitoring_config.snapshot_analysis.staleness_days'
+  - field: 'name'
+    provider_only: true
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

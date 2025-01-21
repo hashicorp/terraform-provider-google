@@ -3,3 +3,15 @@ generation_type: 'mmv1'
 api_service_name: 'healthcare.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ConsentStore'
+fields:
+  - field: 'dataset'
+    provider_only: true
+  - field: 'default_consent_ttl'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'enable_consent_create_on_update'
+  - field: 'labels'
+  - field: 'name'
+    provider_only: true
+  - field: 'terraform_labels'
+    provider_only: true

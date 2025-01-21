@@ -3,3 +3,12 @@ generation_type: 'mmv1'
 api_service_name: 'alloydb.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'User'
+fields:
+  - field: 'cluster'
+    provider_only: true
+  - field: 'database_roles'
+  - field: 'name'
+  - field: 'password'
+  - field: 'user_id'
+    provider_only: true
+  - field: 'user_type'

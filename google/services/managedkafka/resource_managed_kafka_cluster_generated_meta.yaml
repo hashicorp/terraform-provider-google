@@ -3,3 +3,22 @@ generation_type: 'mmv1'
 api_service_name: 'managedkafka.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Cluster'
+fields:
+  - field: 'capacity_config.memory_bytes'
+  - field: 'capacity_config.vcpu_count'
+  - field: 'cluster_id'
+    provider_only: true
+  - field: 'create_time'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'gcp_config.access_config.network_configs.subnet'
+  - field: 'gcp_config.kms_key'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'rebalance_config.mode'
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

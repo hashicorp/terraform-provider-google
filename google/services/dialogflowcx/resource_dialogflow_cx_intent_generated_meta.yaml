@@ -3,3 +3,29 @@ generation_type: 'mmv1'
 api_service_name: 'dialogflow.googleapis.com'
 api_version: 'v3'
 api_resource_type_kind: 'Intent'
+fields:
+  - field: 'description'
+  - field: 'display_name'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'is_default_negative_intent'
+    provider_only: true
+  - field: 'is_default_welcome_intent'
+    provider_only: true
+  - field: 'is_fallback'
+  - field: 'labels'
+  - field: 'language_code'
+  - field: 'name'
+  - field: 'parameters.entity_type'
+  - field: 'parameters.id'
+  - field: 'parameters.is_list'
+  - field: 'parameters.redact'
+  - field: 'parent'
+    provider_only: true
+  - field: 'priority'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'training_phrases.id'
+  - field: 'training_phrases.parts.parameter_id'
+  - field: 'training_phrases.parts.text'
+  - field: 'training_phrases.repeat_count'

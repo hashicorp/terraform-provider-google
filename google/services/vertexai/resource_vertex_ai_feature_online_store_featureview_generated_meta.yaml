@@ -3,3 +3,23 @@ generation_type: 'mmv1'
 api_service_name: 'aiplatform.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'FeatureView'
+fields:
+  - field: 'big_query_source.entity_id_columns'
+  - field: 'big_query_source.uri'
+  - field: 'create_time'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'feature_online_store'
+    provider_only: true
+  - field: 'feature_registry_source.feature_groups.feature_group_id'
+  - field: 'feature_registry_source.feature_groups.feature_ids'
+  - field: 'feature_registry_source.project_number'
+  - field: 'labels'
+  - field: 'name'
+    provider_only: true
+  - field: 'region'
+    provider_only: true
+  - field: 'sync_config.cron'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

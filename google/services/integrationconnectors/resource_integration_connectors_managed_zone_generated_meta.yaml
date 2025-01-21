@@ -3,3 +3,17 @@ generation_type: 'mmv1'
 api_service_name: 'connectors.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ManagedZone'
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'dns'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'name'
+    provider_only: true
+  - field: 'target_project'
+  - field: 'target_vpc'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

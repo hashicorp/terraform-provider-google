@@ -3,3 +3,21 @@ generation_type: 'mmv1'
 api_service_name: 'networksecurity.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ClientTlsPolicy'
+fields:
+  - field: 'client_certificate.certificate_provider_instance.plugin_instance'
+  - field: 'client_certificate.grpc_endpoint.target_uri'
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'server_validation_ca.certificate_provider_instance.plugin_instance'
+  - field: 'server_validation_ca.grpc_endpoint.target_uri'
+  - field: 'sni'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

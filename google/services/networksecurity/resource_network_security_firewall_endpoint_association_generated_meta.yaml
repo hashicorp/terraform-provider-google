@@ -3,3 +3,24 @@ generation_type: 'mmv1'
 api_service_name: 'networksecurity.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'FirewallEndpointAssociation'
+fields:
+  - field: 'create_time'
+  - field: 'disabled'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'firewall_endpoint'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'network'
+  - field: 'parent'
+    provider_only: true
+  - field: 'reconciling'
+  - field: 'self_link'
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'tls_inspection_policy'
+  - field: 'update_time'

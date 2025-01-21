@@ -3,3 +3,11 @@ generation_type: 'mmv1'
 api_service_name: 'apphub.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ServiceProjectAttachment'
+fields:
+  - field: 'create_time'
+  - field: 'name'
+  - field: 'service_project'
+  - field: 'service_project_attachment_id'
+    provider_only: true
+  - field: 'state'
+  - field: 'uid'

@@ -3,3 +3,22 @@ generation_type: 'mmv1'
 api_service_name: 'aiplatform.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Featurestore'
+fields:
+  - field: 'create_time'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'encryption_spec.kms_key_name'
+  - field: 'etag'
+  - field: 'force_destroy'
+    provider_only: true
+  - field: 'labels'
+  - field: 'name'
+    provider_only: true
+  - field: 'online_serving_config.fixed_node_count'
+  - field: 'online_serving_config.scaling.max_node_count'
+  - field: 'online_serving_config.scaling.min_node_count'
+  - field: 'region'
+    provider_only: true
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

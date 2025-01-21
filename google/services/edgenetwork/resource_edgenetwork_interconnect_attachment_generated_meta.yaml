@@ -3,3 +3,23 @@ generation_type: 'mmv1'
 api_service_name: 'edgenetwork.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'InterconnectAttachment'
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'interconnect'
+  - field: 'interconnect_attachment_id'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'mtu'
+  - field: 'name'
+  - field: 'network'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'
+  - field: 'vlan_id'
+  - field: 'zone'
+    provider_only: true

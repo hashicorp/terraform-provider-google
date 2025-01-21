@@ -3,3 +3,11 @@ generation_type: 'mmv1'
 api_service_name: 'firebaseappcheck.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'DeviceCheckConfig'
+fields:
+  - field: 'app_id'
+    provider_only: true
+  - field: 'key_id'
+  - field: 'name'
+  - field: 'private_key'
+  - field: 'private_key_set'
+  - field: 'token_ttl'

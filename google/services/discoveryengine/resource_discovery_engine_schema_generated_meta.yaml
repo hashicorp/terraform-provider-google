@@ -3,3 +3,12 @@ generation_type: 'mmv1'
 api_service_name: 'discoveryengine.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Schema'
+fields:
+  - field: 'data_store_id'
+    provider_only: true
+  - field: 'json_schema'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'schema_id'
+    provider_only: true

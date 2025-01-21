@@ -3,3 +3,33 @@ generation_type: 'mmv1'
 api_service_name: 'run.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'DomainMapping'
+fields:
+  - field: 'location'
+    provider_only: true
+  - field: 'metadata.annotations'
+  - field: 'metadata.effective_annotations'
+    provider_only: true
+  - field: 'metadata.effective_labels'
+    provider_only: true
+  - field: 'metadata.generation'
+  - field: 'metadata.labels'
+  - field: 'metadata.namespace'
+  - field: 'metadata.resource_version'
+  - field: 'metadata.self_link'
+  - field: 'metadata.terraform_labels'
+    provider_only: true
+  - field: 'metadata.uid'
+  - field: 'name'
+    provider_only: true
+  - field: 'spec.certificate_mode'
+  - field: 'spec.force_override'
+  - field: 'spec.route_name'
+  - field: 'status.conditions.message'
+  - field: 'status.conditions.reason'
+  - field: 'status.conditions.status'
+  - field: 'status.conditions.type'
+  - field: 'status.mapped_route_name'
+  - field: 'status.observed_generation'
+  - field: 'status.resource_records.name'
+  - field: 'status.resource_records.rrdata'
+  - field: 'status.resource_records.type'

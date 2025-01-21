@@ -3,3 +3,20 @@ generation_type: 'mmv1'
 api_service_name: 'datamigration.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'PrivateConnection'
+fields:
+  - field: 'display_name'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'error.details'
+  - field: 'error.message'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'private_connection_id'
+    provider_only: true
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'vpc_peering_config.subnet'
+  - field: 'vpc_peering_config.vpc_name'

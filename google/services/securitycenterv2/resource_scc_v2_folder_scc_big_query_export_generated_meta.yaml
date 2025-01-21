@@ -3,3 +3,18 @@ generation_type: 'mmv1'
 api_service_name: 'securitycenter.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'BigQueryExport'
+fields:
+  - field: 'big_query_export_id'
+    provider_only: true
+  - field: 'create_time'
+  - field: 'dataset'
+  - field: 'description'
+  - field: 'filter'
+  - field: 'folder'
+    provider_only: true
+  - field: 'location'
+    provider_only: true
+  - field: 'most_recent_editor'
+  - field: 'name'
+  - field: 'principal'
+  - field: 'update_time'

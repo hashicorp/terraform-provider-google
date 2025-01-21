@@ -3,3 +3,26 @@ generation_type: 'mmv1'
 api_service_name: 'dataprocgdc.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ApplicationEnvironment'
+fields:
+  - field: 'annotations'
+  - field: 'application_environment_id'
+    provider_only: true
+  - field: 'create_time'
+  - field: 'display_name'
+  - field: 'effective_annotations'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'namespace'
+  - field: 'serviceinstance'
+    provider_only: true
+  - field: 'spark_application_environment_config.default_properties'
+  - field: 'spark_application_environment_config.default_version'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'

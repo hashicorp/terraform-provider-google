@@ -3,3 +3,21 @@ generation_type: 'mmv1'
 api_service_name: 'metastore.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Federation'
+fields:
+  - field: 'backend_metastores.backend_metastores.metastore_type'
+  - field: 'backend_metastores.backend_metastores.name'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'endpoint_uri'
+  - field: 'federation_id'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'state'
+  - field: 'state_message'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'version'

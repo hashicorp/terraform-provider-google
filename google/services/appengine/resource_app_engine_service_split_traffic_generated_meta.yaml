@@ -3,3 +3,10 @@ generation_type: 'mmv1'
 api_service_name: 'appengine.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Service'
+fields:
+  - field: 'migrate_traffic'
+    provider_only: true
+  - field: 'service'
+    api_field: 'id'
+  - field: 'split.allocations'
+  - field: 'split.shard_by'

@@ -3,3 +3,25 @@ generation_type: 'mmv1'
 api_service_name: 'edgecontainer.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'NodePool'
+fields:
+  - field: 'cluster'
+    provider_only: true
+  - field: 'create_time'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'local_disk_encryption.kms_key'
+  - field: 'local_disk_encryption.kms_key_active_version'
+  - field: 'local_disk_encryption.kms_key_state'
+  - field: 'location'
+    provider_only: true
+  - field: 'machine_filter'
+  - field: 'name'
+    provider_only: true
+  - field: 'node_config.labels'
+  - field: 'node_count'
+  - field: 'node_location'
+  - field: 'node_version'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

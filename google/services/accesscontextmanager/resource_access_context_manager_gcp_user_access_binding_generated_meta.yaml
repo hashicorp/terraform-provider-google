@@ -3,3 +3,9 @@ generation_type: 'mmv1'
 api_service_name: 'accesscontextmanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'GcpUserAccessBinding'
+fields:
+  - field: 'access_levels'
+  - field: 'group_key'
+  - field: 'name'
+  - field: 'organization_id'
+    provider_only: true

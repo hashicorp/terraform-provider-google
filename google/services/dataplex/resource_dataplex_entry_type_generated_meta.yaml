@@ -3,3 +3,23 @@ generation_type: 'mmv1'
 api_service_name: 'dataplex.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'EntryType'
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'display_name'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'entry_type_id'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'platform'
+  - field: 'required_aspects.type'
+  - field: 'system'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'type_aliases'
+  - field: 'uid'
+  - field: 'update_time'

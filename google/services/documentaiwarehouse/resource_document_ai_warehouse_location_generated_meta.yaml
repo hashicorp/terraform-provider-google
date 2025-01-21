@@ -3,3 +3,12 @@ generation_type: 'mmv1'
 api_service_name: 'contentwarehouse.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Location'
+fields:
+  - field: 'access_control_mode'
+  - field: 'database_type'
+  - field: 'document_creator_default_role'
+  - field: 'kms_key'
+  - field: 'location'
+    provider_only: true
+  - field: 'project_number'
+    provider_only: true

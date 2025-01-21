@@ -3,3 +3,14 @@ generation_type: 'mmv1'
 api_service_name: 'managedkafka.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Topic'
+fields:
+  - field: 'cluster'
+    provider_only: true
+  - field: 'configs'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'partition_count'
+  - field: 'replication_factor'
+  - field: 'topic_id'
+    provider_only: true

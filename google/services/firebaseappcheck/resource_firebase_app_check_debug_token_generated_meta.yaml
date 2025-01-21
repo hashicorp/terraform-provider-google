@@ -3,3 +3,10 @@ generation_type: 'mmv1'
 api_service_name: 'firebaseappcheck.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'DebugToken'
+fields:
+  - field: 'app_id'
+    provider_only: true
+  - field: 'debug_token_id'
+    api_field: 'name'
+  - field: 'display_name'
+  - field: 'token'

@@ -3,3 +3,13 @@ generation_type: 'mmv1'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'NetworkEndpointGroup'
+fields:
+  - field: 'fqdn'
+  - field: 'ip_address'
+  - field: 'network_endpoint_id'
+    api_field: 'id'
+  - field: 'port'
+  - field: 'region'
+    provider_only: true
+  - field: 'region_network_endpoint_group'
+    provider_only: true

@@ -3,3 +3,18 @@ generation_type: 'mmv1'
 api_service_name: 'aiplatform.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'FeatureGroup'
+fields:
+  - field: 'big_query.big_query_source.input_uri'
+  - field: 'big_query.entity_id_columns'
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'etag'
+  - field: 'labels'
+  - field: 'name'
+  - field: 'region'
+    provider_only: true
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

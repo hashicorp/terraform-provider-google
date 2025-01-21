@@ -3,3 +3,26 @@ generation_type: 'mmv1'
 api_service_name: 'networksecurity.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'SecurityProfile'
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'etag'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'parent'
+    provider_only: true
+  - field: 'self_link'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'threat_prevention_profile.severity_overrides.action'
+  - field: 'threat_prevention_profile.severity_overrides.severity'
+  - field: 'threat_prevention_profile.threat_overrides.action'
+  - field: 'threat_prevention_profile.threat_overrides.threat_id'
+  - field: 'threat_prevention_profile.threat_overrides.type'
+  - field: 'type'
+  - field: 'update_time'

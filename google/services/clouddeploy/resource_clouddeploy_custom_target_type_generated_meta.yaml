@@ -3,3 +3,33 @@ generation_type: 'mmv1'
 api_service_name: 'clouddeploy.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'CustomTargetType'
+fields:
+  - field: 'annotations'
+  - field: 'create_time'
+  - field: 'custom_actions.deploy_action'
+  - field: 'custom_actions.include_skaffold_modules.configs'
+  - field: 'custom_actions.include_skaffold_modules.git.path'
+  - field: 'custom_actions.include_skaffold_modules.git.ref'
+  - field: 'custom_actions.include_skaffold_modules.git.repo'
+  - field: 'custom_actions.include_skaffold_modules.google_cloud_build_repo.path'
+  - field: 'custom_actions.include_skaffold_modules.google_cloud_build_repo.ref'
+  - field: 'custom_actions.include_skaffold_modules.google_cloud_build_repo.repository'
+  - field: 'custom_actions.include_skaffold_modules.google_cloud_storage.path'
+  - field: 'custom_actions.include_skaffold_modules.google_cloud_storage.source'
+  - field: 'custom_actions.render_action'
+  - field: 'custom_target_type_id'
+  - field: 'description'
+  - field: 'effective_annotations'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'etag'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'

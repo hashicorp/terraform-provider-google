@@ -3,3 +3,23 @@ generation_type: 'mmv1'
 api_service_name: 'networkservices.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'AuthzExtension'
+fields:
+  - field: 'authority'
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'fail_open'
+  - field: 'forward_headers'
+  - field: 'labels'
+  - field: 'load_balancing_scheme'
+  - field: 'location'
+    provider_only: true
+  - field: 'metadata'
+  - field: 'name'
+  - field: 'service'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'timeout'
+  - field: 'update_time'
+  - field: 'wire_format'

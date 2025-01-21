@@ -3,3 +3,12 @@ generation_type: 'mmv1'
 api_service_name: 'bigqueryreservation.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'BiReservation'
+fields:
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'preferred_tables.dataset_id'
+  - field: 'preferred_tables.project_id'
+  - field: 'preferred_tables.table_id'
+  - field: 'size'
+  - field: 'update_time'

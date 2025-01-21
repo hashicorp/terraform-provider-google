@@ -3,3 +3,22 @@ generation_type: 'mmv1'
 api_service_name: 'networkconnectivity.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'RegionalEndpoint'
+fields:
+  - field: 'access_type'
+  - field: 'address'
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'network'
+  - field: 'psc_forwarding_rule'
+  - field: 'subnetwork'
+  - field: 'target_google_api'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

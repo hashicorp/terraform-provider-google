@@ -3,3 +3,34 @@ generation_type: 'mmv1'
 api_service_name: 'clouddeploy.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Automation'
+fields:
+  - field: 'annotations'
+  - field: 'create_time'
+  - field: 'delivery_pipeline'
+    provider_only: true
+  - field: 'description'
+  - field: 'effective_annotations'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'etag'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'rules.advance_rollout_rule.id'
+  - field: 'rules.advance_rollout_rule.source_phases'
+  - field: 'rules.advance_rollout_rule.wait'
+  - field: 'rules.promote_release_rule.destination_phase'
+  - field: 'rules.promote_release_rule.destination_target_id'
+  - field: 'rules.promote_release_rule.id'
+  - field: 'rules.promote_release_rule.wait'
+  - field: 'selector.targets.id'
+  - field: 'selector.targets.labels'
+  - field: 'service_account'
+  - field: 'suspended'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'

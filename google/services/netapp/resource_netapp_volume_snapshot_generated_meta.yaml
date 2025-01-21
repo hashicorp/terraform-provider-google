@@ -3,3 +3,17 @@ generation_type: 'mmv1'
 api_service_name: 'netapp.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Snapshot'
+fields:
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'used_bytes'
+  - field: 'volume_name'
+    provider_only: true

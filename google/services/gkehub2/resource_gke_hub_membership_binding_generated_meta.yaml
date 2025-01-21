@@ -3,3 +3,22 @@ generation_type: 'mmv1'
 api_service_name: 'gkehub.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'MembershipBinding'
+fields:
+  - field: 'create_time'
+  - field: 'delete_time'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'membership_binding_id'
+    provider_only: true
+  - field: 'membership_id'
+    provider_only: true
+  - field: 'name'
+  - field: 'scope'
+  - field: 'state.code'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'

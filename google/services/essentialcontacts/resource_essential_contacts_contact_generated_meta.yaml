@@ -3,3 +3,10 @@ generation_type: 'mmv1'
 api_service_name: 'essentialcontacts.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Contact'
+fields:
+  - field: 'email'
+  - field: 'language_tag'
+  - field: 'name'
+  - field: 'notification_category_subscriptions'
+  - field: 'parent'
+    provider_only: true

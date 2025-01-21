@@ -3,3 +3,19 @@ generation_type: 'mmv1'
 api_service_name: 'connectors.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'EndpointAttachment'
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'endpoint_global_access'
+  - field: 'endpoint_ip'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'service_attachment'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

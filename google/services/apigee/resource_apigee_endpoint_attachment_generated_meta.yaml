@@ -3,3 +3,13 @@ generation_type: 'mmv1'
 api_service_name: 'apigee.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'EndpointAttachment'
+fields:
+  - field: 'connection_state'
+  - field: 'endpoint_attachment_id'
+    provider_only: true
+  - field: 'host'
+  - field: 'location'
+  - field: 'name'
+  - field: 'org_id'
+    provider_only: true
+  - field: 'service_attachment'

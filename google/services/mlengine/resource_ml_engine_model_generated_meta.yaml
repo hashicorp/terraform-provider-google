@@ -3,3 +3,15 @@ generation_type: 'mmv1'
 api_service_name: 'ml.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Model'
+fields:
+  - field: 'default_version.name'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'name'
+  - field: 'online_prediction_console_logging'
+  - field: 'online_prediction_logging'
+  - field: 'regions'
+  - field: 'terraform_labels'
+    provider_only: true

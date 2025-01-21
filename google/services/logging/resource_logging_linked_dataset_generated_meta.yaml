@@ -3,3 +3,17 @@ generation_type: 'mmv1'
 api_service_name: 'logging.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'Link'
+fields:
+  - field: 'bigquery_dataset.dataset_id'
+  - field: 'bucket'
+    provider_only: true
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'lifecycle_state'
+  - field: 'link_id'
+    provider_only: true
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'parent'
+    provider_only: true

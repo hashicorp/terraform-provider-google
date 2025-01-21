@@ -3,3 +3,24 @@ generation_type: 'mmv1'
 api_service_name: 'file.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Backup'
+fields:
+  - field: 'capacity_gb'
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'download_bytes'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'kms_key_name'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'source_file_share'
+  - field: 'source_instance'
+  - field: 'source_instance_tier'
+  - field: 'state'
+  - field: 'storage_bytes'
+  - field: 'tags'
+  - field: 'terraform_labels'
+    provider_only: true
