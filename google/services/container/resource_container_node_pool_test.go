@@ -49,6 +49,8 @@ func TestAccContainerNodePool_resourceManagerTags(t *testing.T) {
 	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
 	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
 
+	bootstrapGkeTagManagerServiceAgents(t)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -4209,38 +4211,6 @@ data "google_project" "project" {
   project_id = "%[1]s"
 }
 
-resource "google_project_iam_member" "tagHoldAdmin" {
-  project = "%[1]s"
-  role    = "roles/resourcemanager.tagHoldAdmin"
-  member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
-}
-
-resource "google_project_iam_member" "tagUser1" {
-  project = "%[1]s"
-  role    = "roles/resourcemanager.tagUser"
-  member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
-
-  depends_on = [google_project_iam_member.tagHoldAdmin]
-}
-
-resource "google_project_iam_member" "tagUser2" {
-  project = "%[1]s"
-  role    = "roles/resourcemanager.tagUser"
-  member  = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
-
-  depends_on = [google_project_iam_member.tagHoldAdmin]
-}
-
-resource "time_sleep" "wait_120_seconds" {
-  create_duration = "120s"
-
-  depends_on = [
-    google_project_iam_member.tagHoldAdmin,
-    google_project_iam_member.tagUser1,
-    google_project_iam_member.tagUser2,
-  ]
-}
-
 resource "google_tags_tag_key" "key1" {
   parent      = "projects/%[1]s"
   short_name  = "foobarbaz1-%[2]s"
@@ -4298,8 +4268,6 @@ resource "google_container_cluster" "primary" {
     create = "30m"
     update = "40m"
   }
-
-  depends_on = [time_sleep.wait_120_seconds]
 }
 
 # Separately Managed Node Pool
@@ -4329,38 +4297,6 @@ data "google_project" "project" {
   project_id = "%[1]s"
 }
 
-resource "google_project_iam_member" "tagHoldAdmin" {
-  project = "%[1]s"
-  role    = "roles/resourcemanager.tagHoldAdmin"
-  member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
-}
-
-resource "google_project_iam_member" "tagUser1" {
-  project = "%[1]s"
-  role    = "roles/resourcemanager.tagUser"
-  member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
-
-  depends_on = [google_project_iam_member.tagHoldAdmin]
-}
-
-resource "google_project_iam_member" "tagUser2" {
-  project = "%[1]s"
-  role    = "roles/resourcemanager.tagUser"
-  member  = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
-
-  depends_on = [google_project_iam_member.tagHoldAdmin]
-}
-
-resource "time_sleep" "wait_120_seconds" {
-  create_duration = "120s"
-
-  depends_on = [
-    google_project_iam_member.tagHoldAdmin,
-    google_project_iam_member.tagUser1,
-    google_project_iam_member.tagUser2,
-  ]
-}
-
 resource "google_tags_tag_key" "key1" {
   parent      = "projects/%[1]s"
   short_name  = "foobarbaz1-%[2]s"
@@ -4418,8 +4354,6 @@ resource "google_container_cluster" "primary" {
     create = "30m"
     update = "40m"
   }
-
-  depends_on = [time_sleep.wait_120_seconds]
 }
 
 # Separately Managed Node Pool
@@ -4450,38 +4384,6 @@ data "google_project" "project" {
   project_id = "%[1]s"
 }
 
-resource "google_project_iam_member" "tagHoldAdmin" {
-  project = "%[1]s"
-  role    = "roles/resourcemanager.tagHoldAdmin"
-  member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
-}
-
-resource "google_project_iam_member" "tagUser1" {
-  project = "%[1]s"
-  role    = "roles/resourcemanager.tagUser"
-  member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
-
-  depends_on = [google_project_iam_member.tagHoldAdmin]
-}
-
-resource "google_project_iam_member" "tagUser2" {
-  project = "%[1]s"
-  role    = "roles/resourcemanager.tagUser"
-  member  = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
-
-  depends_on = [google_project_iam_member.tagHoldAdmin]
-}
-
-resource "time_sleep" "wait_120_seconds" {
-  create_duration = "120s"
-
-  depends_on = [
-    google_project_iam_member.tagHoldAdmin,
-    google_project_iam_member.tagUser1,
-    google_project_iam_member.tagUser2,
-  ]
-}
-
 resource "google_tags_tag_key" "key1" {
   parent      = "projects/%[1]s"
   short_name  = "foobarbaz1-%[2]s"
@@ -4539,8 +4441,6 @@ resource "google_container_cluster" "primary" {
     create = "30m"
     update = "40m"
   }
-
-  depends_on = [time_sleep.wait_120_seconds]
 }
 
 # Separately Managed Node Pool
