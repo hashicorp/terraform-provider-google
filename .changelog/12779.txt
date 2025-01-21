@@ -1,0 +1,3 @@
+```release-note:bug
+resourcemanager: added a slightly longer wait (two 10s checks bumped to 15s) for issues with billing associations in `google_project`. Default network deletion should succeed more often.
+```
