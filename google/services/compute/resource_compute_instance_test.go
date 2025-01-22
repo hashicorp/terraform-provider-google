@@ -9514,10 +9514,10 @@ func TestAccComputeInstance_bootAndAttachedDisk_interface(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstance_bootAndAttachedDisk_interface(instanceName1, diskName1, envvar.GetTestZoneFromEnv(), "h3-standard-88", "NVME", false),
+				Config: testAccComputeInstance_bootAndAttachedDisk_interface(instanceName1, diskName1, envvar.GetTestZoneFromEnv(), "c3-standard-22", "NVME", false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_compute_instance.foobar", "boot_disk.0.interface", "NVME"),
-					resource.TestCheckResourceAttr("google_compute_instance.foobar", "machine_type", "h3-standard-88"),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "machine_type", "c3-standard-22"),
 				),
 			},
 			//computeInstanceImportStep("us-central1-a", instanceName1, []string{"desired_status","allow_stopping_for_update"}),
