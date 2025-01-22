@@ -74,7 +74,10 @@ resource "google_parameter_manager_regional_parameter_version" "regional-paramet
   provider = google-beta
   parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
   parameter_version_id = "regional_parameter_version"
-  parameter_data = file("parameter_data_json_format.yaml")
+  parameter_data = jsonencode({
+    "key1": "val1",
+    "key2": "val2"
+  })
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -97,7 +100,10 @@ resource "google_parameter_manager_regional_parameter_version" "regional-paramet
   provider = google-beta
   parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
   parameter_version_id = "regional_parameter_version"
-  parameter_data = file("parameter_data_yaml_format.yaml")
+  parameter_data = yamlencode({
+    "key1": "val1",
+    "key2": "val2"
+  })
 }
 ```
 
