@@ -67,6 +67,11 @@ Format: projects/{project_number}`,
 				Computed:    true,
 				Description: `The name of the Access Policy this resource belongs to.`,
 			},
+			"etag": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The perimeter etag is internally used to prevent overwriting the list of perimeter resources on PATCH calls. It is retrieved from the same GET perimeter API call that's used to get the current list of resources. The resource to add or remove is merged into that list and then this etag is sent with the PATCH call along with the updated resource list.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -123,6 +128,22 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceCreate(d *schema.
 
 	headers := make(http.Header)
 	obj["use_explicit_dry_run_spec"] = true
+
+	etag := d.Get("etag").(string)
+
+	if etag == "" {
+		log.Printf("[ERROR] Unable to get etag: %s", err)
+		return nil
+	}
+	obj["etag"] = etag
+
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	updateMask := []string{"spec.resources", "etag"}
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",
@@ -214,6 +235,9 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceRead(d *schema.Re
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerServicePerimeterDryRunResource %q", d.Id()))
 	}
+	if err := d.Set("etag", res["etag"]); err != nil {
+		log.Printf("[ERROR] Unable to set etag: %s", err)
+	}
 
 	res, err = flattenNestedAccessContextManagerServicePerimeterDryRunResource(d, meta, res)
 	if err != nil {
@@ -228,6 +252,9 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceRead(d *schema.Re
 	}
 
 	if err := d.Set("resource", flattenNestedAccessContextManagerServicePerimeterDryRunResourceResource(res["resource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterDryRunResource: %s", err)
+	}
+	if err := d.Set("etag", flattenNestedAccessContextManagerServicePerimeterDryRunResourceEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeterDryRunResource: %s", err)
 	}
 
@@ -273,6 +300,22 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceDelete(d *schema.
 
 	headers := make(http.Header)
 	obj["use_explicit_dry_run_spec"] = true
+
+	etag := d.Get("etag").(string)
+
+	if etag == "" {
+		log.Printf("[ERROR] Unable to get etag: %s", err)
+		return nil
+	}
+	obj["etag"] = etag
+
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	updateMask := []string{"spec.resources", "etag"}
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 
 	log.Printf("[DEBUG] Deleting ServicePerimeterDryRunResource %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -323,6 +366,10 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceImport(d *schema.
 }
 
 func flattenNestedAccessContextManagerServicePerimeterDryRunResourceResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedAccessContextManagerServicePerimeterDryRunResourceEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -483,6 +530,9 @@ func resourceAccessContextManagerServicePerimeterDryRunResourceListForPatch(d *s
 	})
 	if err != nil {
 		return nil, err
+	}
+	if err := d.Set("etag", res["etag"]); err != nil {
+		log.Printf("[ERROR] Unable to set etag: %s", err)
 	}
 	var v interface{}
 	var ok bool
