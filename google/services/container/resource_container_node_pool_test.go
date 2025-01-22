@@ -4660,7 +4660,6 @@ resource "google_container_node_pool" "np" {
 }
 
 func TestAccContainerNodePool_defaultDriverInstallation(t *testing.T) {
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
@@ -4706,7 +4705,6 @@ resource "google_container_node_pool" "np" {
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 2
-  version            = "1.30.1-gke.1329003"
 
   node_config {
     service_account = "default"
