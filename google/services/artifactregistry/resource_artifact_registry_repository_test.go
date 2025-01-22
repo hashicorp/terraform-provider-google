@@ -86,6 +86,38 @@ func TestAccArtifactRegistryRepository_createMvnRelease(t *testing.T) {
 	})
 }
 
+func TestAccArtifactRegistryRepository_updateEmptyMvn(t *testing.T) {
+	t.Parallel()
+
+	repositoryID := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArtifactRegistryRepository_createMvnEmpty1(repositoryID),
+			},
+			{
+				ResourceName:      "google_artifact_registry_repository.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config:             testAccArtifactRegistryRepository_createMvnEmpty2(repositoryID),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+			{
+				Config:             testAccArtifactRegistryRepository_createMvnEmpty3(repositoryID),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
 func TestAccArtifactRegistryRepository_kfp(t *testing.T) {
 	t.Parallel()
 
@@ -152,6 +184,43 @@ resource "google_artifact_registry_repository" "test" {
   }
 }
 `, repositoryID, versionPolicy)
+}
+
+func testAccArtifactRegistryRepository_createMvnEmpty1(repositoryID string) string {
+	return fmt.Sprintf(`
+resource "google_artifact_registry_repository" "test" {
+  repository_id = "%s"
+  location = "us-central1"
+  description = "maven repository with empty maven_config"
+  format = "MAVEN"
+}
+`, repositoryID)
+}
+
+func testAccArtifactRegistryRepository_createMvnEmpty2(repositoryID string) string {
+	return fmt.Sprintf(`
+resource "google_artifact_registry_repository" "test" {
+  repository_id = "%s"
+  location = "us-central1"
+  description = "maven repository with empty maven_config"
+  format = "MAVEN"
+  maven_config { }
+}
+`, repositoryID)
+}
+
+func testAccArtifactRegistryRepository_createMvnEmpty3(repositoryID string) string {
+	return fmt.Sprintf(`
+resource "google_artifact_registry_repository" "test" {
+  repository_id = "%s"
+  location = "us-central1"
+  description = "maven repository with empty maven_config"
+  format = "MAVEN"
+  maven_config {
+    allow_snapshot_overwrites = false
+  }
+}
+`, repositoryID)
 }
 
 func testAccArtifactRegistryRepository_kfp(repositoryID string) string {

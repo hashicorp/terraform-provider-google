@@ -120,6 +120,25 @@ func mapHashID(v any) int {
 	return schema.HashString(obj["id"])
 }
 
+func isDefaultEnum(val any) bool {
+	s, ok := val.(string)
+	if !ok {
+		return false
+	}
+	return s == "" || strings.HasSuffix(s, "_UNSPECIFIED")
+}
+
+// emptyMavenConfigDiffSuppress generates a config from defaults if it or any
+// properties are unset. Missing, empty and default configs are all equivalent.
+func emptyMavenConfigDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	oSnap, nSnap := d.GetChange("maven_config.0.allow_snapshot_overwrites")
+	if oSnap.(bool) != nSnap.(bool) {
+		return false
+	}
+	oPolicy, nPolicy := d.GetChange("maven_config.0.version_policy")
+	return isDefaultEnum(oPolicy) && isDefaultEnum(nPolicy)
+}
+
 func ResourceArtifactRegistryRepository() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceArtifactRegistryRepositoryCreate,
@@ -322,8 +341,9 @@ or use the
 data source for possible values.`,
 			},
 			"maven_config": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:             schema.TypeList,
+				Optional:         true,
+				DiffSuppressFunc: emptyMavenConfigDiffSuppress,
 				Description: `MavenRepositoryConfig is maven related repository details.
 Provides additional configuration details for repositories of the maven
 format type.`,
