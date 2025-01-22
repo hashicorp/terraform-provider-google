@@ -1,0 +1,3 @@
+```release-note: bug
+apigee: fixed `properties` field update on `google_apigee_environment` resource
+```
