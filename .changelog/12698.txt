@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a failing test for `TestAccComputeInstance_bootAndAttachedDisk_interface` in `google_compte_instance`.
+```
