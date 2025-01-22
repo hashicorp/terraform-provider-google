@@ -60,6 +60,16 @@ func ResourceNetworkSecuritySecurityProfileGroup() *schema.Resource {
 				ForceNew:    true,
 				Description: `The name of the security profile group resource.`,
 			},
+			"custom_intercept_profile": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Reference to a SecurityProfile with the CustomIntercept configuration.`,
+			},
+			"custom_mirroring_profile": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Reference to a SecurityProfile with the custom mirroring configuration for the SecurityProfileGroup.`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -150,6 +160,18 @@ func resourceNetworkSecuritySecurityProfileGroupCreate(d *schema.ResourceData, m
 		return err
 	} else if v, ok := d.GetOkExists("threat_prevention_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(threatPreventionProfileProp)) && (ok || !reflect.DeepEqual(v, threatPreventionProfileProp)) {
 		obj["threatPreventionProfile"] = threatPreventionProfileProp
+	}
+	customMirroringProfileProp, err := expandNetworkSecuritySecurityProfileGroupCustomMirroringProfile(d.Get("custom_mirroring_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_mirroring_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(customMirroringProfileProp)) && (ok || !reflect.DeepEqual(v, customMirroringProfileProp)) {
+		obj["customMirroringProfile"] = customMirroringProfileProp
+	}
+	customInterceptProfileProp, err := expandNetworkSecuritySecurityProfileGroupCustomInterceptProfile(d.Get("custom_intercept_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_intercept_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(customInterceptProfileProp)) && (ok || !reflect.DeepEqual(v, customInterceptProfileProp)) {
+		obj["customInterceptProfile"] = customInterceptProfileProp
 	}
 	labelsProp, err := expandNetworkSecuritySecurityProfileGroupEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -258,6 +280,12 @@ func resourceNetworkSecuritySecurityProfileGroupRead(d *schema.ResourceData, met
 	if err := d.Set("threat_prevention_profile", flattenNetworkSecuritySecurityProfileGroupThreatPreventionProfile(res["threatPreventionProfile"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityProfileGroup: %s", err)
 	}
+	if err := d.Set("custom_mirroring_profile", flattenNetworkSecuritySecurityProfileGroupCustomMirroringProfile(res["customMirroringProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityProfileGroup: %s", err)
+	}
+	if err := d.Set("custom_intercept_profile", flattenNetworkSecuritySecurityProfileGroupCustomInterceptProfile(res["customInterceptProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityProfileGroup: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetworkSecuritySecurityProfileGroupTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityProfileGroup: %s", err)
 	}
@@ -291,6 +319,18 @@ func resourceNetworkSecuritySecurityProfileGroupUpdate(d *schema.ResourceData, m
 	} else if v, ok := d.GetOkExists("threat_prevention_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, threatPreventionProfileProp)) {
 		obj["threatPreventionProfile"] = threatPreventionProfileProp
 	}
+	customMirroringProfileProp, err := expandNetworkSecuritySecurityProfileGroupCustomMirroringProfile(d.Get("custom_mirroring_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_mirroring_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customMirroringProfileProp)) {
+		obj["customMirroringProfile"] = customMirroringProfileProp
+	}
+	customInterceptProfileProp, err := expandNetworkSecuritySecurityProfileGroupCustomInterceptProfile(d.Get("custom_intercept_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_intercept_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customInterceptProfileProp)) {
+		obj["customInterceptProfile"] = customInterceptProfileProp
+	}
 	labelsProp, err := expandNetworkSecuritySecurityProfileGroupEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -313,6 +353,14 @@ func resourceNetworkSecuritySecurityProfileGroupUpdate(d *schema.ResourceData, m
 
 	if d.HasChange("threat_prevention_profile") {
 		updateMask = append(updateMask, "threatPreventionProfile")
+	}
+
+	if d.HasChange("custom_mirroring_profile") {
+		updateMask = append(updateMask, "customMirroringProfile")
+	}
+
+	if d.HasChange("custom_intercept_profile") {
+		updateMask = append(updateMask, "customInterceptProfile")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -465,6 +513,14 @@ func flattenNetworkSecuritySecurityProfileGroupThreatPreventionProfile(v interfa
 	return v
 }
 
+func flattenNetworkSecuritySecurityProfileGroupCustomMirroringProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecuritySecurityProfileGroupCustomInterceptProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkSecuritySecurityProfileGroupTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -489,6 +545,14 @@ func expandNetworkSecuritySecurityProfileGroupDescription(v interface{}, d tpgre
 }
 
 func expandNetworkSecuritySecurityProfileGroupThreatPreventionProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecuritySecurityProfileGroupCustomMirroringProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecuritySecurityProfileGroupCustomInterceptProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
