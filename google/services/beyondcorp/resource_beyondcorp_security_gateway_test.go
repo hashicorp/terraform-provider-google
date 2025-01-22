@@ -29,7 +29,7 @@ func TestAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewayBasicExample_upda
 				ResourceName:            "google_beyondcorp_security_gateway.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "security_gateway_id"},
+				ImportStateVerifyIgnore: []string{"security_gateway_id"},
 			},
 			{
 				Config: testAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewayBasicExample_update(context),
@@ -43,7 +43,7 @@ func TestAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewayBasicExample_upda
 				ResourceName:            "google_beyondcorp_security_gateway.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "security_gateway_id"},
+				ImportStateVerifyIgnore: []string{"security_gateway_id"},
 			},
 		},
 	})
@@ -53,7 +53,6 @@ func testAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewayBasicExample_basi
 	return acctest.Nprintf(`
 resource "google_beyondcorp_security_gateway" "example" {
   security_gateway_id = "default%{random_suffix}"
-  location = "global"
   display_name = "My Security Gateway resource"
   hubs { region = "us-central1" }
 }
@@ -64,7 +63,6 @@ func testAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewayBasicExample_upda
 	return acctest.Nprintf(`
 resource "google_beyondcorp_security_gateway" "example" {
   security_gateway_id = "default%{random_suffix}"
-  location = "global"
   display_name = "My Security Gateway resource"
   hubs { region = "us-east1" }
 }

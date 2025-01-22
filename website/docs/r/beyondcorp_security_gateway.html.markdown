@@ -34,7 +34,6 @@ Deployment of Security Gateway.
 ```hcl
 resource "google_beyondcorp_security_gateway" "example" {
   security_gateway_id = "default"
-  location = "global"
   display_name = "My Security Gateway resource"
   hubs { region = "us-central1" }
 }
@@ -44,10 +43,6 @@ resource "google_beyondcorp_security_gateway" "example" {
 
 The following arguments are supported:
 
-
-* `location` -
-  (Required)
-  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
 
 * `security_gateway_id` -
   (Required)
@@ -70,6 +65,12 @@ The following arguments are supported:
   (Optional)
   Optional. An arbitrary user-provided name for the SecurityGateway.
   Cannot exceed 64 characters.
+
+* `location` -
+  (Optional, Deprecated)
+  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122. Must be omitted or set to `global`.
+
+  ~> **Warning:** `location` is deprecated and will be removed in a future major release.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
