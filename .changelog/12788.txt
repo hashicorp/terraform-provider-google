@@ -1,0 +1,6 @@
+```release-note:bug
+beyondcorp: corrected `location` to always be global in `google_beyondcorp_security_gateway` 
+```
+```release-note:deprecation
+beyondcorp: deprecated `location` on `google_beyondcorp_security_gateway`. The only valid value is `global`, which is now also the default value. The field will be removed in a future major release.
+```

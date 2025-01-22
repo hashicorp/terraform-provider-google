@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceBeyondcorpSecurityGateway() *schema.Resource {
@@ -54,12 +55,6 @@ func ResourceBeyondcorpSecurityGateway() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			"location": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
-			},
 			"security_gateway_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -106,6 +101,15 @@ as a key.`,
 						},
 					},
 				},
+			},
+			"location": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Deprecated:   "`location` is deprecated and will be removed in a future major release.",
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateRegexp(`^global$`),
+				Description:  `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122. Must be omitted or set to 'global'.`,
+				Default:      "global",
 			},
 			"create_time": {
 				Type:        schema.TypeString,
