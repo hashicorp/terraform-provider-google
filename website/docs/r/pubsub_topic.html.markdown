@@ -186,6 +186,53 @@ resource "google_pubsub_topic" "example" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=pubsub_topic_ingestion_aws_msk&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Topic Ingestion Aws Msk
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+
+  # Outside of automated terraform-provider-google CI tests, these values must be of actual AWS resources for the test to pass.
+  ingestion_data_source_settings {
+    aws_msk {
+        cluster_arn = "arn:aws:kinesis:us-west-2:111111111111:stream/fake-stream-name"
+        topic = "test-topic"
+        aws_role_arn = "arn:aws:iam::111111111111:role/fake-role-name"
+        gcp_service_account = "fake-service-account@fake-gcp-project.iam.gserviceaccount.com"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=pubsub_topic_ingestion_confluent_cloud&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Topic Ingestion Confluent Cloud
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+
+  # Outside of automated terraform-provider-google CI tests, these values must be of actual Confluent Cloud resources for the test to pass.
+  ingestion_data_source_settings {
+    confluent_cloud {
+        bootstrap_server = "test.us-west2.gcp.confluent.cloud:1111"
+        cluster_id = "1234"
+        topic = "test-topic"
+        identity_pool_id = "test-identity-pool-id"
+        gcp_service_account = "fake-service-account@fake-gcp-project.iam.gserviceaccount.com"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -303,6 +350,16 @@ The following arguments are supported:
   Settings for ingestion from Azure Event Hubs.
   Structure is [documented below](#nested_ingestion_data_source_settings_azure_event_hubs).
 
+* `aws_msk` -
+  (Optional)
+  Settings for ingestion from Amazon Managed Streaming for Apache Kafka.
+  Structure is [documented below](#nested_ingestion_data_source_settings_aws_msk).
+
+* `confluent_cloud` -
+  (Optional)
+  Settings for ingestion from Confluent Cloud.
+  Structure is [documented below](#nested_ingestion_data_source_settings_confluent_cloud).
+
 
 <a name="nested_ingestion_data_source_settings_aws_kinesis"></a>The `aws_kinesis` block supports:
 
@@ -417,6 +474,52 @@ The following arguments are supported:
   The GCP service account to be used for Federated Identity authentication
   with Azure (via a `AssumeRoleWithWebIdentity` call for the provided
   role).
+
+<a name="nested_ingestion_data_source_settings_aws_msk"></a>The `aws_msk` block supports:
+
+* `cluster_arn` -
+  (Required)
+  ARN that uniquely identifies the MSK cluster.
+
+* `topic` -
+  (Required)
+  The name of the MSK topic that Pub/Sub will import from.
+
+* `aws_role_arn` -
+  (Required)
+  AWS role ARN to be used for Federated Identity authentication with
+  MSK. Check the Pub/Sub docs for how to set up this role and the
+  required permissions that need to be attached to it.
+
+* `gcp_service_account` -
+  (Required)
+  The GCP service account to be used for Federated Identity authentication
+  with MSK (via a `AssumeRoleWithWebIdentity` call for the provided
+  role). The `awsRoleArn` must be set up with `accounts.google.com:sub`
+  equals to this service account number.
+
+<a name="nested_ingestion_data_source_settings_confluent_cloud"></a>The `confluent_cloud` block supports:
+
+* `bootstrap_server` -
+  (Required)
+  The Confluent Cloud bootstrap server. The format is url:port.
+
+* `cluster_id` -
+  (Optional)
+  The Confluent Cloud cluster ID.
+
+* `topic` -
+  (Required)
+  Name of the Confluent Cloud topic that Pub/Sub will import from.
+
+* `identity_pool_id` -
+  (Required)
+  Identity pool ID to be used for Federated Identity authentication with Confluent Cloud.
+
+* `gcp_service_account` -
+  (Required)
+  The GCP service account to be used for Federated Identity authentication
+  with Confluent Cloud.
 
 ## Attributes Reference
 
