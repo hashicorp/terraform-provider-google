@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: Allow parallelization of google_compute_(region_)per_instance_config by not locking on the parent resource, but including instance name.
+```
