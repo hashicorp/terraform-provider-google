@@ -1,0 +1,3 @@
+```release-note:enhancement
+pubsub: added `ingestion_data_source_settings.aws_msk` and `ingestion_data_source_settings.confluent_cloud` fields to `google_pubsub_topic` resource
+```
