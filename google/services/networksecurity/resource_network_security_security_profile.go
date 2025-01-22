@@ -65,8 +65,44 @@ func ResourceNetworkSecuritySecurityProfile() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"THREAT_PREVENTION"}),
-				Description:  `The type of security profile. Possible values: ["THREAT_PREVENTION"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"THREAT_PREVENTION", "CUSTOM_MIRRORING", "CUSTOM_INTERCEPT"}),
+				Description:  `The type of security profile. Possible values: ["THREAT_PREVENTION", "CUSTOM_MIRRORING", "CUSTOM_INTERCEPT"]`,
+			},
+			"custom_intercept_profile": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The configuration for defining the Intercept Endpoint Group used to
+intercept traffic to third-party firewall appliances.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"intercept_endpoint_group": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The Intercept Endpoint Group to which matching traffic should be intercepted.
+Format: projects/{project_id}/locations/global/interceptEndpointGroups/{endpoint_group_id}`,
+						},
+					},
+				},
+				ConflictsWith: []string{"threat_prevention_profile", "custom_mirroring_profile"},
+			},
+			"custom_mirroring_profile": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The configuration for defining the Mirroring Endpoint Group used to
+mirror traffic to third-party collectors.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mirroring_endpoint_group": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The Mirroring Endpoint Group to which matching traffic should be mirrored.
+Format: projects/{project_id}/locations/global/mirroringEndpointGroups/{endpoint_group_id}`,
+						},
+					},
+				},
+				ConflictsWith: []string{"threat_prevention_profile", "custom_intercept_profile"},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -155,6 +191,7 @@ and threat overrides, the threat overrides action is applied.`,
 						},
 					},
 				},
+				ConflictsWith: []string{"custom_mirroring_profile", "custom_intercept_profile"},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -216,6 +253,18 @@ func resourceNetworkSecuritySecurityProfileCreate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("threat_prevention_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(threatPreventionProfileProp)) && (ok || !reflect.DeepEqual(v, threatPreventionProfileProp)) {
 		obj["threatPreventionProfile"] = threatPreventionProfileProp
+	}
+	customMirroringProfileProp, err := expandNetworkSecuritySecurityProfileCustomMirroringProfile(d.Get("custom_mirroring_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_mirroring_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(customMirroringProfileProp)) && (ok || !reflect.DeepEqual(v, customMirroringProfileProp)) {
+		obj["customMirroringProfile"] = customMirroringProfileProp
+	}
+	customInterceptProfileProp, err := expandNetworkSecuritySecurityProfileCustomInterceptProfile(d.Get("custom_intercept_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_intercept_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(customInterceptProfileProp)) && (ok || !reflect.DeepEqual(v, customInterceptProfileProp)) {
+		obj["customInterceptProfile"] = customInterceptProfileProp
 	}
 	typeProp, err := expandNetworkSecuritySecurityProfileType(d.Get("type"), d, config)
 	if err != nil {
@@ -333,6 +382,12 @@ func resourceNetworkSecuritySecurityProfileRead(d *schema.ResourceData, meta int
 	if err := d.Set("threat_prevention_profile", flattenNetworkSecuritySecurityProfileThreatPreventionProfile(res["threatPreventionProfile"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityProfile: %s", err)
 	}
+	if err := d.Set("custom_mirroring_profile", flattenNetworkSecuritySecurityProfileCustomMirroringProfile(res["customMirroringProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityProfile: %s", err)
+	}
+	if err := d.Set("custom_intercept_profile", flattenNetworkSecuritySecurityProfileCustomInterceptProfile(res["customInterceptProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityProfile: %s", err)
+	}
 	if err := d.Set("type", flattenNetworkSecuritySecurityProfileType(res["type"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityProfile: %s", err)
 	}
@@ -369,6 +424,18 @@ func resourceNetworkSecuritySecurityProfileUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("threat_prevention_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, threatPreventionProfileProp)) {
 		obj["threatPreventionProfile"] = threatPreventionProfileProp
 	}
+	customMirroringProfileProp, err := expandNetworkSecuritySecurityProfileCustomMirroringProfile(d.Get("custom_mirroring_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_mirroring_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customMirroringProfileProp)) {
+		obj["customMirroringProfile"] = customMirroringProfileProp
+	}
+	customInterceptProfileProp, err := expandNetworkSecuritySecurityProfileCustomInterceptProfile(d.Get("custom_intercept_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_intercept_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customInterceptProfileProp)) {
+		obj["customInterceptProfile"] = customInterceptProfileProp
+	}
 	labelsProp, err := expandNetworkSecuritySecurityProfileEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -391,6 +458,14 @@ func resourceNetworkSecuritySecurityProfileUpdate(d *schema.ResourceData, meta i
 
 	if d.HasChange("threat_prevention_profile") {
 		updateMask = append(updateMask, "threatPreventionProfile")
+	}
+
+	if d.HasChange("custom_mirroring_profile") {
+		updateMask = append(updateMask, "customMirroringProfile")
+	}
+
+	if d.HasChange("custom_intercept_profile") {
+		updateMask = append(updateMask, "customInterceptProfile")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -617,6 +692,40 @@ func flattenNetworkSecuritySecurityProfileThreatPreventionProfileThreatOverrides
 	return v
 }
 
+func flattenNetworkSecuritySecurityProfileCustomMirroringProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["mirroring_endpoint_group"] =
+		flattenNetworkSecuritySecurityProfileCustomMirroringProfileMirroringEndpointGroup(original["mirroringEndpointGroup"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkSecuritySecurityProfileCustomMirroringProfileMirroringEndpointGroup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecuritySecurityProfileCustomInterceptProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["intercept_endpoint_group"] =
+		flattenNetworkSecuritySecurityProfileCustomInterceptProfileInterceptEndpointGroup(original["interceptEndpointGroup"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkSecuritySecurityProfileCustomInterceptProfileInterceptEndpointGroup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkSecuritySecurityProfileType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -752,6 +861,52 @@ func expandNetworkSecuritySecurityProfileThreatPreventionProfileThreatOverridesT
 }
 
 func expandNetworkSecuritySecurityProfileThreatPreventionProfileThreatOverridesType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecuritySecurityProfileCustomMirroringProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMirroringEndpointGroup, err := expandNetworkSecuritySecurityProfileCustomMirroringProfileMirroringEndpointGroup(original["mirroring_endpoint_group"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMirroringEndpointGroup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mirroringEndpointGroup"] = transformedMirroringEndpointGroup
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecuritySecurityProfileCustomMirroringProfileMirroringEndpointGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecuritySecurityProfileCustomInterceptProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInterceptEndpointGroup, err := expandNetworkSecuritySecurityProfileCustomInterceptProfileInterceptEndpointGroup(original["intercept_endpoint_group"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInterceptEndpointGroup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["interceptEndpointGroup"] = transformedInterceptEndpointGroup
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecuritySecurityProfileCustomInterceptProfileInterceptEndpointGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

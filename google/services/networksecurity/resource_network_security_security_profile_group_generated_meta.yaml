@@ -5,6 +5,8 @@ api_version: 'v1'
 api_resource_type_kind: 'SecurityProfileGroup'
 fields:
   - field: 'create_time'
+  - field: 'custom_intercept_profile'
+  - field: 'custom_mirroring_profile'
   - field: 'description'
   - field: 'effective_labels'
     provider_only: true

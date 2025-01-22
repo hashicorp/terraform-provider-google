@@ -71,6 +71,78 @@ resource "google_network_security_security_profile" "default" {
   }
 }
 ```
+## Example Usage - Network Security Security Profile Mirroring
+
+
+```hcl
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "my-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_security_mirroring_deployment_group" "default" {
+  provider                      = google-beta
+  mirroring_deployment_group_id = "my-dg"
+  location                      = "global"
+  network                       = google_compute_network.default.id
+}
+
+resource "google_network_security_mirroring_endpoint_group" "default" {
+  provider                      = google-beta
+  mirroring_endpoint_group_id   = "my-eg"
+  location                      = "global"
+  mirroring_deployment_group    = google_network_security_mirroring_deployment_group.default.id
+}
+
+resource "google_network_security_security_profile" "default" {
+  provider    = google-beta
+  name        = "my-security-profile"
+  parent      = "organizations/123456789"
+  description = "my description"
+  type        = "CUSTOM_MIRRORING"
+
+  custom_mirroring_profile {
+    mirroring_endpoint_group = google_network_security_mirroring_endpoint_group.default.id
+  }
+}
+```
+## Example Usage - Network Security Security Profile Intercept
+
+
+```hcl
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "my-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_security_intercept_deployment_group" "default" {
+  provider                      = google-beta
+  intercept_deployment_group_id = "my-dg"
+  location                      = "global"
+  network                       = google_compute_network.default.id
+}
+
+resource "google_network_security_intercept_endpoint_group" "default" {
+  provider                      = google-beta
+  intercept_endpoint_group_id   = "my-eg"
+  location                      = "global"
+  intercept_deployment_group    = google_network_security_intercept_deployment_group.default.id
+}
+
+resource "google_network_security_security_profile" "default" {
+  provider    = google-beta
+  name        = "my-security-profile"
+  parent      = "organizations/123456789"
+  description = "my description"
+  type        = "CUSTOM_INTERCEPT"
+
+  custom_intercept_profile {
+    intercept_endpoint_group = google_network_security_intercept_endpoint_group.default.id
+  }
+}
+```
 
 ## Argument Reference
 
@@ -80,7 +152,7 @@ The following arguments are supported:
 * `type` -
   (Required)
   The type of security profile.
-  Possible values are: `THREAT_PREVENTION`.
+  Possible values are: `THREAT_PREVENTION`, `CUSTOM_MIRRORING`, `CUSTOM_INTERCEPT`.
 
 * `name` -
   (Required)
@@ -105,6 +177,18 @@ The following arguments are supported:
   (Optional)
   The threat prevention configuration for the security profile.
   Structure is [documented below](#nested_threat_prevention_profile).
+
+* `custom_mirroring_profile` -
+  (Optional)
+  The configuration for defining the Mirroring Endpoint Group used to
+  mirror traffic to third-party collectors.
+  Structure is [documented below](#nested_custom_mirroring_profile).
+
+* `custom_intercept_profile` -
+  (Optional)
+  The configuration for defining the Intercept Endpoint Group used to
+  intercept traffic to third-party firewall appliances.
+  Structure is [documented below](#nested_custom_intercept_profile).
 
 * `location` -
   (Optional)
@@ -158,6 +242,20 @@ The following arguments are supported:
 * `type` -
   (Output)
   Type of threat.
+
+<a name="nested_custom_mirroring_profile"></a>The `custom_mirroring_profile` block supports:
+
+* `mirroring_endpoint_group` -
+  (Required)
+  The Mirroring Endpoint Group to which matching traffic should be mirrored.
+  Format: projects/{project_id}/locations/global/mirroringEndpointGroups/{endpoint_group_id}
+
+<a name="nested_custom_intercept_profile"></a>The `custom_intercept_profile` block supports:
+
+* `intercept_endpoint_group` -
+  (Required)
+  The Intercept Endpoint Group to which matching traffic should be intercepted.
+  Format: projects/{project_id}/locations/global/interceptEndpointGroups/{endpoint_group_id}
 
 ## Attributes Reference
 

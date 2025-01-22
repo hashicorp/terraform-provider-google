@@ -51,6 +51,94 @@ resource "google_network_security_security_profile" "security_profile" {
     location    = "global"
 }
 ```
+## Example Usage - Network Security Security Profile Group Mirroring
+
+
+```hcl
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "network"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_security_mirroring_deployment_group" "default" {
+  provider                      = google-beta
+  mirroring_deployment_group_id = "deployment-group"
+  location                      = "global"
+  network                       = google_compute_network.default.id
+}
+
+resource "google_network_security_mirroring_endpoint_group" "default" {
+  provider                      = google-beta
+  mirroring_endpoint_group_id   = "endpoint-group"
+  location                      = "global"
+  mirroring_deployment_group    = google_network_security_mirroring_deployment_group.default.id
+}
+
+resource "google_network_security_security_profile" "default" {
+  provider    = google-beta
+  name        = "sec-profile"
+  parent      = "organizations/123456789"
+  description = "my description"
+  type        = "CUSTOM_MIRRORING"
+
+  custom_mirroring_profile {
+    mirroring_endpoint_group = google_network_security_mirroring_endpoint_group.default.id
+  }
+}
+
+resource "google_network_security_security_profile_group" "default" {
+  provider                 = google-beta
+  name                     = "sec-profile-group"
+  parent                   = "organizations/123456789"
+  description              = "my description"
+  custom_mirroring_profile = google_network_security_security_profile.default.id
+}
+```
+## Example Usage - Network Security Security Profile Group Intercept
+
+
+```hcl
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "network"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_security_intercept_deployment_group" "default" {
+  provider                      = google-beta
+  intercept_deployment_group_id = "deployment-group"
+  location                      = "global"
+  network                       = google_compute_network.default.id
+}
+
+resource "google_network_security_intercept_endpoint_group" "default" {
+  provider                      = google-beta
+  intercept_endpoint_group_id   = "endpoint-group"
+  location                      = "global"
+  intercept_deployment_group    = google_network_security_intercept_deployment_group.default.id
+}
+
+resource "google_network_security_security_profile" "default" {
+  provider    = google-beta
+  name        = "sec-profile"
+  parent      = "organizations/123456789"
+  description = "my description"
+  type        = "CUSTOM_INTERCEPT"
+
+  custom_intercept_profile {
+    intercept_endpoint_group = google_network_security_intercept_endpoint_group.default.id
+  }
+}
+
+resource "google_network_security_security_profile_group" "default" {
+  provider                 = google-beta
+  name                     = "sec-profile-group"
+  parent                   = "organizations/123456789"
+  description              = "my description"
+  custom_intercept_profile = google_network_security_security_profile.default.id
+}
+```
 
 ## Argument Reference
 
@@ -79,6 +167,14 @@ The following arguments are supported:
 * `threat_prevention_profile` -
   (Optional)
   Reference to a SecurityProfile with the threat prevention configuration for the SecurityProfileGroup.
+
+* `custom_mirroring_profile` -
+  (Optional)
+  Reference to a SecurityProfile with the custom mirroring configuration for the SecurityProfileGroup.
+
+* `custom_intercept_profile` -
+  (Optional)
+  Reference to a SecurityProfile with the CustomIntercept configuration.
 
 * `location` -
   (Optional)
