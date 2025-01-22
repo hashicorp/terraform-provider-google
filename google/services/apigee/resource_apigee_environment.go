@@ -376,6 +376,12 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	billingProject := ""
 
 	obj := make(map[string]interface{})
+	nameProp, err := expandApigeeEnvironmentName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
 	displayNameProp, err := expandApigeeEnvironmentDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -387,6 +393,18 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	deploymentTypeProp, err := expandApigeeEnvironmentDeploymentType(d.Get("deployment_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deployment_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deploymentTypeProp)) {
+		obj["deploymentType"] = deploymentTypeProp
+	}
+	apiProxyTypeProp, err := expandApigeeEnvironmentApiProxyType(d.Get("api_proxy_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("api_proxy_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, apiProxyTypeProp)) {
+		obj["apiProxyType"] = apiProxyTypeProp
 	}
 	nodeConfigProp, err := expandApigeeEnvironmentNodeConfig(d.Get("node_config"), d, config)
 	if err != nil {
@@ -420,62 +438,27 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Updating Environment %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
-	updateMask := []string{}
-
-	if d.HasChange("display_name") {
-		updateMask = append(updateMask, "displayName")
-	}
-
-	if d.HasChange("description") {
-		updateMask = append(updateMask, "description")
-	}
-
-	if d.HasChange("node_config") {
-		updateMask = append(updateMask, "nodeConfig")
-	}
-
-	if d.HasChange("type") {
-		updateMask = append(updateMask, "type")
-	}
-
-	if d.HasChange("forward_proxy_uri") {
-		updateMask = append(updateMask, "forwardProxyUri")
-	}
-
-	if d.HasChange("properties") {
-		updateMask = append(updateMask, "properties")
-	}
-	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
-	// won't set it
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
-	if err != nil {
-		return err
-	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	// if updateMask is empty we are not updating anything so skip the post
-	if len(updateMask) > 0 {
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PUT",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
 
-		if err != nil {
-			return fmt.Errorf("Error updating Environment %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Environment %q: %#v", d.Id(), res)
-		}
-
+	if err != nil {
+		return fmt.Errorf("Error updating Environment %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Environment %q: %#v", d.Id(), res)
 	}
 
 	return resourceApigeeEnvironmentRead(d, meta)
