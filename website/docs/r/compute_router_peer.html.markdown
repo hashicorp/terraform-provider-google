@@ -72,7 +72,6 @@ resource "google_compute_router_peer" "peer" {
 
 
 ```hcl
-
 resource "google_compute_router_peer" "peer" {
   name                      = "my-router-peer"
   router                    = "my-router"
@@ -81,6 +80,20 @@ resource "google_compute_router_peer" "peer" {
   peer_asn                  = 65513
   custom_learned_route_priority = 0
   zero_custom_learned_route_priority = true
+}
+```
+## Example Usage - Router Zero Advertised Route Priority
+
+
+```hcl
+resource "google_compute_router_peer" "peer" {
+  name                      = "my-router-peer"
+  router                    = "my-router"
+  region                    = "us-central1"
+  interface                 = "interface-1"
+  peer_asn                  = 65513
+  advertised_route_priority = 0
+  zero_advertised_route_priority = true
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -398,6 +411,11 @@ The following arguments are supported:
   The priority of routes advertised to this BGP peer.
   Where there is more than one matching route of maximum
   length, the routes with the lowest priority value win.
+
+* `zero_advertised_route_priority` -
+  (Optional)
+  The user-defined zero-advertised-route-priority for a advertised-route-priority in BGP session.
+  This value has to be set true to force the advertised_route_priority to be 0.
 
 * `advertise_mode` -
   (Optional)

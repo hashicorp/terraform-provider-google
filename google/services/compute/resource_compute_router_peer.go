@@ -144,6 +144,16 @@ CIDR-formatted string.`,
 Where there is more than one matching route of maximum
 length, the routes with the lowest priority value win.`,
 			},
+			"zero_advertised_route_priority": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Force the advertised_route_priority to be 0.`,
+			},
+			"is_advertised_route_priority_set": {
+				Type:        schema.TypeBool,
+				Computed:    true, // This field is computed by the provider
+				Description: "An internal boolean field for provider use for zero_advertised_route_priority.",
+			},
 			"custom_learned_ip_ranges": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -405,8 +415,20 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 	advertisedRoutePriorityProp, err := expandNestedComputeRouterBgpPeerAdvertisedRoutePriority(d.Get("advertised_route_priority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOk("advertised_route_priority"); ok || !reflect.DeepEqual(v, advertisedRoutePriorityProp) {
-		obj["advertisedRoutePriority"] = advertisedRoutePriorityProp
+	} else if v, ok := d.GetOkExists("advertised_route_priority"); ok || !reflect.DeepEqual(v, advertisedRoutePriorityProp) {
+		if !d.Get("zero_advertised_route_priority").(bool) && advertisedRoutePriorityProp == 0 {
+			// Add the condition to check the present value
+			if !d.Get("is_advertised_route_priority_set").(bool) {
+				log.Printf("[WARN] advertised_route_priority can't be 0 unless zero_advertised_route_priority set to true")
+			} else {
+				return fmt.Errorf("Invalid advertised_route_priority value: When zero_advertised_route_priority is set to 'false', the advertised_route_priority field cannot be 0. Please provide a non-zero value.")
+			}
+		} else if d.Get("zero_advertised_route_priority").(bool) && advertisedRoutePriorityProp != 0 {
+			return fmt.Errorf("[ERROR] advertised_route_priority cannot be set to value other than zero unless zero_advertised_route_priority is false")
+		} else {
+			obj["advertisedRoutePriority"] = advertisedRoutePriorityProp
+			d.Set("is_advertised_route_priority_set", true)
+		}
 	}
 	advertiseModeProp, err := expandNestedComputeRouterBgpPeerAdvertiseMode(d.Get("advertise_mode"), d, config)
 	if err != nil {
@@ -748,8 +770,20 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 	advertisedRoutePriorityProp, err := expandNestedComputeRouterBgpPeerAdvertisedRoutePriority(d.Get("advertised_route_priority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOk("advertised_route_priority"); ok || !reflect.DeepEqual(v, advertisedRoutePriorityProp) {
-		obj["advertisedRoutePriority"] = advertisedRoutePriorityProp
+	} else if v, ok := d.GetOkExists("advertised_route_priority"); ok || !reflect.DeepEqual(v, advertisedRoutePriorityProp) {
+		if !d.Get("zero_advertised_route_priority").(bool) && advertisedRoutePriorityProp == 0 {
+			// Add the condition to check the present value
+			if !d.Get("is_advertised_route_priority_set").(bool) {
+				log.Printf("[WARN] advertised_route_priority can't be 0 unless zero_advertised_route_priority set to true")
+			} else {
+				return fmt.Errorf("Invalid advertised_route_priority value: When zero_advertised_route_priority is set to 'false', the advertised_route_priority field cannot be 0. Please provide a non-zero value.")
+			}
+		} else if d.Get("zero_advertised_route_priority").(bool) && advertisedRoutePriorityProp != 0 {
+			return fmt.Errorf("[ERROR] advertised_route_priority cannot be set to value other than zero unless zero_advertised_route_priority is false")
+		} else {
+			obj["advertisedRoutePriority"] = advertisedRoutePriorityProp
+			d.Set("is_advertised_route_priority_set", true)
+		}
 	}
 	advertiseModeProp, err := expandNestedComputeRouterBgpPeerAdvertiseMode(d.Get("advertise_mode"), d, config)
 	if err != nil {
