@@ -490,6 +490,45 @@ resource "google_network_connectivity_spoke" "primary"  {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_spoke_linked_vpc_network_ipv6_support&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Connectivity Spoke Linked Vpc Network Ipv6 Support
+
+
+```hcl
+resource "google_compute_network" "network" {
+  name                    = "net"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_connectivity_hub" "basic_hub" {
+  name        = "hub1"
+  description = "A sample hub"
+  labels = {
+    label-two = "value-one"
+  }
+}
+
+resource "google_network_connectivity_spoke" "primary"  {
+  name = "spoke1-ipv6"
+  location = "global"
+  description = "A sample spoke with a linked VPC that include export ranges of all IPv6"
+  labels = {
+    label-one = "value-one"
+  }
+  hub = google_network_connectivity_hub.basic_hub.id
+  linked_vpc_network {
+    include_export_ranges = [
+      "ALL_IPV6_RANGES",
+      "ALL_PRIVATE_IPV4_RANGES"
+    ]
+    uri = google_compute_network.network.self_link
+  }
+}
+```
 
 ## Argument Reference
 
