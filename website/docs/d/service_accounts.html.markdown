@@ -13,7 +13,7 @@ and [API](https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAc
 
 ## Example Usage
 
-Example service accounts.
+Get all service accounts from a project
 
 ```hcl
 data "google_service_accounts" "example" {
@@ -21,12 +21,40 @@ data "google_service_accounts" "example" {
 }
 ```
 
+Get all service accounts that are prefixed with `"foo"`
+
+```hcl
+data "google_service_accounts" "foo" {
+  prefix  = "foo"
+}
+```
+
+Get all service accounts that contain `"bar"`
+
+```hcl
+data "google_service_accounts" "bar" {
+  regex   = ".*bar.*"
+}
+```
+
+Get all service accounts that are prefixed with `"foo"` and contain `"bar"`
+
+```hcl
+data "google_service_accounts" "foo_bar" {
+  prefix  = "foo"
+  regex   = ".*bar.*"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
 
+* `prefix` - (Optional) A prefix for filtering. It's applied with the `account_id`.
+
 * `project` - (Optional) The ID of the project. If it is not provided, the provider project is used.
 
+* `regex` - (Optional) A regular expression for filtering. It's applied with the `email`. Further information about the syntax can be found [here](https://github.com/google/re2/wiki/Syntax).
 
 ## Attributes Reference
 

@@ -7,11 +7,13 @@ package resourcemanager
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 	"google.golang.org/api/iam/v1"
 )
 
@@ -19,9 +21,18 @@ func DataSourceGoogleServiceAccounts() *schema.Resource {
 	return &schema.Resource{
 		Read: datasourceGoogleServiceAccountsRead,
 		Schema: map[string]*schema.Schema{
+			"prefix": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"regex": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateRegexCompiles(),
 			},
 			"accounts": {
 				Type:     schema.TypeList,
@@ -75,14 +86,34 @@ func datasourceGoogleServiceAccountsRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error fetching project for service accounts: %s", err)
 	}
 
+	prefix := d.Get("prefix").(string)
+	regexPattern := d.Get("regex").(string)
+
+	var regex *regexp.Regexp
+	if regexPattern != "" {
+		regex, err = regexp.Compile(regexPattern)
+		if err != nil {
+			return fmt.Errorf("Invalid regex pattern: %s", err)
+		}
+	}
+
 	accounts := make([]map[string]interface{}, 0)
 
 	request := config.NewIamClient(userAgent).Projects.ServiceAccounts.List("projects/" + project)
 
 	err = request.Pages(context.Background(), func(accountList *iam.ListServiceAccountsResponse) error {
 		for _, account := range accountList.Accounts {
+			accountId := strings.Split(account.Email, "@")[0]
+
+			if prefix != "" && !strings.HasPrefix(accountId, prefix) {
+				continue
+			}
+			if regex != nil && !regex.MatchString(account.Email) {
+				continue
+			}
+
 			accounts = append(accounts, map[string]interface{}{
-				"account_id":   strings.Split(account.Email, "@")[0],
+				"account_id":   accountId,
 				"disabled":     account.Disabled,
 				"email":        account.Email,
 				"display_name": account.DisplayName,
@@ -102,10 +133,17 @@ func datasourceGoogleServiceAccountsRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error setting service accounts: %s", err)
 	}
 
-	d.SetId(fmt.Sprintf(
-		"projects/%s",
-		project,
-	))
+	idParts := []string{"projects", project}
+
+	if prefix != "" {
+		idParts = append(idParts, "prefix/"+prefix)
+	}
+	if regexPattern != "" {
+		idParts = append(idParts, "regex/"+regexPattern)
+	}
+
+	// Set the ID dynamically based on the provided attributes
+	d.SetId(strings.Join(idParts, "/"))
 
 	return nil
 }
