@@ -82,6 +82,7 @@ func ResourceAlloydbUser() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Password for this database user.`,
+				Sensitive:   true,
 			},
 			"name": {
 				Type:        schema.TypeString,

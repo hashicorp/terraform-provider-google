@@ -28,6 +28,10 @@ To get more information about User, see:
 * How-to Guides
     * [AlloyDB](https://cloud.google.com/alloydb/docs/)
 
+~> **Warning:** All arguments including the following potentially sensitive
+values will be stored in the raw state as plain text: `password`.
+[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+
 ## Example Usage - Alloydb User Builtin
 
 
@@ -161,6 +165,7 @@ The following arguments are supported:
 * `password` -
   (Optional)
   Password for this database user.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `database_roles` -
   (Optional)
