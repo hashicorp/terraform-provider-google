@@ -143,6 +143,11 @@ The following arguments are supported:
     with `external_data_configuration.schema`. Otherwise, schemas must be
     specified with this top-level field.
 
+* `schema_foreign_type_info` - (Optional, [Beta]
+(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies metadata of the foreign data type definition in field schema.
+  Structure is [documented below](#nested_schema_foreign_type_info).
+
 * `time_partitioning` - (Optional) If specified, configures time-based
     partitioning for this table. Structure is [documented below](#nested_time_partitioning).
 
@@ -373,6 +378,12 @@ The following arguments are supported:
 * `enum_as_string` - (Optional) Indicates whether to infer Parquet ENUM logical type as STRING instead of BYTES by default.
 
 * `enable_list_inference` - (Optional) Indicates whether to use schema inference specifically for Parquet LIST logical type.
+
+<a name="nested_schema_foreign_type_info"></a>The `schema_foreign_type_info` block supports:
+
+* `type_system` - (Required, [Beta]
+(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the system which defines the foreign data type.
 
 <a name="nested_time_partitioning"></a>The `time_partitioning` block supports:
 
