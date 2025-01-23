@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: marked `google_alloydb_user.password` as sensitive
+```
