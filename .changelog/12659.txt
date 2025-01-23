@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `schema_foreign_type_info` field and related schema handling to `google_bigquery_table` resource (beta)
+```

@@ -378,10 +378,10 @@ func TestBigQueryTableSchemaDiffSuppress(t *testing.T) {
 
 			var a, b interface{}
 			if err := json.Unmarshal([]byte(tc.Old), &a); err != nil {
-				t.Fatalf(fmt.Sprintf("unable to unmarshal old json - %v", err))
+				t.Fatalf("%v", fmt.Sprintf("unable to unmarshal old json - %v", err))
 			}
 			if err := json.Unmarshal([]byte(tc.New), &b); err != nil {
-				t.Fatalf(fmt.Sprintf("unable to unmarshal new json - %v", err))
+				t.Fatalf("%v", fmt.Sprintf("unable to unmarshal new json - %v", err))
 			}
 			if bigQueryTableSchemaDiffSuppress("schema", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 				t.Fatalf("bad: %s, %q => %q expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
