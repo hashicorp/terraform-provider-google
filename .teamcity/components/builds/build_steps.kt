@@ -79,7 +79,7 @@ fun BuildSteps.downloadTerraformBinary() {
 fun BuildSteps.runSweepers(sweeperStepName: String) {
     step(ScriptBuildStep{
         name = sweeperStepName
-        scriptContent = "go test -v \"%PACKAGE_PATH%\" -sweep=\"%SWEEPER_REGIONS%\" -sweep-allow-failures -sweep-run=\"%SWEEP_RUN%\" -timeout 30m -json"
+        scriptContent = "go test -v \"%PACKAGE_PATH%\" -run=\"%TEST_PREFIX%\" -sweep=\"%SWEEPER_REGIONS%\" -sweep-allow-failures -sweep-run=\"%SWEEP_RUN%\" -timeout 30m -json"
     })
 }
 

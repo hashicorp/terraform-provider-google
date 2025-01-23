@@ -10,6 +10,7 @@ package builds
 import ArtifactRules
 import DefaultBuildTimeoutDuration
 import DefaultParallelism
+import jetbrains.buildServer.configs.kotlin.buildFeatures.GolangFeature
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.failureConditions.BuildFailureOnText
 import jetbrains.buildServer.configs.kotlin.failureConditions.failOnText
@@ -81,7 +82,9 @@ class SweeperDetails(private val sweeperName: String, private val parentProjectN
             }
 
             features {
-                golang()
+                feature(GolangFeature {
+                    testFormat = "json"
+                })
                 if (sharedResources.isNotEmpty()) {
                     sharedResources {
                         // When the build runs, it locks the value(s) below
