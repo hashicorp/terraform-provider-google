@@ -773,7 +773,7 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SpannerInstance %q", d.Id()))
 		}
 
-		err = deleteSpannerBackups(d, config, resp, billingProject, userAgent)
+		err = deleteSpannerBackups(d, config, resp, userAgent, billingProject)
 		if err != nil {
 			return err
 		}

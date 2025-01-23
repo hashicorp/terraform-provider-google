@@ -1,0 +1,3 @@
+```release-note:bug
+spanner: fixed bug with `google_spanner_instance.force_destroy` not setting `billing_project` value correctly
+```
