@@ -182,11 +182,11 @@ The following arguments are supported:
   Possible values are: `BEFORE_CLASSIC_FIREWALL`, `AFTER_CLASSIC_FIREWALL`.
 
 * `network_profile` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A full or partial URL of the network profile to apply to this network.
   This field can be set only at resource creation time. For example, the
   following are valid URLs:
-  * https://www.googleapis.com/compute/beta/projects/{projectId}/global/networkProfiles/{network_profile_name}
+  * https://www.googleapis.com/compute/v1/projects/{projectId}/global/networkProfiles/{network_profile_name}
   * projects/{projectId}/global/networkProfiles/{network_profile_name}
 
 * `project` - (Optional) The ID of the project in which the resource belongs.

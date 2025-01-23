@@ -17,6 +17,7 @@ fields:
   - field: 'network_firewall_policy_enforcement_order'
   - field: 'network_id'
     api_field: 'id'
+  - field: 'network_profile'
   - field: 'numeric_id'
   - field: 'routing_config.bgp_always_compare_med'
   - field: 'routing_config.bgp_best_path_selection_mode'

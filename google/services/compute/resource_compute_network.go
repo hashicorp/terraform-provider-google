@@ -124,6 +124,16 @@ with varying MTUs.`,
 				Description:  `Set the order that Firewall Rules and Firewall Policies are evaluated. Default value: "AFTER_CLASSIC_FIREWALL" Possible values: ["BEFORE_CLASSIC_FIREWALL", "AFTER_CLASSIC_FIREWALL"]`,
 				Default:      "AFTER_CLASSIC_FIREWALL",
 			},
+			"network_profile": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `A full or partial URL of the network profile to apply to this network.
+This field can be set only at resource creation time. For example, the
+following are valid URLs:
+* https://www.googleapis.com/compute/v1/projects/{projectId}/global/networkProfiles/{network_profile_name}
+* projects/{projectId}/global/networkProfiles/{network_profile_name}`,
+			},
 			"bgp_always_compare_med": {
 				Type:     schema.TypeBool,
 				Computed: true,
@@ -251,6 +261,12 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("network_firewall_policy_enforcement_order"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkFirewallPolicyEnforcementOrderProp)) && (ok || !reflect.DeepEqual(v, networkFirewallPolicyEnforcementOrderProp)) {
 		obj["networkFirewallPolicyEnforcementOrder"] = networkFirewallPolicyEnforcementOrderProp
+	}
+	networkProfileProp, err := expandComputeNetworkNetworkProfile(d.Get("network_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("network_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProfileProp)) && (ok || !reflect.DeepEqual(v, networkProfileProp)) {
+		obj["networkProfile"] = networkProfileProp
 	}
 
 	obj, err = resourceComputeNetworkEncoder(d, meta, obj)
@@ -449,6 +465,9 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 	if err := d.Set("network_firewall_policy_enforcement_order", flattenComputeNetworkNetworkFirewallPolicyEnforcementOrder(res["networkFirewallPolicyEnforcementOrder"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err := d.Set("network_profile", flattenComputeNetworkNetworkProfile(res["networkProfile"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -706,6 +725,10 @@ func flattenComputeNetworkNetworkFirewallPolicyEnforcementOrder(v interface{}, d
 	return v
 }
 
+func flattenComputeNetworkNetworkProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandComputeNetworkDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -780,6 +803,10 @@ func expandComputeNetworkInternalIpv6Range(v interface{}, d tpgresource.Terrafor
 }
 
 func expandComputeNetworkNetworkFirewallPolicyEnforcementOrder(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNetworkNetworkProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
