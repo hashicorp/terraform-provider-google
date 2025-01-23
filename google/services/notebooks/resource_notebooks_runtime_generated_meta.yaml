@@ -2,7 +2,7 @@ resource: 'google_notebooks_runtime'
 generation_type: 'mmv1'
 api_service_name: 'notebooks.googleapis.com'
 api_version: 'v1'
-api_resource_type_kind: 'Runtime'
+api_resource_type_kind: 'NotebookRuntime'
 fields:
   - field: 'access_config.access_type'
   - field: 'access_config.proxy_uri'
