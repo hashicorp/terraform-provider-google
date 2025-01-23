@@ -440,3 +440,14 @@ func ValidateRegexp(re string) schema.SchemaValidateFunc {
 		return
 	}
 }
+
+func ValidateRegexCompiles() schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errs []error) {
+		value := v.(string)
+		if _, err := regexp.Compile(value); err != nil {
+			errs = append(errs, fmt.Errorf(
+				"%s (%s) is not a valid regex pattern: %s", k, value, err))
+		}
+		return
+	}
+}
