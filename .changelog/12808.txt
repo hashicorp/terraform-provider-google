@@ -1,0 +1,6 @@
+```release-note:bug
+compute: made `google_compute_router_peer.advertised_route_priority` use server-side default if unset. To set the value to `0` you must also set `zero_advertised_route_priority = true`.
+```
+```release-note:enhancement
+compute: added `zero_advertised_route_priority` field to 'google_compute_router_peer'
+```
