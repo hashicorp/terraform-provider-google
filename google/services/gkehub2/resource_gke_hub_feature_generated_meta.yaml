@@ -17,6 +17,7 @@ fields:
   - field: 'fleet_default_member_config.configmanagement.config_sync.git.sync_repo'
   - field: 'fleet_default_member_config.configmanagement.config_sync.git.sync_rev'
   - field: 'fleet_default_member_config.configmanagement.config_sync.git.sync_wait_secs'
+  - field: 'fleet_default_member_config.configmanagement.config_sync.metrics_gcp_service_account_email'
   - field: 'fleet_default_member_config.configmanagement.config_sync.oci.gcp_service_account_email'
   - field: 'fleet_default_member_config.configmanagement.config_sync.oci.policy_dir'
   - field: 'fleet_default_member_config.configmanagement.config_sync.oci.secret_type'
