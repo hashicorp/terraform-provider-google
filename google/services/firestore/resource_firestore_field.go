@@ -430,8 +430,16 @@ func resourceFirestoreFieldDelete(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	updateMask := []string{"indexConfig", "ttlConfig"}
-
+	// For wildcard fields, do not add ttlConfig to the update mask (unsupported)
+	updateMask := []string{"indexConfig"}
+	re := regexp.MustCompile("^projects/([^/]+)/databases/([^/]+)/collectionGroups/([^/]+)/fields/(.+)$")
+	match := re.FindStringSubmatch(d.Get("name").(string))
+	if len(match) < 5 {
+		return fmt.Errorf("Error parsing field name for App")
+	}
+	if fieldName := match[4]; fieldName != "*" {
+		updateMask = append(updateMask, "ttlConfig")
+	}
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
