@@ -181,10 +181,11 @@ variable.
 
 ## Quota Management Configuration
 
-* `user_project_override` - (Optional) Defaults to `false`. Controls the [quota project](https://cloud.google.com/docs/quotas/quota-project)
-* used in requests to GCP APIs for the purpose of preconditions, quota,
-and billing. If `false`, the quota project is determined by the API and may be
-the project associated with your credentials for a
+* `user_project_override` - (Optional) Defaults to `false`. Controls the
+[quota project](https://cloud.google.com/docs/quotas/quota-project) used
+in requests to GCP APIs for the purpose of preconditions, quota, and
+billing. If `false`, the quota project is determined by the API and may
+be the project associated with your credentials for a
 [client-based API](https://cloud.google.com/docs/quotas/quota-project#project-client-based),
 or the resource project for a
 [resource-based API](https://cloud.google.com/docs/quotas/quota-project#project-resource-based).
