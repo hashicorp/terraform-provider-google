@@ -181,19 +181,22 @@ variable.
 
 ## Quota Management Configuration
 
-* `user_project_override` - (Optional) Defaults to `false`. Controls the quota
-project used in requests to GCP APIs for the purpose of preconditions, quota,
+* `user_project_override` - (Optional) Defaults to `false`. Controls the [quota project](https://cloud.google.com/docs/quotas/quota-project)
+* used in requests to GCP APIs for the purpose of preconditions, quota,
 and billing. If `false`, the quota project is determined by the API and may be
-the project associated with your credentials, or the resource project. If `true`,
-most resources in the provider will explicitly supply their resource project, as
-described in their documentation. Otherwise, a `billing_project` value must be
-supplied. Alternatively, this can be specified using the `USER_PROJECT_OVERRIDE`
-environment variable.
+the project associated with your credentials for a
+[client-based API](https://cloud.google.com/docs/quotas/quota-project#project-client-based),
+or the resource project for a
+[resource-based API](https://cloud.google.com/docs/quotas/quota-project#project-resource-based).
+If `true`, most resources in the provider will explicitly supply their resource
+project, as described in their documentation. Otherwise, a `billing_project`
+value must be supplied. Alternatively, this can be specified using the
+`USER_PROJECT_OVERRIDE` environment variable.
 
 Service account credentials are associated with the project the service account
 was created in. Credentials that come from the gcloud tool are associated with a
 project owned by Google. In order to properly use credentials that come from
-gcloud with Terraform, it is recommended to set this property to true.
+gcloud with Terraform, it is recommended to set this property to `true`.
 
 `user_project_override` uses the `X-Goog-User-Project`
 [system parameter](https://cloud.google.com/apis/docs/system-parameters). When
