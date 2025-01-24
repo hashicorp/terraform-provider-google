@@ -27,6 +27,15 @@ const testFirestoreTriggerPath = "./test-fixtures/firestore_trigger.js"
 const testSecretEnvVarFunctionPath = "./test-fixtures/secret_environment_variables.js"
 const testSecretVolumesMountFunctionPath = "./test-fixtures/secret_volumes_mount.js"
 
+func bootstrapGcfAdminAgents(t *testing.T) {
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcf-admin-robot.iam.gserviceaccount.com",
+			Role:   "roles/vpcaccess.admin",
+		},
+	})
+}
+
 func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	t.Parallel()
 
@@ -360,16 +369,16 @@ func TestAccCloudFunctionsFunction_vpcConnector(t *testing.T) {
 	networkName := fmt.Sprintf("tf-test-net-%d", acctest.RandInt(t))
 	vpcConnectorName := fmt.Sprintf("tf-test-conn-%s", acctest.RandString(t, 5))
 	zipFilePath := acctest.CreateZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
-	projectNumber := os.Getenv("GOOGLE_PROJECT_NUMBER")
 	defer os.Remove(zipFilePath) // clean up
 
+	bootstrapGcfAdminAgents(t)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudFunctionsFunctionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsFunction_vpcConnector(projectNumber, networkName, functionName, bucketName, zipFilePath, "10.10.0.0/28", vpcConnectorName),
+				Config: testAccCloudFunctionsFunction_vpcConnector(networkName, functionName, bucketName, zipFilePath, "10.10.0.0/28", vpcConnectorName),
 			},
 			{
 				ResourceName:            funcResourceName,
@@ -378,7 +387,7 @@ func TestAccCloudFunctionsFunction_vpcConnector(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"build_environment_variables", "labels", "terraform_labels"},
 			},
 			{
-				Config: testAccCloudFunctionsFunction_vpcConnector(projectNumber, networkName, functionName, bucketName, zipFilePath, "10.20.0.0/28", vpcConnectorName+"-update"),
+				Config: testAccCloudFunctionsFunction_vpcConnector(networkName, functionName, bucketName, zipFilePath, "10.20.0.0/28", vpcConnectorName+"-update"),
 			},
 			{
 				ResourceName:            funcResourceName,
@@ -399,16 +408,16 @@ func TestAccCloudFunctionsFunction_vpcConnectorEgressSettings(t *testing.T) {
 	networkName := fmt.Sprintf("tf-test-net-%d", acctest.RandInt(t))
 	vpcConnectorName := fmt.Sprintf("tf-test-conn-%s", acctest.RandString(t, 5))
 	zipFilePath := acctest.CreateZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
-	projectNumber := os.Getenv("GOOGLE_PROJECT_NUMBER")
 	defer os.Remove(zipFilePath) // clean up
 
+	bootstrapGcfAdminAgents(t)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudFunctionsFunctionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsFunction_vpcConnectorEgressSettings(projectNumber, networkName, functionName, bucketName, zipFilePath, "10.10.0.0/28", vpcConnectorName, "PRIVATE_RANGES_ONLY"),
+				Config: testAccCloudFunctionsFunction_vpcConnectorEgressSettings(networkName, functionName, bucketName, zipFilePath, "10.10.0.0/28", vpcConnectorName, "PRIVATE_RANGES_ONLY"),
 			},
 			{
 				ResourceName:            funcResourceName,
@@ -417,7 +426,7 @@ func TestAccCloudFunctionsFunction_vpcConnectorEgressSettings(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"build_environment_variables", "labels", "terraform_labels"},
 			},
 			{
-				Config: testAccCloudFunctionsFunction_vpcConnectorEgressSettings(projectNumber, networkName, functionName, bucketName, zipFilePath, "10.20.0.0/28", vpcConnectorName+"-update", "ALL_TRAFFIC"),
+				Config: testAccCloudFunctionsFunction_vpcConnectorEgressSettings(networkName, functionName, bucketName, zipFilePath, "10.20.0.0/28", vpcConnectorName+"-update", "ALL_TRAFFIC"),
 			},
 			{
 				ResourceName:            funcResourceName,
@@ -994,15 +1003,9 @@ resource "google_cloudfunctions_function" "function" {
 `, bucketName, zipFilePath, functionName)
 }
 
-func testAccCloudFunctionsFunction_vpcConnector(projectNumber, networkName, functionName, bucketName, zipFilePath, vpcIp, vpcConnectorName string) string {
+func testAccCloudFunctionsFunction_vpcConnector(networkName, functionName, bucketName, zipFilePath, vpcIp, vpcConnectorName string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {}
-
-resource "google_project_iam_member" "gcfadmin" {
-  project = data.google_project.project.project_id
-  role     = "roles/editor"
-  member   = "serviceAccount:service-%s@gcf-admin-robot.iam.gserviceaccount.com"
-}
 
 resource "google_compute_network" "vpc" {
 	name = "%s"
@@ -1051,21 +1054,13 @@ resource "google_cloudfunctions_function" "function" {
   min_instances = 3
   vpc_connector = google_vpc_access_connector.%s.self_link
   vpc_connector_egress_settings = "PRIVATE_RANGES_ONLY"
-
-  depends_on = [google_project_iam_member.gcfadmin]
 }
-`, projectNumber, networkName, vpcConnectorName, vpcConnectorName, vpcIp, bucketName, zipFilePath, functionName, vpcConnectorName)
+`, networkName, vpcConnectorName, vpcConnectorName, vpcIp, bucketName, zipFilePath, functionName, vpcConnectorName)
 }
 
-func testAccCloudFunctionsFunction_vpcConnectorEgressSettings(projectNumber, networkName, functionName, bucketName, zipFilePath, vpcIp, vpcConnectorName, vpcConnectorEgressSettings string) string {
+func testAccCloudFunctionsFunction_vpcConnectorEgressSettings(networkName, functionName, bucketName, zipFilePath, vpcIp, vpcConnectorName, vpcConnectorEgressSettings string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {}
-
-resource "google_project_iam_member" "gcfadmin" {
-  project = data.google_project.project.project_id
-  role     = "roles/editor"
-  member   = "serviceAccount:service-%s@gcf-admin-robot.iam.gserviceaccount.com"
-}
 
 resource "google_compute_network" "vpc" {
 	name = "%s"
@@ -1114,10 +1109,8 @@ resource "google_cloudfunctions_function" "function" {
   min_instances = 3
   vpc_connector = google_vpc_access_connector.%s.self_link
   vpc_connector_egress_settings = "%s"
-
-  depends_on = [google_project_iam_member.gcfadmin]
 }
-`, projectNumber, networkName, vpcConnectorName, vpcConnectorName, vpcIp, bucketName, zipFilePath, functionName, vpcConnectorName, vpcConnectorEgressSettings)
+`, networkName, vpcConnectorName, vpcConnectorName, vpcIp, bucketName, zipFilePath, functionName, vpcConnectorName, vpcConnectorEgressSettings)
 }
 
 func testAccCloudFunctionsFunction_secretEnvVar(secretName, versionName, bucketName, functionName, versionNumber, zipFilePath, accountId string) string {
