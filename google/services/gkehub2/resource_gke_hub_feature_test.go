@@ -521,6 +521,7 @@ resource "google_gke_hub_feature" "feature" {
         enabled = true
         prevent_drift = true
         source_format = "unstructured"
+        metrics_gcp_service_account_email = "gke-cluster-metrics@gke-foo-nonprod.iam.gserviceaccount.com"
         oci {
           sync_repo = "us-central1-docker.pkg.dev/corp-gke-build-artifacts/acm/configs:latest"
           policy_dir = "/acm/nonprod-root/"

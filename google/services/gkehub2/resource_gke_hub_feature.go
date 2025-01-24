@@ -138,6 +138,11 @@ func ResourceGKEHub2Feature() *schema.Resource {
 														},
 													},
 												},
+												"metrics_gcp_service_account_email": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The Email of the Google Cloud Service Account (GSA) used for exporting Config Sync metrics to Cloud Monitoring. The GSA should have the Monitoring Metric Writer(roles/monitoring.metricWriter) IAM role. The Kubernetes ServiceAccount 'default' in the namespace 'config-management-monitoring' should be bound to the GSA.`,
+												},
 												"oci": {
 													Type:        schema.TypeList,
 													Optional:    true,
@@ -1375,6 +1380,8 @@ func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v i
 		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncEnabled(original["enabled"], d, config)
 	transformed["prevent_drift"] =
 		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncPreventDrift(original["preventDrift"], d, config)
+	transformed["metrics_gcp_service_account_email"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncMetricsGcpServiceAccountEmail(original["metricsGcpServiceAccountEmail"], d, config)
 	transformed["git"] =
 		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGit(original["git"], d, config)
 	transformed["oci"] =
@@ -1390,6 +1397,10 @@ func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncEnab
 }
 
 func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncPreventDrift(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncMetricsGcpServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2301,6 +2312,13 @@ func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v in
 		transformed["preventDrift"] = transformedPreventDrift
 	}
 
+	transformedMetricsGcpServiceAccountEmail, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncMetricsGcpServiceAccountEmail(original["metrics_gcp_service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMetricsGcpServiceAccountEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["metricsGcpServiceAccountEmail"] = transformedMetricsGcpServiceAccountEmail
+	}
+
 	transformedGit, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGit(original["git"], d, config)
 	if err != nil {
 		return nil, err
@@ -2327,6 +2345,10 @@ func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncEnabl
 }
 
 func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncPreventDrift(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncMetricsGcpServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
