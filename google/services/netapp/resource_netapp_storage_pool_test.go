@@ -317,3 +317,51 @@ data "google_compute_network" "default" {
 }
 `, context)
 }
+
+func TestAccNetappStoragePool_FlexRegionalStoragePoolNoZone(t *testing.T) {
+	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-1", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetappStoragePoolDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetappStoragePool_FlexRegionalStoragePoolNoZone(context),
+			},
+			{
+				ResourceName:            "google_netapp_storage_pool.test_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetappStoragePool_FlexRegionalStoragePoolNoZone(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_netapp_storage_pool" "test_pool" {
+  name = "tf-test-pool%{random_suffix}"
+  location = "europe-west3-a"
+  service_level = "FLEX"
+  capacity_gib = "2048"
+  network = data.google_compute_network.default.id
+}
+
+resource "time_sleep" "wait_5_minutes" {
+    depends_on = [google_netapp_storage_pool.test_pool]
+    destroy_duration = "5m"
+}
+
+data "google_compute_network" "default" {
+    name = "%{network_name}"
+}
+`, context)
+}

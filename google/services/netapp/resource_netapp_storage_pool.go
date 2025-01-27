@@ -137,6 +137,7 @@ using security identifiers for NFSv4.1 or principal names for kerberized NFSv4.1
 			},
 			"zone": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				Description: `Specifies the active zone for regional Flex pools. 'zone' and 'replica_zone' values can be swapped to initiate a
 [zone switch](https://cloud.google.com/netapp/volumes/docs/configure-and-use/storage-pools/edit-or-delete-storage-pool#switch_active_and_replica_zones).
