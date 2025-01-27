@@ -56,8 +56,14 @@ func SharedConfigForRegion(region string) (*transport_tpg.Config, error) {
 }
 
 func IsSweepableTestResource(resourceName string) bool {
-	for _, p := range testResourcePrefixes {
-		if strings.HasPrefix(resourceName, p) {
+	return hasAnyPrefix(resourceName, testResourcePrefixes)
+}
+
+// hasAnyPrefix checks if the input string begins with any prefix from the given slice.
+// Returns true if a match is found, false otherwise.
+func hasAnyPrefix(input string, prefixes []string) bool {
+	for _, p := range prefixes {
+		if strings.HasPrefix(input, p) {
 			return true
 		}
 	}
