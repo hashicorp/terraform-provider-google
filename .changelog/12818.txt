@@ -1,0 +1,3 @@
+```release-note:bug
+cloudquotas: removed validation for `parent` in `google_cloud_quotas_quota_adjuster_settings`
+```

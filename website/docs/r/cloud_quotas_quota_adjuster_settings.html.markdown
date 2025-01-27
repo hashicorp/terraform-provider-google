@@ -14,12 +14,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Quotas"
 description: |-
-  QuotaAdjusterSettings represents the preferred quota configuration specified for a project, folder or organization.
+  QuotaAdjusterSettings resource represents your quota adjuster settings for a particular project.
 ---
 
 # google_cloud_quotas_quota_adjuster_settings
 
-QuotaAdjusterSettings represents the preferred quota configuration specified for a project, folder or organization. There is only one QuotaAdjusterSettings resource for a quota value targeting a unique set of dimensions.
+QuotaAdjusterSettings resource represents your quota adjuster settings for a particular project. When enabled, the quota adjuster monitors your usage for the specified resources and issues quota adjustment requests when resource usage approaches its quota value.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
@@ -53,7 +53,7 @@ The following arguments are supported:
 
 * `parent` -
   (Required)
-  The parent of the quota preference. Allowed parents are "projects/[project-id / number]" or "folders/[folder-id / number]" or "organizations/[org-id / number]".
+  The parent of the quota preference. Allowed parent format is "projects/[project-id / number]".
 
 
 - - -
@@ -67,12 +67,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `{{parent}}/locations/global/quotaAdjusterSettings`
 
 * `effective_container` -
-  Fields to capture the hierarchy enablement.
-  The container (org/folder/project) that determines if the quota adjuster is set for this project/folder/org. We use the nearest-ancestor to determine the effective container.
-  The nearest ancestor (including this container) with `enabled` set (either true or false) will be returned.
+  The resource container that determines if the quota adjuster is set for this project.
+  Expect this field to be empty currently.
 
 * `effective_enablement` -
-  Based on the effective container`s setting above, determines Whether this container has the quota adjuster enabled.
+  Based on the effective container`s setting above, determines Whether this resource container has the quota adjuster enabled.
+  Expect this field to be empty currently.
 
 
 ## Timeouts
