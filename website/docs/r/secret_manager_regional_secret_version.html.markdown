@@ -22,6 +22,11 @@ description: |-
 A regional secret version resource.
 
 
+To get more information about RegionalSecretVersion, see:
+
+* [API documentation](https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.locations.secrets.versions)
+* How-to Guides
+    * [Create and deploy a Regional Secret Version](https://cloud.google.com/secret-manager/regional-secrets/add-secret-version-rs)
 
 ~> **Warning:** All arguments including the following potentially sensitive
 values will be stored in the raw state as plain text: `payload.secret_data`.
