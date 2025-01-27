@@ -20,6 +20,7 @@ fields:
   - field: 'service_account'
   - field: 'source_contents'
   - field: 'state'
+  - field: 'tags'
   - field: 'terraform_labels'
     provider_only: true
   - field: 'update_time'
