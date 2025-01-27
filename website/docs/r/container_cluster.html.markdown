@@ -582,7 +582,7 @@ for a list of types.
 
 * `minimum` - (Optional) Minimum amount of the resource in the cluster.
 
-* `maximum` - (Optional) Maximum amount of the resource in the cluster.
+* `maximum` - (Required) Maximum amount of the resource in the cluster.
 
 <a name="nested_auto_provisioning_defaults"></a>The `auto_provisioning_defaults` block supports:
 

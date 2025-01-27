@@ -1,0 +1,3 @@
+```release-note:bug
+container: marked `cluster_autoscaling.resource_limits.maximum` as required as requests would fail if it was not set
+```

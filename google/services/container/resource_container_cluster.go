@@ -579,9 +579,10 @@ func ResourceContainerCluster() *schema.Resource {
 										Description: `Minimum amount of the resource in the cluster.`,
 									},
 									"maximum": {
-										Type:        schema.TypeInt,
-										Optional:    true,
-										Description: `Maximum amount of the resource in the cluster.`,
+										Type:         schema.TypeInt,
+										Description:  `Maximum amount of the resource in the cluster.`,
+										Required:     true,
+										ValidateFunc: validation.IntAtLeast(1),
 									},
 								},
 							},
