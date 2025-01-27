@@ -22,6 +22,11 @@ description: |-
 A secret version resource.
 
 
+To get more information about SecretVersion, see:
+
+* [API documentation](https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets.versions)
+* How-to Guides
+    * [Create and deploy a Secret Version](https://cloud.google.com/secret-manager/docs/add-secret-version)
 
 ~> **Warning:** All arguments including the following potentially sensitive
 values will be stored in the raw state as plain text: `payload.secret_data`.

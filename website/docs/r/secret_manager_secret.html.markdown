@@ -25,6 +25,8 @@ A Secret is a logical secret whose value and versions can be accessed.
 To get more information about Secret, see:
 
 * [API documentation](https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets)
+* How-to Guides
+    * [Create and deploy a Secret](https://cloud.google.com/secret-manager/docs/creating-and-accessing-secrets)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secret_config_basic&open_in_editor=main.tf" target="_blank">
