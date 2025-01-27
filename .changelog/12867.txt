@@ -1,0 +1,3 @@
+```release-note:bug
+netapp: fixed an issue where a diff on `zone` would be found if it was unspecified in `google_netapp_storage_pool`
+```
