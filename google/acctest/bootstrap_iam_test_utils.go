@@ -26,7 +26,7 @@ type IamMember struct {
 func BootstrapIamMembers(t *testing.T, members []IamMember) {
 	config := BootstrapConfig(t)
 	if config == nil {
-		t.Fatal("Could not bootstrap a config for BootstrapAllPSARoles.")
+		t.Fatal("Could not bootstrap a config for BootstrapIamMembers.")
 	}
 	client := config.NewResourceManagerClient(config.UserAgent)
 
@@ -73,45 +73,4 @@ func BootstrapIamMembers(t *testing.T, members []IamMember) {
 		t.Log(msg)
 		time.Sleep(3 * time.Minute)
 	}
-}
-
-// BootstrapAllPSARoles ensures that the given project's IAM
-// policy grants the given service agents the given roles.
-// prefix is usually "service-" and indicates the service agent should have the
-// given prefix before the project number.
-// This is important to bootstrap because using iam policy resources means that
-// deleting them removes permissions for concurrent tests.
-// Return whether the bindings changed.
-func BootstrapAllPSARoles(t *testing.T, prefix string, agentNames, roles []string) bool {
-	var members []IamMember
-	for _, agentName := range agentNames {
-		member := fmt.Sprintf("serviceAccount:%s{project_number}@%s.iam.gserviceaccount.com", prefix, agentName)
-		for _, role := range roles {
-			members = append(members, IamMember{
-				Member: member,
-				Role:   role,
-			})
-		}
-	}
-	BootstrapIamMembers(t, members)
-	// Always return false because we now wait for IAM propagation.
-	return false
-}
-
-// BootstrapAllPSARole is a version of BootstrapAllPSARoles for granting a
-// single role to multiple service agents.
-func BootstrapAllPSARole(t *testing.T, prefix string, agentNames []string, role string) bool {
-	return BootstrapAllPSARoles(t, prefix, agentNames, []string{role})
-}
-
-// BootstrapPSARoles is a version of BootstrapAllPSARoles for granting roles to
-// a single service agent.
-func BootstrapPSARoles(t *testing.T, prefix, agentName string, roles []string) bool {
-	return BootstrapAllPSARoles(t, prefix, []string{agentName}, roles)
-}
-
-// BootstrapPSARole is a simplified version of BootstrapPSARoles for granting a
-// single role to a single service agent.
-func BootstrapPSARole(t *testing.T, prefix, agentName, role string) bool {
-	return BootstrapPSARoles(t, prefix, agentName, []string{role})
 }
