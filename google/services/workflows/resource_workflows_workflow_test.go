@@ -46,6 +46,9 @@ resource "google_workflows_workflow" "example" {
     url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam"
   }
   deletion_protection = false
+  tags = {
+    env = "test"
+  }
   source_contents = <<-EOF
   # This is a sample workflow, feel free to replace it with your source code
   #
@@ -88,6 +91,9 @@ resource "google_workflows_workflow" "example" {
     url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam"
   }
   deletion_protection = false
+  tags = {
+    env = "test"
+  }
   source_contents = <<-EOF
   # This is a sample workflow, feel free to replace it with your source code
   #
