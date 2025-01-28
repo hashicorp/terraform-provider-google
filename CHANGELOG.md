@@ -1,4 +1,9 @@
-## 6.18.0 (Unreleased)
+## 6.18.1 (Unreleased)
+
+BUG FIXES:
+* container: fixed a diff caused by server-side set values for `node_config.resource_labels` ([#21082](https://github.com/hashicorp/terraform-provider-google/pull/21082))
+
+## 6.18.0 (January 27, 2025)
 
 FEATURES:
 * **New Data Source:** `google_compute_instance_template_iam_policy` ([#20954](https://github.com/hashicorp/terraform-provider-google/pull/20954))
