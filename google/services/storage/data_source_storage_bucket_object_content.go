@@ -20,7 +20,9 @@ func DataSourceGoogleStorageBucketObjectContent() *schema.Resource {
 
 	tpgresource.AddRequiredFieldsToSchema(dsSchema, "bucket")
 	tpgresource.AddRequiredFieldsToSchema(dsSchema, "name")
-	tpgresource.AddOptionalFieldsToSchema(dsSchema, "content")
+
+	// The field must be optional for backward compatibility.
+	dsSchema["content"].Optional = true
 
 	return &schema.Resource{
 		Read:   dataSourceGoogleStorageBucketObjectContentRead,
