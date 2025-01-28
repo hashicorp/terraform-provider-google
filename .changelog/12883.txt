@@ -1,0 +1,3 @@
+```release-note:none
+Make google_chronicle_retrohunt resource of chronicle beta-only (no release note for docs-only change)
+```
