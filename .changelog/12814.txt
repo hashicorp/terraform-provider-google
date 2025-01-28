@@ -1,0 +1,3 @@
+```release-note:bug
+networksecurity: fixed sporadic-diff in `google_network_security_security_profile`
+```
