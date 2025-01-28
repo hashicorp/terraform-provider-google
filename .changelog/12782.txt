@@ -1,0 +1,9 @@
+```release-note:new-resource
+`google_beyondcorp_security_gateway_iam_binding`
+```
+```release-note:new-resource
+`google_beyondcorp_security_gateway_iam_member`
+```
+```release-note:new-resource
+`google_beyondcorp_security_gateway_iam_policy`
+```
