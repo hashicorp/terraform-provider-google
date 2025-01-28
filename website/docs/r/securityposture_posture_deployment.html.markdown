@@ -27,6 +27,8 @@ on a resource.
 
 
 To get more information about PostureDeployment, see:
+
+* [API documentation](https://cloud.google.com/security-command-center/docs/reference/securityposture/rest/v1/organizations.locations.postureDeployments)
 * How-to Guides
     * [Create and deploy a posture](https://cloud.google.com/security-command-center/docs/how-to-use-security-posture)
 
