@@ -6,6 +6,8 @@ api_resource_type_kind: 'BackupSchedule'
 fields:
   - field: 'database'
     provider_only: true
+  - field: 'encryption_config.encryption_type'
+  - field: 'encryption_config.kms_key_name'
   - field: 'full_backup_spec'
   - field: 'incremental_backup_spec'
   - field: 'instance'

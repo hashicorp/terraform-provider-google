@@ -77,6 +77,32 @@ func ResourceSpannerBackupSchedule() *schema.Resource {
 A duration in seconds with up to nine fractional digits, ending with 's'. Example: '3.5s'.
 You can set this to a value up to 366 days.`,
 			},
+			"encryption_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Configuration for the encryption of the backup schedule.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"encryption_type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"USE_DATABASE_ENCRYPTION", "GOOGLE_DEFAULT_ENCRYPTION", "CUSTOMER_MANAGED_ENCRYPTION"}),
+							Description: `The encryption type of backups created by the backup schedule.
+Possible values are USE_DATABASE_ENCRYPTION, GOOGLE_DEFAULT_ENCRYPTION, or CUSTOMER_MANAGED_ENCRYPTION.
+If you use CUSTOMER_MANAGED_ENCRYPTION, you must specify a kmsKeyName.
+If your backup type is incremental-backup, the encryption type must be GOOGLE_DEFAULT_ENCRYPTION. Possible values: ["USE_DATABASE_ENCRYPTION", "GOOGLE_DEFAULT_ENCRYPTION", "CUSTOMER_MANAGED_ENCRYPTION"]`,
+						},
+						"kms_key_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The resource name of the Cloud KMS key to use for encryption.
+Format: 'projects/{project}/locations/{location}/keyRings/{keyRing}/cryptoKeys/{cryptoKey}'`,
+						},
+					},
+				},
+			},
 			"full_backup_spec": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -190,6 +216,12 @@ func resourceSpannerBackupScheduleCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("incremental_backup_spec"); ok || !reflect.DeepEqual(v, incrementalBackupSpecProp) {
 		obj["incrementalBackupSpec"] = incrementalBackupSpecProp
+	}
+	encryptionConfigProp, err := expandSpannerBackupScheduleEncryptionConfig(d.Get("encryption_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionConfigProp)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
+		obj["encryptionConfig"] = encryptionConfigProp
 	}
 
 	obj, err = resourceSpannerBackupScheduleEncoder(d, meta, obj)
@@ -312,6 +344,9 @@ func resourceSpannerBackupScheduleRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("incremental_backup_spec", flattenSpannerBackupScheduleIncrementalBackupSpec(res["incrementalBackupSpec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupSchedule: %s", err)
 	}
+	if err := d.Set("encryption_config", flattenSpannerBackupScheduleEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupSchedule: %s", err)
+	}
 
 	return nil
 }
@@ -344,6 +379,12 @@ func resourceSpannerBackupScheduleUpdate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("spec"); ok || !reflect.DeepEqual(v, specProp) {
 		obj["spec"] = specProp
 	}
+	encryptionConfigProp, err := expandSpannerBackupScheduleEncryptionConfig(d.Get("encryption_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
+		obj["encryptionConfig"] = encryptionConfigProp
+	}
 
 	obj, err = resourceSpannerBackupScheduleEncoder(d, meta, obj)
 	if err != nil {
@@ -365,6 +406,10 @@ func resourceSpannerBackupScheduleUpdate(d *schema.ResourceData, meta interface{
 
 	if d.HasChange("spec") {
 		updateMask = append(updateMask, "spec")
+	}
+
+	if d.HasChange("encryption_config") {
+		updateMask = append(updateMask, "encryptionConfig")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -541,6 +586,29 @@ func flattenSpannerBackupScheduleIncrementalBackupSpec(v interface{}, d *schema.
 	return []interface{}{transformed}
 }
 
+func flattenSpannerBackupScheduleEncryptionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["encryption_type"] =
+		flattenSpannerBackupScheduleEncryptionConfigEncryptionType(original["encryptionType"], d, config)
+	transformed["kms_key_name"] =
+		flattenSpannerBackupScheduleEncryptionConfigKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenSpannerBackupScheduleEncryptionConfigEncryptionType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSpannerBackupScheduleEncryptionConfigKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandSpannerBackupScheduleName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -624,6 +692,40 @@ func expandSpannerBackupScheduleIncrementalBackupSpec(v interface{}, d tpgresour
 	transformed := make(map[string]interface{})
 
 	return transformed, nil
+}
+
+func expandSpannerBackupScheduleEncryptionConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEncryptionType, err := expandSpannerBackupScheduleEncryptionConfigEncryptionType(original["encryption_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEncryptionType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["encryptionType"] = transformedEncryptionType
+	}
+
+	transformedKmsKeyName, err := expandSpannerBackupScheduleEncryptionConfigKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandSpannerBackupScheduleEncryptionConfigEncryptionType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSpannerBackupScheduleEncryptionConfigKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func resourceSpannerBackupScheduleEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
