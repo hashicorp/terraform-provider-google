@@ -765,6 +765,12 @@ func schemaNodeConfig() *schema.Schema {
 					ValidateFunc: validation.StringInSlice([]string{"STANDARD_ENCRYPTION", "EPHEMERAL_KEY_ENCRYPTION"}, false),
 					Description:  `LocalSsdEncryptionMode specified the method used for encrypting the local SSDs attached to the node.`,
 				},
+				"max_run_duration": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					ForceNew:    true,
+					Description: `The runtime of each node in the node pool in seconds, terminated by 's'. Example: "3600s".`,
+				},
 			},
 		},
 	}
@@ -1131,6 +1137,10 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		nc.LocalSsdEncryptionMode = v.(string)
 	}
 
+	if v, ok := nodeConfig["max_run_duration"]; ok {
+		nc.MaxRunDuration = v.(string)
+	}
+
 	if v, ok := nodeConfig["confidential_nodes"]; ok {
 		nc.ConfidentialNodes = expandConfidentialNodes(v)
 	}
@@ -1485,6 +1495,7 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 		"linux_node_config":                  flattenLinuxNodeConfig(c.LinuxNodeConfig),
 		"node_group":                         c.NodeGroup,
 		"advanced_machine_features":          flattenAdvancedMachineFeaturesConfig(c.AdvancedMachineFeatures),
+		"max_run_duration":                   c.MaxRunDuration,
 		"sole_tenant_config":                 flattenSoleTenantConfig(c.SoleTenantConfig),
 		"fast_socket":                        flattenFastSocket(c.FastSocket),
 		"resource_manager_tags":              flattenResourceManagerTags(c.ResourceManagerTags),

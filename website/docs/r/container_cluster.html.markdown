@@ -918,6 +918,8 @@ gvnic {
 * `resource_labels` - (Optional) The GCP labels (key/value pairs) to be applied to each node. Refer [here](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-managing-labels)
     for how these labels are applied to clusters, node pools and nodes.
 
+* `max_run_duration` - (Optional) The runtime of each node in the node pool in seconds, terminated by 's'. Example: "3600s".
+
 * `local_ssd_count` - (Optional) The amount of local SSD disks that will be
     attached to each cluster node. Defaults to 0.
 
