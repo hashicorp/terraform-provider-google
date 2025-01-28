@@ -142,52 +142,20 @@ Format: organizations/{organization_id}.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"severity_overrides": {
-							Type:        schema.TypeList,
+							Type:        schema.TypeSet,
 							Optional:    true,
 							Description: `The configuration for overriding threats actions by severity match.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"action": {
-										Type:         schema.TypeString,
-										Required:     true,
-										ValidateFunc: verify.ValidateEnum([]string{"ALERT", "ALLOW", "DEFAULT_ACTION", "DENY"}),
-										Description:  `Threat action override. Possible values: ["ALERT", "ALLOW", "DEFAULT_ACTION", "DENY"]`,
-									},
-									"severity": {
-										Type:         schema.TypeString,
-										Required:     true,
-										ValidateFunc: verify.ValidateEnum([]string{"CRITICAL", "HIGH", "INFORMATIONAL", "LOW", "MEDIUM"}),
-										Description:  `Severity level to match. Possible values: ["CRITICAL", "HIGH", "INFORMATIONAL", "LOW", "MEDIUM"]`,
-									},
-								},
-							},
+							Elem:        networksecuritySecurityProfileThreatPreventionProfileSeverityOverridesSchema(),
+							// Default schema.HashSchema is used.
 						},
 						"threat_overrides": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
 							Description: `The configuration for overriding threats actions by threat id match.
 If a threat is matched both by configuration provided in severity overrides
 and threat overrides, the threat overrides action is applied.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"action": {
-										Type:         schema.TypeString,
-										Required:     true,
-										ValidateFunc: verify.ValidateEnum([]string{"ALERT", "ALLOW", "DEFAULT_ACTION", "DENY"}),
-										Description:  `Threat action. Possible values: ["ALERT", "ALLOW", "DEFAULT_ACTION", "DENY"]`,
-									},
-									"threat_id": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `Vendor-specific ID of a threat to override.`,
-									},
-									"type": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `Type of threat.`,
-									},
-								},
-							},
+							Elem: networksecuritySecurityProfileThreatPreventionProfileThreatOverridesSchema(),
+							// Default schema.HashSchema is used.
 						},
 					},
 				},
@@ -230,6 +198,48 @@ value before proceeding.`,
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+func networksecuritySecurityProfileThreatPreventionProfileSeverityOverridesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"action": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"ALERT", "ALLOW", "DEFAULT_ACTION", "DENY"}),
+				Description:  `Threat action override. Possible values: ["ALERT", "ALLOW", "DEFAULT_ACTION", "DENY"]`,
+			},
+			"severity": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"CRITICAL", "HIGH", "INFORMATIONAL", "LOW", "MEDIUM"}),
+				Description:  `Severity level to match. Possible values: ["CRITICAL", "HIGH", "INFORMATIONAL", "LOW", "MEDIUM"]`,
+			},
+		},
+	}
+}
+
+func networksecuritySecurityProfileThreatPreventionProfileThreatOverridesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"action": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"ALERT", "ALLOW", "DEFAULT_ACTION", "DENY"}),
+				Description:  `Threat action. Possible values: ["ALERT", "ALLOW", "DEFAULT_ACTION", "DENY"]`,
+			},
+			"threat_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Vendor-specific ID of a threat to override.`,
+			},
+			"type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Type of threat.`,
+			},
+		},
 	}
 }
 
@@ -638,14 +648,14 @@ func flattenNetworkSecuritySecurityProfileThreatPreventionProfileSeverityOverrid
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(schema.HashResource(networksecuritySecurityProfileThreatPreventionProfileSeverityOverridesSchema()), []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"action":   flattenNetworkSecuritySecurityProfileThreatPreventionProfileSeverityOverridesAction(original["action"], d, config),
 			"severity": flattenNetworkSecuritySecurityProfileThreatPreventionProfileSeverityOverridesSeverity(original["severity"], d, config),
 		})
@@ -665,14 +675,14 @@ func flattenNetworkSecuritySecurityProfileThreatPreventionProfileThreatOverrides
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(schema.HashResource(networksecuritySecurityProfileThreatPreventionProfileThreatOverridesSchema()), []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"action":    flattenNetworkSecuritySecurityProfileThreatPreventionProfileThreatOverridesAction(original["action"], d, config),
 			"threat_id": flattenNetworkSecuritySecurityProfileThreatPreventionProfileThreatOverridesThreatId(original["threatId"], d, config),
 			"type":      flattenNetworkSecuritySecurityProfileThreatPreventionProfileThreatOverridesType(original["type"], d, config),
@@ -780,6 +790,7 @@ func expandNetworkSecuritySecurityProfileThreatPreventionProfile(v interface{}, 
 }
 
 func expandNetworkSecuritySecurityProfileThreatPreventionProfileSeverityOverrides(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -817,6 +828,7 @@ func expandNetworkSecuritySecurityProfileThreatPreventionProfileSeverityOverride
 }
 
 func expandNetworkSecuritySecurityProfileThreatPreventionProfileThreatOverrides(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
