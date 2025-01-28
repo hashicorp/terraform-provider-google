@@ -97,6 +97,10 @@ resource "google_spanner_backup_schedule" "full-backup" {
   }
   // The schedule creates only full backups.
   full_backup_spec {}
+
+  encryption_config {
+    encryption_type = "USE_DATABASE_ENCRYPTION"
+  }
 }
 `, context)
 }
@@ -169,6 +173,10 @@ resource "google_spanner_backup_schedule" "incremental-backup" {
   }
   // The schedule creates incremental backup chains.
   incremental_backup_spec {}
+
+    encryption_config {
+    encryption_type = "GOOGLE_DEFAULT_ENCRYPTION"
+  }
 }
 `, context)
 }

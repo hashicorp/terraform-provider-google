@@ -83,6 +83,10 @@ resource "google_spanner_backup_schedule" "full-backup" {
   }
   // The schedule creates only full backups.
   full_backup_spec {}
+
+  encryption_config {
+    encryption_type = "USE_DATABASE_ENCRYPTION"
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -134,6 +138,10 @@ resource "google_spanner_backup_schedule" "incremental-backup" {
   }
   // The schedule creates incremental backup chains.
   incremental_backup_spec {}
+
+    encryption_config {
+    encryption_type = "GOOGLE_DEFAULT_ENCRYPTION"
+  }
 }
 ```
 
@@ -178,6 +186,11 @@ The following arguments are supported:
   (Optional)
   The schedule creates incremental backup chains.
 
+* `encryption_config` -
+  (Optional)
+  Configuration for the encryption of the backup schedule.
+  Structure is [documented below](#nested_encryption_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -205,6 +218,21 @@ The following arguments are supported:
     0 2 * * *    : once a day at 2 past midnight in UTC.
     0 2 * * 0    : once a week every Sunday at 2 past midnight in UTC.
     0 2 8 * *    : once a month on 8th day at 2 past midnight in UTC.
+
+<a name="nested_encryption_config"></a>The `encryption_config` block supports:
+
+* `encryption_type` -
+  (Required)
+  The encryption type of backups created by the backup schedule.
+  Possible values are USE_DATABASE_ENCRYPTION, GOOGLE_DEFAULT_ENCRYPTION, or CUSTOMER_MANAGED_ENCRYPTION.
+  If you use CUSTOMER_MANAGED_ENCRYPTION, you must specify a kmsKeyName.
+  If your backup type is incremental-backup, the encryption type must be GOOGLE_DEFAULT_ENCRYPTION.
+  Possible values are: `USE_DATABASE_ENCRYPTION`, `GOOGLE_DEFAULT_ENCRYPTION`, `CUSTOMER_MANAGED_ENCRYPTION`.
+
+* `kms_key_name` -
+  (Optional)
+  The resource name of the Cloud KMS key to use for encryption.
+  Format: 'projects/{project}/locations/{location}/keyRings/{keyRing}/cryptoKeys/{cryptoKey}'
 
 ## Attributes Reference
 
