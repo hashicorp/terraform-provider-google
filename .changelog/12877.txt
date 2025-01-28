@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed a diff caused by server-side set values for `node_config.resource_labels`
+```
