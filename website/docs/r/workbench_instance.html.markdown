@@ -22,6 +22,11 @@ description: |-
 A Workbench instance.
 
 
+To get more information about Instance, see:
+
+* [API documentation](https://cloud.google.com/vertex-ai/docs/workbench/reference/rest/v2/projects.locations.instances)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/vertex-ai/docs/workbench/instances/introduction)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workbench_instance_basic&open_in_editor=main.tf" target="_blank">

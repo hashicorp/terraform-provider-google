@@ -1,0 +1,3 @@
+```release-note:none
+workbench: added API Docs for `google_workbench_instance`
+```
