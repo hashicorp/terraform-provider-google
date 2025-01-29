@@ -124,11 +124,11 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"CLUSTER", "STANDALONE", ""}),
-				Description: `Optional. Standalone or cluster. 
+				ValidateFunc: verify.ValidateEnum([]string{"CLUSTER", "CLUSTER_DISABLED", ""}),
+				Description: `Optional. cluster or cluster-disabled. 
  Possible values:
  CLUSTER
-STANDALONE Possible values: ["CLUSTER", "STANDALONE"]`,
+ CLUSTER_DISABLED Possible values: ["CLUSTER", "CLUSTER_DISABLED"]`,
 			},
 			"node_type": {
 				Type:     schema.TypeString,
@@ -302,8 +302,76 @@ projects/{network_project}/global/networks/{network_id}.`,
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `Endpoints for the instance.`,
-				Elem: &schema.Schema{
-					Type: schema.TypeList,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"connections": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `A group of PSC connections. They are created in the same VPC network, one for each service attachment in the cluster.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"psc_auto_connection": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Detailed information of a PSC connection that is created through service connectivity automation.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"connection_type": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `Output Only. Type of a PSC Connection. 
+ Possible values:
+ CONNECTION_TYPE_DISCOVERY 
+ CONNECTION_TYPE_PRIMARY 
+ CONNECTION_TYPE_READER`,
+												},
+												"forwarding_rule": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `Output only. The URI of the consumer side forwarding rule.
+Format:
+projects/{project}/regions/{region}/forwardingRules/{forwarding_rule}`,
+												},
+												"ip_address": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `Output only. The IP allocated on the consumer network for the PSC forwarding rule.`,
+												},
+												"network": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `Output only. The consumer network where the IP address resides, in the form of
+projects/{project_id}/global/networks/{network_id}.`,
+												},
+												"port": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Description: `Output only. Ports of the exposed endpoint.`,
+												},
+												"project_id": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `Output only. The consumer project_id where the forwarding rule is created from.`,
+												},
+												"psc_connection_id": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `Output only. The PSC connection id of the forwarding rule connected to the
+service attachment.`,
+												},
+												"service_attachment": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `Output only. The service attachment which is the target of the PSC connection, in the form of projects/{project-id}/regions/{region}/serviceAttachments/{service-attachment-id}.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 			"name": {
@@ -1286,7 +1354,111 @@ func flattenMemorystoreInstanceDeletionProtectionEnabled(v interface{}, d *schem
 }
 
 func flattenMemorystoreInstanceEndpoints(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"connections": flattenMemorystoreInstanceEndpointsConnections(original["connections"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenMemorystoreInstanceEndpointsConnections(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"psc_auto_connection": flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnection(original["pscAutoConnection"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["psc_connection_id"] =
+		flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionPscConnectionId(original["pscConnectionId"], d, config)
+	transformed["ip_address"] =
+		flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionIpAddress(original["ipAddress"], d, config)
+	transformed["forwarding_rule"] =
+		flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionForwardingRule(original["forwardingRule"], d, config)
+	transformed["project_id"] =
+		flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionProjectId(original["projectId"], d, config)
+	transformed["network"] =
+		flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionNetwork(original["network"], d, config)
+	transformed["service_attachment"] =
+		flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionServiceAttachment(original["serviceAttachment"], d, config)
+	transformed["connection_type"] =
+		flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionConnectionType(original["connectionType"], d, config)
+	transformed["port"] =
+		flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionPort(original["port"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionPscConnectionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionForwardingRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionServiceAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionConnectionType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMemorystoreInstanceEndpointsConnectionsPscAutoConnectionPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenMemorystoreInstanceMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1603,6 +1775,9 @@ func resourceMemorystoreInstanceDecoder(d *schema.ResourceData, meta interface{}
 	// Retrieve pscAutoConnections from API response
 	v, ok := res["pscAutoConnections"]
 	if !ok {
+		if _, endpointsFound := res["endpoints"]; endpointsFound {
+			return res, nil // For Cluster Disabled instances, we would have 'endpoints' instead of 'pscAutoConnections'
+		}
 		return nil, fmt.Errorf("pscAutoConnections field not found in API response")
 	}
 

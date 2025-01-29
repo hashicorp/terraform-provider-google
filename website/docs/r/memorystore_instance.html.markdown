@@ -295,11 +295,11 @@ The following arguments are supported:
 
 * `mode` -
   (Optional)
-  Optional. Standalone or cluster. 
+  Optional. cluster or cluster-disabled. 
    Possible values:
    CLUSTER
-  STANDALONE
-  Possible values are: `CLUSTER`, `STANDALONE`.
+   CLUSTER_DISABLED
+  Possible values are: `CLUSTER`, `CLUSTER_DISABLED`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -412,6 +412,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `endpoints` -
   Endpoints for the instance.
+  Structure is [documented below](#nested_endpoints).
 
 * `psc_auto_connections` -
   Output only. User inputs and resource details of the auto-created PSC connections.
@@ -464,6 +465,64 @@ In addition to the arguments listed above, the following computed attributes are
 * `size_gb` -
   (Output)
   Output only. Memory size in GB of the node.
+
+<a name="nested_endpoints"></a>The `endpoints` block contains:
+
+* `connections` -
+  (Optional)
+  A group of PSC connections. They are created in the same VPC network, one for each service attachment in the cluster.
+  Structure is [documented below](#nested_endpoints_endpoints_connections).
+
+
+<a name="nested_endpoints_endpoints_connections"></a>The `connections` block supports:
+
+* `psc_auto_connection` -
+  (Optional)
+  Detailed information of a PSC connection that is created through service connectivity automation.
+  Structure is [documented below](#nested_endpoints_endpoints_connections_connections_psc_auto_connection).
+
+
+<a name="nested_endpoints_endpoints_connections_connections_psc_auto_connection"></a>The `psc_auto_connection` block supports:
+
+* `psc_connection_id` -
+  (Output)
+  Output only. The PSC connection id of the forwarding rule connected to the
+  service attachment.
+
+* `ip_address` -
+  (Output)
+  Output only. The IP allocated on the consumer network for the PSC forwarding rule.
+
+* `forwarding_rule` -
+  (Output)
+  Output only. The URI of the consumer side forwarding rule.
+  Format:
+  projects/{project}/regions/{region}/forwardingRules/{forwarding_rule}
+
+* `project_id` -
+  (Output)
+  Output only. The consumer project_id where the forwarding rule is created from.
+
+* `network` -
+  (Output)
+  Output only. The consumer network where the IP address resides, in the form of
+  projects/{project_id}/global/networks/{network_id}.
+
+* `service_attachment` -
+  (Output)
+  Output only. The service attachment which is the target of the PSC connection, in the form of projects/{project-id}/regions/{region}/serviceAttachments/{service-attachment-id}.
+
+* `connection_type` -
+  (Output)
+  Output Only. Type of a PSC Connection. 
+   Possible values:
+   CONNECTION_TYPE_DISCOVERY 
+   CONNECTION_TYPE_PRIMARY 
+   CONNECTION_TYPE_READER
+
+* `port` -
+  (Output)
+  Output only. Ports of the exposed endpoint.
 
 <a name="nested_psc_auto_connections"></a>The `psc_auto_connections` block contains:
 
