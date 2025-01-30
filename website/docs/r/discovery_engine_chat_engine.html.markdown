@@ -126,7 +126,7 @@ The following arguments are supported:
 
 * `data_store_ids` -
   (Required)
-  The data stores associated with this engine. Multiple DataStores in the same Collection can be associated here. All listed DataStores must be `SOLUTION_TYPE_CHAT`. Adding or removing data stores will force recreation.
+  The data stores associated with this engine. Multiple DataStores in the same Collection can be associated here. All listed DataStores must be `SOLUTION_TYPE_CHAT`.
 
 * `chat_engine_config` -
   (Required)

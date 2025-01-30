@@ -117,7 +117,7 @@ Exactly one of 'agent_creation_config' or 'dialogflow_agent_to_link' must be set
 			"data_store_ids": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: `The data stores associated with this engine. Multiple DataStores in the same Collection can be associated here. All listed DataStores must be 'SOLUTION_TYPE_CHAT'. Adding or removing data stores will force recreation.`,
+				Description: `The data stores associated with this engine. Multiple DataStores in the same Collection can be associated here. All listed DataStores must be 'SOLUTION_TYPE_CHAT'.`,
 				MinItems:    1,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
