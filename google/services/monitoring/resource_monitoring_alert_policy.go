@@ -432,9 +432,10 @@ rule group.`,
 must be valid.
 
 Label values can be templatized by using variables. The only available
-variable names are the names of the labels in the PromQL result, including
-"__name__" and "value". "labels" may be empty. This field is intended to be
-used for organizing and identifying the AlertPolicy`,
+variable names are the names of the labels in the PromQL result,
+although label names beginning with \_\_ (two "\_") are reserved for
+internal use. "labels" may be empty. This field is intended to be used
+for organizing and identifying the AlertPolicy.`,
 										Elem: &schema.Schema{Type: schema.TypeString},
 									},
 									"rule_group": {
