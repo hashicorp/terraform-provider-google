@@ -1,0 +1,3 @@
+```release-note:bug
+container: reverted locking behavior that caused regression of operation apply time spike started in `v6.15`
+```
