@@ -1,0 +1,3 @@
+```release-note:none
+discoveryengine: update description for  the `data_store_ids` field in `google_discovery_engine_chat_engine` resource.
+```
