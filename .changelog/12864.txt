@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: allow parallelization of `google_compute_per_instance_config` and `google_compute_region_per_instance_config` deletions by not locking on the parent resource, but including instance name.
+```

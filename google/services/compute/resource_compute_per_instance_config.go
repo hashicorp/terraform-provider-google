@@ -579,7 +579,7 @@ func resourceComputePerInstanceConfigDelete(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	lockName, err := tpgresource.ReplaceVars(d, config, "instanceGroupManager/{{project}}/{{zone}}/{{instance_group_manager}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "instanceGroupManager/{{project}}/{{zone}}/{{instance_group_manager}}/{{name}}")
 	if err != nil {
 		return err
 	}
