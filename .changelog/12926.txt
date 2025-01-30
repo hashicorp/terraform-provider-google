@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: added diff suppression for legacy values in `renewal_plan` field in `google_bigquery_capacity_commitment` resource
+```

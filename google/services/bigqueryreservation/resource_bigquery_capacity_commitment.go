@@ -103,9 +103,10 @@ Examples: US, EU, asia-northeast1. The default value is US.`,
 				Default: "US",
 			},
 			"renewal_plan": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `The plan this capacity commitment is converted to after commitmentEndTime passes. Once the plan is changed, committed period is extended according to commitment plan. Only applicable for some commitment plans.`,
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: bigqueryReservationCapacityCommitmentPlanDiffSuppressFunc,
+				Description:      `The plan this capacity commitment is converted to after commitmentEndTime passes. Once the plan is changed, committed period is extended according to commitment plan. Only applicable for some commitment plans.`,
 			},
 			"commitment_end_time": {
 				Type:        schema.TypeString,
