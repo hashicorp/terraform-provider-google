@@ -1,7 +1,6 @@
 ## 6.19.0 (Unreleased)
 
 NOTES:
-* tpuv2: used the v2alpha1 Cloud TPU API version in the google-beta provider. ([#21022](https://github.com/hashicorp/terraform-provider-google/pull/21022))
 DEPRECATIONS:
 * beyondcorp: deprecated `location` on `google_beyondcorp_security_gateway`. The only valid value is `global`, which is now also the default value. The field will be removed in a future major release. ([#21006](https://github.com/hashicorp/terraform-provider-google/pull/21006))
 
@@ -32,8 +31,8 @@ BUG FIXES:
 * cloudquotas: removed validation for `parent` in `google_cloud_quotas_quota_adjuster_settings` ([#21054](https://github.com/hashicorp/terraform-provider-google/pull/21054))
 * compute: made `google_compute_router_peer.advertised_route_priority` use server-side default if unset. To set the value to `0` you must also set `zero_advertised_route_priority = true`. ([#21024](https://github.com/hashicorp/terraform-provider-google/pull/21024))
 * container: fixed a diff caused by server-side set values for `node_config.resource_labels` ([#21082](https://github.com/hashicorp/terraform-provider-google/pull/21082))
-* container: marked `cluster_autoscaling.resource_limits.maximum` as required as requests would fail if it was not set ([#21051](https://github.com/hashicorp/terraform-provider-google/pull/21051))
-* firestore: fixed deletion of wildcard fields in `google_firestore_field` ([#21034](https://github.com/hashicorp/terraform-provider-google/pull/21034))
+* container: marked `cluster_autoscaling.resource_limits.maximum` as required, as requests would fail if it was not set ([#21051](https://github.com/hashicorp/terraform-provider-google/pull/21051))
+* firestore: fixed error preventing deletion of wildcard `google_firestore_field` resources ([#21034](https://github.com/hashicorp/terraform-provider-google/pull/21034))
 * netapp: fixed an issue where a diff on `zone` would be found if it was unspecified in `google_netapp_storage_pool` ([#21060](https://github.com/hashicorp/terraform-provider-google/pull/21060))
 * networksecurity: fixed sporadic-diff in `google_network_security_security_profile` ([#21070](https://github.com/hashicorp/terraform-provider-google/pull/21070))
 * spanner: fixed bug with `google_spanner_instance.force_destroy` not setting `billing_project` value correctly ([#21023](https://github.com/hashicorp/terraform-provider-google/pull/21023))
