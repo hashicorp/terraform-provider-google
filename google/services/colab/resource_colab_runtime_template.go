@@ -421,7 +421,7 @@ func resourceColabRuntimeTemplateCreate(d *schema.ResourceData, meta interface{}
 
 	resp := res["response"].(map[string]interface{})
 	name := tpgresource.GetResourceNameFromSelfLink(resp["name"].(string))
-	log.Printf("[DEBUG] Setting resource name, id to %s", name)
+	log.Printf("[DEBUG] Setting resource name to %s", name)
 	if err := d.Set("name", name); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
