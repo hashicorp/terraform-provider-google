@@ -494,6 +494,12 @@ The following arguments are supported:
   within a given matchRule have AND semantics. All predicates within a matchRule must match for the request to match the rule.
   Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_match_rule).
 
+* `route_methods` -
+  (Optional)
+  Allow overriding the set of methods that are allowed for this route.
+  When not set, Media CDN allows only "GET", "HEAD", and "OPTIONS".
+  Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_methods).
+
 * `header_action` -
   (Optional)
   The header actions, including adding & removing headers, for requests that match this route.
@@ -592,6 +598,13 @@ The following arguments are supported:
   (Optional)
   The queryParameterMatch matches if the value of the parameter exactly matches the contents of exactMatch.
 
+<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_methods"></a>The `route_methods` block supports:
+
+* `allowed_methods` -
+  (Optional)
+  The non-empty set of HTTP methods that are allowed for this route.
+  Any combination of "GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", and "PATCH".
+
 <a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action"></a>The `header_action` block supports:
 
 * `request_header_to_add` -
@@ -673,6 +686,12 @@ The following arguments are supported:
   (Optional)
   CORSPolicy defines Cross-Origin-Resource-Sharing configuration, including which CORS response headers will be set.
   Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cors_policy).
+
+* `compression_mode` -
+  (Optional)
+  Setting the compression mode to automatic enables dynamic compression for every eligible response.
+  When dynamic compression is enabled, it is recommended to also set a cache policy to maximize efficiency.
+  Possible values are: `DISABLED`, `AUTOMATIC`.
 
 
 <a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cdn_policy"></a>The `cdn_policy` block supports:

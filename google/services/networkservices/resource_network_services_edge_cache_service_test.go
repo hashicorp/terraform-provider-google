@@ -79,6 +79,7 @@ resource "google_network_services_edge_cache_service" "served" {
             cache_mode  = "CACHE_ALL_STATIC"
             default_ttl = "3600s"
           }
+          compression_mode = "AUTOMATIC"
         }
         header_action {
           response_header_to_add {
@@ -132,6 +133,9 @@ resource "google_network_services_edge_cache_service" "served" {
             cache_mode  = "CACHE_ALL_STATIC"
             default_ttl = "3600s"
           }
+        }
+        route_methods {
+          allowed_methods = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH"]
         }
         header_action {
           response_header_to_add {
