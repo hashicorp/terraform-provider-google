@@ -1,0 +1,3 @@
+```release-note:enhancement
+networkservices: added `compression_mode` and `allowed_methods` fields to `edge_cache_service` resource
+```
