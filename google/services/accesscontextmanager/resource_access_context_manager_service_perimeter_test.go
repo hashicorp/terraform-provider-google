@@ -40,6 +40,7 @@ func testAccAccessContextManagerServicePerimeter_basicTest(t *testing.T) {
 
 func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
+	projectNumber := envvar.GetTestProjectNumberFromEnv()
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -63,7 +64,7 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "level", "perimeter"),
+				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "level", "perimeter", projectNumber),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
@@ -79,7 +80,7 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "level", "perimeter"),
+				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "level", "perimeter", projectNumber),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
@@ -184,7 +185,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 `, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName, perimeterTitleName)
 }
 
-func testAccAccessContextManagerServicePerimeter_updateAllowed(org, policyTitle, levelTitleName, perimeterTitleName string) string {
+func testAccAccessContextManagerServicePerimeter_updateAllowed(org, policyTitle, levelTitleName, perimeterTitleName, projectNumber string) string {
 	return fmt.Sprintf(`
 resource "google_access_context_manager_access_policy" "test-access" {
   parent = "organizations/%s"
@@ -269,6 +270,11 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 				sources {
 					access_level = google_access_context_manager_access_level.test-access.name
 				}
+					
+				sources {
+					resource = "projects/%s"
+				}
+					
 				source_restriction = "SOURCE_RESTRICTION_ENABLED"
 			}
 			egress_to {
@@ -349,6 +355,11 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 				sources {
 					access_level = google_access_context_manager_access_level.test-access.name
 				}
+
+				sources {
+					resource = "projects/%s"
+				}
+					
 				source_restriction = "SOURCE_RESTRICTION_ENABLED"
 			}
 			egress_to {
@@ -371,7 +382,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 		}
   }
 }
-`, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName, perimeterTitleName)
+`, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName, perimeterTitleName, projectNumber, projectNumber)
 }
 
 func testAccAccessContextManagerServicePerimeter_updateDryrun(org, policyTitle, levelTitleName, perimeterTitleName string) string {

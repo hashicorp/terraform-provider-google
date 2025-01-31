@@ -24,13 +24,14 @@ func testAccAccessContextManagerServicePerimeterEgressPolicy_basicTest(t *testin
 	//projects := acctest.BootstrapServicePerimeterProjects(t, 1)
 	policyTitle := acctest.RandString(t, 10)
 	perimeterTitle := "perimeter"
+	projectNumber := envvar.GetTestProjectNumberFromEnv()
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerServicePerimeterEgressPolicy_basic(org, policyTitle, perimeterTitle),
+				Config: testAccAccessContextManagerServicePerimeterEgressPolicy_basic(org, policyTitle, perimeterTitle, projectNumber),
 			},
 			{
 				Config: testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitle),
@@ -87,7 +88,7 @@ func testAccCheckAccessContextManagerServicePerimeterEgressPolicyDestroyProducer
 	}
 }
 
-func testAccAccessContextManagerServicePerimeterEgressPolicy_basic(org, policyTitle, perimeterTitleName string) string {
+func testAccAccessContextManagerServicePerimeterEgressPolicy_basic(org, policyTitle, perimeterTitleName, projectNumber string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -131,7 +132,17 @@ resource "google_access_context_manager_service_perimeter_egress_policy" "test-a
 	}
 }
 
-`, testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName))
+resource "google_access_context_manager_service_perimeter_egress_policy" "test-access3" {
+	perimeter = google_access_context_manager_service_perimeter.test-access.name
+	egress_from {
+		sources {
+			resource = "projects/%s"
+		}
+		source_restriction = "SOURCE_RESTRICTION_ENABLED"
+	}
+}
+
+`, testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName), projectNumber)
 }
 
 func testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName string) string {

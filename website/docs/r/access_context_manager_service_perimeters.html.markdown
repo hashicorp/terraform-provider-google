@@ -391,6 +391,15 @@ The following arguments are supported:
   (Optional)
   An AccessLevel resource name that allows resources outside the ServicePerimeter to be accessed from the inside.
 
+* `resource` -
+  (Optional)
+  A Google Cloud resource that is allowed to egress the perimeter.
+  Requests from these resources are allowed to access data outside the perimeter.
+  Currently only projects are allowed. Project format: `projects/{project_number}`.
+  The resource may be in any Google Cloud organization, not just the
+  organization that the perimeter is defined in. `*` is not allowed, the
+  case of allowing all Google Cloud resources only is not supported.
+
 <a name="nested_service_perimeters_service_perimeters_status_egress_policies_egress_policies_egress_to"></a>The `egress_to` block supports:
 
 * `resources` -
@@ -662,6 +671,15 @@ The following arguments are supported:
 * `access_level` -
   (Optional)
   An AccessLevel resource name that allows resources outside the ServicePerimeter to be accessed from the inside.
+
+* `resource` -
+  (Optional)
+  A Google Cloud resource that is allowed to egress the perimeter.
+  Requests from these resources are allowed to access data outside the perimeter.
+  Currently only projects are allowed. Project format: `projects/{project_number}`.
+  The resource may be in any Google Cloud organization, not just the
+  organization that the perimeter is defined in. `*` is not allowed, the
+  case of allowing all Google Cloud resources only is not supported.
 
 <a name="nested_service_perimeters_service_perimeters_spec_egress_policies_egress_policies_egress_to"></a>The `egress_to` block supports:
 

@@ -197,6 +197,17 @@ be allowed access. Possible values: ["ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SE
 										ForceNew:    true,
 										Description: `An AccessLevel resource name that allows resources outside the ServicePerimeter to be accessed from the inside.`,
 									},
+									"resource": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Description: `A Google Cloud resource that is allowed to egress the perimeter.
+Requests from these resources are allowed to access data outside the perimeter.
+Currently only projects are allowed. Project format: 'projects/{project_number}'.
+The resource may be in any Google Cloud organization, not just the
+organization that the perimeter is defined in. '*' is not allowed, the
+case of allowing all Google Cloud resources only is not supported.`,
+									},
 								},
 							},
 						},
@@ -602,11 +613,16 @@ func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFr
 		}
 		transformed = append(transformed, map[string]interface{}{
 			"access_level": flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourcesAccessLevel(original["accessLevel"], d, config),
+			"resource":     flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourcesResource(original["resource"], d, config),
 		})
 	}
 	return transformed
 }
 func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourcesAccessLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourcesResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -777,12 +793,23 @@ func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFro
 			transformed["accessLevel"] = transformedAccessLevel
 		}
 
+		transformedResource, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourcesResource(original["resource"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedResource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["resource"] = transformedResource
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
 }
 
 func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourcesAccessLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourcesResource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

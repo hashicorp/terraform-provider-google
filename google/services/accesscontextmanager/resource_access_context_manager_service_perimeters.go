@@ -186,6 +186,16 @@ be allowed access. Possible values: ["IDENTITY_TYPE_UNSPECIFIED", "ANY_IDENTITY"
 																			Optional:    true,
 																			Description: `An AccessLevel resource name that allows resources outside the ServicePerimeter to be accessed from the inside.`,
 																		},
+																		"resource": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `A Google Cloud resource that is allowed to egress the perimeter.
+Requests from these resources are allowed to access data outside the perimeter.
+Currently only projects are allowed. Project format: 'projects/{project_number}'.
+The resource may be in any Google Cloud organization, not just the
+organization that the perimeter is defined in. '*' is not allowed, the
+case of allowing all Google Cloud resources only is not supported.`,
+																		},
 																	},
 																},
 															},
@@ -546,6 +556,16 @@ be allowed access. Possible values: ["IDENTITY_TYPE_UNSPECIFIED", "ANY_IDENTITY"
 																			Type:        schema.TypeString,
 																			Optional:    true,
 																			Description: `An AccessLevel resource name that allows resources outside the ServicePerimeter to be accessed from the inside.`,
+																		},
+																		"resource": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `A Google Cloud resource that is allowed to egress the perimeter.
+Requests from these resources are allowed to access data outside the perimeter.
+Currently only projects are allowed. Project format: 'projects/{project_number}'.
+The resource may be in any Google Cloud organization, not just the
+organization that the perimeter is defined in. '*' is not allowed, the
+case of allowing all Google Cloud resources only is not supported.`,
 																		},
 																	},
 																},
@@ -1453,11 +1473,16 @@ func flattenAccessContextManagerServicePerimetersServicePerimetersStatusEgressPo
 		}
 		transformed = append(transformed, map[string]interface{}{
 			"access_level": flattenAccessContextManagerServicePerimetersServicePerimetersStatusEgressPoliciesEgressFromSourcesAccessLevel(original["accessLevel"], d, config),
+			"resource":     flattenAccessContextManagerServicePerimetersServicePerimetersStatusEgressPoliciesEgressFromSourcesResource(original["resource"], d, config),
 		})
 	}
 	return transformed
 }
 func flattenAccessContextManagerServicePerimetersServicePerimetersStatusEgressPoliciesEgressFromSourcesAccessLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimetersServicePerimetersStatusEgressPoliciesEgressFromSourcesResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1825,11 +1850,16 @@ func flattenAccessContextManagerServicePerimetersServicePerimetersSpecEgressPoli
 		}
 		transformed = append(transformed, map[string]interface{}{
 			"access_level": flattenAccessContextManagerServicePerimetersServicePerimetersSpecEgressPoliciesEgressFromSourcesAccessLevel(original["accessLevel"], d, config),
+			"resource":     flattenAccessContextManagerServicePerimetersServicePerimetersSpecEgressPoliciesEgressFromSourcesResource(original["resource"], d, config),
 		})
 	}
 	return transformed
 }
 func flattenAccessContextManagerServicePerimetersServicePerimetersSpecEgressPoliciesEgressFromSourcesAccessLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimetersServicePerimetersSpecEgressPoliciesEgressFromSourcesResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2433,12 +2463,23 @@ func expandAccessContextManagerServicePerimetersServicePerimetersStatusEgressPol
 			transformed["accessLevel"] = transformedAccessLevel
 		}
 
+		transformedResource, err := expandAccessContextManagerServicePerimetersServicePerimetersStatusEgressPoliciesEgressFromSourcesResource(original["resource"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedResource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["resource"] = transformedResource
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
 }
 
 func expandAccessContextManagerServicePerimetersServicePerimetersStatusEgressPoliciesEgressFromSourcesAccessLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimetersServicePerimetersStatusEgressPoliciesEgressFromSourcesResource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2967,12 +3008,23 @@ func expandAccessContextManagerServicePerimetersServicePerimetersSpecEgressPolic
 			transformed["accessLevel"] = transformedAccessLevel
 		}
 
+		transformedResource, err := expandAccessContextManagerServicePerimetersServicePerimetersSpecEgressPoliciesEgressFromSourcesResource(original["resource"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedResource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["resource"] = transformedResource
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
 }
 
 func expandAccessContextManagerServicePerimetersServicePerimetersSpecEgressPoliciesEgressFromSourcesAccessLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimetersServicePerimetersSpecEgressPoliciesEgressFromSourcesResource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
