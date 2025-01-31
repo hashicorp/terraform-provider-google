@@ -136,6 +136,21 @@ func RandInt(t *testing.T) int {
 	return rand.New(s.source).Int()
 }
 
+func RandIntRange(t *testing.T, minInt int, maxInt int) int {
+	if !IsVcrEnabled() {
+		return acctest.RandIntRange(minInt, maxInt)
+	}
+	envPath := os.Getenv("VCR_PATH")
+	vcrMode := os.Getenv("VCR_MODE")
+	s, err := vcrSource(t, envPath, vcrMode)
+	if err != nil {
+		// At this point we haven't created any resources, so fail fast
+		t.Fatal(err)
+	}
+
+	return rand.New(s.source).Intn(maxInt-minInt) + minInt
+}
+
 // ProtoV5ProviderFactories returns a muxed ProviderServer that uses the provider code from this repo (SDK and plugin-framework).
 // Used to set ProtoV5ProviderFactories in a resource.TestStep within an acceptance test.
 func ProtoV5ProviderFactories(t *testing.T) map[string]func() (tfprotov5.ProviderServer, error) {

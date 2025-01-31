@@ -30,6 +30,70 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
+func TestAccComputeForwardingRule_forwardingRuleExternallbByoipv6Example(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"ip_address":        fmt.Sprintf("2600:1901:4457:1:%d:%d::/96", acctest.RandIntRange(t, 0, 9999), acctest.RandIntRange(t, 0, 9999)),
+		"ip_collection_url": "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/tf-test-forwarding-rule-mode-pdp",
+		"random_suffix":     acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeForwardingRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeForwardingRule_forwardingRuleExternallbByoipv6Example(context),
+			},
+			{
+				ResourceName:            "google_compute_forwarding_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service", "labels", "network", "no_automate_dns_zone", "port_range", "region", "subnetwork", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccComputeForwardingRule_forwardingRuleExternallbByoipv6Example(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+// Forwarding rule for External Network Load Balancing using Backend Services with IP Collection
+
+resource "google_compute_forwarding_rule" "default" {
+  name                  = "tf-test-byoipv6-forwarding-rule%{random_suffix}"
+  region                = "us-central1"
+  port_range            = 80
+  ip_protocol           = "TCP"
+  ip_version            = "IPV6"
+  load_balancing_scheme = "EXTERNAL"
+  ip_address            = "%{ip_address}"
+  network_tier          = "PREMIUM"
+  backend_service       = google_compute_region_backend_service.backend.id
+  ip_collection         = "%{ip_collection_url}"
+}
+
+resource "google_compute_region_backend_service" "backend" {
+  name                  = "tf-test-website-backend%{random_suffix}"
+  region                = "us-central1"
+  load_balancing_scheme = "EXTERNAL"
+  health_checks         = [google_compute_region_health_check.hc.id]
+}
+
+resource "google_compute_region_health_check" "hc" {
+  name               = "tf-test-website-backend%{random_suffix}"
+  check_interval_sec = 1
+  timeout_sec        = 1
+  region             = "us-central1"
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+`, context)
+}
+
 func TestAccComputeForwardingRule_forwardingRuleGlobalInternallbExample(t *testing.T) {
 	t.Parallel()
 
