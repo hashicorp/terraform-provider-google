@@ -454,6 +454,48 @@ resource "google_compute_region_health_check" "hc" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=forwarding_rule_externallb_byoipv6&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Forwarding Rule Externallb Byoipv6
+
+
+```hcl
+// Forwarding rule for External Network Load Balancing using Backend Services with IP Collection
+
+resource "google_compute_forwarding_rule" "default" {
+  name                  = "byoipv6-forwarding-rule"
+  region                = "us-central1"
+  port_range            = 80
+  ip_protocol           = "TCP"
+  ip_version            = "IPV6"
+  load_balancing_scheme = "EXTERNAL"
+  ip_address            = ""2600:1901:4457:1::/96""
+  network_tier          = "PREMIUM"
+  backend_service       = google_compute_region_backend_service.backend.id
+  ip_collection         = ""projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/tf-test-forwarding-rule-mode-pdp""
+}
+
+resource "google_compute_region_backend_service" "backend" {
+  name                  = "website-backend"
+  region                = "us-central1"
+  load_balancing_scheme = "EXTERNAL"
+  health_checks         = [google_compute_region_health_check.hc.id]
+}
+
+resource "google_compute_region_health_check" "hc" {
+  name               = "website-backend"
+  check_interval_sec = 1
+  timeout_sec        = 1
+  region             = "us-central1"
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=forwarding_rule_global_internallb&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -1564,6 +1606,18 @@ The following arguments are supported:
   Valid options are IPV4 and IPV6.
   If not set, the IPv4 address will be used by default.
   Possible values are: `IPV4`, `IPV6`.
+
+* `ip_collection` -
+  (Optional)
+  Resource reference of a PublicDelegatedPrefix. The PDP must be a sub-PDP
+  in EXTERNAL_IPV6_FORWARDING_RULE_CREATION mode.
+  Use one of the following formats to specify a sub-PDP when creating an
+  IPv6 NetLB forwarding rule using BYOIP:
+  Full resource URL, as in:
+    * `https://www.googleapis.com/compute/v1/projects/{{projectId}}/regions/{{region}}/publicDelegatedPrefixes/{{sub-pdp-name}}`
+  Partial URL, as in:
+    * `projects/{{projectId}}/regions/region/publicDelegatedPrefixes/{{sub-pdp-name}}`
+    * `regions/{{region}}/publicDelegatedPrefixes/{{sub-pdp-name}}`
 
 * `region` -
   (Optional)

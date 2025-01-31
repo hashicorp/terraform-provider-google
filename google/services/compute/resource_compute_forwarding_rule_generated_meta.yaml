@@ -16,6 +16,7 @@ fields:
   - field: 'forwarding_rule_id'
     api_field: 'id'
   - field: 'ip_address'
+  - field: 'ip_collection'
   - field: 'ip_protocol'
   - field: 'ip_version'
   - field: 'is_mirroring_collector'
