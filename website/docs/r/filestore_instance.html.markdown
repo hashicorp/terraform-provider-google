@@ -322,6 +322,12 @@ The following arguments are supported:
   will trigger recreation. To apply tags to an existing
   resource, see the `google_tags_tag_value` resource.
 
+* `initial_replication` -
+  (Optional)
+  Replication configuration, once set, this cannot be updated.
+  Addtionally this should be specified on the replica instance only, indicating the active as the peer_instance
+  Structure is [documented below](#nested_initial_replication).
+
 * `zone` -
   (Optional, Deprecated)
   The name of the Filestore zone of the instance.
@@ -369,6 +375,26 @@ The following arguments are supported:
   The number of IOPS to provision for the instance.
   max_iops must be in multiple of 1000.
 
+<a name="nested_initial_replication"></a>The `initial_replication` block supports:
+
+* `role` -
+  (Optional)
+  The replication role.
+  Default value is `STANDBY`.
+  Possible values are: `ROLE_UNSPECIFIED`, `ACTIVE`, `STANDBY`.
+
+* `replicas` -
+  (Optional)
+  The replication role.
+  Structure is [documented below](#nested_initial_replication_replicas).
+
+
+<a name="nested_initial_replication_replicas"></a>The `replicas` block supports:
+
+* `peer_instance` -
+  (Required)
+  The peer instance.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -382,6 +408,10 @@ In addition to the arguments listed above, the following computed attributes are
   Server-specified ETag for the instance resource to prevent
   simultaneous updates from overwriting each other.
 
+* `effective_replication` -
+  Output only fields for replication configuration.
+  Structure is [documented below](#nested_effective_replication).
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -389,6 +419,30 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+
+<a name="nested_effective_replication"></a>The `effective_replication` block contains:
+
+* `replicas` -
+  (Optional)
+  The replication role.
+  Structure is [documented below](#nested_effective_replication_replicas).
+
+
+<a name="nested_effective_replication_replicas"></a>The `replicas` block supports:
+
+* `state` -
+  (Output)
+  Output only. The replica state
+
+* `state_reasons` -
+  (Output)
+  Output only. Additional information about the replication state, if available.
+
+* `last_active_sync_time` -
+  (Output)
+  Output only. The timestamp of the latest replication snapshot taken on the active instance and is already replicated safely.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+  Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z"
 
 ## Timeouts
 

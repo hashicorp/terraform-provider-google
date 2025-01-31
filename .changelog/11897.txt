@@ -1,0 +1,3 @@
+```release-note:enhancement
+filestore: added `initial_replication` field for peer instance configuration and `effective_replication` output for replication configuration output to `google_filestore_instance`
+```

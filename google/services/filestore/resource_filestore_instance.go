@@ -232,6 +232,39 @@ Possible values include: STANDARD, PREMIUM, BASIC_HDD, BASIC_SSD, HIGH_SCALE_SSD
 				Optional:    true,
 				Description: `A description of the instance.`,
 			},
+			"initial_replication": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `Replication configuration, once set, this cannot be updated.
+Addtionally this should be specified on the replica instance only, indicating the active as the peer_instance`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"replicas": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The replication role.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"peer_instance": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The peer instance.`,
+									},
+								},
+							},
+						},
+						"role": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"ROLE_UNSPECIFIED", "ACTIVE", "STANDBY", ""}),
+							Description:  `The replication role. Default value: "STANDBY" Possible values: ["ROLE_UNSPECIFIED", "ACTIVE", "STANDBY"]`,
+							Default:      "STANDBY",
+						},
+					},
+				},
+			},
 			"kms_key_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -352,6 +385,44 @@ resource, see the 'google_tags_tag_value' resource.`,
 				Computed:    true,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_replication": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Output only fields for replication configuration.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"replicas": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The replication role.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"last_active_sync_time": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: `Output only. The timestamp of the latest replication snapshot taken on the active instance and is already replicated safely.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z"`,
+									},
+									"state": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Output only. The replica state`,
+									},
+									"state_reasons": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Output only. Additional information about the replication state, if available.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 			"etag": {
 				Type:     schema.TypeString,
@@ -613,6 +684,9 @@ func resourceFilestoreInstanceRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("performance_config", flattenFilestoreInstancePerformanceConfig(res["performanceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("effective_replication", flattenFilestoreInstanceEffectiveReplication(res["replication"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenFilestoreInstanceTerraformLabels(res["labels"], d, config)); err != nil {
@@ -1115,6 +1189,51 @@ func flattenFilestoreInstancePerformanceConfigFixedIopsMaxIops(v interface{}, d 
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenFilestoreInstanceEffectiveReplication(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["replicas"] =
+		flattenFilestoreInstanceEffectiveReplicationReplicas(original["replicas"], d, config)
+	return []interface{}{transformed}
+}
+func flattenFilestoreInstanceEffectiveReplicationReplicas(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"state":                 flattenFilestoreInstanceEffectiveReplicationReplicasState(original["state"], d, config),
+			"state_reasons":         flattenFilestoreInstanceEffectiveReplicationReplicasStateReasons(original["stateReasons"], d, config),
+			"last_active_sync_time": flattenFilestoreInstanceEffectiveReplicationReplicasLastActiveSyncTime(original["lastActiveSyncTime"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenFilestoreInstanceEffectiveReplicationReplicasState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFilestoreInstanceEffectiveReplicationReplicasStateReasons(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFilestoreInstanceEffectiveReplicationReplicasLastActiveSyncTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenFilestoreInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
