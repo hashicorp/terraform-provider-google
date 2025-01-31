@@ -54,6 +54,14 @@ BUG FIXES:
 * metastore: increased timeout on google_dataproc_metastore_service operations to 75m from 60m. This will expose server-returned reasons for operation failure instead of masking them with a Terraform timeout. ([#20981](https://github.com/hashicorp/terraform-provider-google/pull/20981))
 * resourcemanager: added a slightly longer wait (two 10s checks bumped to 15s) for issues with billing associations in `google_project`. Default network deletion should succeed more often. ([#20982](https://github.com/hashicorp/terraform-provider-google/pull/20982))
 
+## 5.45.1 (January 29, 2025)
+
+NOTES:
+* 5.45.1 is a backport release, responding to a new GKE label being applied that can cause unwanted diffs in node pools. The changes in this release will be available in 6.18.1 and users upgrading to 6.X should upgrade to that version or higher.
+
+BUG FIXES:
+* container: fixed a diff caused by server-side set values for `node_config.resource_labels` ([#21082](https://github.com/hashicorp/terraform-provider-google/pull/21082))
+
 ## 6.17.0 (January 21, 2025)
 
 FEATURES:
@@ -734,43 +742,6 @@ IMPROVEMENTS:
 * compute: changed the behavior of `name_prefix` in multiple Compute resources to allow for a longer max length of 54 characters. See the upgrade guide and resource documentation for more details. ([#19152](https://github.com/hashicorp/terraform-provider-google/pull/19152))
 BUG FIXES:
 * compute: fixed an issue regarding sending `enabled` field by default for null `iap` message in `google_compute_backend_service` and `google_compute_region_backend_service` ([#18772](https://github.com/hashicorp/terraform-provider-google/pull/18772))
-
-## 5.45.1 (January 25, 2025)
-
-NOTES:
-* 5.45.1 is a backport release, responding to a new GKE label being applied that can cause unwanted diffs in node pools. The changes in this release will be available in 6.18.1 and users upgrading to 6.X should upgrade to that version or higher.
-
-BUG FIXES:
-* container: fixed a diff caused by server-side set values for `node_config.resource_labels` ([#21082](https://github.com/hashicorp/terraform-provider-google/pull/21082))
-
-## 5.45.0 (November 11, 2025)
-
-NOTES:
-* 5.45.0 is a backport release, responding to a new Spanner feature that may result in creation of unwanted backups for users. The changes in this release will be available in 6.11.0 and users upgrading to 6.X should upgrade to that version or higher.
-
-IMPROVEMENTS:
-* spanner: added `default_backup_schedule_type` field to  `google_spanner_instance` ([#20213](https://github.com/hashicorp/terraform-provider-google/pull/20213))
-
-## 5.44.2 (October 14, 2024)
-
-Notes:
-* 5.44.2 is a backport release, responding to a GKE rollout that created permadiffs for many users. The changes in this release will be available in 6.7.0 and users upgrading to 6.X should upgrade to that version or higher.
-
-IMPROVEMENTS:
-* container: `google_container_cluster` will now accept server-specified values for `node_pool_auto_config.0.node_kubelet_config` when it is not defined in configuration and will not detect drift. Note that this means that removing the value from configuration will now preserve old settings instead of reverting the old settings. ([#19817](https://github.com/hashicorp/terraform-provider-google/pull/19817))
-
-BUG FIXES:
-* container: fixed a diff triggered by a new API-side default value for `node_config.0.kubelet_config.0.insecure_kubelet_readonly_port_enabled`. Terraform will now accept server-specified values for `node_config.0.kubelet_config` when it is not defined in configuration and will not detect drift. Note that this means that removing the value from configuration will now preserve old settings instead of reverting the old settings. ([#19817](https://github.com/hashicorp/terraform-provider-google/pull/19817))
-## 5.44.1 (September 23, 2024)
-NOTES:
-* 5.44.1 is a backport release, intended to pull in critical container improvements and fixes for issues introduced in 5.44.0
-
-IMPROVEMENTS:
-* container: added in-place update support for `gcfs_config` in in `google_container_cluster` and `google_container_node_pool` ([#19365](https://github.com/hashicorp/terraform-provider-google/pull/19365)) ([#19512](https://github.com/hashicorp/terraform-provider-google/pull/19512))
-
-BUG FIXES:
-* container: fixed a permadiff on `gcfs_config` in `google_container_cluster` and `google_container_node_pool` ([#19512](https://github.com/hashicorp/terraform-provider-google/pull/19512))
-* container: fixed a bug where specifying `node_pool_defaults.node_config_defaults` with `enable_autopilot = true` will cause `google_container_cluster` resource creation failure. ([#19543](https://github.com/hashicorp/terraform-provider-google/pull/19543))
 
 ## 5.44.0 (September 9, 2024)
 
