@@ -5,6 +5,14 @@
 BUG FIXES:
 * container: fixed a diff caused by server-side set values for `node_config.resource_labels` ([#21082](https://github.com/hashicorp/terraform-provider-google/pull/21082))
 
+## 5.45.1 (January 29, 2025)
+
+NOTES:
+* 5.45.1 is a backport release, responding to a new GKE label being applied that can cause unwanted diffs in node pools. The changes in this release will be available in 6.18.1 and users upgrading to 6.X should upgrade to that version or higher.
+
+BUG FIXES:
+* container: fixed a diff caused by server-side set values for `node_config.resource_labels` ([#21082](https://github.com/hashicorp/terraform-provider-google/pull/21082))
+
 ## 6.18.0 (January 27, 2025)
 
 FEATURES:
@@ -53,14 +61,6 @@ BUG FIXES:
 * iam: fixed missing result by adding pagination for data source `google_service_accounts`. ([#20966](https://github.com/hashicorp/terraform-provider-google/pull/20966))
 * metastore: increased timeout on google_dataproc_metastore_service operations to 75m from 60m. This will expose server-returned reasons for operation failure instead of masking them with a Terraform timeout. ([#20981](https://github.com/hashicorp/terraform-provider-google/pull/20981))
 * resourcemanager: added a slightly longer wait (two 10s checks bumped to 15s) for issues with billing associations in `google_project`. Default network deletion should succeed more often. ([#20982](https://github.com/hashicorp/terraform-provider-google/pull/20982))
-
-## 5.45.1 (January 29, 2025)
-
-NOTES:
-* 5.45.1 is a backport release, responding to a new GKE label being applied that can cause unwanted diffs in node pools. The changes in this release will be available in 6.18.1 and users upgrading to 6.X should upgrade to that version or higher.
-
-BUG FIXES:
-* container: fixed a diff caused by server-side set values for `node_config.resource_labels` ([#21082](https://github.com/hashicorp/terraform-provider-google/pull/21082))
 
 ## 6.17.0 (January 21, 2025)
 
