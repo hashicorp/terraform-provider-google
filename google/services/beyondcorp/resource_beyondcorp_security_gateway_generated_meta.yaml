@@ -3,6 +3,7 @@ generation_type: 'mmv1'
 api_service_name: 'beyondcorp.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'SecurityGateway'
+autogen_status: true
 fields:
   - field: 'create_time'
   - field: 'display_name'
