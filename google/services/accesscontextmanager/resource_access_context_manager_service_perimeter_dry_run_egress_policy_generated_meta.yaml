@@ -9,6 +9,7 @@ fields:
   - field: 'egress_from.identity_type'
   - field: 'egress_from.source_restriction'
   - field: 'egress_from.sources.access_level'
+  - field: 'egress_from.sources.resource'
   - field: 'egress_to.external_resources'
   - field: 'egress_to.operations.method_selectors.method'
   - field: 'egress_to.operations.method_selectors.permission'

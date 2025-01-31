@@ -18,6 +18,7 @@ import (
 // can exist, they need to be run serially. See AccessPolicy for the test runner.
 func testAccAccessContextManagerServicePerimeters_basicTest(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
+	projectNumber := envvar.GetTestProjectNumberFromEnv()
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -34,7 +35,7 @@ func testAccAccessContextManagerServicePerimeters_basicTest(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"service_perimeters"},
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeters_update(org, "my policy", "level", "storage_perimeter", "bigquery_perimeter", "bigtable_perimeter", "bigquery_omni_perimeter"),
+				Config: testAccAccessContextManagerServicePerimeters_update(org, "my policy", "level", "storage_perimeter", "bigquery_perimeter", "bigtable_perimeter", "bigquery_omni_perimeter", projectNumber),
 			},
 			{
 				ResourceName:            "google_access_context_manager_service_perimeters.test-access",
@@ -155,7 +156,7 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
 `, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName1, perimeterTitleName1, perimeterTitleName2, perimeterTitleName2, perimeterTitleName3, perimeterTitleName3)
 }
 
-func testAccAccessContextManagerServicePerimeters_update(org, policyTitle, levelTitleName, perimeterTitleName1, perimeterTitleName2, perimeterTitleName3, perimeterTitleName4 string) string {
+func testAccAccessContextManagerServicePerimeters_update(org, policyTitle, levelTitleName, perimeterTitleName1, perimeterTitleName2, perimeterTitleName3, perimeterTitleName4, projectNumber string) string {
 	return fmt.Sprintf(`
 resource "google_access_context_manager_access_policy" "test-access" {
   parent = "organizations/%s"
@@ -287,6 +288,14 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
     			resources = ["*"]
     		}
     	}
+      egress_policies {
+    		egress_from {
+    			sources {
+            resource = "projects/%s"
+          }
+          source_restriction = "SOURCE_RESTRICTION_ENABLED"
+    		}
+    	}
     }
     status {
       restricted_services = ["bigquery.googleapis.com", "storage.googleapis.com"]
@@ -363,10 +372,18 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
           resources = ["*"]
         }
       }
+      egress_policies {
+    		egress_from {
+    			sources {
+            resource = "projects/%s"
+          }
+          source_restriction = "SOURCE_RESTRICTION_ENABLED"
+    		}
+    	}
     }
   }
 }
-`, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName1, perimeterTitleName1, perimeterTitleName2, perimeterTitleName2, perimeterTitleName3, perimeterTitleName3, perimeterTitleName4, perimeterTitleName4)
+`, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName1, perimeterTitleName1, perimeterTitleName2, perimeterTitleName2, perimeterTitleName3, perimeterTitleName3, perimeterTitleName4, perimeterTitleName4, projectNumber, projectNumber)
 }
 
 func testAccAccessContextManagerServicePerimeters_empty(org, policyTitle, levelTitleName string) string {
