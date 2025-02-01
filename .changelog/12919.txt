@@ -1,0 +1,3 @@
+```release-note:note
+Reapplied `google_beyondcorp_application`
+```

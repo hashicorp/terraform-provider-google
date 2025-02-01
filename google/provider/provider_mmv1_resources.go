@@ -361,6 +361,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_access_context_manager_access_policy_iam_policy": tpgiamresource.DataSourceIamPolicy(accesscontextmanager.AccessContextManagerAccessPolicyIamSchema, accesscontextmanager.AccessContextManagerAccessPolicyIamUpdaterProducer),
 	"google_apigee_environment_iam_policy":                   tpgiamresource.DataSourceIamPolicy(apigee.ApigeeEnvironmentIamSchema, apigee.ApigeeEnvironmentIamUpdaterProducer),
 	"google_artifact_registry_repository_iam_policy":         tpgiamresource.DataSourceIamPolicy(artifactregistry.ArtifactRegistryRepositoryIamSchema, artifactregistry.ArtifactRegistryRepositoryIamUpdaterProducer),
+	"google_beyondcorp_application_iam_policy":               tpgiamresource.DataSourceIamPolicy(beyondcorp.BeyondcorpApplicationIamSchema, beyondcorp.BeyondcorpApplicationIamUpdaterProducer),
 	"google_beyondcorp_security_gateway_iam_policy":          tpgiamresource.DataSourceIamPolicy(beyondcorp.BeyondcorpSecurityGatewayIamSchema, beyondcorp.BeyondcorpSecurityGatewayIamUpdaterProducer),
 	"google_bigquery_table_iam_policy":                       tpgiamresource.DataSourceIamPolicy(bigquery.BigQueryTableIamSchema, bigquery.BigQueryTableIamUpdaterProducer),
 	"google_bigquery_analytics_hub_data_exchange_iam_policy": tpgiamresource.DataSourceIamPolicy(bigqueryanalyticshub.BigqueryAnalyticsHubDataExchangeIamSchema, bigqueryanalyticshub.BigqueryAnalyticsHubDataExchangeIamUpdaterProducer),
@@ -472,9 +473,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 515
-// Generated IAM resources: 273
-// Total generated resources: 788
+// Generated resources: 516
+// Generated IAM resources: 276
+// Total generated resources: 792
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -546,6 +547,10 @@ var generatedResources = map[string]*schema.Resource{
 	"google_beyondcorp_app_connection":                                           beyondcorp.ResourceBeyondcorpAppConnection(),
 	"google_beyondcorp_app_connector":                                            beyondcorp.ResourceBeyondcorpAppConnector(),
 	"google_beyondcorp_app_gateway":                                              beyondcorp.ResourceBeyondcorpAppGateway(),
+	"google_beyondcorp_application":                                              beyondcorp.ResourceBeyondcorpApplication(),
+	"google_beyondcorp_application_iam_binding":                                  tpgiamresource.ResourceIamBinding(beyondcorp.BeyondcorpApplicationIamSchema, beyondcorp.BeyondcorpApplicationIamUpdaterProducer, beyondcorp.BeyondcorpApplicationIdParseFunc),
+	"google_beyondcorp_application_iam_member":                                   tpgiamresource.ResourceIamMember(beyondcorp.BeyondcorpApplicationIamSchema, beyondcorp.BeyondcorpApplicationIamUpdaterProducer, beyondcorp.BeyondcorpApplicationIdParseFunc),
+	"google_beyondcorp_application_iam_policy":                                   tpgiamresource.ResourceIamPolicy(beyondcorp.BeyondcorpApplicationIamSchema, beyondcorp.BeyondcorpApplicationIamUpdaterProducer, beyondcorp.BeyondcorpApplicationIdParseFunc),
 	"google_beyondcorp_security_gateway":                                         beyondcorp.ResourceBeyondcorpSecurityGateway(),
 	"google_beyondcorp_security_gateway_iam_binding":                             tpgiamresource.ResourceIamBinding(beyondcorp.BeyondcorpSecurityGatewayIamSchema, beyondcorp.BeyondcorpSecurityGatewayIamUpdaterProducer, beyondcorp.BeyondcorpSecurityGatewayIdParseFunc),
 	"google_beyondcorp_security_gateway_iam_member":                              tpgiamresource.ResourceIamMember(beyondcorp.BeyondcorpSecurityGatewayIamSchema, beyondcorp.BeyondcorpSecurityGatewayIamUpdaterProducer, beyondcorp.BeyondcorpSecurityGatewayIdParseFunc),
