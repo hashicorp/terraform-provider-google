@@ -29,6 +29,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceColabRuntimeTemplate() *schema.Resource {
@@ -258,6 +259,69 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 					},
 				},
 			},
+			"software_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The notebook software configuration of the notebook runtime.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"env": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Environment variables to be passed to the container.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Name of the environment variable. Must be a valid C identifier.`,
+									},
+									"value": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Variables that reference a $(VAR_NAME) are expanded using the previous defined environment variables in the container and any service environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not.`,
+									},
+								},
+							},
+						},
+						"post_startup_script_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Post startup script config.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"post_startup_script": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Post startup script to run after runtime is started.`,
+									},
+									"post_startup_script_behavior": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ForceNew:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"RUN_ONCE", "RUN_EVERY_START", "DOWNLOAD_AND_RUN_EVERY_START", ""}),
+										Description:  `Post startup script behavior that defines download and execution behavior. Possible values: ["RUN_ONCE", "RUN_EVERY_START", "DOWNLOAD_AND_RUN_EVERY_START"]`,
+									},
+									"post_startup_script_url": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Post startup script url to download. Example: https://bucket/script.sh.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
@@ -356,6 +420,12 @@ func resourceColabRuntimeTemplateCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("encryption_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionSpecProp)) && (ok || !reflect.DeepEqual(v, encryptionSpecProp)) {
 		obj["encryptionSpec"] = encryptionSpecProp
+	}
+	softwareConfigProp, err := expandColabRuntimeTemplateSoftwareConfig(d.Get("software_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("software_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(softwareConfigProp)) && (ok || !reflect.DeepEqual(v, softwareConfigProp)) {
+		obj["softwareConfig"] = softwareConfigProp
 	}
 	labelsProp, err := expandColabRuntimeTemplateEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -507,6 +577,9 @@ func resourceColabRuntimeTemplateRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading RuntimeTemplate: %s", err)
 	}
 	if err := d.Set("encryption_spec", flattenColabRuntimeTemplateEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RuntimeTemplate: %s", err)
+	}
+	if err := d.Set("software_config", flattenColabRuntimeTemplateSoftwareConfig(res["softwareConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RuntimeTemplate: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenColabRuntimeTemplateTerraformLabels(res["labels"], d, config)); err != nil {
@@ -796,6 +869,77 @@ func flattenColabRuntimeTemplateEncryptionSpecKmsKeyName(v interface{}, d *schem
 	return v
 }
 
+func flattenColabRuntimeTemplateSoftwareConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["env"] =
+		flattenColabRuntimeTemplateSoftwareConfigEnv(original["env"], d, config)
+	transformed["post_startup_script_config"] =
+		flattenColabRuntimeTemplateSoftwareConfigPostStartupScriptConfig(original["postStartupScriptConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabRuntimeTemplateSoftwareConfigEnv(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":  flattenColabRuntimeTemplateSoftwareConfigEnvName(original["name"], d, config),
+			"value": flattenColabRuntimeTemplateSoftwareConfigEnvValue(original["value"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenColabRuntimeTemplateSoftwareConfigEnvName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabRuntimeTemplateSoftwareConfigEnvValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabRuntimeTemplateSoftwareConfigPostStartupScriptConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["post_startup_script"] =
+		flattenColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupScript(original["postStartupScript"], d, config)
+	transformed["post_startup_script_url"] =
+		flattenColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupScriptUrl(original["postStartupScriptUrl"], d, config)
+	transformed["post_startup_script_behavior"] =
+		flattenColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupScriptBehavior(original["postStartupScriptBehavior"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupScript(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupScriptUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupScriptBehavior(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenColabRuntimeTemplateTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1044,6 +1188,114 @@ func expandColabRuntimeTemplateEncryptionSpec(v interface{}, d tpgresource.Terra
 }
 
 func expandColabRuntimeTemplateEncryptionSpecKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabRuntimeTemplateSoftwareConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnv, err := expandColabRuntimeTemplateSoftwareConfigEnv(original["env"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnv); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["env"] = transformedEnv
+	}
+
+	transformedPostStartupScriptConfig, err := expandColabRuntimeTemplateSoftwareConfigPostStartupScriptConfig(original["post_startup_script_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPostStartupScriptConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["postStartupScriptConfig"] = transformedPostStartupScriptConfig
+	}
+
+	return transformed, nil
+}
+
+func expandColabRuntimeTemplateSoftwareConfigEnv(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandColabRuntimeTemplateSoftwareConfigEnvName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedValue, err := expandColabRuntimeTemplateSoftwareConfigEnvValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandColabRuntimeTemplateSoftwareConfigEnvName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabRuntimeTemplateSoftwareConfigEnvValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabRuntimeTemplateSoftwareConfigPostStartupScriptConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPostStartupScript, err := expandColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupScript(original["post_startup_script"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPostStartupScript); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["postStartupScript"] = transformedPostStartupScript
+	}
+
+	transformedPostStartupScriptUrl, err := expandColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupScriptUrl(original["post_startup_script_url"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPostStartupScriptUrl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["postStartupScriptUrl"] = transformedPostStartupScriptUrl
+	}
+
+	transformedPostStartupScriptBehavior, err := expandColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupScriptBehavior(original["post_startup_script_behavior"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPostStartupScriptBehavior); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["postStartupScriptBehavior"] = transformedPostStartupScriptBehavior
+	}
+
+	return transformed, nil
+}
+
+func expandColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupScript(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupScriptUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabRuntimeTemplateSoftwareConfigPostStartupScriptConfigPostStartupScriptBehavior(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
