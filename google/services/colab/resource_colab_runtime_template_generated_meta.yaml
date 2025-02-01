@@ -25,5 +25,10 @@ fields:
   - field: 'network_spec.subnetwork'
   - field: 'network_tags'
   - field: 'shielded_vm_config.enable_secure_boot'
+  - field: 'software_config.env.name'
+  - field: 'software_config.env.value'
+  - field: 'software_config.post_startup_script_config.post_startup_script'
+  - field: 'software_config.post_startup_script_config.post_startup_script_behavior'
+  - field: 'software_config.post_startup_script_config.post_startup_script_url'
   - field: 'terraform_labels'
     provider_only: true

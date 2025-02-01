@@ -1,0 +1,3 @@
+```release-note:enhancement
+colab: added `software_config.post_startup_script_config` field to `google_colab_runtime_template`
+```
