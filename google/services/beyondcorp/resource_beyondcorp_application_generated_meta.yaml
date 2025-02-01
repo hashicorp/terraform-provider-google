@@ -1,0 +1,17 @@
+resource: 'google_beyondcorp_application'
+generation_type: 'mmv1'
+api_service_name: 'beyondcorp.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Application'
+autogen_status: true
+fields:
+  - field: 'application_id'
+    provider_only: true
+  - field: 'create_time'
+  - field: 'display_name'
+  - field: 'endpoint_matchers.hostname'
+  - field: 'endpoint_matchers.ports'
+  - field: 'name'
+  - field: 'security_gateways_id'
+    provider_only: true
+  - field: 'update_time'
