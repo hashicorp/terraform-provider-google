@@ -1,0 +1,3 @@
+```release-note: bug
+gemini: fixed a bug where the `force_destroy` field in resource `gemini_code_repository_index` did not properly work in GA
+```
