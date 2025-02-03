@@ -23,6 +23,11 @@ Represents an InterconnectAttachment (VLAN attachment) resource. For more
 information, see Creating VLAN Attachments.
 
 
+To get more information about InterconnectAttachment, see:
+
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/interconnectAttachments)
+* How-to Guides
+    * [Create a Interconnect attachment](https://cloud.google.com/network-connectivity/docs/interconnect/how-to/dedicated/creating-vlan-attachments)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=interconnect_attachment_basic&open_in_editor=main.tf" target="_blank">
