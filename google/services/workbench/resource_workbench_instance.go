@@ -273,24 +273,24 @@ func resizeWorkbenchInstanceDisk(config *transport_tpg.Config, d *schema.Resourc
 	return nil
 }
 
-// mergeLabels takes two maps of labels and returns a new map with the labels merged.
-// If a key exists in old_labels but not in new_labels, it is added to the new map with an empty value.
-func mergeLabels(oldLabels, newLabels map[string]interface{}) map[string]string {
-	modifiedLabels := make(map[string]string)
+// mergeMaps takes two maps and returns a new map with the merged results.
+// If a key exists in oldMap but not in newMap, it is added to the new map with an empty value.
+func mergeMaps(oldMap, newMap map[string]interface{}) map[string]string {
+	modifiedMap := make(map[string]string)
 
-	// Add all labels from newLabels to modifiedLabels
-	for k, v := range newLabels {
-		modifiedLabels[k] = v.(string)
+	// Add all key-values from newMap to modifiedMap
+	for k, v := range newMap {
+		modifiedMap[k] = v.(string)
 	}
 
-	// Add any keys from oldLabels that are not in newLabels with an empty value
-	for k := range oldLabels {
-		if _, ok := newLabels[k]; !ok {
-			modifiedLabels[k] = ""
+	// Add any keys from oldMap that are not in newMap with an empty value
+	for k := range oldMap {
+		if _, ok := newMap[k]; !ok {
+			modifiedMap[k] = ""
 		}
 	}
 
-	return modifiedLabels
+	return modifiedMap
 }
 
 func ResourceWorkbenchInstance() *schema.Resource {
@@ -1133,7 +1133,19 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		old_labels_interface, new_labels_interface := d.GetChange("effective_labels")
 		old_labels := old_labels_interface.(map[string]interface{})
 		new_labels := new_labels_interface.(map[string]interface{})
-		obj["labels"] = mergeLabels(old_labels, new_labels)
+		obj["labels"] = mergeMaps(old_labels, new_labels)
+	}
+
+	if d.HasChange("gce_setup.0.metadata") {
+		old_metadata_interface, new_metadata_interface := d.GetChange("gce_setup.0.metadata")
+		old_metadata := old_metadata_interface.(map[string]interface{})
+		new_metadata := new_metadata_interface.(map[string]interface{})
+
+		gceSetup, exists := obj["gceSetup"]
+		if !exists {
+			return fmt.Errorf("gceSetup cannot be empty")
+		}
+		gceSetup.(map[string]interface{})["metadata"] = mergeMaps(old_metadata, new_metadata)
 	}
 
 	name := d.Get("name").(string)
