@@ -38,7 +38,10 @@ func testSweepComputeRegionTargetTcpProxy(_ string) error {
 	var deletionerror error
 	resourceName := "ComputeRegionTargetTcpProxy"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	regions := []string{"us-central1"}
+	regions := []string{
+		"europe-west4",
+		"us-central1",
+	}
 
 	// Iterate through each region
 	for _, region := range regions {

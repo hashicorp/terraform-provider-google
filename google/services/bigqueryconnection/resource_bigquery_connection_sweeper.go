@@ -37,7 +37,12 @@ func testSweepBigqueryConnectionConnection(_ string) error {
 	var deletionerror error
 	resourceName := "BigqueryConnectionConnection"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	regions := []string{"us-central1"}
+	regions := []string{
+		"US",
+		"EU",
+		"aws-us-east-1",
+		"azure-eastus2",
+	}
 
 	// Iterate through each region
 	for _, region := range regions {

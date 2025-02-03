@@ -38,7 +38,9 @@ func testSweepSecurityCenterV2ProjectNotificationConfig(_ string) error {
 	var deletionerror error
 	resourceName := "SecurityCenterV2ProjectNotificationConfig"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	regions := []string{"us-central1"}
+	regions := []string{
+		"global",
+	}
 
 	// Iterate through each region
 	for _, region := range regions {

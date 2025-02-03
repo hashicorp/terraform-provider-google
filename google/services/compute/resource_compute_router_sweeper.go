@@ -38,7 +38,11 @@ func testSweepComputeRouter(_ string) error {
 	var deletionerror error
 	resourceName := "ComputeRouter"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	regions := []string{"us-central1"}
+	regions := []string{
+		"us-central1",
+		"us-east1",
+		"us-east4",
+	}
 
 	// Iterate through each region
 	for _, region := range regions {

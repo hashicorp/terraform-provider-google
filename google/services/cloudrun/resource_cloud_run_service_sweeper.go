@@ -38,7 +38,11 @@ func testSweepCloudRunService(_ string) error {
 	var deletionerror error
 	resourceName := "CloudRunService"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	regions := []string{"us-central1"}
+	regions := []string{
+		"us-central1",
+		"europe-west1",
+		"europe-north1",
+	}
 
 	// Iterate through each region
 	for _, region := range regions {

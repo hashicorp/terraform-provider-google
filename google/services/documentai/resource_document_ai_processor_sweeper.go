@@ -38,7 +38,10 @@ func testSweepDocumentAIProcessor(_ string) error {
 	var deletionerror error
 	resourceName := "DocumentAIProcessor"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	regions := []string{"us-central1"}
+	regions := []string{
+		"eu",
+		"us",
+	}
 
 	// Iterate through each region
 	for _, region := range regions {
