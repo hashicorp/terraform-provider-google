@@ -1,5 +1,6 @@
 resource: 'google_iam_access_boundary_policy'
 generation_type: 'mmv1'
+source_file: 'products/iam2/AccessBoundaryPolicy.yaml'
 api_service_name: 'iam.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'AccessBoundaryPolicy'

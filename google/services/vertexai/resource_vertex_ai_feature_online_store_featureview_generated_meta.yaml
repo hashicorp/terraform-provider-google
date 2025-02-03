@@ -1,5 +1,6 @@
 resource: 'google_vertex_ai_feature_online_store_featureview'
 generation_type: 'mmv1'
+source_file: 'products/vertexai/FeatureOnlineStoreFeatureview.yaml'
 api_service_name: 'aiplatform.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'FeatureView'

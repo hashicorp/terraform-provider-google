@@ -1,5 +1,6 @@
 resource: 'google_scc_management_project_security_health_analytics_custom_module'
 generation_type: 'mmv1'
+source_file: 'products/securitycentermanagement/ProjectSecurityHealthAnalyticsCustomModule.yaml'
 api_service_name: 'securitycentermanagement.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'SecurityHealthAnalyticsCustomModule'

@@ -1,5 +1,6 @@
 resource: 'google_deployment_manager_deployment'
 generation_type: 'mmv1'
+source_file: 'products/deploymentmanager/Deployment.yaml'
 api_service_name: 'deploymentmanager.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'Deployment'

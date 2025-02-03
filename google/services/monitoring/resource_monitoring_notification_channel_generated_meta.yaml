@@ -1,5 +1,6 @@
 resource: 'google_monitoring_notification_channel'
 generation_type: 'mmv1'
+source_file: 'products/monitoring/NotificationChannel.yaml'
 api_service_name: 'monitoring.googleapis.com'
 api_version: 'v3'
 api_resource_type_kind: 'NotificationChannel'

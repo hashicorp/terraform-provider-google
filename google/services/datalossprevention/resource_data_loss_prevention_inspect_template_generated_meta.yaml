@@ -1,5 +1,6 @@
 resource: 'google_data_loss_prevention_inspect_template'
 generation_type: 'mmv1'
+source_file: 'products/dlp/InspectTemplate.yaml'
 api_service_name: 'dlp.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'InspectTemplate'

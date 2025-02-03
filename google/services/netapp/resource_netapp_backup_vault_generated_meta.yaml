@@ -1,5 +1,6 @@
 resource: 'google_netapp_backup_vault'
 generation_type: 'mmv1'
+source_file: 'products/netapp/BackupVault.yaml'
 api_service_name: 'netapp.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'BackupVault'

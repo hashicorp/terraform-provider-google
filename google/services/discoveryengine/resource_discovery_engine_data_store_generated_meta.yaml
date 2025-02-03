@@ -1,5 +1,6 @@
 resource: 'google_discovery_engine_data_store'
 generation_type: 'mmv1'
+source_file: 'products/discoveryengine/DataStore.yaml'
 api_service_name: 'discoveryengine.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'DataStore'

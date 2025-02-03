@@ -1,5 +1,6 @@
 resource: 'google_dialogflow_agent'
 generation_type: 'mmv1'
+source_file: 'products/dialogflow/Agent.yaml'
 api_service_name: 'dialogflow.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'Agent'

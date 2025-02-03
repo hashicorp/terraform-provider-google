@@ -1,5 +1,6 @@
 resource: 'google_compute_backend_service_signed_url_key'
 generation_type: 'mmv1'
+source_file: 'products/compute/BackendServiceSignedUrlKey.yaml'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'BackendService'

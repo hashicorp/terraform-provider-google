@@ -1,5 +1,6 @@
 resource: 'google_pubsub_lite_subscription'
 generation_type: 'mmv1'
+source_file: 'products/pubsublite/Subscription.yaml'
 api_service_name: 'pubsublite.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Subscription'

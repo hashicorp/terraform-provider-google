@@ -1,5 +1,6 @@
 resource: 'google_tags_tag_value'
 generation_type: 'mmv1'
+source_file: 'products/tags/TagValue.yaml'
 api_service_name: 'cloudresourcemanager.googleapis.com'
 api_version: 'v3'
 api_resource_type_kind: 'TagValue'

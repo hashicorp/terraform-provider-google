@@ -1,5 +1,6 @@
 resource: 'google_compute_instance_group_named_port'
 generation_type: 'mmv1'
+source_file: 'products/compute/InstanceGroupNamedPort.yaml'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'InstanceGroup'

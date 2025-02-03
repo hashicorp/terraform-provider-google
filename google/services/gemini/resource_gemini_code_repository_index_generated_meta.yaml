@@ -1,5 +1,6 @@
 resource: 'google_gemini_code_repository_index'
 generation_type: 'mmv1'
+source_file: 'products/gemini/CodeRepositoryIndex.yaml'
 api_service_name: 'cloudaicompanion.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'CodeRepositoryIndex'

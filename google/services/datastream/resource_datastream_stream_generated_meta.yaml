@@ -1,5 +1,6 @@
 resource: 'google_datastream_stream'
 generation_type: 'mmv1'
+source_file: 'products/datastream/Stream.yaml'
 api_service_name: 'datastream.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Stream'

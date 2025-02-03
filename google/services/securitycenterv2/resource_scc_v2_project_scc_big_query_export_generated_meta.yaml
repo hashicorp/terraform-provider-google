@@ -1,5 +1,6 @@
 resource: 'google_scc_v2_project_scc_big_query_export'
 generation_type: 'mmv1'
+source_file: 'products/securitycenterv2/ProjectSccBigQueryExport.yaml'
 api_service_name: 'securitycenter.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'BigQueryExport'

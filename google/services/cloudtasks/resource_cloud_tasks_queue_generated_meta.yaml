@@ -1,5 +1,6 @@
 resource: 'google_cloud_tasks_queue'
 generation_type: 'mmv1'
+source_file: 'products/cloudtasks/Queue.yaml'
 api_service_name: 'cloudtasks.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'Queue'
