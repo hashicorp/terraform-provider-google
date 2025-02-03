@@ -1,6 +1,5 @@
 ## 6.19.0 (Unreleased)
 
-NOTES:
 DEPRECATIONS:
 * beyondcorp: deprecated `location` on `google_beyondcorp_security_gateway`. The only valid value is `global`, which is now also the default value. The field will be removed in a future major release. ([#21006](https://github.com/hashicorp/terraform-provider-google/pull/21006))
 
