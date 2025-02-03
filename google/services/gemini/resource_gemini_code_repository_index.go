@@ -431,6 +431,12 @@ func resourceGeminiCodeRepositoryIndexDelete(d *schema.ResourceData, meta interf
 	}
 
 	headers := make(http.Header)
+	obj = make(map[string]interface{})
+	if v, ok := d.GetOk("force_destroy"); ok {
+		if v == true {
+			obj["force"] = true
+		}
+	}
 
 	log.Printf("[DEBUG] Deleting CodeRepositoryIndex %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
