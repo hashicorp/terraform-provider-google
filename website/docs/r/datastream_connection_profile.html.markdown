@@ -61,23 +61,27 @@ resource "google_datastream_connection_profile" "default" {
 
 
 ```hcl
-resource "google_datastream_private_connection" "private_connection" {
-	display_name          = "Connection profile"
-	location              = "us-central1"
-	private_connection_id = "my-connection"
-
-	labels = {
-		key = "value"
-	}
-
-	vpc_peering_config {
-		vpc = google_compute_network.default.id
-		subnet = "10.0.0.0/29"
-	}
+resource "google_compute_network" "default" {
+    name = "my-network"
+    auto_create_subnetworks = false
 }
 
-resource "google_compute_network" "default" {
-	name = "my-network"
+resource "google_compute_subnetwork" "default" {
+  name          = "my-subnetwork"
+  ip_cidr_range = "10.1.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+
+resource "google_datastream_private_connection" "private_connection" {
+    display_name          = "Private connection"
+    location              = "us-central1"
+    private_connection_id = "my-connection"
+
+    vpc_peering_config {
+        vpc = google_compute_network.default.id
+        subnet = "10.0.0.0/29"
+    }
 }
 
 resource "google_sql_database_instance" "instance" {
@@ -86,28 +90,9 @@ resource "google_sql_database_instance" "instance" {
     region           = "us-central1"
     settings {
         tier = "db-f1-micro"
-
         ip_configuration {
-
-            // Datastream IPs will vary by region.
             authorized_networks {
-                value = "34.71.242.81"
-            }
-
-            authorized_networks {
-                value = "34.72.28.29"
-            }
-
-            authorized_networks {
-                value = "34.67.6.157"
-            }
-
-            authorized_networks {
-                value = "34.67.234.134"
-            }
-
-            authorized_networks {
-                value = "34.72.239.218"
+                value = google_compute_address.nat_vm_ip.address
             }
         }
     }
@@ -131,21 +116,81 @@ resource "google_sql_user" "user" {
     password = random_password.pwd.result
 }
 
+resource "google_compute_address" "nat_vm_ip" {
+  name         = "nat-vm-ip"
+}
+
+resource "google_compute_instance" "nat_vm" {
+  name           = "nat-vm"
+  machine_type   = "e2-medium"
+  zone           = "us-central1-a"
+  desired_status  = "RUNNING"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-12"
+    }
+  }
+
+  network_interface {
+    network     = google_datastream_private_connection.private_connection.vpc_peering_config.0.vpc
+    subnetwork  = google_compute_subnetwork.default.self_link
+    access_config {
+        nat_ip = google_compute_address.nat_vm_ip.address
+    }
+  }
+
+  metadata_startup_script = <<EOT
+#! /bin/bash
+# See https://cloud.google.com/datastream/docs/private-connectivity#set-up-reverse-proxy
+export DB_ADDR=${google_sql_database_instance.instance.public_ip_address}
+export DB_PORT=5432
+echo 1 > /proc/sys/net/ipv4/ip_forward
+md_url_prefix="http://169.254.169.254/computeMetadata/v1/instance"
+vm_nic_ip="$(curl -H "Metadata-Flavor: Google" $${md_url_prefix}/network-interfaces/0/ip)"
+iptables -t nat -F
+iptables -t nat -A PREROUTING \
+     -p tcp --dport $DB_PORT \
+     -j DNAT \
+     --to-destination $DB_ADDR
+iptables -t nat -A POSTROUTING \
+     -p tcp --dport $DB_PORT \
+     -j SNAT \
+     --to-source $vm_nic_ip
+iptables-save
+EOT
+}
+
+resource "google_compute_firewall" "rules" {
+  name        = "ingress-rule"
+  network     = google_datastream_private_connection.private_connection.vpc_peering_config.0.vpc
+  description = "Allow traffic into NAT VM"
+  direction   = "INGRESS"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["5432"]
+  }
+
+  source_ranges = [google_datastream_private_connection.private_connection.vpc_peering_config.0.subnet]
+}
+
 resource "google_datastream_connection_profile" "default" {
-	display_name          = "Connection profile"
-	location              = "us-central1"
-	connection_profile_id = "my-profile"
+    display_name          = "Connection profile"
+    location              = "us-central1"
+    connection_profile_id = "my-profile"
 
-	postgresql_profile {
-	    hostname = google_sql_database_instance.instance.public_ip_address
-      username = google_sql_user.user.name
-      password = google_sql_user.user.password
-      database = google_sql_database.db.name
-	}
+    postgresql_profile {
+        hostname = google_compute_instance.nat_vm.network_interface.0.network_ip
+        username = google_sql_user.user.name
+        password = google_sql_user.user.password
+        database = google_sql_database.db.name
+        port = 5432
+    }
 
-	private_connectivity {
-		private_connection = google_datastream_private_connection.private_connection.id
-	}
+    private_connectivity {
+        private_connection = google_datastream_private_connection.private_connection.id
+    }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
