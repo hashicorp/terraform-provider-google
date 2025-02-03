@@ -5452,6 +5452,10 @@ resource "google_container_cluster" "with_cpa_features" {
 		google_privateca_ca_pool.etcd_api_ca,
 		google_privateca_ca_pool.etcd_peer_ca,
 		google_privateca_ca_pool.aggregation_ca,
+		google_privateca_certificate_authority.cluster_ca,
+		google_privateca_certificate_authority.etcd_api_ca,
+		google_privateca_certificate_authority.etcd_peer_ca,
+		google_privateca_certificate_authority.aggregation_ca,
 	]
 }
 `, context)
