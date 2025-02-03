@@ -170,7 +170,7 @@ func TestAccColabRuntime_colabRuntimeFullExample(t *testing.T) {
 				ResourceName:            "google_colab_runtime.runtime",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"desired_state", "location", "name"},
+				ImportStateVerifyIgnore: []string{"auto_upgrade", "desired_state", "location", "name"},
 			},
 		},
 	})
@@ -234,6 +234,8 @@ resource "google_colab_runtime" "runtime" {
   description = "Full runtime"
 
   desired_state = "ACTIVE"
+
+  auto_upgrade = true
 
   depends_on = [
     google_colab_runtime_template.my_template

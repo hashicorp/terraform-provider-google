@@ -5,14 +5,19 @@ api_service_name: 'aiplatform.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'NotebookRuntime'
 fields:
+  - field: 'auto_upgrade'
+    provider_only: true
   - field: 'description'
   - field: 'desired_state'
     provider_only: true
   - field: 'display_name'
+  - field: 'expiration_time'
+  - field: 'is_upgradable'
   - field: 'location'
     provider_only: true
   - field: 'name'
     provider_only: true
   - field: 'notebook_runtime_template_ref.notebook_runtime_template'
+  - field: 'notebook_runtime_type'
   - field: 'runtime_user'
   - field: 'state'

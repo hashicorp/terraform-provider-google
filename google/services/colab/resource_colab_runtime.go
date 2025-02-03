@@ -140,6 +140,21 @@ func ResourceColabRuntime() *schema.Resource {
 					},
 				},
 			},
+			"expiration_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. Timestamp when this NotebookRuntime will be expired.`,
+			},
+			"is_upgradable": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Output only. Checks if the NotebookRuntime is upgradable.`,
+			},
+			"notebook_runtime_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The type of the notebook runtime.`,
+			},
 			"state": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -150,6 +165,11 @@ func ResourceColabRuntime() *schema.Resource {
 				Optional:    true,
 				Description: `Desired state of the Colab Runtime. Set this field to 'RUNNING' to start the runtime, and 'STOPPED' to stop it.`,
 				Default:     "RUNNING",
+			},
+			"auto_upgrade": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Triggers an upgrade anytime the runtime is started if it is upgradable.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -325,6 +345,15 @@ func resourceColabRuntimeRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("state", flattenColabRuntimeState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Runtime: %s", err)
 	}
+	if err := d.Set("is_upgradable", flattenColabRuntimeIsUpgradable(res["isUpgradable"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Runtime: %s", err)
+	}
+	if err := d.Set("expiration_time", flattenColabRuntimeExpirationTime(res["expirationTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Runtime: %s", err)
+	}
+	if err := d.Set("notebook_runtime_type", flattenColabRuntimeNotebookRuntimeType(res["notebookRuntimeType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Runtime: %s", err)
+	}
 
 	return nil
 }
@@ -368,6 +397,27 @@ func resourceColabRuntimeUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	} else {
 		log.Printf("[DEBUG] Colab runtime %q has state %q.", name, state)
+	}
+
+	var upgrade_runtime bool
+	if d.Get("auto_upgrade").(bool) && d.Get("is_upgradable").(bool) {
+		upgrade_runtime = true
+	}
+
+	expiration_time_string := d.Get("expiration_time").(string)
+	expiration_time, err := time.Parse(time.RFC3339Nano, expiration_time_string)
+	if err != nil {
+		return err
+	}
+
+	if expiration_time.Before(time.Now()) && d.Get("notebook_runtime_type").(string) == "USER_DEFINED" {
+		upgrade_runtime = true
+	}
+
+	if upgrade_runtime {
+		if err := ModifyColabRuntime(config, d, project, billingProject, userAgent, "upgrade"); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -484,6 +534,18 @@ func flattenColabRuntimeDescription(v interface{}, d *schema.ResourceData, confi
 }
 
 func flattenColabRuntimeState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabRuntimeIsUpgradable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabRuntimeExpirationTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabRuntimeNotebookRuntimeType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

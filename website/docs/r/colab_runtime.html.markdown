@@ -174,6 +174,8 @@ resource "google_colab_runtime" "runtime" {
 
   desired_state = "ACTIVE"
 
+  auto_upgrade = true
+
   depends_on = [
     google_colab_runtime_template.my_template
   ]
@@ -219,6 +221,8 @@ The following arguments are supported:
 
 * `desired_state` - (Optional) Desired state of the Colab Runtime. Set this field to `RUNNING` to start the runtime, and `STOPPED` to stop it.
 
+* `auto_upgrade` - (Optional) Triggers an upgrade anytime the runtime is started if it is upgradable.
+
 
 <a name="nested_notebook_runtime_template_ref"></a>The `notebook_runtime_template_ref` block supports:
 
@@ -234,6 +238,15 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `state` -
   Output only. The state of the runtime.
+
+* `is_upgradable` -
+  Output only. Checks if the NotebookRuntime is upgradable.
+
+* `expiration_time` -
+  Output only. Timestamp when this NotebookRuntime will be expired.
+
+* `notebook_runtime_type` -
+  Output only. The type of the notebook runtime.
 
 
 ## Timeouts
