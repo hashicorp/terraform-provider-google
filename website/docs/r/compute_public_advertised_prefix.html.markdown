@@ -72,7 +72,7 @@ The following arguments are supported:
 
 * `ip_cidr_range` -
   (Required)
-  The IPv4 address range, in CIDR format, represented by this public advertised prefix.
+  The address range, in CIDR format, represented by this public advertised prefix.
 
 
 - - -
@@ -86,6 +86,10 @@ The following arguments are supported:
   (Optional)
   Specifies how child public delegated prefix will be scoped. pdpScope
   must be one of: GLOBAL, REGIONAL
+  * REGIONAL: The public delegated prefix is regional only. The
+  provisioning will take a few minutes.
+  * GLOBAL: The public delegated prefix is global only. The provisioning
+  will take ~4 weeks.
   Possible values are: `GLOBAL`, `REGIONAL`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.

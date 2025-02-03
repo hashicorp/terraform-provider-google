@@ -47,6 +47,37 @@ resource "google_compute_public_delegated_prefix" "prefixes" {
   parent_prefix = google_compute_public_advertised_prefix.advertised.id
 }
 ```
+## Example Usage - Public Delegated Prefixes Ipv6
+
+
+```hcl
+resource "google_compute_public_advertised_prefix" "advertised" {
+  name = "ipv6-pap"
+  description = "description"
+  dns_verification_ip = "2001:db8::"
+  ip_cidr_range = "2001:db8::/32"
+  pdp_scope = "REGIONAL"
+}
+
+resource "google_compute_public_delegated_prefix" "prefix" {
+  name = "ipv6-root-pdp"
+  description = "test-delegation-mode-pdp"
+  region = "us-west1"
+  ip_cidr_range = "2001:db8::/40"
+  parent_prefix = google_compute_public_advertised_prefix.advertised.id
+  mode = "DELEGATION"
+}
+
+resource "google_compute_public_delegated_prefix" "subprefix" {
+  name = "ipv6-sub-pdp"
+  description = "test-forwarding-rule-mode-pdp"
+  region = "us-west1"
+  ip_cidr_range = "2001:db8::/48"
+  parent_prefix = google_compute_public_delegated_prefix.prefix.id
+  allocatable_prefix_length = 64
+  mode = "EXTERNAL_IPV6_FORWARDING_RULE_CREATION"
+}
+```
 
 ## Argument Reference
 
@@ -72,7 +103,7 @@ The following arguments are supported:
 
 * `ip_cidr_range` -
   (Required)
-  The IPv4 address range, in CIDR format, represented by this public advertised prefix.
+  The IP address range, in CIDR format, represented by this public delegated prefix.
 
 
 - - -
@@ -85,6 +116,16 @@ The following arguments are supported:
 * `is_live_migration` -
   (Optional)
   If true, the prefix will be live migrated.
+
+* `mode` -
+  (Optional)
+  Specifies the mode of this IPv6 PDP. MODE must be one of: DELEGATION,
+  EXTERNAL_IPV6_FORWARDING_RULE_CREATION.
+  Possible values are: `DELEGATION`, `EXTERNAL_IPV6_FORWARDING_RULE_CREATION`.
+
+* `allocatable_prefix_length` -
+  (Optional)
+  The allocatable prefix length supported by this public delegated prefix. This field is optional and cannot be set for prefixes in DELEGATION mode. It cannot be set for IPv4 prefixes either, and it always defaults to 32.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

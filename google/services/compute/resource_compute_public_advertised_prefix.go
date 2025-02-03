@@ -62,7 +62,7 @@ func ResourceComputePublicAdvertisedPrefix() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The IPv4 address range, in CIDR format, represented by this public advertised prefix.`,
+				Description: `The address range, in CIDR format, represented by this public advertised prefix.`,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -87,7 +87,11 @@ except the last character, which cannot be a dash.`,
 				ForceNew:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"GLOBAL", "REGIONAL", ""}),
 				Description: `Specifies how child public delegated prefix will be scoped. pdpScope
-must be one of: GLOBAL, REGIONAL Possible values: ["GLOBAL", "REGIONAL"]`,
+must be one of: GLOBAL, REGIONAL
+* REGIONAL: The public delegated prefix is regional only. The
+provisioning will take a few minutes.
+* GLOBAL: The public delegated prefix is global only. The provisioning
+will take ~4 weeks. Possible values: ["GLOBAL", "REGIONAL"]`,
 			},
 			"shared_secret": {
 				Type:        schema.TypeString,
