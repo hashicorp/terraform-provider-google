@@ -38,7 +38,13 @@ func testSweepComputeRegionBackendService(_ string) error {
 	var deletionerror error
 	resourceName := "ComputeRegionBackendService"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	regions := []string{"us-central1"}
+	regions := []string{
+		"us-west1",
+		"us-west2",
+		"us-central1",
+		"europe-west1",
+		"europe-west4",
+	}
 
 	// Iterate through each region
 	for _, region := range regions {

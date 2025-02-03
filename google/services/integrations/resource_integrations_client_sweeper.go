@@ -38,7 +38,20 @@ func testSweepIntegrationsClient(_ string) error {
 	var deletionerror error
 	resourceName := "IntegrationsClient"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	regions := []string{"us-central1"}
+	regions := []string{
+		"us-east1",
+		"asia-east1",
+		"southamerica-west1",
+		"northamerica-northeast1",
+		"us-central1",
+		"us-south1",
+		"southamerica-east1",
+		"us-west2",
+		"us-west4",
+		"northamerica-northeast2",
+		"us-west3",
+		"asia-east2",
+	}
 
 	// Iterate through each region
 	for _, region := range regions {

@@ -37,7 +37,11 @@ func testSweepApphubApplication(_ string) error {
 	var deletionerror error
 	resourceName := "ApphubApplication"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	regions := []string{"us-central1"}
+	regions := []string{
+		"us-central1",
+		"us-east1",
+		"global",
+	}
 
 	// Iterate through each region
 	for _, region := range regions {

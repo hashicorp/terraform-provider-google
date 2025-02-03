@@ -38,7 +38,10 @@ func testSweepCertificateManagerTrustConfig(_ string) error {
 	var deletionerror error
 	resourceName := "CertificateManagerTrustConfig"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	regions := []string{"us-central1"}
+	regions := []string{
+		"global",
+		"us-central1",
+	}
 
 	// Iterate through each region
 	for _, region := range regions {

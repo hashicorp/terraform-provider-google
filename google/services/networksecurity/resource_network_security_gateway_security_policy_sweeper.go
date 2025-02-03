@@ -38,7 +38,13 @@ func testSweepNetworkSecurityGatewaySecurityPolicy(_ string) error {
 	var deletionerror error
 	resourceName := "NetworkSecurityGatewaySecurityPolicy"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	regions := []string{"us-central1"}
+	regions := []string{
+		"us-west1",
+		"us-west2",
+		"us-east1",
+		"us-central1",
+		"us-south1",
+	}
 
 	// Iterate through each region
 	for _, region := range regions {

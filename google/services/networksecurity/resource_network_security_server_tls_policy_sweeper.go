@@ -38,7 +38,10 @@ func testSweepNetworkSecurityServerTlsPolicy(_ string) error {
 	var deletionerror error
 	resourceName := "NetworkSecurityServerTlsPolicy"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	regions := []string{"us-central1"}
+	regions := []string{
+		"us-central1",
+		"global",
+	}
 
 	// Iterate through each region
 	for _, region := range regions {
