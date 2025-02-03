@@ -1,0 +1,3 @@
+```release-note:none
+compute: adding API Docs for  resource_compute_interconnect_attachment
+```
