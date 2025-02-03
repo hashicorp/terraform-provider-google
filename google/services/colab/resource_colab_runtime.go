@@ -31,6 +31,46 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
+func ModifyColabRuntimeOperation(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, method string) (map[string]interface{}, error) {
+	url, err := tpgresource.ReplaceVars(d, config, "{{ColabBasePath}}projects/{{project}}/locations/{{location}}/notebookRuntimes/{{name}}:"+method)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("Unable to %q google_colab_runtime %q: %s", method, d.Id(), err)
+	}
+	return res, nil
+}
+func waitForColabOperation(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, response map[string]interface{}) error {
+	var opRes map[string]interface{}
+	err := ColabOperationWaitTimeWithResponse(
+		config, response, &opRes, project, "Waiting for Colab Runtime Operation", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func ModifyColabRuntime(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, method string) error {
+	dRes, err := ModifyColabRuntimeOperation(config, d, project, billingProject, userAgent, method)
+	if err != nil {
+		return err
+	}
+	if err := waitForColabOperation(config, d, project, billingProject, userAgent, dRes); err != nil {
+		return fmt.Errorf("Error with Colab runtime method: %s", err)
+	}
+	return nil
+}
+
 func ResourceColabRuntime() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceColabRuntimeCreate,
@@ -56,26 +96,31 @@ func ResourceColabRuntime() *schema.Resource {
 			"display_name": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `Required. The display name of the Runtime.`,
 			},
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `The location for the resource: https://cloud.google.com/colab/docs/locations`,
 			},
 			"runtime_user": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `The user email of the NotebookRuntime.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				ForceNew:    true,
 				Description: `The description of the Runtime.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				ForceNew:    true,
 				Description: `The resource name of the Runtime`,
 			},
 			"notebook_runtime_template_ref": {
@@ -88,11 +133,23 @@ func ResourceColabRuntime() *schema.Resource {
 						"notebook_runtime_template": {
 							Type:             schema.TypeString,
 							Required:         true,
+							ForceNew:         true,
 							DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 							Description:      `The resource name of the NotebookRuntimeTemplate based on which a NotebookRuntime will be created.`,
 						},
 					},
 				},
+			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The state of the runtime.`,
+			},
+			"desired_state": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Desired state of the Colab Runtime. Set this field to 'RUNNING' to start the runtime, and 'STOPPED' to stop it.`,
+				Default:     "RUNNING",
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -194,6 +251,12 @@ func resourceColabRuntimeCreate(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error waiting to create Runtime: %s", err)
 	}
 
+	if p, ok := d.GetOk("desired_state"); ok && p.(string) == "STOPPED" {
+		if err := ModifyColabRuntime(config, d, project, billingProject, userAgent, "stop"); err != nil {
+			return err
+		}
+	}
+
 	log.Printf("[DEBUG] Finished creating Runtime %q: %#v", d.Id(), res)
 
 	return resourceColabRuntimeRead(d, meta)
@@ -237,6 +300,12 @@ func resourceColabRuntimeRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ColabRuntime %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("desired_state"); !ok {
+		if err := d.Set("desired_state", "RUNNING"); err != nil {
+			return fmt.Errorf("Error setting desired_state: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Runtime: %s", err)
 	}
@@ -253,95 +322,55 @@ func resourceColabRuntimeRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("description", flattenColabRuntimeDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Runtime: %s", err)
 	}
+	if err := d.Set("state", flattenColabRuntimeState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Runtime: %s", err)
+	}
 
 	return nil
 }
 
 func resourceColabRuntimeUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
+	name := d.Get("name").(string)
+	state := d.Get("state").(string)
+	desired_state := d.Get("desired_state").(string)
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
-
-	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Runtime: %s", err)
-	}
-	billingProject = project
-
-	obj := make(map[string]interface{})
-	notebookRuntimeTemplateRefProp, err := expandColabRuntimeNotebookRuntimeTemplateRef(d.Get("notebook_runtime_template_ref"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("notebook_runtime_template_ref"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, notebookRuntimeTemplateRefProp)) {
-		obj["notebookRuntimeTemplateRef"] = notebookRuntimeTemplateRefProp
-	}
-	runtimeUserProp, err := expandColabRuntimeRuntimeUser(d.Get("runtime_user"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("runtime_user"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, runtimeUserProp)) {
-		obj["runtimeUser"] = runtimeUserProp
-	}
-	displayNameProp, err := expandColabRuntimeDisplayName(d.Get("display_name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
-		obj["displayName"] = displayNameProp
-	}
-	descriptionProp, err := expandColabRuntimeDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
-
-	obj, err = resourceColabRuntimeEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ColabBasePath}}projects/{{project}}/locations/{{location}}/notebookRuntimes/{{name}}")
-	if err != nil {
-		return err
-	}
-
-	log.Printf("[DEBUG] Updating Runtime %q: %#v", d.Id(), obj)
-	headers := make(http.Header)
-
-	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PUT",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
-		Headers:   headers,
-	})
+	if desired_state != "" && state != desired_state {
+		var verb string
 
-	if err != nil {
-		return fmt.Errorf("Error updating Runtime %q: %s", d.Id(), err)
+		switch desired_state {
+		case "STOPPED":
+			verb = "stop"
+		case "RUNNING":
+			verb = "start"
+		default:
+			return fmt.Errorf("desired_state has to be RUNNING or STOPPED")
+		}
+
+		if err := ModifyColabRuntime(config, d, project, billingProject, userAgent, verb); err != nil {
+			return err
+		}
+
 	} else {
-		log.Printf("[DEBUG] Finished updating Runtime %q: %#v", d.Id(), res)
+		log.Printf("[DEBUG] Colab runtime %q has state %q.", name, state)
 	}
 
-	err = ColabOperationWaitTime(
-		config, res, project, "Updating Runtime", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
-
-	if err != nil {
-		return err
-	}
-
-	return resourceColabRuntimeRead(d, meta)
+	return nil
 }
 
 func resourceColabRuntimeDelete(d *schema.ResourceData, meta interface{}) error {
@@ -417,6 +446,11 @@ func resourceColabRuntimeImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	}
 	d.SetId(id)
 
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("desired_state", "RUNNING"); err != nil {
+		return nil, fmt.Errorf("Error setting desired_state: %s", err)
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -446,6 +480,10 @@ func flattenColabRuntimeDisplayName(v interface{}, d *schema.ResourceData, confi
 }
 
 func flattenColabRuntimeDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabRuntimeState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

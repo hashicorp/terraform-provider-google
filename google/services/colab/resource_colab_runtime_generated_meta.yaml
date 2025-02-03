@@ -5,6 +5,8 @@ api_version: 'v1'
 api_resource_type_kind: 'NotebookRuntime'
 fields:
   - field: 'description'
+  - field: 'desired_state'
+    provider_only: true
   - field: 'display_name'
   - field: 'location'
     provider_only: true
@@ -12,3 +14,4 @@ fields:
     provider_only: true
   - field: 'notebook_runtime_template_ref.notebook_runtime_template'
   - field: 'runtime_user'
+  - field: 'state'
