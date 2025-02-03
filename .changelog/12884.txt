@@ -1,0 +1,3 @@
+```release-note: bug
+workbench: Fix a bug with instance metadata being removed not working as expected
+```
