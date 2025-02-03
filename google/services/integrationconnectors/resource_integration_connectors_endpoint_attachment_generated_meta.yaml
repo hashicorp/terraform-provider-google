@@ -1,5 +1,6 @@
 resource: 'google_integration_connectors_endpoint_attachment'
 generation_type: 'mmv1'
+source_file: 'products/integrationconnectors/EndpointAttachment.yaml'
 api_service_name: 'connectors.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'EndpointAttachment'

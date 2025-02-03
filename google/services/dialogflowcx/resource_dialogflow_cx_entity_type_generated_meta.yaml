@@ -1,5 +1,6 @@
 resource: 'google_dialogflow_cx_entity_type'
 generation_type: 'mmv1'
+source_file: 'products/dialogflowcx/EntityType.yaml'
 api_service_name: 'dialogflow.googleapis.com'
 api_version: 'v3'
 api_resource_type_kind: 'EntityType'

@@ -1,5 +1,6 @@
 resource: 'google_oracle_database_autonomous_database'
 generation_type: 'mmv1'
+source_file: 'products/oracledatabase/AutonomousDatabase.yaml'
 api_service_name: 'oracledatabase.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'AutonomousDatabase'

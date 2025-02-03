@@ -1,5 +1,6 @@
 resource: 'google_dataproc_gdc_application_environment'
 generation_type: 'mmv1'
+source_file: 'products/dataprocgdc/ApplicationEnvironment.yaml'
 api_service_name: 'dataprocgdc.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ApplicationEnvironment'

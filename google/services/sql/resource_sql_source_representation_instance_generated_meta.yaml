@@ -1,5 +1,6 @@
 resource: 'google_sql_source_representation_instance'
 generation_type: 'mmv1'
+source_file: 'products/sql/SourceRepresentationInstance.yaml'
 api_service_name: 'sqladmin.googleapis.com'
 api_version: 'v1beta4'
 api_resource_type_kind: 'Instance'

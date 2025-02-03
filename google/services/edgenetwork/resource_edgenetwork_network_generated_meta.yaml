@@ -1,5 +1,6 @@
 resource: 'google_edgenetwork_network'
 generation_type: 'mmv1'
+source_file: 'products/edgenetwork/Network.yaml'
 api_service_name: 'edgenetwork.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Network'

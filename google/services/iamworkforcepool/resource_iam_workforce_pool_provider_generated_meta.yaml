@@ -1,5 +1,6 @@
 resource: 'google_iam_workforce_pool_provider'
 generation_type: 'mmv1'
+source_file: 'products/iamworkforcepool/WorkforcePoolProvider.yaml'
 api_service_name: 'iam.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'WorkforcePoolProvider'

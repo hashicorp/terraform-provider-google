@@ -1,5 +1,6 @@
 resource: 'google_cloud_asset_organization_feed'
 generation_type: 'mmv1'
+source_file: 'products/cloudasset/OrganizationFeed.yaml'
 api_service_name: 'cloudasset.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Feed'

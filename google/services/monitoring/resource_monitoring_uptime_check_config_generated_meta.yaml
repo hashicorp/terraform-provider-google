@@ -1,5 +1,6 @@
 resource: 'google_monitoring_uptime_check_config'
 generation_type: 'mmv1'
+source_file: 'products/monitoring/UptimeCheckConfig.yaml'
 api_service_name: 'monitoring.googleapis.com'
 api_version: 'v3'
 api_resource_type_kind: 'UptimeCheckConfig'

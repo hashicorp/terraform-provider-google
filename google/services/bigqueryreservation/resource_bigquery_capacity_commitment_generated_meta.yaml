@@ -1,5 +1,6 @@
 resource: 'google_bigquery_capacity_commitment'
 generation_type: 'mmv1'
+source_file: 'products/bigqueryreservation/CapacityCommitment.yaml'
 api_service_name: 'bigqueryreservation.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'CapacityCommitment'

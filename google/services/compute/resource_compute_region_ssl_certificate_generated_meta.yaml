@@ -1,5 +1,6 @@
 resource: 'google_compute_region_ssl_certificate'
 generation_type: 'mmv1'
+source_file: 'products/compute/RegionSslCertificate.yaml'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'SslCertificate'

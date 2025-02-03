@@ -1,5 +1,6 @@
 resource: 'google_network_services_edge_cache_service'
 generation_type: 'mmv1'
+source_file: 'products/networkservices/EdgeCacheService.yaml'
 api_service_name: 'networkservices.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'EdgeCacheService'

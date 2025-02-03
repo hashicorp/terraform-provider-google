@@ -1,5 +1,6 @@
 resource: 'google_public_ca_external_account_key'
 generation_type: 'mmv1'
+source_file: 'products/publicca/ExternalAccountKey.yaml'
 api_service_name: 'publicca.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ExternalAccountKey'

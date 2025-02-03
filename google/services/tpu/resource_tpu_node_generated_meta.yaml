@@ -1,5 +1,6 @@
 resource: 'google_tpu_node'
 generation_type: 'mmv1'
+source_file: 'products/tpu/Node.yaml'
 api_service_name: 'tpu.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Node'

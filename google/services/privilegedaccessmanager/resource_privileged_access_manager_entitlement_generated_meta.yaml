@@ -1,5 +1,6 @@
 resource: 'google_privileged_access_manager_entitlement'
 generation_type: 'mmv1'
+source_file: 'products/privilegedaccessmanager/Entitlement.yaml'
 api_service_name: 'privilegedaccessmanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Entitlement'

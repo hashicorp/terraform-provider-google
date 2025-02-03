@@ -1,5 +1,6 @@
 resource: 'google_iam_organizations_policy_binding'
 generation_type: 'mmv1'
+source_file: 'products/iam3/OrganizationsPolicyBinding.yaml'
 api_service_name: 'iam.googleapis.com'
 api_version: 'v3'
 api_resource_type_kind: 'PolicyBinding'

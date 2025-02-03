@@ -1,5 +1,6 @@
 resource: 'google_alloydb_cluster'
 generation_type: 'mmv1'
+source_file: 'products/alloydb/Cluster.yaml'
 api_service_name: 'alloydb.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Cluster'

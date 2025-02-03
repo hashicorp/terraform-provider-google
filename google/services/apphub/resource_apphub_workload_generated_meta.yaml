@@ -1,5 +1,6 @@
 resource: 'google_apphub_workload'
 generation_type: 'mmv1'
+source_file: 'products/apphub/Workload.yaml'
 api_service_name: 'apphub.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Workload'

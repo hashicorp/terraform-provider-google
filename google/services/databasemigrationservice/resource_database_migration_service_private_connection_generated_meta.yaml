@@ -1,5 +1,6 @@
 resource: 'google_database_migration_service_private_connection'
 generation_type: 'mmv1'
+source_file: 'products/databasemigrationservice/PrivateConnection.yaml'
 api_service_name: 'datamigration.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'PrivateConnection'

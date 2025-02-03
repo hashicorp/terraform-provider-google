@@ -1,5 +1,6 @@
 resource: 'google_apihub_api_hub_instance'
 generation_type: 'mmv1'
+source_file: 'products/apihub/ApiHubInstance.yaml'
 api_service_name: 'apihub.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ApiHubInstance'

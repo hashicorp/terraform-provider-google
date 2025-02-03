@@ -1,5 +1,6 @@
 resource: 'google_compute_https_health_check'
 generation_type: 'mmv1'
+source_file: 'products/compute/HttpsHealthCheck.yaml'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'HttpsHealthCheck'

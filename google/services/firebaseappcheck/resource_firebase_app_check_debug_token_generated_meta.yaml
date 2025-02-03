@@ -1,5 +1,6 @@
 resource: 'google_firebase_app_check_debug_token'
 generation_type: 'mmv1'
+source_file: 'products/firebaseappcheck/DebugToken.yaml'
 api_service_name: 'firebaseappcheck.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'DebugToken'

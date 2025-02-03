@@ -1,5 +1,6 @@
 resource: 'google_organization_access_approval_settings'
 generation_type: 'mmv1'
+source_file: 'products/accessapproval/OrganizationSettings.yaml'
 api_service_name: 'accessapproval.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'AccessApprovalSettings'

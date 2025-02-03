@@ -1,5 +1,6 @@
 resource: 'google_bigtable_app_profile'
 generation_type: 'mmv1'
+source_file: 'products/bigtable/AppProfile.yaml'
 api_service_name: 'bigtableadmin.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'AppProfile'

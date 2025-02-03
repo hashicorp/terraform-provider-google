@@ -1,5 +1,6 @@
 resource: 'google_compute_network_peering_routes_config'
 generation_type: 'mmv1'
+source_file: 'products/compute/NetworkPeeringRoutesConfig.yaml'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Network'
