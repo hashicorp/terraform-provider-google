@@ -31,7 +31,7 @@ func TestAccColabRuntime_update(t *testing.T) {
 				ResourceName:            "google_colab_runtime.runtime",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"desired_state", "location", "name"},
+				ImportStateVerifyIgnore: []string{"desired_state", "location", "name", "auto_upgrade"},
 			},
 			{
 				Config: testAccColabRuntime_no_state(context),
@@ -40,7 +40,7 @@ func TestAccColabRuntime_update(t *testing.T) {
 				ResourceName:            "google_colab_runtime.runtime",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"desired_state", "location", "name"},
+				ImportStateVerifyIgnore: []string{"desired_state", "location", "name", "auto_upgrade"},
 			},
 			{
 				Config: testAccColabRuntime_stopped(context),
@@ -54,7 +54,21 @@ func TestAccColabRuntime_update(t *testing.T) {
 				ResourceName:            "google_colab_runtime.runtime",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"desired_state", "location", "name"},
+				ImportStateVerifyIgnore: []string{"desired_state", "location", "name", "auto_upgrade"},
+			},
+			{
+				Config: testAccColabRuntime_full(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_colab_runtime.runtime", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_colab_runtime.runtime",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"desired_state", "location", "name", "auto_upgrade"},
 			},
 		},
 	})
@@ -117,7 +131,9 @@ resource "google_colab_runtime" "runtime" {
   runtime_user = "gterraformtestuser@gmail.com"
   description = "Full runtime"
 
-  desired_state = "ACTIVE"
+  desired_state = "RUNNING"
+
+  auto_upgrade = true
 
   depends_on = [
     google_colab_runtime_template.my_template
