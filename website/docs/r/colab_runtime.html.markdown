@@ -68,6 +68,47 @@ resource "google_colab_runtime" "runtime" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=colab_runtime_stopped&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Colab Runtime Stopped
+
+
+```hcl
+resource "google_colab_runtime_template" "my_template" {
+  name = "colab-runtime"
+  display_name = "Runtime template basic"
+  location = "us-central1"
+
+  machine_spec {
+    machine_type     = "e2-standard-4"
+  }
+
+  network_spec {
+    enable_internet_access = true
+  }
+}
+
+resource "google_colab_runtime" "runtime" {
+  name = "colab-runtime"
+  location = "us-central1" 
+  
+  notebook_runtime_template_ref {
+    notebook_runtime_template = google_colab_runtime_template.my_template.id
+  }
+
+  desired_state = "STOPPED"
+  
+  display_name = "Runtime stopped"
+  runtime_user = "gterraformtestuser@gmail.com"
+
+  depends_on = [
+    google_colab_runtime_template.my_template,
+  ]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=colab_runtime_full&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -131,6 +172,8 @@ resource "google_colab_runtime" "runtime" {
   runtime_user = "gterraformtestuser@gmail.com"
   description = "Full runtime"
 
+  desired_state = "ACTIVE"
+
   depends_on = [
     google_colab_runtime_template.my_template
   ]
@@ -174,6 +217,8 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `desired_state` - (Optional) Desired state of the Colab Runtime. Set this field to `RUNNING` to start the runtime, and `STOPPED` to stop it.
+
 
 <a name="nested_notebook_runtime_template_ref"></a>The `notebook_runtime_template_ref` block supports:
 
@@ -186,6 +231,9 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/notebookRuntimes/{{name}}`
+
+* `state` -
+  Output only. The state of the runtime.
 
 
 ## Timeouts

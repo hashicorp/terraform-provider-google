@@ -1,0 +1,3 @@
+```release-note:enhancement
+colab: made `google_colab_runtime` startable/stoppable.
+```

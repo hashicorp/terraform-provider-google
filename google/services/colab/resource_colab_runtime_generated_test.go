@@ -89,6 +89,67 @@ resource "google_colab_runtime" "runtime" {
 `, context)
 }
 
+func TestAccColabRuntime_colabRuntimeStoppedExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckColabRuntimeDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccColabRuntime_colabRuntimeStoppedExample(context),
+			},
+			{
+				ResourceName:            "google_colab_runtime.runtime",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"desired_state", "location", "name"},
+			},
+		},
+	})
+}
+
+func testAccColabRuntime_colabRuntimeStoppedExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_colab_runtime_template" "my_template" {
+  name = "tf-test-colab-runtime%{random_suffix}"
+  display_name = "Runtime template basic"
+  location = "us-central1"
+
+  machine_spec {
+    machine_type     = "e2-standard-4"
+  }
+
+  network_spec {
+    enable_internet_access = true
+  }
+}
+
+resource "google_colab_runtime" "runtime" {
+  name = "tf-test-colab-runtime%{random_suffix}"
+  location = "us-central1" 
+  
+  notebook_runtime_template_ref {
+    notebook_runtime_template = google_colab_runtime_template.my_template.id
+  }
+
+  desired_state = "STOPPED"
+  
+  display_name = "Runtime stopped"
+  runtime_user = "gterraformtestuser@gmail.com"
+
+  depends_on = [
+    google_colab_runtime_template.my_template,
+  ]
+}
+`, context)
+}
+
 func TestAccColabRuntime_colabRuntimeFullExample(t *testing.T) {
 	t.Parallel()
 
@@ -109,7 +170,7 @@ func TestAccColabRuntime_colabRuntimeFullExample(t *testing.T) {
 				ResourceName:            "google_colab_runtime.runtime",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name"},
+				ImportStateVerifyIgnore: []string{"desired_state", "location", "name"},
 			},
 		},
 	})
@@ -171,6 +232,8 @@ resource "google_colab_runtime" "runtime" {
   display_name = "Runtime full"
   runtime_user = "gterraformtestuser@gmail.com"
   description = "Full runtime"
+
+  desired_state = "ACTIVE"
 
   depends_on = [
     google_colab_runtime_template.my_template
