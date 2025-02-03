@@ -1,4 +1,42 @@
-## 6.19.0 (Unreleased)
+## 6.20.0 (Unreleased)
+
+## 6.19.0 (Feb 3, 2025)
+DEPRECATIONS:
+* beyondcorp: deprecated `location` on `google_beyondcorp_security_gateway`. The only valid value is `global`, which is now also the default value. The field will be removed in a future major release. ([#21006](https://github.com/hashicorp/terraform-provider-google/pull/21006))
+
+FEATURES:
+* **New Data Source:** `google_parameter_manager_parameter_version` ([#21055](https://github.com/hashicorp/terraform-provider-google/pull/21055))
+* **New Data Source:** `google_parameter_manager_parameters` ([#21043](https://github.com/hashicorp/terraform-provider-google/pull/21043))
+* **New Data Source:** `google_parameter_manager_regional_parameter_version` ([#21073](https://github.com/hashicorp/terraform-provider-google/pull/21073))
+* **New Resource:** `google_beyondcorp_security_gateway_iam_binding` ([#21078](https://github.com/hashicorp/terraform-provider-google/pull/21078))
+* **New Resource:** `google_beyondcorp_security_gateway_iam_member` ([#21078](https://github.com/hashicorp/terraform-provider-google/pull/21078))
+* **New Resource:** `google_beyondcorp_security_gateway_iam_policy` ([#21078](https://github.com/hashicorp/terraform-provider-google/pull/21078))
+
+IMPROVEMENTS:
+* accesscontextmanager: added `etag` to `google_access_context_manager_service_perimeter_dry_run_resource` to prevent overriding list of resources ([#21005](https://github.com/hashicorp/terraform-provider-google/pull/21005))
+* compute: allowed parallelization of `google_compute_(region_)per_instance_config` by not locking on the parent resource, but including instance name. ([#21001](https://github.com/hashicorp/terraform-provider-google/pull/21001))
+* compute: added `network_profile` field to `google_compute_network` resource. ([#21027](https://github.com/hashicorp/terraform-provider-google/pull/21027))
+* compute: added `zero_advertised_route_priority` field to `google_compute_router_peer` ([#21024](https://github.com/hashicorp/terraform-provider-google/pull/21024))
+* container: added `max_run_duration` to `node_config` in `google_container_cluster` and `google_container_node_pool` ([#21071](https://github.com/hashicorp/terraform-provider-google/pull/21071))
+* dataproc: added `encryption_config` to `google_dataproc_workflow_template` ([#21077](https://github.com/hashicorp/terraform-provider-google/pull/21077))
+* gkehub2: added support for `fleet_default_member_config.config_management.config_sync.metrics_gcp_service_account_email` field to `google_gke_hub_feature` resource ([#21042](https://github.com/hashicorp/terraform-provider-google/pull/21042))
+* iam: added `prefix` and `regex` fields to `google_service_accounts` data source ([#21020](https://github.com/hashicorp/terraform-provider-google/pull/21020))
+* pubsub: added `ingestion_data_source_settings.aws_msk` and `ingestion_data_source_settings.confluent_cloud` fields to `google_pubsub_topic` resource ([#20999](https://github.com/hashicorp/terraform-provider-google/pull/20999))
+* spanner: added `encryption_config` field to  `google_spanner_backup_schedule` ([#21067](https://github.com/hashicorp/terraform-provider-google/pull/21067))
+* workflows: added `tags` and `workflow_tags` fields to `google_workflows_workflow` resource ([#21053](https://github.com/hashicorp/terraform-provider-google/pull/21053))
+
+BUG FIXES:
+* alloydb: marked `google_alloydb_user.password` as sensitive ([#21014](https://github.com/hashicorp/terraform-provider-google/pull/21014))
+* beyondcorp: corrected `location` to always be global in `google_beyondcorp_security_gateway` ([#21006](https://github.com/hashicorp/terraform-provider-google/pull/21006))
+* cloudquotas: removed validation for `parent` in `google_cloud_quotas_quota_adjuster_settings` ([#21054](https://github.com/hashicorp/terraform-provider-google/pull/21054))
+* compute: made `google_compute_router_peer.advertised_route_priority` use server-side default if unset. To set the value to `0` you must also set `zero_advertised_route_priority = true`. ([#21024](https://github.com/hashicorp/terraform-provider-google/pull/21024))
+* container: fixed a diff caused by server-side set values for `node_config.resource_labels` ([#21082](https://github.com/hashicorp/terraform-provider-google/pull/21082))
+* container: marked `cluster_autoscaling.resource_limits.maximum` as required, as requests would fail if it was not set ([#21051](https://github.com/hashicorp/terraform-provider-google/pull/21051))
+* firestore: fixed error preventing deletion of wildcard `google_firestore_field` resources ([#21034](https://github.com/hashicorp/terraform-provider-google/pull/21034))
+* netapp: fixed an issue where a diff on `zone` would be found if it was unspecified in `google_netapp_storage_pool` ([#21060](https://github.com/hashicorp/terraform-provider-google/pull/21060))
+* networksecurity: fixed sporadic-diff in `google_network_security_security_profile` ([#21070](https://github.com/hashicorp/terraform-provider-google/pull/21070))
+* spanner: fixed bug with `google_spanner_instance.force_destroy` not setting `billing_project` value correctly ([#21023](https://github.com/hashicorp/terraform-provider-google/pull/21023))
+* storage: fixed an issue where plans with a dependency on the `content` field in the `google_storage_bucket_object_content` data source could erroneously fail ([#21074](https://github.com/hashicorp/terraform-provider-google/pull/21074))
 
 ## 6.18.1 (January 29, 2025)
 
