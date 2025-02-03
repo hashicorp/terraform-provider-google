@@ -29,6 +29,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceComputePublicDelegatedPrefix() *schema.Resource {
@@ -55,7 +56,7 @@ func ResourceComputePublicDelegatedPrefix() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The IPv4 address range, in CIDR format, represented by this public advertised prefix.`,
+				Description: `The IP address range, in CIDR format, represented by this public delegated prefix.`,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -81,6 +82,12 @@ except the last character, which cannot be a dash.`,
 				ForceNew:    true,
 				Description: `A region where the prefix will reside.`,
 			},
+			"allocatable_prefix_length": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The allocatable prefix length supported by this public delegated prefix. This field is optional and cannot be set for prefixes in DELEGATION mode. It cannot be set for IPv4 prefixes either, and it always defaults to 32.`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -92,6 +99,14 @@ except the last character, which cannot be a dash.`,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `If true, the prefix will be live migrated.`,
+			},
+			"mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"DELEGATION", "EXTERNAL_IPV6_FORWARDING_RULE_CREATION", ""}),
+				Description: `Specifies the mode of this IPv6 PDP. MODE must be one of: DELEGATION,
+EXTERNAL_IPV6_FORWARDING_RULE_CREATION. Possible values: ["DELEGATION", "EXTERNAL_IPV6_FORWARDING_RULE_CREATION"]`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -139,6 +154,18 @@ func resourceComputePublicDelegatedPrefixCreate(d *schema.ResourceData, meta int
 		return err
 	} else if v, ok := d.GetOkExists("parent_prefix"); !tpgresource.IsEmptyValue(reflect.ValueOf(parentPrefixProp)) && (ok || !reflect.DeepEqual(v, parentPrefixProp)) {
 		obj["parentPrefix"] = parentPrefixProp
+	}
+	modeProp, err := expandComputePublicDelegatedPrefixMode(d.Get("mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(modeProp)) && (ok || !reflect.DeepEqual(v, modeProp)) {
+		obj["mode"] = modeProp
+	}
+	allocatablePrefixLengthProp, err := expandComputePublicDelegatedPrefixAllocatablePrefixLength(d.Get("allocatable_prefix_length"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("allocatable_prefix_length"); !tpgresource.IsEmptyValue(reflect.ValueOf(allocatablePrefixLengthProp)) && (ok || !reflect.DeepEqual(v, allocatablePrefixLengthProp)) {
+		obj["allocatablePrefixLength"] = allocatablePrefixLengthProp
 	}
 	ipCidrRangeProp, err := expandComputePublicDelegatedPrefixIpCidrRange(d.Get("ip_cidr_range"), d, config)
 	if err != nil {
@@ -257,6 +284,12 @@ func resourceComputePublicDelegatedPrefixRead(d *schema.ResourceData, meta inter
 	if err := d.Set("parent_prefix", flattenComputePublicDelegatedPrefixParentPrefix(res["parentPrefix"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
 	}
+	if err := d.Set("mode", flattenComputePublicDelegatedPrefixMode(res["mode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	}
+	if err := d.Set("allocatable_prefix_length", flattenComputePublicDelegatedPrefixAllocatablePrefixLength(res["allocatablePrefixLength"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	}
 	if err := d.Set("ip_cidr_range", flattenComputePublicDelegatedPrefixIpCidrRange(res["ipCidrRange"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
 	}
@@ -360,6 +393,27 @@ func flattenComputePublicDelegatedPrefixParentPrefix(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenComputePublicDelegatedPrefixMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputePublicDelegatedPrefixAllocatablePrefixLength(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputePublicDelegatedPrefixIpCidrRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -377,6 +431,14 @@ func expandComputePublicDelegatedPrefixName(v interface{}, d tpgresource.Terrafo
 }
 
 func expandComputePublicDelegatedPrefixParentPrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputePublicDelegatedPrefixMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputePublicDelegatedPrefixAllocatablePrefixLength(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
