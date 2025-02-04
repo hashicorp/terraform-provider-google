@@ -608,6 +608,7 @@ resource "google_cloud_run_v2_service" "default" {
   template {
     containers {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
+      base_image_uri = "us-central1-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/nodejs22"
     }
   }
   build_config {
@@ -861,6 +862,15 @@ The following arguments are supported:
   (Optional)
   Containers which should be started before this container. If specified the container will wait to start until all containers with the listed names are healthy.
 
+* `base_image_uri` -
+  (Optional)
+  Base image for this container. If set, it indicates that the service is enrolled into automatic base image update.
+
+* `build_info` -
+  (Output)
+  The build info of the container image.
+  Structure is [documented below](#nested_template_containers_containers_build_info).
+
 
 <a name="nested_template_containers_containers_env"></a>The `env` block supports:
 
@@ -1093,6 +1103,16 @@ The following arguments are supported:
   The name of the service to place in the gRPC HealthCheckRequest
   (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
   If this is not specified, the default behavior is defined by gRPC.
+
+<a name="nested_template_containers_containers_build_info"></a>The `build_info` block contains:
+
+* `function_target` -
+  (Output)
+  Entry point of the function when the image is a Cloud Run function.
+
+* `source_location` -
+  (Output)
+  Source code location of the image.
 
 <a name="nested_template_volumes"></a>The `volumes` block supports:
 
