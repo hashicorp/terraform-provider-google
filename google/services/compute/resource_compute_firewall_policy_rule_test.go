@@ -630,7 +630,7 @@ resource "google_folder" "folder" {
 resource "google_compute_firewall_policy" "fw_policy" {
   parent      = google_folder.folder.id
   short_name  = "tf-test-policy-%{random_suffix}"
-  description = "Description Update"
+  description = "Resource created for Terraform acceptance testing"
 }
 
 resource "google_network_security_address_group" "address_group" {
