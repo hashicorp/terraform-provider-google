@@ -6365,11 +6365,14 @@ func flattenAdvancedDatapathObservabilityConfig(c *container.AdvancedDatapathObs
 }
 
 func flattenManagedPrometheusConfig(c *container.ManagedPrometheusConfig) []map[string]interface{} {
-	return []map[string]interface{}{
-		{
-			"enabled": c != nil && c.Enabled,
-		},
+	if c == nil {
+		return nil
 	}
+
+	result := make(map[string]interface{})
+	result["enabled"] = c.Enabled
+
+	return []map[string]interface{}{result}
 }
 
 func flattenNodePoolAutoConfig(c *container.NodePoolAutoConfig) []map[string]interface{} {
