@@ -1,0 +1,2 @@
+resource: 'google_container_registry'
+generation_type: 'handwritten'
