@@ -5177,6 +5177,10 @@ func TestAccContainerCluster_WithCPAFeatures(t *testing.T) {
 			Member: "serviceAccount:service-{project_number}@container-engine-robot.iam.gserviceaccount.com",
 			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
 		},
+		{
+			Member: "serviceAccount:service-{project_number}@container-engine-robot.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypterViaDelegation",
+		},
 	})
 
 	// Find an active cryptoKeyVersion on the signing key.
