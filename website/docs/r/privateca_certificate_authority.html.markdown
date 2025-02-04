@@ -284,6 +284,56 @@ resource "google_privateca_certificate_authority" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=privateca_certificate_authority_basic_with_custom_cdp_aia_urls&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Privateca Certificate Authority Basic With Custom Cdp Aia Urls
+
+
+```hcl
+resource "google_privateca_certificate_authority" "default" {
+  // This example assumes this pool already exists.
+  // Pools cannot be deleted in normal test circumstances, so we depend on static pools
+  pool = "ca-pool"
+  certificate_authority_id = "my-certificate-authority"
+  location = "us-central1"
+  deletion_protection = true
+  config {
+    subject_config {
+      subject {
+        organization = "ACME"
+        common_name = "my-certificate-authority"
+      }
+    }
+    x509_config {
+      ca_options {
+        # is_ca *MUST* be true for certificate authorities
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          # cert_sign and crl_sign *MUST* be true for certificate authorities
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+        }
+      }
+    }
+  }
+  # valid for 10 years
+  lifetime = "${10 * 365 * 24 * 3600}s"
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+  user_defined_access_urls {
+    aia_issuing_certificate_urls = ["http://example.com/ca.crt", "http://example.com/anotherca.crt"]
+    crl_access_urls = ["http://example.com/crl1.crt", "http://example.com/crl2.crt"]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -709,6 +759,12 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `user_defined_access_urls` -
+  (Optional)
+  Custom URLs for accessing content published by this CA, such as the CA certificate and CRLs,
+  that can be specified by users.
+  Structure is [documented below](#nested_user_defined_access_urls).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -742,6 +798,16 @@ Possible values: ENABLED, DISABLED, STAGED.
 * `pem_certificates` -
   (Optional)
   Expected to be in leaf-to-root order according to RFC 5246.
+
+<a name="nested_user_defined_access_urls"></a>The `user_defined_access_urls` block supports:
+
+* `aia_issuing_certificate_urls` -
+  (Optional)
+  A list of URLs where this CertificateAuthority's CA certificate is published that is specified by users.
+
+* `crl_access_urls` -
+  (Optional)
+  A list of URLs where this CertificateAuthority's CRLs are published that is specified by users.
 
 ## Attributes Reference
 
