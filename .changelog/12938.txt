@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudrunv2: added `base_image_uri` and `build_info` to `google_cloud_run_v2_service`
+```

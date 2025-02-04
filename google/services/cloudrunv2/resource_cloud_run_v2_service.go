@@ -106,6 +106,11 @@ This field follows Kubernetes annotations' namespacing, limits, and rules.`,
 											Type: schema.TypeString,
 										},
 									},
+									"base_image_uri": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Base image for this container. If set, it indicates that the service is enrolled into automatic base image update.`,
+									},
 									"command": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -447,6 +452,25 @@ If not specified, defaults to the same value as container.ports[0].containerPort
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: `Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image.`,
+									},
+									"build_info": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `The build info of the container image.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"function_target": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `Entry point of the function when the image is a Cloud Run function.`,
+												},
+												"source_location": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `Source code location of the image.`,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -2109,6 +2133,8 @@ func flattenCloudRunV2ServiceTemplateContainers(v interface{}, d *schema.Resourc
 			"liveness_probe": flattenCloudRunV2ServiceTemplateContainersLivenessProbe(original["livenessProbe"], d, config),
 			"startup_probe":  flattenCloudRunV2ServiceTemplateContainersStartupProbe(original["startupProbe"], d, config),
 			"depends_on":     flattenCloudRunV2ServiceTemplateContainersDependsOn(original["dependsOn"], d, config),
+			"base_image_uri": flattenCloudRunV2ServiceTemplateContainersBaseImageUri(original["baseImageUri"], d, config),
+			"build_info":     flattenCloudRunV2ServiceTemplateContainersBuildInfo(original["buildInfo"], d, config),
 		})
 	}
 	return transformed
@@ -2727,6 +2753,33 @@ func flattenCloudRunV2ServiceTemplateContainersStartupProbeGrpcService(v interfa
 }
 
 func flattenCloudRunV2ServiceTemplateContainersDependsOn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceTemplateContainersBaseImageUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceTemplateContainersBuildInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["function_target"] =
+		flattenCloudRunV2ServiceTemplateContainersBuildInfoFunctionTarget(original["functionTarget"], d, config)
+	transformed["source_location"] =
+		flattenCloudRunV2ServiceTemplateContainersBuildInfoSourceLocation(original["source_location"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudRunV2ServiceTemplateContainersBuildInfoFunctionTarget(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceTemplateContainersBuildInfoSourceLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3751,6 +3804,20 @@ func expandCloudRunV2ServiceTemplateContainers(v interface{}, d tpgresource.Terr
 			transformed["dependsOn"] = transformedDependsOn
 		}
 
+		transformedBaseImageUri, err := expandCloudRunV2ServiceTemplateContainersBaseImageUri(original["base_image_uri"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedBaseImageUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["baseImageUri"] = transformedBaseImageUri
+		}
+
+		transformedBuildInfo, err := expandCloudRunV2ServiceTemplateContainersBuildInfo(original["build_info"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedBuildInfo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["buildInfo"] = transformedBuildInfo
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -4450,6 +4517,44 @@ func expandCloudRunV2ServiceTemplateContainersStartupProbeGrpcService(v interfac
 }
 
 func expandCloudRunV2ServiceTemplateContainersDependsOn(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateContainersBaseImageUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateContainersBuildInfo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedFunctionTarget, err := expandCloudRunV2ServiceTemplateContainersBuildInfoFunctionTarget(original["function_target"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFunctionTarget); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["functionTarget"] = transformedFunctionTarget
+	}
+
+	transformedSourceLocation, err := expandCloudRunV2ServiceTemplateContainersBuildInfoSourceLocation(original["source_location"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceLocation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["source_location"] = transformedSourceLocation
+	}
+
+	return transformed, nil
+}
+
+func expandCloudRunV2ServiceTemplateContainersBuildInfoFunctionTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateContainersBuildInfoSourceLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
