@@ -89,3 +89,5 @@ fields:
     provider_only: true
   - field: 'type'
   - field: 'update_time'
+  - field: 'user_defined_access_urls.aia_issuing_certificate_urls'
+  - field: 'user_defined_access_urls.crl_access_urls'

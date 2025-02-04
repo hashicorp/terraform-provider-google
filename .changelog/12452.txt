@@ -1,0 +1,3 @@
+```release-note:enhancement
+privateca: added `userDefinedAccessUrls` fields to `CertificateAuthority` resource to add support for custom CDP AIA URLs
+```
