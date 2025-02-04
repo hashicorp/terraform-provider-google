@@ -3,3 +3,18 @@ generation_type: 'handwritten'
 api_service_name: 'cloudresourcemanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Project'
+fields:
+  - field: 'auto_create_network'
+  - field: 'billing_account'
+  - field: 'deletion_policy'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'folder_id'
+  - field: 'labels'
+  - field: 'name'
+  - field: 'number'
+  - field: 'org_id'
+  - field: 'project_id'
+  - field: 'tags'
+  - field: 'terraform_labels'
+    provider_only: true

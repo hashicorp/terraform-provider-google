@@ -3,3 +3,8 @@ generation_type: 'handwritten'
 api_service_name: 'cloudresourcemanager.googleapis.com'
 api_version: 'v3'
 api_resource_type_kind: 'TagBinding'
+fields:
+  - field: 'location'
+  - field: 'name'
+  - field: 'parent'
+  - field: 'tag_value'

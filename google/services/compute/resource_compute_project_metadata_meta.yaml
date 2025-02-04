@@ -3,3 +3,6 @@ generation_type: 'handwritten'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Project'
+fields:
+  - field: 'metadata'
+  - field: 'project'
