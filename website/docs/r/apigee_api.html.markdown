@@ -30,8 +30,8 @@ data "archive_file" "bundle" {
   output_file_mode = "0644"
 }
 
-resource "google_apigee_sharedflow" "sharedflow" {
-  name          = "shareflow1"
+resource "google_apigee_api" "api_proxy" {
+  name          = "proxy1"
   org_id        = var.org_id
   config_bundle = data.archive_file.bundle.output_path
 }
