@@ -47,4 +47,3 @@ fields:
   - field: 'status.last_attempt.error.errors.location'
   - field: 'status.last_attempt.error.errors.message'
   - field: 'zone'
-    provider_only: true

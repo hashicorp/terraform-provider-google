@@ -70,13 +70,6 @@ func ResourceComputeResizeRequest() *schema.Resource {
 				ForceNew:    true,
 				Description: `The number of instances to be created by this resize request. The group's target size will be increased by this number.`,
 			},
-			"zone": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description:      `The reference of the compute zone scoping this request.`,
-			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -105,6 +98,14 @@ func ResourceComputeResizeRequest() *schema.Resource {
 						},
 					},
 				},
+			},
+			"zone": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      `The reference of the compute zone scoping this request. If it is not provided, the provider zone is used.`,
 			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
@@ -485,6 +486,12 @@ func resourceComputeResizeRequestCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("requested_run_duration"); !tpgresource.IsEmptyValue(reflect.ValueOf(requestedRunDurationProp)) && (ok || !reflect.DeepEqual(v, requestedRunDurationProp)) {
 		obj["requestedRunDuration"] = requestedRunDurationProp
 	}
+	zoneProp, err := expandComputeResizeRequestZone(d.Get("zone"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(zoneProp)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
+		obj["zone"] = zoneProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/resizeRequests")
 	if err != nil {
@@ -603,6 +610,9 @@ func resourceComputeResizeRequestRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading ResizeRequest: %s", err)
 	}
 	if err := d.Set("status", flattenComputeResizeRequestStatus(res["status"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResizeRequest: %s", err)
+	}
+	if err := d.Set("zone", flattenComputeResizeRequestZone(res["zone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ResizeRequest: %s", err)
 	}
 
@@ -1258,6 +1268,13 @@ func flattenComputeResizeRequestStatusLastAttemptErrorErrorsErrorDetailsLocalize
 	return v
 }
 
+func flattenComputeResizeRequestZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return tpgresource.NameFromSelfLinkStateFunc(v)
+}
+
 func expandComputeResizeRequestName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1302,4 +1319,12 @@ func expandComputeResizeRequestRequestedRunDurationSeconds(v interface{}, d tpgr
 
 func expandComputeResizeRequestRequestedRunDurationNanos(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandComputeResizeRequestZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseGlobalFieldValue("zones", v.(string), "project", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for zone: %s", err)
+	}
+	return f.RelativeLink(), nil
 }
