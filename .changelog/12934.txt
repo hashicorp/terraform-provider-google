@@ -1,0 +1,3 @@
+```release-note:bug
+dns: fixed a bug where `google_dns_managed_zone` is unable to update with `service_directory_config` specified
+```
