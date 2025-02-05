@@ -1,0 +1,3 @@
+```release-note:enhancement
+appengine: added a mitigation for an upcoming default change to `standard_scheduler_settings.max_instances` for new `google_app_engine_standard_app_version` resources. If the field is not specified in configuration, diffs will now be ignored.
+```
