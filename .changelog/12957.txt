@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed google_compute_(region_)resize_request requiring region/zone to be specified in all cases. They can now be pulled from the provider.
+```

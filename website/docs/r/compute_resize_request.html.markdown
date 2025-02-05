@@ -126,10 +126,6 @@ The following arguments are supported:
   (Required)
   The number of instances to be created by this resize request. The group's target size will be increased by this number.
 
-* `zone` -
-  (Required)
-  The reference of the compute zone scoping this request.
-
 * `instance_group_manager` -
   (Required)
   The reference of the instance group manager this ResizeRequest is a part of.
@@ -146,6 +142,10 @@ The following arguments are supported:
   (Optional)
   Requested run duration for instances that will be created by this request. At the end of the run duration instance will be deleted.
   Structure is [documented below](#nested_requested_run_duration).
+
+* `zone` -
+  (Optional)
+  The reference of the compute zone scoping this request. If it is not provided, the provider zone is used.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
