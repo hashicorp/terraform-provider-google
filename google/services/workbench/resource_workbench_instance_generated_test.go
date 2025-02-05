@@ -332,6 +332,8 @@ resource "google_workbench_instance" "instance" {
 
   desired_state = "ACTIVE"
 
+  enable_third_party_identity = "true"
+
 }
 `, context)
 }

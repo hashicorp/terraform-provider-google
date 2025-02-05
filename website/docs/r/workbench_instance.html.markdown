@@ -217,6 +217,8 @@ resource "google_workbench_instance" "instance" {
 
   desired_state = "ACTIVE"
 
+  enable_third_party_identity = "true"
+
 }
 ```
 
@@ -261,6 +263,11 @@ The following arguments are supported:
 
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `enable_third_party_identity` -
+  (Optional)
+  Flag that specifies that a notebook can be accessed with third party
+  identity provider.
 
 * `instance_id` -
   (Optional)

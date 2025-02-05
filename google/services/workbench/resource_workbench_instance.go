@@ -334,6 +334,12 @@ func ResourceWorkbenchInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Optional. If true, the workbench instance will not register with the proxy.`,
 			},
+			"enable_third_party_identity": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Flag that specifies that a notebook can be accessed with third party
+identity provider.`,
+			},
 			"gce_setup": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -860,6 +866,12 @@ func resourceWorkbenchInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("disable_proxy_access"); !tpgresource.IsEmptyValue(reflect.ValueOf(disableProxyAccessProp)) && (ok || !reflect.DeepEqual(v, disableProxyAccessProp)) {
 		obj["disableProxyAccess"] = disableProxyAccessProp
 	}
+	enableThirdPartyIdentityProp, err := expandWorkbenchInstanceEnableThirdPartyIdentity(d.Get("enable_third_party_identity"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_third_party_identity"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableThirdPartyIdentityProp)) && (ok || !reflect.DeepEqual(v, enableThirdPartyIdentityProp)) {
+		obj["enableThirdPartyIdentity"] = enableThirdPartyIdentityProp
+	}
 	labelsProp, err := expandWorkbenchInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1028,6 +1040,9 @@ func resourceWorkbenchInstanceRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("labels", flattenWorkbenchInstanceLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("enable_third_party_identity", flattenWorkbenchInstanceEnableThirdPartyIdentity(res["enableThirdPartyIdentity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenWorkbenchInstanceTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -1060,6 +1075,12 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("gce_setup"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, gceSetupProp)) {
 		obj["gceSetup"] = gceSetupProp
 	}
+	enableThirdPartyIdentityProp, err := expandWorkbenchInstanceEnableThirdPartyIdentity(d.Get("enable_third_party_identity"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_third_party_identity"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableThirdPartyIdentityProp)) {
+		obj["enableThirdPartyIdentity"] = enableThirdPartyIdentityProp
+	}
 	labelsProp, err := expandWorkbenchInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1078,6 +1099,10 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("gce_setup") {
 		updateMask = append(updateMask, "gceSetup")
+	}
+
+	if d.HasChange("enable_third_party_identity") {
+		updateMask = append(updateMask, "enableThirdPartyIdentity")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -1732,6 +1757,10 @@ func flattenWorkbenchInstanceLabels(v interface{}, d *schema.ResourceData, confi
 	return transformed
 }
 
+func flattenWorkbenchInstanceEnableThirdPartyIdentity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenWorkbenchInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2285,6 +2314,10 @@ func expandWorkbenchInstanceInstanceOwners(v interface{}, d tpgresource.Terrafor
 }
 
 func expandWorkbenchInstanceDisableProxyAccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkbenchInstanceEnableThirdPartyIdentity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
