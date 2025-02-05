@@ -1,0 +1,3 @@
+```release-note:enhancement
+workbench: added `enable_third_party_identity` field to `google_workbench_instance` resource.
+```
