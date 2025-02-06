@@ -111,7 +111,7 @@ resource "google_storage_bucket" "auto-expire" {
   location      = "US"
   force_destroy = true
 
-  hierarchical_namespace = {
+  hierarchical_namespace {
     enabled = true
   }
 }
