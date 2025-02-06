@@ -134,10 +134,10 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			},
 			"wire_format": {
 				Type:         schema.TypeString,
+				Computed:     true,
 				Optional:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"WIRE_FORMAT_UNSPECIFIED", "EXT_PROC_GRPC", ""}),
-				Description:  `The format of communication supported by the callout extension. Default value: "EXT_PROC_GRPC" Possible values: ["WIRE_FORMAT_UNSPECIFIED", "EXT_PROC_GRPC"]`,
-				Default:      "EXT_PROC_GRPC",
+				Description:  `The format of communication supported by the callout extension. Will be set to EXT_PROC_GRPC by the backend if no value is set. Possible values: ["WIRE_FORMAT_UNSPECIFIED", "EXT_PROC_GRPC"]`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -709,10 +709,6 @@ func flattenNetworkServicesAuthzExtensionForwardHeaders(v interface{}, d *schema
 }
 
 func flattenNetworkServicesAuthzExtensionWireFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
-		return "EXT_PROC_GRPC"
-	}
-
 	return v
 }
 
