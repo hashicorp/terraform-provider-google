@@ -212,6 +212,13 @@ The following arguments are supported:
   from a Prometheus alerting rule and its associated rule group.
   Structure is [documented below](#nested_conditions_conditions_condition_prometheus_query_language).
 
+* `condition_sql` -
+  (Optional)
+  A condition that allows alerting policies to be defined using GoogleSQL.
+  SQL conditions examine a sliding window of logs using GoogleSQL.
+  Alert policies with SQL conditions may incur additional billing.
+  Structure is [documented below](#nested_conditions_conditions_condition_sql).
+
 
 <a name="nested_conditions_conditions_condition_absent"></a>The `condition_absent` block supports:
 
@@ -842,6 +849,128 @@ The following arguments are supported:
   alerting policies using Terraform.
   Users with the `monitoring.alertPolicyViewer` role are able to see the
   name of the non-existent metric in the alerting policy condition.
+
+<a name="nested_conditions_conditions_condition_sql"></a>The `condition_sql` block supports:
+
+* `query` -
+  (Required)
+  The Log Analytics SQL query to run, as a string.  The query must
+  conform to the required shape. Specifically, the query must not try to
+  filter the input by time.  A filter will automatically be applied
+  to filter the input so that the query receives all rows received
+  since the last time the query was run.
+
+* `minutes` -
+  (Optional)
+  Used to schedule the query to run every so many minutes.
+  Structure is [documented below](#nested_conditions_conditions_condition_sql_minutes).
+
+* `hourly` -
+  (Optional)
+  Used to schedule the query to run every so many hours.
+  Structure is [documented below](#nested_conditions_conditions_condition_sql_hourly).
+
+* `daily` -
+  (Optional)
+  Used to schedule the query to run every so many days.
+  Structure is [documented below](#nested_conditions_conditions_condition_sql_daily).
+
+* `row_count_test` -
+  (Optional)
+  Test the row count against a threshold.
+  Structure is [documented below](#nested_conditions_conditions_condition_sql_row_count_test).
+
+* `boolean_test` -
+  (Optional)
+  The start date and time of the query. If left unspecified, then the
+  query will start immediately.
+  Structure is [documented below](#nested_conditions_conditions_condition_sql_boolean_test).
+
+
+<a name="nested_conditions_conditions_condition_sql_minutes"></a>The `minutes` block supports:
+
+* `periodicity` -
+  (Required)
+  Number of minutes between runs. The interval must be greater than or
+  equal to 5 minutes and less than or equal to 1440 minutes.
+
+<a name="nested_conditions_conditions_condition_sql_hourly"></a>The `hourly` block supports:
+
+* `periodicity` -
+  (Required)
+  Number of hours between runs. The interval must be greater than or
+  equal to 1 hour and less than or equal to 48 hours.
+
+* `minute_offset` -
+  (Optional)
+  The number of minutes after the hour (in UTC) to run the query.
+  Must be greater than or equal to 0 minutes and less than or equal to
+  59 minutes.  If left unspecified, then an arbitrary offset is used.
+
+<a name="nested_conditions_conditions_condition_sql_daily"></a>The `daily` block supports:
+
+* `periodicity` -
+  (Required)
+  The number of days between runs. Must be greater than or equal
+  to 1 day and less than or equal to 30 days.
+
+* `execution_time` -
+  (Optional)
+  The time of day (in UTC) at which the query should run. If left
+  unspecified, the server picks an arbitrary time of day and runs
+  the query at the same time each day.
+  Structure is [documented below](#nested_conditions_conditions_condition_sql_daily_execution_time).
+
+
+<a name="nested_conditions_conditions_condition_sql_daily_execution_time"></a>The `execution_time` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of a day in 24 hour format. Must be greater than or equal
+  to 0 and typically must be less than or equal to 23. An API may
+  choose to allow the value "24:00:00" for scenarios like business
+  closing time.
+
+* `minutes` -
+  (Optional)
+  Minutes of an hour. Must be greater than or equal to 0 and
+  less than or equal to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of a minute. Must be greater than or equal to 0 and
+  typically must be less than or equal to 59. An API may allow the
+  value 60 if it allows leap-seconds.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds, in nanoseconds. Must be greater than or
+  equal to 0 and less than or equal to 999,999,999.
+
+<a name="nested_conditions_conditions_condition_sql_row_count_test"></a>The `row_count_test` block supports:
+
+* `comparison` -
+  (Required)
+  The comparison to apply between the time
+  series (indicated by filter and aggregation)
+  and the threshold (indicated by
+  threshold_value). The comparison is applied
+  on each time series, with the time series on
+  the left-hand side and the threshold on the
+  right-hand side. Only COMPARISON_LT and
+  COMPARISON_GT are supported currently.
+  Possible values are: `COMPARISON_GT`, `COMPARISON_GE`, `COMPARISON_LT`, `COMPARISON_LE`, `COMPARISON_EQ`, `COMPARISON_NE`.
+
+* `threshold` -
+  (Required)
+  Test the boolean value in the indicated column.
+
+<a name="nested_conditions_conditions_condition_sql_boolean_test"></a>The `boolean_test` block supports:
+
+* `column` -
+  (Required)
+  The name of the column containing the boolean value. If the value
+  in a row is NULL, that row is ignored.
 
 - - -
 

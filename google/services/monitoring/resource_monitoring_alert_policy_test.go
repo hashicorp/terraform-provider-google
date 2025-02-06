@@ -24,6 +24,7 @@ func TestAccMonitoringAlertPolicy(t *testing.T) {
 		"log":      testAccMonitoringAlertPolicy_log,
 		"forecast": testAccMonitoringAlertPolicy_forecast,
 		"promql":   testAccMonitoringAlertPolicy_promql,
+		"sql":      testAccMonitoringAlertPolicy_sql,
 	}
 
 	for name, tc := range testCases {
@@ -232,6 +233,24 @@ func testAccMonitoringAlertPolicy_promql(t *testing.T) {
 				ResourceName:      "google_monitoring_alert_policy.promql",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccMonitoringAlertPolicy_sql(t *testing.T) {
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlertPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringAlertPolicy_sqlCfg(),
+				// SQL alerts require additional GCP resources to be created and billed,
+				// so we only run the plan test for now.
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -480,4 +499,212 @@ resource "google_monitoring_alert_policy" "promql" {
   }
 }
 `, alertName, conditionName)
+}
+
+func testAccMonitoringAlertPolicy_sqlCfg() string {
+	return fmt.Sprintf(`
+resource "google_monitoring_alert_policy" "sql_minutes_row_count" {
+  display_name = "minutes_row_count"
+  combiner     = "OR"
+  enabled      = true
+
+  conditions {
+    display_name = "minutes_row_count"
+    
+    condition_sql {
+      query           = "SELECT severity, resource FROM project.global._Default._AllLogs WHERE severity IS NOT NULL"
+      minutes {
+        periodicity = 30
+      }
+      row_count_test {
+        comparison = "COMPARISON_GT"
+        threshold  = "0"
+      }
+    }
+  }
+
+  severity     = "WARNING"
+
+  documentation {
+    content   = "test content"
+    mime_type = "text/markdown"
+    subject = "test subject"
+    links {
+        display_name = "link display name"
+        url = "http://mydomain.com"
+    }
+  }
+}
+resource "google_monitoring_alert_policy" "sql_minutes_boolean" {
+  display_name = "minutes_boolean"
+  combiner     = "OR"
+  enabled      = true
+
+  conditions {
+    display_name = "minutes_boolean"
+    
+    condition_sql {
+      query           = "SELECT severity, resource FROM project.global._Default._AllLogs WHERE severity IS NOT NULL"
+      minutes {
+        periodicity = 30
+      }
+      boolean_test {
+        column  = "resource"
+      }
+    }
+  }
+
+  severity     = "WARNING"
+
+  documentation {
+    content   = "test content"
+    mime_type = "text/markdown"
+    subject = "test subject"
+    links {
+        display_name = "link display name"
+        url = "http://mydomain.com"
+    }
+  }
+}	
+resource "google_monitoring_alert_policy" "sql_hourly_row_count" {
+  display_name = "hourly_row_count"
+  combiner     = "OR"
+  enabled      = true
+
+  conditions {
+    display_name = "hourly_row_count"
+    
+    condition_sql {
+      query           = "SELECT severity, resource FROM project.global._Default._AllLogs WHERE severity IS NOT NULL"
+      hourly {
+        periodicity = 3
+				minute_offset = 10
+      }
+      row_count_test {
+        comparison = "COMPARISON_GT"
+        threshold  = "0"
+      }
+    }
+  }
+
+  severity     = "WARNING"
+
+  documentation {
+    content   = "test content"
+    mime_type = "text/markdown"
+    subject = "test subject"
+    links {
+        display_name = "link display name"
+        url = "http://mydomain.com"
+    }
+  }
+}
+resource "google_monitoring_alert_policy" "sql_hourly_boolean" {
+  display_name = "hourly_boolean"
+  combiner     = "OR"
+  enabled      = true
+
+  conditions {
+    display_name = "hourly_boolean"
+    
+    condition_sql {
+      query           = "SELECT severity, resource FROM project.global._Default._AllLogs WHERE severity IS NOT NULL"
+      hourly {
+        periodicity = 3
+				minute_offset = 10
+      }
+      boolean_test {
+        column  = "resource"
+      }
+    }
+  }
+
+  severity     = "WARNING"
+
+  documentation {
+    content   = "test content"
+    mime_type = "text/markdown"
+    subject = "test subject"
+    links {
+        display_name = "link display name"
+        url = "http://mydomain.com"
+    }
+  }
+}
+resource "google_monitoring_alert_policy" "sql_daily_row_count" {
+  display_name = "daily_row_count"
+  combiner     = "OR"
+  enabled      = true
+
+  conditions {
+    display_name = "daily_row_count"
+    
+    condition_sql {
+      query           = "SELECT severity, resource FROM project.global._Default._AllLogs WHERE severity IS NOT NULL"
+      daily {
+        periodicity = 3
+				execution_time {
+					hours = 10
+					minutes = 10
+					seconds = 10
+					nanos = 10
+				}
+      }
+      row_count_test {
+        comparison = "COMPARISON_GT"
+        threshold  = "0"
+      }
+    }
+  }
+
+  severity     = "WARNING"
+
+  documentation {
+    content   = "test content"
+    mime_type = "text/markdown"
+    subject = "test subject"
+    links {
+        display_name = "link display name"
+        url = "http://mydomain.com"
+    }
+  }
+}
+resource "google_monitoring_alert_policy" "sql_daily_boolean" {
+  display_name = "daily_boolean"
+  combiner     = "OR"
+  enabled      = true
+
+  conditions {
+    display_name = "daily_boolean"
+    
+    condition_sql {
+      query           = "SELECT severity, resource FROM project.global._Default._AllLogs WHERE severity IS NOT NULL"
+      daily {
+        periodicity = 3
+				execution_time {
+					hours = 10
+					minutes = 10
+					seconds = 10
+					nanos = 10
+				}
+      }
+      boolean_test {
+        column  = "resource"
+      }
+    }
+  }
+
+  severity     = "WARNING"
+
+  documentation {
+    content   = "test content"
+    mime_type = "text/markdown"
+    subject = "test subject"
+    links {
+        display_name = "link display name"
+        url = "http://mydomain.com"
+    }
+  }
+}
+`)
 }
