@@ -121,8 +121,7 @@ The following arguments are supported:
 
 * `wire_format` -
   (Optional)
-  The format of communication supported by the callout extension.
-  Default value is `EXT_PROC_GRPC`.
+  The format of communication supported by the callout extension. Will be set to EXT_PROC_GRPC by the backend if no value is set.
   Possible values are: `WIRE_FORMAT_UNSPECIFIED`, `EXT_PROC_GRPC`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
