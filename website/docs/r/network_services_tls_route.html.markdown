@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network services"
+subcategory: "Network Services"
 description: |-
   TlsRoute defines how traffic should be routed based on SNI and other matching L3 attributes.
 ---

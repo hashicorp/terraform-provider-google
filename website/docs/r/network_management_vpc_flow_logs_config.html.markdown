@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "NetworkManagement"
+subcategory: "Network Management"
 description: |-
   VPC Flow Logs Config is a resource that lets you configure Flow Logs for VPC, Interconnect attachments or VPN Tunnels.
 ---

@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   Firewall endpoint association links a firewall endpoint to a VPC network in
   the same zone.

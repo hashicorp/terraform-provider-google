@@ -12,9 +12,9 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Data catalog"
+subcategory: "Data Catalog"
 description: |-
-  A datasource to retrieve the IAM policy state for Data catalog EntryGroup
+  A datasource to retrieve the IAM policy state for Data Catalog EntryGroup
 ---
 
 

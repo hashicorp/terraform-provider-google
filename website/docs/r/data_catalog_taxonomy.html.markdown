@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Data catalog"
+subcategory: "Data Catalog"
 description: |-
   A collection of policy tags that classify data along a common axis.
 ---

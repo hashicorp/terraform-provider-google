@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   AuthorizationPolicy is a resource that specifies how a server should authorize incoming connections.
 ---

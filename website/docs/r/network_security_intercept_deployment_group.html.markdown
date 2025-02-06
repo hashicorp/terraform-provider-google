@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   A Deployment Group represents the collector deployments across different zones within an organization.
 ---

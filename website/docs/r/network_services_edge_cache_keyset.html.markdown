@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network services"
+subcategory: "Network Services"
 description: |-
   EdgeCacheKeyset represents a collection of public keys used for validating signed requests.
 ---

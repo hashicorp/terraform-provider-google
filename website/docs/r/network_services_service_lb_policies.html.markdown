@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network services"
+subcategory: "Network Services"
 description: |-
   ServiceLbPolicy holds global load balancing and traffic distribution configuration that can be applied to a BackendService.
 ---

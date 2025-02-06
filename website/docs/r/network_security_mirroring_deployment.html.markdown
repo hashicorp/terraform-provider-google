@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   MirroringDeployment represents the collectors within a Zone and is associated with a deployment group.
 ---

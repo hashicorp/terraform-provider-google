@@ -12,9 +12,9 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Dataproc metastore"
+subcategory: "Dataproc Metastore"
 description: |-
-  A datasource to retrieve the IAM policy state for Dataproc metastore Service
+  A datasource to retrieve the IAM policy state for Dataproc Metastore Service
 ---
 
 

@@ -1,5 +1,5 @@
 ---
-subcategory: "Certificate manager"
+subcategory: "Certificate Manager"
 description: |-
   List all certificates within a project and region.
 ---

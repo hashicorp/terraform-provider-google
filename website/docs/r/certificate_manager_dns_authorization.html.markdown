@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Certificate manager"
+subcategory: "Certificate Manager"
 description: |-
   DnsAuthorization represents a HTTP-reachable backend for a DnsAuthorization.
 ---

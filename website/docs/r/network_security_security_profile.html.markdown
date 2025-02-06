@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   A security profile defines the behavior associated to a profile type.
 ---

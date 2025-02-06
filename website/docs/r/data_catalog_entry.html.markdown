@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Data catalog"
+subcategory: "Data Catalog"
 description: |-
   Entry Metadata.
 ---

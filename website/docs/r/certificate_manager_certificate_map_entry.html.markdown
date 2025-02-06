@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Certificate manager"
+subcategory: "Certificate Manager"
 description: |-
   CertificateMapEntry is a list of certificate configurations,
   that have been issued for a particular hostname

@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network services"
+subcategory: "Network Services"
 description: |-
   EdgeCacheOrigin represents a HTTP-reachable backend for an EdgeCacheService.
 ---

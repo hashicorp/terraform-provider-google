@@ -12,9 +12,9 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Security Command Center (SCC)v2 API"
+subcategory: "Security Command Center (SCC) v2 API"
 description: |-
-  A datasource to retrieve the IAM policy state for Security Command Center (SCC)v2 API OrganizationSource
+  A datasource to retrieve the IAM policy state for Security Command Center (SCC) v2 API OrganizationSource
 ---
 
 

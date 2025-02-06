@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   ClientTlsPolicy is a resource that specifies how a client should authenticate connections to backends of a service.
 ---

@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   A Firewall endpoint is a Cloud Firewall resource that enables
   layer 7 advanced protection capabilities, such as intrusion prevention,

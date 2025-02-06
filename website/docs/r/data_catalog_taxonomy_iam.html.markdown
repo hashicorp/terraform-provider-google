@@ -12,13 +12,13 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Data catalog"
+subcategory: "Data Catalog"
 description: |-
-  Collection of resources to manage IAM policy for Data catalog Taxonomy
+  Collection of resources to manage IAM policy for Data Catalog Taxonomy
 ---
 
-# IAM policy for Data catalog Taxonomy
-Three different resources help you manage your IAM policy for Data catalog Taxonomy. Each of these resources serves a different use case:
+# IAM policy for Data Catalog Taxonomy
+Three different resources help you manage your IAM policy for Data Catalog Taxonomy. Each of these resources serves a different use case:
 
 * `google_data_catalog_taxonomy_iam_policy`: Authoritative. Sets the IAM policy for the taxonomy and replaces any existing policy already attached.
 * `google_data_catalog_taxonomy_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the taxonomy are preserved.
@@ -121,7 +121,7 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-Data catalog taxonomy IAM resources can be imported using the resource identifiers, role, and member.
+Data Catalog taxonomy IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```

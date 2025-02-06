@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network services"
+subcategory: "Network Services"
 description: |-
   HttpRoute is the resource defining how HTTP traffic should be routed by a Mesh or Gateway resource.
 ---

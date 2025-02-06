@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Security Command Center (SCC)v2 API"
+subcategory: "Security Command Center (SCC) v2 API"
 description: |-
   Mute Findings is a volume management feature in Security Command Center
   that lets you manually or programmatically hide irrelevant findings,

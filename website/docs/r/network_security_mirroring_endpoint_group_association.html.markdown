@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   Creates an association between a VPC and a mirroring endpoint group in order to mirror traffic in that VPC.
 ---

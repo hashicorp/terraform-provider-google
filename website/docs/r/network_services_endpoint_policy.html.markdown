@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network services"
+subcategory: "Network Services"
 description: |-
   EndpointPolicy is a resource that helps apply desired configuration on the endpoints that match specific criteria.
 ---

@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network services"
+subcategory: "Network Services"
 description: |-
   AuthzExtension is a resource that allows traffic forwarding to a callout backend service to make an authorization decision.
 ---
