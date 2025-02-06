@@ -1,0 +1,3 @@
+```release-note:enhancement
+monitoring: added `condition_sql` field to `monitoring_alert_policy` resource
+```
