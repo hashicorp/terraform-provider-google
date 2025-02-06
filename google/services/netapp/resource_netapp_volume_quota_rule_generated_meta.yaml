@@ -1,0 +1,25 @@
+resource: 'google_netapp_volume_quota_rule'
+generation_type: 'mmv1'
+source_file: 'products/netapp/VolumeQuotaRule.yaml'
+api_service_name: 'netapp.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'QuotaRule'
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'disk_limit_mib'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'state'
+  - field: 'state_details'
+  - field: 'target'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'type'
+  - field: 'volume_name'
+    provider_only: true
