@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   AddressGroup is a resource that specifies how a collection of IP/DNS used in Firewall Policy.
 ---

@@ -1,5 +1,5 @@
 ---
-subcategory: "Backup and DR BackupVault"
+subcategory: "Backup and DR Service"
 description: |-
   Get information about a Backupdr BackupVault.
 ---

@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Bigquery Analytics Hub"
+subcategory: "BigQuery Analytics Hub"
 description: |-
   A Bigquery Analytics Hub data exchange listing
 ---

@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Security Command Center (SCC)v2 API"
+subcategory: "Security Command Center (SCC) v2 API"
 description: |-
   A Cloud Security Command Center's (Cloud SCC) finding source.
 ---

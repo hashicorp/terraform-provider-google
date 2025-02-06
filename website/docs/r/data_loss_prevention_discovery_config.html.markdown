@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Data loss prevention"
+subcategory: "Data Loss Prevention"
 description: |-
   Configuration for discovery to scan resources for profile generation.
 ---

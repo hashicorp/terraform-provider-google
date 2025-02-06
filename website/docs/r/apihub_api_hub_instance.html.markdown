@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "API hub"
+subcategory: "API Hub"
 description: |-
   An ApiHubInstance represents the instance resources of the API Hub.
 ---

@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Certificate manager"
+subcategory: "Certificate Manager"
 description: |-
   CertificateMap defines a collection of certificate configurations,
   which are usable by any associated target proxies

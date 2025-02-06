@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   AuthzPolicy is a resource that allows to forward traffic to a callout backend designed to scan the traffic for security purposes.
 ---

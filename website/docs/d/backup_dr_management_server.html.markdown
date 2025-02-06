@@ -1,5 +1,5 @@
 ---
-subcategory: "BackupDR Management Server"
+subcategory: "Backup and DR Service"
 description: |-
   Get information about a Backupdr Management server.
 ---

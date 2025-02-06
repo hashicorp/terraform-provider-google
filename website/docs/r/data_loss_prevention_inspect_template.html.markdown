@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Data loss prevention"
+subcategory: "Data Loss Prevention"
 description: |-
   An inspect job template.
 ---

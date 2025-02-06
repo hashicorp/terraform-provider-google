@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   Creates an association between a VPC and an Intercept Endpoint Group in order to intercept traffic in that VPC.
 ---

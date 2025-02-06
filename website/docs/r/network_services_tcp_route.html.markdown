@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network services"
+subcategory: "Network Services"
 description: |-
   TcpRoute is the resource defining how TCP traffic should be routed by a Mesh/Gateway resource.
 ---

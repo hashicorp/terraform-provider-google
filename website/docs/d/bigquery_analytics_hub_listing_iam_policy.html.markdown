@@ -12,9 +12,9 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Bigquery Analytics Hub"
+subcategory: "BigQuery Analytics Hub"
 description: |-
-  A datasource to retrieve the IAM policy state for Bigquery Analytics Hub Listing
+  A datasource to retrieve the IAM policy state for BigQuery Analytics Hub Listing
 ---
 
 

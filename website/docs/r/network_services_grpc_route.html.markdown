@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network services"
+subcategory: "Network Services"
 description: |-
   GrpcRoute is the resource defining how gRPC traffic routed by a Mesh or Gateway resource is routed.
 ---

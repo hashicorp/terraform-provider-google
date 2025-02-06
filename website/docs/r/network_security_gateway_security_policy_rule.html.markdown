@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   The GatewaySecurityPolicyRule resource is in a nested collection within a GatewaySecurityPolicy and represents
   a traffic matching condition and associated action to perform.

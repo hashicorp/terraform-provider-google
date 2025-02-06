@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Public ca"
+subcategory: "Public CA"
 description: |-
   A representation of an ExternalAccountKey used for external account binding within ACME.
 ---

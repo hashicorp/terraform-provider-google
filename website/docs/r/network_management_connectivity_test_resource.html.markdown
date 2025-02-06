@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "NetworkManagement"
+subcategory: "Network Management"
 description: |-
   A connectivity test are a static analysis of your resource configurations
   that enables you to evaluate connectivity to and from Google Cloud

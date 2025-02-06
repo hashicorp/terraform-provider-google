@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Data catalog"
+subcategory: "Data Catalog"
 description: |-
   An EntryGroup resource represents a logical grouping of zero or more Data Catalog Entry resources.
 ---

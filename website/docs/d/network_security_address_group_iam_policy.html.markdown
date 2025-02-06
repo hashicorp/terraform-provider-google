@@ -12,9 +12,9 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
-  A datasource to retrieve the IAM policy state for Network security ProjectAddressGroup
+  A datasource to retrieve the IAM policy state for Network Security ProjectAddressGroup
 ---
 
 

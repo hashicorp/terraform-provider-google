@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   The TlsInspectionPolicy resource contains references to CA pools in Certificate Authority Service and associated metadata.
 ---

@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Blockchain node engine"
+subcategory: "Blockchain Node Engine"
 description: |-
   A representation of a blockchain node.
 ---

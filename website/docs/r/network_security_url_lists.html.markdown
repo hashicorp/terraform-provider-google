@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   UrlList proto helps users to set reusable, independently manageable lists of hosts, host patterns, URLs, URL patterns.
 ---

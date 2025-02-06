@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network services"
+subcategory: "Network Services"
 description: |-
   EdgeCacheService defines the IP addresses, protocols, security policies, cache policies and routing configuration.
 ---

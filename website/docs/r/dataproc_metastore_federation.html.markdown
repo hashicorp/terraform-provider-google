@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Dataproc metastore"
+subcategory: "Dataproc Metastore"
 description: |-
   A managed metastore federation.
 ---

@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Network security"
+subcategory: "Network Security"
 description: |-
   The GatewaySecurityPolicy resource contains a collection of GatewaySecurityPolicyRules and associated metadata.
 ---
