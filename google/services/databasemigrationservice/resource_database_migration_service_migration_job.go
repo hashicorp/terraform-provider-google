@@ -18,6 +18,7 @@
 package databasemigrationservice
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -843,7 +844,28 @@ func flattenDatabaseMigrationServiceMigrationJobErrorMessage(v interface{}, d *s
 }
 
 func flattenDatabaseMigrationServiceMigrationJobErrorDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return nil
+	}
+	detailsArray := v.([]interface{})
+	for i, raw := range detailsArray {
+		m := raw.(map[string]interface{})
+		if len(m) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		for k, val := range m {
+			if _, ok := val.(string); !ok {
+				b, err := json.Marshal(v)
+				if err != nil {
+					return err
+				}
+				m[k] = string(b)
+			}
+		}
+		detailsArray[i] = m
+	}
+	return detailsArray
 }
 
 func flattenDatabaseMigrationServiceMigrationJobType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

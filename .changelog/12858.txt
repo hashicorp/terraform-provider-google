@@ -1,0 +1,3 @@
+```release-note:bug
+fix: error details type on google_database_migration_service_migration_job
+```
