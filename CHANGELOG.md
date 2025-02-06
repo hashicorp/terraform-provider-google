@@ -104,7 +104,6 @@ BUG FIXES:
 
 FEATURES:
 * **New Resource:** `google_apigee_environment_addons_config` ([#20851](https://github.com/hashicorp/terraform-provider-google/pull/20851))
-* **New Resource:** `google_beyondcorp_security_gateway` ([#20844](https://github.com/hashicorp/terraform-provider-google/pull/20844))
 * **New Resource:** `google_chronicle_reference_list` (beta) ([#20895](https://github.com/hashicorp/terraform-provider-google/pull/20895))
 * **New Resource:** `google_chronicle_rule_deployment` ([#20888](https://github.com/hashicorp/terraform-provider-google/pull/20888))
 * **New Resource:** `google_chronicle_rule` ([#20868](https://github.com/hashicorp/terraform-provider-google/pull/20868))
