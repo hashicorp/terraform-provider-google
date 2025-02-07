@@ -4,6 +4,7 @@ source_file: 'products/dataprocgdc/SparkApplication.yaml'
 api_service_name: 'dataprocgdc.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'SparkApplication'
+autogen_status: true
 fields:
   - field: 'annotations'
   - field: 'application_environment'
