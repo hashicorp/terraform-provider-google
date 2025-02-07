@@ -133,6 +133,7 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
     status {
       restricted_services = ["bigquery.googleapis.com"]
       egress_policies {
+        title = "egress policy title"
         egress_to {
           external_resources = ["s3://bucket1"]
           operations {
@@ -223,6 +224,7 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
     	}
     
     	ingress_policies {
+    		title = "ingress policy title 1"
     		ingress_from {
     			sources {
     				access_level = google_access_context_manager_access_level.test-access.name
@@ -258,6 +260,7 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
     		}
     	}
     	ingress_policies {
+    		title = "ingress policy title 2"
     		ingress_from {
     			identities = ["user:test@google.com"]
     		}
@@ -267,6 +270,7 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
     	}
     
     	egress_policies {
+    		title = "egress policy title 1"
     		egress_from {
     			identity_type = "ANY_USER_ACCOUNT"
     		}
@@ -281,6 +285,7 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
     		}
     	}
     	egress_policies {
+    		title = "egress policy title 2"
     		egress_from {
     			identities = ["user:test@google.com"]
     		}
@@ -307,6 +312,7 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
       }
 
       ingress_policies {
+        title = "ingress policy title 1"
         ingress_from {
           sources {
             access_level = google_access_context_manager_access_level.test-access.name
@@ -342,6 +348,7 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
         }
       }
       ingress_policies {
+        title = "ingress policy title 2"
         ingress_from {
           identities = ["user:test@google.com"]
         }
@@ -351,6 +358,7 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
       }
 
       egress_policies {
+        title = "egress policy title 1"
         egress_from {
           identity_type = "ANY_USER_ACCOUNT"
         }
@@ -365,6 +373,7 @@ resource "google_access_context_manager_service_perimeters" "test-access" {
         }
       }
       egress_policies {
+        title = "egress policy title 2"
         egress_from {
           identities = ["user:test@google.com"]
         }

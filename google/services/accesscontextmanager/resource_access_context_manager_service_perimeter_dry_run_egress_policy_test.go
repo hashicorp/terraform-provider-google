@@ -105,6 +105,7 @@ resource "google_access_context_manager_access_level" "test-access" {
 
 resource "google_access_context_manager_service_perimeter_dry_run_egress_policy" "test-access1" {
   perimeter = google_access_context_manager_service_perimeter.test-access.name
+	title = "egress policy title 1"
 	egress_from {
 		identity_type = "ANY_USER_ACCOUNT"
 	}
@@ -120,6 +121,7 @@ resource "google_access_context_manager_service_perimeter_dry_run_egress_policy"
 
 resource "google_access_context_manager_service_perimeter_dry_run_egress_policy" "test-access2" {
 	perimeter = google_access_context_manager_service_perimeter.test-access.name
+	title = "egress policy title 2"
 	egress_from {
 		identity_type = "ANY_USER_ACCOUNT"
 		sources {

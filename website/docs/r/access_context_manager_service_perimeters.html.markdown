@@ -251,6 +251,10 @@ The following arguments are supported:
   this `IngressPolicy` to apply.
   Structure is [documented below](#nested_service_perimeters_service_perimeters_status_ingress_policies_ingress_policies_ingress_to).
 
+* `title` -
+  (Optional)
+  Human readable title. Must be unique within the perimeter. Does not affect behavior.
+
 
 <a name="nested_service_perimeters_service_perimeters_status_ingress_policies_ingress_policies_ingress_from"></a>The `ingress_from` block supports:
 
@@ -357,6 +361,10 @@ The following arguments are supported:
   Defines the conditions on the `ApiOperation` and destination resources that
   cause this `EgressPolicy` to apply.
   Structure is [documented below](#nested_service_perimeters_service_perimeters_status_egress_policies_egress_policies_egress_to).
+
+* `title` -
+  (Optional)
+  Human readable title. Must be unique within the perimeter. Does not affect behavior.
 
 
 <a name="nested_service_perimeters_service_perimeters_status_egress_policies_egress_policies_egress_from"></a>The `egress_from` block supports:
@@ -530,6 +538,10 @@ The following arguments are supported:
   this `IngressPolicy` to apply.
   Structure is [documented below](#nested_service_perimeters_service_perimeters_spec_ingress_policies_ingress_policies_ingress_to).
 
+* `title` -
+  (Optional)
+  Human readable title. Must be unique within the perimeter. Does not affect behavior.
+
 
 <a name="nested_service_perimeters_service_perimeters_spec_ingress_policies_ingress_policies_ingress_from"></a>The `ingress_from` block supports:
 
@@ -636,6 +648,10 @@ The following arguments are supported:
   Defines the conditions on the `ApiOperation` and destination resources that
   cause this `EgressPolicy` to apply.
   Structure is [documented below](#nested_service_perimeters_service_perimeters_spec_egress_policies_egress_policies_egress_to).
+
+* `title` -
+  (Optional)
+  Human readable title. Must be unique within the perimeter. Does not affect behavior.
 
 
 <a name="nested_service_perimeters_service_perimeters_spec_egress_policies_egress_policies_egress_from"></a>The `egress_from` block supports:

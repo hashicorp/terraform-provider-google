@@ -94,6 +94,7 @@ func testAccAccessContextManagerServicePerimeterEgressPolicy_basic(org, policyTi
 
 resource "google_access_context_manager_service_perimeter_egress_policy" "test-access1" {
   perimeter = google_access_context_manager_service_perimeter.test-access.name
+	title = "egress policy title"
 	egress_from {
 		identity_type = "ANY_USER_ACCOUNT"
 	}

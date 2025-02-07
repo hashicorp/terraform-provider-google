@@ -18,3 +18,4 @@ fields:
   - field: 'egress_to.resources'
   - field: 'perimeter'
     provider_only: true
+  - field: 'title'

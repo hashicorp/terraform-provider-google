@@ -61,6 +61,7 @@ resource "google_access_context_manager_service_perimeter" "storage-perimeter" {
 
 resource "google_access_context_manager_service_perimeter_dry_run_ingress_policy" "ingress_policy" {
   perimeter = "${google_access_context_manager_service_perimeter.storage-perimeter.name}"
+  title = "ingress policy title"
   ingress_from {
     identity_type = "any_identity"
     sources {
@@ -112,6 +113,10 @@ The following arguments are supported:
   Defines the conditions on the `ApiOperation` and request destination that cause
   this `IngressPolicy` to apply.
   Structure is [documented below](#nested_ingress_to).
+
+* `title` -
+  (Optional)
+  Human readable title. Must be unique within the perimeter. Does not affect behavior.
 
 
 <a name="nested_ingress_from"></a>The `ingress_from` block supports:
