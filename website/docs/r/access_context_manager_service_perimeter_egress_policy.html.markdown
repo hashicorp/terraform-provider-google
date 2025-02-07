@@ -60,6 +60,7 @@ resource "google_access_context_manager_service_perimeter" "storage-perimeter" {
 
 resource "google_access_context_manager_service_perimeter_egress_policy" "egress_policy" {
   perimeter = "${google_access_context_manager_service_perimeter.storage-perimeter.name}"
+  title = "egress policy title"
   egress_from {
     identity_type = "ANY_IDENTITY"
   }
@@ -107,6 +108,10 @@ The following arguments are supported:
   Defines the conditions on the `ApiOperation` and destination resources that
   cause this `EgressPolicy` to apply.
   Structure is [documented below](#nested_egress_to).
+
+* `title` -
+  (Optional)
+  Human readable title. Must be unique within the perimeter. Does not affect behavior.
 
 
 <a name="nested_egress_from"></a>The `egress_from` block supports:

@@ -16,3 +16,4 @@ fields:
   - field: 'ingress_to.resources'
   - field: 'perimeter'
     provider_only: true
+  - field: 'title'

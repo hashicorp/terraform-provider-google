@@ -298,6 +298,12 @@ the perimeter.`,
 					},
 				},
 			},
+			"title": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Human readable title. Must be unique within the perimeter. Does not affect behavior.`,
+			},
 			"access_policy_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -327,6 +333,12 @@ func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyCreate(d *sch
 		return err
 	} else if v, ok := d.GetOkExists("egress_to"); !tpgresource.IsEmptyValue(reflect.ValueOf(egressToProp)) && (ok || !reflect.DeepEqual(v, egressToProp)) {
 		obj["egressTo"] = egressToProp
+	}
+	titleProp, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyTitle(d.Get("title"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("title"); !tpgresource.IsEmptyValue(reflect.ValueOf(titleProp)) && (ok || !reflect.DeepEqual(v, titleProp)) {
+		obj["title"] = titleProp
 	}
 
 	obj, err = resourceAccessContextManagerServicePerimeterDryRunEgressPolicyEncoder(d, meta, obj)
@@ -415,6 +427,9 @@ func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyCreate(d *sch
 	if err := d.Set("egress_to", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(opRes["egressTo"], d, config)); err != nil {
 		return err
 	}
+	if err := d.Set("title", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyTitle(opRes["title"], d, config)); err != nil {
+		return err
+	}
 
 	// This may have caused the ID to update - update it if so.
 	id, err = tpgresource.ReplaceVars(d, config, "{{perimeter}}")
@@ -476,6 +491,9 @@ func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyRead(d *schem
 		return fmt.Errorf("Error reading ServicePerimeterDryRunEgressPolicy: %s", err)
 	}
 	if err := d.Set("egress_to", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(res["egressTo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterDryRunEgressPolicy: %s", err)
+	}
+	if err := d.Set("title", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyTitle(res["title"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeterDryRunEgressPolicy: %s", err)
 	}
 
@@ -728,6 +746,10 @@ func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo
 	return v
 }
 
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFrom(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -928,6 +950,10 @@ func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToO
 	return v, nil
 }
 
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyTitle(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// Set the access_policy_id field from part of the perimeter parameter.
 
@@ -982,6 +1008,11 @@ func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyFindNestedObj
 		return -1, nil, err
 	}
 	expectedFlattenedEgressTo := flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(expectedEgressTo, d, meta.(*transport_tpg.Config))
+	expectedTitle, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyTitle(d.Get("title"), d, meta.(*transport_tpg.Config))
+	if err != nil {
+		return -1, nil, err
+	}
+	expectedFlattenedTitle := flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyTitle(expectedTitle, d, meta.(*transport_tpg.Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -1000,6 +1031,12 @@ func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyFindNestedObj
 		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemEgressTo)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedFlattenedEgressTo))) && !reflect.DeepEqual(itemEgressTo, expectedFlattenedEgressTo) {
 			log.Printf("[DEBUG] Skipping item with egressTo= %#v, looking for %#v)", itemEgressTo, expectedFlattenedEgressTo)
+			continue
+		}
+		itemTitle := flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyTitle(item["title"], d, meta.(*transport_tpg.Config))
+		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemTitle)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedFlattenedTitle))) && !reflect.DeepEqual(itemTitle, expectedFlattenedTitle) {
+			log.Printf("[DEBUG] Skipping item with title= %#v, looking for %#v)", itemTitle, expectedFlattenedTitle)
 			continue
 		}
 		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
