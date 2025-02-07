@@ -115,6 +115,7 @@ resource "google_colab_notebook_execution" "notebook-execution" {
 
 ```hcl
 resource "google_colab_runtime_template" "my_runtime_template" {
+  provider = google-beta
   name = "runtime-template-name"
   display_name = "Runtime template"
   location = "us-central1"
@@ -129,6 +130,7 @@ resource "google_colab_runtime_template" "my_runtime_template" {
 }
 
 resource "google_storage_bucket" "output_bucket" {
+  provider = google-beta
   name          = "my_bucket"
   location      = "US"
   force_destroy = true
@@ -136,6 +138,7 @@ resource "google_storage_bucket" "output_bucket" {
 }
 
 resource "google_storage_bucket_object" "notebook" {
+  provider = google-beta
   name   = "hello_world.ipynb"
   bucket = google_storage_bucket.output_bucket.name
   content = <<EOF
@@ -177,6 +180,7 @@ resource "google_storage_bucket_object" "notebook" {
 }
 
 resource "google_colab_notebook_execution" "notebook-execution" {
+  provider = google-beta
   notebook_execution_job_id = "colab-notebook-execution"
   display_name = "Notebook execution full"
   location = "us-central1"
@@ -205,6 +209,7 @@ resource "google_colab_notebook_execution" "notebook-execution" {
 
 ```hcl
 resource "google_colab_runtime_template" "my_runtime_template" {
+  provider = google-beta
   name = "runtime-template-name"
   display_name = "Runtime template"
   location = "us-central1"
@@ -219,6 +224,7 @@ resource "google_colab_runtime_template" "my_runtime_template" {
 }
 
 resource "google_storage_bucket" "output_bucket" {
+  provider = google-beta
   name          = "my_bucket"
   location      = "US"
   force_destroy = true
@@ -226,6 +232,7 @@ resource "google_storage_bucket" "output_bucket" {
 }
 
 resource "google_secret_manager_secret" "secret" {
+  provider = google-beta
   secret_id = "secret"
 
   replication {
@@ -234,12 +241,14 @@ resource "google_secret_manager_secret" "secret" {
 }
 
 resource "google_secret_manager_secret_version" "secret_version" {
+  provider = google-beta
   secret = google_secret_manager_secret.secret.id
 
   secret_data = "secret-data"
 }
 
 resource "google_dataform_repository" "dataform_repository" {
+  provider = google-beta
   name = "dataform-repository"
   display_name = "dataform_repository"
   npmrc_environment_variables_secret_version = google_secret_manager_secret_version.secret_version.id
@@ -264,6 +273,7 @@ resource "google_dataform_repository" "dataform_repository" {
 }
 
 resource "google_colab_notebook_execution" "notebook-execution" {
+  provider = google-beta
   display_name = "Notebook execution Dataform"
   location = "us-central1"
 
