@@ -100,12 +100,14 @@ resource "google_tags_tag_value" "basic_value" {
 
 ```hcl
 resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
+  provider = google-beta
   name        = "fw-policy"
   description = "Sample global network firewall policy"
   project     = "my-project-name"
 }
 
 resource "google_compute_network_firewall_policy_rule" "primary" {
+  provider = google-beta
   action          = "allow"
   description     = "This is a simple rule description"
   direction       = "EGRESS"
@@ -130,12 +132,14 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
 
 ```hcl
 resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
+  provider = google-beta
   name        = "fw-policy"
   description = "Sample global network firewall policy"
   project     = "my-project-name"
 }
 
 resource "google_compute_network_firewall_policy_rule" "primary" {
+  provider = google-beta
   action          = "allow"
   description     = "This is a simple rule description"
   direction       = "INGRESS"
@@ -157,6 +161,7 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
 }
 
 resource "google_compute_network" "network" {
+  provider = google-beta
   name     = "network"
 }
 ```

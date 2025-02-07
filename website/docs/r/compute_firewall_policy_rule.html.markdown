@@ -69,7 +69,6 @@ resource "google_compute_firewall_policy_rule" "primary" {
     dest_threat_intelligences = ["iplist-known-malicious-ips"]
     src_address_groups        = []
     dest_address_groups       = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
-    dest_network_scope        = "INTERNET"
 
     layer4_configs {
       ip_protocol = "tcp"
@@ -88,18 +87,21 @@ resource "google_compute_firewall_policy_rule" "primary" {
 
 ```hcl
 resource "google_folder" "folder" {
+  provider = google-beta
   display_name        = "folder"
   parent              = "organizations/123456789"
   deletion_protection = false
 }
 
 resource "google_compute_firewall_policy" "default" {
+  provider = google-beta
   parent      = google_folder.folder.id
   short_name  = "fw-policy"
   description = "Firewall policy"
 }
 
 resource "google_compute_firewall_policy_rule" "primary" {
+  provider = google-beta
   firewall_policy = google_compute_firewall_policy.default.name
   description     = "Firewall policy rule with network scope"
   priority        = 9000
@@ -125,6 +127,7 @@ resource "google_compute_firewall_policy_rule" "primary" {
 }
 
 resource "google_compute_network" "network" {
+  provider = google-beta
   name                    = "network"
   auto_create_subnetworks = false
 }
