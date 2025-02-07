@@ -970,7 +970,7 @@ func TestAccComposerEnvironment_fixPyPiPackages(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccComposerEnvironment_fixPyPiPackages(envName, network, subnetwork, serviceAccount),
-				ExpectError: regexp.MustCompile("Failed to install pypi packages"),
+				ExpectError: regexp.MustCompile("Failed to install Python packages"),
 			},
 			{
 				Config: testAccComposerEnvironment_fixPyPiPackagesUpdate(envName, network, subnetwork, serviceAccount),
