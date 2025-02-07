@@ -907,7 +907,6 @@ var generatedResources = map[string]*schema.Resource{
 	"google_firestore_field":                                                     firestore.ResourceFirestoreField(),
 	"google_firestore_index":                                                     firestore.ResourceFirestoreIndex(),
 	"google_gemini_code_repository_index":                                        gemini.ResourceGeminiCodeRepositoryIndex(),
-	"google_gemini_logging_setting":                                              gemini.ResourceGeminiLoggingSetting(),
 	"google_gemini_repository_group":                                             gemini.ResourceGeminiRepositoryGroup(),
 	"google_gemini_repository_group_iam_binding":                                 tpgiamresource.ResourceIamBinding(gemini.GeminiRepositoryGroupIamSchema, gemini.GeminiRepositoryGroupIamUpdaterProducer, gemini.GeminiRepositoryGroupIdParseFunc),
 	"google_gemini_repository_group_iam_member":                                  tpgiamresource.ResourceIamMember(gemini.GeminiRepositoryGroupIamSchema, gemini.GeminiRepositoryGroupIamUpdaterProducer, gemini.GeminiRepositoryGroupIdParseFunc),
