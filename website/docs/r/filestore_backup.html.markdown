@@ -39,7 +39,7 @@ To get more information about Backup, see:
 
 ```hcl
 resource "google_filestore_instance" "instance" {
-  name     = "tf-fs-inst"
+  name     = "fs-inst"
   location = "us-central1-b"
   tier     = "BASIC_HDD"
 
@@ -56,7 +56,7 @@ resource "google_filestore_instance" "instance" {
 }
 
 resource "google_filestore_backup" "backup" {
-  name              = "tf-fs-bkup"
+  name              = "fs-bkup"
   location          = "us-central1"
   description       = "This is a filestore backup for the test instance"
   source_instance   = google_filestore_instance.instance.id
