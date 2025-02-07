@@ -1,6 +1,7 @@
 ## 6.20.0 (Unreleased)
 
 NOTES:
+* provider: The Terraform Provider for Google Cloud's regular release date will move from Monday to Tuesday in early March. The 2025/03/10 release will be made on 2025/03/11.
 * compute: `google_compute_firewall_policy` now uses MMv1 engine instead of DCL. ([#21235](https://github.com/hashicorp/terraform-provider-google/pull/21235))
 
 FEATURES:
