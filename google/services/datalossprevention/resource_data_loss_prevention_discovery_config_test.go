@@ -519,12 +519,12 @@ data "google_project" "project" {
 
 resource "google_tags_tag_key" "tag_key" {
 	parent = "projects/${data.google_project.project.number}"
-	short_name = "environment"
+	short_name = "tf_test_environment%{random_suffix}"
 }
 
 resource "google_tags_tag_value" "tag_value" {
 	parent = google_tags_tag_key.tag_key.id
-	short_name = "prod"
+	short_name = "tf_test_prod%{random_suffix}"
 }
 
 resource "google_data_loss_prevention_inspect_template" "basic" {
@@ -589,7 +589,7 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
         tag_resources {
             tag_conditions {
                 tag {
-                    namespaced_value = "%{project}/environment/prod"
+                    namespaced_value = "%{project}/tf_test_environment%{random_suffix}/tf_test_prod%{random_suffix}"
                 }
                 sensitivity_score {
                     score = "SENSITIVITY_HIGH"
