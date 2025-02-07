@@ -7,7 +7,6 @@ NOTES:
 FEATURES:
 * **New Data Source:** `google_beyondcorp_application_iam_policy` ([#21199](https://github.com/hashicorp/terraform-provider-google/pull/21199))
 * **New Data Source:** `google_parameter_manager_parameter_version_render` ([#21104](https://github.com/hashicorp/terraform-provider-google/pull/21104))
-* **New Data Source:** `google_parameter_manager_regional_parameter_version_render` (beta) ([#21240](https://github.com/hashicorp/terraform-provider-google/pull/21240))
 * **New Resource:** `google_beyondcorp_application` ([#21199](https://github.com/hashicorp/terraform-provider-google/pull/21199))
 * **New Resource:** `google_beyondcorp_application_iam_binding` ([#21199](https://github.com/hashicorp/terraform-provider-google/pull/21199))
 * **New Resource:** `google_beyondcorp_application_iam_member` ([#21199](https://github.com/hashicorp/terraform-provider-google/pull/21199))
