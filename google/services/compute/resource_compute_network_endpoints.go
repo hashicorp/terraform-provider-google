@@ -765,7 +765,10 @@ func resourceComputeNetworkEndpointsDecoder(d *schema.ResourceData, meta interfa
 		// networkEndpointsPaginatedRead already adds error description
 		return nil, err
 	}
-	firstPage := res["items"].([]interface{})
+	firstPage := make([]interface{}, 0)
+	if res["items"] != nil {
+		firstPage = res["items"].([]interface{})
+	}
 	allEndpoints = append(firstPage, allEndpoints...)
 
 	// listNetworkEndpoints returns data in a different structure, so we need to
