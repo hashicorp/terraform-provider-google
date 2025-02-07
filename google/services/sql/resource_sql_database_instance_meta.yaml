@@ -2,7 +2,7 @@ resource: 'google_sql_database_instance'
 generation_type: 'handwritten'
 api_service_name: 'sqladmin.googleapis.com'
 api_version: 'v1beta4'
-api_resource_type_kind: 'Instance'
+api_resource_type_kind: 'DatabaseInstance'
 fields:
   - field: 'available_maintenance_versions'
   - field: 'clone.allocated_ip_range'

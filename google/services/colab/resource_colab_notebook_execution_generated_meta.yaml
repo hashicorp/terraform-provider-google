@@ -3,7 +3,7 @@ generation_type: 'mmv1'
 source_file: 'products/colab/NotebookExecution.yaml'
 api_service_name: 'aiplatform.googleapis.com'
 api_version: 'v1'
-api_resource_type_kind: 'NotebookExecution'
+api_resource_type_kind: 'NotebookExecutionJob'
 fields:
   - field: 'dataform_repository_source.commit_sha'
   - field: 'dataform_repository_source.dataform_repository_resource_name'
