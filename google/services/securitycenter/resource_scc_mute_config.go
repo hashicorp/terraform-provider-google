@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceSecurityCenterMuteConfig() *schema.Resource {
@@ -77,6 +78,22 @@ project = Y scope, it might not match any findings.`,
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `A description of the mute config.`,
+			},
+			"expiry_time": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Optional. The expiry of the mute config. Only applicable for dynamic configs.
+If the expiry is set, when the config expires, it is removed from all findings.
+
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
+nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+			},
+			"type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"MUTE_CONFIG_TYPE_UNSPECIFIED", "STATIC", "DYNAMIC", ""}),
+				Description:  `The type of the mute config, which determines what type of mute state the config affects. Default value: "DYNAMIC" Possible values: ["MUTE_CONFIG_TYPE_UNSPECIFIED", "STATIC", "DYNAMIC"]`,
+				Default:      "DYNAMIC",
 			},
 			"create_time": {
 				Type:     schema.TypeString,
@@ -130,6 +147,18 @@ func resourceSecurityCenterMuteConfigCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("filter"); !tpgresource.IsEmptyValue(reflect.ValueOf(filterProp)) && (ok || !reflect.DeepEqual(v, filterProp)) {
 		obj["filter"] = filterProp
+	}
+	typeProp, err := expandSecurityCenterMuteConfigType(d.Get("type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+		obj["type"] = typeProp
+	}
+	expiryTimeProp, err := expandSecurityCenterMuteConfigExpiryTime(d.Get("expiry_time"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("expiry_time"); !tpgresource.IsEmptyValue(reflect.ValueOf(expiryTimeProp)) && (ok || !reflect.DeepEqual(v, expiryTimeProp)) {
+		obj["expiryTime"] = expiryTimeProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterBasePath}}{{parent}}/muteConfigs?muteConfigId={{mute_config_id}}")
@@ -225,6 +254,12 @@ func resourceSecurityCenterMuteConfigRead(d *schema.ResourceData, meta interface
 	if err := d.Set("most_recent_editor", flattenSecurityCenterMuteConfigMostRecentEditor(res["mostRecentEditor"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MuteConfig: %s", err)
 	}
+	if err := d.Set("type", flattenSecurityCenterMuteConfigType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MuteConfig: %s", err)
+	}
+	if err := d.Set("expiry_time", flattenSecurityCenterMuteConfigExpiryTime(res["expiryTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MuteConfig: %s", err)
+	}
 
 	return nil
 }
@@ -251,6 +286,18 @@ func resourceSecurityCenterMuteConfigUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("filter"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, filterProp)) {
 		obj["filter"] = filterProp
 	}
+	typeProp, err := expandSecurityCenterMuteConfigType(d.Get("type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+		obj["type"] = typeProp
+	}
+	expiryTimeProp, err := expandSecurityCenterMuteConfigExpiryTime(d.Get("expiry_time"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("expiry_time"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, expiryTimeProp)) {
+		obj["expiryTime"] = expiryTimeProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
 	if err != nil {
@@ -267,6 +314,14 @@ func resourceSecurityCenterMuteConfigUpdate(d *schema.ResourceData, meta interfa
 
 	if d.HasChange("filter") {
 		updateMask = append(updateMask, "filter")
+	}
+
+	if d.HasChange("type") {
+		updateMask = append(updateMask, "type")
+	}
+
+	if d.HasChange("expiry_time") {
+		updateMask = append(updateMask, "expiryTime")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -407,10 +462,26 @@ func flattenSecurityCenterMuteConfigMostRecentEditor(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenSecurityCenterMuteConfigType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecurityCenterMuteConfigExpiryTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandSecurityCenterMuteConfigDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func expandSecurityCenterMuteConfigFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSecurityCenterMuteConfigType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSecurityCenterMuteConfigExpiryTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

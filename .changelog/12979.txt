@@ -1,0 +1,3 @@
+```release-note:bug
+securitycenter: added `type`, `expiry_time` field to `google_scc_mute_config` resource
+```

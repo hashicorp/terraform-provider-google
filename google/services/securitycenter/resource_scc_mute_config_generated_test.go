@@ -64,6 +64,8 @@ resource "google_scc_mute_config" "default" {
   parent         = "organizations/%{org_id}"
   filter         = "category: \"OS_VULNERABILITY\""
   description    = "My Mute Config"
+  type           = "DYNAMIC"
+  expiry_time    = "2215-02-03T15:01:23Z"
 }
 `, context)
 }
