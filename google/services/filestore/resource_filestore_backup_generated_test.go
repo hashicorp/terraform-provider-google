@@ -58,7 +58,7 @@ func TestAccFilestoreBackup_filestoreBackupBasicExample(t *testing.T) {
 func testAccFilestoreBackup_filestoreBackupBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_filestore_instance" "instance" {
-  name     = "tf-test-tf-fs-inst%{random_suffix}"
+  name     = "tf-test-fs-inst%{random_suffix}"
   location = "us-central1-b"
   tier     = "BASIC_HDD"
 
@@ -75,7 +75,7 @@ resource "google_filestore_instance" "instance" {
 }
 
 resource "google_filestore_backup" "backup" {
-  name              = "tf-test-tf-fs-bkup%{random_suffix}"
+  name              = "tf-test-fs-bkup%{random_suffix}"
   location          = "us-central1"
   description       = "This is a filestore backup for the test instance"
   source_instance   = google_filestore_instance.instance.id

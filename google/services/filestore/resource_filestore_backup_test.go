@@ -14,8 +14,8 @@ import (
 func TestAccFilestoreBackup_update(t *testing.T) {
 	t.Parallel()
 
-	instName := fmt.Sprintf("tf-fs-inst-%d", acctest.RandInt(t))
-	bkupName := fmt.Sprintf("tf-fs-bkup-%d", acctest.RandInt(t))
+	instName := fmt.Sprintf("tf-test-fs-inst-%d", acctest.RandInt(t))
+	bkupName := fmt.Sprintf("tf-test-fs-bkup-%d", acctest.RandInt(t))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -121,8 +121,8 @@ func TestAccFilestoreBackup_tags(t *testing.T) {
 	t.Parallel()
 
 	org := envvar.GetTestOrgFromEnv(t)
-	instanceName := fmt.Sprintf("tf-fs-inst-%d", acctest.RandInt(t))
-	backupName := fmt.Sprintf("tf-fs-bkup-%d", acctest.RandInt(t))
+	instanceName := fmt.Sprintf("tf-test-fs-inst-%d", acctest.RandInt(t))
+	backupName := fmt.Sprintf("tf-test-fs-bkup-%d", acctest.RandInt(t))
 	tagKey := acctest.BootstrapSharedTestTagKey(t, "filestore-backups-tagkey")
 	tagValue := acctest.BootstrapSharedTestTagValue(t, "filestore-backups-tagvalue", tagKey)
 
