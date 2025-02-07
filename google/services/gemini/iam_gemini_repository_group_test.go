@@ -17,7 +17,7 @@ import (
 
 func TestAccGeminiRepositoryGroupIamBinding(t *testing.T) {
 	location := "us-central1"
-	codeRepositoryIndexId := acctest.BootstrapSharedCodeRepositoryIndex(t, "basic", location, "", map[string]string{"ccfe_debug_note": "terraform_e2e_should_be_deleted"})
+	codeRepositoryIndexId := acctest.BootstrapSharedCodeRepositoryIndex(t, "basic", location, "", map[string]string{"ccfe_debug_note": "terraform_e2e_do_not_delete"})
 	developerConnectionId := acctest.BootstrapDeveloperConnection(t, "basic", location, "projects/502367051001/secrets/tf-test-cloudaicompanion-github-oauthtoken-c42e5c/versions/1", 54180648)
 	gitRepositoryLinkId := acctest.BootstrapGitRepository(t, "basic", location, "https://github.com/CC-R-github-robot/tf-test.git", developerConnectionId)
 	repositoryGroupId := "tf-test-iam-repository-group-id-" + acctest.RandString(t, 10)
@@ -61,7 +61,7 @@ func TestAccGeminiRepositoryGroupIamBinding(t *testing.T) {
 
 func TestAccGeminiRepositoryGroupIamMember(t *testing.T) {
 	location := "us-central1"
-	codeRepositoryIndexId := acctest.BootstrapSharedCodeRepositoryIndex(t, "basic", location, "", map[string]string{"ccfe_debug_note": "terraform_e2e_should_be_deleted"})
+	codeRepositoryIndexId := acctest.BootstrapSharedCodeRepositoryIndex(t, "basic", location, "", map[string]string{"ccfe_debug_note": "terraform_e2e_do_not_delete"})
 	developerConnectionId := acctest.BootstrapDeveloperConnection(t, "basic", location, "projects/502367051001/secrets/tf-test-cloudaicompanion-github-oauthtoken-c42e5c/versions/1", 54180648)
 	gitRepositoryLinkId := acctest.BootstrapGitRepository(t, "basic", location, "https://github.com/CC-R-github-robot/tf-test.git", developerConnectionId)
 	repositoryGroupId := "tf-test-iam-repository-group-id-" + acctest.RandString(t, 10)
@@ -96,7 +96,7 @@ func TestAccGeminiRepositoryGroupIamMember(t *testing.T) {
 
 func TestAccGeminiRepositoryGroupIamPolicy(t *testing.T) {
 	location := "us-central1"
-	codeRepositoryIndexId := acctest.BootstrapSharedCodeRepositoryIndex(t, "basic", location, "", map[string]string{"ccfe_debug_note": "terraform_e2e_should_be_deleted"})
+	codeRepositoryIndexId := acctest.BootstrapSharedCodeRepositoryIndex(t, "basic", location, "", map[string]string{"ccfe_debug_note": "terraform_e2e_do_not_delete"})
 	developerConnectionId := acctest.BootstrapDeveloperConnection(t, "basic", location, "projects/502367051001/secrets/tf-test-cloudaicompanion-github-oauthtoken-c42e5c/versions/1", 54180648)
 	gitRepositoryLinkId := acctest.BootstrapGitRepository(t, "basic", location, "https://github.com/CC-R-github-robot/tf-test.git", developerConnectionId)
 	repositoryGroupId := "tf-test-iam-repository-group-id-" + acctest.RandString(t, 10)

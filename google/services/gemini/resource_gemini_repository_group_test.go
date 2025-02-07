@@ -15,7 +15,7 @@ import (
 // More details: https://cloud.google.com/developer-connect/docs/connect-github-repo#before_you_begin
 
 func TestAccGeminiRepositoryGroup_update(t *testing.T) {
-	codeRepositoryIndexId := acctest.BootstrapSharedCodeRepositoryIndex(t, "basic-rg-test", "us-central1", "", map[string]string{"ccfe_debug_note": "terraform_e2e_should_be_deleted"})
+	codeRepositoryIndexId := acctest.BootstrapSharedCodeRepositoryIndex(t, "basic-rg-test", "us-central1", "", map[string]string{"ccfe_debug_note": "terraform_e2e_do_not_delete"})
 	context := map[string]interface{}{
 		"random_suffix":         acctest.RandString(t, 10),
 		"project_id":            os.Getenv("GOOGLE_PROJECT"),
