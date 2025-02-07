@@ -19,7 +19,6 @@ FEATURES:
 
 IMPROVEMENTS:
 * accesscontextmanager: added `resource` to `sources` in `egress_from` under resources `google_access_context_manager_service_perimeter`, `google_access_context_manager_service_perimeters`, `google_access_context_manager_service_perimeter_egress_policy`, `google_access_context_manager_service_perimeter_dry_run_egress_policy` ([#21190](https://github.com/hashicorp/terraform-provider-google/pull/21190))
-* appengine: added a mitigation for an upcoming default change to `standard_scheduler_settings.max_instances` for new `google_app_engine_standard_app_version` resources. If the field is not specified in configuration, diffs will now be ignored. ([#21257](https://github.com/hashicorp/terraform-provider-google/pull/21257))
 * cloudrunv2: added `base_image_uri` and `build_info` to `google_cloud_run_v2_service` ([#21236](https://github.com/hashicorp/terraform-provider-google/pull/21236))
 * colab: added `auto_upgrade` field to `google_colab_runtime` ([#21214](https://github.com/hashicorp/terraform-provider-google/pull/21214))
 * colab: added `software_config.post_startup_script_config` field to `google_colab_runtime_template` ([#21200](https://github.com/hashicorp/terraform-provider-google/pull/21200))
@@ -35,6 +34,7 @@ IMPROVEMENTS:
 * workbench: added `enable_third_party_identity` field to `google_workbench_instance` resource ([#21265](https://github.com/hashicorp/terraform-provider-google/pull/21265))
 
 BUG FIXES:
+* appengine: added a mitigation for an upcoming default change to `standard_scheduler_settings.max_instances` for new `google_app_engine_standard_app_version` resources. If the field is not specified in configuration, diffs will now be ignored. ([#21257](https://github.com/hashicorp/terraform-provider-google/pull/21257))
 * bigquery: added diff suppression for legacy values in `renewal_plan` field in `google_bigquery_capacity_commitment` resource ([#21103](https://github.com/hashicorp/terraform-provider-google/pull/21103))
 * compute: fixed `google_compute_(region_)resize_request` requiring region/zone to be specified in all cases. They can now be pulled from the provider. ([#21264](https://github.com/hashicorp/terraform-provider-google/pull/21264))
 * container: reverted locking behavior in `google_container_node_pool` that caused regression of operation apply time spike started in `v6.15` ([#21102](https://github.com/hashicorp/terraform-provider-google/pull/21102))
