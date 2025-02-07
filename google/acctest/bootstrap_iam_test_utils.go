@@ -3,8 +3,6 @@
 package acctest
 
 import (
-	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"testing"
@@ -12,6 +10,8 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -36,12 +36,6 @@ func BootstrapIamMembers(t *testing.T, members []IamMember) {
 		t.Fatalf("Error getting project with id %q: %s", project.ProjectId, err)
 	}
 
-	getPolicyRequest := &cloudresourcemanager.GetIamPolicyRequest{}
-	policy, err := client.Projects.GetIamPolicy(project.ProjectId, getPolicyRequest).Do()
-	if err != nil {
-		t.Fatalf("Error getting project iam policy: %v", err)
-	}
-
 	// Create the bindings we need to add to the policy.
 	var newBindings []*cloudresourcemanager.Binding
 	for _, member := range members {
@@ -51,26 +45,43 @@ func BootstrapIamMembers(t *testing.T, members []IamMember) {
 		})
 	}
 
-	mergedBindings := tpgiamresource.MergeBindings(append(policy.Bindings, newBindings...))
+	// Retry bootstrapping with exponential backoff for concurrent writes
+	backoff := time.Second
+	for {
+		getPolicyRequest := &cloudresourcemanager.GetIamPolicyRequest{}
+		policy, err := client.Projects.GetIamPolicy(project.ProjectId, getPolicyRequest).Do()
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 429) {
+			t.Logf("[DEBUG] 429 while attempting to read policy for project %s, waiting %v before attempting again", project.ProjectId, backoff)
+			time.Sleep(backoff)
+			continue
+		} else if err != nil {
+			t.Fatalf("Error getting iam policy for project %s: %v\n", project.ProjectId, err)
+		}
 
-	if !tpgiamresource.CompareBindings(policy.Bindings, mergedBindings) {
-		addedBindings := tpgiamresource.MissingBindings(policy.Bindings, mergedBindings)
-		for _, missingBinding := range addedBindings {
-			log.Printf("[DEBUG] Adding binding: %+v", missingBinding)
+		mergedBindings := tpgiamresource.MergeBindings(append(policy.Bindings, newBindings...))
+
+		if tpgiamresource.CompareBindings(policy.Bindings, mergedBindings) {
+			t.Logf("[DEBUG] All bindings already present for project %s", project.ProjectId)
+			break
 		}
 		// The policy must change.
 		policy.Bindings = mergedBindings
 		setPolicyRequest := &cloudresourcemanager.SetIamPolicyRequest{Policy: policy}
 		policy, err = client.Projects.SetIamPolicy(project.ProjectId, setPolicyRequest).Do()
-		if err != nil {
-			t.Fatalf("Error setting project iam policy: %v", err)
+		if err == nil {
+			t.Logf("[DEBUG] Waiting for IAM bootstrapping to propagate for project %s.", project.ProjectId)
+			time.Sleep(3 * time.Minute)
+			break
 		}
-		msg := "Added the following bindings to the test project's IAM policy:\n"
-		for _, binding := range addedBindings {
-			msg += fmt.Sprintf("Members: %q, Role: %q\n", binding.Members, binding.Role)
+		if tpgresource.IsConflictError(err) {
+			t.Logf("[DEBUG]: Concurrent policy changes, restarting read-modify-write after %s", backoff)
+			time.Sleep(backoff)
+			backoff = backoff * 2
+			if backoff > 30*time.Second {
+				t.Fatalf("Error applying IAM policy to %s: Too many conflicts.  Latest error: %s", project.ProjectId, err)
+			}
+			continue
 		}
-		msg += "Waiting for IAM to propagate."
-		t.Log(msg)
-		time.Sleep(3 * time.Minute)
+		t.Fatalf("Error setting project iam policy: %v", err)
 	}
 }
