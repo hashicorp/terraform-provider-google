@@ -69,36 +69,6 @@ resource "google_spanner_instance" "example" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=spanner_instance_with_autoscaling&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Spanner Instance With Autoscaling
-
-
-```hcl
-resource "google_spanner_instance" "example" {
-  config       = "regional-us-central1"
-  display_name = "Test Spanner Instance"
-  autoscaling_config {
-    autoscaling_limits {
-      // Define the minimum and maximum compute capacity allocated to the instance
-      // Either use nodes or processing units to specify the limits,
-      // but should use the same unit to set both the min_limit and max_limit.
-      max_processing_units            = 3000 // OR max_nodes  = 3
-      min_processing_units            = 2000 // OR min_nodes = 2
-    }
-    autoscaling_targets {
-      high_priority_cpu_utilization_percent = 75
-      storage_utilization_percent           = 90
-    }
-  }
-  labels = {
-    "foo" = "bar"
-  }
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=spanner_instance_multi_regional&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
