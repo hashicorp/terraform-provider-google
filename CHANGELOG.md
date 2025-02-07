@@ -1,5 +1,46 @@
 ## 6.20.0 (Unreleased)
 
+NOTES:
+* compute: `google_compute_firewall_policy` now uses MMv1 engine instead of DCL. ([#21235](https://github.com/hashicorp/terraform-provider-google/pull/21235))
+
+FEATURES:
+* **New Data Source:** `google_beyondcorp_application_iam_policy` ([#21199](https://github.com/hashicorp/terraform-provider-google/pull/21199))
+* **New Data Source:** `google_parameter_manager_parameter_version_render` ([#21104](https://github.com/hashicorp/terraform-provider-google/pull/21104))
+* **New Data Source:** `google_parameter_manager_regional_parameter_version_render` (beta) ([#21240](https://github.com/hashicorp/terraform-provider-google/pull/21240))
+* **New Resource:** `google_beyondcorp_application` ([#21199](https://github.com/hashicorp/terraform-provider-google/pull/21199))
+* **New Resource:** `google_beyondcorp_application_iam_binding` ([#21199](https://github.com/hashicorp/terraform-provider-google/pull/21199))
+* **New Resource:** `google_beyondcorp_application_iam_member` ([#21199](https://github.com/hashicorp/terraform-provider-google/pull/21199))
+* **New Resource:** `google_beyondcorp_application_iam_policy` ([#21199](https://github.com/hashicorp/terraform-provider-google/pull/21199))
+* **New Resource:** `google_bigquery_analytics_hub_listing_subscription` ([#21189](https://github.com/hashicorp/terraform-provider-google/pull/21189))
+* **New Resource:** `google_colab_notebook_execution` ([#21100](https://github.com/hashicorp/terraform-provider-google/pull/21100))
+* **New Resource:** `google_colab_schedule` ([#21233](https://github.com/hashicorp/terraform-provider-google/pull/21233))
+* **New Resource:** `google_gemini_logging_setting` ([#21192](https://github.com/hashicorp/terraform-provider-google/pull/21192))
+* **New Resource:** `google_gemini_release_channel_setting` ([#21202](https://github.com/hashicorp/terraform-provider-google/pull/21202))
+
+IMPROVEMENTS:
+* accesscontextmanager: added `resource` to `sources` in `egress_from` under resources `google_access_context_manager_service_perimeter`, `google_access_context_manager_service_perimeters`, `google_access_context_manager_service_perimeter_egress_policy`, `google_access_context_manager_service_perimeter_dry_run_egress_policy` ([#21190](https://github.com/hashicorp/terraform-provider-google/pull/21190))
+* appengine: added a mitigation for an upcoming default change to `standard_scheduler_settings.max_instances` for new `google_app_engine_standard_app_version` resources. If the field is not specified in configuration, diffs will now be ignored. ([#21257](https://github.com/hashicorp/terraform-provider-google/pull/21257))
+* cloudrunv2: added `base_image_uri` and `build_info` to `google_cloud_run_v2_service` ([#21236](https://github.com/hashicorp/terraform-provider-google/pull/21236))
+* colab: added `auto_upgrade` field to `google_colab_runtime` ([#21214](https://github.com/hashicorp/terraform-provider-google/pull/21214))
+* colab: added `software_config.post_startup_script_config` field to `google_colab_runtime_template` ([#21200](https://github.com/hashicorp/terraform-provider-google/pull/21200))
+* colab: added `desired_state` field to `google_colab_runtime`, making it startable/stoppable. ([#21207](https://github.com/hashicorp/terraform-provider-google/pull/21207))
+* compute: added `ip_collection` field to `google_compute_forwarding_rule ` resource ([#21188](https://github.com/hashicorp/terraform-provider-google/pull/21188))
+* compute: added `mode` and `allocatable_prefix_length` fields to `google_compute_public_delegated_prefix` resource ([#21216](https://github.com/hashicorp/terraform-provider-google/pull/21216))
+* compute: allow parallelization of `google_compute_per_instance_config` and `google_compute_region_per_instance_config` deletions by not locking on the parent resource, but including instance name. ([#21095](https://github.com/hashicorp/terraform-provider-google/pull/21095))
+* container: added `auto_monitoring_config` field and subfields to the `google_container_cluster` resource ([#21229](https://github.com/hashicorp/terraform-provider-google/pull/21229))
+* filestore: added `initial_replication` field for peer instance configuration and `effective_replication` output for replication configuration output to `google_filestore_instance` ([#21194](https://github.com/hashicorp/terraform-provider-google/pull/21194))
+* memorystore: added `CLUSTER_DISABLED`  to `mode` field  in  `google_memorystore_instance` ([#21092](https://github.com/hashicorp/terraform-provider-google/pull/21092))
+* networkservices: added `compression_mode` and `allowed_methods` fields to `google_network_services_edge_cache_service` resource ([#21195](https://github.com/hashicorp/terraform-provider-google/pull/21195))
+* privateca: added `user_defined_access_urls` and subfields to `google_privateca_certificate_authority` resource to add support for custom CDP AIA URLs ([#21220](https://github.com/hashicorp/terraform-provider-google/pull/21220))
+* workbench: added `enable_third_party_identity` field to `google_workbench_instance` resource ([#21265](https://github.com/hashicorp/terraform-provider-google/pull/21265))
+
+BUG FIXES:
+* bigquery: added diff suppression for legacy values in `renewal_plan` field in `google_bigquery_capacity_commitment` resource ([#21103](https://github.com/hashicorp/terraform-provider-google/pull/21103))
+* compute: fixed `google_compute_(region_)resize_request` requiring region/zone to be specified in all cases. They can now be pulled from the provider. ([#21264](https://github.com/hashicorp/terraform-provider-google/pull/21264))
+* container: reverted locking behavior in `google_container_node_pool` that caused regression of operation apply time spike started in `v6.15` ([#21102](https://github.com/hashicorp/terraform-provider-google/pull/21102))
+* gemini: fixed a bug where the `force_destroy` field in resource `gemini_code_repository_index` did not work properly ([#21212](https://github.com/hashicorp/terraform-provider-google/pull/21212))
+* workbench: fixed a bug with `google_workbench_instance` metadata removal not working as expected ([#21204](https://github.com/hashicorp/terraform-provider-google/pull/21204))
+
 ## 6.19.0 (Feb 3, 2025)
 DEPRECATIONS:
 * beyondcorp: deprecated `location` on `google_beyondcorp_security_gateway`. The only valid value is `global`, which is now also the default value. The field will be removed in a future major release. ([#21006](https://github.com/hashicorp/terraform-provider-google/pull/21006))
