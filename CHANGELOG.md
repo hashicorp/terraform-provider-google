@@ -14,8 +14,6 @@ FEATURES:
 * **New Resource:** `google_bigquery_analytics_hub_listing_subscription` ([#21189](https://github.com/hashicorp/terraform-provider-google/pull/21189))
 * **New Resource:** `google_colab_notebook_execution` ([#21100](https://github.com/hashicorp/terraform-provider-google/pull/21100))
 * **New Resource:** `google_colab_schedule` ([#21233](https://github.com/hashicorp/terraform-provider-google/pull/21233))
-* **New Resource:** `google_gemini_logging_setting` ([#21192](https://github.com/hashicorp/terraform-provider-google/pull/21192))
-* **New Resource:** `google_gemini_release_channel_setting` ([#21202](https://github.com/hashicorp/terraform-provider-google/pull/21202))
 
 IMPROVEMENTS:
 * accesscontextmanager: added `resource` to `sources` in `egress_from` under resources `google_access_context_manager_service_perimeter`, `google_access_context_manager_service_perimeters`, `google_access_context_manager_service_perimeter_egress_policy`, `google_access_context_manager_service_perimeter_dry_run_egress_policy` ([#21190](https://github.com/hashicorp/terraform-provider-google/pull/21190))
