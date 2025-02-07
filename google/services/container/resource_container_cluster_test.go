@@ -4226,7 +4226,7 @@ func TestAccContainerCluster_autoprovisioningDefaultsManagement(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_autoprovisioningDefaultsManagement(clusterName, networkName, subnetworkName, false, false),
+				Config: testAccContainerCluster_autoprovisioningDefaultsManagement(clusterName, networkName, subnetworkName, true, false),
 			},
 			{
 				ResourceName:            "google_container_cluster.with_autoprovisioning_management",
