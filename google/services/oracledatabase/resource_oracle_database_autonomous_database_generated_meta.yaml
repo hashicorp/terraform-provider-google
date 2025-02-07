@@ -4,6 +4,7 @@ source_file: 'products/oracledatabase/AutonomousDatabase.yaml'
 api_service_name: 'oracledatabase.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'AutonomousDatabase'
+autogen_status: true
 fields:
   - field: 'admin_password'
   - field: 'autonomous_database_id'

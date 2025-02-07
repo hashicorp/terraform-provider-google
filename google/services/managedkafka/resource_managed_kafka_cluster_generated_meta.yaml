@@ -4,6 +4,7 @@ source_file: 'products/managedkafka/Cluster.yaml'
 api_service_name: 'managedkafka.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Cluster'
+autogen_status: true
 fields:
   - field: 'capacity_config.memory_bytes'
   - field: 'capacity_config.vcpu_count'
