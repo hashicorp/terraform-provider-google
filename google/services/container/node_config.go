@@ -579,10 +579,45 @@ func schemaNodeConfig() *schema.Schema {
 								Optional:    true,
 								Description: `Controls the maximum number of processes allowed to run in a pod.`,
 							},
+							"container_log_max_size": {
+								Type:        schema.TypeString,
+								Optional:    true,
+								Description: `Defines the maximum size of the container log file before it is rotated.`,
+							},
+							"container_log_max_files": {
+								Type:        schema.TypeInt,
+								Optional:    true,
+								Description: `Defines the maximum number of container log files that can be present for a container.`,
+							},
+							"image_gc_low_threshold_percent": {
+								Type:        schema.TypeInt,
+								Optional:    true,
+								Description: `Defines the percent of disk usage before which image garbage collection is never run. Lowest disk usage to garbage collect to.`,
+							},
+							"image_gc_high_threshold_percent": {
+								Type:        schema.TypeInt,
+								Optional:    true,
+								Description: `Defines the percent of disk usage after which image garbage collection is always run.`,
+							},
+							"image_minimum_gc_age": {
+								Type:        schema.TypeString,
+								Optional:    true,
+								Description: `Defines the minimum age for an unused image before it is garbage collected.`,
+							},
+							"image_maximum_gc_age": {
+								Type:        schema.TypeString,
+								Optional:    true,
+								Description: `Defines the maximum age an image can be unused before it is garbage collected.`,
+							},
+							"allowed_unsafe_sysctls": {
+								Type:        schema.TypeList,
+								Optional:    true,
+								Description: `Defines a comma-separated allowlist of unsafe sysctls or sysctl patterns which can be set on the Pods.`,
+								Elem:        &schema.Schema{Type: schema.TypeString},
+							},
 						},
 					},
 				},
-
 				"linux_node_config": {
 					Type:        schema.TypeList,
 					Optional:    true,
@@ -1220,6 +1255,31 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 	if podPidsLimit, ok := cfg["pod_pids_limit"]; ok {
 		kConfig.PodPidsLimit = int64(podPidsLimit.(int))
 	}
+	if containerLogMaxSize, ok := cfg["container_log_max_size"]; ok {
+		kConfig.ContainerLogMaxSize = containerLogMaxSize.(string)
+	}
+	if containerLogMaxFiles, ok := cfg["container_log_max_files"]; ok {
+		kConfig.ContainerLogMaxFiles = int64(containerLogMaxFiles.(int))
+	}
+	if imageGcLowThresholdPercent, ok := cfg["image_gc_low_threshold_percent"]; ok {
+		kConfig.ImageGcLowThresholdPercent = int64(imageGcLowThresholdPercent.(int))
+	}
+	if imageGcHighThresholdPercent, ok := cfg["image_gc_high_threshold_percent"]; ok {
+		kConfig.ImageGcHighThresholdPercent = int64(imageGcHighThresholdPercent.(int))
+	}
+	if imageMinimumGcAge, ok := cfg["image_minimum_gc_age"]; ok {
+		kConfig.ImageMinimumGcAge = imageMinimumGcAge.(string)
+	}
+	if imageMaximumGcAge, ok := cfg["image_maximum_gc_age"]; ok {
+		kConfig.ImageMaximumGcAge = imageMaximumGcAge.(string)
+	}
+	if allowedUnsafeSysctls, ok := cfg["allowed_unsafe_sysctls"]; ok {
+		sysctls := allowedUnsafeSysctls.([]interface{})
+		kConfig.AllowedUnsafeSysctls = make([]string, len(sysctls))
+		for i, s := range sysctls {
+			kConfig.AllowedUnsafeSysctls[i] = s.(string)
+		}
+	}
 	return kConfig
 }
 
@@ -1729,6 +1789,13 @@ func flattenKubeletConfig(c *container.NodeKubeletConfig) []map[string]interface
 			"cpu_manager_policy":                     c.CpuManagerPolicy,
 			"insecure_kubelet_readonly_port_enabled": flattenInsecureKubeletReadonlyPortEnabled(c),
 			"pod_pids_limit":                         c.PodPidsLimit,
+			"container_log_max_size":                 c.ContainerLogMaxSize,
+			"container_log_max_files":                c.ContainerLogMaxFiles,
+			"image_gc_low_threshold_percent":         c.ImageGcLowThresholdPercent,
+			"image_gc_high_threshold_percent":        c.ImageGcHighThresholdPercent,
+			"image_minimum_gc_age":                   c.ImageMinimumGcAge,
+			"image_maximum_gc_age":                   c.ImageMaximumGcAge,
+			"allowed_unsafe_sysctls":                 c.AllowedUnsafeSysctls,
 		})
 	}
 	return result
