@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added new fields `container_log_max_size`, `container_log_max_files`, `image_gc_low_threshold_percent`, `image_gc_high_threshold_percent`, `image_minimum_gc_age`, `image_maximum_gc_age`, and `allowed_unsafe_sysctls` to `node_kubelet_config` block. 
+```
