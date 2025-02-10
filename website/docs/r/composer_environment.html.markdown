@@ -1275,7 +1275,7 @@ The `worker` block supports:
 * `min_count` -
   (Optional)
   The minimum number of Airflow workers that the environment can run. The number of workers in the
-  environment does not go above this number, even if a lower number of workers can handle the load.
+  environment does not go below this number, even if a lower number of workers can handle the load.
 
 * `max_count` -
   (Optional)
@@ -1618,7 +1618,7 @@ The `worker` block supports:
 * `min_count` -
   (Optional)
   The minimum number of Airflow workers that the environment can run. The number of workers in the
-  environment does not go above this number, even if a lower number of workers can handle the load.
+  environment does not go below this number, even if a lower number of workers can handle the load.
 
 * `max_count` -
   (Optional)
