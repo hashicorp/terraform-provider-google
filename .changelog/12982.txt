@@ -1,0 +1,3 @@
+```release-note:none 
+cloudrun - fix missing alias for name secret_ref (hashicorp#21272)
+```
