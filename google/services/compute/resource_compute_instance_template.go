@@ -1839,6 +1839,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	}
 	if instanceTemplate.Properties.Scheduling != nil {
 		scheduling := flattenScheduling(instanceTemplate.Properties.Scheduling)
+
 		if err = d.Set("scheduling", scheduling); err != nil {
 			return fmt.Errorf("Error setting scheduling: %s", err)
 		}
