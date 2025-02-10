@@ -22,6 +22,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -211,6 +212,10 @@ func resourceDiscoveryEngineTargetSiteCreate(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
+
+	// Replace the location
+	location := d.Get("location").(string)
+	url = strings.Replace(url, "{{location}}", location, -1)
 
 	log.Printf("[DEBUG] Creating new TargetSite: %#v", obj)
 	billingProject := ""
