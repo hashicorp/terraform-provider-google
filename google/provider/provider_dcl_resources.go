@@ -53,7 +53,6 @@ var dclResources = map[string]*schema.Resource{
 	"google_dataproc_workflow_template":     dataproc.ResourceDataprocWorkflowTemplate(),
 	"google_eventarc_channel":               eventarc.ResourceEventarcChannel(),
 	"google_eventarc_google_channel_config": eventarc.ResourceEventarcGoogleChannelConfig(),
-	"google_eventarc_trigger":               eventarc.ResourceEventarcTrigger(),
 	"google_firebaserules_release":          firebaserules.ResourceFirebaserulesRelease(),
 	"google_firebaserules_ruleset":          firebaserules.ResourceFirebaserulesRuleset(),
 	"google_gke_hub_feature_membership":     gkehub.ResourceGkeHubFeatureMembership(),
