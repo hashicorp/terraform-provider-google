@@ -41,6 +41,11 @@ BUG FIXES:
 * gemini: fixed a bug where the `force_destroy` field in resource `gemini_code_repository_index` did not work properly ([#21212](https://github.com/hashicorp/terraform-provider-google/pull/21212))
 * workbench: fixed a bug with `google_workbench_instance` metadata removal not working as expected ([#21204](https://github.com/hashicorp/terraform-provider-google/pull/21204))
 
+## 5.45.2 (Feb 10, 2025)
+
+NOTES:
+* `5.45.2` contains no changes from `5.45.1`. This release is being made to ensure that the version numbers of the `google` and `google-beta` provider releases remain aligned, as [`google-beta`'s `5.45.2` release](https://github.com/hashicorp/terraform-provider-google-beta/releases/tag/v5.45.2) contains a beta-only change.
+
 ## 6.19.0 (Feb 3, 2025)
 DEPRECATIONS:
 * beyondcorp: deprecated `location` on `google_beyondcorp_security_gateway`. The only valid value is `global`, which is now also the default value. The field will be removed in a future major release. ([#21006](https://github.com/hashicorp/terraform-provider-google/pull/21006))
