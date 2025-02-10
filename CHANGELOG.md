@@ -1,7 +1,7 @@
 ## 5.45.2 (Unreleased)
 
 NOTES:
-* 5.45.2 is a no-op release to align the versions with a recend backport release in [terraform-provider-google-beta](https://github.com/hashicorp/terraform-provider-google-beta/releases/tag/v6.45.2)
+* `5.45.2` contains no changes from `5.45.1`. This release is being made to ensure that the version numbers of the `google` and `google-beta` provider releases remain aligned, as [`google-beta`'s `5.45.2` release](https://github.com/hashicorp/terraform-provider-google-beta/releases/tag/v5.45.2) contains a beta-only change.
 
 ## 5.45.1 (January 29, 2024)
 
