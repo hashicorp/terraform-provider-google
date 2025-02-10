@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_developer_connect_connection'
 generation_type: 'mmv1'
 source_file: 'products/developerconnect/Connection.yaml'

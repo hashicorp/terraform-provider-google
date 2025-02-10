@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_compute_ha_vpn_gateway'
 generation_type: 'mmv1'
 source_file: 'products/compute/HaVpnGateway.yaml'
