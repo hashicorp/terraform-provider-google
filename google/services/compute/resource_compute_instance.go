@@ -1759,9 +1759,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("scratch_disk", scratchDisks); err != nil {
 		return fmt.Errorf("Error setting scratch_disk: %s", err)
 	}
+
 	if err := d.Set("scheduling", flattenScheduling(instance.Scheduling)); err != nil {
 		return fmt.Errorf("Error setting scheduling: %s", err)
 	}
+
 	if err := d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators)); err != nil {
 		return fmt.Errorf("Error setting guest_accelerator: %s", err)
 	}

@@ -636,6 +636,24 @@ specified, then this instance will have no external IPv6 Internet access. Struct
    315,576,000,000 inclusive. Note: these bounds are computed from: 60
    sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years.
 
+* `graceful_shutdown` -  (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Settings for the instance to perform a graceful shutdown. Structure is [documented below](#nested_graceful_shutdown).
+
+<a name="nested_graceful_shutdown"></a>The `graceful_shutdown` block supports:
+
+* `enabled` - (Required) Opts-in for graceful shutdown.
+
+* `max_duration` (Optional) The time allotted for the instance to gracefully shut down.
+    If the graceful shutdown isn't complete after this time, then the instance
+    transitions to the STOPPING state. Structure is documented below:
+
+    * `nanos` - (Optional) Span of time that's a fraction of a second at nanosecond
+        resolution. Durations less than one second are represented with a 0
+        `seconds` field and a positive `nanos` field. Must be from 0 to
+        999,999,999 inclusive.
+
+    * `seconds` - (Required) Span of time at a resolution of a second.
+        The value must be between 1 and 3600, which is 3,600 seconds (one hour).`
+
 <a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 
 * `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.

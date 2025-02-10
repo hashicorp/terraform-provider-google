@@ -1337,6 +1337,7 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 	}
 	if instanceProperties.Scheduling != nil {
 		scheduling := flattenScheduling(instanceProperties.Scheduling)
+
 		if err = d.Set("scheduling", scheduling); err != nil {
 			return fmt.Errorf("Error setting scheduling: %s", err)
 		}
