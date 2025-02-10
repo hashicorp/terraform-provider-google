@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_bigquery_datapolicy_data_policy_iam_policy`
+# google_bigquery_datapolicy_data_policy_iam_policy
+
 Retrieves the current IAM policy data for datapolicy
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_bigquery_datapolicy_data_policy_iam_policy" "policy" {

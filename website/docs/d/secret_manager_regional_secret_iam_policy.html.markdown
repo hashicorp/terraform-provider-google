@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_secret_manager_regional_secret_iam_policy`
+# google_secret_manager_regional_secret_iam_policy
+
 Retrieves the current IAM policy data for regionalsecret
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_secret_manager_regional_secret_iam_policy" "policy" {

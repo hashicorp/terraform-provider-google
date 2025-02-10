@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_scc_source_iam_policy`
+# google_scc_source_iam_policy
+
 Retrieves the current IAM policy data for source
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_scc_source_iam_policy" "policy" {

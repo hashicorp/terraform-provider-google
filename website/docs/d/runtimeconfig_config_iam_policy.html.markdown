@@ -18,13 +18,15 @@ description: |-
 ---
 
 
-# `google_runtimeconfig_config_iam_policy`
+# google_runtimeconfig_config_iam_policy
+
 Retrieves the current IAM policy data for config
 ~> **Warning:** This datasource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_runtimeconfig_config_iam_policy" "policy" {

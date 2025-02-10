@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_cloudbuildv2_connection_iam_policy`
+# google_cloudbuildv2_connection_iam_policy
+
 Retrieves the current IAM policy data for connection
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_cloudbuildv2_connection_iam_policy" "policy" {

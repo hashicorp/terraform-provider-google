@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_dataplex_asset_iam_policy`
+# google_dataplex_asset_iam_policy
+
 Retrieves the current IAM policy data for asset
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_dataplex_asset_iam_policy" "policy" {

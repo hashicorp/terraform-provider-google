@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_apigee_environment_iam_policy`
+# google_apigee_environment_iam_policy
+
 Retrieves the current IAM policy data for environment
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_apigee_environment_iam_policy" "policy" {

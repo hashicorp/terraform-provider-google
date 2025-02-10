@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_kms_ekm_connection_iam_policy`
+# google_kms_ekm_connection_iam_policy
+
 Retrieves the current IAM policy data for ekmconnection
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_kms_ekm_connection_iam_policy" "policy" {

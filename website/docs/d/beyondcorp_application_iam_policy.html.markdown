@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_beyondcorp_application_iam_policy`
+# google_beyondcorp_application_iam_policy
+
 Retrieves the current IAM policy data for application
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_beyondcorp_application_iam_policy" "policy" {

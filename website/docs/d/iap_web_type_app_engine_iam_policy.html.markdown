@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_iap_web_type_app_engine_iam_policy`
+# google_iap_web_type_app_engine_iam_policy
+
 Retrieves the current IAM policy data for webtypeappengine
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_iap_web_type_app_engine_iam_policy" "policy" {

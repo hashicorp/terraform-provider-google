@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_endpoints_service_iam_policy`
+# google_endpoints_service_iam_policy
+
 Retrieves the current IAM policy data for service
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_endpoints_service_iam_policy" "policy" {

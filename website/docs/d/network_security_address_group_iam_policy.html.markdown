@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_network_security_address_group_iam_policy`
+# google_network_security_address_group_iam_policy
+
 Retrieves the current IAM policy data for projectaddressgroup
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_network_security_address_group_iam_policy" "policy" {

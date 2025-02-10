@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_access_context_manager_access_policy_iam_policy`
+# google_access_context_manager_access_policy_iam_policy
+
 Retrieves the current IAM policy data for accesspolicy
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_access_context_manager_access_policy_iam_policy" "policy" {

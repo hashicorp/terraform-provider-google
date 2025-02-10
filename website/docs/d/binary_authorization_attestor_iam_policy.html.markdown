@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_binary_authorization_attestor_iam_policy`
+# google_binary_authorization_attestor_iam_policy
+
 Retrieves the current IAM policy data for attestor
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_binary_authorization_attestor_iam_policy" "policy" {

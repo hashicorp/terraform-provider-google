@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_container_analysis_note_iam_policy`
+# google_container_analysis_note_iam_policy
+
 Retrieves the current IAM policy data for note
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_container_analysis_note_iam_policy" "policy" {
