@@ -198,7 +198,7 @@ resource "google_discovery_engine_data_store" "document_processing_config_layout
   data_store_id               = "tf-test-data-store-id%{random_suffix}"
   display_name                = "tf-test-structured-datastore"
   industry_vertical           = "GENERIC"
-  content_config              = "CONTENT_REQUIRED"
+  content_config              = "PUBLIC_WEBSITE"
   solution_types              = ["SOLUTION_TYPE_SEARCH"]
   create_advanced_site_search = true
   document_processing_config {

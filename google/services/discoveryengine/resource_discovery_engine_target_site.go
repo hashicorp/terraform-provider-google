@@ -533,7 +533,13 @@ func flattenDiscoveryEngineTargetSiteFailureReasonQuotaFailureTotalRequiredQuota
 }
 
 func expandDiscoveryEngineTargetSiteProvidedUriPattern(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+	pattern := v.(string)
+	
+	// Remove http:// or https:// from the URI pattern
+	pattern = strings.TrimPrefix(pattern, "http://")
+	pattern = strings.TrimPrefix(pattern, "https://")
+	
+	return pattern, nil
 }
 
 func expandDiscoveryEngineTargetSiteType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

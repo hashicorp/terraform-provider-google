@@ -324,6 +324,10 @@ func resourceDiscoveryEngineDataStoreCreate(d *schema.ResourceData, meta interfa
 		return err
 	}
 
+	if d.Get("create_advanced_site_search").(bool) && d.Get("content_config").(string) != "PUBLIC_WEBSITE" {
+		return fmt.Errorf("AdvancedSiteSearchConfig is only supported for advanced site search Data Store with content_config=PUBLIC_WEBSITE")
+	}
+
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandDiscoveryEngineDataStoreDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
