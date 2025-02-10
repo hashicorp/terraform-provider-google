@@ -1,0 +1,3 @@
+```release-note:bug
+cloudbuildv2: fixed ssl_ca field in `bitbucket_data_center_config` for `google_cloudbuildv2_connection`
+```
