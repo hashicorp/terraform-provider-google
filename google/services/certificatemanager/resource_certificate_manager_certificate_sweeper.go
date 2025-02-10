@@ -96,7 +96,7 @@ func testSweepCertificateManagerCertificate(_ string) error {
 		resourceList, ok := res["certificates"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			return nil
+			continue
 		}
 		rl := resourceList.([]interface{})
 

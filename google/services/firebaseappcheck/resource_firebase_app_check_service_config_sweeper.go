@@ -89,7 +89,7 @@ func testSweepFirebaseAppCheckServiceConfig(_ string) error {
 		resourceList, ok := res["serviceConfigs"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			return nil
+			continue
 		}
 		rl := resourceList.([]interface{})
 

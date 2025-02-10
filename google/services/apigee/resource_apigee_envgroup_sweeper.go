@@ -89,7 +89,7 @@ func testSweepApigeeEnvgroup(_ string) error {
 		resourceList, ok := res["envgroups"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			return nil
+			continue
 		}
 		rl := resourceList.([]interface{})
 

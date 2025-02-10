@@ -90,7 +90,7 @@ func testSweepGKEHub2Fleet(_ string) error {
 		resourceList, ok := res["fleets"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			return nil
+			continue
 		}
 		rl := resourceList.([]interface{})
 

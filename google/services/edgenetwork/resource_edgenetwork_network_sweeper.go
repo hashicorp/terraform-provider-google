@@ -89,7 +89,7 @@ func testSweepEdgenetworkNetwork(_ string) error {
 		resourceList, ok := res["networks"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			return nil
+			continue
 		}
 		var rl []interface{}
 		zones := resourceList.(map[string]interface{})
