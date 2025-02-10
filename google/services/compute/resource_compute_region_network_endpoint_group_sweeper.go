@@ -94,7 +94,7 @@ func testSweepComputeRegionNetworkEndpointGroup(_ string) error {
 		resourceList, ok := res["items"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			return nil
+			continue
 		}
 		rl := resourceList.([]interface{})
 

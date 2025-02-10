@@ -90,7 +90,7 @@ func testSweepIntegrationConnectorsEndpointAttachment(_ string) error {
 		resourceList, ok := res["endpointAttachments"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			return nil
+			continue
 		}
 		rl := resourceList.([]interface{})
 

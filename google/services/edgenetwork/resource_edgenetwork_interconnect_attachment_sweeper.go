@@ -89,7 +89,7 @@ func testSweepEdgenetworkInterconnectAttachment(_ string) error {
 		resourceList, ok := res["interconnectAttachments"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			return nil
+			continue
 		}
 		var rl []interface{}
 		zones := resourceList.(map[string]interface{})

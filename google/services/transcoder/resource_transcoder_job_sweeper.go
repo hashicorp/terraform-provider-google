@@ -90,7 +90,7 @@ func testSweepTranscoderJob(_ string) error {
 		resourceList, ok := res["jobs"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			return nil
+			continue
 		}
 		rl := resourceList.([]interface{})
 

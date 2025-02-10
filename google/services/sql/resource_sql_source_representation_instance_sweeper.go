@@ -90,7 +90,7 @@ func testSweepSQLSourceRepresentationInstance(_ string) error {
 		resourceList, ok := res["sourceRepresentationInstances"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			return nil
+			continue
 		}
 		rl := resourceList.([]interface{})
 

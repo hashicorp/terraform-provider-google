@@ -90,7 +90,7 @@ func testSweepComputePublicAdvertisedPrefix(_ string) error {
 		resourceList, ok := res["publicAdvertisedPrefixs"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			return nil
+			continue
 		}
 		rl := resourceList.([]interface{})
 

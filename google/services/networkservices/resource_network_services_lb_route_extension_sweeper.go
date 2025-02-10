@@ -92,7 +92,7 @@ func testSweepNetworkServicesLbRouteExtension(_ string) error {
 		resourceList, ok := res["lbRouteExtensions"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			return nil
+			continue
 		}
 		rl := resourceList.([]interface{})
 

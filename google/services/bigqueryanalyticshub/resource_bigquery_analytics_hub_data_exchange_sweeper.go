@@ -91,7 +91,7 @@ func testSweepBigqueryAnalyticsHubDataExchange(_ string) error {
 		resourceList, ok := res["dataExchanges"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			return nil
+			continue
 		}
 		rl := resourceList.([]interface{})
 
