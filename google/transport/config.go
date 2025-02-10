@@ -252,6 +252,7 @@ type Config struct {
 	EdgecontainerBasePath            string
 	EdgenetworkBasePath              string
 	EssentialContactsBasePath        string
+	EventarcBasePath                 string
 	FilestoreBasePath                string
 	FirebaseAppCheckBasePath         string
 	FirestoreBasePath                string
@@ -404,6 +405,7 @@ const DocumentAIWarehouseBasePathKey = "DocumentAIWarehouse"
 const EdgecontainerBasePathKey = "Edgecontainer"
 const EdgenetworkBasePathKey = "Edgenetwork"
 const EssentialContactsBasePathKey = "EssentialContacts"
+const EventarcBasePathKey = "Eventarc"
 const FilestoreBasePathKey = "Filestore"
 const FirebaseAppCheckBasePathKey = "FirebaseAppCheck"
 const FirestoreBasePathKey = "Firestore"
@@ -550,6 +552,7 @@ var DefaultBasePaths = map[string]string{
 	EdgecontainerBasePathKey:            "https://edgecontainer.googleapis.com/v1/",
 	EdgenetworkBasePathKey:              "https://edgenetwork.googleapis.com/v1/",
 	EssentialContactsBasePathKey:        "https://essentialcontacts.googleapis.com/v1/",
+	EventarcBasePathKey:                 "https://eventarc.googleapis.com/v1/",
 	FilestoreBasePathKey:                "https://file.googleapis.com/v1/",
 	FirebaseAppCheckBasePathKey:         "https://firebaseappcheck.googleapis.com/v1/",
 	FirestoreBasePathKey:                "https://firestore.googleapis.com/v1/",
@@ -1022,6 +1025,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("essential_contacts_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_ESSENTIAL_CONTACTS_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[EssentialContactsBasePathKey]))
+	}
+	if d.Get("eventarc_custom_endpoint") == "" {
+		d.Set("eventarc_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_EVENTARC_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[EventarcBasePathKey]))
 	}
 	if d.Get("filestore_custom_endpoint") == "" {
 		d.Set("filestore_custom_endpoint", MultiEnvDefault([]string{
@@ -2352,6 +2360,7 @@ func ConfigureBasePaths(c *Config) {
 	c.EdgecontainerBasePath = DefaultBasePaths[EdgecontainerBasePathKey]
 	c.EdgenetworkBasePath = DefaultBasePaths[EdgenetworkBasePathKey]
 	c.EssentialContactsBasePath = DefaultBasePaths[EssentialContactsBasePathKey]
+	c.EventarcBasePath = DefaultBasePaths[EventarcBasePathKey]
 	c.FilestoreBasePath = DefaultBasePaths[FilestoreBasePathKey]
 	c.FirebaseAppCheckBasePath = DefaultBasePaths[FirebaseAppCheckBasePathKey]
 	c.FirestoreBasePath = DefaultBasePaths[FirestoreBasePathKey]
