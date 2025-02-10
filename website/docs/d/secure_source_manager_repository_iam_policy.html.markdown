@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_secure_source_manager_repository_iam_policy`
+# google_secure_source_manager_repository_iam_policy
+
 Retrieves the current IAM policy data for repository
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_secure_source_manager_repository_iam_policy" "policy" {

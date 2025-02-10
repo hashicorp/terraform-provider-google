@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_storage_bucket_iam_policy`
+# google_storage_bucket_iam_policy
+
 Retrieves the current IAM policy data for bucket
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_storage_bucket_iam_policy" "policy" {

@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_cloud_tasks_queue_iam_policy`
+# google_cloud_tasks_queue_iam_policy
+
 Retrieves the current IAM policy data for queue
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_cloud_tasks_queue_iam_policy" "policy" {

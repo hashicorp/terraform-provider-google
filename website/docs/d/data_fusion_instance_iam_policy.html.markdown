@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_data_fusion_instance_iam_policy`
+# google_data_fusion_instance_iam_policy
+
 Retrieves the current IAM policy data for instance
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_data_fusion_instance_iam_policy" "policy" {

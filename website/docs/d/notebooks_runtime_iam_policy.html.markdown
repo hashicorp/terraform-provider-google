@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_notebooks_runtime_iam_policy`
+# google_notebooks_runtime_iam_policy
+
 Retrieves the current IAM policy data for runtime
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_notebooks_runtime_iam_policy" "policy" {

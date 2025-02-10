@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_tags_tag_key_iam_policy`
+# google_tags_tag_key_iam_policy
+
 Retrieves the current IAM policy data for tagkey
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_tags_tag_key_iam_policy" "policy" {

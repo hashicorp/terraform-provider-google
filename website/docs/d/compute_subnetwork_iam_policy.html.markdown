@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_compute_subnetwork_iam_policy`
+# google_compute_subnetwork_iam_policy
+
 Retrieves the current IAM policy data for subnetwork
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_compute_subnetwork_iam_policy" "policy" {

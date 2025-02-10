@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_bigquery_analytics_hub_listing_iam_policy`
+# google_bigquery_analytics_hub_listing_iam_policy
+
 Retrieves the current IAM policy data for listing
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_bigquery_analytics_hub_listing_iam_policy" "policy" {

@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_privateca_ca_pool_iam_policy`
+# google_privateca_ca_pool_iam_policy
+
 Retrieves the current IAM policy data for capool
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_privateca_ca_pool_iam_policy" "policy" {

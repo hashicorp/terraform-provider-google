@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_dataproc_metastore_federation_iam_policy`
+# google_dataproc_metastore_federation_iam_policy
+
 Retrieves the current IAM policy data for federation
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_dataproc_metastore_federation_iam_policy" "policy" {

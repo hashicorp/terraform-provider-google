@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_iap_tunnel_instance_iam_policy`
+# google_iap_tunnel_instance_iam_policy
+
 Retrieves the current IAM policy data for tunnelinstance
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_iap_tunnel_instance_iam_policy" "policy" {

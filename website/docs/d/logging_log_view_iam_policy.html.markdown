@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_logging_log_view_iam_policy`
+# google_logging_log_view_iam_policy
+
 Retrieves the current IAM policy data for logview
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_logging_log_view_iam_policy" "policy" {

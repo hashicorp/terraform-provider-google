@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_dataplex_datascan_iam_policy`
+# google_dataplex_datascan_iam_policy
+
 Retrieves the current IAM policy data for datascan
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_dataplex_datascan_iam_policy" "policy" {

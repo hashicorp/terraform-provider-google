@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_dataplex_aspect_type_iam_policy`
+# google_dataplex_aspect_type_iam_policy
+
 Retrieves the current IAM policy data for aspecttype
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_dataplex_aspect_type_iam_policy" "policy" {

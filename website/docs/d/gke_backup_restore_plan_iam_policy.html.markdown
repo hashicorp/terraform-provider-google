@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_gke_backup_restore_plan_iam_policy`
+# google_gke_backup_restore_plan_iam_policy
+
 Retrieves the current IAM policy data for restoreplan
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_gke_backup_restore_plan_iam_policy" "policy" {

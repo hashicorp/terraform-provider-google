@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_healthcare_consent_store_iam_policy`
+# google_healthcare_consent_store_iam_policy
+
 Retrieves the current IAM policy data for consentstore
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_healthcare_consent_store_iam_policy" "policy" {

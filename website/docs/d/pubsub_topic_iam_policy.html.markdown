@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_pubsub_topic_iam_policy`
+# google_pubsub_topic_iam_policy
+
 Retrieves the current IAM policy data for topic
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_pubsub_topic_iam_policy" "policy" {

@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_dns_managed_zone_iam_policy`
+# google_dns_managed_zone_iam_policy
+
 Retrieves the current IAM policy data for managedzone
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_dns_managed_zone_iam_policy" "policy" {

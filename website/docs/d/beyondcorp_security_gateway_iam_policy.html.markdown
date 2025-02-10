@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_beyondcorp_security_gateway_iam_policy`
+# google_beyondcorp_security_gateway_iam_policy
+
 Retrieves the current IAM policy data for securitygateway
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_beyondcorp_security_gateway_iam_policy" "policy" {

@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_cloudfunctions2_function_iam_policy`
+# google_cloudfunctions2_function_iam_policy
+
 Retrieves the current IAM policy data for function
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_cloudfunctions2_function_iam_policy" "policy" {

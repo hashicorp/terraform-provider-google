@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_clouddeploy_target_iam_policy`
+# google_clouddeploy_target_iam_policy
+
 Retrieves the current IAM policy data for target
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_clouddeploy_target_iam_policy" "policy" {

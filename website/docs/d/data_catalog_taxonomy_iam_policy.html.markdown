@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_data_catalog_taxonomy_iam_policy`
+# google_data_catalog_taxonomy_iam_policy
+
 Retrieves the current IAM policy data for taxonomy
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_data_catalog_taxonomy_iam_policy" "policy" {

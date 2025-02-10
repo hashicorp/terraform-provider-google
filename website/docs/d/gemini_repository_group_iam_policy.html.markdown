@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_gemini_repository_group_iam_policy`
+# google_gemini_repository_group_iam_policy
+
 Retrieves the current IAM policy data for repositorygroup
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_gemini_repository_group_iam_policy" "policy" {

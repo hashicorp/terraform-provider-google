@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_clouddeploy_delivery_pipeline_iam_policy`
+# google_clouddeploy_delivery_pipeline_iam_policy
+
 Retrieves the current IAM policy data for deliverypipeline
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_clouddeploy_delivery_pipeline_iam_policy" "policy" {

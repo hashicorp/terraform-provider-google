@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_colab_runtime_template_iam_policy`
+# google_colab_runtime_template_iam_policy
+
 Retrieves the current IAM policy data for runtimetemplate
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_colab_runtime_template_iam_policy" "policy" {

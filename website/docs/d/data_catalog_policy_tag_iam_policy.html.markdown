@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_data_catalog_policy_tag_iam_policy`
+# google_data_catalog_policy_tag_iam_policy
+
 Retrieves the current IAM policy data for policytag
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_data_catalog_policy_tag_iam_policy" "policy" {

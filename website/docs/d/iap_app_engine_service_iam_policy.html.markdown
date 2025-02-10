@@ -18,11 +18,13 @@ description: |-
 ---
 
 
-# `google_iap_app_engine_service_iam_policy`
+# google_iap_app_engine_service_iam_policy
+
 Retrieves the current IAM policy data for appengineservice
 
 
-## example
+## Example Usage
+
 
 ```hcl
 data "google_iap_app_engine_service_iam_policy" "policy" {
