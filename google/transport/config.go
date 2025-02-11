@@ -255,6 +255,7 @@ type Config struct {
 	EventarcBasePath                 string
 	FilestoreBasePath                string
 	FirebaseAppCheckBasePath         string
+	FirebaseDataConnectBasePath      string
 	FirestoreBasePath                string
 	GeminiBasePath                   string
 	GKEBackupBasePath                string
@@ -408,6 +409,7 @@ const EssentialContactsBasePathKey = "EssentialContacts"
 const EventarcBasePathKey = "Eventarc"
 const FilestoreBasePathKey = "Filestore"
 const FirebaseAppCheckBasePathKey = "FirebaseAppCheck"
+const FirebaseDataConnectBasePathKey = "FirebaseDataConnect"
 const FirestoreBasePathKey = "Firestore"
 const GeminiBasePathKey = "Gemini"
 const GKEBackupBasePathKey = "GKEBackup"
@@ -555,6 +557,7 @@ var DefaultBasePaths = map[string]string{
 	EventarcBasePathKey:                 "https://eventarc.googleapis.com/v1/",
 	FilestoreBasePathKey:                "https://file.googleapis.com/v1/",
 	FirebaseAppCheckBasePathKey:         "https://firebaseappcheck.googleapis.com/v1/",
+	FirebaseDataConnectBasePathKey:      "https://firebasedataconnect.googleapis.com/v1/",
 	FirestoreBasePathKey:                "https://firestore.googleapis.com/v1/",
 	GeminiBasePathKey:                   "https://cloudaicompanion.googleapis.com/v1/",
 	GKEBackupBasePathKey:                "https://gkebackup.googleapis.com/v1/",
@@ -1040,6 +1043,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("firebase_app_check_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_FIREBASE_APP_CHECK_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[FirebaseAppCheckBasePathKey]))
+	}
+	if d.Get("firebase_data_connect_custom_endpoint") == "" {
+		d.Set("firebase_data_connect_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_FIREBASE_DATA_CONNECT_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[FirebaseDataConnectBasePathKey]))
 	}
 	if d.Get("firestore_custom_endpoint") == "" {
 		d.Set("firestore_custom_endpoint", MultiEnvDefault([]string{
@@ -2363,6 +2371,7 @@ func ConfigureBasePaths(c *Config) {
 	c.EventarcBasePath = DefaultBasePaths[EventarcBasePathKey]
 	c.FilestoreBasePath = DefaultBasePaths[FilestoreBasePathKey]
 	c.FirebaseAppCheckBasePath = DefaultBasePaths[FirebaseAppCheckBasePathKey]
+	c.FirebaseDataConnectBasePath = DefaultBasePaths[FirebaseDataConnectBasePathKey]
 	c.FirestoreBasePath = DefaultBasePaths[FirestoreBasePathKey]
 	c.GeminiBasePath = DefaultBasePaths[GeminiBasePathKey]
 	c.GKEBackupBasePath = DefaultBasePaths[GKEBackupBasePathKey]
