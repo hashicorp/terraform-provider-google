@@ -14,18 +14,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Security Command Center (SCC) v2 API"
 description: |-
-  A Cloud Security Command Center (Cloud SCC) notification configs.
+  This is a continuous export that exports findings to a Pub/Sub topic.
 ---
 
 # google_scc_v2_folder_notification_config
 
-A Cloud Security Command Center (Cloud SCC) notification configs. A
-notification config is a Cloud SCC resource that contains the
-configuration to send notifications for create/update events of
-findings, assets and etc.
-~> **Note:** In order to use Cloud SCC resources, your organization must be enrolled
-in [SCC Standard/Premium](https://cloud.google.com/security-command-center/docs/quickstart-security-command-center).
-Without doing so, you may run into errors during resource creation.
+This is a continuous export that exports findings to a Pub/Sub topic.
 
 
 To get more information about FolderNotificationConfig, see:
