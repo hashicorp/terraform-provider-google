@@ -55,9 +55,7 @@ The following arguments are supported:
 
 * `logging_setting_id` -
   (Required)
-  Required. Id of the requesting object.
-  If auto-generating Id server-side, remove this field and
-  setting_id from the method_signature of Create RPC.
+  Id of the Logging Setting.
 
 
 - - -
@@ -65,17 +63,17 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Optional. Labels as key value pairs.
+  Labels as key value pairs.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `log_prompts_and_responses` -
   (Optional)
-  Optional. Whether to log prompts and responses.
+  Whether to log prompts and responses.
 
 * `log_metadata` -
   (Optional)
-  Optional. Whether to log metadata.
+  Whether to log metadata.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -92,10 +90,10 @@ In addition to the arguments listed above, the following computed attributes are
   Format:projects/{project}/locations/{location}/loggingsettings/{loggingsetting}
 
 * `create_time` -
-  Output only. [Output only] Create time stamp.
+  Create time stamp.
 
 * `update_time` -
-  Output only. [Output only] Update time stamp.
+  Update time stamp.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
