@@ -6,6 +6,7 @@ api_version: 'v1'
 api_resource_type_kind: 'ServicePerimeter'
 fields:
   - field: 'access_policy_id'
+  - field: 'etag'
   - field: 'ingress_from.identities'
   - field: 'ingress_from.identity_type'
   - field: 'ingress_from.sources.access_level'
