@@ -305,6 +305,11 @@ also matches the 'operations' field.`,
 				Computed:    true,
 				Description: `The name of the Access Policy this resource belongs to.`,
 			},
+			"etag": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The perimeter etag is internally used to prevent overwriting the list of policies on PATCH calls. It is retrieved from the same GET perimeter API call that's used to get the current list of policies. The policy defined in this resource is added or removed from that list, and then this etag is sent with the PATCH call along with the updated policies.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -372,6 +377,21 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyCreate(d *schema.R
 	}
 
 	headers := make(http.Header)
+	etag := d.Get("etag").(string)
+
+	if etag == "" {
+		log.Printf("[ERROR] Unable to get etag: %s", err)
+		return nil
+	}
+	obj["etag"] = etag
+
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	updateMask := []string{"status.ingressPolicies", "etag"}
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",
@@ -469,6 +489,9 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyRead(d *schema.Res
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerServicePerimeterIngressPolicy %q", d.Id()))
 	}
+	if err := d.Set("etag", res["etag"]); err != nil {
+		log.Printf("[ERROR] Unable to set etag: %s", err)
+	}
 
 	res, err = flattenNestedAccessContextManagerServicePerimeterIngressPolicy(d, meta, res)
 	if err != nil {
@@ -489,6 +512,9 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyRead(d *schema.Res
 		return fmt.Errorf("Error reading ServicePerimeterIngressPolicy: %s", err)
 	}
 	if err := d.Set("title", flattenNestedAccessContextManagerServicePerimeterIngressPolicyTitle(res["title"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterIngressPolicy: %s", err)
+	}
+	if err := d.Set("etag", flattenNestedAccessContextManagerServicePerimeterIngressPolicyEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeterIngressPolicy: %s", err)
 	}
 
@@ -533,6 +559,21 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyDelete(d *schema.R
 	}
 
 	headers := make(http.Header)
+	etag := d.Get("etag").(string)
+
+	if etag == "" {
+		log.Printf("[ERROR] Unable to get etag: %s", err)
+		return nil
+	}
+	obj["etag"] = etag
+
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	updateMask := []string{"status.ingressPolicies", "etag"}
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 
 	log.Printf("[DEBUG] Deleting ServicePerimeterIngressPolicy %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -729,6 +770,10 @@ func flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressToOper
 }
 
 func flattenNestedAccessContextManagerServicePerimeterIngressPolicyTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedAccessContextManagerServicePerimeterIngressPolicyEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1086,6 +1131,9 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyListForPatch(d *sc
 	})
 	if err != nil {
 		return nil, err
+	}
+	if err := d.Set("etag", res["etag"]); err != nil {
+		log.Printf("[ERROR] Unable to set etag: %s", err)
 	}
 	var v interface{}
 	var ok bool
