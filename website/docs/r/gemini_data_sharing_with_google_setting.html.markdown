@@ -44,9 +44,7 @@ The following arguments are supported:
 
 * `data_sharing_with_google_setting_id` -
   (Required)
-  Required. Id of the requesting object.
-  If auto-generating Id server-side, remove this field and
-  data_sharing_with_google_setting_id from the method_signature of Create RPC
+  Id of the Data Sharing With Google Setting.
 
 
 - - -
@@ -54,13 +52,13 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Optional. Labels as key value pairs.
+  Labels as key value pairs.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `enable_preview_data_sharing` -
   (Optional)
-  Optional. Whether preview data sharing should be enabled.
+  Whether preview data sharing should be enabled.
 
 * `location` -
   (Optional)
@@ -81,10 +79,10 @@ In addition to the arguments listed above, the following computed attributes are
   Format:projects/{project}/locations/{location}/dataSharingWithGoogleSettings/{dataSharingWithGoogleSetting}
 
 * `create_time` -
-  Output only. [Output only] Create time stamp.
+  Create time stamp.
 
 * `update_time` -
-  Output only. [Output only] Update time stamp.
+  Update time stamp.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
