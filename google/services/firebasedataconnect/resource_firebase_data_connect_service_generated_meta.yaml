@@ -1,0 +1,29 @@
+resource: 'google_firebase_data_connect_service'
+generation_type: 'mmv1'
+source_file: 'products/firebasedataconnect/Service.yaml'
+api_service_name: 'firebasedataconnect.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Service'
+autogen_status: true
+fields:
+  - field: 'annotations'
+  - field: 'create_time'
+  - field: 'deletion_policy'
+    provider_only: true
+  - field: 'display_name'
+  - field: 'effective_annotations'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'etag'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'reconciling'
+  - field: 'service_id'
+    provider_only: true
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'

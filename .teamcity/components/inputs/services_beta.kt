@@ -406,6 +406,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Firebasedatabase",
         "path" to "./google-beta/services/firebasedatabase"
     ),
+    "firebasedataconnect" to mapOf(
+        "name" to "firebasedataconnect",
+        "displayName" to "Firebasedataconnect",
+        "path" to "./google-beta/services/firebasedataconnect"
+    ),
     "firebaseextensions" to mapOf(
         "name" to "firebaseextensions",
         "displayName" to "Firebaseextensions",
