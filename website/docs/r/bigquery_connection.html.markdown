@@ -310,14 +310,6 @@ resource "google_sql_user" "user" {
   password = "tf-test-my-password%{random_suffix}"
 }
 
-data "google_bigquery_default_service_account" "bq_sa" {}
-
-resource "google_kms_crypto_key_iam_member" "key_sa_user" {
-  crypto_key_id = "projects/project/locations/us-central1/keyRings/us-central1/cryptoKeys/bq-key"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:${data.google_bigquery_default_service_account.bq_sa.email}"
-}
-
 resource "google_bigquery_connection" "bq-connection-cmek" {
   friendly_name = "👋"
   description   = "a riveting description"
@@ -332,8 +324,6 @@ resource "google_bigquery_connection" "bq-connection-cmek" {
       password = google_sql_user.user.password
     }
   }
-
-  depends_on = [google_kms_crypto_key_iam_member.key_sa_user]
 }
 ```
 
