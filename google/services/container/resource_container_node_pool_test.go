@@ -3763,6 +3763,7 @@ resource "google_container_cluster" "cluster" {
   deletion_protection = false
   network             = "%s"
   subnetwork          = "%s"
+  min_master_version  = "1.32.0-gke.1448000"
 }
 
 resource "google_container_node_pool" "np1" {
@@ -3770,6 +3771,8 @@ resource "google_container_node_pool" "np1" {
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 2
+  // 2025-02-03: current default cluster version is 1.31.5-gke.1023000. This will change over time.
+  // Reference:  https://cloud.google.com/kubernetes-engine/docs/release-notes#current_versions
 }
 
 resource "google_container_node_pool" "np2" {
@@ -3777,6 +3780,8 @@ resource "google_container_node_pool" "np2" {
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 2
+  // 2025-02-03: current default cluster version is 1.31.5-gke.1023000. This will change over time.
+  // Reference:  https://cloud.google.com/kubernetes-engine/docs/release-notes#current_versions
 }
 `, cluster, networkName, subnetworkName, np1, np2)
 }
@@ -3784,12 +3789,13 @@ resource "google_container_node_pool" "np2" {
 func testAccContainerNodePool_concurrentUpdate(cluster, np1, np2, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 3
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 3
   deletion_protection = false
-  network    = "%s"
-  subnetwork    = "%s"
+  network             = "%s"
+  subnetwork          = "%s"
+  min_master_version  = "1.32.0-gke.1448000"
 }
 
 resource "google_container_node_pool" "np1" {
@@ -3797,7 +3803,11 @@ resource "google_container_node_pool" "np1" {
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 2
-  version            = "1.29.4-gke.1043002"
+  version            = "1.32.0-gke.1448000"
+  // The node version must remain within one minor version of the cluster ("master") version, and it must not exceed the cluster ("master") version
+  // Cross-ref: https://github.com/hashicorp/terraform-provider-google/issues/21116
+  // Cross-ref: https://github.com/GoogleCloudPlatform/magic-modules/pull/11115
+  // Reference:  https://cloud.google.com/kubernetes-engine/docs/release-notes#current_versions
 }
 
 resource "google_container_node_pool" "np2" {
@@ -3805,7 +3815,11 @@ resource "google_container_node_pool" "np2" {
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 2
-  version            = "1.29.4-gke.1043002"
+  version            = "1.32.0-gke.1448000"
+  // The node version must remain within one minor version of the cluster ("master") version, and it must not exceed the cluster ("master") version
+  // Cross-ref: https://github.com/hashicorp/terraform-provider-google/issues/21116
+  // Cross-ref: https://github.com/GoogleCloudPlatform/magic-modules/pull/11115
+  // Reference:  https://cloud.google.com/kubernetes-engine/docs/release-notes#current_versions
 }
 `, cluster, networkName, subnetworkName, np1, np2)
 }
