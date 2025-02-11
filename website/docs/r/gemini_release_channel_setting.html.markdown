@@ -54,9 +54,7 @@ The following arguments are supported:
 
 * `release_channel_setting_id` -
   (Required)
-  Required. Id of the requesting object.
-  If auto-generating Id server-side, remove this field and
-  release_channel_setting_id from the method_signature of Create RPC
+  Id of the Release Channel Setting.
 
 
 - - -
@@ -64,13 +62,13 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Optional. Labels as key value pairs.
+  Labels as key value pairs.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `release_channel` -
   (Optional)
-  Optional. Release channel to be used.
+  Release channel to be used.
   Possible values:
   STABLE
   EXPERIMENTAL
@@ -86,10 +84,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/releaseChannelSettings/{{release_channel_setting_id}}`
 
 * `create_time` -
-  Output only. [Output only] Create time stamp.
+  Create time stamp.
 
 * `update_time` -
-  Output only. [Output only] Update time stamp.
+  Update time stamp.
 
 * `name` -
   Identifier. Name of the resource.
