@@ -975,7 +975,7 @@ func TestAccSqlDatabaseInstance_withPSCEnabled_withoutPscAutoConnections(t *test
 func TestAccSqlDatabaseInstance_withPSCEnabled_withPscAutoConnections(t *testing.T) {
 	t.Parallel()
 
-	testId := "test-psc-auto-con" + acctest.RandString(t, 10)
+	testId := "test-psc-auto-con-1"
 	instanceName := "tf-test-" + acctest.RandString(t, 10)
 	projectId := envvar.GetTestProjectFromEnv()
 	networkName := acctest.BootstrapSharedTestNetwork(t, testId)
@@ -1004,7 +1004,7 @@ func TestAccSqlDatabaseInstance_withPSCEnabled_withPscAutoConnections(t *testing
 func TestAccSqlDatabaseInstance_withPSCEnabled_thenAddPscAutoConnections_thenRemovePscAutoConnections(t *testing.T) {
 	t.Parallel()
 
-	testId := "test-psc-auto-con" + acctest.RandString(t, 10)
+	testId := "test-psc-auto-con-2"
 	instanceName := "tf-test-" + acctest.RandString(t, 10)
 	projectId := envvar.GetTestProjectFromEnv()
 	networkName := acctest.BootstrapSharedTestNetwork(t, testId)
