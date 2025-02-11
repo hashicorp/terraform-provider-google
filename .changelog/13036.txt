@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_gemini_gcp_enablement_setting` (ga)
+```
