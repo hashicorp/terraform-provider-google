@@ -1,0 +1,3 @@
+```release-note:none
+Changed description of Gemini Data Sharing With Google Setting resource
+```
