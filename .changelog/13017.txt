@@ -1,0 +1,3 @@
+```release-note:none
+Changed description of Gemini Gcp Enablement Setting resource
+```

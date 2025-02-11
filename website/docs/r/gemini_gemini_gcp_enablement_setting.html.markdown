@@ -53,9 +53,7 @@ The following arguments are supported:
 
 * `gemini_gcp_enablement_setting_id` -
   (Required)
-  Required. Id of the requesting object.
-  If auto-generating Id server-side, remove this field and
-  gemini_gcp_enablement_setting_id from the method_signature of Create RPC
+  Id of the Gemini Gcp Enablement setting.
 
 
 - - -
@@ -63,13 +61,13 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Optional. Labels as key value pairs.
+  Labels as key value pairs.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `enable_customer_data_sharing` -
   (Optional)
-  Optional. Whether customer data sharing should be enabled.
+  Whether customer data sharing should be enabled.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -86,10 +84,10 @@ In addition to the arguments listed above, the following computed attributes are
   Format:projects/{project}/locations/{location}/geminiGcpEnablementSettings/{geminiGcpEnablementSetting}
 
 * `create_time` -
-  Output only. [Output only] Create time stamp.
+  Create time stamp.
 
 * `update_time` -
-  Output only. [Output only] Update time stamp.
+  Update time stamp.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
