@@ -21,8 +21,6 @@ description: |-
 
 The resource for managing GeminiGcpEnablement settings for Admin Control.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -35,7 +33,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_gemini_gemini_gcp_enablement_setting" "example" {
-    provider = google-beta
     gemini_gcp_enablement_setting_id = "ls1-tf"
     location = "global"
     enable_customer_data_sharing = true
