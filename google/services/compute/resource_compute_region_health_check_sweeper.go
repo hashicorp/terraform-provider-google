@@ -38,16 +38,20 @@ func testSweepComputeRegionHealthCheck(_ string) error {
 	var deletionerror error
 	resourceName := "ComputeRegionHealthCheck"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	regions := []string{
-		"europe-west1",
-		"us-central1",
-		"europe-west4",
-		"us-west1",
+	// Using URL substitutions for region/zone pairs
+	substitutions := []struct {
+		region string
+		zone   string
+	}{
+		{region: "us-central1", zone: ""},
+		{region: "europe-west4", zone: ""},
+		{region: "europe-west1", zone: ""},
+		{region: "us-west1", zone: ""},
 	}
 
-	// Iterate through each region
-	for _, region := range regions {
-		config, err := sweeper.SharedConfigForRegion(region)
+	// Iterate through each substitution
+	for _, sub := range substitutions {
+		config, err := sweeper.SharedConfigForRegion(sub.region)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 			return err
@@ -62,13 +66,23 @@ func testSweepComputeRegionHealthCheck(_ string) error {
 		t := &testing.T{}
 		billingId := envvar.GetTestBillingAccountFromEnv(t)
 
+		// Set fallback values for empty region/zone
+		if sub.region == "" {
+			log.Printf("[INFO][SWEEPER_LOG] Empty region provided, falling back to us-central1")
+			sub.region = "us-central1"
+		}
+		if sub.zone == "" {
+			log.Printf("[INFO][SWEEPER_LOG] Empty zone provided, falling back to us-central1-a")
+			sub.zone = "us-central1-a"
+		}
+
 		// Setup variables to replace in list template
 		d := &tpgresource.ResourceDataMock{
 			FieldsInSchema: map[string]interface{}{
 				"project":         config.Project,
-				"region":          region,
-				"location":        region,
-				"zone":            "-",
+				"region":          sub.region,
+				"location":        sub.region,
+				"zone":            sub.zone,
 				"billing_account": billingId,
 			},
 		}
@@ -143,7 +157,7 @@ func testSweepComputeRegionHealthCheck(_ string) error {
 		}
 
 		if nonPrefixCount > 0 {
-			log.Printf("[INFO][SWEEPER_LOG] %d items were non-sweepable in region %s and skipped.", nonPrefixCount, region)
+			log.Printf("[INFO][SWEEPER_LOG] %d items were non-sweepable and skipped.", nonPrefixCount)
 		}
 	}
 
