@@ -1,0 +1,3 @@
+```release-note:none
+cloudsql: Updated definitions for `transaction_log_retention_days` and `point_in_time_recovery_enabled`.
+```
