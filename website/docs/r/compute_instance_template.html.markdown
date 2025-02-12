@@ -331,6 +331,9 @@ The following arguments are supported:
 
     To create a machine with a [custom type](https://cloud.google.com/dataproc/docs/concepts/compute/custom-machine-types) (such as extended memory), format the value like `custom-VCPUS-MEM_IN_MB` like `custom-6-20480` for 6 vCPU and 20GB of RAM.
 
+    More advanced machine types like [z3](https://cloud.google.com/compute/docs/storage-optimized-machines) will
+    create disks that cannot be managed by Terraform by default. You can account for that by using `lifecycle.ignore_changes` or adding these disks into your config.
+
 - - -
 * `name` - (Optional) The name of the instance template. If you leave
   this blank, Terraform will auto-generate a unique name.
