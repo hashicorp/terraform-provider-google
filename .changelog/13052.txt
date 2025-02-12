@@ -1,0 +1,3 @@
+```release-note:none
+Added info about z3 instances behavior to docs
+```
