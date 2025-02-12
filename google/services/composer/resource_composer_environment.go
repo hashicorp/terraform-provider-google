@@ -713,14 +713,14 @@ func ResourceComposerEnvironment() *schema.Resource {
 													Type:         schema.TypeString,
 													Optional:     true,
 													ValidateFunc: validation.StringInSlice([]string{"CLOUD_LOGGING_ONLY", "CLOUD_LOGGING_AND_CLOUD_STORAGE"}, false),
-													Description:  `Whether logs in cloud logging only is enabled or not. This field is supported for Cloud Composer environments in versions composer-2.0.32-airflow-2.1.4 and newer.`,
+													Description:  `Whether logs in cloud logging only is enabled or not. This field is supported for Cloud Composer environments in versions composer-2.0.32-airflow-2.1.4 and newer but not in composer-3*`,
 												},
 											},
 										},
 									},
 									"airflow_metadata_retention_config": {
 										Type:        schema.TypeList,
-										Description: `Optional. The configuration setting for database retention.`,
+										Description: `Optional. The policy for airflow metadata database retention.`,
 										Optional:    true,
 										Computed:    true,
 										Elem: &schema.Resource{
