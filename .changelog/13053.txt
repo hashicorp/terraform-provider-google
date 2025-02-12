@@ -1,0 +1,3 @@
+```release-note:bug
+chronicle: fixed creation issues when optional fields were missing for `google_chronicle_rule_deployment` resource
+```
