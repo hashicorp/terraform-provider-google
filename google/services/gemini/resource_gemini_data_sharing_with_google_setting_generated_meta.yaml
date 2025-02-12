@@ -1,0 +1,21 @@
+resource: 'google_gemini_data_sharing_with_google_setting'
+generation_type: 'mmv1'
+source_file: 'products/gemini/DataSharingWithGoogleSetting.yaml'
+api_service_name: 'cloudaicompanion.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'DataSharingWithGoogleSetting'
+autogen_status: true
+fields:
+  - field: 'create_time'
+  - field: 'data_sharing_with_google_setting_id'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'enable_preview_data_sharing'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'
