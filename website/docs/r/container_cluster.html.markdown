@@ -823,14 +823,14 @@ This block also contains several computed attributes, documented below.
 * `gcp_public_cidrs_access_enabled` - (Optional) Whether Kubernetes master is
     accessible via Google Compute Engine Public IPs.
 
+* `private_endpoint_enforcement_enabled` - (Optional) Whether authorized networks is enforced on the private endpoint or not.
+
 The `master_authorized_networks_config.cidr_blocks` block supports:
 
 * `cidr_block` - (Optional) External network that can access Kubernetes master through HTTPS.
     Must be specified in CIDR notation.
 
 * `display_name` - (Optional) Field for users to identify CIDR blocks.
-
-* `private_endpoint_enforcement_enabled` - (Optional) Whether authorized networks is enforced on the private endpoint or not.
 
 <a name="nested_network_policy"></a>The `network_policy` block supports:
 
