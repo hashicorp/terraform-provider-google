@@ -1,0 +1,3 @@
+```release-note:none
+composer: inform users that the `task_logs_retention_config` is not relevant to Composer 3 and add `airflow_metadata_retention_config`
+```
