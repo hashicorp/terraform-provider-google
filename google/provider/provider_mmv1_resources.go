@@ -156,6 +156,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_active_folder":                                 resourcemanager.DataSourceGoogleActiveFolder(),
 	"google_alloydb_locations":                             alloydb.DataSourceAlloydbLocations(),
 	"google_alloydb_supported_database_flags":              alloydb.DataSourceAlloydbSupportedDatabaseFlags(),
+	"google_alloydb_instance":                              alloydb.DataSourceAlloydbDatabaseInstance(),
 	"google_artifact_registry_docker_image":                artifactregistry.DataSourceArtifactRegistryDockerImage(),
 	"google_artifact_registry_locations":                   artifactregistry.DataSourceGoogleArtifactRegistryLocations(),
 	"google_artifact_registry_repository":                  artifactregistry.DataSourceArtifactRegistryRepository(),
