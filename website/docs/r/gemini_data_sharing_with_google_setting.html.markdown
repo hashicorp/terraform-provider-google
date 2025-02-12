@@ -21,8 +21,6 @@ description: |-
 
 The resource for managing DataSharingWithGoogle settings for Admin Control.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Gemini Data Sharing With Google Setting Basic
@@ -30,7 +28,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_gemini_data_sharing_with_google_setting" "example" {
-    provider = google-beta
     data_sharing_with_google_setting_id = "ls1-tf"
     location = "global"
     enable_preview_data_sharing = true
