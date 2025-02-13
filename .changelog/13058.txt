@@ -1,0 +1,3 @@
+```release-note:enhancement
+composer:  Adding API Docs for google_composer_user_workloads_secret,google_composer_user_workloads_config_map,google_composer_image_versions, google_composer_environment
+```
