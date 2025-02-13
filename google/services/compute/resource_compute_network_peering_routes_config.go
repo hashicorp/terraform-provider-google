@@ -74,6 +74,22 @@ func ResourceComputeNetworkPeeringRoutesConfig() *schema.Resource {
 				Required:    true,
 				Description: `Name of the peering.`,
 			},
+			"export_subnet_routes_with_public_ip": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				Description: `Whether subnet routes with public IP range are exported.
+IPv4 special-use ranges are always exported to peers and
+are not controlled by this field.`,
+			},
+			"import_subnet_routes_with_public_ip": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				Description: `Whether subnet routes with public IP range are imported.
+IPv4 special-use ranges are always imported from peers and
+are not controlled by this field.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -110,6 +126,18 @@ func resourceComputeNetworkPeeringRoutesConfigCreate(d *schema.ResourceData, met
 		return err
 	} else if v, ok := d.GetOkExists("import_custom_routes"); ok || !reflect.DeepEqual(v, importCustomRoutesProp) {
 		obj["importCustomRoutes"] = importCustomRoutesProp
+	}
+	exportSubnetRoutesWithPublicIpProp, err := expandNestedComputeNetworkPeeringRoutesConfigExportSubnetRoutesWithPublicIp(d.Get("export_subnet_routes_with_public_ip"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("export_subnet_routes_with_public_ip"); ok || !reflect.DeepEqual(v, exportSubnetRoutesWithPublicIpProp) {
+		obj["exportSubnetRoutesWithPublicIp"] = exportSubnetRoutesWithPublicIpProp
+	}
+	importSubnetRoutesWithPublicIpProp, err := expandNestedComputeNetworkPeeringRoutesConfigImportSubnetRoutesWithPublicIp(d.Get("import_subnet_routes_with_public_ip"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("import_subnet_routes_with_public_ip"); ok || !reflect.DeepEqual(v, importSubnetRoutesWithPublicIpProp) {
+		obj["importSubnetRoutesWithPublicIp"] = importSubnetRoutesWithPublicIpProp
 	}
 
 	obj, err = resourceComputeNetworkPeeringRoutesConfigEncoder(d, meta, obj)
@@ -243,6 +271,12 @@ func resourceComputeNetworkPeeringRoutesConfigRead(d *schema.ResourceData, meta 
 	if err := d.Set("import_custom_routes", flattenNestedComputeNetworkPeeringRoutesConfigImportCustomRoutes(res["importCustomRoutes"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkPeeringRoutesConfig: %s", err)
 	}
+	if err := d.Set("export_subnet_routes_with_public_ip", flattenNestedComputeNetworkPeeringRoutesConfigExportSubnetRoutesWithPublicIp(res["exportSubnetRoutesWithPublicIp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeeringRoutesConfig: %s", err)
+	}
+	if err := d.Set("import_subnet_routes_with_public_ip", flattenNestedComputeNetworkPeeringRoutesConfigImportSubnetRoutesWithPublicIp(res["importSubnetRoutesWithPublicIp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkPeeringRoutesConfig: %s", err)
+	}
 
 	return nil
 }
@@ -280,6 +314,18 @@ func resourceComputeNetworkPeeringRoutesConfigUpdate(d *schema.ResourceData, met
 		return err
 	} else if v, ok := d.GetOkExists("import_custom_routes"); ok || !reflect.DeepEqual(v, importCustomRoutesProp) {
 		obj["importCustomRoutes"] = importCustomRoutesProp
+	}
+	exportSubnetRoutesWithPublicIpProp, err := expandNestedComputeNetworkPeeringRoutesConfigExportSubnetRoutesWithPublicIp(d.Get("export_subnet_routes_with_public_ip"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("export_subnet_routes_with_public_ip"); ok || !reflect.DeepEqual(v, exportSubnetRoutesWithPublicIpProp) {
+		obj["exportSubnetRoutesWithPublicIp"] = exportSubnetRoutesWithPublicIpProp
+	}
+	importSubnetRoutesWithPublicIpProp, err := expandNestedComputeNetworkPeeringRoutesConfigImportSubnetRoutesWithPublicIp(d.Get("import_subnet_routes_with_public_ip"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("import_subnet_routes_with_public_ip"); ok || !reflect.DeepEqual(v, importSubnetRoutesWithPublicIpProp) {
+		obj["importSubnetRoutesWithPublicIp"] = importSubnetRoutesWithPublicIpProp
 	}
 
 	obj, err = resourceComputeNetworkPeeringRoutesConfigEncoder(d, meta, obj)
@@ -376,6 +422,14 @@ func flattenNestedComputeNetworkPeeringRoutesConfigImportCustomRoutes(v interfac
 	return v
 }
 
+func flattenNestedComputeNetworkPeeringRoutesConfigExportSubnetRoutesWithPublicIp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedComputeNetworkPeeringRoutesConfigImportSubnetRoutesWithPublicIp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandNestedComputeNetworkPeeringRoutesConfigPeering(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -385,6 +439,14 @@ func expandNestedComputeNetworkPeeringRoutesConfigExportCustomRoutes(v interface
 }
 
 func expandNestedComputeNetworkPeeringRoutesConfigImportCustomRoutes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeNetworkPeeringRoutesConfigExportSubnetRoutesWithPublicIp(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeNetworkPeeringRoutesConfigImportSubnetRoutesWithPublicIp(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

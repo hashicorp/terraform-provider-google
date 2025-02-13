@@ -1,0 +1,3 @@
+```release-note:enhancement 
+compute: added `import_subnet_routes_with_public_ip` and `export_subnet_routes_with_public_ip` fields to `google_compute_network_peering_routes_config` resource
+```
