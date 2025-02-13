@@ -8,6 +8,12 @@ description: |-
 
 Provides access to Kubernetes Secret configuration for a given project, region and Composer Environment.
 
+To get more information about Composer User Workloads Secrets, see:
+
+* [API documentation](https://cloud.google.com/composer/docs/reference/rest/v1/projects.locations.environments.userWorkloadsSecrets)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/artifact-registry/docs/overview)
+    
 ## Example Usage
 
 ```hcl
