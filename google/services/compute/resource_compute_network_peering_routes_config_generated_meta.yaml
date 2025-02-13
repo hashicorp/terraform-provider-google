@@ -6,7 +6,9 @@ api_version: 'v1'
 api_resource_type_kind: 'Network'
 fields:
   - field: 'export_custom_routes'
+  - field: 'export_subnet_routes_with_public_ip'
   - field: 'import_custom_routes'
+  - field: 'import_subnet_routes_with_public_ip'
   - field: 'network'
     provider_only: true
   - field: 'peering'
