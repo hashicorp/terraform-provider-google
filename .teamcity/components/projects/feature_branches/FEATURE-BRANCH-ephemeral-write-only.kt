@@ -25,7 +25,7 @@ import components.projects.feature_branches.getServicesList
 import DefaultStartHour
 
 const val featureBranchEphemeralWriteOnly = "FEATURE-BRANCH-ephemeral-write-only"
-const val EphemeralWriteOnlyTfCoreVersion = "1.11.0-alpha20241211"
+const val EphemeralWriteOnlyTfCoreVersion = "1.11.0-rc1"
 
 fun featureBranchEphemeralWriteOnlySubProject(allConfig: AllContextParameters): Project {
 
