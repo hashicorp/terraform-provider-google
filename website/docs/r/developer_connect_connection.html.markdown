@@ -22,6 +22,11 @@ description: |-
 A connection for GitHub, GitHub Enterprise, GitLab, and GitLab Enterprise.
 
 
+To get more information about Connection, see:
+
+* [API documentation](https://cloud.google.com/developer-connect/docs/api/reference/rest/v1/projects.locations.connections)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/developer-connect/docs/overview)
 
 ## Example Usage - Developer Connect Connection New
 
