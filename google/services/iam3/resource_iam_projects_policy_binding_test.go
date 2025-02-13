@@ -23,6 +23,9 @@ func TestAccIAM3ProjectsPolicyBinding_iamProjectsPolicyBindingExample_update(t *
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIAM3ProjectsPolicyBindingDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIAM3ProjectsPolicyBinding_iamProjectsPolicyBindingExample_full(context),
@@ -68,7 +71,13 @@ data "google_project" "project" {
   provider = google
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_iam_principal_access_boundary_policy.pab_policy]
+}
+
 resource "google_iam_projects_policy_binding" "my-project-binding" {
+  depends_on = [time_sleep.wait_60_seconds]
   project        = data.google_project.project.project_id
   location       = "global"
   display_name   = "test project binding%{random_suffix}"
@@ -95,7 +104,14 @@ data "google_project" "project" {
   provider = google
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_iam_principal_access_boundary_policy.pab_policy]
+}
+
+
 resource "google_iam_projects_policy_binding" "my-project-binding" {
+  depends_on = [time_sleep.wait_60_seconds]
   project        = data.google_project.project.project_id
   location       = "global"
   display_name   = "test project binding%{random_suffix}"
