@@ -42,7 +42,10 @@ func TestAccIAM3OrganizationsPolicyBinding_iamOrganizationsPolicyBindingExample(
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckIAM3OrganizationsPolicyBindingDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckIAM3OrganizationsPolicyBindingDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIAM3OrganizationsPolicyBinding_iamOrganizationsPolicyBindingExample(context),
@@ -66,7 +69,13 @@ resource "google_iam_principal_access_boundary_policy" "pab_policy" {
   principal_access_boundary_policy_id = "tf-test-my-pab-policy%{random_suffix}"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_iam_principal_access_boundary_policy.pab_policy]
+}
+
 resource "google_iam_organizations_policy_binding" "my-org-binding" {
+  depends_on = [time_sleep.wait_60_seconds]
   organization   = "%{org_id}"
   location       = "global"
   display_name   = "test org binding%{random_suffix}"

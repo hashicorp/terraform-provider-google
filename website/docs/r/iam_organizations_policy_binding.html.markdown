@@ -39,7 +39,13 @@ resource "google_iam_principal_access_boundary_policy" "pab_policy" {
   principal_access_boundary_policy_id = "my-pab-policy"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_iam_principal_access_boundary_policy.pab_policy]
+}
+
 resource "google_iam_organizations_policy_binding" "my-org-binding" {
+  depends_on = [time_sleep.wait_60_seconds]
   organization   = "123456789"
   location       = "global"
   display_name   = "test org binding"
