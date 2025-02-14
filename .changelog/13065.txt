@@ -1,0 +1,3 @@
+```release-note:none
+Update archived param description for more clarity in google_chronicle_rule_deployment resource
+```
