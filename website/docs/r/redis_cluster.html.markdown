@@ -118,7 +118,7 @@ resource "google_redis_cluster" "cluster-ha" {
   name           = "ha-cluster"
   shard_count    = 3
   psc_configs {
-    network = google_compute_network.producer_net.id
+    network = google_compute_network.consumer_net.id
   }
   region = "us-central1"
   replica_count = 1
@@ -150,25 +150,25 @@ resource "google_redis_cluster" "cluster-ha" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "mypolicy"
+  name = "my-policy"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
-  network = google_compute_network.producer_net.id
+  network = google_compute_network.consumer_net.id
   psc_config {
-    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+    subnetworks = [google_compute_subnetwork.consumer_subnet.id]
   }
 }
 
-resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "mysubnet"
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "my-subnet"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
-  network       = google_compute_network.producer_net.id
+  network       = google_compute_network.consumer_net.id
 }
 
-resource "google_compute_network" "producer_net" {
-  name                    = "mynetwork"
+resource "google_compute_network" "consumer_net" {
+  name                    = "my-network"
   auto_create_subnetworks = false
 }
 ```
@@ -185,7 +185,7 @@ resource "google_redis_cluster" "cluster-ha-single-zone" {
   name           = "ha-cluster-single-zone"
   shard_count    = 3
   psc_configs {
-    network = google_compute_network.producer_net.id
+    network = google_compute_network.consumer_net.id
   }
   region = "us-central1"
   zone_distribution_config {
@@ -211,25 +211,25 @@ resource "google_redis_cluster" "cluster-ha-single-zone" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "mypolicy"
+  name = "my-policy"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
-  network = google_compute_network.producer_net.id
+  network = google_compute_network.consumer_net.id
   psc_config {
-    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+    subnetworks = [google_compute_subnetwork.consumer_subnet.id]
   }
 }
 
-resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "mysubnet"
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "my-subnet"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
-  network       = google_compute_network.producer_net.id
+  network       = google_compute_network.consumer_net.id
 }
 
-resource "google_compute_network" "producer_net" {
-  name                    = "mynetwork"
+resource "google_compute_network" "consumer_net" {
+  name                    = "my-network"
   auto_create_subnetworks = false
 }
 ```
@@ -247,7 +247,7 @@ resource "google_redis_cluster" "primary_cluster" {
   name          = "my-primary-cluster"
   region        = "us-east1"
   psc_configs {
-    network = google_compute_network.producer_net.id
+    network = google_compute_network.consumer_net.id
   }
 
   // Settings that should match on primary and secondary clusters. 
@@ -298,7 +298,7 @@ resource "google_redis_cluster" "secondary_cluster" {
   name          = "my-secondary-cluster"
   region        = "europe-west1"
   psc_configs {
-    network = google_compute_network.producer_net.id
+    network = google_compute_network.consumer_net.id
   }
 
   // Settings that should match on primary and secondary clusters. 
@@ -357,17 +357,17 @@ resource "google_network_connectivity_service_connection_policy" "primary_cluste
   location = "us-east1"
   service_class = "gcp-memorystore-redis"
   description   = "Primary cluster service connection policy"
-  network = google_compute_network.producer_net.id
+  network = google_compute_network.consumer_net.id
   psc_config {
-    subnetworks = [google_compute_subnetwork.primary_cluster_producer_subnet.id]
+    subnetworks = [google_compute_subnetwork.primary_cluster_consumer_subnet.id]
   }
 }
 
-resource "google_compute_subnetwork" "primary_cluster_producer_subnet" {
+resource "google_compute_subnetwork" "primary_cluster_consumer_subnet" {
   name          = "mysubnet-primary-cluster"
   ip_cidr_range = "10.0.1.0/29"
   region        = "us-east1"
-  network       = google_compute_network.producer_net.id
+  network       = google_compute_network.consumer_net.id
 }
 
 
@@ -376,20 +376,20 @@ resource "google_network_connectivity_service_connection_policy" "secondary_clus
   location = "europe-west1"
   service_class = "gcp-memorystore-redis"
   description   = "Secondary cluster service connection policy"
-  network = google_compute_network.producer_net.id
+  network = google_compute_network.consumer_net.id
   psc_config {
-    subnetworks = [google_compute_subnetwork.secondary_cluster_producer_subnet.id]
+    subnetworks = [google_compute_subnetwork.secondary_cluster_consumer_subnet.id]
   }
 }
 
-resource "google_compute_subnetwork" "secondary_cluster_producer_subnet" {
+resource "google_compute_subnetwork" "secondary_cluster_consumer_subnet" {
   name          = "mysubnet-secondary-cluster"
   ip_cidr_range = "10.0.2.0/29"
   region        = "europe-west1"
-  network       = google_compute_network.producer_net.id
+  network       = google_compute_network.consumer_net.id
 }
 
-resource "google_compute_network" "producer_net" {
+resource "google_compute_network" "consumer_net" {
   name                    = "mynetwork"
   auto_create_subnetworks = false
 }
@@ -407,7 +407,7 @@ resource "google_redis_cluster" "cluster-rdb" {
   name           = "rdb-cluster"
   shard_count    = 3
   psc_configs {
-    network = google_compute_network.producer_net.id
+    network = google_compute_network.consumer_net.id
   }
   region = "us-central1"
   replica_count = 0
@@ -446,25 +446,25 @@ resource "google_redis_cluster" "cluster-rdb" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "mypolicy"
+  name = "my-policy"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
-  network = google_compute_network.producer_net.id
+  network = google_compute_network.consumer_net.id
   psc_config {
-    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+    subnetworks = [google_compute_subnetwork.consumer_subnet.id]
   }
 }
 
-resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "mysubnet"
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "my-subnet"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
-  network       = google_compute_network.producer_net.id
+  network       = google_compute_network.consumer_net.id
 }
 
-resource "google_compute_network" "producer_net" {
-  name                    = "mynetwork"
+resource "google_compute_network" "consumer_net" {
+  name                    = "my-network"
   auto_create_subnetworks = false
 }
 ```
@@ -481,7 +481,7 @@ resource "google_redis_cluster" "cluster-aof" {
   name           = "aof-cluster"
   shard_count    = 3
   psc_configs {
-    network = google_compute_network.producer_net.id
+    network = google_compute_network.consumer_net.id
   }
   region = "us-central1"
   replica_count = 0
@@ -519,25 +519,75 @@ resource "google_redis_cluster" "cluster-aof" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "mypolicy"
+  name = "my-policy"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
-  network = google_compute_network.producer_net.id
+  network = google_compute_network.consumer_net.id
   psc_config {
-    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+    subnetworks = [google_compute_subnetwork.consumer_subnet.id]
   }
 }
 
-resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "mysubnet"
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "my-subnet"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
-  network       = google_compute_network.producer_net.id
+  network       = google_compute_network.consumer_net.id
 }
 
-resource "google_compute_network" "producer_net" {
-  name                    = "mynetwork"
+resource "google_compute_network" "consumer_net" {
+  name                    = "my-network"
+  auto_create_subnetworks = false
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=redis_cluster_cmek&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Cluster Cmek
+
+
+```hcl
+resource "google_redis_cluster" "cluster-cmek" {
+  name           = "cmek-cluster"
+  shard_count    = 3
+  psc_configs {
+    network = google_compute_network.consumer_net.id
+  }
+  kms_key = "my-key"
+  region = "us-central1"
+  deletion_protection_enabled = true
+  depends_on = [
+    google_network_connectivity_service_connection_policy.default
+  ]
+}
+
+
+data "google_project" "project" {
+}
+
+resource "google_network_connectivity_service_connection_policy" "default" {
+  name = "my-policy"
+  location = "us-central1"
+  service_class = "gcp-memorystore-redis"
+  description   = "my basic service connection policy"
+  network = google_compute_network.consumer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.consumer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "my-subnet"
+  ip_cidr_range = "10.0.0.248/29"
+  region        = "us-central1"
+  network       = google_compute_network.consumer_net.id
+}
+
+resource "google_compute_network" "consumer_net" {
+  name                    = "my-network"
   auto_create_subnetworks = false
 }
 ```
@@ -621,6 +671,10 @@ The following arguments are supported:
   (Optional)
   Cross cluster replication config
   Structure is [documented below](#nested_cross_cluster_replication_config).
+
+* `kms_key` -
+  (Optional)
+  The KMS key used to encrypt the at-rest data of the cluster.
 
 * `region` -
   (Optional)

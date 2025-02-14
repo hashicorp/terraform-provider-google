@@ -26,7 +26,9 @@ To get more information about ClusterUserCreatedConnections, see:
 
 * [API documentation](https://cloud.google.com/memorystore/docs/cluster/reference/rest/v1/projects.locations.clusters)
 
-~> **Note:** If you remove a connections item from the resource, the corresponding forwarding rule will no longer be functioning.
+~> **Note:** Please ensure your connections meet the requirements outlined at
+https://cloud.devsite.corp.google.com/memorystore/docs/cluster/about-multiple-vpc-networking#application_connection_requirements.
+If you remove a connections item from the resource, the corresponding forwarding rule will no longer be functioning.
 If the corresponding forwarding rule is represented in your terraform configuration it is recommended to delete that
 `google_compute_forwarding_rule` resource at the same time.
 

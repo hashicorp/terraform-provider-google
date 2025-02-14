@@ -62,7 +62,7 @@ resource "google_redis_cluster" "cluster-ha" {
   name           = "tf-test-ha-cluster%{random_suffix}"
   shard_count    = 3
   psc_configs {
-    network = google_compute_network.producer_net.id
+    network = google_compute_network.consumer_net.id
   }
   region = "us-central1"
   replica_count = 1
@@ -94,25 +94,25 @@ resource "google_redis_cluster" "cluster-ha" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "mypolicy%{random_suffix}"
+  name = "tf-test-my-policy%{random_suffix}"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
-  network = google_compute_network.producer_net.id
+  network = google_compute_network.consumer_net.id
   psc_config {
-    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+    subnetworks = [google_compute_subnetwork.consumer_subnet.id]
   }
 }
 
-resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "mysubnet%{random_suffix}"
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "tf-test-my-subnet%{random_suffix}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
-  network       = google_compute_network.producer_net.id
+  network       = google_compute_network.consumer_net.id
 }
 
-resource "google_compute_network" "producer_net" {
-  name                    = "mynetwork%{random_suffix}"
+resource "google_compute_network" "consumer_net" {
+  name                    = "tf-test-my-network%{random_suffix}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -150,7 +150,7 @@ resource "google_redis_cluster" "cluster-ha-single-zone" {
   name           = "tf-test-ha-cluster-single-zone%{random_suffix}"
   shard_count    = 3
   psc_configs {
-    network = google_compute_network.producer_net.id
+    network = google_compute_network.consumer_net.id
   }
   region = "us-central1"
   zone_distribution_config {
@@ -176,25 +176,25 @@ resource "google_redis_cluster" "cluster-ha-single-zone" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "mypolicy%{random_suffix}"
+  name = "tf-test-my-policy%{random_suffix}"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
-  network = google_compute_network.producer_net.id
+  network = google_compute_network.consumer_net.id
   psc_config {
-    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+    subnetworks = [google_compute_subnetwork.consumer_subnet.id]
   }
 }
 
-resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "mysubnet%{random_suffix}"
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "tf-test-my-subnet%{random_suffix}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
-  network       = google_compute_network.producer_net.id
+  network       = google_compute_network.consumer_net.id
 }
 
-resource "google_compute_network" "producer_net" {
-  name                    = "mynetwork%{random_suffix}"
+resource "google_compute_network" "consumer_net" {
+  name                    = "tf-test-my-network%{random_suffix}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -234,7 +234,7 @@ resource "google_redis_cluster" "primary_cluster" {
   name          = "tf-test-my-primary-cluster%{random_suffix}"
   region        = "us-east1"
   psc_configs {
-    network = google_compute_network.producer_net.id
+    network = google_compute_network.consumer_net.id
   }
 
   // Settings that should match on primary and secondary clusters. 
@@ -285,7 +285,7 @@ resource "google_redis_cluster" "secondary_cluster" {
   name          = "tf-test-my-secondary-cluster%{random_suffix}"
   region        = "europe-west1"
   psc_configs {
-    network = google_compute_network.producer_net.id
+    network = google_compute_network.consumer_net.id
   }
 
   // Settings that should match on primary and secondary clusters. 
@@ -344,17 +344,17 @@ resource "google_network_connectivity_service_connection_policy" "primary_cluste
   location = "us-east1"
   service_class = "gcp-memorystore-redis"
   description   = "Primary cluster service connection policy"
-  network = google_compute_network.producer_net.id
+  network = google_compute_network.consumer_net.id
   psc_config {
-    subnetworks = [google_compute_subnetwork.primary_cluster_producer_subnet.id]
+    subnetworks = [google_compute_subnetwork.primary_cluster_consumer_subnet.id]
   }
 }
 
-resource "google_compute_subnetwork" "primary_cluster_producer_subnet" {
+resource "google_compute_subnetwork" "primary_cluster_consumer_subnet" {
   name          = "tf-test-mysubnet-primary-cluster%{random_suffix}"
   ip_cidr_range = "10.0.1.0/29"
   region        = "us-east1"
-  network       = google_compute_network.producer_net.id
+  network       = google_compute_network.consumer_net.id
 }
 
 
@@ -363,20 +363,20 @@ resource "google_network_connectivity_service_connection_policy" "secondary_clus
   location = "europe-west1"
   service_class = "gcp-memorystore-redis"
   description   = "Secondary cluster service connection policy"
-  network = google_compute_network.producer_net.id
+  network = google_compute_network.consumer_net.id
   psc_config {
-    subnetworks = [google_compute_subnetwork.secondary_cluster_producer_subnet.id]
+    subnetworks = [google_compute_subnetwork.secondary_cluster_consumer_subnet.id]
   }
 }
 
-resource "google_compute_subnetwork" "secondary_cluster_producer_subnet" {
+resource "google_compute_subnetwork" "secondary_cluster_consumer_subnet" {
   name          = "tf-test-mysubnet-secondary-cluster%{random_suffix}"
   ip_cidr_range = "10.0.2.0/29"
   region        = "europe-west1"
-  network       = google_compute_network.producer_net.id
+  network       = google_compute_network.consumer_net.id
 }
 
-resource "google_compute_network" "producer_net" {
+resource "google_compute_network" "consumer_net" {
   name                    = "mynetwork%{random_suffix}"
   auto_create_subnetworks = false
 }
@@ -415,7 +415,7 @@ resource "google_redis_cluster" "cluster-rdb" {
   name           = "tf-test-rdb-cluster%{random_suffix}"
   shard_count    = 3
   psc_configs {
-    network = google_compute_network.producer_net.id
+    network = google_compute_network.consumer_net.id
   }
   region = "us-central1"
   replica_count = 0
@@ -454,25 +454,25 @@ resource "google_redis_cluster" "cluster-rdb" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "mypolicy%{random_suffix}"
+  name = "tf-test-my-policy%{random_suffix}"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
-  network = google_compute_network.producer_net.id
+  network = google_compute_network.consumer_net.id
   psc_config {
-    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+    subnetworks = [google_compute_subnetwork.consumer_subnet.id]
   }
 }
 
-resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "mysubnet%{random_suffix}"
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "tf-test-my-subnet%{random_suffix}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
-  network       = google_compute_network.producer_net.id
+  network       = google_compute_network.consumer_net.id
 }
 
-resource "google_compute_network" "producer_net" {
-  name                    = "mynetwork%{random_suffix}"
+resource "google_compute_network" "consumer_net" {
+  name                    = "tf-test-my-network%{random_suffix}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -510,7 +510,7 @@ resource "google_redis_cluster" "cluster-aof" {
   name           = "tf-test-aof-cluster%{random_suffix}"
   shard_count    = 3
   psc_configs {
-    network = google_compute_network.producer_net.id
+    network = google_compute_network.consumer_net.id
   }
   region = "us-central1"
   replica_count = 0
@@ -548,25 +548,103 @@ resource "google_redis_cluster" "cluster-aof" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "mypolicy%{random_suffix}"
+  name = "tf-test-my-policy%{random_suffix}"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
-  network = google_compute_network.producer_net.id
+  network = google_compute_network.consumer_net.id
   psc_config {
-    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+    subnetworks = [google_compute_subnetwork.consumer_subnet.id]
   }
 }
 
-resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "mysubnet%{random_suffix}"
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "tf-test-my-subnet%{random_suffix}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
-  network       = google_compute_network.producer_net.id
+  network       = google_compute_network.consumer_net.id
 }
 
-resource "google_compute_network" "producer_net" {
-  name                    = "mynetwork%{random_suffix}"
+resource "google_compute_network" "consumer_net" {
+  name                    = "tf-test-my-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
+func TestAccRedisCluster_redisClusterCmekExample(t *testing.T) {
+	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@cloud-redis.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
+
+	context := map[string]interface{}{
+		"deletion_protection_enabled": false,
+		"kms_key_name":                acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"random_suffix":               acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRedisClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRedisCluster_redisClusterCmekExample(context),
+			},
+			{
+				ResourceName:            "google_redis_cluster.cluster-cmek",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "psc_configs", "region"},
+			},
+		},
+	})
+}
+
+func testAccRedisCluster_redisClusterCmekExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_redis_cluster" "cluster-cmek" {
+  name           = "tf-test-cmek-cluster%{random_suffix}"
+  shard_count    = 3
+  psc_configs {
+    network = google_compute_network.consumer_net.id
+  }
+  kms_key = "%{kms_key_name}"
+  region = "us-central1"
+  deletion_protection_enabled = %{deletion_protection_enabled}
+  depends_on = [
+    google_network_connectivity_service_connection_policy.default
+  ]
+}
+
+
+data "google_project" "project" {
+}
+
+resource "google_network_connectivity_service_connection_policy" "default" {
+  name = "tf-test-my-policy%{random_suffix}"
+  location = "us-central1"
+  service_class = "gcp-memorystore-redis"
+  description   = "my basic service connection policy"
+  network = google_compute_network.consumer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.consumer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "tf-test-my-subnet%{random_suffix}"
+  ip_cidr_range = "10.0.0.248/29"
+  region        = "us-central1"
+  network       = google_compute_network.consumer_net.id
+}
+
+resource "google_compute_network" "consumer_net" {
+  name                    = "tf-test-my-network%{random_suffix}"
   auto_create_subnetworks = false
 }
 `, context)
