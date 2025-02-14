@@ -21,8 +21,6 @@ description: |-
 
 The resource for managing Logging setting bindings for Admin Control.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about LoggingSettingBinding, see:
 * How-to Guides
@@ -33,7 +31,6 @@ To get more information about LoggingSettingBinding, see:
 
 ```hcl
 resource "google_gemini_logging_setting" "basic" {
-    provider = google-beta
     logging_setting_id = "ls-tf1"
     location = "global"
     labels = {"my_key": "my_value"}
@@ -41,7 +38,6 @@ resource "google_gemini_logging_setting" "basic" {
 }
 
 resource "google_gemini_logging_setting_binding" "example" {
-    provider = google-beta
     logging_setting_id = google_gemini_logging_setting.basic.logging_setting_id
     setting_binding_id = "ls-tf1b1"
     location = "global"
