@@ -519,6 +519,237 @@ resource "google_developer_connect_connection" "my-connection" {
   ]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_connection_bbc&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Developer Connect Connection Bbc
+
+
+```hcl
+resource "google_developer_connect_connection" "my-connection" {
+  location = "us-central1"
+  connection_id = "tf-test-connection"
+
+  bitbucket_cloud_config {
+    workspace = "proctor-test"
+    webhook_secret_secret_version = "projects/devconnect-terraform-creds/secrets/bbc-webhook/versions/latest"
+
+    read_authorizer_credential {
+      user_token_secret_version = "projects/devconnect-terraform-creds/secrets/bbc-read-token/versions/latest"
+    }
+
+    authorizer_credential {
+      user_token_secret_version = "projects/devconnect-terraform-creds/secrets/bbc-auth-token/versions/latest"
+    }
+  }
+}
+```
+## Example Usage - Developer Connect Connection Bbc Doc
+
+
+```hcl
+resource "google_secret_manager_secret" "bbc-read-cred-secret" {
+  secret_id = "bbc-read-cred"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "bbc-read-cred-secret-version" {
+  secret = google_secret_manager_secret.bbc-read-cred-secret.id
+  secret_data = file("my-bbc-read-cred.txt")
+}
+
+resource "google_secret_manager_secret" "bbc-auth-cred-secret" {
+  secret_id = "bbc-auth-cred"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "bbc-auth-cred-secret-version" {
+  secret = google_secret_manager_secret.bbc-auth-cred-secret.id
+  secret_data = file("my-bbc-auth-cred.txt")
+}
+
+resource "google_secret_manager_secret" "bbc-webhook-secret-secret" {
+  secret_id = "bbc-webhook-secret"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "bbc-webhook-secret-secret-version" {
+  secret = google_secret_manager_secret.bbc-webhook-secret-secret.id
+  secret_data = file("my-bbc-webhook-secret.txt")
+
+data "google_iam_policy" "p4sa-secretAccessor" {
+  binding {
+    role = "roles/secretmanager.secretAccessor"
+    // Here, 123456789 is the Google Cloud project number for the project that contains the connection.
+    members = ["serviceAccount:service-123456789@gcp-sa-devconnect.iam.gserviceaccount.com"]
+  }
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-rc" {
+  secret_id = google_secret_manager_secret.bbc-read-cred-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-ac" {
+  secret_id = google_secret_manager_secret.bbc-auth-cred-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-wh" {
+  secret_id = google_secret_manager_secret.bbc-webhook-secret-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_developer_connect_connection" "my-connection" {
+
+  location = "us-central1"
+  connection_id = "my-connection"
+
+  bitbucket_cloud_config {
+    workspace = "test-workspace"
+
+    webhook_secret_secret_version = google_secret_manager_secret_version.bbc-webhook-secret-secret-version.id
+
+    read_authorizer_credential {
+      user_token_secret_version = google_secret_manager_secret_version.bbc-read-cred-secret-version.id
+    }
+
+    authorizer_credential {
+      user_token_secret_version = google_secret_manager_secret_version.bbc-auth-cred-secret-version.id
+    }
+  }
+
+  depends_on = [
+    google_secret_manager_secret_iam_policy.policy-rc,
+    google_secret_manager_secret_iam_policy.policy-ac,
+    google_secret_manager_secret_iam_policy.policy-wh
+  ]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_connection_bbdc&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Developer Connect Connection Bbdc
+
+
+```hcl
+resource "google_developer_connect_connection" "my-connection" {
+  location = "us-central1"
+  connection_id = "tf-test-connection"
+
+  bitbucket_data_center_config {
+    host_uri = "https://bitbucket-us-central.gcb-test.com"
+
+    webhook_secret_secret_version = "projects/devconnect-terraform-creds/secrets/bbdc-webhook/versions/latest"
+
+    read_authorizer_credential {
+      user_token_secret_version = "projects/devconnect-terraform-creds/secrets/bbdc-read-token/versions/latest"
+    }
+
+    authorizer_credential {
+      user_token_secret_version = "projects/devconnect-terraform-creds/secrets/bbdc-auth-token/versions/latest"
+    }
+  }
+}
+```
+## Example Usage - Developer Connect Connection Bbdc Doc
+
+
+```hcl
+resource "google_secret_manager_secret" "bbdc-read-cred-secret" {
+  secret_id = "bbdc-read-cred"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "bbdc-read-cred-secret-version" {
+  secret = google_secret_manager_secret.bbdc-read-cred-secret.id
+  secret_data = file("my-bbdc-read-cred.txt")
+}
+
+resource "google_secret_manager_secret" "bbdc-auth-cred-secret" {
+  secret_id = "bbdc-auth-cred"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "bbdc-auth-cred-secret-version" {
+  secret = google_secret_manager_secret.bbdc-auth-cred-secret.id
+  secret_data = file("my-bbdc-auth-cred.txt")
+}
+
+resource "google_secret_manager_secret" "bbdc-webhook-secret-secret" {
+  secret_id = "bbdc-webhook-secret"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "bbdc-webhook-secret-secret-version" {
+  secret = google_secret_manager_secret.bbdc-webhook-secret-secret.id
+  secret_data = file("my-bbdc-webhook-secret.txt")
+
+data "google_iam_policy" "p4sa-secretAccessor" {
+  binding {
+    role = "roles/secretmanager.secretAccessor"
+    // Here, 123456789 is the Google Cloud project number for the project that contains the connection.
+    members = ["serviceAccount:service-123456789@gcp-sa-devconnect.iam.gserviceaccount.com"]
+  }
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-rc" {
+  secret_id = google_secret_manager_secret.bbdc-read-cred-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-ac" {
+  secret_id = google_secret_manager_secret.bbdc-auth-cred-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_secret_manager_secret_iam_policy" "policy-wh" {
+  secret_id = google_secret_manager_secret.bbdc-webhook-secret-secret.secret_id
+  policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
+}
+
+resource "google_developer_connect_connection" "my-connection" {
+
+  location = "us-central1"
+  connection_id = "my-connection"
+
+  bitbucket_data_center_config {
+    host_uri = "https://bitbucket-test-server.com"
+
+    webhook_secret_secret_version = google_secret_manager_secret_version.bbdc-webhook-secret-secret-version.id
+
+    read_authorizer_credential {
+      user_token_secret_version = google_secret_manager_secret_version.bbdc-read-cred-secret-version.id
+    }
+
+    authorizer_credential {
+      user_token_secret_version = google_secret_manager_secret_version.bbdc-auth-cred-secret-version.id
+    }
+  }
+
+  depends_on = [
+    google_secret_manager_secret_iam_policy.policy-rc,
+    google_secret_manager_secret_iam_policy.policy-ac,
+    google_secret_manager_secret_iam_policy.policy-wh
+  ]
+}
+```
 
 ## Argument Reference
 
@@ -565,6 +796,16 @@ The following arguments are supported:
   (Optional)
   Configuration for connections to an instance of GitLab Enterprise.
   Structure is [documented below](#nested_gitlab_enterprise_config).
+
+* `bitbucket_cloud_config` -
+  (Optional)
+  Configuration for connections to an instance of Bitbucket Cloud.
+  Structure is [documented below](#nested_bitbucket_cloud_config).
+
+* `bitbucket_data_center_config` -
+  (Optional)
+  Configuration for connections to an instance of Bitbucket Data Center.
+  Structure is [documented below](#nested_bitbucket_data_center_config).
 
 * `disabled` -
   (Optional)
@@ -758,6 +999,127 @@ The following arguments are supported:
 * `username` -
   (Output)
   Output only. The username associated with this token.
+
+<a name="nested_bitbucket_cloud_config"></a>The `bitbucket_cloud_config` block supports:
+
+* `workspace` -
+  (Required)
+  Required. The Bitbucket Cloud Workspace ID to be connected to Google Cloud Platform.
+
+* `webhook_secret_secret_version` -
+  (Required)
+  Required. Immutable. SecretManager resource containing the webhook secret used to verify webhook
+  events, formatted as `projects/*/secrets/*/versions/*`. This is used to
+  validate and create webhooks.
+
+* `read_authorizer_credential` -
+  (Required)
+  Represents a personal access token that authorized the Connection,
+  and associated metadata.
+  Structure is [documented below](#nested_bitbucket_cloud_config_read_authorizer_credential).
+
+* `authorizer_credential` -
+  (Required)
+  Represents a personal access token that authorized the Connection,
+  and associated metadata.
+  Structure is [documented below](#nested_bitbucket_cloud_config_authorizer_credential).
+
+
+<a name="nested_bitbucket_cloud_config_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
+
+* `user_token_secret_version` -
+  (Required)
+  Required. A SecretManager resource containing the user token that authorizes
+  the Developer Connect connection. Format:
+  `projects/*/secrets/*/versions/*`.
+
+* `username` -
+  (Output)
+  Output only. The username associated with this token.
+
+<a name="nested_bitbucket_cloud_config_authorizer_credential"></a>The `authorizer_credential` block supports:
+
+* `user_token_secret_version` -
+  (Required)
+  Required. A SecretManager resource containing the user token that authorizes
+  the Developer Connect connection. Format:
+  `projects/*/secrets/*/versions/*`.
+
+* `username` -
+  (Output)
+  Output only. The username associated with this token.
+
+<a name="nested_bitbucket_data_center_config"></a>The `bitbucket_data_center_config` block supports:
+
+* `webhook_secret_secret_version` -
+  (Required)
+  Required. Immutable. SecretManager resource containing the webhook secret used to verify webhook
+  events, formatted as `projects/*/secrets/*/versions/*`. This is used to
+  validate webhooks.
+
+* `read_authorizer_credential` -
+  (Required)
+  Represents a personal access token that authorized the Connection,
+  and associated metadata.
+  Structure is [documented below](#nested_bitbucket_data_center_config_read_authorizer_credential).
+
+* `authorizer_credential` -
+  (Required)
+  Represents a personal access token that authorized the Connection,
+  and associated metadata.
+  Structure is [documented below](#nested_bitbucket_data_center_config_authorizer_credential).
+
+* `service_directory_config` -
+  (Optional)
+  ServiceDirectoryConfig represents Service Directory configuration for a
+  connection.
+  Structure is [documented below](#nested_bitbucket_data_center_config_service_directory_config).
+
+* `ssl_ca_certificate` -
+  (Optional)
+  Optional. SSL certificate authority to trust when making requests to Bitbucket Data
+  Center.
+
+* `server_version` -
+  (Output)
+  Output only. Version of the Bitbucket Data Center server running on the `host_uri`.
+
+* `host_uri` -
+  (Required)
+  Required. The URI of the Bitbucket Data Center host this connection is for.
+
+
+<a name="nested_bitbucket_data_center_config_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
+
+* `user_token_secret_version` -
+  (Required)
+  Required. A SecretManager resource containing the user token that authorizes
+  the Developer Connect connection. Format:
+  `projects/*/secrets/*/versions/*`.
+
+* `username` -
+  (Output)
+  Output only. The username associated with this token.
+
+<a name="nested_bitbucket_data_center_config_authorizer_credential"></a>The `authorizer_credential` block supports:
+
+* `username` -
+  (Output)
+  Output only. The username associated with this token.
+
+* `user_token_secret_version` -
+  (Required)
+  Required. A SecretManager resource containing the user token that authorizes
+  the Developer Connect connection. Format:
+  `projects/*/secrets/*/versions/*`.
+
+<a name="nested_bitbucket_data_center_config_service_directory_config"></a>The `service_directory_config` block supports:
+
+* `service` -
+  (Required)
+  Required. The Service Directory service name.
+  Format:
+  projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}.
 
 <a name="nested_gitlab_config"></a>The `gitlab_config` block supports:
 
