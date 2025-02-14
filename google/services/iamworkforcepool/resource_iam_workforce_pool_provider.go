@@ -196,7 +196,7 @@ However, existing tokens still grant access.`,
 				Description: `The configuration for OAuth 2.0 client used to get the additional user
 attributes. This should be used when users can't get the desired claims
 in authentication credentials. Currently this configuration is only
-supported with OIDC protocol.`,
+supported with SAML and OIDC protocol.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
