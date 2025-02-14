@@ -1,41 +1,35 @@
 ## 6.21.0 (Unreleased)
 
 NOTES:
-* `gemini`: change bootstrapped `google_gemini_code_repository_index` debug label ([#21298](https://github.com/hashicorp/terraform-provider-google/pull/21298))
 * eventarc: `google_eventarc_google_channel_config` now uses MMv1 engine instead of DCL. ([#21392](https://github.com/hashicorp/terraform-provider-google/pull/21392))
 * eventarc: `google_eventarc_trigger` now uses MMv1 engine instead of DCL. ([#21330](https://github.com/hashicorp/terraform-provider-google/pull/21330))
-* gemini: promoted `google_gemini_release_channel_setting_binding` from Beta to GA ([#21387](https://github.com/hashicorp/terraform-provider-google/pull/21387))
 
 FEATURES:
 * **New Data Source:** `google_alloydb_instance` ([#21383](https://github.com/hashicorp/terraform-provider-google/pull/21383))
 * **New Resource:** `google_firebase_data_connect_service` ([#21368](https://github.com/hashicorp/terraform-provider-google/pull/21368))
-* **New Resource:** `google_gemini_data_sharing_with_google_setting` ([#21285](https://github.com/hashicorp/terraform-provider-google/pull/21285))
-* **New Resource:** `google_gemini_gcp_enablement_setting` (ga) ([#21357](https://github.com/hashicorp/terraform-provider-google/pull/21357))
-* **New Resource:** `google_gemini_gemini_gcp_enablement_setting` (beta) ([#21289](https://github.com/hashicorp/terraform-provider-google/pull/21289))
+* **New Resource:** `google_gemini_data_sharing_with_google_setting` ([#21393](https://github.com/hashicorp/terraform-provider-google/pull/21393))
+* **New Resource:** `google_gemini_gemini_gcp_enablement_setting` ([#21357](https://github.com/hashicorp/terraform-provider-google/pull/21357))
 * **New Resource:** `google_gemini_logging_setting_binding` ([#21354](https://github.com/hashicorp/terraform-provider-google/pull/21354))
-* **New Resource:** `google_gemini_release_channel_setting_binding` ([#21349](https://github.com/hashicorp/terraform-provider-google/pull/21349))
+* **New Resource:** `google_gemini_release_channel_setting` ([#21387](https://github.com/hashicorp/terraform-provider-google/pull/21387)
+* **New Resource:** `google_gemini_release_channel_setting_binding` ([#21387](https://github.com/hashicorp/terraform-provider-google/pull/21387)
 * **New Resource:** `google_netapp_volume_quota_rule` ([#21283](https://github.com/hashicorp/terraform-provider-google/pull/21283))
 
 IMPROVEMENTS:
-* accesscontextmanager: added `etag` to access context manager directional policy resources to prevent overriding changes ([#21366](https://github.com/hashicorp/terraform-provider-google/pull/21366))
-* accesscontextmanager: added `title` field to policy blocks under `google_access_context_manager_service_perimeter ` and variants ([#21302](https://github.com/hashicorp/terraform-provider-google/pull/21302))
-* artifactregistry: set pageSize to 1000 to speedup data.google_artifact_registry_docker_image queries ([#21360](https://github.com/hashicorp/terraform-provider-google/pull/21360))
-* compute: added `graceful_shutdown` field to `google_compute_instance`, `google_compute_instance_template` and `google_compute_region_instance_template` resource (beta) ([#21332](https://github.com/hashicorp/terraform-provider-google/pull/21332))
+* accesscontextmanager: added `etag` to access context manager directional policy resources `google_access_context_manager_service_perimeter_dry_run_egress_policy`, `google_access_context_manager_service_perimeter_dry_run_ingress_policy`, `google_access_context_manager_service_perimeter_egress_policy` and `google_access_context_manager_service_perimeter_ingress_policy` to prevent overriding changes ([#21366](https://github.com/hashicorp/terraform-provider-google/pull/21366))
+* accesscontextmanager: added `title` field to policy blocks under `google_access_context_manager_service_perimeter` and variants ([#21302](https://github.com/hashicorp/terraform-provider-google/pull/21302))
+* artifactregistry: set pageSize to 1000 to speedup `google_artifact_registry_docker_image` data source queries ([#21360](https://github.com/hashicorp/terraform-provider-google/pull/21360))
 * compute: added `labels` field to `google_compute_ha_vpn_gateway` resource ([#21385](https://github.com/hashicorp/terraform-provider-google/pull/21385))
-* container: added new fields `container_log_max_size`, `container_log_max_files`, `image_gc_low_threshold_percent`, `image_gc_high_threshold_percent`, `image_minimum_gc_age`, `image_maximum_gc_age`, and `allowed_unsafe_sysctls` to `node_kubelet_config` block. ([#21319](https://github.com/hashicorp/terraform-provider-google/pull/21319))
-* gemini: promoted `google_gemini_data_sharing_with_google_setting` to GA. ([#21393](https://github.com/hashicorp/terraform-provider-google/pull/21393))
-* monitoring: added `condition_sql` field to `monitoring_alert_policy` resource ([#21277](https://github.com/hashicorp/terraform-provider-google/pull/21277))
+* compute: added validation for disk names in `google_compute_disk` ([#21335](https://github.com/hashicorp/terraform-provider-google/pull/21335))
+* container: added new fields `container_log_max_size`, `container_log_max_files`, `image_gc_low_threshold_percent`, `image_gc_high_threshold_percent`, `image_minimum_gc_age`, `image_maximum_gc_age`, and `allowed_unsafe_sysctls` to `node_kubelet_config` block in `google_container_cluster` resource. ([#21319](https://github.com/hashicorp/terraform-provider-google/pull/21319))
+* monitoring: added `condition_sql` field to `google_monitoring_alert_policy` resource ([#21277](https://github.com/hashicorp/terraform-provider-google/pull/21277))
 * networkservices: added `location` field to `google_network_services_mesh` resource ([#21337](https://github.com/hashicorp/terraform-provider-google/pull/21337))
-* workstations: added update support to `persistent_directories.gce_pd.size_gb` and `persistent_directories.gce_pd.disk_type`  in `google_workstations_workstation_config` resource (beta) ([#21369](https://github.com/hashicorp/terraform-provider-google/pull/21369))
+* securitycenter: added `type`, `expiry_time` field to `google_scc_mute_config` resource ([#21318](https://github.com/hashicorp/terraform-provider-google/pull/21318))
 
 BUG FIXES:
 * chronicle: fixed creation issues when optional fields were missing for `google_chronicle_rule_deployment` resource ([#21389](https://github.com/hashicorp/terraform-provider-google/pull/21389))
-* cloudbuildv2: fixed ssl_ca field in `bitbucket_data_center_config` for `google_cloudbuildv2_connection` ([#21340](https://github.com/hashicorp/terraform-provider-google/pull/21340))
-* compute: added validation for disk names in `google_compute_disk` ([#21335](https://github.com/hashicorp/terraform-provider-google/pull/21335))
-* dns: fixed a bug where `google_dns_managed_zone` is unable to update with `service_directory_config` specified (beta) ([#21269](https://github.com/hashicorp/terraform-provider-google/pull/21269))
-* fix: error details type on google_database_migration_service_migration_job ([#21279](https://github.com/hashicorp/terraform-provider-google/pull/21279))
+* databasemigrationservice: fixed error details type on `google_database_migration_service_migration_job` ([#21279](https://github.com/hashicorp/terraform-provider-google/pull/21279))
 * networkservices: fixed a bug with `google_network_services_authz_extension.wire_format` sending an invalid default value by removing the Terraform default and letting the API set the default. ([#21280](https://github.com/hashicorp/terraform-provider-google/pull/21280))
-* securitycenter: added `type`, `expiry_time` field to `google_scc_mute_config` resource ([#21318](https://github.com/hashicorp/terraform-provider-google/pull/21318))
+
 
 ## 6.20.0 (Feb 10, 2025)
 
