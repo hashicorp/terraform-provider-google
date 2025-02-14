@@ -1,0 +1,3 @@
+```release-note:none
+sql: Updated `preferred_zone` definition in `sql_database_instance.html.markdown` file.
+```
