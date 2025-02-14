@@ -1222,6 +1222,32 @@ func TestAccComputeRegionInstanceTemplate_localSsdRecoveryTimeout(t *testing.T) 
 	})
 }
 
+func TestAccComputeRegionInstanceTemplate_diskEncryptionKey(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	kmsKey := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
+	context := map[string]interface{}{
+		"kms_key_self_link": kmsKey.CryptoKey.Name,
+		"template_name":     fmt.Sprintf("tf-test-instance-template-%s", acctest.RandString(t, 10)),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_diskEncryptionKey(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeRegionInstanceTemplate_sourceSnapshotEncryptionKey(t *testing.T) {
 	t.Parallel()
 
@@ -1229,9 +1255,11 @@ func TestAccComputeRegionInstanceTemplate_sourceSnapshotEncryptionKey(t *testing
 	kmsKey := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
 
 	context := map[string]interface{}{
-		"kms_ring_name": tpgresource.GetResourceNameFromSelfLink(kmsKey.KeyRing.Name),
-		"kms_key_name":  tpgresource.GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name),
-		"random_suffix": acctest.RandString(t, 10),
+		"kms_ring_name":     tpgresource.GetResourceNameFromSelfLink(kmsKey.KeyRing.Name),
+		"kms_key_name":      tpgresource.GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name),
+		"random_suffix":     acctest.RandString(t, 10),
+		"raw_key":           "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+		"rsa_encrypted_key": "ieCx/NcW06PcT7Ep1X6LUTc/hLvUDYyzSZPPVCVPTVEohpeHASqC8uw5TzyO9U+Fka9JFHz0mBibXUInrC/jEk014kCK/NPjYgEMOyssZ4ZINPKxlUh2zn1bV+MCaTICrdmuSBTWlUUiFoDD6PYznLwh8ZNdaheCeZ8ewEXgFQ8V+sDroLaN3Xs3MDTXQEMMoNUXMCZEIpg9Vtp9x2oeQ5lAbtt7bYAAHf5l+gJWw3sUfs0/Glw5fpdjT8Uggrr+RMZezGrltJEF293rvTIjWOEB3z5OHyHwQkvdrPDFcTqsLfh+8Hr8g+mf+7zVPEC8nEbqpdl3GPv3A7AwpFp7MA==",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1241,6 +1269,32 @@ func TestAccComputeRegionInstanceTemplate_sourceSnapshotEncryptionKey(t *testing
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionInstanceTemplate_sourceSnapshotEncryptionKey(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.template", &instanceTemplate),
+				),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_template.template",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disk.0.source_snapshot", "disk.0.source_snapshot_encryption_key"},
+			},
+			{
+				Config: testAccComputeRegionInstanceTemplate_sourceSnapshotEncryptionKey_RawKey(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.template", &instanceTemplate),
+				),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_template.template",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disk.0.source_snapshot", "disk.0.source_snapshot_encryption_key"},
+			},
+			{
+				Config: testAccComputeRegionInstanceTemplate_sourceSnapshotEncryptionKey_RsaKey(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionInstanceTemplateExists(
 						t, "google_compute_region_instance_template.template", &instanceTemplate),
@@ -1263,9 +1317,11 @@ func TestAccComputeRegionInstanceTemplate_sourceImageEncryptionKey(t *testing.T)
 	kmsKey := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
 
 	context := map[string]interface{}{
-		"kms_ring_name": tpgresource.GetResourceNameFromSelfLink(kmsKey.KeyRing.Name),
-		"kms_key_name":  tpgresource.GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name),
-		"random_suffix": acctest.RandString(t, 10),
+		"kms_ring_name":     tpgresource.GetResourceNameFromSelfLink(kmsKey.KeyRing.Name),
+		"kms_key_name":      tpgresource.GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name),
+		"random_suffix":     acctest.RandString(t, 10),
+		"raw_key":           "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+		"rsa_encrypted_key": "ieCx/NcW06PcT7Ep1X6LUTc/hLvUDYyzSZPPVCVPTVEohpeHASqC8uw5TzyO9U+Fka9JFHz0mBibXUInrC/jEk014kCK/NPjYgEMOyssZ4ZINPKxlUh2zn1bV+MCaTICrdmuSBTWlUUiFoDD6PYznLwh8ZNdaheCeZ8ewEXgFQ8V+sDroLaN3Xs3MDTXQEMMoNUXMCZEIpg9Vtp9x2oeQ5lAbtt7bYAAHf5l+gJWw3sUfs0/Glw5fpdjT8Uggrr+RMZezGrltJEF293rvTIjWOEB3z5OHyHwQkvdrPDFcTqsLfh+8Hr8g+mf+7zVPEC8nEbqpdl3GPv3A7AwpFp7MA==",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1275,6 +1331,32 @@ func TestAccComputeRegionInstanceTemplate_sourceImageEncryptionKey(t *testing.T)
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionInstanceTemplate_sourceImageEncryptionKey(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.template", &instanceTemplate),
+				),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_template.template",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disk.0.source_image_encryption_key"},
+			},
+			{
+				Config: testAccComputeRegionInstanceTemplate_sourceImageEncryptionKey_RawKey(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.template", &instanceTemplate),
+				),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_template.template",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disk.0.source_image_encryption_key"},
+			},
+			{
+				Config: testAccComputeRegionInstanceTemplate_sourceImageEncryptionKey_RsaKey(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionInstanceTemplateExists(
 						t, "google_compute_region_instance_template.template", &instanceTemplate),
@@ -1360,6 +1442,36 @@ func TestAccComputeRegionInstanceTemplate_keyRevocationActionType(t *testing.T) 
 					testAccCheckComputeRegionInstanceTemplateExists(
 						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
 					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "key_revocation_action_type", ""),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeRegionInstanceTemplate_GuestOsFeatures(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	context := map[string]interface{}{
+		"template_name":     fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"guest_os_features": `["UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "GVNIC", "IDPF"]`,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_GuestOsFeatures(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "disk.0.guest_os_features.#", "4"),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "disk.0.guest_os_features.0", "UEFI_COMPATIBLE"),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "disk.0.guest_os_features.1", "VIRTIO_SCSI_MULTIQUEUE"),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "disk.0.guest_os_features.2", "GVNIC"),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "disk.0.guest_os_features.3", "IDPF"),
 				),
 			},
 		},
@@ -3864,6 +3976,263 @@ resource "google_compute_region_instance_template" "foobar" {
   }
 
   key_revocation_action_type = %{key_revocation_action_type}
+}
+`, context)
+}
+
+func testAccComputeRegionInstanceTemplate_sourceImageEncryptionKey_RawKey(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "disk" {
+  name  = "tf-test-debian-disk-%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_image" "image" {
+  name         = "debian-image"
+  source_disk   = google_compute_disk.disk.id
+  image_encryption_key {
+	raw_key = "%{raw_key}"
+  }
+}
+
+resource "google_compute_region_instance_template" "template" {
+  name           = "tf-test-instance-template-%{random_suffix}"
+  machine_type   = "e2-medium"
+  region         = "us-central1"
+
+  disk {
+	source_image = google_compute_image.image.self_link
+	source_image_encryption_key {
+		raw_key = "%{raw_key}"
+	}
+	auto_delete = true
+	boot        = true
+  }
+
+  network_interface {
+	network = "default"
+  }
+}
+`, context)
+}
+
+func testAccComputeRegionInstanceTemplate_sourceImageEncryptionKey_RsaKey(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "disk" {
+  name  = "tf-test-debian-disk-%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_image" "image" {
+  name         = "debian-image"
+  source_disk   = google_compute_disk.disk.id
+  image_encryption_key {
+	rsa_encrypted_key = "%{rsa_encrypted_key}"
+  }
+}
+
+resource "google_compute_region_instance_template" "template" {
+  name           = "tf-test-instance-template-%{random_suffix}"
+  machine_type   = "e2-medium"
+  region         = "us-central1"
+
+  disk {
+	source_image = google_compute_image.image.self_link
+	source_image_encryption_key {
+		rsa_encrypted_key = "%{rsa_encrypted_key}"
+	}
+	auto_delete = true
+	boot        = true
+  }
+
+  network_interface {
+	network = "default"
+  }
+}
+`, context)
+}
+
+func testAccComputeRegionInstanceTemplate_sourceSnapshotEncryptionKey_RawKey(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-debian-disk-%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+
+  disk_encryption_key {
+	raw_key = "%{raw_key}"
+  }
+}
+
+resource "google_compute_snapshot" "snapshot" {
+  name        = "tf-test-my-snapshot-%{random_suffix}"
+  source_disk = google_compute_disk.persistent.id
+  zone        = "us-central1-a"
+
+  snapshot_encryption_key {
+	  raw_key = "%{raw_key}"
+  }
+
+  source_disk_encryption_key {
+	  raw_key = "%{raw_key}"
+  }
+}
+
+resource "google_compute_region_instance_template" "template" {
+  name           = "tf-test-instance-template-%{random_suffix}"
+  machine_type   = "e2-medium"
+  region         = "us-central1"
+
+  disk {
+	source_snapshot = google_compute_snapshot.snapshot.self_link
+	source_snapshot_encryption_key {
+		raw_key = "%{raw_key}"
+	}
+	auto_delete = true
+	boot        = true
+  }
+
+  network_interface {
+	network = "default"
+  }
+}
+`, context)
+}
+
+func testAccComputeRegionInstanceTemplate_sourceSnapshotEncryptionKey_RsaKey(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "tf-test-debian-disk-%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+
+  disk_encryption_key {
+	raw_key = "%{raw_key}"
+  }
+}
+
+resource "google_compute_snapshot" "snapshot" {
+  name        = "tf-test-my-snapshot-%{random_suffix}"
+  source_disk = google_compute_disk.persistent.id
+  zone        = "us-central1-a"
+
+  snapshot_encryption_key {
+	  rsa_encrypted_key = "%{rsa_encrypted_key}"
+  }
+
+  source_disk_encryption_key {
+	  raw_key = "%{raw_key}"
+  }
+}
+
+resource "google_compute_region_instance_template" "template" {
+  name           = "tf-test-instance-template-%{random_suffix}"
+  machine_type   = "e2-medium"
+  region         = "us-central1"
+
+  disk {
+	source_snapshot = google_compute_snapshot.snapshot.self_link
+	source_snapshot_encryption_key {
+		rsa_encrypted_key = "%{rsa_encrypted_key}"
+	}
+	auto_delete = true
+	boot        = true
+  }
+
+  network_interface {
+	network = "default"
+  }
+}
+`, context)
+}
+
+func testAccComputeRegionInstanceTemplate_GuestOsFeatures(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name         = "%{template_name}"
+  machine_type = "e2-medium"
+  region       = "us-central1"
+
+  disk {
+	source_image = data.google_compute_image.my_image.self_link
+	auto_delete  = true
+	disk_size_gb = 10
+	boot         = true
+	guest_os_features = %{guest_os_features}
+  }
+
+  network_interface {
+	network = "default"
+  }
+}
+`, context)
+}
+
+func testAccComputeRegionInstanceTemplate_diskEncryptionKey(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+	name         = "%{template_name}"
+	machine_type = "e2-medium"
+	region       = "us-central1"
+
+	disk {
+		source_image = data.google_compute_image.debian.self_link
+		auto_delete  = true
+		disk_size_gb = 10
+		boot         = true
+		architecture = "X86_64"
+		disk_encryption_key {
+			kms_key_self_link = "%{kms_key_self_link}"
+			kms_key_service_account = data.google_compute_default_service_account.default.email
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+
+data "google_compute_default_service_account" "default" {
 }
 `, context)
 }
