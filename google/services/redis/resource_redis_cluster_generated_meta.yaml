@@ -21,6 +21,7 @@ fields:
   - field: 'discovery_endpoints.address'
   - field: 'discovery_endpoints.port'
   - field: 'discovery_endpoints.psc_config.network'
+  - field: 'kms_key'
   - field: 'maintenance_policy.create_time'
   - field: 'maintenance_policy.update_time'
   - field: 'maintenance_policy.weekly_maintenance_window.day'

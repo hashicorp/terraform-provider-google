@@ -202,6 +202,11 @@ If the value if set to true, any delete cluster operation will fail.
 Default value is true.`,
 				Default: true,
 			},
+			"kms_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The KMS key used to encrypt the at-rest data of the cluster.`,
+			},
 			"maintenance_policy": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -722,6 +727,12 @@ func resourceRedisClusterCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("cross_cluster_replication_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(crossClusterReplicationConfigProp)) && (ok || !reflect.DeepEqual(v, crossClusterReplicationConfigProp)) {
 		obj["crossClusterReplicationConfig"] = crossClusterReplicationConfigProp
 	}
+	kmsKeyProp, err := expandRedisClusterKmsKey(d.Get("kms_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
+		obj["kmsKey"] = kmsKeyProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/clusters?clusterId={{name}}")
 	if err != nil {
@@ -892,6 +903,9 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("psc_service_attachments", flattenRedisClusterPscServiceAttachments(res["pscServiceAttachments"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("kms_key", flattenRedisClusterKmsKey(res["kmsKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 
 	return nil
 }
@@ -960,6 +974,12 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("cross_cluster_replication_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, crossClusterReplicationConfigProp)) {
 		obj["crossClusterReplicationConfig"] = crossClusterReplicationConfigProp
 	}
+	kmsKeyProp, err := expandRedisClusterKmsKey(d.Get("kms_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
+		obj["kmsKey"] = kmsKeyProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/clusters/{{name}}")
 	if err != nil {
@@ -1000,6 +1020,10 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("cross_cluster_replication_config") {
 		updateMask = append(updateMask, "crossClusterReplicationConfig")
+	}
+
+	if d.HasChange("kms_key") {
+		updateMask = append(updateMask, "kmsKey")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1791,6 +1815,10 @@ func flattenRedisClusterPscServiceAttachmentsConnectionType(v interface{}, d *sc
 	return v
 }
 
+func flattenRedisClusterKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandRedisClusterAuthorizationMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -2346,5 +2374,9 @@ func expandRedisClusterCrossClusterReplicationConfigMembershipSecondaryClustersU
 }
 
 func expandRedisClusterCrossClusterReplicationConfigUpdateTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisClusterKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
