@@ -130,6 +130,22 @@ KMS.`,
 given KMS key. If absent, the Compute Engine default service
 account is used.`,
 						},
+						"raw_key": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
+RFC 4648 base64 to either encrypt or decrypt this resource.`,
+							Sensitive: true,
+						},
+						"rsa_encrypted_key": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
+RFC 4648 base64 to either encrypt or decrypt this resource.`,
+							Sensitive: true,
+						},
 					},
 				},
 			},
@@ -782,6 +798,10 @@ func flattenComputeImageImageEncryptionKey(v interface{}, d *schema.ResourceData
 		flattenComputeImageImageEncryptionKeyKmsKeySelfLink(original["kmsKeyName"], d, config)
 	transformed["kms_key_service_account"] =
 		flattenComputeImageImageEncryptionKeyKmsKeyServiceAccount(original["kmsKeyServiceAccount"], d, config)
+	transformed["raw_key"] =
+		flattenComputeImageImageEncryptionKeyRawKey(original["rawKey"], d, config)
+	transformed["rsa_encrypted_key"] =
+		flattenComputeImageImageEncryptionKeyRsaEncryptedKey(original["rsaEncryptedKey"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeImageImageEncryptionKeyKmsKeySelfLink(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -794,6 +814,14 @@ func flattenComputeImageImageEncryptionKeyKmsKeySelfLink(v interface{}, d *schem
 
 func flattenComputeImageImageEncryptionKeyKmsKeyServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenComputeImageImageEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("image_encryption_key.0.raw_key")
+}
+
+func flattenComputeImageImageEncryptionKeyRsaEncryptedKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("image_encryption_key.0.rsa_encrypted_key")
 }
 
 func flattenComputeImageLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -932,6 +960,20 @@ func expandComputeImageImageEncryptionKey(v interface{}, d tpgresource.Terraform
 		transformed["kmsKeyServiceAccount"] = transformedKmsKeyServiceAccount
 	}
 
+	transformedRawKey, err := expandComputeImageImageEncryptionKeyRawKey(original["raw_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRawKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rawKey"] = transformedRawKey
+	}
+
+	transformedRsaEncryptedKey, err := expandComputeImageImageEncryptionKeyRsaEncryptedKey(original["rsa_encrypted_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRsaEncryptedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rsaEncryptedKey"] = transformedRsaEncryptedKey
+	}
+
 	return transformed, nil
 }
 
@@ -940,6 +982,14 @@ func expandComputeImageImageEncryptionKeyKmsKeySelfLink(v interface{}, d tpgreso
 }
 
 func expandComputeImageImageEncryptionKeyKmsKeyServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeImageImageEncryptionKeyRawKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeImageImageEncryptionKeyRsaEncryptedKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -1,0 +1,9 @@
+```release-note:enhancement
+compute: added several `boot_disk`, `attached_disk`, and `instance_encryption_key` fields for improved encryption key support in `google_compute_instance` and template resources
+```
+```release-note:enhancement
+compute: added support for `image_encryption_key.raw_key` and ` image_encryption_key.rsa_encrypted_key` to `google_compute_image` resource
+```
+```release-note:enhancement
+compute: added support for `snapshot_encryption_key.rsa_encrypted_key` to `google_compute_snapshot` resource
+```

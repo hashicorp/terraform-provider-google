@@ -142,6 +142,14 @@ If absent, the Compute Engine Service Agent service account is used.`,
 RFC 4648 base64 to either encrypt or decrypt this resource.`,
 							Sensitive: true,
 						},
+						"rsa_encrypted_key": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Specifies an encryption key stored in Google Cloud KMS, encoded in
+RFC 4648 base64 to either encrypt or decrypt this resource.`,
+							Sensitive: true,
+						},
 						"sha256": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -781,6 +789,8 @@ func flattenComputeSnapshotSnapshotEncryptionKey(v interface{}, d *schema.Resour
 	transformed := make(map[string]interface{})
 	transformed["raw_key"] =
 		flattenComputeSnapshotSnapshotEncryptionKeyRawKey(original["rawKey"], d, config)
+	transformed["rsa_encrypted_key"] =
+		flattenComputeSnapshotSnapshotEncryptionKeyRsaEncryptedKey(original["rsaEncryptedKey"], d, config)
 	transformed["sha256"] =
 		flattenComputeSnapshotSnapshotEncryptionKeySha256(original["sha256"], d, config)
 	transformed["kms_key_self_link"] =
@@ -791,6 +801,10 @@ func flattenComputeSnapshotSnapshotEncryptionKey(v interface{}, d *schema.Resour
 }
 func flattenComputeSnapshotSnapshotEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("snapshot_encryption_key.0.raw_key")
+}
+
+func flattenComputeSnapshotSnapshotEncryptionKeyRsaEncryptedKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("snapshot_encryption_key.0.rsa_encrypted_key")
 }
 
 func flattenComputeSnapshotSnapshotEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -868,6 +882,13 @@ func expandComputeSnapshotSnapshotEncryptionKey(v interface{}, d tpgresource.Ter
 		transformed["rawKey"] = transformedRawKey
 	}
 
+	transformedRsaEncryptedKey, err := expandComputeSnapshotSnapshotEncryptionKeyRsaEncryptedKey(original["rsa_encrypted_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRsaEncryptedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rsaEncryptedKey"] = transformedRsaEncryptedKey
+	}
+
 	transformedSha256, err := expandComputeSnapshotSnapshotEncryptionKeySha256(original["sha256"], d, config)
 	if err != nil {
 		return nil, err
@@ -893,6 +914,10 @@ func expandComputeSnapshotSnapshotEncryptionKey(v interface{}, d tpgresource.Ter
 }
 
 func expandComputeSnapshotSnapshotEncryptionKeyRawKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSnapshotSnapshotEncryptionKeyRsaEncryptedKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
