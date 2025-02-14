@@ -54,6 +54,54 @@ resource "google_tpu_v2_queued_resource" "qr" {
   }
 }
 ```
+## Example Usage - Tpu V2 Queued Resource Full
+
+
+```hcl
+resource "google_tpu_v2_queued_resource" "qr" {
+  provider = google-beta
+
+  name    = "test-qr"
+  zone    = "us-central1-c"
+  project = "my-project-name"
+
+  tpu {
+    node_spec {
+      parent  = "projects/my-project-name/locations/us-central1-c"
+      node_id = "test-tpu"
+      node {
+        runtime_version  = "tpu-vm-tf-2.13.0"
+        accelerator_type = "v2-8"
+        description      = "Text description of the TPU."
+
+        network_config {
+          can_ip_forward      = true
+          enable_external_ips = true
+          network             = google_compute_network.network.id
+          subnetwork          = google_compute_subnetwork.subnet.id
+	  queue_count         = 32
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_subnetwork" "subnet" {
+  provider = google-beta
+
+  name          = "tpu-subnet"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.network.id
+}
+
+resource "google_compute_network" "network" {
+  provider = google-beta
+
+  name                    = "tpu-net"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 
@@ -118,6 +166,38 @@ The following arguments are supported:
 * `description` -
   (Optional)
   Text description of the TPU.
+
+* `network_config` -
+  (Optional)
+  Network configurations for the TPU node.
+  Structure is [documented below](#nested_tpu_node_spec_node_spec_node_network_config).
+
+
+<a name="nested_tpu_node_spec_node_spec_node_network_config"></a>The `network_config` block supports:
+
+* `network` -
+  (Optional)
+  The name of the network for the TPU node. It must be a preexisting Google Compute Engine
+  network. If none is provided, "default" will be used.
+
+* `subnetwork` -
+  (Optional)
+  The name of the subnetwork for the TPU node. It must be a preexisting Google Compute
+  Engine subnetwork. If none is provided, "default" will be used.
+
+* `enable_external_ips` -
+  (Optional)
+  Indicates that external IP addresses would be associated with the TPU workers. If set to
+  false, the specified subnetwork or network should have Private Google Access enabled.
+
+* `can_ip_forward` -
+  (Optional)
+  Allows the TPU node to send and receive packets with non-matching destination or source
+  IPs. This is required if you plan to use the TPU workers to forward routes.
+
+* `queue_count` -
+  (Optional)
+  Specifies networking queue count for TPU VM instance's network interface.
 
 ## Attributes Reference
 
