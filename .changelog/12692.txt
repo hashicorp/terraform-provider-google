@@ -1,0 +1,3 @@
+```release-note:enhancement
+developerconnect: added `bitbucket_cloud_config` and `bitbucket_data_center_config` fields to `google_developer_connect_connection` resource (ga)
+```
