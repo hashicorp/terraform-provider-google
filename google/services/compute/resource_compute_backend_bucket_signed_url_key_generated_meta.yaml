@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_compute_backend_bucket_signed_url_key'
 generation_type: 'mmv1'
 source_file: 'products/compute/BackendBucketSignedUrlKey.yaml'
