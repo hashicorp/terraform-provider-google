@@ -1,0 +1,3 @@
+```release-note:deprecation
+datacatalog: deprecated `google_data_catalog_tag_template` resource
+```
