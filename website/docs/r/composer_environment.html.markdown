@@ -868,7 +868,7 @@ The following arguments are supported:
   The configuration used for the Kubernetes Engine cluster. Structure is [documented below](#nested_node_config_c2).
 
 * `recovery_config` -
-  (Optional, Cloud Composer 2 only)
+  (Optional)
   The configuration settings for recovery. Structure is [documented below](#nested_recovery_config_c2).
 
 * `software_config` -
@@ -1327,6 +1327,10 @@ The following arguments are supported:
   (Optional)
   The configuration used for the Kubernetes Engine cluster. Structure is [documented below](#nested_node_config_c3).
 
+* `recovery_config` -
+  (Optional)
+  The configuration settings for recovery. Structure is [documented below](#nested_recovery_config_c3).
+
 * `software_config` -
   (Optional)
   The configuration settings for software (Airflow) inside the environment. Structure is [documented below](#nested_software_config_c3).
@@ -1535,6 +1539,30 @@ The following arguments are supported:
   Maintenance window recurrence. Format is a subset of RFC-5545 (https://tools.ietf.org/html/rfc5545) 'RRULE'.
   The only allowed values for 'FREQ' field are 'FREQ=DAILY' and 'FREQ=WEEKLY;BYDAY=...'.
   Example values: 'FREQ=WEEKLY;BYDAY=TU,WE', 'FREQ=DAILY'.
+
+<a name="nested_recovery_config_c3"></a>The `recovery_config` block supports:
+
+* `scheduled_snapshots_config` -
+  (Optional)
+  The recovery configuration settings for the Cloud Composer environment.
+
+The `scheduled_snapshots_config` block supports:
+
+* `enabled` -
+  (Optional)
+  When enabled, Cloud Composer periodically saves snapshots of your environment to a Cloud Storage bucket.
+
+* `snapshot_location` -
+  (Optional)
+  The URI of a bucket folder where to save the snapshot.
+
+* `snapshot_creation_schedule` -
+  (Optional)
+  Snapshot schedule, in the unix-cron format.
+
+* `time_zone` -
+  (Optional)
+  A time zone for the schedule. This value is a time offset and does not take into account daylight saving time changes. Valid values are from UTC-12 to UTC+12. Examples: UTC, UTC-01, UTC+03.
 
 The `workloads_config` block supports:
 
