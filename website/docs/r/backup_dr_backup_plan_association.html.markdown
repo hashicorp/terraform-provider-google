@@ -23,8 +23,6 @@ description: |-
 
 A Backup and DR BackupPlanAssociation.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about BackupPlanAssociation, see:
 
@@ -37,13 +35,11 @@ To get more information about BackupPlanAssociation, see:
 
 ```hcl
  resource "google_service_account" "mySA" {
-  provider = google-beta
   account_id   = "my-custom"
   display_name = "Custom SA for VM Instance"
 }
 
 resource "google_compute_instance" "myinstance" {
-  provider = google-beta
   name         = "test-instance"
   machine_type = "n2-standard-2"
   zone         = "us-central1-a"
@@ -72,7 +68,6 @@ resource "google_compute_instance" "myinstance" {
 }
 
 resource "google_backup_dr_backup_vault" "bv1" {
-  provider                                      = google-beta
   location                                      = "us-central1"
   backup_vault_id                               = "bv-bpa"
   backup_minimum_enforced_retention_duration    = "100000s"
@@ -80,7 +75,6 @@ resource "google_backup_dr_backup_vault" "bv1" {
 }
 
 resource "google_backup_dr_backup_plan" "bp1" {
-  provider       = google-beta
   location       = "us-central1"
   backup_plan_id = "bp-bpa-test"
   resource_type  = "compute.googleapis.com/Instance"
@@ -103,7 +97,6 @@ resource "google_backup_dr_backup_plan" "bp1" {
   }
 }
 resource "google_backup_dr_backup_plan_association" "my-backup-plan-association" {
-  provider = google-beta
   location = "us-central1"
   resource_type= "compute.googleapis.com/Instance"
   backup_plan_association_id          = "my-bpa"

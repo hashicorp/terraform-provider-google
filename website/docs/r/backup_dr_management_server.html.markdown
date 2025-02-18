@@ -23,8 +23,6 @@ description: |-
 
 A Backup and DR Management Server (Also referred as Management Console)
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about ManagementServer, see:
 
@@ -37,12 +35,10 @@ To get more information about ManagementServer, see:
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider = google-beta
   name = "vpc-network"
 }
 
 resource "google_compute_global_address" "private_ip_address" {
-  provider = google-beta
   name          = "vpc-network"
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
@@ -51,14 +47,12 @@ resource "google_compute_global_address" "private_ip_address" {
 }
 
 resource "google_service_networking_connection" "default" {
-  provider = google-beta
   network                 = google_compute_network.default.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
 }
 
 resource "google_backup_dr_management_server" "ms-console" {
-  provider = google-beta
   location = "us-central1"
   name     = "ms-console"
   type     = "BACKUP_RESTORE" 

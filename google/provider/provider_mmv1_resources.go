@@ -164,6 +164,9 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_app_engine_default_service_account":            appengine.DataSourceGoogleAppEngineDefaultServiceAccount(),
 	"google_apphub_application":                            apphub.DataSourceGoogleApphubApplication(),
 	"google_apphub_discovered_service":                     apphub.DataSourceApphubDiscoveredService(),
+	"google_backup_dr_management_server":                   backupdr.DataSourceGoogleCloudBackupDRService(),
+	"google_backup_dr_backup_plan_association":             backupdr.DataSourceGoogleCloudBackupDRBackupPlanAssociation(),
+	"google_backup_dr_backup_plan":                         backupdr.DataSourceGoogleCloudBackupDRBackupPlan(),
 	"google_backup_dr_backup":                              backupdr.DataSourceGoogleCloudBackupDRBackup(),
 	"google_backup_dr_data_source":                         backupdr.DataSourceGoogleCloudBackupDRDataSource(),
 	"google_backup_dr_backup_vault":                        backupdr.DataSourceGoogleCloudBackupDRBackupVault(),
@@ -479,9 +482,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 527
+// Generated resources: 530
 // Generated IAM resources: 276
-// Total generated resources: 803
+// Total generated resources: 806
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -549,7 +552,10 @@ var generatedResources = map[string]*schema.Resource{
 	"google_artifact_registry_repository_iam_binding":                            tpgiamresource.ResourceIamBinding(artifactregistry.ArtifactRegistryRepositoryIamSchema, artifactregistry.ArtifactRegistryRepositoryIamUpdaterProducer, artifactregistry.ArtifactRegistryRepositoryIdParseFunc),
 	"google_artifact_registry_repository_iam_member":                             tpgiamresource.ResourceIamMember(artifactregistry.ArtifactRegistryRepositoryIamSchema, artifactregistry.ArtifactRegistryRepositoryIamUpdaterProducer, artifactregistry.ArtifactRegistryRepositoryIdParseFunc),
 	"google_artifact_registry_repository_iam_policy":                             tpgiamresource.ResourceIamPolicy(artifactregistry.ArtifactRegistryRepositoryIamSchema, artifactregistry.ArtifactRegistryRepositoryIamUpdaterProducer, artifactregistry.ArtifactRegistryRepositoryIdParseFunc),
+	"google_backup_dr_backup_plan":                                               backupdr.ResourceBackupDRBackupPlan(),
+	"google_backup_dr_backup_plan_association":                                   backupdr.ResourceBackupDRBackupPlanAssociation(),
 	"google_backup_dr_backup_vault":                                              backupdr.ResourceBackupDRBackupVault(),
+	"google_backup_dr_management_server":                                         backupdr.ResourceBackupDRManagementServer(),
 	"google_beyondcorp_app_connection":                                           beyondcorp.ResourceBeyondcorpAppConnection(),
 	"google_beyondcorp_app_connector":                                            beyondcorp.ResourceBeyondcorpAppConnector(),
 	"google_beyondcorp_app_gateway":                                              beyondcorp.ResourceBeyondcorpAppGateway(),

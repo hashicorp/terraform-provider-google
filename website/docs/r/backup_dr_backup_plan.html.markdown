@@ -23,8 +23,6 @@ description: |-
 
 A backup plan defines when and how to back up a resource, including the backup's schedule, retention, and location.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about BackupPlan, see:
 
@@ -37,14 +35,12 @@ To get more information about BackupPlan, see:
 
 ```hcl
 resource "google_backup_dr_backup_vault" "my_backup_vault" {
-  provider                                      = google-beta
   location                                      = "us-central1"
   backup_vault_id                               = "backup-vault-simple-test"
   backup_minimum_enforced_retention_duration    = "100000s"
 }
 
 resource "google_backup_dr_backup_plan" "my-backup-plan-1" {
-  provider       = google-beta
   location       = "us-central1"
   backup_plan_id = "backup-plan-simple-test"
   resource_type  = "compute.googleapis.com/Instance"

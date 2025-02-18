@@ -1,0 +1,17 @@
+resource: 'google_backup_dr_management_server'
+generation_type: 'mmv1'
+source_file: 'products/backupdr/ManagementServer.yaml'
+api_service_name: 'backupdr.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'ManagementServer'
+fields:
+  - field: 'location'
+    provider_only: true
+  - field: 'management_uri.api'
+  - field: 'management_uri.web_ui'
+  - field: 'name'
+    provider_only: true
+  - field: 'networks.network'
+  - field: 'networks.peering_mode'
+  - field: 'oauth2_client_id'
+  - field: 'type'
