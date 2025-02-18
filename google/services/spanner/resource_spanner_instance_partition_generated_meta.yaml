@@ -1,0 +1,15 @@
+resource: 'google_spanner_instance_partition'
+generation_type: 'mmv1'
+source_file: 'products/spanner/InstancePartition.yaml'
+api_service_name: 'spanner.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'InstancePartition'
+fields:
+  - field: 'config'
+  - field: 'display_name'
+  - field: 'instance'
+    provider_only: true
+  - field: 'name'
+  - field: 'node_count'
+  - field: 'processing_units'
+  - field: 'state'
