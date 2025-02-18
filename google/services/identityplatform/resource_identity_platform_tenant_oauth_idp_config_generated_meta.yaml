@@ -3,7 +3,7 @@ generation_type: 'mmv1'
 source_file: 'products/identityplatform/TenantOauthIdpConfig.yaml'
 api_service_name: 'identitytoolkit.googleapis.com'
 api_version: 'v2'
-api_resource_type_kind: 'OauthIdpConfig'
+api_resource_type_kind: 'OAuthIdpConfig'
 fields:
   - field: 'client_id'
   - field: 'client_secret'
