@@ -54,6 +54,28 @@ resource "google_chronicle_rule_deployment" "example" {
  run_frequency = "DAILY"
 }
 ```
+## Example Usage - Chronicle Ruledeployment Disabled
+
+
+```hcl
+resource "google_chronicle_rule" "my-rule" {
+ provider = "google-beta"
+ location = "us"
+ instance = "00000000-0000-0000-0000-000000000000"
+ text = <<-EOT
+             rule test_rule { meta: events:  $userid = $e.principal.user.userid  match: $userid over 10m condition: $e }
+         EOT
+}
+
+resource "google_chronicle_rule_deployment" "example" {
+ provider = "google-beta"
+ location = "us"
+ instance = "00000000-0000-0000-0000-000000000000"
+ rule = element(split("/", resource.google_chronicle_rule.my-rule.name), length(split("/", resource.google_chronicle_rule.my-rule.name)) - 1)
+ enabled = false
+ run_frequency = "LIVE"
+}
+```
 
 ## Argument Reference
 

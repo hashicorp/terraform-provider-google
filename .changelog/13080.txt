@@ -1,0 +1,3 @@
+```release-note: bug
+chronicle: fixed bug setting `enabled` on creation in `google_chronicle_rule_deployment`
+```
