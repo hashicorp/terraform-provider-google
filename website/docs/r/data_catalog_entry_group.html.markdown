@@ -20,6 +20,7 @@ description: |-
 ---
 
 # google_data_catalog_entry_group
+~> **Warning:** `google_data_catalog_entry_group` is deprecated and will be removed in a future major release. Use `google_dataplex_entry_group` instead. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog.
 
 An EntryGroup resource represents a logical grouping of zero or more Data Catalog Entry resources.
 

@@ -58,6 +58,8 @@ func ResourceDataCatalogEntryGroup() *schema.Resource {
 			tpgresource.DefaultProviderRegion,
 		),
 
+		DeprecationMessage: "`google_data_catalog_entry_group` is deprecated and will be removed in a future major release. Use `google_dataplex_entry_group` instead. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog.",
+
 		Schema: map[string]*schema.Schema{
 			"entry_group_id": {
 				Type:         schema.TypeString,
