@@ -1,7 +1,7 @@
 resource: 'google_dataflow_job'
 generation_type: 'handwritten'
 api_service_name: 'dataflow.googleapis.com'
-api_version: 'v1b3'
+api_version: 'v1beta3'
 api_resource_type_kind: 'Job'
 fields:
   - field: 'additional_experiments'
