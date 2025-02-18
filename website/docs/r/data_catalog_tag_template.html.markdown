@@ -20,6 +20,7 @@ description: |-
 ---
 
 # google_data_catalog_tag_template
+~> **Warning:** `google_data_catalog_tag_template` is deprecated and will be removed in a future major release. Use `google_dataplex_aspect_type` instead. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog.
 
 A tag template defines a tag, which can have one or more typed fields.
 The template is used to create and attach the tag to GCP resources.
