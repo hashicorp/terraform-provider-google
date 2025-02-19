@@ -16,8 +16,6 @@ fields:
   - field: 'image_encryption_key.kms_key_self_link'
     api_field: 'image_encryption_key.kms_key_name'
   - field: 'image_encryption_key.kms_key_service_account'
-  - field: 'image_encryption_key.raw_key'
-  - field: 'image_encryption_key.rsa_encrypted_key'
   - field: 'label_fingerprint'
   - field: 'labels'
   - field: 'licenses'

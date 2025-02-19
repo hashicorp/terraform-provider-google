@@ -104,10 +104,6 @@ func ParseNetworkEndpointGroupRegionalFieldValue(networkEndpointGroup string, d 
 	return ParseRegionalFieldValue("networkEndpointGroups", networkEndpointGroup, "project", "region", "zone", d, config, false)
 }
 
-func ParseSnapshotFieldValue(snapshot string, d TerraformResourceData, config *transport_tpg.Config) (*GlobalFieldValue, error) {
-	return ParseGlobalFieldValue("snapshots", snapshot, "project", d, config, false)
-}
-
 // ------------------------------------------------------------
 // Base helpers used to create helpers for specific fields.
 // ------------------------------------------------------------
