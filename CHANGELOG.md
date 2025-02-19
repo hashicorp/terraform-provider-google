@@ -1,4 +1,9 @@
-## 6.21.0 (Unreleased)
+## 6.21.1 (Unreleased)
+
+NOTES:
+* `6.21.1` contains no changes from `6.21.0`. This release is intended to fix the missing `linux_amd64` binary release issue in  `6.21.0`
+
+## 6.21.0 (Feb 18, 2025)
 
 NOTES:
 * provider: The Terraform Provider for Google Cloud's regular release date will move from Monday to Tuesday in early March. The 2025/03/10 release will be made on 2025/03/11.
