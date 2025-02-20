@@ -411,6 +411,101 @@ resource "google_cloud_run_service" "default" {
 `, context)
 }
 
+func TestAccEventarcTrigger_eventarcTriggerWithFirestoreSourceExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckEventarcTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEventarcTrigger_eventarcTriggerWithFirestoreSourceExample(context),
+			},
+			{
+				ResourceName:            "google_eventarc_trigger.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccEventarcTrigger_eventarcTriggerWithFirestoreSourceExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_firestore_database" "database" {
+  project     = "%{project_id}"
+  name        = "tf-test-some-database%{random_suffix}"
+  location_id = "us-central1"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "DELETE_PROTECTION_DISABLED"
+  deletion_policy         = "DELETE"
+}
+
+resource "google_eventarc_trigger" "primary" {
+  name     = "tf-test-some-trigger%{random_suffix}"
+  location = "us-central1"
+  matching_criteria {
+    attribute = "type"
+    value     = "google.cloud.firestore.document.v1.written"
+  }
+  matching_criteria {
+    attribute = "database"
+    value     = google_firestore_database.database.name
+  }
+  destination {
+    cloud_run_service {
+      service = google_cloud_run_service.default.name
+      region  = "us-central1"
+    }
+  }
+  event_data_content_type = "application/protobuf"
+  service_account         = google_service_account.trigger_service_account.email
+  depends_on              = [google_project_iam_member.event_receiver]
+}
+
+resource "google_service_account" "trigger_service_account" {
+  account_id = "tf-test-trigger-sa%{random_suffix}"
+}
+
+resource "google_project_iam_member" "event_receiver" {
+  project = google_service_account.trigger_service_account.project
+  role    = "roles/eventarc.eventReceiver"
+  member  = "serviceAccount:${google_service_account.trigger_service_account.email}"
+}
+
+resource "google_cloud_run_service" "default" {
+  name     = "tf-test-some-service%{random_suffix}"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+        ports {
+          container_port = 8080
+        }
+      }
+      container_concurrency = 50
+      timeout_seconds       = 100
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+}
+`, context)
+}
+
 func testAccCheckEventarcTriggerDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

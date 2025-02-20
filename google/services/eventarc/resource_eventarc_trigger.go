@@ -1015,7 +1015,7 @@ func flattenEventarcTriggerEffectiveLabels(v interface{}, d *schema.ResourceData
 }
 
 func expandEventarcTriggerName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+	return expandToRegionalLongForm("projects/%s/locations/%s/triggers/%s", v, d, config)
 }
 
 func expandEventarcTriggerMatchingCriteria(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
