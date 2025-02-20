@@ -40,12 +40,12 @@ func testSweepSecurityCenterManagementProjectSecurityHealthAnalyticsCustomModule
 	var deletionerror error
 	resourceName := "SecurityCenterManagementProjectSecurityHealthAnalyticsCustomModule"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	// Using default region since neither URL substitutions nor regions are defined
+	// Using URL substitutions for region/zone pairs
 	substitutions := []struct {
 		region string
 		zone   string
 	}{
-		{region: "us-central1"},
+		{region: "global", zone: ""},
 	}
 
 	// Iterate through each substitution
