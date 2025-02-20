@@ -104,6 +104,17 @@ resource "google_storage_transfer_job" "s3-bucket-nightly-backup" {
     payload_format = "JSON"
   }
 
+   logging_config {
+    log_actions       = [
+      "COPY",
+      "DELETE"
+    ]
+    log_action_states = [
+      "SUCCEEDED",
+      "FAILED"
+    ]
+  }
+
   depends_on = [google_storage_bucket_iam_member.s3-backup-bucket, google_pubsub_topic_iam_member.notification_config]
 }
 ```
@@ -132,6 +143,8 @@ The following arguments are supported:
 * `status` - (Optional) Status of the job. Default: `ENABLED`. **NOTE: The effect of the new job status takes place during a subsequent job run. For example, if you change the job status from ENABLED to DISABLED, and an operation spawned by the transfer is running, the status change would not affect the current operation.**
 
 * `notification_config` - (Optional) Notification configuration. This is not supported for transfers involving PosixFilesystem. Structure [documented below](#nested_notification_config).
+
+* `logging_config` - (Optional) Logging configuration. Structure [documented below](#nested_logging_config).
 
 <a name="nested_transfer_spec"></a>The `transfer_spec` block supports:
 
@@ -298,6 +311,17 @@ The `azure_credentials` block supports:
 * `event_types` - (Optional) Event types for which a notification is desired. If empty, send notifications for all event types. The valid types are "TRANSFER_OPERATION_SUCCESS", "TRANSFER_OPERATION_FAILED", "TRANSFER_OPERATION_ABORTED".
 
 * `payload_format` - (Required) The desired format of the notification message payloads. One of "NONE" or "JSON".
+
+<a name="nested_logging_config"></a>The `loggin_config` block supports:
+
+* `log_actions` - (Optional) A list of actions to be logged. If empty, no logs are generated. Not supported for transfers with PosixFilesystem data sources; use enableOnpremGcsTransferLogs instead. 
+Each action may be one of `FIND`, `DELETE`, and `COPY`.
+
+* `log_action_states` - (Optional) A list of loggable action states. If empty, no logs are generated. Not supported for transfers with PosixFilesystem data sources; use enableOnpremGcsTransferLogs instead.
+Each action state may be one of `SUCCEEDED`, and `FAILED`.
+
+* `enable_on_prem_gcs_transfer` - (Optional) For transfers with a PosixFilesystem source, this option enables the Cloud Storage transfer logs for this transfer. 
+Defaults to false.
 
 ## Attributes Reference
 
