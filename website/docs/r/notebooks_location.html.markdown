@@ -20,6 +20,7 @@ description: |-
 ---
 
 # google_notebooks_location
+~> **Warning:** `google_notebooks_location` is deprecated and will be removed in a future major release. This resource is not functional.
 
 Represents a Location resource.
 

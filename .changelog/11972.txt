@@ -1,0 +1,3 @@
+```release-note:deprecation
+notebooks: deprecated non-functional `google_notebooks_location` resource
+```
