@@ -132,7 +132,7 @@ The following arguments are supported:
   Multiple fields can have the same order, and field orders within a tag do not have to be sequential.
 
 
-<a name="nested_fields_field_type"></a>The `type` block supports:
+<a name="nested_type"></a>The `type` block supports:
 
 * `primitive_type` -
   (Optional)
@@ -147,7 +147,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_fields_field_type_enum_type).
 
 
-<a name="nested_fields_field_type_enum_type"></a>The `enum_type` block supports:
+<a name="nested_enum_type"></a>The `enum_type` block supports:
 
 * `allowed_values` -
   (Required)
@@ -159,7 +159,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_fields_field_type_enum_type_allowed_values).
 
 
-<a name="nested_fields_field_type_enum_type_allowed_values"></a>The `allowed_values` block supports:
+<a name="nested_allowed_values"></a>The `allowed_values` block supports:
 
 * `display_name` -
   (Required)

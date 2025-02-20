@@ -131,7 +131,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_alternative_name_server_config_target_name_servers).
 
 
-<a name="nested_alternative_name_server_config_target_name_servers"></a>The `target_name_servers` block supports:
+<a name="nested_target_name_servers"></a>The `target_name_servers` block supports:
 
 * `ipv4_address` -
   (Required)

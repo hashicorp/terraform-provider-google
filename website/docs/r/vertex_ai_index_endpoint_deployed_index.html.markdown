@@ -297,7 +297,7 @@ The following arguments are supported:
   The maximum number of replicas this DeployedModel may be deployed on when the traffic against it increases. If maxReplicaCount is not set, the default value is minReplicaCount
 
 
-<a name="nested_dedicated_resources_machine_spec"></a>The `machine_spec` block supports:
+<a name="nested_machine_spec"></a>The `machine_spec` block supports:
 
 * `machine_type` -
   (Optional)
@@ -314,7 +314,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deployed_index_auth_config_auth_provider).
 
 
-<a name="nested_deployed_index_auth_config_auth_provider"></a>The `auth_provider` block supports:
+<a name="nested_auth_provider"></a>The `auth_provider` block supports:
 
 * `audiences` -
   (Optional)
@@ -361,7 +361,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_private_endpoints_psc_automated_endpoints).
 
 
-<a name="nested_private_endpoints_psc_automated_endpoints"></a>The `psc_automated_endpoints` block contains:
+<a name="nested_psc_automated_endpoints"></a>The `psc_automated_endpoints` block contains:
 
 * `project_id` -
   (Output)

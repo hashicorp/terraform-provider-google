@@ -209,7 +209,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations).
 
 
-<a name="nested_deidentify_config_image_transformations"></a>The `image_transformations` block supports:
+<a name="nested_image_transformations"></a>The `image_transformations` block supports:
 
 * `transforms` -
   (Required)
@@ -217,7 +217,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_image_transformations_transforms).
 
 
-<a name="nested_deidentify_config_image_transformations_transforms"></a>The `transforms` block supports:
+<a name="nested_transforms"></a>The `transforms` block supports:
 
 * `redaction_color` -
   (Optional)
@@ -238,7 +238,7 @@ The following arguments are supported:
   Apply transformation to all text that doesn't match an infoType.
 
 
-<a name="nested_deidentify_config_image_transformations_transforms_transforms_redaction_color"></a>The `redaction_color` block supports:
+<a name="nested_redaction_color"></a>The `redaction_color` block supports:
 
 * `red` -
   (Optional)
@@ -252,7 +252,7 @@ The following arguments are supported:
   (Optional)
   The amount of green in the color as a value in the interval [0, 1].
 
-<a name="nested_deidentify_config_image_transformations_transforms_transforms_selected_info_types"></a>The `selected_info_types` block supports:
+<a name="nested_selected_info_types"></a>The `selected_info_types` block supports:
 
 * `info_types` -
   (Required)
@@ -261,7 +261,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_image_transformations_transforms_transforms_selected_info_types_info_types).
 
 
-<a name="nested_deidentify_config_image_transformations_transforms_transforms_selected_info_types_info_types"></a>The `info_types` block supports:
+<a name="nested_info_types"></a>The `info_types` block supports:
 
 * `name` -
   (Required)
@@ -277,14 +277,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_image_transformations_transforms_transforms_selected_info_types_info_types_info_types_sensitivity_score).
 
 
-<a name="nested_deidentify_config_image_transformations_transforms_transforms_selected_info_types_info_types_info_types_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_deidentify_config_info_type_transformations"></a>The `info_type_transformations` block supports:
+<a name="nested_info_type_transformations"></a>The `info_type_transformations` block supports:
 
 * `transformations` -
   (Required)
@@ -292,7 +292,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations"></a>The `transformations` block supports:
+<a name="nested_transformations"></a>The `transformations` block supports:
 
 * `info_types` -
   (Optional)
@@ -307,7 +307,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_info_types"></a>The `info_types` block supports:
+<a name="nested_info_types"></a>The `info_types` block supports:
 
 * `name` -
   (Required)
@@ -323,14 +323,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_info_types_info_types_sensitivity_score).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_info_types_info_types_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation"></a>The `primitive_transformation` block supports:
+<a name="nested_primitive_transformation"></a>The `primitive_transformation` block supports:
 
 * `replace_config` -
   (Optional)
@@ -403,7 +403,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_replace_config"></a>The `replace_config` block supports:
+<a name="nested_replace_config"></a>The `replace_config` block supports:
 
 * `new_value` -
   (Required)
@@ -412,7 +412,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_replace_config_new_value).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_replace_config_new_value"></a>The `new_value` block supports:
+<a name="nested_new_value"></a>The `new_value` block supports:
 
 * `integer_value` -
   (Optional)
@@ -451,7 +451,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_replace_config_new_value_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -469,7 +469,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_replace_config_new_value_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -484,7 +484,7 @@ The following arguments are supported:
   Day of month. Must be from 1 to 31 and valid for the year and month, or 0 if specifying a
   year by itself or a year and month where the day is not significant.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_character_mask_config"></a>The `character_mask_config` block supports:
+<a name="nested_character_mask_config"></a>The `character_mask_config` block supports:
 
 * `masking_character` -
   (Optional)
@@ -507,7 +507,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_character_mask_config_characters_to_ignore).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_character_mask_config_characters_to_ignore"></a>The `characters_to_ignore` block supports:
+<a name="nested_characters_to_ignore"></a>The `characters_to_ignore` block supports:
 
 * `characters_to_skip` -
   (Optional)
@@ -518,7 +518,7 @@ The following arguments are supported:
   Common characters to not transform when masking. Useful to avoid removing punctuation.
   Possible values are: `NUMERIC`, `ALPHA_UPPER_CASE`, `ALPHA_LOWER_CASE`, `PUNCTUATION`, `WHITESPACE`.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config"></a>The `crypto_deterministic_config` block supports:
+<a name="nested_crypto_deterministic_config"></a>The `crypto_deterministic_config` block supports:
 
 * `crypto_key` -
   (Optional)
@@ -548,7 +548,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_context).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_crypto_key"></a>The `crypto_key` block supports:
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
 
 * `transient` -
   (Optional)
@@ -569,20 +569,20 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_crypto_key_kms_wrapped).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_crypto_key_transient"></a>The `transient` block supports:
+<a name="nested_transient"></a>The `transient` block supports:
 
 * `name` -
   (Required)
   Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_crypto_key_unwrapped"></a>The `unwrapped` block supports:
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
 
 * `key` -
   (Required)
   A 128/192/256 bit key.
   A base64-encoded string.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_crypto_key_kms_wrapped"></a>The `kms_wrapped` block supports:
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
 
 * `wrapped_key` -
   (Required)
@@ -593,7 +593,7 @@ The following arguments are supported:
   (Required)
   The resource name of the KMS CryptoKey to use for unwrapping.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_surrogate_info_type"></a>The `surrogate_info_type` block supports:
+<a name="nested_surrogate_info_type"></a>The `surrogate_info_type` block supports:
 
 * `name` -
   (Optional)
@@ -609,20 +609,20 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_surrogate_info_type_sensitivity_score).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_surrogate_info_type_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_context"></a>The `context` block supports:
+<a name="nested_context"></a>The `context` block supports:
 
 * `name` -
   (Optional)
   Name describing the field.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config"></a>The `crypto_replace_ffx_fpe_config` block supports:
+<a name="nested_crypto_replace_ffx_fpe_config"></a>The `crypto_replace_ffx_fpe_config` block supports:
 
 * `crypto_key` -
   (Optional)
@@ -665,7 +665,7 @@ The following arguments are supported:
   The native way to select the alphabet. Must be in the range \[2, 95\].
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key"></a>The `crypto_key` block supports:
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
 
 * `transient` -
   (Optional)
@@ -686,20 +686,20 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key_kms_wrapped).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key_transient"></a>The `transient` block supports:
+<a name="nested_transient"></a>The `transient` block supports:
 
 * `name` -
   (Required)
   Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key_unwrapped"></a>The `unwrapped` block supports:
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
 
 * `key` -
   (Required)
   A 128/192/256 bit key.
   A base64-encoded string.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key_kms_wrapped"></a>The `kms_wrapped` block supports:
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
 
 * `wrapped_key` -
   (Required)
@@ -710,13 +710,13 @@ The following arguments are supported:
   (Required)
   The resource name of the KMS CryptoKey to use for unwrapping.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_context"></a>The `context` block supports:
+<a name="nested_context"></a>The `context` block supports:
 
 * `name` -
   (Optional)
   Name describing the field.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_surrogate_info_type"></a>The `surrogate_info_type` block supports:
+<a name="nested_surrogate_info_type"></a>The `surrogate_info_type` block supports:
 
 * `name` -
   (Optional)
@@ -732,14 +732,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_surrogate_info_type_sensitivity_score).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_surrogate_info_type_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_replace_dictionary_config"></a>The `replace_dictionary_config` block supports:
+<a name="nested_replace_dictionary_config"></a>The `replace_dictionary_config` block supports:
 
 * `word_list` -
   (Required)
@@ -747,13 +747,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_replace_dictionary_config_word_list).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_replace_dictionary_config_word_list"></a>The `word_list` block supports:
+<a name="nested_word_list"></a>The `word_list` block supports:
 
 * `words` -
   (Required)
   Words or phrases defining the dictionary. The dictionary must contain at least one phrase and every phrase must contain at least 2 characters that are letters or digits.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config"></a>The `date_shift_config` block supports:
+<a name="nested_date_shift_config"></a>The `date_shift_config` block supports:
 
 * `context` -
   (Optional)
@@ -776,13 +776,13 @@ The following arguments are supported:
   Range of shift in days. Negative means shift to earlier in time.
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config_context"></a>The `context` block supports:
+<a name="nested_context"></a>The `context` block supports:
 
 * `name` -
   (Required)
   Name describing the field.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config_crypto_key"></a>The `crypto_key` block supports:
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
 
 * `transient` -
   (Optional)
@@ -803,20 +803,20 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config_crypto_key_kms_wrapped).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config_crypto_key_transient"></a>The `transient` block supports:
+<a name="nested_transient"></a>The `transient` block supports:
 
 * `name` -
   (Required)
   Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config_crypto_key_unwrapped"></a>The `unwrapped` block supports:
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
 
 * `key` -
   (Required)
   A 128/192/256 bit key.
   A base64-encoded string.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config_crypto_key_kms_wrapped"></a>The `kms_wrapped` block supports:
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
 
 * `wrapped_key` -
   (Required)
@@ -827,7 +827,7 @@ The following arguments are supported:
   (Required)
   The resource name of the KMS CryptoKey to use for unwrapping.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_fixed_size_bucketing_config"></a>The `fixed_size_bucketing_config` block supports:
+<a name="nested_fixed_size_bucketing_config"></a>The `fixed_size_bucketing_config` block supports:
 
 * `lower_bound` -
   (Required)
@@ -850,7 +850,7 @@ The following arguments are supported:
   Precision up to 2 decimals works.
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_fixed_size_bucketing_config_lower_bound"></a>The `lower_bound` block supports:
+<a name="nested_lower_bound"></a>The `lower_bound` block supports:
 
 * `integer_value` -
   (Optional)
@@ -860,7 +860,7 @@ The following arguments are supported:
   (Optional)
   A float value.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_fixed_size_bucketing_config_upper_bound"></a>The `upper_bound` block supports:
+<a name="nested_upper_bound"></a>The `upper_bound` block supports:
 
 * `integer_value` -
   (Optional)
@@ -870,7 +870,7 @@ The following arguments are supported:
   (Optional)
   A float value.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config"></a>The `bucketing_config` block supports:
+<a name="nested_bucketing_config"></a>The `bucketing_config` block supports:
 
 * `buckets` -
   (Optional)
@@ -879,7 +879,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets"></a>The `buckets` block supports:
+<a name="nested_buckets"></a>The `buckets` block supports:
 
 * `min` -
   (Optional)
@@ -900,7 +900,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_replacement_value).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_min"></a>The `min` block supports:
+<a name="nested_min"></a>The `min` block supports:
 
 * `integer_value` -
   (Optional)
@@ -934,7 +934,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_min_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -952,7 +952,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_min_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -966,7 +966,7 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_max"></a>The `max` block supports:
+<a name="nested_max"></a>The `max` block supports:
 
 * `integer_value` -
   (Optional)
@@ -1000,7 +1000,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_max_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -1018,7 +1018,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_max_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -1032,7 +1032,7 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_replacement_value"></a>The `replacement_value` block supports:
+<a name="nested_replacement_value"></a>The `replacement_value` block supports:
 
 * `integer_value` -
   (Optional)
@@ -1066,7 +1066,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_replacement_value_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -1084,7 +1084,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_replacement_value_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -1098,14 +1098,14 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_time_part_config"></a>The `time_part_config` block supports:
+<a name="nested_time_part_config"></a>The `time_part_config` block supports:
 
 * `part_to_extract` -
   (Optional)
   The part of the time to keep.
   Possible values are: `YEAR`, `MONTH`, `DAY_OF_MONTH`, `DAY_OF_WEEK`, `WEEK_OF_YEAR`, `HOUR_OF_DAY`.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config"></a>The `crypto_hash_config` block supports:
+<a name="nested_crypto_hash_config"></a>The `crypto_hash_config` block supports:
 
 * `crypto_key` -
   (Optional)
@@ -1113,7 +1113,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config_crypto_key).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config_crypto_key"></a>The `crypto_key` block supports:
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
 
 * `transient` -
   (Optional)
@@ -1134,20 +1134,20 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config_crypto_key_kms_wrapped).
 
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config_crypto_key_transient"></a>The `transient` block supports:
+<a name="nested_transient"></a>The `transient` block supports:
 
 * `name` -
   (Required)
   Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config_crypto_key_unwrapped"></a>The `unwrapped` block supports:
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
 
 * `key` -
   (Required)
   A 128/192/256 bit key.
   A base64-encoded string.
 
-<a name="nested_deidentify_config_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config_crypto_key_kms_wrapped"></a>The `kms_wrapped` block supports:
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
 
 * `wrapped_key` -
   (Required)
@@ -1158,7 +1158,7 @@ The following arguments are supported:
   (Required)
   The resource name of the KMS CryptoKey to use for unwrapping.
 
-<a name="nested_deidentify_config_record_transformations"></a>The `record_transformations` block supports:
+<a name="nested_record_transformations"></a>The `record_transformations` block supports:
 
 * `field_transformations` -
   (Optional)
@@ -1171,7 +1171,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_record_suppressions).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations"></a>The `field_transformations` block supports:
+<a name="nested_field_transformations"></a>The `field_transformations` block supports:
 
 * `fields` -
   (Required)
@@ -1201,13 +1201,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_fields"></a>The `fields` block supports:
+<a name="nested_fields"></a>The `fields` block supports:
 
 * `name` -
   (Optional)
   Name describing the field.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_condition"></a>The `condition` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expressions` -
   (Optional)
@@ -1215,7 +1215,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_condition_expressions).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_condition_expressions"></a>The `expressions` block supports:
+<a name="nested_expressions"></a>The `expressions` block supports:
 
 * `logical_operator` -
   (Optional)
@@ -1229,7 +1229,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_condition_expressions_conditions).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_condition_expressions_conditions"></a>The `conditions` block supports:
+<a name="nested_conditions"></a>The `conditions` block supports:
 
 * `conditions` -
   (Optional)
@@ -1237,7 +1237,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_condition_expressions_conditions_conditions).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_condition_expressions_conditions_conditions"></a>The `conditions` block supports:
+<a name="nested_conditions"></a>The `conditions` block supports:
 
 * `field` -
   (Required)
@@ -1257,13 +1257,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_condition_expressions_conditions_conditions_conditions_value).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_condition_expressions_conditions_conditions_conditions_field"></a>The `field` block supports:
+<a name="nested_field"></a>The `field` block supports:
 
 * `name` -
   (Optional)
   Name describing the field.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_condition_expressions_conditions_conditions_conditions_value"></a>The `value` block supports:
+<a name="nested_value"></a>The `value` block supports:
 
 * `integer_value` -
   (Optional)
@@ -1301,7 +1301,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_condition_expressions_conditions_conditions_conditions_value_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -1319,7 +1319,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_condition_expressions_conditions_conditions_conditions_value_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -1333,7 +1333,7 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation"></a>The `primitive_transformation` block supports:
+<a name="nested_primitive_transformation"></a>The `primitive_transformation` block supports:
 
 * `replace_config` -
   (Optional)
@@ -1401,7 +1401,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_replace_dictionary_config).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_replace_config"></a>The `replace_config` block supports:
+<a name="nested_replace_config"></a>The `replace_config` block supports:
 
 * `new_value` -
   (Required)
@@ -1410,7 +1410,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_replace_config_new_value).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_replace_config_new_value"></a>The `new_value` block supports:
+<a name="nested_new_value"></a>The `new_value` block supports:
 
 * `integer_value` -
   (Optional)
@@ -1448,7 +1448,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_replace_config_new_value_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -1466,7 +1466,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_replace_config_new_value_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -1480,7 +1480,7 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_character_mask_config"></a>The `character_mask_config` block supports:
+<a name="nested_character_mask_config"></a>The `character_mask_config` block supports:
 
 * `masking_character` -
   (Optional)
@@ -1510,7 +1510,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_character_mask_config_characters_to_ignore).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_character_mask_config_characters_to_ignore"></a>The `characters_to_ignore` block supports:
+<a name="nested_characters_to_ignore"></a>The `characters_to_ignore` block supports:
 
 * `characters_to_skip` -
   (Optional)
@@ -1521,7 +1521,7 @@ The following arguments are supported:
   Common characters to not transform when masking. Useful to avoid removing punctuation.
   Possible values are: `NUMERIC`, `ALPHA_UPPER_CASE`, `ALPHA_LOWER_CASE`, `PUNCTUATION`, `WHITESPACE`.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_replace_ffx_fpe_config"></a>The `crypto_replace_ffx_fpe_config` block supports:
+<a name="nested_crypto_replace_ffx_fpe_config"></a>The `crypto_replace_ffx_fpe_config` block supports:
 
 * `crypto_key` -
   (Optional)
@@ -1564,7 +1564,7 @@ The following arguments are supported:
   The native way to select the alphabet. Must be in the range \[2, 95\].
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key"></a>The `crypto_key` block supports:
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
 
 * `transient` -
   (Optional)
@@ -1585,20 +1585,20 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key_kms_wrapped).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key_transient"></a>The `transient` block supports:
+<a name="nested_transient"></a>The `transient` block supports:
 
 * `name` -
   (Required)
   Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key_unwrapped"></a>The `unwrapped` block supports:
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
 
 * `key` -
   (Required)
   A 128/192/256 bit key.
   A base64-encoded string.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key_kms_wrapped"></a>The `kms_wrapped` block supports:
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
 
 * `wrapped_key` -
   (Required)
@@ -1609,13 +1609,13 @@ The following arguments are supported:
   (Required)
   The resource name of the KMS CryptoKey to use for unwrapping.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_context"></a>The `context` block supports:
+<a name="nested_context"></a>The `context` block supports:
 
 * `name` -
   (Optional)
   Name describing the field.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_surrogate_info_type"></a>The `surrogate_info_type` block supports:
+<a name="nested_surrogate_info_type"></a>The `surrogate_info_type` block supports:
 
 * `name` -
   (Optional)
@@ -1631,14 +1631,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_surrogate_info_type_sensitivity_score).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_surrogate_info_type_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_fixed_size_bucketing_config"></a>The `fixed_size_bucketing_config` block supports:
+<a name="nested_fixed_size_bucketing_config"></a>The `fixed_size_bucketing_config` block supports:
 
 * `lower_bound` -
   (Required)
@@ -1661,7 +1661,7 @@ The following arguments are supported:
   Precision up to 2 decimals works.
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_fixed_size_bucketing_config_lower_bound"></a>The `lower_bound` block supports:
+<a name="nested_lower_bound"></a>The `lower_bound` block supports:
 
 * `integer_value` -
   (Optional)
@@ -1699,7 +1699,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_fixed_size_bucketing_config_lower_bound_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -1717,7 +1717,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_fixed_size_bucketing_config_lower_bound_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -1731,7 +1731,7 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_fixed_size_bucketing_config_upper_bound"></a>The `upper_bound` block supports:
+<a name="nested_upper_bound"></a>The `upper_bound` block supports:
 
 * `integer_value` -
   (Optional)
@@ -1769,7 +1769,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_fixed_size_bucketing_config_upper_bound_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -1787,7 +1787,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_fixed_size_bucketing_config_upper_bound_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -1801,7 +1801,7 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_bucketing_config"></a>The `bucketing_config` block supports:
+<a name="nested_bucketing_config"></a>The `bucketing_config` block supports:
 
 * `buckets` -
   (Optional)
@@ -1810,7 +1810,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_bucketing_config_buckets).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_bucketing_config_buckets"></a>The `buckets` block supports:
+<a name="nested_buckets"></a>The `buckets` block supports:
 
 * `min` -
   (Optional)
@@ -1831,7 +1831,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_bucketing_config_buckets_buckets_replacement_value).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_bucketing_config_buckets_buckets_min"></a>The `min` block supports:
+<a name="nested_min"></a>The `min` block supports:
 
 * `integer_value` -
   (Optional)
@@ -1869,7 +1869,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_bucketing_config_buckets_buckets_min_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -1887,7 +1887,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_bucketing_config_buckets_buckets_min_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -1901,7 +1901,7 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_bucketing_config_buckets_buckets_max"></a>The `max` block supports:
+<a name="nested_max"></a>The `max` block supports:
 
 * `integer_value` -
   (Optional)
@@ -1939,7 +1939,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_bucketing_config_buckets_buckets_max_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -1957,7 +1957,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_bucketing_config_buckets_buckets_max_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -1971,7 +1971,7 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_bucketing_config_buckets_buckets_replacement_value"></a>The `replacement_value` block supports:
+<a name="nested_replacement_value"></a>The `replacement_value` block supports:
 
 * `integer_value` -
   (Optional)
@@ -2009,7 +2009,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_bucketing_config_buckets_buckets_replacement_value_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -2027,7 +2027,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_bucketing_config_buckets_buckets_replacement_value_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -2041,14 +2041,14 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_time_part_config"></a>The `time_part_config` block supports:
+<a name="nested_time_part_config"></a>The `time_part_config` block supports:
 
 * `part_to_extract` -
   (Optional)
   The part of the time to keep.
   Possible values are: `YEAR`, `MONTH`, `DAY_OF_MONTH`, `DAY_OF_WEEK`, `WEEK_OF_YEAR`, `HOUR_OF_DAY`.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_hash_config"></a>The `crypto_hash_config` block supports:
+<a name="nested_crypto_hash_config"></a>The `crypto_hash_config` block supports:
 
 * `crypto_key` -
   (Optional)
@@ -2056,7 +2056,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_hash_config_crypto_key).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_hash_config_crypto_key"></a>The `crypto_key` block supports:
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
 
 * `transient` -
   (Optional)
@@ -2077,20 +2077,20 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_hash_config_crypto_key_kms_wrapped).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_hash_config_crypto_key_transient"></a>The `transient` block supports:
+<a name="nested_transient"></a>The `transient` block supports:
 
 * `name` -
   (Required)
   Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_hash_config_crypto_key_unwrapped"></a>The `unwrapped` block supports:
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
 
 * `key` -
   (Required)
   A 128/192/256 bit key.
   A base64-encoded string.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_hash_config_crypto_key_kms_wrapped"></a>The `kms_wrapped` block supports:
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
 
 * `wrapped_key` -
   (Required)
@@ -2101,7 +2101,7 @@ The following arguments are supported:
   (Required)
   The resource name of the KMS CryptoKey to use for unwrapping.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_date_shift_config"></a>The `date_shift_config` block supports:
+<a name="nested_date_shift_config"></a>The `date_shift_config` block supports:
 
 * `upper_bound_days` -
   (Required)
@@ -2124,13 +2124,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_date_shift_config_crypto_key).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_date_shift_config_context"></a>The `context` block supports:
+<a name="nested_context"></a>The `context` block supports:
 
 * `name` -
   (Optional)
   Name describing the field.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_date_shift_config_crypto_key"></a>The `crypto_key` block supports:
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
 
 * `transient` -
   (Optional)
@@ -2151,20 +2151,20 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_date_shift_config_crypto_key_kms_wrapped).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_date_shift_config_crypto_key_transient"></a>The `transient` block supports:
+<a name="nested_transient"></a>The `transient` block supports:
 
 * `name` -
   (Required)
   Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_date_shift_config_crypto_key_unwrapped"></a>The `unwrapped` block supports:
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
 
 * `key` -
   (Required)
   A 128/192/256 bit key.
   A base64-encoded string.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_date_shift_config_crypto_key_kms_wrapped"></a>The `kms_wrapped` block supports:
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
 
 * `wrapped_key` -
   (Required)
@@ -2175,7 +2175,7 @@ The following arguments are supported:
   (Required)
   The resource name of the KMS CryptoKey to use for unwrapping.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_deterministic_config"></a>The `crypto_deterministic_config` block supports:
+<a name="nested_crypto_deterministic_config"></a>The `crypto_deterministic_config` block supports:
 
 * `crypto_key` -
   (Optional)
@@ -2205,7 +2205,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_deterministic_config_context).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_deterministic_config_crypto_key"></a>The `crypto_key` block supports:
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
 
 * `transient` -
   (Optional)
@@ -2226,20 +2226,20 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_deterministic_config_crypto_key_kms_wrapped).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_deterministic_config_crypto_key_transient"></a>The `transient` block supports:
+<a name="nested_transient"></a>The `transient` block supports:
 
 * `name` -
   (Required)
   Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_deterministic_config_crypto_key_unwrapped"></a>The `unwrapped` block supports:
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
 
 * `key` -
   (Required)
   A 128/192/256 bit key.
   A base64-encoded string.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_deterministic_config_crypto_key_kms_wrapped"></a>The `kms_wrapped` block supports:
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
 
 * `wrapped_key` -
   (Required)
@@ -2250,7 +2250,7 @@ The following arguments are supported:
   (Required)
   The resource name of the KMS CryptoKey to use for unwrapping.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_deterministic_config_surrogate_info_type"></a>The `surrogate_info_type` block supports:
+<a name="nested_surrogate_info_type"></a>The `surrogate_info_type` block supports:
 
 * `name` -
   (Optional)
@@ -2266,20 +2266,20 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_deterministic_config_surrogate_info_type_sensitivity_score).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_deterministic_config_surrogate_info_type_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_crypto_deterministic_config_context"></a>The `context` block supports:
+<a name="nested_context"></a>The `context` block supports:
 
 * `name` -
   (Optional)
   Name describing the field.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_replace_dictionary_config"></a>The `replace_dictionary_config` block supports:
+<a name="nested_replace_dictionary_config"></a>The `replace_dictionary_config` block supports:
 
 * `word_list` -
   (Optional)
@@ -2287,13 +2287,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_replace_dictionary_config_word_list).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_primitive_transformation_replace_dictionary_config_word_list"></a>The `word_list` block supports:
+<a name="nested_word_list"></a>The `word_list` block supports:
 
 * `words` -
   (Required)
   Words or phrases defining the dictionary. The dictionary must contain at least one phrase and every phrase must contain at least 2 characters that are letters or digits.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations"></a>The `info_type_transformations` block supports:
+<a name="nested_info_type_transformations"></a>The `info_type_transformations` block supports:
 
 * `transformations` -
   (Required)
@@ -2301,7 +2301,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations"></a>The `transformations` block supports:
+<a name="nested_transformations"></a>The `transformations` block supports:
 
 * `info_types` -
   (Optional)
@@ -2316,7 +2316,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_info_types"></a>The `info_types` block supports:
+<a name="nested_info_types"></a>The `info_types` block supports:
 
 * `name` -
   (Required)
@@ -2332,14 +2332,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_info_types_info_types_sensitivity_score).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_info_types_info_types_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation"></a>The `primitive_transformation` block supports:
+<a name="nested_primitive_transformation"></a>The `primitive_transformation` block supports:
 
 * `replace_config` -
   (Optional)
@@ -2411,7 +2411,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_replace_dictionary_config).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_replace_config"></a>The `replace_config` block supports:
+<a name="nested_replace_config"></a>The `replace_config` block supports:
 
 * `new_value` -
   (Required)
@@ -2420,7 +2420,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_replace_config_new_value).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_replace_config_new_value"></a>The `new_value` block supports:
+<a name="nested_new_value"></a>The `new_value` block supports:
 
 * `integer_value` -
   (Optional)
@@ -2459,7 +2459,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_replace_config_new_value_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -2477,7 +2477,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_replace_config_new_value_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -2491,7 +2491,7 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_character_mask_config"></a>The `character_mask_config` block supports:
+<a name="nested_character_mask_config"></a>The `character_mask_config` block supports:
 
 * `masking_character` -
   (Optional)
@@ -2521,7 +2521,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_character_mask_config_characters_to_ignore).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_character_mask_config_characters_to_ignore"></a>The `characters_to_ignore` block supports:
+<a name="nested_characters_to_ignore"></a>The `characters_to_ignore` block supports:
 
 * `characters_to_skip` -
   (Optional)
@@ -2532,7 +2532,7 @@ The following arguments are supported:
   Common characters to not transform when masking. Useful to avoid removing punctuation. Only one of this or `characters_to_skip` must be specified.
   Possible values are: `NUMERIC`, `ALPHA_UPPER_CASE`, `ALPHA_LOWER_CASE`, `PUNCTUATION`, `WHITESPACE`.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config"></a>The `crypto_replace_ffx_fpe_config` block supports:
+<a name="nested_crypto_replace_ffx_fpe_config"></a>The `crypto_replace_ffx_fpe_config` block supports:
 
 * `crypto_key` -
   (Required)
@@ -2575,7 +2575,7 @@ The following arguments are supported:
   The native way to select the alphabet. Must be in the range \[2, 95\]. Only one of this, `custom_alphabet` or `common_alphabet` must be specified.
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key"></a>The `crypto_key` block supports:
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
 
 * `transient` -
   (Optional)
@@ -2596,13 +2596,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key_kms_wrapped).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key_transient"></a>The `transient` block supports:
+<a name="nested_transient"></a>The `transient` block supports:
 
 * `name` -
   (Required)
   Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key_unwrapped"></a>The `unwrapped` block supports:
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
 
 * `key` -
   (Required)
@@ -2610,7 +2610,7 @@ The following arguments are supported:
   A base64-encoded string.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_crypto_key_kms_wrapped"></a>The `kms_wrapped` block supports:
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
 
 * `wrapped_key` -
   (Required)
@@ -2621,13 +2621,13 @@ The following arguments are supported:
   (Required)
   The resource name of the KMS CryptoKey to use for unwrapping.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_context"></a>The `context` block supports:
+<a name="nested_context"></a>The `context` block supports:
 
 * `name` -
   (Required)
   Name describing the field.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_surrogate_info_type"></a>The `surrogate_info_type` block supports:
+<a name="nested_surrogate_info_type"></a>The `surrogate_info_type` block supports:
 
 * `name` -
   (Required)
@@ -2643,14 +2643,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_surrogate_info_type_sensitivity_score).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_replace_ffx_fpe_config_surrogate_info_type_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_fixed_size_bucketing_config"></a>The `fixed_size_bucketing_config` block supports:
+<a name="nested_fixed_size_bucketing_config"></a>The `fixed_size_bucketing_config` block supports:
 
 * `lower_bound` -
   (Required)
@@ -2673,7 +2673,7 @@ The following arguments are supported:
   Precision up to 2 decimals works.
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_fixed_size_bucketing_config_lower_bound"></a>The `lower_bound` block supports:
+<a name="nested_lower_bound"></a>The `lower_bound` block supports:
 
 * `integer_value` -
   (Optional)
@@ -2683,7 +2683,7 @@ The following arguments are supported:
   (Optional)
   A float value.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_fixed_size_bucketing_config_upper_bound"></a>The `upper_bound` block supports:
+<a name="nested_upper_bound"></a>The `upper_bound` block supports:
 
 * `integer_value` -
   (Optional)
@@ -2693,7 +2693,7 @@ The following arguments are supported:
   (Optional)
   A float value.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config"></a>The `bucketing_config` block supports:
+<a name="nested_bucketing_config"></a>The `bucketing_config` block supports:
 
 * `buckets` -
   (Required)
@@ -2702,7 +2702,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets"></a>The `buckets` block supports:
+<a name="nested_buckets"></a>The `buckets` block supports:
 
 * `min` -
   (Optional)
@@ -2723,7 +2723,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_replacement_value).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_min"></a>The `min` block supports:
+<a name="nested_min"></a>The `min` block supports:
 
 * `integer_value` -
   (Optional)
@@ -2757,7 +2757,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_min_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -2775,7 +2775,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_min_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -2789,7 +2789,7 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_max"></a>The `max` block supports:
+<a name="nested_max"></a>The `max` block supports:
 
 * `integer_value` -
   (Optional)
@@ -2823,7 +2823,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_max_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -2841,7 +2841,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_max_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -2855,7 +2855,7 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_replacement_value"></a>The `replacement_value` block supports:
+<a name="nested_replacement_value"></a>The `replacement_value` block supports:
 
 * `integer_value` -
   (Optional)
@@ -2889,7 +2889,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_replacement_value_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -2907,7 +2907,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_bucketing_config_buckets_buckets_replacement_value_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)
@@ -2921,14 +2921,14 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_time_part_config"></a>The `time_part_config` block supports:
+<a name="nested_time_part_config"></a>The `time_part_config` block supports:
 
 * `part_to_extract` -
   (Required)
   The part of the time to keep.
   Possible values are: `YEAR`, `MONTH`, `DAY_OF_MONTH`, `DAY_OF_WEEK`, `WEEK_OF_YEAR`, `HOUR_OF_DAY`.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config"></a>The `crypto_hash_config` block supports:
+<a name="nested_crypto_hash_config"></a>The `crypto_hash_config` block supports:
 
 * `crypto_key` -
   (Required)
@@ -2936,7 +2936,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config_crypto_key).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config_crypto_key"></a>The `crypto_key` block supports:
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
 
 * `transient` -
   (Optional)
@@ -2957,13 +2957,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config_crypto_key_kms_wrapped).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config_crypto_key_transient"></a>The `transient` block supports:
+<a name="nested_transient"></a>The `transient` block supports:
 
 * `name` -
   (Required)
   Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config_crypto_key_unwrapped"></a>The `unwrapped` block supports:
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
 
 * `key` -
   (Required)
@@ -2971,7 +2971,7 @@ The following arguments are supported:
   A base64-encoded string.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_hash_config_crypto_key_kms_wrapped"></a>The `kms_wrapped` block supports:
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
 
 * `wrapped_key` -
   (Required)
@@ -2982,7 +2982,7 @@ The following arguments are supported:
   (Required)
   The resource name of the KMS CryptoKey to use for unwrapping.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config"></a>The `date_shift_config` block supports:
+<a name="nested_date_shift_config"></a>The `date_shift_config` block supports:
 
 * `upper_bound_days` -
   (Required)
@@ -3005,13 +3005,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config_crypto_key).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config_context"></a>The `context` block supports:
+<a name="nested_context"></a>The `context` block supports:
 
 * `name` -
   (Required)
   Name describing the field.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config_crypto_key"></a>The `crypto_key` block supports:
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
 
 * `transient` -
   (Optional)
@@ -3032,13 +3032,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config_crypto_key_kms_wrapped).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config_crypto_key_transient"></a>The `transient` block supports:
+<a name="nested_transient"></a>The `transient` block supports:
 
 * `name` -
   (Required)
   Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config_crypto_key_unwrapped"></a>The `unwrapped` block supports:
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
 
 * `key` -
   (Required)
@@ -3046,7 +3046,7 @@ The following arguments are supported:
   A base64-encoded string.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_date_shift_config_crypto_key_kms_wrapped"></a>The `kms_wrapped` block supports:
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
 
 * `wrapped_key` -
   (Required)
@@ -3057,7 +3057,7 @@ The following arguments are supported:
   (Required)
   The resource name of the KMS CryptoKey to use for unwrapping.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config"></a>The `crypto_deterministic_config` block supports:
+<a name="nested_crypto_deterministic_config"></a>The `crypto_deterministic_config` block supports:
 
 * `crypto_key` -
   (Required)
@@ -3087,7 +3087,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_context).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_crypto_key"></a>The `crypto_key` block supports:
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
 
 * `transient` -
   (Optional)
@@ -3108,13 +3108,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_crypto_key_kms_wrapped).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_crypto_key_transient"></a>The `transient` block supports:
+<a name="nested_transient"></a>The `transient` block supports:
 
 * `name` -
   (Required)
   Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_crypto_key_unwrapped"></a>The `unwrapped` block supports:
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
 
 * `key` -
   (Required)
@@ -3122,7 +3122,7 @@ The following arguments are supported:
   A base64-encoded string.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_crypto_key_kms_wrapped"></a>The `kms_wrapped` block supports:
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
 
 * `wrapped_key` -
   (Required)
@@ -3133,7 +3133,7 @@ The following arguments are supported:
   (Required)
   The resource name of the KMS CryptoKey to use for unwrapping.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_surrogate_info_type"></a>The `surrogate_info_type` block supports:
+<a name="nested_surrogate_info_type"></a>The `surrogate_info_type` block supports:
 
 * `name` -
   (Required)
@@ -3149,20 +3149,20 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_surrogate_info_type_sensitivity_score).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_surrogate_info_type_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_crypto_deterministic_config_context"></a>The `context` block supports:
+<a name="nested_context"></a>The `context` block supports:
 
 * `name` -
   (Required)
   Name describing the field.
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_replace_dictionary_config"></a>The `replace_dictionary_config` block supports:
+<a name="nested_replace_dictionary_config"></a>The `replace_dictionary_config` block supports:
 
 * `word_list` -
   (Required)
@@ -3170,13 +3170,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_replace_dictionary_config_word_list).
 
 
-<a name="nested_deidentify_config_record_transformations_field_transformations_field_transformations_info_type_transformations_transformations_transformations_primitive_transformation_replace_dictionary_config_word_list"></a>The `word_list` block supports:
+<a name="nested_word_list"></a>The `word_list` block supports:
 
 * `words` -
   (Required)
   Words or phrases defining the dictionary. The dictionary must contain at least one phrase and every phrase must contain at least 2 characters that are letters or digits.
 
-<a name="nested_deidentify_config_record_transformations_record_suppressions"></a>The `record_suppressions` block supports:
+<a name="nested_record_suppressions"></a>The `record_suppressions` block supports:
 
 * `condition` -
   (Optional)
@@ -3184,7 +3184,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_record_suppressions_record_suppressions_condition).
 
 
-<a name="nested_deidentify_config_record_transformations_record_suppressions_record_suppressions_condition"></a>The `condition` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expressions` -
   (Optional)
@@ -3192,7 +3192,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_record_suppressions_record_suppressions_condition_expressions).
 
 
-<a name="nested_deidentify_config_record_transformations_record_suppressions_record_suppressions_condition_expressions"></a>The `expressions` block supports:
+<a name="nested_expressions"></a>The `expressions` block supports:
 
 * `logical_operator` -
   (Optional)
@@ -3206,7 +3206,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_record_suppressions_record_suppressions_condition_expressions_conditions).
 
 
-<a name="nested_deidentify_config_record_transformations_record_suppressions_record_suppressions_condition_expressions_conditions"></a>The `conditions` block supports:
+<a name="nested_conditions"></a>The `conditions` block supports:
 
 * `conditions` -
   (Optional)
@@ -3214,7 +3214,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_record_suppressions_record_suppressions_condition_expressions_conditions_conditions).
 
 
-<a name="nested_deidentify_config_record_transformations_record_suppressions_record_suppressions_condition_expressions_conditions_conditions"></a>The `conditions` block supports:
+<a name="nested_conditions"></a>The `conditions` block supports:
 
 * `field` -
   (Required)
@@ -3232,13 +3232,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_deidentify_config_record_transformations_record_suppressions_record_suppressions_condition_expressions_conditions_conditions_conditions_value).
 
 
-<a name="nested_deidentify_config_record_transformations_record_suppressions_record_suppressions_condition_expressions_conditions_conditions_conditions_field"></a>The `field` block supports:
+<a name="nested_field"></a>The `field` block supports:
 
 * `name` -
   (Optional)
   Name describing the field.
 
-<a name="nested_deidentify_config_record_transformations_record_suppressions_record_suppressions_condition_expressions_conditions_conditions_conditions_value"></a>The `value` block supports:
+<a name="nested_value"></a>The `value` block supports:
 
 * `integer_value` -
   (Optional)
@@ -3276,7 +3276,7 @@ The following arguments are supported:
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
-<a name="nested_deidentify_config_record_transformations_record_suppressions_record_suppressions_condition_expressions_conditions_conditions_conditions_value_time_value"></a>The `time_value` block supports:
+<a name="nested_time_value"></a>The `time_value` block supports:
 
 * `hours` -
   (Optional)
@@ -3294,7 +3294,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_deidentify_config_record_transformations_record_suppressions_record_suppressions_condition_expressions_conditions_conditions_conditions_value_date_value"></a>The `date_value` block supports:
+<a name="nested_date_value"></a>The `date_value` block supports:
 
 * `year` -
   (Optional)

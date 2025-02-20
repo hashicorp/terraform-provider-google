@@ -234,14 +234,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_advanced_settings_logging_settings).
 
 
-<a name="nested_advanced_settings_audio_export_gcs_destination"></a>The `audio_export_gcs_destination` block supports:
+<a name="nested_audio_export_gcs_destination"></a>The `audio_export_gcs_destination` block supports:
 
 * `uri` -
   (Optional)
   The Google Cloud Storage URI for the exported objects. Whether a full object name, or just a prefix, its usage depends on the Dialogflow operation.
   Format: gs://bucket/object-name-or-prefix
 
-<a name="nested_advanced_settings_speech_settings"></a>The `speech_settings` block supports:
+<a name="nested_speech_settings"></a>The `speech_settings` block supports:
 
 * `endpointer_sensitivity` -
   (Optional)
@@ -261,7 +261,7 @@ The following arguments are supported:
   Mapping from language to Speech-to-Text model. The mapped Speech-to-Text model will be selected for requests from its corresponding language. For more information, see [Speech models](https://cloud.google.com/dialogflow/cx/docs/concept/speech-models).
   An object containing a list of **"key": value** pairs. Example: **{ "name": "wrench", "mass": "1.3kg", "count": "3" }**.
 
-<a name="nested_advanced_settings_dtmf_settings"></a>The `dtmf_settings` block supports:
+<a name="nested_dtmf_settings"></a>The `dtmf_settings` block supports:
 
 * `enabled` -
   (Optional)
@@ -275,7 +275,7 @@ The following arguments are supported:
   (Optional)
   The digit that terminates a DTMF digit sequence.
 
-<a name="nested_advanced_settings_logging_settings"></a>The `logging_settings` block supports:
+<a name="nested_logging_settings"></a>The `logging_settings` block supports:
 
 * `enable_stackdriver_logging` -
   (Optional)
@@ -297,7 +297,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_git_integration_settings_github_settings).
 
 
-<a name="nested_git_integration_settings_github_settings"></a>The `github_settings` block supports:
+<a name="nested_github_settings"></a>The `github_settings` block supports:
 
 * `display_name` -
   (Optional)

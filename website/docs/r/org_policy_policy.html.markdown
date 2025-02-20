@@ -235,7 +235,7 @@ The following arguments are supported:
   Ignores policies set above this resource and restores the `constraint_default` enforcement behavior of the specific `Constraint` at this resource. This field can be set in policies for either list or boolean constraints. If set, `rules` must be empty and `inherit_from_parent` must be set to false.
 
 
-<a name="nested_spec_rules"></a>The `rules` block supports:
+<a name="nested_rules"></a>The `rules` block supports:
 
 * `values` -
   (Optional)
@@ -264,7 +264,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_rules_rules_condition).
 
 
-<a name="nested_spec_rules_rules_values"></a>The `values` block supports:
+<a name="nested_values"></a>The `values` block supports:
 
 * `allowed_values` -
   (Optional)
@@ -274,7 +274,7 @@ The following arguments are supported:
   (Optional)
   List of values denied at this resource.
 
-<a name="nested_spec_rules_rules_condition"></a>The `condition` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expression` -
   (Optional)
@@ -316,7 +316,7 @@ The following arguments are supported:
   Ignores policies set above this resource and restores the `constraint_default` enforcement behavior of the specific constraint at this resource. This field can be set in policies for either list or boolean constraints. If set, `rules` must be empty and `inherit_from_parent` must be set to false.
 
 
-<a name="nested_dry_run_spec_rules"></a>The `rules` block supports:
+<a name="nested_rules"></a>The `rules` block supports:
 
 * `values` -
   (Optional)
@@ -345,7 +345,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_dry_run_spec_rules_rules_condition).
 
 
-<a name="nested_dry_run_spec_rules_rules_values"></a>The `values` block supports:
+<a name="nested_values"></a>The `values` block supports:
 
 * `allowed_values` -
   (Optional)
@@ -355,7 +355,7 @@ The following arguments are supported:
   (Optional)
   List of values denied at this resource.
 
-<a name="nested_dry_run_spec_rules_rules_condition"></a>The `condition` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expression` -
   (Optional)

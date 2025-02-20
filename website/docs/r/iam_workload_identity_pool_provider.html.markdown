@@ -533,7 +533,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_x509_trust_store).
 
 
-<a name="nested_x509_trust_store"></a>The `trust_store` block supports:
+<a name="nested_trust_store"></a>The `trust_store` block supports:
 
 * `trust_anchors` -
   (Required)
@@ -550,14 +550,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_x509_trust_store_intermediate_cas).
 
 
-<a name="nested_x509_trust_store_trust_anchors"></a>The `trust_anchors` block supports:
+<a name="nested_trust_anchors"></a>The `trust_anchors` block supports:
 
 * `pem_certificate` -
   (Optional)
   PEM certificate of the PKI used for validation. Must only contain one
   ca certificate(either root or intermediate cert).
 
-<a name="nested_x509_trust_store_intermediate_cas"></a>The `intermediate_cas` block supports:
+<a name="nested_intermediate_cas"></a>The `intermediate_cas` block supports:
 
 * `pem_certificate` -
   (Optional)

@@ -364,7 +364,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_http_target_oidc_token).
 
 
-<a name="nested_http_target_uri_override"></a>The `uri_override` block supports:
+<a name="nested_uri_override"></a>The `uri_override` block supports:
 
 * `scheme` -
   (Optional)
@@ -408,19 +408,19 @@ The following arguments are supported:
   Possible values are: `ALWAYS`, `IF_NOT_EXISTS`.
 
 
-<a name="nested_http_target_uri_override_path_override"></a>The `path_override` block supports:
+<a name="nested_path_override"></a>The `path_override` block supports:
 
 * `path` -
   (Optional)
   The URI path (e.g., /users/1234). Default is an empty string.
 
-<a name="nested_http_target_uri_override_query_override"></a>The `query_override` block supports:
+<a name="nested_query_override"></a>The `query_override` block supports:
 
 * `query_params` -
   (Optional)
   The query parameters (e.g., qparam1=123&qparam2=456). Default is an empty string.
 
-<a name="nested_http_target_header_overrides"></a>The `header_overrides` block supports:
+<a name="nested_header_overrides"></a>The `header_overrides` block supports:
 
 * `header` -
   (Required)
@@ -428,7 +428,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_http_target_header_overrides_header_overrides_header).
 
 
-<a name="nested_http_target_header_overrides_header_overrides_header"></a>The `header` block supports:
+<a name="nested_header"></a>The `header` block supports:
 
 * `key` -
   (Required)
@@ -438,7 +438,7 @@ The following arguments are supported:
   (Required)
   The Value of the header.
 
-<a name="nested_http_target_oauth_token"></a>The `oauth_token` block supports:
+<a name="nested_oauth_token"></a>The `oauth_token` block supports:
 
 * `service_account_email` -
   (Required)
@@ -451,7 +451,7 @@ The following arguments are supported:
   OAuth scope to be used for generating OAuth access token.
   If not specified, "https://www.googleapis.com/auth/cloud-platform" will be used.
 
-<a name="nested_http_target_oidc_token"></a>The `oidc_token` block supports:
+<a name="nested_oidc_token"></a>The `oidc_token` block supports:
 
 * `service_account_email` -
   (Required)

@@ -88,7 +88,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_hubs_hub_internet_gateway).
 
 
-<a name="nested_hubs_hub_internet_gateway"></a>The `internet_gateway` block supports:
+<a name="nested_internet_gateway"></a>The `internet_gateway` block supports:
 
 * `assigned_ips` -
   (Output)

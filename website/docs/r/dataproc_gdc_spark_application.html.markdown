@@ -369,7 +369,7 @@ The following arguments are supported:
   HCFS URIs of jar files to be added to the Spark CLASSPATH.
 
 
-<a name="nested_spark_sql_application_config_query_list"></a>The `query_list` block supports:
+<a name="nested_query_list"></a>The `query_list` block supports:
 
 * `queries` -
   (Required)

@@ -702,7 +702,7 @@ The following arguments are supported:
   service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is used.
 
 
-<a name="nested_cloud_storage_config_avro_config"></a>The `avro_config` block supports:
+<a name="nested_avro_config"></a>The `avro_config` block supports:
 
 * `write_metadata` -
   (Optional)
@@ -754,7 +754,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_push_config_no_wrapper).
 
 
-<a name="nested_push_config_oidc_token"></a>The `oidc_token` block supports:
+<a name="nested_oidc_token"></a>The `oidc_token` block supports:
 
 * `service_account_email` -
   (Required)
@@ -772,7 +772,7 @@ The following arguments are supported:
   token audience here: https://tools.ietf.org/html/rfc7519#section-4.1.3
   Note: if not specified, the Push endpoint URL will be used.
 
-<a name="nested_push_config_no_wrapper"></a>The `no_wrapper` block supports:
+<a name="nested_no_wrapper"></a>The `no_wrapper` block supports:
 
 * `write_metadata` -
   (Required)

@@ -423,7 +423,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_dnssec_config_default_key_specs).
 
 
-<a name="nested_dnssec_config_default_key_specs"></a>The `default_key_specs` block supports:
+<a name="nested_default_key_specs"></a>The `default_key_specs` block supports:
 
 * `algorithm` -
   (Optional)
@@ -465,7 +465,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_private_visibility_config_networks).
 
 
-<a name="nested_private_visibility_config_gke_clusters"></a>The `gke_clusters` block supports:
+<a name="nested_gke_clusters"></a>The `gke_clusters` block supports:
 
 * `gke_cluster_name` -
   (Required)
@@ -473,7 +473,7 @@ The following arguments are supported:
   This should be specified in the format like
   `projects/*/locations/*/clusters/*`
 
-<a name="nested_private_visibility_config_networks"></a>The `networks` block supports:
+<a name="nested_networks"></a>The `networks` block supports:
 
 * `network_url` -
   (Required)
@@ -491,7 +491,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_forwarding_config_target_name_servers).
 
 
-<a name="nested_forwarding_config_target_name_servers"></a>The `target_name_servers` block supports:
+<a name="nested_target_name_servers"></a>The `target_name_servers` block supports:
 
 * `ipv4_address` -
   (Required)
@@ -512,7 +512,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_peering_config_target_network).
 
 
-<a name="nested_peering_config_target_network"></a>The `target_network` block supports:
+<a name="nested_target_network"></a>The `target_network` block supports:
 
 * `network_url` -
   (Required)
@@ -528,7 +528,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_service_directory_config_namespace).
 
 
-<a name="nested_service_directory_config_namespace"></a>The `namespace` block supports:
+<a name="nested_namespace"></a>The `namespace` block supports:
 
 * `namespace_url` -
   (Required)

@@ -178,7 +178,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_policy_sets_policy_sets_policies).
 
 
-<a name="nested_policy_sets_policy_sets_policies"></a>The `policies` block supports:
+<a name="nested_policies"></a>The `policies` block supports:
 
 * `policy_id` -
   (Required)
@@ -199,7 +199,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_policy_sets_policy_sets_policies_policies_constraint).
 
 
-<a name="nested_policy_sets_policy_sets_policies_policies_compliance_standards"></a>The `compliance_standards` block supports:
+<a name="nested_compliance_standards"></a>The `compliance_standards` block supports:
 
 * `standard` -
   (Optional)
@@ -209,7 +209,7 @@ The following arguments are supported:
   (Optional)
   Mapping of security controls for the policy.
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint"></a>The `constraint` block supports:
+<a name="nested_constraint"></a>The `constraint` block supports:
 
 * `org_policy_constraint` -
   (Optional)
@@ -232,7 +232,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_policy_sets_policy_sets_policies_policies_constraint_security_health_analytics_custom_module).
 
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_org_policy_constraint"></a>The `org_policy_constraint` block supports:
+<a name="nested_org_policy_constraint"></a>The `org_policy_constraint` block supports:
 
 * `canned_constraint_id` -
   (Required)
@@ -244,7 +244,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_policy_sets_policy_sets_policies_policies_constraint_org_policy_constraint_policy_rules).
 
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_org_policy_constraint_policy_rules"></a>The `policy_rules` block supports:
+<a name="nested_policy_rules"></a>The `policy_rules` block supports:
 
 * `values` -
   (Optional)
@@ -272,7 +272,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_policy_sets_policy_sets_policies_policies_constraint_org_policy_constraint_policy_rules_policy_rules_condition).
 
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_org_policy_constraint_policy_rules_policy_rules_values"></a>The `values` block supports:
+<a name="nested_values"></a>The `values` block supports:
 
 * `allowed_values` -
   (Optional)
@@ -282,7 +282,7 @@ The following arguments are supported:
   (Optional)
   List of values denied at this resource.
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_org_policy_constraint_policy_rules_policy_rules_condition"></a>The `condition` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expression` -
   (Required)
@@ -300,7 +300,7 @@ The following arguments are supported:
   (Optional)
   String indicating the location of the expression for error reporting, e.g. a file name and a position in the file
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_org_policy_constraint_custom"></a>The `org_policy_constraint_custom` block supports:
+<a name="nested_org_policy_constraint_custom"></a>The `org_policy_constraint_custom` block supports:
 
 * `custom_constraint` -
   (Optional)
@@ -313,7 +313,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_policy_sets_policy_sets_policies_policies_constraint_org_policy_constraint_custom_policy_rules).
 
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_org_policy_constraint_custom_custom_constraint"></a>The `custom_constraint` block supports:
+<a name="nested_custom_constraint"></a>The `custom_constraint` block supports:
 
 * `name` -
   (Required)
@@ -344,7 +344,7 @@ The following arguments are supported:
   (Required)
   Immutable. The fully qualified name of the Google Cloud REST resource containing the object and field you want to restrict. For example, `container.googleapis.com/NodePool`.
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_org_policy_constraint_custom_policy_rules"></a>The `policy_rules` block supports:
+<a name="nested_policy_rules"></a>The `policy_rules` block supports:
 
 * `values` -
   (Optional)
@@ -372,7 +372,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_policy_sets_policy_sets_policies_policies_constraint_org_policy_constraint_custom_policy_rules_policy_rules_condition).
 
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_org_policy_constraint_custom_policy_rules_policy_rules_values"></a>The `values` block supports:
+<a name="nested_values"></a>The `values` block supports:
 
 * `allowed_values` -
   (Optional)
@@ -382,7 +382,7 @@ The following arguments are supported:
   (Optional)
   List of values denied at this resource.
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_org_policy_constraint_custom_policy_rules_policy_rules_condition"></a>The `condition` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expression` -
   (Required)
@@ -400,7 +400,7 @@ The following arguments are supported:
   (Optional)
   String indicating the location of the expression for error reporting, e.g. a file name and a position in the file
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_security_health_analytics_module"></a>The `security_health_analytics_module` block supports:
+<a name="nested_security_health_analytics_module"></a>The `security_health_analytics_module` block supports:
 
 * `module_name` -
   (Required)
@@ -411,7 +411,7 @@ The following arguments are supported:
   The state of enablement for the module at its level of the resource hierarchy.
   Possible values are: `ENABLEMENT_STATE_UNSPECIFIED`, `ENABLED`, `DISABLED`.
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_security_health_analytics_custom_module"></a>The `security_health_analytics_custom_module` block supports:
+<a name="nested_security_health_analytics_custom_module"></a>The `security_health_analytics_custom_module` block supports:
 
 * `id` -
   (Output)
@@ -434,7 +434,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_policy_sets_policy_sets_policies_policies_constraint_security_health_analytics_custom_module_config).
 
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_security_health_analytics_custom_module_config"></a>The `config` block supports:
+<a name="nested_config"></a>The `config` block supports:
 
 * `predicate` -
   (Required)
@@ -472,7 +472,7 @@ The following arguments are supported:
   resolve the detected issue
 
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_security_health_analytics_custom_module_config_predicate"></a>The `predicate` block supports:
+<a name="nested_predicate"></a>The `predicate` block supports:
 
 * `expression` -
   (Required)
@@ -490,7 +490,7 @@ The following arguments are supported:
   (Optional)
   String indicating the location of the expression for error reporting, e.g. a file name and a position in the file
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_security_health_analytics_custom_module_config_custom_output"></a>The `custom_output` block supports:
+<a name="nested_custom_output"></a>The `custom_output` block supports:
 
 * `properties` -
   (Optional)
@@ -498,7 +498,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_policy_sets_policy_sets_policies_policies_constraint_security_health_analytics_custom_module_config_custom_output_properties).
 
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_security_health_analytics_custom_module_config_custom_output_properties"></a>The `properties` block supports:
+<a name="nested_properties"></a>The `properties` block supports:
 
 * `name` -
   (Required)
@@ -512,7 +512,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_policy_sets_policy_sets_policies_policies_constraint_security_health_analytics_custom_module_config_custom_output_properties_properties_value_expression).
 
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_security_health_analytics_custom_module_config_custom_output_properties_properties_value_expression"></a>The `value_expression` block supports:
+<a name="nested_value_expression"></a>The `value_expression` block supports:
 
 * `expression` -
   (Required)
@@ -530,7 +530,7 @@ The following arguments are supported:
   (Optional)
   String indicating the location of the expression for error reporting, e.g. a file name and a position in the file
 
-<a name="nested_policy_sets_policy_sets_policies_policies_constraint_security_health_analytics_custom_module_config_resource_selector"></a>The `resource_selector` block supports:
+<a name="nested_resource_selector"></a>The `resource_selector` block supports:
 
 * `resource_types` -
   (Required)

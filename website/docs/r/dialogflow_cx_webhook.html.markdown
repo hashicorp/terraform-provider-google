@@ -139,7 +139,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_service_directory_generic_web_service).
 
 
-<a name="nested_service_directory_generic_web_service"></a>The `generic_web_service` block supports:
+<a name="nested_generic_web_service"></a>The `generic_web_service` block supports:
 
 * `uri` -
   (Required)

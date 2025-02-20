@@ -254,7 +254,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_cdn_policy_bypass_cache_on_request_headers).
 
 
-<a name="nested_cdn_policy_cache_key_policy"></a>The `cache_key_policy` block supports:
+<a name="nested_cache_key_policy"></a>The `cache_key_policy` block supports:
 
 * `query_string_whitelist` -
   (Optional)
@@ -267,7 +267,7 @@ The following arguments are supported:
   Allows HTTP request headers (by name) to be used in the
   cache key.
 
-<a name="nested_cdn_policy_negative_caching_policy"></a>The `negative_caching_policy` block supports:
+<a name="nested_negative_caching_policy"></a>The `negative_caching_policy` block supports:
 
 * `code` -
   (Optional)
@@ -279,7 +279,7 @@ The following arguments are supported:
   The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
   (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
 
-<a name="nested_cdn_policy_bypass_cache_on_request_headers"></a>The `bypass_cache_on_request_headers` block supports:
+<a name="nested_bypass_cache_on_request_headers"></a>The `bypass_cache_on_request_headers` block supports:
 
 * `header_name` -
   (Optional)

@@ -148,7 +148,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_destinations).
 
 
-<a name="nested_rules_rules_sources"></a>The `sources` block supports:
+<a name="nested_sources"></a>The `sources` block supports:
 
 * `principals` -
   (Optional)
@@ -160,7 +160,7 @@ The following arguments are supported:
   List of CIDR ranges to match based on source IP address. At least one IP block should match. Single IP (e.g., "1.2.3.4") and CIDR (e.g., "1.2.3.0/24") are supported. Authorization based on source IP alone should be avoided.
   The IP addresses of any load balancers or proxies should be considered untrusted.
 
-<a name="nested_rules_rules_destinations"></a>The `destinations` block supports:
+<a name="nested_destinations"></a>The `destinations` block supports:
 
 * `hosts` -
   (Required)
@@ -181,7 +181,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_destinations_destinations_http_header_match).
 
 
-<a name="nested_rules_rules_destinations_destinations_http_header_match"></a>The `http_header_match` block supports:
+<a name="nested_http_header_match"></a>The `http_header_match` block supports:
 
 * `header_name` -
   (Required)

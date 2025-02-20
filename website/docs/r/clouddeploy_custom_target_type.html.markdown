@@ -198,7 +198,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_custom_actions_include_skaffold_modules).
 
 
-<a name="nested_custom_actions_include_skaffold_modules"></a>The `include_skaffold_modules` block supports:
+<a name="nested_include_skaffold_modules"></a>The `include_skaffold_modules` block supports:
 
 * `configs` -
   (Optional)
@@ -220,7 +220,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_custom_actions_include_skaffold_modules_include_skaffold_modules_google_cloud_build_repo).
 
 
-<a name="nested_custom_actions_include_skaffold_modules_include_skaffold_modules_git"></a>The `git` block supports:
+<a name="nested_git"></a>The `git` block supports:
 
 * `repo` -
   (Required)
@@ -234,7 +234,7 @@ The following arguments are supported:
   (Optional)
   Git ref the package should be cloned from.
 
-<a name="nested_custom_actions_include_skaffold_modules_include_skaffold_modules_google_cloud_storage"></a>The `google_cloud_storage` block supports:
+<a name="nested_google_cloud_storage"></a>The `google_cloud_storage` block supports:
 
 * `source` -
   (Required)
@@ -244,7 +244,7 @@ The following arguments are supported:
   (Optional)
   Relative path from the source to the Skaffold file.
 
-<a name="nested_custom_actions_include_skaffold_modules_include_skaffold_modules_google_cloud_build_repo"></a>The `google_cloud_build_repo` block supports:
+<a name="nested_google_cloud_build_repo"></a>The `google_cloud_build_repo` block supports:
 
 * `repository` -
   (Required)

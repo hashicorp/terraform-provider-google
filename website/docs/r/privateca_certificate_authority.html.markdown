@@ -386,13 +386,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_config_subject_config).
 
 
-<a name="nested_config_subject_key_id"></a>The `subject_key_id` block supports:
+<a name="nested_subject_key_id"></a>The `subject_key_id` block supports:
 
 * `key_id` -
   (Optional)
   The value of the KeyId in lowercase hexadecimal.
 
-<a name="nested_config_x509_config"></a>The `x509_config` block supports:
+<a name="nested_x509_config"></a>The `x509_config` block supports:
 
 * `additional_extensions` -
   (Optional)
@@ -425,7 +425,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_config_x509_config_name_constraints).
 
 
-<a name="nested_config_x509_config_additional_extensions"></a>The `additional_extensions` block supports:
+<a name="nested_additional_extensions"></a>The `additional_extensions` block supports:
 
 * `critical` -
   (Required)
@@ -442,19 +442,19 @@ The following arguments are supported:
   Structure is [documented below](#nested_config_x509_config_additional_extensions_additional_extensions_object_id).
 
 
-<a name="nested_config_x509_config_additional_extensions_additional_extensions_object_id"></a>The `object_id` block supports:
+<a name="nested_object_id"></a>The `object_id` block supports:
 
 * `object_id_path` -
   (Required)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
-<a name="nested_config_x509_config_policy_ids"></a>The `policy_ids` block supports:
+<a name="nested_policy_ids"></a>The `policy_ids` block supports:
 
 * `object_id_path` -
   (Required)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
-<a name="nested_config_x509_config_ca_options"></a>The `ca_options` block supports:
+<a name="nested_ca_options"></a>The `ca_options` block supports:
 
 * `is_ca` -
   (Required)
@@ -477,7 +477,7 @@ The following arguments are supported:
   If both `max_issuer_path_length` and `zero_max_issuer_path_length` are unset,
   the max path length will be omitted from the CA certificate.
 
-<a name="nested_config_x509_config_key_usage"></a>The `key_usage` block supports:
+<a name="nested_key_usage"></a>The `key_usage` block supports:
 
 * `base_key_usage` -
   (Required)
@@ -495,7 +495,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_config_x509_config_key_usage_unknown_extended_key_usages).
 
 
-<a name="nested_config_x509_config_key_usage_base_key_usage"></a>The `base_key_usage` block supports:
+<a name="nested_base_key_usage"></a>The `base_key_usage` block supports:
 
 * `digital_signature` -
   (Optional)
@@ -533,7 +533,7 @@ The following arguments are supported:
   (Optional)
   The key may be used to decipher only.
 
-<a name="nested_config_x509_config_key_usage_extended_key_usage"></a>The `extended_key_usage` block supports:
+<a name="nested_extended_key_usage"></a>The `extended_key_usage` block supports:
 
 * `server_auth` -
   (Optional)
@@ -559,13 +559,13 @@ The following arguments are supported:
   (Optional)
   Corresponds to OID 1.3.6.1.5.5.7.3.9. Officially described as "Signing OCSP responses".
 
-<a name="nested_config_x509_config_key_usage_unknown_extended_key_usages"></a>The `unknown_extended_key_usages` block supports:
+<a name="nested_unknown_extended_key_usages"></a>The `unknown_extended_key_usages` block supports:
 
 * `object_id_path` -
   (Required)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
-<a name="nested_config_x509_config_name_constraints"></a>The `name_constraints` block supports:
+<a name="nested_name_constraints"></a>The `name_constraints` block supports:
 
 * `critical` -
   (Required)
@@ -627,7 +627,7 @@ The following arguments are supported:
   The value can be a hostname or a domain with a
   leading period (like `.example.com`)
 
-<a name="nested_config_subject_config"></a>The `subject_config` block supports:
+<a name="nested_subject_config"></a>The `subject_config` block supports:
 
 * `subject` -
   (Required)
@@ -640,7 +640,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_config_subject_config_subject_alt_name).
 
 
-<a name="nested_config_subject_config_subject"></a>The `subject` block supports:
+<a name="nested_subject"></a>The `subject` block supports:
 
 * `country_code` -
   (Optional)
@@ -674,7 +674,7 @@ The following arguments are supported:
   (Required)
   The common name of the distinguished name.
 
-<a name="nested_config_subject_config_subject_alt_name"></a>The `subject_alt_name` block supports:
+<a name="nested_subject_alt_name"></a>The `subject_alt_name` block supports:
 
 * `dns_names` -
   (Optional)
@@ -795,7 +795,7 @@ Possible values: ENABLED, DISABLED, STAGED.
   Structure is [documented below](#nested_subordinate_config_pem_issuer_chain).
 
 
-<a name="nested_subordinate_config_pem_issuer_chain"></a>The `pem_issuer_chain` block supports:
+<a name="nested_pem_issuer_chain"></a>The `pem_issuer_chain` block supports:
 
 * `pem_certificates` -
   (Optional)

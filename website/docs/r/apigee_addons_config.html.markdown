@@ -170,25 +170,25 @@ The following arguments are supported:
   Structure is [documented below](#nested_addons_config_connectors_platform_config).
 
 
-<a name="nested_addons_config_advanced_api_ops_config"></a>The `advanced_api_ops_config` block supports:
+<a name="nested_advanced_api_ops_config"></a>The `advanced_api_ops_config` block supports:
 
 * `enabled` -
   (Optional)
   Flag that specifies whether the Advanced API Ops add-on is enabled.
 
-<a name="nested_addons_config_integration_config"></a>The `integration_config` block supports:
+<a name="nested_integration_config"></a>The `integration_config` block supports:
 
 * `enabled` -
   (Optional)
   Flag that specifies whether the Advanced API Ops add-on is enabled.
 
-<a name="nested_addons_config_monetization_config"></a>The `monetization_config` block supports:
+<a name="nested_monetization_config"></a>The `monetization_config` block supports:
 
 * `enabled` -
   (Optional)
   Flag that specifies whether the Advanced API Ops add-on is enabled.
 
-<a name="nested_addons_config_api_security_config"></a>The `api_security_config` block supports:
+<a name="nested_api_security_config"></a>The `api_security_config` block supports:
 
 * `enabled` -
   (Optional)
@@ -198,7 +198,7 @@ The following arguments are supported:
   (Output)
   Flag that specifies whether the Advanced API Ops add-on is enabled.
 
-<a name="nested_addons_config_connectors_platform_config"></a>The `connectors_platform_config` block supports:
+<a name="nested_connectors_platform_config"></a>The `connectors_platform_config` block supports:
 
 * `enabled` -
   (Optional)

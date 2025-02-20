@@ -378,7 +378,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_network_config_private_service_connect_config).
 
 
-<a name="nested_network_config_private_service_connect_config"></a>The `private_service_connect_config` block supports:
+<a name="nested_private_service_connect_config"></a>The `private_service_connect_config` block supports:
 
 * `network_attachment` -
   (Optional)

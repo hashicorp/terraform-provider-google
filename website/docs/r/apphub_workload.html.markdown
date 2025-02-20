@@ -381,21 +381,21 @@ The following arguments are supported:
   Structure is [documented below](#nested_attributes_business_owners).
 
 
-<a name="nested_attributes_criticality"></a>The `criticality` block supports:
+<a name="nested_criticality"></a>The `criticality` block supports:
 
 * `type` -
   (Required)
   Criticality type.
   Possible values are: `MISSION_CRITICAL`, `HIGH`, `MEDIUM`, `LOW`.
 
-<a name="nested_attributes_environment"></a>The `environment` block supports:
+<a name="nested_environment"></a>The `environment` block supports:
 
 * `type` -
   (Required)
   Environment type.
   Possible values are: `PRODUCTION`, `STAGING`, `TEST`, `DEVELOPMENT`.
 
-<a name="nested_attributes_developer_owners"></a>The `developer_owners` block supports:
+<a name="nested_developer_owners"></a>The `developer_owners` block supports:
 
 * `display_name` -
   (Optional)
@@ -405,7 +405,7 @@ The following arguments are supported:
   (Required)
   Email address of the contacts.
 
-<a name="nested_attributes_operator_owners"></a>The `operator_owners` block supports:
+<a name="nested_operator_owners"></a>The `operator_owners` block supports:
 
 * `display_name` -
   (Optional)
@@ -415,7 +415,7 @@ The following arguments are supported:
   (Required)
   Email address of the contacts.
 
-<a name="nested_attributes_business_owners"></a>The `business_owners` block supports:
+<a name="nested_business_owners"></a>The `business_owners` block supports:
 
 * `display_name` -
   (Optional)

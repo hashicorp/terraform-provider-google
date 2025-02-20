@@ -293,7 +293,7 @@ The following arguments are supported:
   The location of the cloud run instance. eg us-central1
 
 
-<a name="nested_spec_traffic"></a>The `traffic` block supports:
+<a name="nested_traffic"></a>The `traffic` block supports:
 
 * `revision_name` -
   (Optional)
@@ -320,7 +320,7 @@ The following arguments are supported:
   and is disallowed on spec. URL must contain a scheme (e.g. http://) and a hostname,
   but may not contain anything else (e.g. basic auth, url path, etc.)
 
-<a name="nested_spec_template"></a>The `template` block supports:
+<a name="nested_template"></a>The `template` block supports:
 
 * `metadata` -
   (Optional)
@@ -339,7 +339,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_template_spec).
 
 
-<a name="nested_spec_template_metadata"></a>The `metadata` block supports:
+<a name="nested_metadata"></a>The `metadata` block supports:
 
 * `labels` -
   (Optional)
@@ -419,7 +419,7 @@ The following arguments are supported:
   Is required when creating resources. Name is primarily intended
   for creation idempotence and configuration definition. Cannot be updated.
 
-<a name="nested_spec_template_spec"></a>The `spec` block supports:
+<a name="nested_spec"></a>The `spec` block supports:
 
 * `containers` -
   (Required)
@@ -464,7 +464,7 @@ The following arguments are supported:
   ~> **Warning:** `serving_state` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.
 
 
-<a name="nested_spec_template_spec_containers"></a>The `containers` block supports:
+<a name="nested_containers"></a>The `containers` block supports:
 
 * `name` -
   (Optional)
@@ -538,7 +538,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_template_spec_containers_containers_liveness_probe).
 
 
-<a name="nested_spec_template_spec_containers_containers_env_from"></a>The `env_from` block supports:
+<a name="nested_env_from"></a>The `env_from` block supports:
 
 * `prefix` -
   (Optional)
@@ -555,7 +555,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_template_spec_containers_containers_env_from_env_from_secret_ref).
 
 
-<a name="nested_spec_template_spec_containers_containers_env_from_env_from_config_map_ref"></a>The `config_map_ref` block supports:
+<a name="nested_config_map_ref"></a>The `config_map_ref` block supports:
 
 * `optional` -
   (Optional)
@@ -567,13 +567,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_template_spec_containers_containers_env_from_env_from_config_map_ref_local_object_reference).
 
 
-<a name="nested_spec_template_spec_containers_containers_env_from_env_from_config_map_ref_local_object_reference"></a>The `local_object_reference` block supports:
+<a name="nested_local_object_reference"></a>The `local_object_reference` block supports:
 
 * `name` -
   (Required)
   Name of the referent.
 
-<a name="nested_spec_template_spec_containers_containers_env_from_env_from_secret_ref"></a>The `secret_ref` block supports:
+<a name="nested_secret_ref"></a>The `secret_ref` block supports:
 
 * `local_object_reference` -
   (Optional)
@@ -585,13 +585,13 @@ The following arguments are supported:
   Specify whether the Secret must be defined
 
 
-<a name="nested_spec_template_spec_containers_containers_env_from_env_from_secret_ref_local_object_reference"></a>The `local_object_reference` block supports:
+<a name="nested_local_object_reference"></a>The `local_object_reference` block supports:
 
 * `name` -
   (Required)
   Name of the referent.
 
-<a name="nested_spec_template_spec_containers_containers_env"></a>The `env` block supports:
+<a name="nested_env"></a>The `env` block supports:
 
 * `name` -
   (Optional)
@@ -607,7 +607,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_template_spec_containers_containers_env_env_value_from).
 
 
-<a name="nested_spec_template_spec_containers_containers_env_env_value_from"></a>The `value_from` block supports:
+<a name="nested_value_from"></a>The `value_from` block supports:
 
 * `secret_key_ref` -
   (Required)
@@ -615,7 +615,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_template_spec_containers_containers_env_env_value_from_secret_key_ref).
 
 
-<a name="nested_spec_template_spec_containers_containers_env_env_value_from_secret_key_ref"></a>The `secret_key_ref` block supports:
+<a name="nested_secret_key_ref"></a>The `secret_key_ref` block supports:
 
 * `key` -
   (Required)
@@ -631,7 +631,7 @@ The following arguments are supported:
   If multiple alias definitions are needed, they must be separated by commas.
   The alias definitions must be set on the run.googleapis.com/secrets annotation.
 
-<a name="nested_spec_template_spec_containers_containers_ports"></a>The `ports` block supports:
+<a name="nested_ports"></a>The `ports` block supports:
 
 * `name` -
   (Optional)
@@ -645,7 +645,7 @@ The following arguments are supported:
   (Optional)
   Port number the container listens on. This must be a valid port number (between 1 and 65535). Defaults to "8080".
 
-<a name="nested_spec_template_spec_containers_containers_resources"></a>The `resources` block supports:
+<a name="nested_resources"></a>The `resources` block supports:
 
 * `limits` -
   (Optional)
@@ -661,7 +661,7 @@ The following arguments are supported:
   The values of the map is string form of the 'quantity' k8s type:
   https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
 
-<a name="nested_spec_template_spec_containers_containers_volume_mounts"></a>The `volume_mounts` block supports:
+<a name="nested_volume_mounts"></a>The `volume_mounts` block supports:
 
 * `mount_path` -
   (Required)
@@ -672,7 +672,7 @@ The following arguments are supported:
   (Required)
   This must match the Name of a Volume.
 
-<a name="nested_spec_template_spec_containers_containers_startup_probe"></a>The `startup_probe` block supports:
+<a name="nested_startup_probe"></a>The `startup_probe` block supports:
 
 * `initial_delay_seconds` -
   (Optional)
@@ -712,14 +712,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_template_spec_containers_containers_startup_probe_grpc).
 
 
-<a name="nested_spec_template_spec_containers_containers_startup_probe_tcp_socket"></a>The `tcp_socket` block supports:
+<a name="nested_tcp_socket"></a>The `tcp_socket` block supports:
 
 * `port` -
   (Optional)
   Port number to access on the container. Number must be in the range 1 to 65535.
   If not specified, defaults to the same value as container.ports[0].containerPort.
 
-<a name="nested_spec_template_spec_containers_containers_startup_probe_http_get"></a>The `http_get` block supports:
+<a name="nested_http_get"></a>The `http_get` block supports:
 
 * `path` -
   (Optional)
@@ -736,7 +736,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_template_spec_containers_containers_startup_probe_http_get_http_headers).
 
 
-<a name="nested_spec_template_spec_containers_containers_startup_probe_http_get_http_headers"></a>The `http_headers` block supports:
+<a name="nested_http_headers"></a>The `http_headers` block supports:
 
 * `name` -
   (Required)
@@ -746,7 +746,7 @@ The following arguments are supported:
   (Optional)
   The header field value.
 
-<a name="nested_spec_template_spec_containers_containers_startup_probe_grpc"></a>The `grpc` block supports:
+<a name="nested_grpc"></a>The `grpc` block supports:
 
 * `port` -
   (Optional)
@@ -759,7 +759,7 @@ The following arguments are supported:
   (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
   If this is not specified, the default behavior is defined by gRPC.
 
-<a name="nested_spec_template_spec_containers_containers_liveness_probe"></a>The `liveness_probe` block supports:
+<a name="nested_liveness_probe"></a>The `liveness_probe` block supports:
 
 * `initial_delay_seconds` -
   (Optional)
@@ -794,7 +794,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_template_spec_containers_containers_liveness_probe_grpc).
 
 
-<a name="nested_spec_template_spec_containers_containers_liveness_probe_http_get"></a>The `http_get` block supports:
+<a name="nested_http_get"></a>The `http_get` block supports:
 
 * `path` -
   (Optional)
@@ -811,7 +811,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_template_spec_containers_containers_liveness_probe_http_get_http_headers).
 
 
-<a name="nested_spec_template_spec_containers_containers_liveness_probe_http_get_http_headers"></a>The `http_headers` block supports:
+<a name="nested_http_headers"></a>The `http_headers` block supports:
 
 * `name` -
   (Required)
@@ -821,7 +821,7 @@ The following arguments are supported:
   (Optional)
   The header field value.
 
-<a name="nested_spec_template_spec_containers_containers_liveness_probe_grpc"></a>The `grpc` block supports:
+<a name="nested_grpc"></a>The `grpc` block supports:
 
 * `port` -
   (Optional)
@@ -834,7 +834,7 @@ The following arguments are supported:
   (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
   If this is not specified, the default behavior is defined by gRPC.
 
-<a name="nested_spec_template_spec_volumes"></a>The `volumes` block supports:
+<a name="nested_volumes"></a>The `volumes` block supports:
 
 * `name` -
   (Required)
@@ -864,7 +864,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_template_spec_volumes_volumes_nfs).
 
 
-<a name="nested_spec_template_spec_volumes_volumes_secret"></a>The `secret` block supports:
+<a name="nested_secret"></a>The `secret` block supports:
 
 * `secret_name` -
   (Required)
@@ -895,7 +895,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_template_spec_volumes_volumes_secret_items).
 
 
-<a name="nested_spec_template_spec_volumes_volumes_secret_items"></a>The `items` block supports:
+<a name="nested_items"></a>The `items` block supports:
 
 * `key` -
   (Required)
@@ -916,7 +916,7 @@ The following arguments are supported:
   conflict with other options that affect the file mode, like fsGroup, and
   the result can be other mode bits set.
 
-<a name="nested_spec_template_spec_volumes_volumes_empty_dir"></a>The `empty_dir` block supports:
+<a name="nested_empty_dir"></a>The `empty_dir` block supports:
 
 * `medium` -
   (Optional)
@@ -926,7 +926,7 @@ The following arguments are supported:
   (Optional)
   Limit on the storage usable by this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. This field's values are of the 'Quantity' k8s type: https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/. The default is nil which means that the limit is undefined. More info: https://kubernetes.io/docs/concepts/storage/volumes/#emptydir.
 
-<a name="nested_spec_template_spec_volumes_volumes_csi"></a>The `csi` block supports:
+<a name="nested_csi"></a>The `csi` block supports:
 
 * `driver` -
   (Required)
@@ -944,7 +944,7 @@ The following arguments are supported:
     * gcsfuse.run.googleapis.com
       * bucketName: The name of the Cloud Storage Bucket that backs this volume. The Cloud Run Service identity must have access to this bucket.
 
-<a name="nested_spec_template_spec_volumes_volumes_nfs"></a>The `nfs` block supports:
+<a name="nested_nfs"></a>The `nfs` block supports:
 
 * `server` -
   (Required)
@@ -1118,7 +1118,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_traffic).
 
 
-<a name="nested_status_conditions"></a>The `conditions` block contains:
+<a name="nested_conditions"></a>The `conditions` block contains:
 
 * `message` -
   (Output)
@@ -1136,7 +1136,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Type of domain mapping condition.
 
-<a name="nested_status_traffic"></a>The `traffic` block contains:
+<a name="nested_traffic"></a>The `traffic` block contains:
 
 * `revision_name` -
   (Output)

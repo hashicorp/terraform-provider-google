@@ -169,7 +169,7 @@ The following arguments are supported:
   if the MKA session cannot be established with your router.
 
 
-<a name="nested_macsec_pre_shared_keys"></a>The `pre_shared_keys` block supports:
+<a name="nested_pre_shared_keys"></a>The `pre_shared_keys` block supports:
 
 * `name` -
   (Required)

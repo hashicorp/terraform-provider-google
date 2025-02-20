@@ -140,7 +140,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_privileged_access_gcp_iam_access).
 
 
-<a name="nested_privileged_access_gcp_iam_access"></a>The `gcp_iam_access` block supports:
+<a name="nested_gcp_iam_access"></a>The `gcp_iam_access` block supports:
 
 * `resource_type` -
   (Required)
@@ -156,7 +156,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_privileged_access_gcp_iam_access_role_bindings).
 
 
-<a name="nested_privileged_access_gcp_iam_access_role_bindings"></a>The `role_bindings` block supports:
+<a name="nested_role_bindings"></a>The `role_bindings` block supports:
 
 * `role` -
   (Required)
@@ -206,7 +206,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_approval_workflow_manual_approvals).
 
 
-<a name="nested_approval_workflow_manual_approvals"></a>The `manual_approvals` block supports:
+<a name="nested_manual_approvals"></a>The `manual_approvals` block supports:
 
 * `require_approver_justification` -
   (Optional)
@@ -218,7 +218,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_approval_workflow_manual_approvals_steps).
 
 
-<a name="nested_approval_workflow_manual_approvals_steps"></a>The `steps` block supports:
+<a name="nested_steps"></a>The `steps` block supports:
 
 * `approvers` -
   (Required)
@@ -237,7 +237,7 @@ The following arguments are supported:
   Optional. Additional email addresses to be notified when a grant is pending approval.
 
 
-<a name="nested_approval_workflow_manual_approvals_steps_steps_approvers"></a>The `approvers` block supports:
+<a name="nested_approvers"></a>The `approvers` block supports:
 
 * `principals` -
   (Required)

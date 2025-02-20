@@ -183,7 +183,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_failure_reason_quota_failure).
 
 
-<a name="nested_failure_reason_quota_failure"></a>The `quota_failure` block supports:
+<a name="nested_quota_failure"></a>The `quota_failure` block supports:
 
 * `total_required_quota` -
   (Optional)

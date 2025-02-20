@@ -235,7 +235,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_gcs_fileset_spec_sample_gcs_file_specs).
 
 
-<a name="nested_gcs_fileset_spec_sample_gcs_file_specs"></a>The `sample_gcs_file_specs` block contains:
+<a name="nested_sample_gcs_file_specs"></a>The `sample_gcs_file_specs` block contains:
 
 * `file_path` -
   (Output)
@@ -286,13 +286,13 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_bigquery_table_spec_table_spec).
 
 
-<a name="nested_bigquery_table_spec_view_spec"></a>The `view_spec` block contains:
+<a name="nested_view_spec"></a>The `view_spec` block contains:
 
 * `view_query` -
   (Output)
   The query that defines the table view.
 
-<a name="nested_bigquery_table_spec_table_spec"></a>The `table_spec` block contains:
+<a name="nested_table_spec"></a>The `table_spec` block contains:
 
 * `grouped_entry` -
   (Output)

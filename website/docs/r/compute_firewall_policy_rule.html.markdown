@@ -227,7 +227,7 @@ The following arguments are supported:
   Names of Network Threat Intelligence lists. The IPs in these lists will be matched against traffic source.
 
 
-<a name="nested_match_layer4_configs"></a>The `layer4_configs` block supports:
+<a name="nested_layer4_configs"></a>The `layer4_configs` block supports:
 
 * `ip_protocol` -
   (Required)

@@ -863,7 +863,7 @@ The following arguments are supported:
   Optional. GitHub App installation id.
 
 
-<a name="nested_github_config_authorizer_credential"></a>The `authorizer_credential` block supports:
+<a name="nested_authorizer_credential"></a>The `authorizer_credential` block supports:
 
 * `oauth_token_secret_version` -
   (Required)
@@ -922,7 +922,7 @@ The following arguments are supported:
   Optional. ID of the installation of the GitHub App.
 
 
-<a name="nested_github_enterprise_config_service_directory_config"></a>The `service_directory_config` block supports:
+<a name="nested_service_directory_config"></a>The `service_directory_config` block supports:
 
 * `service` -
   (Required)
@@ -970,7 +970,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_gitlab_enterprise_config_read_authorizer_credential).
 
 
-<a name="nested_gitlab_enterprise_config_authorizer_credential"></a>The `authorizer_credential` block supports:
+<a name="nested_authorizer_credential"></a>The `authorizer_credential` block supports:
 
 * `user_token_secret_version` -
   (Required)
@@ -982,7 +982,7 @@ The following arguments are supported:
   (Output)
   Output only. The username associated with this token.
 
-<a name="nested_gitlab_enterprise_config_service_directory_config"></a>The `service_directory_config` block supports:
+<a name="nested_service_directory_config"></a>The `service_directory_config` block supports:
 
 * `service` -
   (Required)
@@ -990,7 +990,7 @@ The following arguments are supported:
   Format:
   projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}.
 
-<a name="nested_gitlab_enterprise_config_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
+<a name="nested_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
 
 * `user_token_secret_version` -
   (Required)
@@ -1027,7 +1027,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_bitbucket_cloud_config_authorizer_credential).
 
 
-<a name="nested_bitbucket_cloud_config_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
+<a name="nested_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
 
 * `user_token_secret_version` -
   (Required)
@@ -1039,7 +1039,7 @@ The following arguments are supported:
   (Output)
   Output only. The username associated with this token.
 
-<a name="nested_bitbucket_cloud_config_authorizer_credential"></a>The `authorizer_credential` block supports:
+<a name="nested_authorizer_credential"></a>The `authorizer_credential` block supports:
 
 * `user_token_secret_version` -
   (Required)
@@ -1091,7 +1091,7 @@ The following arguments are supported:
   Required. The URI of the Bitbucket Data Center host this connection is for.
 
 
-<a name="nested_bitbucket_data_center_config_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
+<a name="nested_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
 
 * `user_token_secret_version` -
   (Required)
@@ -1103,7 +1103,7 @@ The following arguments are supported:
   (Output)
   Output only. The username associated with this token.
 
-<a name="nested_bitbucket_data_center_config_authorizer_credential"></a>The `authorizer_credential` block supports:
+<a name="nested_authorizer_credential"></a>The `authorizer_credential` block supports:
 
 * `username` -
   (Output)
@@ -1115,7 +1115,7 @@ The following arguments are supported:
   the Developer Connect connection. Format:
   `projects/*/secrets/*/versions/*`.
 
-<a name="nested_bitbucket_data_center_config_service_directory_config"></a>The `service_directory_config` block supports:
+<a name="nested_service_directory_config"></a>The `service_directory_config` block supports:
 
 * `service` -
   (Required)
@@ -1144,7 +1144,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_gitlab_config_authorizer_credential).
 
 
-<a name="nested_gitlab_config_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
+<a name="nested_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
 
 * `user_token_secret_version` -
   (Required)
@@ -1156,7 +1156,7 @@ The following arguments are supported:
   (Output)
   Output only. The username associated with this token.
 
-<a name="nested_gitlab_config_authorizer_credential"></a>The `authorizer_credential` block supports:
+<a name="nested_authorizer_credential"></a>The `authorizer_credential` block supports:
 
 * `user_token_secret_version` -
   (Required)

@@ -308,7 +308,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_stream_configs_stream_configs_bigquery_destination).
 
 
-<a name="nested_stream_configs_stream_configs_bigquery_destination"></a>The `bigquery_destination` block supports:
+<a name="nested_bigquery_destination"></a>The `bigquery_destination` block supports:
 
 * `dataset_uri` -
   (Required)
@@ -320,7 +320,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_stream_configs_stream_configs_bigquery_destination_schema_config).
 
 
-<a name="nested_stream_configs_stream_configs_bigquery_destination_schema_config"></a>The `schema_config` block supports:
+<a name="nested_schema_config"></a>The `schema_config` block supports:
 
 * `schema_type` -
   (Optional)
@@ -345,7 +345,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_stream_configs_stream_configs_bigquery_destination_schema_config_last_updated_partition_config).
 
 
-<a name="nested_stream_configs_stream_configs_bigquery_destination_schema_config_last_updated_partition_config"></a>The `last_updated_partition_config` block supports:
+<a name="nested_last_updated_partition_config"></a>The `last_updated_partition_config` block supports:
 
 * `type` -
   (Required)

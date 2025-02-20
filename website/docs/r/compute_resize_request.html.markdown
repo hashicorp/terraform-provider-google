@@ -193,7 +193,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_last_attempt).
 
 
-<a name="nested_status_error"></a>The `error` block contains:
+<a name="nested_error"></a>The `error` block contains:
 
 * `errors` -
   (Output)
@@ -201,7 +201,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_error_errors).
 
 
-<a name="nested_status_error_errors"></a>The `errors` block contains:
+<a name="nested_errors"></a>The `errors` block contains:
 
 * `code` -
   (Output)
@@ -221,7 +221,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_error_errors_errors_error_details).
 
 
-<a name="nested_status_error_errors_errors_error_details"></a>The `error_details` block contains:
+<a name="nested_error_details"></a>The `error_details` block contains:
 
 * `error_info` -
   (Output)
@@ -244,7 +244,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_error_errors_errors_error_details_error_details_localized_message).
 
 
-<a name="nested_status_error_errors_errors_error_details_error_details_error_info"></a>The `error_info` block contains:
+<a name="nested_error_info"></a>The `error_info` block contains:
 
 * `reason` -
   (Output)
@@ -258,7 +258,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Additional structured details about this error.
 
-<a name="nested_status_error_errors_errors_error_details_error_details_quota_info"></a>The `quota_info` block contains:
+<a name="nested_quota_info"></a>The `quota_info` block contains:
 
 * `metric_name` -
   (Output)
@@ -284,7 +284,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Rollout status of the future quota limit.
 
-<a name="nested_status_error_errors_errors_error_details_error_details_help"></a>The `help` block contains:
+<a name="nested_help"></a>The `help` block contains:
 
 * `links` -
   (Output)
@@ -292,7 +292,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_error_errors_errors_error_details_error_details_help_links).
 
 
-<a name="nested_status_error_errors_errors_error_details_error_details_help_links"></a>The `links` block contains:
+<a name="nested_links"></a>The `links` block contains:
 
 * `description` -
   (Output)
@@ -302,7 +302,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The URL of the link.
 
-<a name="nested_status_error_errors_errors_error_details_error_details_localized_message"></a>The `localized_message` block contains:
+<a name="nested_localized_message"></a>The `localized_message` block contains:
 
 * `locale` -
   (Output)
@@ -312,7 +312,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The localized error message in the above locale.
 
-<a name="nested_status_last_attempt"></a>The `last_attempt` block contains:
+<a name="nested_last_attempt"></a>The `last_attempt` block contains:
 
 * `error` -
   (Output)
@@ -320,7 +320,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_last_attempt_error).
 
 
-<a name="nested_status_last_attempt_error"></a>The `error` block contains:
+<a name="nested_error"></a>The `error` block contains:
 
 * `errors` -
   (Output)
@@ -328,7 +328,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_last_attempt_error_errors).
 
 
-<a name="nested_status_last_attempt_error_errors"></a>The `errors` block contains:
+<a name="nested_errors"></a>The `errors` block contains:
 
 * `code` -
   (Output)
@@ -348,7 +348,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_last_attempt_error_errors_errors_error_details).
 
 
-<a name="nested_status_last_attempt_error_errors_errors_error_details"></a>The `error_details` block contains:
+<a name="nested_error_details"></a>The `error_details` block contains:
 
 * `error_info` -
   (Output)
@@ -371,7 +371,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_last_attempt_error_errors_errors_error_details_error_details_localized_message).
 
 
-<a name="nested_status_last_attempt_error_errors_errors_error_details_error_details_error_info"></a>The `error_info` block contains:
+<a name="nested_error_info"></a>The `error_info` block contains:
 
 * `reason` -
   (Output)
@@ -385,7 +385,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Additional structured details about this error.
 
-<a name="nested_status_last_attempt_error_errors_errors_error_details_error_details_quota_info"></a>The `quota_info` block contains:
+<a name="nested_quota_info"></a>The `quota_info` block contains:
 
 * `metric_name` -
   (Output)
@@ -411,7 +411,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Rollout status of the future quota limit.
 
-<a name="nested_status_last_attempt_error_errors_errors_error_details_error_details_help"></a>The `help` block contains:
+<a name="nested_help"></a>The `help` block contains:
 
 * `links` -
   (Output)
@@ -419,7 +419,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_last_attempt_error_errors_errors_error_details_error_details_help_links).
 
 
-<a name="nested_status_last_attempt_error_errors_errors_error_details_error_details_help_links"></a>The `links` block contains:
+<a name="nested_links"></a>The `links` block contains:
 
 * `description` -
   (Output)
@@ -429,7 +429,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The URL of the link.
 
-<a name="nested_status_last_attempt_error_errors_errors_error_details_error_details_localized_message"></a>The `localized_message` block contains:
+<a name="nested_localized_message"></a>The `localized_message` block contains:
 
 * `locale` -
   (Output)

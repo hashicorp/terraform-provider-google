@@ -162,7 +162,7 @@ The following arguments are supported:
   Exactly one of `agent_creation_config` or `dialogflow_agent_to_link` must be set.
 
 
-<a name="nested_chat_engine_config_agent_creation_config"></a>The `agent_creation_config` block supports:
+<a name="nested_agent_creation_config"></a>The `agent_creation_config` block supports:
 
 * `business` -
   (Optional)

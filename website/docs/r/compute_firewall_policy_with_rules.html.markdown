@@ -267,7 +267,7 @@ The following arguments are supported:
   enabled.
 
 
-<a name="nested_rule_rule_match"></a>The `match` block supports:
+<a name="nested_match"></a>The `match` block supports:
 
 * `src_ip_ranges` -
   (Optional)
@@ -343,7 +343,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rule_rule_match_layer4_config).
 
 
-<a name="nested_rule_rule_match_layer4_config"></a>The `layer4_config` block supports:
+<a name="nested_layer4_config"></a>The `layer4_config` block supports:
 
 * `ip_protocol` -
   (Required)
@@ -468,7 +468,7 @@ In addition to the arguments listed above, the following computed attributes are
   enabled.
 
 
-<a name="nested_predefined_rules_predefined_rules_match"></a>The `match` block contains:
+<a name="nested_match"></a>The `match` block contains:
 
 * `src_ip_ranges` -
   (Output)
@@ -530,7 +530,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_predefined_rules_predefined_rules_match_layer4_config).
 
 
-<a name="nested_predefined_rules_predefined_rules_match_layer4_config"></a>The `layer4_config` block contains:
+<a name="nested_layer4_config"></a>The `layer4_config` block contains:
 
 * `ip_protocol` -
   (Output)

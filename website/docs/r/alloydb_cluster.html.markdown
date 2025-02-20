@@ -459,7 +459,7 @@ Default value: "true"
   Structure is [documented below](#nested_continuous_backup_config_encryption_config).
 
 
-<a name="nested_continuous_backup_config_encryption_config"></a>The `encryption_config` block supports:
+<a name="nested_encryption_config"></a>The `encryption_config` block supports:
 
 * `kms_key_name` -
   (Optional)
@@ -506,13 +506,13 @@ Default value: "true"
   Whether automated backups are enabled.
 
 
-<a name="nested_automated_backup_policy_encryption_config"></a>The `encryption_config` block supports:
+<a name="nested_encryption_config"></a>The `encryption_config` block supports:
 
 * `kms_key_name` -
   (Optional)
   The fully-qualified resource name of the KMS key. Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].
 
-<a name="nested_automated_backup_policy_weekly_schedule"></a>The `weekly_schedule` block supports:
+<a name="nested_weekly_schedule"></a>The `weekly_schedule` block supports:
 
 * `days_of_week` -
   (Optional)
@@ -525,7 +525,7 @@ Default value: "true"
   Structure is [documented below](#nested_automated_backup_policy_weekly_schedule_start_times).
 
 
-<a name="nested_automated_backup_policy_weekly_schedule_start_times"></a>The `start_times` block supports:
+<a name="nested_start_times"></a>The `start_times` block supports:
 
 * `hours` -
   (Optional)
@@ -543,14 +543,14 @@ Default value: "true"
   (Optional)
   Fractions of seconds in nanoseconds. Currently, only the value 0 is supported.
 
-<a name="nested_automated_backup_policy_time_based_retention"></a>The `time_based_retention` block supports:
+<a name="nested_time_based_retention"></a>The `time_based_retention` block supports:
 
 * `retention_period` -
   (Optional)
   The retention period.
   A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
 
-<a name="nested_automated_backup_policy_quantity_based_retention"></a>The `quantity_based_retention` block supports:
+<a name="nested_quantity_based_retention"></a>The `quantity_based_retention` block supports:
 
 * `count` -
   (Optional)
@@ -571,7 +571,7 @@ Default value: "true"
   Structure is [documented below](#nested_maintenance_update_policy_maintenance_windows).
 
 
-<a name="nested_maintenance_update_policy_maintenance_windows"></a>The `maintenance_windows` block supports:
+<a name="nested_maintenance_windows"></a>The `maintenance_windows` block supports:
 
 * `day` -
   (Required)
@@ -584,7 +584,7 @@ Default value: "true"
   Structure is [documented below](#nested_maintenance_update_policy_maintenance_windows_maintenance_windows_start_time).
 
 
-<a name="nested_maintenance_update_policy_maintenance_windows_maintenance_windows_start_time"></a>The `start_time` block supports:
+<a name="nested_start_time"></a>The `start_time` block supports:
 
 * `hours` -
   (Required)
@@ -683,7 +683,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_continuous_backup_info_encryption_info).
 
 
-<a name="nested_continuous_backup_info_encryption_info"></a>The `encryption_info` block contains:
+<a name="nested_encryption_info"></a>The `encryption_info` block contains:
 
 * `encryption_type` -
   (Output)

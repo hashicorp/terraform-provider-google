@@ -148,7 +148,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_online_serving_config_scaling).
 
 
-<a name="nested_online_serving_config_scaling"></a>The `scaling` block supports:
+<a name="nested_scaling"></a>The `scaling` block supports:
 
 * `min_node_count` -
   (Required)

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -63,6 +64,10 @@ func ResourceSqlUser() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		ValidateRawResourceConfigFuncs: []schema.ValidateRawResourceConfigFunc{
+			validation.PreferWriteOnlyAttribute(cty.GetAttrPath("password"), cty.GetAttrPath("password_wo")),
+		},
+
 		SchemaVersion: 1,
 		MigrateState:  resourceSqlUserMigrateState,
 
@@ -91,11 +96,28 @@ func ResourceSqlUser() *schema.Resource {
 			},
 
 			"password": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Sensitive:     true,
+				ConflictsWith: []string{"password_wo"},
 				Description: `The password for the user. Can be updated. For Postgres instances this is a Required field, unless type is set to
 				either CLOUD_IAM_USER or CLOUD_IAM_SERVICE_ACCOUNT.`,
+			},
+
+			"password_wo": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				WriteOnly:     true,
+				ConflictsWith: []string{"password"},
+				Description: `The password for the user. Can be updated. For Postgres instances this is a Required field, unless type is set to
+				either CLOUD_IAM_USER or CLOUD_IAM_SERVICE_ACCOUNT.`,
+			},
+
+			"password_wo_version": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"password_wo"},
+				Description:  `The version of the password_wo.`,
 			},
 
 			"type": {
@@ -243,9 +265,14 @@ func resourceSqlUserCreate(d *schema.ResourceData, meta interface{}) error {
 
 	name := d.Get("name").(string)
 	instance := d.Get("instance").(string)
-	password := d.Get("password").(string)
 	host := d.Get("host").(string)
 	typ := d.Get("type").(string)
+	var password string
+	if pw, ok := d.GetOk("password"); ok {
+		password = pw.(string)
+	} else if pwWo, _ := d.GetRawConfigAt(cty.GetAttrPath("password_wo")); !pwWo.IsNull() {
+		password = pwWo.AsString()
+	}
 
 	user := &sqladmin.User{
 		Name:     name,
@@ -451,8 +478,7 @@ func resourceSqlUserUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-
-	if d.HasChange("password") || d.HasChange("password_policy") {
+	if d.HasChange("password") || d.HasChange("password_policy") || d.HasChange("password_wo_version") {
 		project, err := tpgresource.GetProject(d, config)
 		if err != nil {
 			return err
@@ -460,8 +486,13 @@ func resourceSqlUserUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		name := d.Get("name").(string)
 		instance := d.Get("instance").(string)
-		password := d.Get("password").(string)
 		host := d.Get("host").(string)
+		var password string
+		if pw, ok := d.GetOk("password"); ok {
+			password = pw.(string)
+		} else if pwWo, _ := d.GetRawConfigAt(cty.GetAttrPath("password_wo")); !pwWo.IsNull() {
+			password = pwWo.AsString()
+		}
 
 		user := &sqladmin.User{
 			Name:     name,

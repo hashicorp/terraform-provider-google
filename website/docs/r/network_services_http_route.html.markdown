@@ -296,7 +296,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_action).
 
 
-<a name="nested_rules_rules_matches"></a>The `matches` block supports:
+<a name="nested_matches"></a>The `matches` block supports:
 
 * `ignore_case` -
   (Optional)
@@ -325,7 +325,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_matches_matches_headers).
 
 
-<a name="nested_rules_rules_matches_matches_query_parameters"></a>The `query_parameters` block supports:
+<a name="nested_query_parameters"></a>The `query_parameters` block supports:
 
 * `query_parameter` -
   (Optional)
@@ -343,7 +343,7 @@ The following arguments are supported:
   (Optional)
   Specifies that the QueryParameterMatcher matches if request contains query parameter, irrespective of whether the parameter has a value or not.
 
-<a name="nested_rules_rules_matches_matches_headers"></a>The `headers` block supports:
+<a name="nested_headers"></a>The `headers` block supports:
 
 * `header` -
   (Optional)
@@ -379,7 +379,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_matches_matches_headers_headers_range_match).
 
 
-<a name="nested_rules_rules_matches_matches_headers_headers_range_match"></a>The `range_match` block supports:
+<a name="nested_range_match"></a>The `range_match` block supports:
 
 * `start` -
   (Required)
@@ -389,7 +389,7 @@ The following arguments are supported:
   (Required)
   End of the range (exclusive).
 
-<a name="nested_rules_rules_action"></a>The `action` block supports:
+<a name="nested_action"></a>The `action` block supports:
 
 * `destinations` -
   (Optional)
@@ -441,7 +441,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_action_cors_policy).
 
 
-<a name="nested_rules_rules_action_destinations"></a>The `destinations` block supports:
+<a name="nested_destinations"></a>The `destinations` block supports:
 
 * `service_name` -
   (Optional)
@@ -454,7 +454,7 @@ The following arguments are supported:
   If weights are specified for any one service name, they need to be specified for all of them.
   If weights are unspecified for all services, then, traffic is distributed in equal proportions to all of them.
 
-<a name="nested_rules_rules_action_redirect"></a>The `redirect` block supports:
+<a name="nested_redirect"></a>The `redirect` block supports:
 
 * `host_redirect` -
   (Optional)
@@ -484,7 +484,7 @@ The following arguments are supported:
   (Optional)
   The port that will be used in the redirected request instead of the one that was supplied in the request.
 
-<a name="nested_rules_rules_action_fault_injection_policy"></a>The `fault_injection_policy` block supports:
+<a name="nested_fault_injection_policy"></a>The `fault_injection_policy` block supports:
 
 * `delay` -
   (Optional)
@@ -497,7 +497,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_action_fault_injection_policy_abort).
 
 
-<a name="nested_rules_rules_action_fault_injection_policy_delay"></a>The `delay` block supports:
+<a name="nested_delay"></a>The `delay` block supports:
 
 * `fixed_delay` -
   (Optional)
@@ -507,7 +507,7 @@ The following arguments are supported:
   (Optional)
   The percentage of traffic on which delay will be injected.
 
-<a name="nested_rules_rules_action_fault_injection_policy_abort"></a>The `abort` block supports:
+<a name="nested_abort"></a>The `abort` block supports:
 
 * `http_status` -
   (Optional)
@@ -517,7 +517,7 @@ The following arguments are supported:
   (Optional)
   The percentage of traffic which will be aborted.
 
-<a name="nested_rules_rules_action_request_header_modifier"></a>The `request_header_modifier` block supports:
+<a name="nested_request_header_modifier"></a>The `request_header_modifier` block supports:
 
 * `set` -
   (Optional)
@@ -531,7 +531,7 @@ The following arguments are supported:
   (Optional)
   Remove headers (matching by header names) specified in the list.
 
-<a name="nested_rules_rules_action_response_header_modifier"></a>The `response_header_modifier` block supports:
+<a name="nested_response_header_modifier"></a>The `response_header_modifier` block supports:
 
 * `set` -
   (Optional)
@@ -545,7 +545,7 @@ The following arguments are supported:
   (Optional)
   Remove headers (matching by header names) specified in the list.
 
-<a name="nested_rules_rules_action_url_rewrite"></a>The `url_rewrite` block supports:
+<a name="nested_url_rewrite"></a>The `url_rewrite` block supports:
 
 * `path_prefix_rewrite` -
   (Optional)
@@ -555,7 +555,7 @@ The following arguments are supported:
   (Optional)
   Prior to forwarding the request to the selected destination, the requests host header is replaced by this value.
 
-<a name="nested_rules_rules_action_retry_policy"></a>The `retry_policy` block supports:
+<a name="nested_retry_policy"></a>The `retry_policy` block supports:
 
 * `retry_conditions` -
   (Optional)
@@ -569,7 +569,7 @@ The following arguments are supported:
   (Optional)
   Specifies a non-zero timeout per retry attempt. A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
 
-<a name="nested_rules_rules_action_request_mirror_policy"></a>The `request_mirror_policy` block supports:
+<a name="nested_request_mirror_policy"></a>The `request_mirror_policy` block supports:
 
 * `destination` -
   (Optional)
@@ -577,7 +577,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_action_request_mirror_policy_destination).
 
 
-<a name="nested_rules_rules_action_request_mirror_policy_destination"></a>The `destination` block supports:
+<a name="nested_destination"></a>The `destination` block supports:
 
 * `service_name` -
   (Optional)
@@ -590,7 +590,7 @@ The following arguments are supported:
   If weights are specified for any one service name, they need to be specified for all of them.
   If weights are unspecified for all services, then, traffic is distributed in equal proportions to all of them.
 
-<a name="nested_rules_rules_action_cors_policy"></a>The `cors_policy` block supports:
+<a name="nested_cors_policy"></a>The `cors_policy` block supports:
 
 * `allow_origins` -
   (Optional)

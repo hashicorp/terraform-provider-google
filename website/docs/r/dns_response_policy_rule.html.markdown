@@ -118,7 +118,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_local_data_local_datas).
 
 
-<a name="nested_local_data_local_datas"></a>The `local_datas` block supports:
+<a name="nested_local_datas"></a>The `local_datas` block supports:
 
 * `name` -
   (Required)

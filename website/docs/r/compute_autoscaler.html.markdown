@@ -289,7 +289,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_autoscaling_policy_scaling_schedules).
 
 
-<a name="nested_autoscaling_policy_scale_down_control"></a>The `scale_down_control` block supports:
+<a name="nested_scale_down_control"></a>The `scale_down_control` block supports:
 
 * `max_scaled_down_replicas` -
   (Optional)
@@ -302,7 +302,7 @@ The following arguments are supported:
   to include directives regarding slower scale down, as described above.
 
 
-<a name="nested_autoscaling_policy_scale_down_control_max_scaled_down_replicas"></a>The `max_scaled_down_replicas` block supports:
+<a name="nested_max_scaled_down_replicas"></a>The `max_scaled_down_replicas` block supports:
 
 * `fixed` -
   (Optional)
@@ -314,7 +314,7 @@ The following arguments are supported:
   Specifies a percentage of instances between 0 to 100%, inclusive.
   For example, specify 80 for 80%.
 
-<a name="nested_autoscaling_policy_scale_in_control"></a>The `scale_in_control` block supports:
+<a name="nested_scale_in_control"></a>The `scale_in_control` block supports:
 
 * `max_scaled_in_replicas` -
   (Optional)
@@ -327,7 +327,7 @@ The following arguments are supported:
   to include directives regarding slower scale down, as described above.
 
 
-<a name="nested_autoscaling_policy_scale_in_control_max_scaled_in_replicas"></a>The `max_scaled_in_replicas` block supports:
+<a name="nested_max_scaled_in_replicas"></a>The `max_scaled_in_replicas` block supports:
 
 * `fixed` -
   (Optional)
@@ -339,7 +339,7 @@ The following arguments are supported:
   Specifies a percentage of instances between 0 to 100%, inclusive.
   For example, specify 80 for 80%.
 
-<a name="nested_autoscaling_policy_cpu_utilization"></a>The `cpu_utilization` block supports:
+<a name="nested_cpu_utilization"></a>The `cpu_utilization` block supports:
 
 * `target` -
   (Required)
@@ -361,7 +361,7 @@ The following arguments are supported:
   - NONE (default). No predictive method is used. The autoscaler scales the group to meet current demand based on real-time metrics.
   - OPTIMIZE_AVAILABILITY. Predictive autoscaling improves availability by monitoring daily and weekly load patterns and scaling out ahead of anticipated demand.
 
-<a name="nested_autoscaling_policy_metric"></a>The `metric` block supports:
+<a name="nested_metric"></a>The `metric` block supports:
 
 * `name` -
   (Required)
@@ -433,7 +433,7 @@ The following arguments are supported:
   TimeSeries are returned upon the query execution, the autoscaler
   will sum their respective values to obtain its scaling value.
 
-<a name="nested_autoscaling_policy_load_balancing_utilization"></a>The `load_balancing_utilization` block supports:
+<a name="nested_load_balancing_utilization"></a>The `load_balancing_utilization` block supports:
 
 * `target` -
   (Required)
@@ -441,7 +441,7 @@ The following arguments are supported:
   balancing configuration) that autoscaler should maintain. Must
   be a positive float value. If not defined, the default is 0.8.
 
-<a name="nested_autoscaling_policy_scaling_schedules"></a>The `scaling_schedules` block supports:
+<a name="nested_scaling_schedules"></a>The `scaling_schedules` block supports:
 
 * `name` - (Required) The identifier for this object. Format specified above.
 

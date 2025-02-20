@@ -251,7 +251,7 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. Link to documentation that describes a diagnostic in more detail.
 
 
-<a name="nested_compilation_diagnostics_compilation_diagnostics_position"></a>The `position` block supports:
+<a name="nested_position"></a>The `position` block supports:
 
 * `start_line` -
   (Output)

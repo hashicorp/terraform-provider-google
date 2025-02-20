@@ -192,7 +192,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_predefined_values_additional_extensions).
 
 
-<a name="nested_predefined_values_key_usage"></a>The `key_usage` block supports:
+<a name="nested_key_usage"></a>The `key_usage` block supports:
 
 * `base_key_usage` -
   (Optional)
@@ -210,7 +210,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_predefined_values_key_usage_unknown_extended_key_usages).
 
 
-<a name="nested_predefined_values_key_usage_base_key_usage"></a>The `base_key_usage` block supports:
+<a name="nested_base_key_usage"></a>The `base_key_usage` block supports:
 
 * `digital_signature` -
   (Optional)
@@ -248,7 +248,7 @@ The following arguments are supported:
   (Optional)
   The key may be used to decipher only.
 
-<a name="nested_predefined_values_key_usage_extended_key_usage"></a>The `extended_key_usage` block supports:
+<a name="nested_extended_key_usage"></a>The `extended_key_usage` block supports:
 
 * `server_auth` -
   (Optional)
@@ -274,13 +274,13 @@ The following arguments are supported:
   (Optional)
   Corresponds to OID 1.3.6.1.5.5.7.3.9. Officially described as "Signing OCSP responses".
 
-<a name="nested_predefined_values_key_usage_unknown_extended_key_usages"></a>The `unknown_extended_key_usages` block supports:
+<a name="nested_unknown_extended_key_usages"></a>The `unknown_extended_key_usages` block supports:
 
 * `object_id_path` -
   (Required)
   Required. The parts of an OID path. The most significant parts of the path come first.
 
-<a name="nested_predefined_values_ca_options"></a>The `ca_options` block supports:
+<a name="nested_ca_options"></a>The `ca_options` block supports:
 
 * `is_ca` -
   (Optional)
@@ -290,13 +290,13 @@ The following arguments are supported:
   (Optional)
   Optional. Refers to the path length restriction X.509 extension. For a CA certificate, this value describes the depth of subordinate CA certificates that are allowed. If this value is less than 0, the request will fail. If this value is missing, the max path length will be omitted from the CA certificate.
 
-<a name="nested_predefined_values_policy_ids"></a>The `policy_ids` block supports:
+<a name="nested_policy_ids"></a>The `policy_ids` block supports:
 
 * `object_id_path` -
   (Required)
   Required. The parts of an OID path. The most significant parts of the path come first.
 
-<a name="nested_predefined_values_additional_extensions"></a>The `additional_extensions` block supports:
+<a name="nested_additional_extensions"></a>The `additional_extensions` block supports:
 
 * `object_id` -
   (Required)
@@ -312,7 +312,7 @@ The following arguments are supported:
   Required. The value of this X.509 extension.
 
 
-<a name="nested_predefined_values_additional_extensions_additional_extensions_object_id"></a>The `object_id` block supports:
+<a name="nested_object_id"></a>The `object_id` block supports:
 
 * `object_id_path` -
   (Required)
@@ -334,7 +334,7 @@ The following arguments are supported:
   Required. If this is true, the SubjectAltNames extension may be copied from a certificate request into the signed certificate. Otherwise, the requested SubjectAltNames will be discarded.
 
 
-<a name="nested_identity_constraints_cel_expression"></a>The `cel_expression` block supports:
+<a name="nested_cel_expression"></a>The `cel_expression` block supports:
 
 * `expression` -
   (Optional)
@@ -364,7 +364,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_passthrough_extensions_additional_extensions).
 
 
-<a name="nested_passthrough_extensions_additional_extensions"></a>The `additional_extensions` block supports:
+<a name="nested_additional_extensions"></a>The `additional_extensions` block supports:
 
 * `object_id_path` -
   (Required)

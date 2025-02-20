@@ -212,7 +212,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_fields_fields_vector_config).
 
 
-<a name="nested_fields_fields_vector_config"></a>The `vector_config` block supports:
+<a name="nested_vector_config"></a>The `vector_config` block supports:
 
 * `dimension` -
   (Optional)

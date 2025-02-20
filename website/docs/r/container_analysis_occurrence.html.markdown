@@ -136,7 +136,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_attestation_signatures).
 
 
-<a name="nested_attestation_signatures"></a>The `signatures` block supports:
+<a name="nested_signatures"></a>The `signatures` block supports:
 
 * `signature` -
   (Optional)
