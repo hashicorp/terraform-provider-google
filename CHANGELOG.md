@@ -31,7 +31,6 @@ BUG FIXES:
 * databasemigrationservice: fixed error details type on `google_database_migration_service_migration_job` ([#21279](https://github.com/hashicorp/terraform-provider-google/pull/21279))
 * networkservices: fixed a bug with `google_network_services_authz_extension.wire_format` sending an invalid default value by removing the Terraform default and letting the API set the default. ([#21280](https://github.com/hashicorp/terraform-provider-google/pull/21280))
 
-
 ## 6.20.0 (Feb 10, 2025)
 
 NOTES:
