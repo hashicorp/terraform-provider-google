@@ -133,7 +133,7 @@ The following arguments are supported:
   organize and group your datasets.
 
 
-<a name="nested_dataset_reference"></a>The `dataset_reference` block supports:
+<a name="nested_destination_dataset_dataset_reference"></a>The `dataset_reference` block supports:
 
 * `dataset_id` -
   (Required)

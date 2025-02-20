@@ -213,7 +213,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_window).
 
 
-<a name="nested_weekly_maintenance_window"></a>The `weekly_maintenance_window` block supports:
+<a name="nested_maintenance_policy_weekly_maintenance_window"></a>The `weekly_maintenance_window` block supports:
 
 * `day` -
   (Required)
@@ -240,7 +240,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_window_weekly_maintenance_window_start_time).
 
 
-<a name="nested_start_time"></a>The `start_time` block supports:
+<a name="nested_maintenance_policy_weekly_maintenance_window_weekly_maintenance_window_start_time"></a>The `start_time` block supports:
 
 * `hours` -
   (Optional)

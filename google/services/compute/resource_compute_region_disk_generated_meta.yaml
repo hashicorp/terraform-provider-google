@@ -10,8 +10,6 @@ fields:
   - field: 'description'
   - field: 'disk_encryption_key.kms_key_name'
   - field: 'disk_encryption_key.raw_key'
-  - field: 'disk_encryption_key.raw_key_wo'
-  - field: 'disk_encryption_key.raw_key_wo_version'
   - field: 'disk_encryption_key.sha256'
   - field: 'effective_labels'
     provider_only: true

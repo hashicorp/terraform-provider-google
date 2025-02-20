@@ -347,7 +347,7 @@ The following arguments are supported:
   VMs when targeting configs, for example prefix="prod-".
 
 
-<a name="nested_group_labels"></a>The `group_labels` block supports:
+<a name="nested_instance_filter_group_labels"></a>The `group_labels` block supports:
 
 * `labels` -
   (Required)
@@ -436,7 +436,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_patch_config_post_step).
 
 
-<a name="nested_apt"></a>The `apt` block supports:
+<a name="nested_patch_config_apt"></a>The `apt` block supports:
 
 * `type` -
   (Optional)
@@ -453,7 +453,7 @@ The following arguments are supported:
   If these packages are not installed, they will be ignored. This field cannot be specified with
   any other patch configuration fields.
 
-<a name="nested_yum"></a>The `yum` block supports:
+<a name="nested_patch_config_yum"></a>The `yum` block supports:
 
 * `security` -
   (Optional)
@@ -473,13 +473,13 @@ The following arguments are supported:
   If these packages are not installed, they will be ignored. This field cannot be specified with
   any other patch configuration fields.
 
-<a name="nested_goo"></a>The `goo` block supports:
+<a name="nested_patch_config_goo"></a>The `goo` block supports:
 
 * `enabled` -
   (Required)
   goo update settings. Use this setting to override the default goo patch rules.
 
-<a name="nested_zypper"></a>The `zypper` block supports:
+<a name="nested_patch_config_zypper"></a>The `zypper` block supports:
 
 * `with_optional` -
   (Optional)
@@ -506,7 +506,7 @@ The following arguments are supported:
   An exclusive list of patches to be updated. These are the only patches that will be installed using 'zypper patch patch:' command.
   This field must not be used with any other patch configuration fields.
 
-<a name="nested_windows_update"></a>The `windows_update` block supports:
+<a name="nested_patch_config_windows_update"></a>The `windows_update` block supports:
 
 * `classifications` -
   (Optional)
@@ -522,7 +522,7 @@ The following arguments are supported:
   An exclusive list of kbs to be updated. These are the only patches that will be updated.
   This field must not be used with other patch configurations.
 
-<a name="nested_pre_step"></a>The `pre_step` block supports:
+<a name="nested_patch_config_pre_step"></a>The `pre_step` block supports:
 
 * `linux_exec_step_config` -
   (Optional)
@@ -535,7 +535,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_patch_config_pre_step_windows_exec_step_config).
 
 
-<a name="nested_linux_exec_step_config"></a>The `linux_exec_step_config` block supports:
+<a name="nested_patch_config_pre_step_linux_exec_step_config"></a>The `linux_exec_step_config` block supports:
 
 * `allowed_success_codes` -
   (Optional)
@@ -557,7 +557,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_patch_config_pre_step_linux_exec_step_config_gcs_object).
 
 
-<a name="nested_gcs_object"></a>The `gcs_object` block supports:
+<a name="nested_patch_config_pre_step_linux_exec_step_config_gcs_object"></a>The `gcs_object` block supports:
 
 * `bucket` -
   (Required)
@@ -571,7 +571,7 @@ The following arguments are supported:
   (Required)
   Generation number of the Cloud Storage object. This is used to ensure that the ExecStep specified by this PatchJob does not change.
 
-<a name="nested_windows_exec_step_config"></a>The `windows_exec_step_config` block supports:
+<a name="nested_patch_config_pre_step_windows_exec_step_config"></a>The `windows_exec_step_config` block supports:
 
 * `allowed_success_codes` -
   (Optional)
@@ -593,7 +593,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_patch_config_pre_step_windows_exec_step_config_gcs_object).
 
 
-<a name="nested_gcs_object"></a>The `gcs_object` block supports:
+<a name="nested_patch_config_pre_step_windows_exec_step_config_gcs_object"></a>The `gcs_object` block supports:
 
 * `bucket` -
   (Required)
@@ -607,7 +607,7 @@ The following arguments are supported:
   (Required)
   Generation number of the Cloud Storage object. This is used to ensure that the ExecStep specified by this PatchJob does not change.
 
-<a name="nested_post_step"></a>The `post_step` block supports:
+<a name="nested_patch_config_post_step"></a>The `post_step` block supports:
 
 * `linux_exec_step_config` -
   (Optional)
@@ -620,7 +620,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_patch_config_post_step_windows_exec_step_config).
 
 
-<a name="nested_linux_exec_step_config"></a>The `linux_exec_step_config` block supports:
+<a name="nested_patch_config_post_step_linux_exec_step_config"></a>The `linux_exec_step_config` block supports:
 
 * `allowed_success_codes` -
   (Optional)
@@ -642,7 +642,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_patch_config_post_step_linux_exec_step_config_gcs_object).
 
 
-<a name="nested_gcs_object"></a>The `gcs_object` block supports:
+<a name="nested_patch_config_post_step_linux_exec_step_config_gcs_object"></a>The `gcs_object` block supports:
 
 * `bucket` -
   (Required)
@@ -656,7 +656,7 @@ The following arguments are supported:
   (Required)
   Generation number of the Cloud Storage object. This is used to ensure that the ExecStep specified by this PatchJob does not change.
 
-<a name="nested_windows_exec_step_config"></a>The `windows_exec_step_config` block supports:
+<a name="nested_patch_config_post_step_windows_exec_step_config"></a>The `windows_exec_step_config` block supports:
 
 * `allowed_success_codes` -
   (Optional)
@@ -678,7 +678,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_patch_config_post_step_windows_exec_step_config_gcs_object).
 
 
-<a name="nested_gcs_object"></a>The `gcs_object` block supports:
+<a name="nested_patch_config_post_step_windows_exec_step_config_gcs_object"></a>The `gcs_object` block supports:
 
 * `bucket` -
   (Required)
@@ -743,7 +743,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_recurring_schedule_monthly).
 
 
-<a name="nested_time_zone"></a>The `time_zone` block supports:
+<a name="nested_recurring_schedule_time_zone"></a>The `time_zone` block supports:
 
 * `id` -
   (Required)
@@ -753,7 +753,7 @@ The following arguments are supported:
   (Optional)
   IANA Time Zone Database version number, e.g. "2019a".
 
-<a name="nested_time_of_day"></a>The `time_of_day` block supports:
+<a name="nested_recurring_schedule_time_of_day"></a>The `time_of_day` block supports:
 
 * `hours` -
   (Optional)
@@ -772,14 +772,14 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_weekly"></a>The `weekly` block supports:
+<a name="nested_recurring_schedule_weekly"></a>The `weekly` block supports:
 
 * `day_of_week` -
   (Required)
   IANA Time Zone Database time zone, e.g. "America/New_York".
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
-<a name="nested_monthly"></a>The `monthly` block supports:
+<a name="nested_recurring_schedule_monthly"></a>The `monthly` block supports:
 
 * `week_day_of_month` -
   (Optional)
@@ -793,7 +793,7 @@ The following arguments are supported:
   will not run in February, April, June, etc.
 
 
-<a name="nested_week_day_of_month"></a>The `week_day_of_month` block supports:
+<a name="nested_recurring_schedule_monthly_week_day_of_month"></a>The `week_day_of_month` block supports:
 
 * `week_ordinal` -
   (Required)
@@ -825,7 +825,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rollout_disruption_budget).
 
 
-<a name="nested_disruption_budget"></a>The `disruption_budget` block supports:
+<a name="nested_rollout_disruption_budget"></a>The `disruption_budget` block supports:
 
 * `fixed` -
   (Optional)

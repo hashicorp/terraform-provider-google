@@ -130,7 +130,7 @@ The following arguments are supported:
   See [Security Token Service API](https://cloud.google.com/iam/docs/reference/sts/rest).
 
 
-<a name="nested_allowed_services"></a>The `allowed_services` block supports:
+<a name="nested_access_restrictions_allowed_services"></a>The `allowed_services` block supports:
 
 * `domain` -
   (Optional)

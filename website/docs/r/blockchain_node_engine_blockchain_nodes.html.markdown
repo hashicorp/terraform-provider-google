@@ -178,20 +178,20 @@ The following arguments are supported:
   Enables JSON-RPC access to functions in the debug namespace. Defaults to false.
 
 
-<a name="nested_validator_config"></a>The `validator_config` block supports:
+<a name="nested_ethereum_details_validator_config"></a>The `validator_config` block supports:
 
 * `mev_relay_urls` -
   (Optional)
   URLs for MEV-relay services to use for block building. When set, a managed MEV-boost service is configured on the beacon client.
 
-<a name="nested_geth_details"></a>The `geth_details` block supports:
+<a name="nested_ethereum_details_geth_details"></a>The `geth_details` block supports:
 
 * `garbage_collection_mode` -
   (Optional)
   Blockchain garbage collection modes. Only applicable when NodeType is FULL or ARCHIVE.
   Possible values are: `FULL`, `ARCHIVE`.
 
-<a name="nested_additional_endpoints"></a>The `additional_endpoints` block contains:
+<a name="nested_ethereum_details_additional_endpoints"></a>The `additional_endpoints` block contains:
 
 * `beacon_api_endpoint` -
   (Output)
@@ -244,7 +244,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_connection_info_endpoint_info).
 
 
-<a name="nested_endpoint_info"></a>The `endpoint_info` block contains:
+<a name="nested_connection_info_endpoint_info"></a>The `endpoint_info` block contains:
 
 * `json_rpc_api_endpoint` -
   (Output)

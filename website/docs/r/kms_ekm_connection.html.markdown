@@ -92,7 +92,7 @@ The following arguments are supported:
   Optional. The filter applied to the endpoints of the resolved service. If no filter is specified, all endpoints will be considered. An endpoint will be chosen arbitrarily from the filtered list for each request. For endpoint filter syntax and examples, see https://cloud.google.com/service-directory/docs/reference/rpc/google.cloud.servicedirectory.v1#resolveservicerequest.
 
 
-<a name="nested_server_certificates"></a>The `server_certificates` block supports:
+<a name="nested_service_resolvers_service_resolvers_server_certificates"></a>The `server_certificates` block supports:
 
 * `raw_der` -
   (Required)

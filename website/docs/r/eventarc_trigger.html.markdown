@@ -159,7 +159,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_destination_network_config).
 
 
-<a name="nested_cloud_run_service"></a>The `cloud_run_service` block supports:
+<a name="nested_destination_cloud_run_service"></a>The `cloud_run_service` block supports:
 
 * `service` -
   (Required)
@@ -173,7 +173,7 @@ The following arguments are supported:
   (Optional)
   Required. The region the Cloud Run service is deployed in.
 
-<a name="nested_gke"></a>The `gke` block supports:
+<a name="nested_destination_gke"></a>The `gke` block supports:
 
 * `cluster` -
   (Required)
@@ -195,13 +195,13 @@ The following arguments are supported:
   (Optional)
   Optional. The relative path on the GKE service the events should be sent to. The value must conform to the definition of a URI path segment (section 3.3 of RFC2396). Examples: "/route", "route", "route/subroute".
 
-<a name="nested_http_endpoint"></a>The `http_endpoint` block supports:
+<a name="nested_destination_http_endpoint"></a>The `http_endpoint` block supports:
 
 * `uri` -
   (Required)
   Required. The URI of the HTTP enpdoint. The value must be a RFC2396 URI string. Examples: `http://10.10.10.8:80/route`, `http://svc.us-central1.p.local:8080/`. Only HTTP and HTTPS protocols are supported. The host can be either a static IP addressable from the VPC specified by the network config, or an internal DNS hostname of the service resolvable via Cloud DNS.
 
-<a name="nested_network_config"></a>The `network_config` block supports:
+<a name="nested_destination_network_config"></a>The `network_config` block supports:
 
 * `network_attachment` -
   (Required)
@@ -245,7 +245,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_transport_pubsub).
 
 
-<a name="nested_pubsub"></a>The `pubsub` block supports:
+<a name="nested_transport_pubsub"></a>The `pubsub` block supports:
 
 * `topic` -
   (Optional)

@@ -162,7 +162,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_frequency_options_end_date).
 
 
-<a name="nested_start_date"></a>The `start_date` block supports:
+<a name="nested_frequency_options_start_date"></a>The `start_date` block supports:
 
 * `day` -
   (Required)
@@ -176,7 +176,7 @@ The following arguments are supported:
   (Required)
   The year to start generating inventory reports
 
-<a name="nested_end_date"></a>The `end_date` block supports:
+<a name="nested_frequency_options_end_date"></a>The `end_date` block supports:
 
 * `day` -
   (Required)
@@ -207,13 +207,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_object_metadata_report_options_storage_destination_options).
 
 
-<a name="nested_storage_filters"></a>The `storage_filters` block supports:
+<a name="nested_object_metadata_report_options_storage_filters"></a>The `storage_filters` block supports:
 
 * `bucket` -
   (Optional)
   The filter to use when specifying which bucket to generate inventory reports for.
 
-<a name="nested_storage_destination_options"></a>The `storage_destination_options` block supports:
+<a name="nested_object_metadata_report_options_storage_destination_options"></a>The `storage_destination_options` block supports:
 
 * `bucket` -
   (Required)

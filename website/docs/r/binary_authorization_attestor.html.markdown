@@ -177,7 +177,7 @@ The following arguments are supported:
   different naming pattern.
 
 
-<a name="nested_public_keys"></a>The `public_keys` block supports:
+<a name="nested_attestation_authority_note_public_keys"></a>The `public_keys` block supports:
 
 * `comment` -
   (Optional)
@@ -214,7 +214,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_attestation_authority_note_public_keys_public_keys_pkix_public_key).
 
 
-<a name="nested_pkix_public_key"></a>The `pkix_public_key` block supports:
+<a name="nested_attestation_authority_note_public_keys_public_keys_pkix_public_key"></a>The `pkix_public_key` block supports:
 
 * `public_key_pem` -
   (Optional)

@@ -179,7 +179,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_gateway_config_backend_config).
 
 
-<a name="nested_backend_config"></a>The `backend_config` block supports:
+<a name="nested_gateway_config_backend_config"></a>The `backend_config` block supports:
 
 * `google_service_account` -
   (Required)
@@ -194,7 +194,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_openapi_documents_openapi_documents_document).
 
 
-<a name="nested_document"></a>The `document` block supports:
+<a name="nested_openapi_documents_openapi_documents_document"></a>The `document` block supports:
 
 * `path` -
   (Required)
@@ -219,7 +219,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_grpc_services_grpc_services_source).
 
 
-<a name="nested_file_descriptor_set"></a>The `file_descriptor_set` block supports:
+<a name="nested_grpc_services_grpc_services_file_descriptor_set"></a>The `file_descriptor_set` block supports:
 
 * `path` -
   (Required)
@@ -229,7 +229,7 @@ The following arguments are supported:
   (Required)
   Base64 encoded content of the file.
 
-<a name="nested_source"></a>The `source` block supports:
+<a name="nested_grpc_services_grpc_services_source"></a>The `source` block supports:
 
 * `path` -
   (Required)

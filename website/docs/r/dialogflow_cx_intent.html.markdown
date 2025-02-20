@@ -180,7 +180,7 @@ The Default Negative Intent cannot be deleted; deleting the `google_dialogflow_c
   Indicates how many times this example was added to the intent.
 
 
-<a name="nested_parts"></a>The `parts` block supports:
+<a name="nested_training_phrases_training_phrases_parts"></a>The `parts` block supports:
 
 * `text` -
   (Required)

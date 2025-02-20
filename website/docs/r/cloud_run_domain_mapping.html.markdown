@@ -217,7 +217,7 @@ In addition to the arguments listed above, the following computed attributes are
   The name of the route that the mapping currently points to.
 
 
-<a name="nested_conditions"></a>The `conditions` block contains:
+<a name="nested_status_conditions"></a>The `conditions` block contains:
 
 * `message` -
   (Output)
@@ -235,7 +235,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Type of domain mapping condition.
 
-<a name="nested_resource_records"></a>The `resource_records` block supports:
+<a name="nested_status_resource_records"></a>The `resource_records` block supports:
 
 * `type` -
   (Optional)

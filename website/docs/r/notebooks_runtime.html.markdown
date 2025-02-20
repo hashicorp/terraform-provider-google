@@ -275,7 +275,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_virtual_machine_virtual_machine_config).
 
 
-<a name="nested_virtual_machine_config"></a>The `virtual_machine_config` block supports:
+<a name="nested_virtual_machine_virtual_machine_config"></a>The `virtual_machine_config` block supports:
 
 * `zone` -
   (Output)
@@ -385,7 +385,7 @@ The following arguments are supported:
   subnetwork allocation will use the range *name* if it's assigned.
 
 
-<a name="nested_data_disk"></a>The `data_disk` block supports:
+<a name="nested_virtual_machine_virtual_machine_config_data_disk"></a>The `data_disk` block supports:
 
 * `auto_delete` -
   (Output)
@@ -470,7 +470,7 @@ The following arguments are supported:
   If not specified, the default is PERSISTENT.
 
 
-<a name="nested_initialize_params"></a>The `initialize_params` block supports:
+<a name="nested_virtual_machine_virtual_machine_config_data_disk_initialize_params"></a>The `initialize_params` block supports:
 
 * `description` -
   (Optional)
@@ -503,7 +503,7 @@ The following arguments are supported:
   by the disks.setLabels method. This field is only
   applicable for persistent disks.
 
-<a name="nested_container_images"></a>The `container_images` block supports:
+<a name="nested_virtual_machine_virtual_machine_config_container_images"></a>The `container_images` block supports:
 
 * `repository` -
   (Required)
@@ -514,7 +514,7 @@ The following arguments are supported:
   (Optional)
   The tag of the container image. If not specified, this defaults to the latest tag.
 
-<a name="nested_encryption_config"></a>The `encryption_config` block supports:
+<a name="nested_virtual_machine_virtual_machine_config_encryption_config"></a>The `encryption_config` block supports:
 
 * `kms_key` -
   (Optional)
@@ -524,7 +524,7 @@ The following arguments are supported:
   `projects/{PROJECT_ID}/locations/{REGION}/keyRings/
   {KEY_RING_NAME}/cryptoKeys/{KEY_NAME}`
 
-<a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
+<a name="nested_virtual_machine_virtual_machine_config_shielded_instance_config"></a>The `shielded_instance_config` block supports:
 
 * `enable_secure_boot` -
   (Optional)
@@ -548,7 +548,7 @@ The following arguments are supported:
   from the implicitly trusted boot image when the instance is
   created. Enabled by default.
 
-<a name="nested_accelerator_config"></a>The `accelerator_config` block supports:
+<a name="nested_virtual_machine_virtual_machine_config_accelerator_config"></a>The `accelerator_config` block supports:
 
 * `type` -
   (Optional)
@@ -628,7 +628,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_software_config_kernels).
 
 
-<a name="nested_kernels"></a>The `kernels` block supports:
+<a name="nested_software_config_kernels"></a>The `kernels` block supports:
 
 * `repository` -
   (Required)

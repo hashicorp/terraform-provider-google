@@ -34,10 +34,6 @@ To get more information about SecretVersion, see:
 values will be stored in the raw state as plain text: `payload.secret_data`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
-~> **Warning:** All arguments including the following potentially write-only
-values will be stored in the raw state as plain text: `payload.secret_data_wo`.
-[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
-
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secret_version_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -64,34 +60,6 @@ resource "google_secret_manager_secret_version" "secret-version-basic" {
   secret = google_secret_manager_secret.secret-basic.id
 
   secret_data = "secret-data"
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secret_version_basic_write_only&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Secret Version Basic Write Only
-
-
-```hcl
-resource "google_secret_manager_secret" "secret-basic-write-only" {
-  secret_id = "secret-version-write-only"
-  
-  labels = {
-    label = "my-label"
-  }
-
-  replication {
-    auto {}
-  }
-}
-
-
-resource "google_secret_manager_secret_version" "secret-version-basic-write-only" {
-  secret = google_secret_manager_secret.secret-basic-write-only.id
-  secret_data_wo_version = 1
-  secret_data_wo = "secret-data-write-only"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -178,40 +146,16 @@ resource "google_secret_manager_secret_version" "secret-version-base64" {
   secret_data = filebase64("secret-data.pfx")
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secret_version_with_base64_string_secret_data_write_only&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Secret Version With Base64 String Secret Data Write Only
-
-
-```hcl
-resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "secret-version-base64-write-only"
-
-  replication {
-    user_managed {
-      replicas {
-        location = "us-central1"
-      }
-    }
-  }
-}
-
-resource "google_secret_manager_secret_version" "secret-version-base64-write-only" {
-  secret = google_secret_manager_secret.secret-basic.id
-
-  is_secret_data_base64 = true
-  secret_data_wo_version = 1
-  secret_data_wo = filebase64("secret-data-base64-write-only.pfx")
-}
-```
 
 ## Argument Reference
 
 The following arguments are supported:
 
+
+* `secret_data` -
+  (Required)
+  The secret data. Must be no larger than 64KiB.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `secret` -
   (Required)
@@ -225,15 +169,6 @@ The following arguments are supported:
   (Optional)
   The current state of the SecretVersion.
 
-* `secret_data` -
-  (Optional)
-  The secret data. Must be no larger than 64KiB.
-  **Note**: This property is sensitive and will not be displayed in the plan.
-
-* `secret_data_wo_version` -
-  (Optional)
-  Triggers update of secret data write-only
-
 * `deletion_policy` - (Optional) The deletion policy for the secret version. Setting `ABANDON` allows the resource
 to be abandoned rather than deleted. Setting `DISABLE` allows the resource to be
 disabled rather than deleted. Default is `DELETE`. Possible values are:
@@ -242,23 +177,6 @@ disabled rather than deleted. Default is `DELETE`. Possible values are:
   * ABANDON
 
 * `is_secret_data_base64` - (Optional) If set to 'true', the secret data is expected to be base64-encoded string and would be sent as is.
-
-## Ephemeral Attributes Reference
-
-The following write-only attributes are supported:
-
-* `secret_data_wo` -
-  (Optional)
-  The secret data. Must be no larger than 64KiB.
-  **Note**: This property is write-only and will not be read from the API.
-
-
-<a name="nested_payload"></a>The `payload` block supports:
-
-* `secret_data_wo` -
-  (Optional)
-  The secret data. Must be no larger than 64KiB.
-  **Note**: This property is write-only and will not be read from the API.
 
 ## Attributes Reference
 

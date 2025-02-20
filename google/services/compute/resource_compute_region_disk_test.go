@@ -82,7 +82,7 @@ func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 				ResourceName:            "google_compute_region_disk.regiondisk",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"raw_key_wo_version", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccComputeRegionDisk_basicUpdated(diskName, "self_link"),
@@ -99,51 +99,7 @@ func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 				ResourceName:            "google_compute_region_disk.regiondisk",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"raw_key_wo_version", "labels", "terraform_labels"},
-			},
-		},
-	})
-}
-
-func TestAccComputeRegionDisk_diskEncryptionKeyWoUpdated(t *testing.T) {
-	t.Parallel()
-
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
-
-	var disk compute.Disk
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeRegionDisk_diskEncryptionKeyWo(diskName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeRegionDiskExists(
-						t, "google_compute_region_disk.regiondisk", &disk),
-				),
-			},
-			{
-				ResourceName:            "google_compute_region_disk.regiondisk",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"disk_encryption_key.0.raw_key_wo_version", "labels", "terraform_labels"},
-			},
-			{
-				Config: testAccComputeRegionDisk_diskEncryptionKeyWoUpdated(diskName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeRegionDiskExists(
-						t, "google_compute_region_disk.regiondisk", &disk),
-					testAccCheckRegionDiskEncryptionKey("google_compute_region_disk.regiondisk", &disk),
-					testAccCheckComputeRegionDiskHasLabelFingerprint(&disk, "google_compute_region_disk.regiondisk"),
-				),
-			},
-			{
-				ResourceName:            "google_compute_region_disk.regiondisk",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"disk_encryption_key.0.raw_key_wo_version", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -450,70 +406,6 @@ resource "google_compute_region_disk" "regiondisk" {
   }
 }
 `, diskName, diskName, diskName, refSelector)
-}
-
-func testAccComputeRegionDisk_diskEncryptionKeyWo(diskName string) string {
-	return fmt.Sprintf(`
-resource "google_compute_disk" "disk" {
-  name  = "%s"
-  image = "debian-cloud/debian-11"
-  size  = 50
-  type  = "pd-ssd"
-  zone  = "us-central1-a"
-}
-
-resource "google_compute_snapshot" "snapdisk" {
-  name = "%s"
-  zone = "us-central1-a"
-
-  source_disk = google_compute_disk.disk.name
-}
-
-resource "google_compute_region_disk" "regiondisk" {
-  name     = "%s"
-  snapshot = google_compute_snapshot.snapdisk.self_link
-  type     = "pd-ssd"
-
-  replica_zones = ["us-central1-a", "us-central1-f"]
-
-  disk_encryption_key {
-    raw_key_wo = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
-	raw_key_wo_version = 1
-  }
-}
-`, diskName, diskName, diskName)
-}
-
-func testAccComputeRegionDisk_diskEncryptionKeyWoUpdated(diskName string) string {
-	return fmt.Sprintf(`
-resource "google_compute_disk" "disk" {
-  name  = "%s"
-  image = "debian-cloud/debian-11"
-  size  = 50
-  type  = "pd-ssd"
-  zone  = "us-central1-a"
-}
-
-resource "google_compute_snapshot" "snapdisk" {
-  name = "%s"
-  zone = "us-central1-a"
-
-  source_disk = google_compute_disk.disk.name
-}
-
-resource "google_compute_region_disk" "regiondisk" {
-  name     = "%s"
-  snapshot = google_compute_snapshot.snapdisk.self_link
-  type     = "pd-ssd"
-
-  replica_zones = ["us-central1-a", "us-central1-f"]
-
-  disk_encryption_key {
-    raw_key_wo = "ADFEFG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
-	raw_key_wo_version = 2
-  }
-}
-`, diskName, diskName, diskName)
 }
 
 func testAccComputeRegionDisk_encryption(diskName string) string {

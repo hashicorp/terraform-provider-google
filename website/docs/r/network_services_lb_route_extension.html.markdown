@@ -445,13 +445,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_extension_chains_extension_chains_extensions).
 
 
-<a name="nested_match_condition"></a>The `match_condition` block supports:
+<a name="nested_extension_chains_extension_chains_match_condition"></a>The `match_condition` block supports:
 
 * `cel_expression` -
   (Required)
   A Common Expression Language (CEL) expression that is used to match requests for which the extension chain is executed.
 
-<a name="nested_extensions"></a>The `extensions` block supports:
+<a name="nested_extension_chains_extension_chains_extensions"></a>The `extensions` block supports:
 
 * `name` -
   (Required)

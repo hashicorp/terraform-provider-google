@@ -169,7 +169,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_basic_algorithm_yarn_config).
 
 
-<a name="nested_yarn_config"></a>The `yarn_config` block supports:
+<a name="nested_basic_algorithm_yarn_config"></a>The `yarn_config` block supports:
 
 * `graceful_decommission_timeout` -
   (Required)

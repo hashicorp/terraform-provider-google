@@ -193,7 +193,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_s_sl_info_common_name).
 
 
-<a name="nested_common_name"></a>The `common_name` block supports:
+<a name="nested_s_sl_info_common_name"></a>The `common_name` block supports:
 
 * `value` -
   (Optional)

@@ -243,7 +243,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_authorization_admin_users).
 
 
-<a name="nested_admin_users"></a>The `admin_users` block supports:
+<a name="nested_authorization_admin_users"></a>The `admin_users` block supports:
 
 * `username` -
   (Required)
@@ -317,7 +317,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_maintenance_policy_maintenance_exclusions).
 
 
-<a name="nested_window"></a>The `window` block supports:
+<a name="nested_maintenance_policy_window"></a>The `window` block supports:
 
 * `recurring_window` -
   (Required)
@@ -325,7 +325,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_maintenance_policy_window_recurring_window).
 
 
-<a name="nested_recurring_window"></a>The `recurring_window` block supports:
+<a name="nested_maintenance_policy_window_recurring_window"></a>The `recurring_window` block supports:
 
 * `window` -
   (Optional)
@@ -339,7 +339,7 @@ The following arguments are supported:
   end time.
 
 
-<a name="nested_window"></a>The `window` block supports:
+<a name="nested_maintenance_policy_window_recurring_window_window"></a>The `window` block supports:
 
 * `start_time` -
   (Optional)
@@ -350,7 +350,7 @@ The following arguments are supported:
   The time that the window ends. The end time must take place after the
   start time.
 
-<a name="nested_maintenance_exclusions"></a>The `maintenance_exclusions` block supports:
+<a name="nested_maintenance_policy_maintenance_exclusions"></a>The `maintenance_exclusions` block supports:
 
 * `window` -
   (Optional)
@@ -362,7 +362,7 @@ The following arguments are supported:
   A unique (per cluster) id for the window.
 
 
-<a name="nested_window"></a>The `window` block supports:
+<a name="nested_maintenance_policy_maintenance_exclusions_maintenance_exclusions_window"></a>The `window` block supports:
 
 * `start_time` -
   (Optional)
@@ -386,14 +386,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_control_plane_local).
 
 
-<a name="nested_remote"></a>The `remote` block supports:
+<a name="nested_control_plane_remote"></a>The `remote` block supports:
 
 * `node_location` -
   (Optional)
   Name of the Google Distributed Cloud Edge zones where this node pool
   will be created. For example: `us-central1-edge-customer-a`.
 
-<a name="nested_local"></a>The `local` block supports:
+<a name="nested_control_plane_local"></a>The `local` block supports:
 
 * `node_location` -
   (Optional)
@@ -426,7 +426,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_system_addons_config_ingress).
 
 
-<a name="nested_ingress"></a>The `ingress` block supports:
+<a name="nested_system_addons_config_ingress"></a>The `ingress` block supports:
 
 * `disabled` -
   (Optional)
@@ -465,7 +465,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_control_plane_encryption_kms_status).
 
 
-<a name="nested_kms_status"></a>The `kms_status` block contains:
+<a name="nested_control_plane_encryption_kms_status"></a>The `kms_status` block contains:
 
 * `code` -
   (Output)

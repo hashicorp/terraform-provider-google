@@ -123,7 +123,7 @@ In addition to the arguments listed above, the following computed attributes are
   `targetSslProxy` may be set.
 
 
-<a name="nested_ip_configs"></a>The `ip_configs` block supports:
+<a name="nested_gclb_targets_gclb_targets_ip_configs"></a>The `ip_configs` block supports:
 
 * `ip_address` -
   (Optional)

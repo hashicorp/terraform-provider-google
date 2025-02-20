@@ -727,7 +727,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_persistence_config_aof_config).
 
 
-<a name="nested_rdb_config"></a>The `rdb_config` block supports:
+<a name="nested_persistence_config_rdb_config"></a>The `rdb_config` block supports:
 
 * `rdb_snapshot_period` -
   (Optional)
@@ -744,7 +744,7 @@ The following arguments are supported:
   future snapshots will be aligned.
   If not provided, the current time will be used.
 
-<a name="nested_aof_config"></a>The `aof_config` block supports:
+<a name="nested_persistence_config_aof_config"></a>The `aof_config` block supports:
 
 * `append_fsync` -
   (Optional)
@@ -776,7 +776,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_window).
 
 
-<a name="nested_weekly_maintenance_window"></a>The `weekly_maintenance_window` block supports:
+<a name="nested_maintenance_policy_weekly_maintenance_window"></a>The `weekly_maintenance_window` block supports:
 
 * `day` -
   (Required)
@@ -804,7 +804,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_window_weekly_maintenance_window_start_time).
 
 
-<a name="nested_start_time"></a>The `start_time` block supports:
+<a name="nested_maintenance_policy_weekly_maintenance_window_weekly_maintenance_window_start_time"></a>The `start_time` block supports:
 
 * `hours` -
   (Optional)
@@ -855,7 +855,7 @@ The following arguments are supported:
   The last time cross cluster replication config was updated.
 
 
-<a name="nested_primary_cluster"></a>The `primary_cluster` block supports:
+<a name="nested_cross_cluster_replication_config_primary_cluster"></a>The `primary_cluster` block supports:
 
 * `cluster` -
   (Optional)
@@ -865,7 +865,7 @@ The following arguments are supported:
   (Output)
   The unique id of the primary cluster.
 
-<a name="nested_secondary_clusters"></a>The `secondary_clusters` block supports:
+<a name="nested_cross_cluster_replication_config_secondary_clusters"></a>The `secondary_clusters` block supports:
 
 * `cluster` -
   (Optional)
@@ -875,7 +875,7 @@ The following arguments are supported:
   (Output)
   The unique id of the secondary cluster.
 
-<a name="nested_membership"></a>The `membership` block contains:
+<a name="nested_cross_cluster_replication_config_membership"></a>The `membership` block contains:
 
 * `primary_cluster` -
   (Output)
@@ -888,7 +888,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_cross_cluster_replication_config_membership_secondary_clusters).
 
 
-<a name="nested_primary_cluster"></a>The `primary_cluster` block contains:
+<a name="nested_cross_cluster_replication_config_membership_primary_cluster"></a>The `primary_cluster` block contains:
 
 * `cluster` -
   (Output)
@@ -898,7 +898,7 @@ The following arguments are supported:
   (Output)
   The unique id of the primary cluster.
 
-<a name="nested_secondary_clusters"></a>The `secondary_clusters` block contains:
+<a name="nested_cross_cluster_replication_config_membership_secondary_clusters"></a>The `secondary_clusters` block contains:
 
 * `cluster` -
   (Output)
@@ -971,7 +971,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_discovery_endpoints_discovery_endpoints_psc_config).
 
 
-<a name="nested_psc_config"></a>The `psc_config` block supports:
+<a name="nested_discovery_endpoints_discovery_endpoints_psc_config"></a>The `psc_config` block supports:
 
 * `network` -
   (Optional)
@@ -1009,7 +1009,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_state_info_update_info).
 
 
-<a name="nested_update_info"></a>The `update_info` block supports:
+<a name="nested_state_info_update_info"></a>The `update_info` block supports:
 
 * `target_shard_count` -
   (Optional)

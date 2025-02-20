@@ -494,7 +494,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_mysql_profile_ssl_config).
 
 
-<a name="nested_ssl_config"></a>The `ssl_config` block supports:
+<a name="nested_mysql_profile_ssl_config"></a>The `ssl_config` block supports:
 
 * `client_key` -
   (Optional)

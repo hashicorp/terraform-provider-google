@@ -493,14 +493,14 @@ The following arguments are supported:
   The date and time when maintenance will end.
 
 
-<a name="nested_customer_contacts"></a>The `customer_contacts` block supports:
+<a name="nested_properties_customer_contacts"></a>The `customer_contacts` block supports:
 
 * `email` -
   (Required)
   The email address used by Oracle to send notifications regarding databases
   and infrastructure.
 
-<a name="nested_apex_details"></a>The `apex_details` block contains:
+<a name="nested_properties_apex_details"></a>The `apex_details` block contains:
 
 * `apex_version` -
   (Output)
@@ -510,7 +510,7 @@ The following arguments are supported:
   (Output)
   The Oracle REST Data Services (ORDS) version.
 
-<a name="nested_connection_strings"></a>The `connection_strings` block contains:
+<a name="nested_properties_connection_strings"></a>The `connection_strings` block contains:
 
 * `all_connection_strings` -
   (Output)
@@ -545,7 +545,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_properties_connection_strings_profiles).
 
 
-<a name="nested_all_connection_strings"></a>The `all_connection_strings` block contains:
+<a name="nested_properties_connection_strings_all_connection_strings"></a>The `all_connection_strings` block contains:
 
 * `high` -
   (Output)
@@ -562,7 +562,7 @@ The following arguments are supported:
   The database service provides a lower level of resources to each SQL
   statement.
 
-<a name="nested_profiles"></a>The `profiles` block contains:
+<a name="nested_properties_connection_strings_profiles"></a>The `profiles` block contains:
 
 * `consumer_group` -
   (Output)
@@ -629,7 +629,7 @@ The following arguments are supported:
   (Output)
   The value of the connection string.
 
-<a name="nested_connection_urls"></a>The `connection_urls` block contains:
+<a name="nested_properties_connection_urls"></a>The `connection_urls` block contains:
 
 * `apex_uri` -
   (Output)
@@ -665,7 +665,7 @@ The following arguments are supported:
   (Output)
   The URL of the Oracle SQL Developer Web for the Autonomous Database.
 
-<a name="nested_local_standby_db"></a>The `local_standby_db` block contains:
+<a name="nested_properties_local_standby_db"></a>The `local_standby_db` block contains:
 
 * `lag_time_duration` -
   (Output)
@@ -713,7 +713,7 @@ The following arguments are supported:
   The date and time the Disaster Recovery role was switched for the standby
   Autonomous Database.
 
-<a name="nested_scheduled_operation_details"></a>The `scheduled_operation_details` block contains:
+<a name="nested_properties_scheduled_operation_details"></a>The `scheduled_operation_details` block contains:
 
 * `day_of_week` -
   (Output)
@@ -742,7 +742,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_properties_scheduled_operation_details_scheduled_operation_details_stop_time).
 
 
-<a name="nested_start_time"></a>The `start_time` block contains:
+<a name="nested_properties_scheduled_operation_details_scheduled_operation_details_start_time"></a>The `start_time` block contains:
 
 * `hours` -
   (Output)
@@ -762,7 +762,7 @@ The following arguments are supported:
   (Output)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_stop_time"></a>The `stop_time` block contains:
+<a name="nested_properties_scheduled_operation_details_scheduled_operation_details_stop_time"></a>The `stop_time` block contains:
 
 * `hours` -
   (Output)

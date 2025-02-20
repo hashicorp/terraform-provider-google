@@ -113,7 +113,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_idp_config_idp_certificates).
 
 
-<a name="nested_idp_certificates"></a>The `idp_certificates` block supports:
+<a name="nested_idp_config_idp_certificates"></a>The `idp_certificates` block supports:
 
 * `x509_certificate` -
   (Optional)
@@ -135,7 +135,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_sp_config_sp_certificates).
 
 
-<a name="nested_sp_certificates"></a>The `sp_certificates` block contains:
+<a name="nested_sp_config_sp_certificates"></a>The `sp_certificates` block contains:
 
 * `x509_certificate` -
   (Output)

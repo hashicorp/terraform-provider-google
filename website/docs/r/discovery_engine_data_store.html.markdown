@@ -215,7 +215,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_document_processing_config_parsing_config_overrides).
 
 
-<a name="nested_chunking_config"></a>The `chunking_config` block supports:
+<a name="nested_document_processing_config_chunking_config"></a>The `chunking_config` block supports:
 
 * `layout_based_chunking_config` -
   (Optional)
@@ -223,7 +223,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_document_processing_config_chunking_config_layout_based_chunking_config).
 
 
-<a name="nested_layout_based_chunking_config"></a>The `layout_based_chunking_config` block supports:
+<a name="nested_document_processing_config_chunking_config_layout_based_chunking_config"></a>The `layout_based_chunking_config` block supports:
 
 * `chunk_size` -
   (Optional)
@@ -235,7 +235,7 @@ The following arguments are supported:
   Whether to include appending different levels of headings to chunks from the middle of the document to prevent context loss.
   Default value: False.
 
-<a name="nested_default_parsing_config"></a>The `default_parsing_config` block supports:
+<a name="nested_document_processing_config_default_parsing_config"></a>The `default_parsing_config` block supports:
 
 * `digital_parsing_config` -
   (Optional)
@@ -251,13 +251,13 @@ The following arguments are supported:
   Configurations applied to layout parser.
 
 
-<a name="nested_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
+<a name="nested_document_processing_config_default_parsing_config_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
 
 * `use_native_text` -
   (Optional)
   If true, will use native text instead of OCR text on pages containing native text.
 
-<a name="nested_parsing_config_overrides"></a>The `parsing_config_overrides` block supports:
+<a name="nested_document_processing_config_parsing_config_overrides"></a>The `parsing_config_overrides` block supports:
 
 * `file_type` - (Required) The identifier for this object. Format specified above.
 
@@ -275,7 +275,7 @@ The following arguments are supported:
   Configurations applied to layout parser.
 
 
-<a name="nested_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
+<a name="nested_document_processing_config_parsing_config_overrides_parsing_config_overrides_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
 
 * `use_native_text` -
   (Optional)

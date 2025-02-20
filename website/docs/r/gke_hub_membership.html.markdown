@@ -168,7 +168,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_endpoint_gke_cluster).
 
 
-<a name="nested_gke_cluster"></a>The `gke_cluster` block supports:
+<a name="nested_endpoint_gke_cluster"></a>The `gke_cluster` block supports:
 
 * `resource_link` -
   (Required)

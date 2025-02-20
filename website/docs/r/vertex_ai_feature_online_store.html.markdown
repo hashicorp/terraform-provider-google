@@ -175,7 +175,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_bigtable_auto_scaling).
 
 
-<a name="nested_auto_scaling"></a>The `auto_scaling` block supports:
+<a name="nested_bigtable_auto_scaling"></a>The `auto_scaling` block supports:
 
 * `min_node_count` -
   (Required)
@@ -205,7 +205,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_dedicated_serving_endpoint_private_service_connect_config).
 
 
-<a name="nested_private_service_connect_config"></a>The `private_service_connect_config` block supports:
+<a name="nested_dedicated_serving_endpoint_private_service_connect_config"></a>The `private_service_connect_config` block supports:
 
 * `enable_private_service_connect` -
   (Required)

@@ -168,13 +168,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_virtual_machine_preferences_sole_tenancy_preferences).
 
 
-<a name="nested_region_preferences"></a>The `region_preferences` block supports:
+<a name="nested_virtual_machine_preferences_region_preferences"></a>The `region_preferences` block supports:
 
 * `preferred_regions` -
   (Optional)
   A list of preferred regions, ordered by the most preferred region first. Set only valid Google Cloud region names. See https://cloud.google.com/compute/docs/regions-zones for available regions.
 
-<a name="nested_compute_engine_preferences"></a>The `compute_engine_preferences` block supports:
+<a name="nested_virtual_machine_preferences_compute_engine_preferences"></a>The `compute_engine_preferences` block supports:
 
 * `machine_preferences` -
   (Optional)
@@ -186,7 +186,7 @@ The following arguments are supported:
   License type to consider when calculating costs for virtual machine insights and recommendations. If unspecified, costs are calculated based on the default licensing plan. Possible values: `LICENSE_TYPE_UNSPECIFIED`, `LICENSE_TYPE_DEFAULT`, `LICENSE_TYPE_BRING_YOUR_OWN_LICENSE`
 
 
-<a name="nested_machine_preferences"></a>The `machine_preferences` block supports:
+<a name="nested_virtual_machine_preferences_compute_engine_preferences_machine_preferences"></a>The `machine_preferences` block supports:
 
 * `allowed_machine_series` -
   (Optional)
@@ -194,13 +194,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_virtual_machine_preferences_compute_engine_preferences_machine_preferences_allowed_machine_series).
 
 
-<a name="nested_allowed_machine_series"></a>The `allowed_machine_series` block supports:
+<a name="nested_virtual_machine_preferences_compute_engine_preferences_machine_preferences_allowed_machine_series"></a>The `allowed_machine_series` block supports:
 
 * `code` -
   (Optional)
   Code to identify a Compute Engine machine series. Consult https://cloud.google.com/compute/docs/machine-resource#machine_type_comparison for more details on the available series.
 
-<a name="nested_vmware_engine_preferences"></a>The `vmware_engine_preferences` block supports:
+<a name="nested_virtual_machine_preferences_vmware_engine_preferences"></a>The `vmware_engine_preferences` block supports:
 
 * `cpu_overcommit_ratio` -
   (Optional)
@@ -218,7 +218,7 @@ The following arguments are supported:
   (Optional)
   Commitment plan to consider when calculating costs for virtual machine insights and recommendations. If you are unsure which value to set, a 3 year commitment plan is often a good value to start with. Possible values: `COMMITMENT_PLAN_UNSPECIFIED`, `ON_DEMAND`, `COMMITMENT_1_YEAR_MONTHLY_PAYMENTS`, `COMMITMENT_3_YEAR_MONTHLY_PAYMENTS`, `COMMITMENT_1_YEAR_UPFRONT_PAYMENT`, `COMMITMENT_3_YEAR_UPFRONT_PAYMENT`,
 
-<a name="nested_sole_tenancy_preferences"></a>The `sole_tenancy_preferences` block supports:
+<a name="nested_virtual_machine_preferences_sole_tenancy_preferences"></a>The `sole_tenancy_preferences` block supports:
 
 * `cpu_overcommit_ratio` -
   (Optional)
@@ -238,7 +238,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_virtual_machine_preferences_sole_tenancy_preferences_node_types).
 
 
-<a name="nested_node_types"></a>The `node_types` block supports:
+<a name="nested_virtual_machine_preferences_sole_tenancy_preferences_node_types"></a>The `node_types` block supports:
 
 * `node_name` -
   (Optional)

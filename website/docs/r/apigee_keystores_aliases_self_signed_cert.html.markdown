@@ -229,7 +229,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_certs_info_cert_info).
 
 
-<a name="nested_cert_info"></a>The `cert_info` block contains:
+<a name="nested_certs_info_cert_info"></a>The `cert_info` block contains:
 
 * `version` -
   (Output)

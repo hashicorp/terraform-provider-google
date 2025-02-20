@@ -206,7 +206,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_index_config_indexes).
 
 
-<a name="nested_indexes"></a>The `indexes` block supports:
+<a name="nested_index_config_indexes"></a>The `indexes` block supports:
 
 * `query_scope` -
   (Optional)

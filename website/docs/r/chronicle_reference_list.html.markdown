@@ -143,7 +143,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_scope_info_reference_list_scope).
 
 
-<a name="nested_reference_list_scope"></a>The `reference_list_scope` block supports:
+<a name="nested_scope_info_reference_list_scope"></a>The `reference_list_scope` block supports:
 
 * `scope_names` -
   (Optional)

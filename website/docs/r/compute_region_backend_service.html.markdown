@@ -804,7 +804,7 @@ The following arguments are supported:
   Defaults to 3.
 
 
-<a name="nested_connect_timeout"></a>The `connect_timeout` block supports:
+<a name="nested_circuit_breakers_connect_timeout"></a>The `connect_timeout` block supports:
 
 * `seconds` -
   (Required)
@@ -843,7 +843,7 @@ The following arguments are supported:
   Defaults to 1024.
 
 
-<a name="nested_http_cookie"></a>The `http_cookie` block supports:
+<a name="nested_consistent_hash_http_cookie"></a>The `http_cookie` block supports:
 
 * `ttl` -
   (Optional)
@@ -859,7 +859,7 @@ The following arguments are supported:
   Path to set for the cookie.
 
 
-<a name="nested_ttl"></a>The `ttl` block supports:
+<a name="nested_consistent_hash_http_cookie_ttl"></a>The `ttl` block supports:
 
 * `seconds` -
   (Required)
@@ -926,7 +926,7 @@ The following arguments are supported:
   Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.
 
 
-<a name="nested_cache_key_policy"></a>The `cache_key_policy` block supports:
+<a name="nested_cdn_policy_cache_key_policy"></a>The `cache_key_policy` block supports:
 
 * `include_host` -
   (Optional)
@@ -965,7 +965,7 @@ The following arguments are supported:
   (Optional)
   Names of cookies to include in cache keys.
 
-<a name="nested_negative_caching_policy"></a>The `negative_caching_policy` block supports:
+<a name="nested_cdn_policy_negative_caching_policy"></a>The `negative_caching_policy` block supports:
 
 * `code` -
   (Optional)
@@ -1103,7 +1103,7 @@ The following arguments are supported:
   runtime value should be 1900. Defaults to 1900.
 
 
-<a name="nested_base_ejection_time"></a>The `base_ejection_time` block supports:
+<a name="nested_outlier_detection_base_ejection_time"></a>The `base_ejection_time` block supports:
 
 * `seconds` -
   (Required)
@@ -1116,7 +1116,7 @@ The following arguments are supported:
   less than one second are represented with a 0 `seconds` field and a positive
   `nanos` field. Must be from 0 to 999,999,999 inclusive.
 
-<a name="nested_interval"></a>The `interval` block supports:
+<a name="nested_outlier_detection_interval"></a>The `interval` block supports:
 
 * `seconds` -
   (Required)
@@ -1145,7 +1145,7 @@ The following arguments are supported:
   Path to set for the cookie.
 
 
-<a name="nested_ttl"></a>The `ttl` block supports:
+<a name="nested_strong_session_affinity_cookie_ttl"></a>The `ttl` block supports:
 
 * `seconds` -
   (Required)

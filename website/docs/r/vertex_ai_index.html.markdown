@@ -182,7 +182,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_metadata_config).
 
 
-<a name="nested_config"></a>The `config` block supports:
+<a name="nested_metadata_config"></a>The `config` block supports:
 
 * `dimensions` -
   (Required)
@@ -223,7 +223,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_metadata_config_algorithm_config).
 
 
-<a name="nested_algorithm_config"></a>The `algorithm_config` block supports:
+<a name="nested_metadata_config_algorithm_config"></a>The `algorithm_config` block supports:
 
 * `tree_ah_config` -
   (Optional)
@@ -237,7 +237,7 @@ The following arguments are supported:
   standard linear search in the database for each query.
 
 
-<a name="nested_tree_ah_config"></a>The `tree_ah_config` block supports:
+<a name="nested_metadata_config_algorithm_config_tree_ah_config"></a>The `tree_ah_config` block supports:
 
 * `leaf_node_embedding_count` -
   (Optional)

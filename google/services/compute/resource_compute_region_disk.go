@@ -28,10 +28,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -62,9 +60,6 @@ func ResourceComputeRegionDisk() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
-		ValidateRawResourceConfigFuncs: []schema.ValidateRawResourceConfigFunc{
-			validation.PreferWriteOnlyAttribute(cty.GetAttrPath("disk_encryption_key").IndexInt(0).GetAttr("rawKey"), cty.GetAttrPath("disk_encryption_key").IndexInt(0).GetAttr("rawKeyWo")),
-		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -147,24 +142,7 @@ you do not need to provide a key to use the disk later.`,
 							ForceNew: true,
 							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
 RFC 4648 base64 to either encrypt or decrypt this resource.`,
-							Sensitive:     true,
-							ConflictsWith: []string{"disk_encryption_key.0.raw_key_wo"},
-						},
-						"raw_key_wo": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
-RFC 4648 base64 to either encrypt or decrypt this resource.`,
-							WriteOnly:     true,
-							ConflictsWith: []string{"disk_encryption_key.0.raw_key"},
-							RequiredWith:  []string{"disk_encryption_key.0.raw_key_wo_version"},
-						},
-						"raw_key_wo_version": {
-							Type:        schema.TypeInt,
-							Optional:    true,
-							ForceNew:    true,
-							Description: `Triggers update of write-only rawKey`,
-							Default:     0,
+							Sensitive: true,
 						},
 						"sha256": {
 							Type:     schema.TypeString,
@@ -958,8 +936,6 @@ func flattenComputeRegionDiskDiskEncryptionKey(v interface{}, d *schema.Resource
 	transformed := make(map[string]interface{})
 	transformed["raw_key"] =
 		flattenComputeRegionDiskDiskEncryptionKeyRawKey(original["rawKey"], d, config)
-	transformed["raw_key_wo_version"] =
-		flattenComputeRegionDiskDiskEncryptionKeyRawKeyWoVersion(original["rawKeyWoVersion"], d, config)
 	transformed["sha256"] =
 		flattenComputeRegionDiskDiskEncryptionKeySha256(original["sha256"], d, config)
 	transformed["kms_key_name"] =
@@ -967,14 +943,7 @@ func flattenComputeRegionDiskDiskEncryptionKey(v interface{}, d *schema.Resource
 	return []interface{}{transformed}
 }
 func flattenComputeRegionDiskDiskEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if d.Get("disk_encryption_key.0.raw_key").(string) == "" {
-		return nil
-	}
 	return v
-}
-
-func flattenComputeRegionDiskDiskEncryptionKeyRawKeyWoVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return d.Get("disk_encryption_key.0.raw_key_wo_version")
 }
 
 func flattenComputeRegionDiskDiskEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1209,20 +1178,6 @@ func expandComputeRegionDiskDiskEncryptionKey(v interface{}, d tpgresource.Terra
 		transformed["rawKey"] = transformedRawKey
 	}
 
-	transformedRawKeyWo, err := expandComputeRegionDiskDiskEncryptionKeyRawKeyWo(original["raw_key_wo"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedRawKeyWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["rawKeyWo"] = transformedRawKeyWo
-	}
-
-	transformedRawKeyWoVersion, err := expandComputeRegionDiskDiskEncryptionKeyRawKeyWoVersion(original["raw_key_wo_version"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedRawKeyWoVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["rawKeyWoVersion"] = transformedRawKeyWoVersion
-	}
-
 	transformedSha256, err := expandComputeRegionDiskDiskEncryptionKeySha256(original["sha256"], d, config)
 	if err != nil {
 		return nil, err
@@ -1241,14 +1196,6 @@ func expandComputeRegionDiskDiskEncryptionKey(v interface{}, d tpgresource.Terra
 }
 
 func expandComputeRegionDiskDiskEncryptionKeyRawKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeRegionDiskDiskEncryptionKeyRawKeyWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeRegionDiskDiskEncryptionKeyRawKeyWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1472,17 +1419,6 @@ func resourceComputeRegionDiskEncoder(d *schema.ResourceData, meta interface{}, 
 		obj["sourceImage"] = imageUrl
 		log.Printf("[DEBUG] Image name resolved to: %s", imageUrl)
 	}
-	if rawKey, diags := d.GetRawConfigAt(cty.GetAttrPath("disk_encryption_key").IndexInt(0).GetAttr("raw_key_wo")); !diags.HasError() && rawKey.IsKnown() && !rawKey.IsNull() {
-		obj["diskEncryptionKey"] = map[string]interface{}{
-			"rawKey": rawKey.AsString(),
-		}
-	}
-
-	if rsaEncryptedKey, diags := d.GetRawConfigAt(cty.GetAttrPath("disk_encryption_key").IndexInt(0).GetAttr("rsa_encrypted_key_wo")); !diags.HasError() && rsaEncryptedKey.IsKnown() && !rsaEncryptedKey.IsNull() {
-		obj["diskEncryptionKey"] = map[string]interface{}{
-			"rsaEncryptedKey": rsaEncryptedKey.AsString(),
-		}
-	}
 
 	return obj, nil
 }
@@ -1495,6 +1431,7 @@ func resourceComputeRegionDiskDecoder(d *schema.ResourceData, meta interface{}, 
 		transformed["rawKey"] = d.Get("disk_encryption_key.0.raw_key")
 		transformed["rsaEncryptedKey"] = d.Get("disk_encryption_key.0.rsa_encrypted_key")
 		transformed["sha256"] = original["sha256"]
+
 		if kmsKeyName, ok := original["kmsKeyName"]; ok {
 			// The response for crypto keys often includes the version of the key which needs to be removed
 			// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1

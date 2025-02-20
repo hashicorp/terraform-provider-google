@@ -194,7 +194,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_psc_connections_psc_connections_error_info).
 
 
-<a name="nested_error"></a>The `error` block supports:
+<a name="nested_psc_connections_psc_connections_error"></a>The `error` block supports:
 
 * `message` -
   (Optional)
@@ -208,7 +208,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   A list of messages that carry the error details.
 
-<a name="nested_error_info"></a>The `error_info` block supports:
+<a name="nested_psc_connections_psc_connections_error_info"></a>The `error_info` block supports:
 
 * `reason` -
   (Optional)

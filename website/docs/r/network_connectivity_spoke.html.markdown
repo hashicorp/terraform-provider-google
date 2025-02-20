@@ -643,7 +643,7 @@ The following arguments are supported:
   The only allowed value for now is "ALL_IPV4_RANGES".
 
 
-<a name="nested_instances"></a>The `instances` block supports:
+<a name="nested_linked_router_appliance_instances_instances"></a>The `instances` block supports:
 
 * `virtual_machine` -
   (Required)

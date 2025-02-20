@@ -185,7 +185,7 @@ State will be removed on the next instance recreation or update.
   Structure is [documented below](#nested_preserved_state_external_ip).
 
 
-<a name="nested_disk"></a>The `disk` block supports:
+<a name="nested_preserved_state_disk"></a>The `disk` block supports:
 
 * `device_name` -
   (Required)
@@ -212,7 +212,7 @@ State will be removed on the next instance recreation or update.
   Default value is `NEVER`.
   Possible values are: `NEVER`, `ON_PERMANENT_INSTANCE_DELETION`.
 
-<a name="nested_internal_ip"></a>The `internal_ip` block supports:
+<a name="nested_preserved_state_internal_ip"></a>The `internal_ip` block supports:
 
 * `interface_name` - (Required) The identifier for this object. Format specified above.
 
@@ -228,13 +228,13 @@ State will be removed on the next instance recreation or update.
   Structure is [documented below](#nested_preserved_state_internal_ip_internal_ip_ip_address).
 
 
-<a name="nested_ip_address"></a>The `ip_address` block supports:
+<a name="nested_preserved_state_internal_ip_internal_ip_ip_address"></a>The `ip_address` block supports:
 
 * `address` -
   (Optional)
   The URL of the reservation for this IP address.
 
-<a name="nested_external_ip"></a>The `external_ip` block supports:
+<a name="nested_preserved_state_external_ip"></a>The `external_ip` block supports:
 
 * `interface_name` - (Required) The identifier for this object. Format specified above.
 
@@ -250,7 +250,7 @@ State will be removed on the next instance recreation or update.
   Structure is [documented below](#nested_preserved_state_external_ip_external_ip_ip_address).
 
 
-<a name="nested_ip_address"></a>The `ip_address` block supports:
+<a name="nested_preserved_state_external_ip_external_ip_ip_address"></a>The `ip_address` block supports:
 
 * `address` -
   (Optional)

@@ -114,7 +114,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_access_boundary_rule).
 
 
-<a name="nested_access_boundary_rule"></a>The `access_boundary_rule` block supports:
+<a name="nested_rules_rules_access_boundary_rule"></a>The `access_boundary_rule` block supports:
 
 * `available_resource` -
   (Optional)
@@ -130,7 +130,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_access_boundary_rule_availability_condition).
 
 
-<a name="nested_availability_condition"></a>The `availability_condition` block supports:
+<a name="nested_rules_rules_access_boundary_rule_availability_condition"></a>The `availability_condition` block supports:
 
 * `expression` -
   (Required)

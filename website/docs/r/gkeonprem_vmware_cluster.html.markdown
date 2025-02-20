@@ -296,13 +296,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_control_plane_node_vsphere_config).
 
 
-<a name="nested_auto_resize_config"></a>The `auto_resize_config` block supports:
+<a name="nested_control_plane_node_auto_resize_config"></a>The `auto_resize_config` block supports:
 
 * `enabled` -
   (Required)
   Whether to enable control plane node auto resizing.
 
-<a name="nested_vsphere_config"></a>The `vsphere_config` block contains:
+<a name="nested_control_plane_node_vsphere_config"></a>The `vsphere_config` block contains:
 
 * `datastore` -
   (Output)
@@ -449,7 +449,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_network_config_control_plane_v2_config).
 
 
-<a name="nested_static_ip_config"></a>The `static_ip_config` block supports:
+<a name="nested_network_config_static_ip_config"></a>The `static_ip_config` block supports:
 
 * `ip_blocks` -
   (Required)
@@ -457,7 +457,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_network_config_static_ip_config_ip_blocks).
 
 
-<a name="nested_ip_blocks"></a>The `ip_blocks` block supports:
+<a name="nested_network_config_static_ip_config_ip_blocks"></a>The `ip_blocks` block supports:
 
 * `netmask` -
   (Required)
@@ -473,7 +473,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_network_config_static_ip_config_ip_blocks_ip_blocks_ips).
 
 
-<a name="nested_ips"></a>The `ips` block supports:
+<a name="nested_network_config_static_ip_config_ip_blocks_ip_blocks_ips"></a>The `ips` block supports:
 
 * `ip` -
   (Required)
@@ -483,14 +483,14 @@ The following arguments are supported:
   (Optional)
   Hostname of the machine. VM's name will be used if this field is empty.
 
-<a name="nested_dhcp_ip_config"></a>The `dhcp_ip_config` block supports:
+<a name="nested_network_config_dhcp_ip_config"></a>The `dhcp_ip_config` block supports:
 
 * `enabled` -
   (Required)
   enabled is a flag to mark if DHCP IP allocation is
   used for VMware user clusters.
 
-<a name="nested_host_config"></a>The `host_config` block supports:
+<a name="nested_network_config_host_config"></a>The `host_config` block supports:
 
 * `dns_servers` -
   (Optional)
@@ -504,7 +504,7 @@ The following arguments are supported:
   (Optional)
   DNS search domains.
 
-<a name="nested_control_plane_v2_config"></a>The `control_plane_v2_config` block supports:
+<a name="nested_network_config_control_plane_v2_config"></a>The `control_plane_v2_config` block supports:
 
 * `control_plane_ip_block` -
   (Optional)
@@ -512,7 +512,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_network_config_control_plane_v2_config_control_plane_ip_block).
 
 
-<a name="nested_control_plane_ip_block"></a>The `control_plane_ip_block` block supports:
+<a name="nested_network_config_control_plane_v2_config_control_plane_ip_block"></a>The `control_plane_ip_block` block supports:
 
 * `netmask` -
   (Optional)
@@ -528,7 +528,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_network_config_control_plane_v2_config_control_plane_ip_block_ips).
 
 
-<a name="nested_ips"></a>The `ips` block supports:
+<a name="nested_network_config_control_plane_v2_config_control_plane_ip_block_ips"></a>The `ips` block supports:
 
 * `ip` -
   (Optional)
@@ -561,7 +561,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_load_balancer_metal_lb_config).
 
 
-<a name="nested_vip_config"></a>The `vip_config` block supports:
+<a name="nested_load_balancer_vip_config"></a>The `vip_config` block supports:
 
 * `control_plane_vip` -
   (Optional)
@@ -571,7 +571,7 @@ The following arguments are supported:
   (Optional)
   The VIP which you previously set aside for ingress traffic into this cluster.
 
-<a name="nested_f5_config"></a>The `f5_config` block supports:
+<a name="nested_load_balancer_f5_config"></a>The `f5_config` block supports:
 
 * `address` -
   (Optional)
@@ -587,7 +587,7 @@ The following arguments are supported:
   (Optional)
   The pool name. Only necessary, if using SNAT.
 
-<a name="nested_manual_lb_config"></a>The `manual_lb_config` block supports:
+<a name="nested_load_balancer_manual_lb_config"></a>The `manual_lb_config` block supports:
 
 * `ingress_http_node_port` -
   (Optional)
@@ -609,7 +609,7 @@ The following arguments are supported:
   NodePort for konnectivity server service running as a sidecar in each
   kube-apiserver pod (ex. 30564).
 
-<a name="nested_metal_lb_config"></a>The `metal_lb_config` block supports:
+<a name="nested_load_balancer_metal_lb_config"></a>The `metal_lb_config` block supports:
 
 * `address_pools` -
   (Required)
@@ -619,7 +619,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_load_balancer_metal_lb_config_address_pools).
 
 
-<a name="nested_address_pools"></a>The `address_pools` block supports:
+<a name="nested_load_balancer_metal_lb_config_address_pools"></a>The `address_pools` block supports:
 
 * `pool` -
   (Required)
@@ -670,7 +670,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_authorization_admin_users).
 
 
-<a name="nested_admin_users"></a>The `admin_users` block supports:
+<a name="nested_authorization_admin_users"></a>The `admin_users` block supports:
 
 * `username` -
   (Required)
@@ -794,7 +794,7 @@ In addition to the arguments listed above, the following computed attributes are
   The scenario when the preflight checks were run..
 
 
-<a name="nested_status"></a>The `status` block contains:
+<a name="nested_validation_check_status"></a>The `status` block contains:
 
 * `result` -
   (Output)
@@ -802,7 +802,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_validation_check_status_result).
 
 
-<a name="nested_result"></a>The `result` block contains:
+<a name="nested_validation_check_status_result"></a>The `result` block contains:
 
 * `options` -
   (Output)
@@ -848,7 +848,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_conditions).
 
 
-<a name="nested_conditions"></a>The `conditions` block contains:
+<a name="nested_status_conditions"></a>The `conditions` block contains:
 
 * `type` -
   (Output)

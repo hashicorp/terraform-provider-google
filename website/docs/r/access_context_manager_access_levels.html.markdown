@@ -139,7 +139,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_access_levels_access_levels_custom).
 
 
-<a name="nested_basic"></a>The `basic` block supports:
+<a name="nested_access_levels_access_levels_basic"></a>The `basic` block supports:
 
 * `combining_function` -
   (Optional)
@@ -157,7 +157,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_access_levels_access_levels_basic_conditions).
 
 
-<a name="nested_conditions"></a>The `conditions` block supports:
+<a name="nested_access_levels_access_levels_basic_conditions"></a>The `conditions` block supports:
 
 * `ip_subnetworks` -
   (Optional)
@@ -215,7 +215,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_access_levels_access_levels_basic_conditions_conditions_vpc_network_sources).
 
 
-<a name="nested_device_policy"></a>The `device_policy` block supports:
+<a name="nested_access_levels_access_levels_basic_conditions_conditions_device_policy"></a>The `device_policy` block supports:
 
 * `require_screen_lock` -
   (Optional)
@@ -249,7 +249,7 @@ The following arguments are supported:
   Whether the device needs to be corp owned.
 
 
-<a name="nested_os_constraints"></a>The `os_constraints` block supports:
+<a name="nested_access_levels_access_levels_basic_conditions_conditions_device_policy_os_constraints"></a>The `os_constraints` block supports:
 
 * `minimum_version` -
   (Optional)
@@ -262,7 +262,7 @@ The following arguments are supported:
   The operating system type of the device.
   Possible values are: `OS_UNSPECIFIED`, `DESKTOP_MAC`, `DESKTOP_WINDOWS`, `DESKTOP_LINUX`, `DESKTOP_CHROME_OS`, `ANDROID`, `IOS`.
 
-<a name="nested_vpc_network_sources"></a>The `vpc_network_sources` block supports:
+<a name="nested_access_levels_access_levels_basic_conditions_conditions_vpc_network_sources"></a>The `vpc_network_sources` block supports:
 
 * `vpc_subnetwork` -
   (Optional)
@@ -270,7 +270,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_access_levels_access_levels_basic_conditions_conditions_vpc_network_sources_vpc_network_sources_vpc_subnetwork).
 
 
-<a name="nested_vpc_subnetwork"></a>The `vpc_subnetwork` block supports:
+<a name="nested_access_levels_access_levels_basic_conditions_conditions_vpc_network_sources_vpc_network_sources_vpc_subnetwork"></a>The `vpc_subnetwork` block supports:
 
 * `network` -
   (Required)
@@ -280,7 +280,7 @@ The following arguments are supported:
   (Optional)
   CIDR block IP subnetwork specification. Must be IPv4.
 
-<a name="nested_custom"></a>The `custom` block supports:
+<a name="nested_access_levels_access_levels_custom"></a>The `custom` block supports:
 
 * `expr` -
   (Required)
@@ -290,7 +290,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_access_levels_access_levels_custom_expr).
 
 
-<a name="nested_expr"></a>The `expr` block supports:
+<a name="nested_access_levels_access_levels_custom_expr"></a>The `expr` block supports:
 
 * `expression` -
   (Required)

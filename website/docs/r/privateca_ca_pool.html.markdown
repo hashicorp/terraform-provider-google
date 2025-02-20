@@ -228,7 +228,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_issuance_policy_baseline_values).
 
 
-<a name="nested_allowed_key_types"></a>The `allowed_key_types` block supports:
+<a name="nested_issuance_policy_allowed_key_types"></a>The `allowed_key_types` block supports:
 
 * `rsa` -
   (Optional)
@@ -241,7 +241,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_issuance_policy_allowed_key_types_allowed_key_types_elliptic_curve).
 
 
-<a name="nested_rsa"></a>The `rsa` block supports:
+<a name="nested_issuance_policy_allowed_key_types_allowed_key_types_rsa"></a>The `rsa` block supports:
 
 * `min_modulus_size` -
   (Optional)
@@ -253,14 +253,14 @@ The following arguments are supported:
   The maximum allowed RSA modulus size, in bits. If this is not set, or if set to zero, the
   service will not enforce an explicit upper bound on RSA modulus sizes.
 
-<a name="nested_elliptic_curve"></a>The `elliptic_curve` block supports:
+<a name="nested_issuance_policy_allowed_key_types_allowed_key_types_elliptic_curve"></a>The `elliptic_curve` block supports:
 
 * `signature_algorithm` -
   (Required)
   The algorithm used.
   Possible values are: `ECDSA_P256`, `ECDSA_P384`, `EDDSA_25519`.
 
-<a name="nested_allowed_issuance_modes"></a>The `allowed_issuance_modes` block supports:
+<a name="nested_issuance_policy_allowed_issuance_modes"></a>The `allowed_issuance_modes` block supports:
 
 * `allow_csr_based_issuance` -
   (Required)
@@ -270,7 +270,7 @@ The following arguments are supported:
   (Required)
   When true, allows callers to create Certificates by specifying a CertificateConfig.
 
-<a name="nested_identity_constraints"></a>The `identity_constraints` block supports:
+<a name="nested_issuance_policy_identity_constraints"></a>The `identity_constraints` block supports:
 
 * `allow_subject_passthrough` -
   (Required)
@@ -290,7 +290,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_issuance_policy_identity_constraints_cel_expression).
 
 
-<a name="nested_cel_expression"></a>The `cel_expression` block supports:
+<a name="nested_issuance_policy_identity_constraints_cel_expression"></a>The `cel_expression` block supports:
 
 * `expression` -
   (Required)
@@ -308,7 +308,7 @@ The following arguments are supported:
   (Optional)
   String indicating the location of the expression for error reporting, e.g. a file name and a position in the file.
 
-<a name="nested_baseline_values"></a>The `baseline_values` block supports:
+<a name="nested_issuance_policy_baseline_values"></a>The `baseline_values` block supports:
 
 * `additional_extensions` -
   (Optional)
@@ -341,7 +341,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_issuance_policy_baseline_values_name_constraints).
 
 
-<a name="nested_additional_extensions"></a>The `additional_extensions` block supports:
+<a name="nested_issuance_policy_baseline_values_additional_extensions"></a>The `additional_extensions` block supports:
 
 * `critical` -
   (Required)
@@ -358,19 +358,19 @@ The following arguments are supported:
   Structure is [documented below](#nested_issuance_policy_baseline_values_additional_extensions_additional_extensions_object_id).
 
 
-<a name="nested_object_id"></a>The `object_id` block supports:
+<a name="nested_issuance_policy_baseline_values_additional_extensions_additional_extensions_object_id"></a>The `object_id` block supports:
 
 * `object_id_path` -
   (Required)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
-<a name="nested_policy_ids"></a>The `policy_ids` block supports:
+<a name="nested_issuance_policy_baseline_values_policy_ids"></a>The `policy_ids` block supports:
 
 * `object_id_path` -
   (Required)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
-<a name="nested_ca_options"></a>The `ca_options` block supports:
+<a name="nested_issuance_policy_baseline_values_ca_options"></a>The `ca_options` block supports:
 
 * `is_ca` -
   (Optional)
@@ -392,7 +392,7 @@ The following arguments are supported:
   if both `max_issuer_path_length` and `zero_max_issuer_path_length` are unset,
   the max path length will be omitted from the CA certificate.
 
-<a name="nested_key_usage"></a>The `key_usage` block supports:
+<a name="nested_issuance_policy_baseline_values_key_usage"></a>The `key_usage` block supports:
 
 * `base_key_usage` -
   (Required)
@@ -410,7 +410,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_issuance_policy_baseline_values_key_usage_unknown_extended_key_usages).
 
 
-<a name="nested_base_key_usage"></a>The `base_key_usage` block supports:
+<a name="nested_issuance_policy_baseline_values_key_usage_base_key_usage"></a>The `base_key_usage` block supports:
 
 * `digital_signature` -
   (Optional)
@@ -448,7 +448,7 @@ The following arguments are supported:
   (Optional)
   The key may be used to decipher only.
 
-<a name="nested_extended_key_usage"></a>The `extended_key_usage` block supports:
+<a name="nested_issuance_policy_baseline_values_key_usage_extended_key_usage"></a>The `extended_key_usage` block supports:
 
 * `server_auth` -
   (Optional)
@@ -474,13 +474,13 @@ The following arguments are supported:
   (Optional)
   Corresponds to OID 1.3.6.1.5.5.7.3.9. Officially described as "Signing OCSP responses".
 
-<a name="nested_unknown_extended_key_usages"></a>The `unknown_extended_key_usages` block supports:
+<a name="nested_issuance_policy_baseline_values_key_usage_unknown_extended_key_usages"></a>The `unknown_extended_key_usages` block supports:
 
 * `object_id_path` -
   (Required)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
-<a name="nested_name_constraints"></a>The `name_constraints` block supports:
+<a name="nested_issuance_policy_baseline_values_name_constraints"></a>The `name_constraints` block supports:
 
 * `critical` -
   (Required)

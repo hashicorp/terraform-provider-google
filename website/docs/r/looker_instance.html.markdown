@@ -430,7 +430,7 @@ nested resources will return an error. Possible values: DEFAULT, FORCE
   Structure is [documented below](#nested_deny_maintenance_period_time).
 
 
-<a name="nested_start_date"></a>The `start_date` block supports:
+<a name="nested_deny_maintenance_period_start_date"></a>The `start_date` block supports:
 
 * `year` -
   (Optional)
@@ -447,7 +447,7 @@ nested resources will return an error. Possible values: DEFAULT, FORCE
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
   to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_end_date"></a>The `end_date` block supports:
+<a name="nested_deny_maintenance_period_end_date"></a>The `end_date` block supports:
 
 * `year` -
   (Optional)
@@ -464,7 +464,7 @@ nested resources will return an error. Possible values: DEFAULT, FORCE
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
   to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_time"></a>The `time` block supports:
+<a name="nested_deny_maintenance_period_time"></a>The `time` block supports:
 
 * `hours` -
   (Optional)
@@ -516,7 +516,7 @@ nested resources will return an error. Possible values: DEFAULT, FORCE
   Structure is [documented below](#nested_maintenance_window_start_time).
 
 
-<a name="nested_start_time"></a>The `start_time` block supports:
+<a name="nested_maintenance_window_start_time"></a>The `start_time` block supports:
 
 * `hours` -
   (Optional)
@@ -550,7 +550,7 @@ nested resources will return an error. Possible values: DEFAULT, FORCE
   Structure is [documented below](#nested_psc_config_service_attachments).
 
 
-<a name="nested_service_attachments"></a>The `service_attachments` block supports:
+<a name="nested_psc_config_service_attachments"></a>The `service_attachments` block supports:
 
 * `connection_status` -
   (Output)

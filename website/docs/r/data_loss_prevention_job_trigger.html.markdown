@@ -635,7 +635,7 @@ The following arguments are supported:
   For use with hybrid jobs. Jobs must be manually created and finished.
 
 
-<a name="nested_schedule"></a>The `schedule` block supports:
+<a name="nested_triggers_triggers_schedule"></a>The `schedule` block supports:
 
 * `recurrence_period_duration` -
   (Optional)
@@ -695,7 +695,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_actions).
 
 
-<a name="nested_inspect_config"></a>The `inspect_config` block supports:
+<a name="nested_inspect_job_inspect_config"></a>The `inspect_config` block supports:
 
 * `exclude_info_types` -
   (Optional)
@@ -736,7 +736,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_custom_info_types).
 
 
-<a name="nested_limits"></a>The `limits` block supports:
+<a name="nested_inspect_job_inspect_config_limits"></a>The `limits` block supports:
 
 * `max_findings_per_item` -
   (Optional)
@@ -752,7 +752,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_limits_max_findings_per_info_type).
 
 
-<a name="nested_max_findings_per_info_type"></a>The `max_findings_per_info_type` block supports:
+<a name="nested_inspect_job_inspect_config_limits_max_findings_per_info_type"></a>The `max_findings_per_info_type` block supports:
 
 * `info_type` -
   (Optional)
@@ -766,7 +766,7 @@ The following arguments are supported:
   Max findings limit for the given infoType.
 
 
-<a name="nested_info_type"></a>The `info_type` block supports:
+<a name="nested_inspect_job_inspect_config_limits_max_findings_per_info_type_max_findings_per_info_type_info_type"></a>The `info_type` block supports:
 
 * `name` -
   (Required)
@@ -783,14 +783,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_limits_max_findings_per_info_type_max_findings_per_info_type_info_type_sensitivity_score).
 
 
-<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_inspect_job_inspect_config_limits_max_findings_per_info_type_max_findings_per_info_type_info_type_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_info_types"></a>The `info_types` block supports:
+<a name="nested_inspect_job_inspect_config_info_types"></a>The `info_types` block supports:
 
 * `name` -
   (Required)
@@ -807,14 +807,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_info_types_info_types_sensitivity_score).
 
 
-<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_inspect_job_inspect_config_info_types_info_types_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_rule_set"></a>The `rule_set` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set"></a>The `rule_set` block supports:
 
 * `info_types` -
   (Optional)
@@ -827,7 +827,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_rule_set_rule_set_rules).
 
 
-<a name="nested_info_types"></a>The `info_types` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_info_types"></a>The `info_types` block supports:
 
 * `name` -
   (Required)
@@ -844,14 +844,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_rule_set_rule_set_info_types_info_types_sensitivity_score).
 
 
-<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_info_types_info_types_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_rules"></a>The `rules` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules"></a>The `rules` block supports:
 
 * `hotword_rule` -
   (Optional)
@@ -864,7 +864,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule).
 
 
-<a name="nested_hotword_rule"></a>The `hotword_rule` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_hotword_rule"></a>The `hotword_rule` block supports:
 
 * `hotword_regex` -
   (Optional)
@@ -886,7 +886,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_hotword_rule_likelihood_adjustment).
 
 
-<a name="nested_hotword_regex"></a>The `hotword_regex` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_hotword_rule_hotword_regex"></a>The `hotword_regex` block supports:
 
 * `pattern` -
   (Optional)
@@ -898,7 +898,7 @@ The following arguments are supported:
   The index of the submatch to extract as findings. When not specified,
   the entire match is returned. No more than 3 may be included.
 
-<a name="nested_proximity"></a>The `proximity` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_hotword_rule_proximity"></a>The `proximity` block supports:
 
 * `window_before` -
   (Optional)
@@ -908,7 +908,7 @@ The following arguments are supported:
   (Optional)
   Number of characters after the finding to consider. Either this or window_before must be specified
 
-<a name="nested_likelihood_adjustment"></a>The `likelihood_adjustment` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_hotword_rule_likelihood_adjustment"></a>The `likelihood_adjustment` block supports:
 
 * `fixed_likelihood` -
   (Optional)
@@ -924,7 +924,7 @@ The following arguments are supported:
   adjustment of 1 followed by an adjustment of -1 when base likelihood is VERY_LIKELY
   will result in a final likelihood of LIKELY. Either this or fixed_likelihood can be set.
 
-<a name="nested_exclusion_rule"></a>The `exclusion_rule` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule"></a>The `exclusion_rule` block supports:
 
 * `matching_type` -
   (Required)
@@ -952,7 +952,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_by_hotword).
 
 
-<a name="nested_dictionary"></a>The `dictionary` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_dictionary"></a>The `dictionary` block supports:
 
 * `word_list` -
   (Optional)
@@ -965,20 +965,20 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_dictionary_cloud_storage_path).
 
 
-<a name="nested_word_list"></a>The `word_list` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_dictionary_word_list"></a>The `word_list` block supports:
 
 * `words` -
   (Required)
   Words or phrases defining the dictionary. The dictionary must contain at least one
   phrase and every phrase must contain at least 2 characters that are letters or digits.
 
-<a name="nested_cloud_storage_path"></a>The `cloud_storage_path` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_dictionary_cloud_storage_path"></a>The `cloud_storage_path` block supports:
 
 * `path` -
   (Required)
   A url representing a file or path (no wildcards) in Cloud Storage. Example: `gs://[BUCKET_NAME]/dictionary.txt`
 
-<a name="nested_regex"></a>The `regex` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_regex"></a>The `regex` block supports:
 
 * `pattern` -
   (Required)
@@ -989,7 +989,7 @@ The following arguments are supported:
   (Optional)
   The index of the submatch to extract as findings. When not specified, the entire match is returned. No more than 3 may be included.
 
-<a name="nested_exclude_info_types"></a>The `exclude_info_types` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_info_types"></a>The `exclude_info_types` block supports:
 
 * `info_types` -
   (Required)
@@ -997,7 +997,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_info_types_info_types).
 
 
-<a name="nested_info_types"></a>The `info_types` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_info_types_info_types"></a>The `info_types` block supports:
 
 * `name` -
   (Required)
@@ -1014,14 +1014,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_info_types_info_types_info_types_sensitivity_score).
 
 
-<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_info_types_info_types_info_types_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_exclude_by_hotword"></a>The `exclude_by_hotword` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_by_hotword"></a>The `exclude_by_hotword` block supports:
 
 * `hotword_regex` -
   (Optional)
@@ -1038,7 +1038,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_by_hotword_proximity).
 
 
-<a name="nested_hotword_regex"></a>The `hotword_regex` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_by_hotword_hotword_regex"></a>The `hotword_regex` block supports:
 
 * `pattern` -
   (Optional)
@@ -1050,7 +1050,7 @@ The following arguments are supported:
   The index of the submatch to extract as findings. When not specified,
   the entire match is returned. No more than 3 may be included.
 
-<a name="nested_proximity"></a>The `proximity` block supports:
+<a name="nested_inspect_job_inspect_config_rule_set_rule_set_rules_rules_exclusion_rule_exclude_by_hotword_proximity"></a>The `proximity` block supports:
 
 * `window_before` -
   (Optional)
@@ -1060,7 +1060,7 @@ The following arguments are supported:
   (Optional)
   Number of characters after the finding to consider. Either this or window_before must be specified
 
-<a name="nested_custom_info_types"></a>The `custom_info_types` block supports:
+<a name="nested_inspect_job_inspect_config_custom_info_types"></a>The `custom_info_types` block supports:
 
 * `info_type` -
   (Required)
@@ -1107,7 +1107,7 @@ The following arguments are supported:
   Message for detecting output from deidentification transformations that support reversing.
 
 
-<a name="nested_info_type"></a>The `info_type` block supports:
+<a name="nested_inspect_job_inspect_config_custom_info_types_custom_info_types_info_type"></a>The `info_type` block supports:
 
 * `name` -
   (Required)
@@ -1124,21 +1124,21 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_custom_info_types_custom_info_types_info_type_sensitivity_score).
 
 
-<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_inspect_job_inspect_config_custom_info_types_custom_info_types_info_type_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+<a name="nested_inspect_job_inspect_config_custom_info_types_custom_info_types_sensitivity_score"></a>The `sensitivity_score` block supports:
 
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
   Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
-<a name="nested_regex"></a>The `regex` block supports:
+<a name="nested_inspect_job_inspect_config_custom_info_types_custom_info_types_regex"></a>The `regex` block supports:
 
 * `pattern` -
   (Required)
@@ -1149,7 +1149,7 @@ The following arguments are supported:
   (Optional)
   The index of the submatch to extract as findings. When not specified, the entire match is returned. No more than 3 may be included.
 
-<a name="nested_dictionary"></a>The `dictionary` block supports:
+<a name="nested_inspect_job_inspect_config_custom_info_types_custom_info_types_dictionary"></a>The `dictionary` block supports:
 
 * `word_list` -
   (Optional)
@@ -1162,20 +1162,20 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_inspect_config_custom_info_types_custom_info_types_dictionary_cloud_storage_path).
 
 
-<a name="nested_word_list"></a>The `word_list` block supports:
+<a name="nested_inspect_job_inspect_config_custom_info_types_custom_info_types_dictionary_word_list"></a>The `word_list` block supports:
 
 * `words` -
   (Required)
   Words or phrases defining the dictionary. The dictionary must contain at least one
   phrase and every phrase must contain at least 2 characters that are letters or digits.
 
-<a name="nested_cloud_storage_path"></a>The `cloud_storage_path` block supports:
+<a name="nested_inspect_job_inspect_config_custom_info_types_custom_info_types_dictionary_cloud_storage_path"></a>The `cloud_storage_path` block supports:
 
 * `path` -
   (Required)
   A url representing a file or path (no wildcards) in Cloud Storage. Example: `gs://[BUCKET_NAME]/dictionary.txt`
 
-<a name="nested_stored_type"></a>The `stored_type` block supports:
+<a name="nested_inspect_job_inspect_config_custom_info_types_custom_info_types_stored_type"></a>The `stored_type` block supports:
 
 * `name` -
   (Required)
@@ -1186,7 +1186,7 @@ The following arguments are supported:
   (Output)
   The creation timestamp of an inspectTemplate. Set by the server.
 
-<a name="nested_storage_config"></a>The `storage_config` block supports:
+<a name="nested_inspect_job_storage_config"></a>The `storage_config` block supports:
 
 * `timespan_config` -
   (Optional)
@@ -1214,7 +1214,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_storage_config_hybrid_options).
 
 
-<a name="nested_timespan_config"></a>The `timespan_config` block supports:
+<a name="nested_inspect_job_storage_config_timespan_config"></a>The `timespan_config` block supports:
 
 * `start_time` -
   (Optional)
@@ -1237,7 +1237,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_storage_config_timespan_config_timestamp_field).
 
 
-<a name="nested_timestamp_field"></a>The `timestamp_field` block supports:
+<a name="nested_inspect_job_storage_config_timespan_config_timestamp_field"></a>The `timestamp_field` block supports:
 
 * `name` -
   (Required)
@@ -1248,7 +1248,7 @@ The following arguments are supported:
   For Datastore. Valid data types of the timestamp field are: TIMESTAMP. Datastore entity will be scanned if the
   timestamp property does not exist or its value is empty or invalid.
 
-<a name="nested_datastore_options"></a>The `datastore_options` block supports:
+<a name="nested_inspect_job_storage_config_datastore_options"></a>The `datastore_options` block supports:
 
 * `partition_id` -
   (Required)
@@ -1262,7 +1262,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_storage_config_datastore_options_kind).
 
 
-<a name="nested_partition_id"></a>The `partition_id` block supports:
+<a name="nested_inspect_job_storage_config_datastore_options_partition_id"></a>The `partition_id` block supports:
 
 * `project_id` -
   (Required)
@@ -1272,13 +1272,13 @@ The following arguments are supported:
   (Optional)
   If not empty, the ID of the namespace to which the entities belong.
 
-<a name="nested_kind"></a>The `kind` block supports:
+<a name="nested_inspect_job_storage_config_datastore_options_kind"></a>The `kind` block supports:
 
 * `name` -
   (Required)
   The name of the Datastore kind.
 
-<a name="nested_cloud_storage_options"></a>The `cloud_storage_options` block supports:
+<a name="nested_inspect_job_storage_config_cloud_storage_options"></a>The `cloud_storage_options` block supports:
 
 * `file_set` -
   (Required)
@@ -1314,7 +1314,7 @@ The following arguments are supported:
   Possible values are: `TOP`, `RANDOM_START`.
 
 
-<a name="nested_file_set"></a>The `file_set` block supports:
+<a name="nested_inspect_job_storage_config_cloud_storage_options_file_set"></a>The `file_set` block supports:
 
 * `url` -
   (Optional)
@@ -1330,7 +1330,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_storage_config_cloud_storage_options_file_set_regex_file_set).
 
 
-<a name="nested_regex_file_set"></a>The `regex_file_set` block supports:
+<a name="nested_inspect_job_storage_config_cloud_storage_options_file_set_regex_file_set"></a>The `regex_file_set` block supports:
 
 * `bucket_name` -
   (Required)
@@ -1348,7 +1348,7 @@ The following arguments are supported:
   A list of regular expressions matching file paths to exclude. All files in the bucket that match at
   least one of these regular expressions will be excluded from the scan.
 
-<a name="nested_big_query_options"></a>The `big_query_options` block supports:
+<a name="nested_inspect_job_storage_config_big_query_options"></a>The `big_query_options` block supports:
 
 * `table_reference` -
   (Required)
@@ -1393,7 +1393,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_storage_config_big_query_options_excluded_fields).
 
 
-<a name="nested_table_reference"></a>The `table_reference` block supports:
+<a name="nested_inspect_job_storage_config_big_query_options_table_reference"></a>The `table_reference` block supports:
 
 * `project_id` -
   (Required)
@@ -1407,25 +1407,25 @@ The following arguments are supported:
   (Required)
   The name of the table.
 
-<a name="nested_identifying_fields"></a>The `identifying_fields` block supports:
+<a name="nested_inspect_job_storage_config_big_query_options_identifying_fields"></a>The `identifying_fields` block supports:
 
 * `name` -
   (Required)
   Name of a BigQuery field to be returned with the findings.
 
-<a name="nested_included_fields"></a>The `included_fields` block supports:
+<a name="nested_inspect_job_storage_config_big_query_options_included_fields"></a>The `included_fields` block supports:
 
 * `name` -
   (Required)
   Name describing the field to which scanning is limited.
 
-<a name="nested_excluded_fields"></a>The `excluded_fields` block supports:
+<a name="nested_inspect_job_storage_config_big_query_options_excluded_fields"></a>The `excluded_fields` block supports:
 
 * `name` -
   (Required)
   Name describing the field excluded from scanning.
 
-<a name="nested_hybrid_options"></a>The `hybrid_options` block supports:
+<a name="nested_inspect_job_storage_config_hybrid_options"></a>The `hybrid_options` block supports:
 
 * `description` -
   (Optional)
@@ -1454,7 +1454,7 @@ The following arguments are supported:
   * `"pipeline" : "etl"`
 
 
-<a name="nested_table_options"></a>The `table_options` block supports:
+<a name="nested_inspect_job_storage_config_hybrid_options_table_options"></a>The `table_options` block supports:
 
 * `identifying_fields` -
   (Optional)
@@ -1464,13 +1464,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_storage_config_hybrid_options_table_options_identifying_fields).
 
 
-<a name="nested_identifying_fields"></a>The `identifying_fields` block supports:
+<a name="nested_inspect_job_storage_config_hybrid_options_table_options_identifying_fields"></a>The `identifying_fields` block supports:
 
 * `name` -
   (Required)
   Name describing the field.
 
-<a name="nested_actions"></a>The `actions` block supports:
+<a name="nested_inspect_job_actions"></a>The `actions` block supports:
 
 * `save_findings` -
   (Optional)
@@ -1504,7 +1504,7 @@ The following arguments are supported:
   Enable Stackdriver metric dlp.googleapis.com/findingCount.
 
 
-<a name="nested_save_findings"></a>The `save_findings` block supports:
+<a name="nested_inspect_job_actions_actions_save_findings"></a>The `save_findings` block supports:
 
 * `output_config` -
   (Required)
@@ -1512,7 +1512,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_actions_actions_save_findings_output_config).
 
 
-<a name="nested_output_config"></a>The `output_config` block supports:
+<a name="nested_inspect_job_actions_actions_save_findings_output_config"></a>The `output_config` block supports:
 
 * `table` -
   (Required)
@@ -1531,7 +1531,7 @@ The following arguments are supported:
   Possible values are: `BASIC_COLUMNS`, `GCS_COLUMNS`, `DATASTORE_COLUMNS`, `BIG_QUERY_COLUMNS`, `ALL_COLUMNS`.
 
 
-<a name="nested_table"></a>The `table` block supports:
+<a name="nested_inspect_job_actions_actions_save_findings_output_config_table"></a>The `table` block supports:
 
 * `project_id` -
   (Required)
@@ -1546,13 +1546,13 @@ The following arguments are supported:
   Name of the table. If is not set a new one will be generated for you with the following format:
   `dlp_googleapis_yyyy_mm_dd_[dlp_job_id]`. Pacific timezone will be used for generating the date details.
 
-<a name="nested_pub_sub"></a>The `pub_sub` block supports:
+<a name="nested_inspect_job_actions_actions_pub_sub"></a>The `pub_sub` block supports:
 
 * `topic` -
   (Required)
   Cloud Pub/Sub topic to send notifications to.
 
-<a name="nested_deidentify"></a>The `deidentify` block supports:
+<a name="nested_inspect_job_actions_actions_deidentify"></a>The `deidentify` block supports:
 
 * `cloud_storage_output` -
   (Required)
@@ -1580,7 +1580,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_actions_actions_deidentify_transformation_details_storage_config).
 
 
-<a name="nested_transformation_config"></a>The `transformation_config` block supports:
+<a name="nested_inspect_job_actions_actions_deidentify_transformation_config"></a>The `transformation_config` block supports:
 
 * `deidentify_template` -
   (Optional)
@@ -1594,7 +1594,7 @@ The following arguments are supported:
   (Optional)
   If this template is specified, it will serve as the de-identify template for images.
 
-<a name="nested_transformation_details_storage_config"></a>The `transformation_details_storage_config` block supports:
+<a name="nested_inspect_job_actions_actions_deidentify_transformation_details_storage_config"></a>The `transformation_details_storage_config` block supports:
 
 * `table` -
   (Required)
@@ -1602,7 +1602,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_inspect_job_actions_actions_deidentify_transformation_details_storage_config_table).
 
 
-<a name="nested_table"></a>The `table` block supports:
+<a name="nested_inspect_job_actions_actions_deidentify_transformation_details_storage_config_table"></a>The `table` block supports:
 
 * `dataset_id` -
   (Required)

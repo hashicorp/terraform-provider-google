@@ -414,7 +414,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_resources_volumes).
 
 
-<a name="nested_volumes"></a>The `volumes` block supports:
+<a name="nested_resources_volumes"></a>The `volumes` block supports:
 
 * `name` -
   (Required)
@@ -478,13 +478,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_handlers_handlers_static_files).
 
 
-<a name="nested_script"></a>The `script` block supports:
+<a name="nested_handlers_handlers_script"></a>The `script` block supports:
 
 * `script_path` -
   (Required)
   Path to the script from the application root directory.
 
-<a name="nested_static_files"></a>The `static_files` block supports:
+<a name="nested_handlers_handlers_static_files"></a>The `static_files` block supports:
 
 * `path` -
   (Optional)
@@ -572,7 +572,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deployment_cloud_build_options).
 
 
-<a name="nested_zip"></a>The `zip` block supports:
+<a name="nested_deployment_zip"></a>The `zip` block supports:
 
 * `source_url` -
   (Required)
@@ -582,7 +582,7 @@ The following arguments are supported:
   (Optional)
   files count
 
-<a name="nested_files"></a>The `files` block supports:
+<a name="nested_deployment_files"></a>The `files` block supports:
 
 * `name` - (Required) The identifier for this object. Format specified above.
 
@@ -594,14 +594,14 @@ The following arguments are supported:
   (Required)
   Source URL
 
-<a name="nested_container"></a>The `container` block supports:
+<a name="nested_deployment_container"></a>The `container` block supports:
 
 * `image` -
   (Required)
   URI to the hosted container image in Google Container Registry. The URI must be fully qualified and include a tag or digest.
   Examples: "gcr.io/my-project/image:tag" or "gcr.io/my-project/image@digest"
 
-<a name="nested_cloud_build_options"></a>The `cloud_build_options` block supports:
+<a name="nested_deployment_cloud_build_options"></a>The `cloud_build_options` block supports:
 
 * `app_yaml_path` -
   (Required)
@@ -708,7 +708,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_automatic_scaling_network_utilization).
 
 
-<a name="nested_cpu_utilization"></a>The `cpu_utilization` block supports:
+<a name="nested_automatic_scaling_cpu_utilization"></a>The `cpu_utilization` block supports:
 
 * `aggregation_window_length` -
   (Optional)
@@ -718,7 +718,7 @@ The following arguments are supported:
   (Required)
   Target CPU utilization ratio to maintain when scaling. Must be between 0 and 1.
 
-<a name="nested_request_utilization"></a>The `request_utilization` block supports:
+<a name="nested_automatic_scaling_request_utilization"></a>The `request_utilization` block supports:
 
 * `target_request_count_per_second` -
   (Optional)
@@ -728,7 +728,7 @@ The following arguments are supported:
   (Optional)
   Target number of concurrent requests.
 
-<a name="nested_disk_utilization"></a>The `disk_utilization` block supports:
+<a name="nested_automatic_scaling_disk_utilization"></a>The `disk_utilization` block supports:
 
 * `target_write_bytes_per_second` -
   (Optional)
@@ -746,7 +746,7 @@ The following arguments are supported:
   (Optional)
   Target ops read per seconds.
 
-<a name="nested_network_utilization"></a>The `network_utilization` block supports:
+<a name="nested_automatic_scaling_network_utilization"></a>The `network_utilization` block supports:
 
 * `target_sent_bytes_per_second` -
   (Optional)

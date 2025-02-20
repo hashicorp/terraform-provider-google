@@ -182,7 +182,7 @@ The following arguments are supported:
   call this router ID.
 
 
-<a name="nested_advertised_ip_ranges"></a>The `advertised_ip_ranges` block supports:
+<a name="nested_bgp_advertised_ip_ranges"></a>The `advertised_ip_ranges` block supports:
 
 * `range` -
   (Required)

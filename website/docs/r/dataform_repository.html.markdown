@@ -186,7 +186,7 @@ The following arguments are supported:
   Indicates the status of the Git access token. https://cloud.google.com/dataform/reference/rest/v1beta1/projects.locations.repositories#TokenStatus
 
 
-<a name="nested_ssh_authentication_config"></a>The `ssh_authentication_config` block supports:
+<a name="nested_git_remote_settings_ssh_authentication_config"></a>The `ssh_authentication_config` block supports:
 
 * `user_private_key_secret_version` -
   (Required)

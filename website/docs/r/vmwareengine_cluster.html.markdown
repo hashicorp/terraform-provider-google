@@ -209,7 +209,7 @@ The following arguments are supported:
   Mandatory for successful addition of autoscaling settings in cluster.
 
 
-<a name="nested_autoscaling_policies"></a>The `autoscaling_policies` block supports:
+<a name="nested_autoscaling_settings_autoscaling_policies"></a>The `autoscaling_policies` block supports:
 
 * `autoscale_policy_id` - (Required) The identifier for this object. Format specified above.
 
@@ -238,7 +238,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_autoscaling_settings_autoscaling_policies_autoscaling_policy_storage_thresholds).
 
 
-<a name="nested_cpu_thresholds"></a>The `cpu_thresholds` block supports:
+<a name="nested_autoscaling_settings_autoscaling_policies_autoscaling_policy_cpu_thresholds"></a>The `cpu_thresholds` block supports:
 
 * `scale_out` -
   (Required)
@@ -248,7 +248,7 @@ The following arguments are supported:
   (Required)
   The utilization triggering the scale-in operation in percent.
 
-<a name="nested_consumed_memory_thresholds"></a>The `consumed_memory_thresholds` block supports:
+<a name="nested_autoscaling_settings_autoscaling_policies_autoscaling_policy_consumed_memory_thresholds"></a>The `consumed_memory_thresholds` block supports:
 
 * `scale_out` -
   (Required)
@@ -258,7 +258,7 @@ The following arguments are supported:
   (Required)
   The utilization triggering the scale-in operation in percent.
 
-<a name="nested_storage_thresholds"></a>The `storage_thresholds` block supports:
+<a name="nested_autoscaling_settings_autoscaling_policies_autoscaling_policy_storage_thresholds"></a>The `storage_thresholds` block supports:
 
 * `scale_out` -
   (Required)

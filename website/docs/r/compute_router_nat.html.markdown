@@ -467,7 +467,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_action).
 
 
-<a name="nested_action"></a>The `action` block supports:
+<a name="nested_rules_rules_action"></a>The `action` block supports:
 
 * `source_nat_active_ips` -
   (Optional)

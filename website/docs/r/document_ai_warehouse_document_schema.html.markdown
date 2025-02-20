@@ -159,7 +159,7 @@ The following arguments are supported:
   Timestamp property. Not supported by CMEK compliant deployment.
 
 
-<a name="nested_schema_sources"></a>The `schema_sources` block supports:
+<a name="nested_property_definitions_property_definitions_schema_sources"></a>The `schema_sources` block supports:
 
 * `name` -
   (Optional)
@@ -169,7 +169,7 @@ The following arguments are supported:
   (Optional)
   The Doc AI processor type name.
 
-<a name="nested_property_type_options"></a>The `property_type_options` block supports:
+<a name="nested_property_definitions_property_definitions_property_type_options"></a>The `property_type_options` block supports:
 
 * `property_definitions` -
   (Required)
@@ -177,7 +177,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_property_definitions_property_definitions_property_type_options_property_definitions).
 
 
-<a name="nested_property_definitions"></a>The `property_definitions` block supports:
+<a name="nested_property_definitions_property_definitions_property_type_options_property_definitions"></a>The `property_definitions` block supports:
 
 * `name` -
   (Required)
@@ -247,7 +247,7 @@ The following arguments are supported:
   Timestamp property. Not supported by CMEK compliant deployment.
 
 
-<a name="nested_schema_sources"></a>The `schema_sources` block supports:
+<a name="nested_property_definitions_property_definitions_property_type_options_property_definitions_property_definitions_schema_sources"></a>The `schema_sources` block supports:
 
 * `name` -
   (Optional)
@@ -257,7 +257,7 @@ The following arguments are supported:
   (Optional)
   The Doc AI processor type name.
 
-<a name="nested_enum_type_options"></a>The `enum_type_options` block supports:
+<a name="nested_property_definitions_property_definitions_property_type_options_property_definitions_property_definitions_enum_type_options"></a>The `enum_type_options` block supports:
 
 * `possible_values` -
   (Required)
@@ -267,7 +267,7 @@ The following arguments are supported:
   (Optional)
   Make sure the enum property value provided in the document is in the possile value list during document creation. The validation check runs by default.
 
-<a name="nested_enum_type_options"></a>The `enum_type_options` block supports:
+<a name="nested_property_definitions_property_definitions_enum_type_options"></a>The `enum_type_options` block supports:
 
 * `possible_values` -
   (Required)
