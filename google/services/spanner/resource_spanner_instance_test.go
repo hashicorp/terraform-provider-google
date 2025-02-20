@@ -604,6 +604,7 @@ resource "google_spanner_instance" "main" {
 func testAccSpannerInstance_spannerInstanceWithAutoscaling(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_spanner_instance" "example" {
+  name         = "tf-test-spanner-instance-%{random_suffix}"
   config       = "regional-us-central1"
   display_name = "Test Spanner Instance"
   autoscaling_config {
