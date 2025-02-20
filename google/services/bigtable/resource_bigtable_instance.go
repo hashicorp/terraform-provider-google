@@ -616,7 +616,6 @@ func expandBigtableClusters(clusters []interface{}, instanceID string, config *t
 			InstanceID:  instanceID,
 			Zone:        zone,
 			ClusterID:   cluster["cluster_id"].(string),
-			NumNodes:    int32(cluster["num_nodes"].(int)),
 			StorageType: storageType,
 			KMSKeyName:  cluster["kms_key_name"].(string),
 		}
@@ -629,6 +628,10 @@ func expandBigtableClusters(clusters []interface{}, instanceID string, config *t
 				CPUTargetPercent:          autoscaling_config["cpu_target"].(int),
 				StorageUtilizationPerNode: autoscaling_config["storage_target"].(int),
 			}
+		} else {
+			// We only set num_nodes if there is no auto-scaling config, since if
+			// auto-scaling is enabled the number of live nodes is dynamic
+			cluster_config.NumNodes = int32(cluster["num_nodes"].(int))
 		}
 		results = append(results, cluster_config)
 	}

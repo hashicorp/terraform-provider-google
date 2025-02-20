@@ -1,0 +1,3 @@
+```release-note: bug
+bigtable: fixed a bug where sometimes updating an instance's cluster list could result in an error if there was an existing cluster with autoscaling enabled
+```
