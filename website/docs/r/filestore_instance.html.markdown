@@ -207,7 +207,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_file_shares_file_shares_nfs_export_options).
 
 
-<a name="nested_nfs_export_options"></a>The `nfs_export_options` block supports:
+<a name="nested_file_shares_file_shares_nfs_export_options"></a>The `nfs_export_options` block supports:
 
 * `ip_ranges` -
   (Optional)
@@ -360,7 +360,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_performance_config_fixed_iops).
 
 
-<a name="nested_iops_per_tb"></a>The `iops_per_tb` block supports:
+<a name="nested_performance_config_iops_per_tb"></a>The `iops_per_tb` block supports:
 
 * `max_iops_per_tb` -
   (Optional)
@@ -370,7 +370,7 @@ The following arguments are supported:
   will be changed dynamically based on the instance
   capacity.
 
-<a name="nested_fixed_iops"></a>The `fixed_iops` block supports:
+<a name="nested_performance_config_fixed_iops"></a>The `fixed_iops` block supports:
 
 * `max_iops` -
   (Optional)
@@ -391,7 +391,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_initial_replication_replicas).
 
 
-<a name="nested_replicas"></a>The `replicas` block supports:
+<a name="nested_initial_replication_replicas"></a>The `replicas` block supports:
 
 * `peer_instance` -
   (Required)
@@ -430,7 +430,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_effective_replication_replicas).
 
 
-<a name="nested_replicas"></a>The `replicas` block supports:
+<a name="nested_effective_replication_replicas"></a>The `replicas` block supports:
 
 * `state` -
   (Output)

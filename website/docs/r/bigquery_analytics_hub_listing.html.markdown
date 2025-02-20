@@ -215,7 +215,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_bigquery_dataset_selected_resources).
 
 
-<a name="nested_selected_resources"></a>The `selected_resources` block supports:
+<a name="nested_bigquery_dataset_selected_resources"></a>The `selected_resources` block supports:
 
 * `table` -
   (Optional)

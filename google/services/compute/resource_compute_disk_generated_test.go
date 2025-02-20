@@ -49,7 +49,7 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_disk.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"disk_encryption_key.0.raw_key_wo_version", "disk_encryption_key.0.rsa_encrypted_key_wo_version", "labels", "snapshot", "terraform_labels", "type", "zone"},
+				ImportStateVerifyIgnore: []string{"labels", "snapshot", "terraform_labels", "type", "zone"},
 			},
 		},
 	})
@@ -64,50 +64,6 @@ resource "google_compute_disk" "default" {
   image = "debian-11-bullseye-v20220719"
   labels = {
     environment = "dev"
-  }
-  physical_block_size_bytes = 4096
-}
-`, context)
-}
-
-func TestAccComputeDisk_diskBasicWoExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeDisk_diskBasicWoExample(context),
-			},
-			{
-				ResourceName:            "google_compute_disk.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"disk_encryption_key.0.raw_key_wo_version", "disk_encryption_key.0.rsa_encrypted_key_wo_version", "labels", "snapshot", "terraform_labels", "type", "zone"},
-			},
-		},
-	})
-}
-
-func testAccComputeDisk_diskBasicWoExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_compute_disk" "default" {
-  name  = "tf-test-test-disk%{random_suffix}"
-  type  = "pd-ssd"
-  zone  = "us-central1-a"
-  image = "debian-11-bullseye-v20220719"
-  labels = {
-    environment = "dev"
-  }
-  disk_encryption_key {
-    raw_key_wo = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
-    raw_key_wo_version = 1
   }
   physical_block_size_bytes = 4096
 }
@@ -133,7 +89,7 @@ func TestAccComputeDisk_diskAsyncExample(t *testing.T) {
 				ResourceName:            "google_compute_disk.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"disk_encryption_key.0.raw_key_wo_version", "disk_encryption_key.0.rsa_encrypted_key_wo_version", "labels", "snapshot", "terraform_labels", "type", "zone"},
+				ImportStateVerifyIgnore: []string{"labels", "snapshot", "terraform_labels", "type", "zone"},
 			},
 		},
 	})
@@ -182,7 +138,7 @@ func TestAccComputeDisk_diskFeaturesExample(t *testing.T) {
 				ResourceName:            "google_compute_disk.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"disk_encryption_key.0.raw_key_wo_version", "disk_encryption_key.0.rsa_encrypted_key_wo_version", "labels", "snapshot", "terraform_labels", "type", "zone"},
+				ImportStateVerifyIgnore: []string{"labels", "snapshot", "terraform_labels", "type", "zone"},
 			},
 		},
 	})

@@ -342,7 +342,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_client_connection_config_ssl_config).
 
 
-<a name="nested_ssl_config"></a>The `ssl_config` block supports:
+<a name="nested_client_connection_config_ssl_config"></a>The `ssl_config` block supports:
 
 * `ssl_mode` -
   (Optional)
@@ -387,7 +387,7 @@ The following arguments are supported:
   Enabling outbound public ip for the instance.
 
 
-<a name="nested_authorized_external_networks"></a>The `authorized_external_networks` block supports:
+<a name="nested_network_config_authorized_external_networks"></a>The `authorized_external_networks` block supports:
 
 * `cidr_range` -
   (Optional)

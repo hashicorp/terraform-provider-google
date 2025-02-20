@@ -233,7 +233,7 @@ The following arguments are supported:
   The ingestion key value pair will match the key of the tuple.
 
 
-<a name="nested_ingestion_label"></a>The `ingestion_label` block supports:
+<a name="nested_allowed_data_access_labels_allowed_data_access_labels_ingestion_label"></a>The `ingestion_label` block supports:
 
 * `ingestion_label_key` -
   (Required)
@@ -274,7 +274,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_denied_data_access_labels_denied_data_access_labels_ingestion_label).
 
 
-<a name="nested_ingestion_label"></a>The `ingestion_label` block supports:
+<a name="nested_denied_data_access_labels_denied_data_access_labels_ingestion_label"></a>The `ingestion_label` block supports:
 
 * `ingestion_label_key` -
   (Required)

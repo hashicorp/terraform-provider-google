@@ -350,7 +350,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_create_notebook_execution_job_request_notebook_execution_job).
 
 
-<a name="nested_notebook_execution_job"></a>The `notebook_execution_job` block supports:
+<a name="nested_create_notebook_execution_job_request_notebook_execution_job"></a>The `notebook_execution_job` block supports:
 
 * `display_name` -
   (Required)
@@ -387,7 +387,7 @@ The following arguments are supported:
   The service account to run the execution as.
 
 
-<a name="nested_dataform_repository_source"></a>The `dataform_repository_source` block supports:
+<a name="nested_create_notebook_execution_job_request_notebook_execution_job_dataform_repository_source"></a>The `dataform_repository_source` block supports:
 
 * `dataform_repository_resource_name` -
   (Required)
@@ -397,7 +397,7 @@ The following arguments are supported:
   (Optional)
   The commit SHA to read repository with. If unset, the file will be read at HEAD.
 
-<a name="nested_gcs_notebook_source"></a>The `gcs_notebook_source` block supports:
+<a name="nested_create_notebook_execution_job_request_notebook_execution_job_gcs_notebook_source"></a>The `gcs_notebook_source` block supports:
 
 * `uri` -
   (Required)

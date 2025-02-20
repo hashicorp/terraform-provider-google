@@ -192,7 +192,7 @@ Possible values: DEFAULT, FORCE.
   Structure is [documented below](#nested_export_policy_rules).
 
 
-<a name="nested_rules"></a>The `rules` block supports:
+<a name="nested_export_policy_rules"></a>The `rules` block supports:
 
 * `allowed_clients` -
   (Optional)
@@ -281,7 +281,7 @@ Possible values: DEFAULT, FORCE.
   Structure is [documented below](#nested_snapshot_policy_monthly_schedule).
 
 
-<a name="nested_hourly_schedule"></a>The `hourly_schedule` block supports:
+<a name="nested_snapshot_policy_hourly_schedule"></a>The `hourly_schedule` block supports:
 
 * `snapshots_to_keep` -
   (Required)
@@ -291,7 +291,7 @@ Possible values: DEFAULT, FORCE.
   (Optional)
   Set the minute of the hour to create the snapshot (0-59), defaults to the top of the hour (0).
 
-<a name="nested_daily_schedule"></a>The `daily_schedule` block supports:
+<a name="nested_snapshot_policy_daily_schedule"></a>The `daily_schedule` block supports:
 
 * `snapshots_to_keep` -
   (Required)
@@ -305,7 +305,7 @@ Possible values: DEFAULT, FORCE.
   (Optional)
   Set the hour to create the snapshot (0-23), defaults to midnight (0).
 
-<a name="nested_weekly_schedule"></a>The `weekly_schedule` block supports:
+<a name="nested_snapshot_policy_weekly_schedule"></a>The `weekly_schedule` block supports:
 
 * `snapshots_to_keep` -
   (Required)
@@ -323,7 +323,7 @@ Possible values: DEFAULT, FORCE.
   (Optional)
   Set the day or days of the week to make a snapshot. Accepts a comma separated days of the week. Defaults to 'Sunday'.
 
-<a name="nested_monthly_schedule"></a>The `monthly_schedule` block supports:
+<a name="nested_snapshot_policy_monthly_schedule"></a>The `monthly_schedule` block supports:
 
 * `snapshots_to_keep` -
   (Required)

@@ -269,7 +269,7 @@ The following arguments are supported:
   but additional target types may be added in the future. Possible values: VIEWS
 
 
-<a name="nested_dataset"></a>The `dataset` block supports:
+<a name="nested_dataset_dataset"></a>The `dataset` block supports:
 
 * `dataset_id` -
   (Required)

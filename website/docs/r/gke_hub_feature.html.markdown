@@ -357,13 +357,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_clusterupgrade).
 
 
-<a name="nested_multiclusteringress"></a>The `multiclusteringress` block supports:
+<a name="nested_spec_multiclusteringress"></a>The `multiclusteringress` block supports:
 
 * `config_membership` -
   (Required)
   Fully-qualified Membership name which hosts the MultiClusterIngress CRD. Example: `projects/foo-proj/locations/global/memberships/bar`
 
-<a name="nested_fleetobservability"></a>The `fleetobservability` block supports:
+<a name="nested_spec_fleetobservability"></a>The `fleetobservability` block supports:
 
 * `logging_config` -
   (Optional)
@@ -371,7 +371,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_fleetobservability_logging_config).
 
 
-<a name="nested_logging_config"></a>The `logging_config` block supports:
+<a name="nested_spec_fleetobservability_logging_config"></a>The `logging_config` block supports:
 
 * `default_config` -
   (Optional)
@@ -384,21 +384,21 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_fleetobservability_logging_config_fleet_scope_logs_config).
 
 
-<a name="nested_default_config"></a>The `default_config` block supports:
+<a name="nested_spec_fleetobservability_logging_config_default_config"></a>The `default_config` block supports:
 
 * `mode` -
   (Optional)
   Specified if fleet logging feature is enabled.
   Possible values are: `MODE_UNSPECIFIED`, `COPY`, `MOVE`.
 
-<a name="nested_fleet_scope_logs_config"></a>The `fleet_scope_logs_config` block supports:
+<a name="nested_spec_fleetobservability_logging_config_fleet_scope_logs_config"></a>The `fleet_scope_logs_config` block supports:
 
 * `mode` -
   (Optional)
   Specified if fleet logging feature is enabled.
   Possible values are: `MODE_UNSPECIFIED`, `COPY`, `MOVE`.
 
-<a name="nested_clusterupgrade"></a>The `clusterupgrade` block supports:
+<a name="nested_spec_clusterupgrade"></a>The `clusterupgrade` block supports:
 
 * `upstream_fleets` -
   (Required)
@@ -415,13 +415,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_clusterupgrade_gke_upgrade_overrides).
 
 
-<a name="nested_post_conditions"></a>The `post_conditions` block supports:
+<a name="nested_spec_clusterupgrade_post_conditions"></a>The `post_conditions` block supports:
 
 * `soaking` -
   (Required)
   Amount of time to "soak" after a rollout has been finished before marking it COMPLETE. Cannot exceed 30 days.
 
-<a name="nested_gke_upgrade_overrides"></a>The `gke_upgrade_overrides` block supports:
+<a name="nested_spec_clusterupgrade_gke_upgrade_overrides"></a>The `gke_upgrade_overrides` block supports:
 
 * `upgrade` -
   (Required)
@@ -434,7 +434,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_clusterupgrade_gke_upgrade_overrides_gke_upgrade_overrides_post_conditions).
 
 
-<a name="nested_upgrade"></a>The `upgrade` block supports:
+<a name="nested_spec_clusterupgrade_gke_upgrade_overrides_gke_upgrade_overrides_upgrade"></a>The `upgrade` block supports:
 
 * `name` -
   (Required)
@@ -444,7 +444,7 @@ The following arguments are supported:
   (Required)
   Version of the upgrade, e.g., "1.22.1-gke.100". It should be a valid version. It must not exceet 99 characters.
 
-<a name="nested_post_conditions"></a>The `post_conditions` block supports:
+<a name="nested_spec_clusterupgrade_gke_upgrade_overrides_gke_upgrade_overrides_post_conditions"></a>The `post_conditions` block supports:
 
 * `soaking` -
   (Required)
@@ -468,14 +468,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_fleet_default_member_config_policycontroller).
 
 
-<a name="nested_mesh"></a>The `mesh` block supports:
+<a name="nested_fleet_default_member_config_mesh"></a>The `mesh` block supports:
 
 * `management` -
   (Required)
   Whether to automatically manage Service Mesh
   Possible values are: `MANAGEMENT_UNSPECIFIED`, `MANAGEMENT_AUTOMATIC`, `MANAGEMENT_MANUAL`.
 
-<a name="nested_configmanagement"></a>The `configmanagement` block supports:
+<a name="nested_fleet_default_member_config_configmanagement"></a>The `configmanagement` block supports:
 
 * `version` -
   (Optional)
@@ -492,7 +492,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_fleet_default_member_config_configmanagement_config_sync).
 
 
-<a name="nested_config_sync"></a>The `config_sync` block supports:
+<a name="nested_fleet_default_member_config_configmanagement_config_sync"></a>The `config_sync` block supports:
 
 * `source_format` -
   (Optional)
@@ -521,7 +521,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_fleet_default_member_config_configmanagement_config_sync_oci).
 
 
-<a name="nested_git"></a>The `git` block supports:
+<a name="nested_fleet_default_member_config_configmanagement_config_sync_git"></a>The `git` block supports:
 
 * `sync_repo` -
   (Optional)
@@ -555,7 +555,7 @@ The following arguments are supported:
   (Optional)
   Period in seconds between consecutive syncs. Default: 15
 
-<a name="nested_oci"></a>The `oci` block supports:
+<a name="nested_fleet_default_member_config_configmanagement_config_sync_oci"></a>The `oci` block supports:
 
 * `sync_repo` -
   (Optional)
@@ -583,7 +583,7 @@ The following arguments are supported:
 
   ~> **Warning:** The `configmanagement.config_sync.oci.version` field is deprecated and will be removed in a future major release. Please use `configmanagement.version` field to specify the version of Config Sync installed instead.
 
-<a name="nested_policycontroller"></a>The `policycontroller` block supports:
+<a name="nested_fleet_default_member_config_policycontroller"></a>The `policycontroller` block supports:
 
 * `version` -
   (Optional)
@@ -595,7 +595,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_fleet_default_member_config_policycontroller_policy_controller_hub_config).
 
 
-<a name="nested_policy_controller_hub_config"></a>The `policy_controller_hub_config` block supports:
+<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config"></a>The `policy_controller_hub_config` block supports:
 
 * `install_spec` -
   (Required)
@@ -642,14 +642,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_policy_content).
 
 
-<a name="nested_monitoring"></a>The `monitoring` block supports:
+<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_monitoring"></a>The `monitoring` block supports:
 
 * `backends` -
   (Optional)
   Specifies the list of backends Policy Controller will export to. An empty list would effectively disable metrics export.
   Each value may be one of: `MONITORING_BACKEND_UNSPECIFIED`, `PROMETHEUS`, `CLOUD_MONITORING`.
 
-<a name="nested_deployment_configs"></a>The `deployment_configs` block supports:
+<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs"></a>The `deployment_configs` block supports:
 
 * `component` - (Required) The identifier for this object. Format specified above.
 
@@ -673,7 +673,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_deployment_config_pod_toleration).
 
 
-<a name="nested_container_resources"></a>The `container_resources` block supports:
+<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_deployment_config_container_resources"></a>The `container_resources` block supports:
 
 * `limits` -
   (Optional)
@@ -686,7 +686,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_deployment_config_container_resources_requests).
 
 
-<a name="nested_limits"></a>The `limits` block supports:
+<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_deployment_config_container_resources_limits"></a>The `limits` block supports:
 
 * `memory` -
   (Optional)
@@ -696,7 +696,7 @@ The following arguments are supported:
   (Optional)
   CPU requirement expressed in Kubernetes resource units.
 
-<a name="nested_requests"></a>The `requests` block supports:
+<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_deployment_config_container_resources_requests"></a>The `requests` block supports:
 
 * `memory` -
   (Optional)
@@ -706,7 +706,7 @@ The following arguments are supported:
   (Optional)
   CPU requirement expressed in Kubernetes resource units.
 
-<a name="nested_pod_toleration"></a>The `pod_toleration` block supports:
+<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_deployment_config_pod_toleration"></a>The `pod_toleration` block supports:
 
 * `key` -
   (Optional)
@@ -724,7 +724,7 @@ The following arguments are supported:
   (Optional)
   Matches a taint effect.
 
-<a name="nested_policy_content"></a>The `policy_content` block supports:
+<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_policy_content"></a>The `policy_content` block supports:
 
 * `template_library` -
   (Optional)
@@ -737,14 +737,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_policy_content_bundles).
 
 
-<a name="nested_template_library"></a>The `template_library` block supports:
+<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_policy_content_template_library"></a>The `template_library` block supports:
 
 * `installation` -
   (Optional)
   Configures the manner in which the template library is installed on the cluster.
   Possible values are: `INSTALLATION_UNSPECIFIED`, `NOT_INSTALLED`, `ALL`.
 
-<a name="nested_bundles"></a>The `bundles` block supports:
+<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_policy_content_bundles"></a>The `bundles` block supports:
 
 * `bundle` - (Required) The identifier for this object. Format specified above.
 
@@ -801,7 +801,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_state_state).
 
 
-<a name="nested_state"></a>The `state` block contains:
+<a name="nested_state_state"></a>The `state` block contains:
 
 * `code` -
   (Output)

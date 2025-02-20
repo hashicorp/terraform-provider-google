@@ -205,7 +205,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_cron_spec).
 
 
-<a name="nested_cron_spec"></a>The `cron_spec` block supports:
+<a name="nested_spec_cron_spec"></a>The `cron_spec` block supports:
 
 * `text` -
   (Optional)

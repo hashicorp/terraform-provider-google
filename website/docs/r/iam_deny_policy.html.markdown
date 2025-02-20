@@ -109,7 +109,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_deny_rule).
 
 
-<a name="nested_deny_rule"></a>The `deny_rule` block supports:
+<a name="nested_rules_rules_deny_rule"></a>The `deny_rule` block supports:
 
 * `denied_principals` -
   (Optional)
@@ -137,7 +137,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_deny_rule_denial_condition).
 
 
-<a name="nested_denial_condition"></a>The `denial_condition` block supports:
+<a name="nested_rules_rules_deny_rule_denial_condition"></a>The `denial_condition` block supports:
 
 * `expression` -
   (Required)

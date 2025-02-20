@@ -149,7 +149,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_hive_options_storage_descriptor).
 
 
-<a name="nested_storage_descriptor"></a>The `storage_descriptor` block supports:
+<a name="nested_hive_options_storage_descriptor"></a>The `storage_descriptor` block supports:
 
 * `location_uri` -
   (Optional)

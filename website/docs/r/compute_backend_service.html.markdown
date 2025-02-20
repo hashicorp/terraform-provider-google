@@ -786,7 +786,7 @@ The following arguments are supported:
   Defaults to 3.
 
 
-<a name="nested_connect_timeout"></a>The `connect_timeout` block supports:
+<a name="nested_circuit_breakers_connect_timeout"></a>The `connect_timeout` block supports:
 
 * `seconds` -
   (Required)
@@ -825,7 +825,7 @@ The following arguments are supported:
   Defaults to 1024.
 
 
-<a name="nested_http_cookie"></a>The `http_cookie` block supports:
+<a name="nested_consistent_hash_http_cookie"></a>The `http_cookie` block supports:
 
 * `ttl` -
   (Optional)
@@ -841,7 +841,7 @@ The following arguments are supported:
   Path to set for the cookie.
 
 
-<a name="nested_ttl"></a>The `ttl` block supports:
+<a name="nested_consistent_hash_http_cookie_ttl"></a>The `ttl` block supports:
 
 * `seconds` -
   (Required)
@@ -914,7 +914,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_cdn_policy_bypass_cache_on_request_headers).
 
 
-<a name="nested_cache_key_policy"></a>The `cache_key_policy` block supports:
+<a name="nested_cdn_policy_cache_key_policy"></a>The `cache_key_policy` block supports:
 
 * `include_host` -
   (Optional)
@@ -958,7 +958,7 @@ The following arguments are supported:
   (Optional)
   Names of cookies to include in cache keys.
 
-<a name="nested_negative_caching_policy"></a>The `negative_caching_policy` block supports:
+<a name="nested_cdn_policy_negative_caching_policy"></a>The `negative_caching_policy` block supports:
 
 * `code` -
   (Optional)
@@ -970,7 +970,7 @@ The following arguments are supported:
   The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
   (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
 
-<a name="nested_bypass_cache_on_request_headers"></a>The `bypass_cache_on_request_headers` block supports:
+<a name="nested_cdn_policy_bypass_cache_on_request_headers"></a>The `bypass_cache_on_request_headers` block supports:
 
 * `header_name` -
   (Required)
@@ -1010,7 +1010,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_locality_lb_policies_locality_lb_policies_custom_policy).
 
 
-<a name="nested_policy"></a>The `policy` block supports:
+<a name="nested_locality_lb_policies_locality_lb_policies_policy"></a>The `policy` block supports:
 
 * `name` -
   (Required)
@@ -1042,7 +1042,7 @@ The following arguments are supported:
               Maglev, refer to https://ai.google/research/pubs/pub44824
   Possible values are: `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, `MAGLEV`.
 
-<a name="nested_custom_policy"></a>The `custom_policy` block supports:
+<a name="nested_locality_lb_policies_locality_lb_policies_custom_policy"></a>The `custom_policy` block supports:
 
 * `name` -
   (Required)
@@ -1134,7 +1134,7 @@ The following arguments are supported:
   runtime value should be 1900. Defaults to 1900.
 
 
-<a name="nested_base_ejection_time"></a>The `base_ejection_time` block supports:
+<a name="nested_outlier_detection_base_ejection_time"></a>The `base_ejection_time` block supports:
 
 * `seconds` -
   (Required)
@@ -1147,7 +1147,7 @@ The following arguments are supported:
   less than one second are represented with a 0 `seconds` field and a positive
   `nanos` field. Must be from 0 to 999,999,999 inclusive.
 
-<a name="nested_interval"></a>The `interval` block supports:
+<a name="nested_outlier_detection_interval"></a>The `interval` block supports:
 
 * `seconds` -
   (Required)
@@ -1181,7 +1181,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_security_settings_aws_v4_authentication).
 
 
-<a name="nested_aws_v4_authentication"></a>The `aws_v4_authentication` block supports:
+<a name="nested_security_settings_aws_v4_authentication"></a>The `aws_v4_authentication` block supports:
 
 * `access_key_id` -
   (Optional)
@@ -1218,7 +1218,7 @@ The following arguments are supported:
   Path to set for the cookie.
 
 
-<a name="nested_ttl"></a>The `ttl` block supports:
+<a name="nested_strong_session_affinity_cookie_ttl"></a>The `ttl` block supports:
 
 * `seconds` -
   (Required)

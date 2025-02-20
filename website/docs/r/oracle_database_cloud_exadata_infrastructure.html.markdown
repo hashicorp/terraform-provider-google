@@ -273,7 +273,7 @@ The following arguments are supported:
   in the Exadata Infrastructure. Example: 20.1.15
 
 
-<a name="nested_maintenance_window"></a>The `maintenance_window` block supports:
+<a name="nested_properties_maintenance_window"></a>The `maintenance_window` block supports:
 
 * `preference` -
   (Optional)
@@ -333,7 +333,7 @@ The following arguments are supported:
   If true, enables the configuration of a custom action timeout (waiting
   period) between database server patching operations.
 
-<a name="nested_customer_contacts"></a>The `customer_contacts` block supports:
+<a name="nested_properties_customer_contacts"></a>The `customer_contacts` block supports:
 
 * `email` -
   (Required)

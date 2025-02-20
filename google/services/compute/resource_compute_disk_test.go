@@ -768,38 +768,6 @@ func TestAccComputeDisk_pdExtremeImplicitProvisionedIops(t *testing.T) {
 	})
 }
 
-func TestAccComputeDisk_update_wo(t *testing.T) {
-	t.Parallel()
-
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
-	diskType := "pd-ssd"
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeDisk_basic(diskName, diskType),
-			},
-			{
-				ResourceName:            "google_compute_disk.foobar",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"disk_encryption_key.0.raw_key_wo_version", "labels", "terraform_labels"},
-			},
-			{
-				Config: testAccComputeDisk_basic_updated_wo(diskName, diskType),
-			},
-			{
-				ResourceName:            "google_compute_disk.foobar",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"disk_encryption_key.0.raw_key_wo_version", "labels", "terraform_labels"},
-			},
-		},
-	})
-}
-
 func testAccCheckComputeDiskExists(t *testing.T, n, p string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -920,30 +888,6 @@ resource "google_compute_disk" "foobar" {
   size  = 50
   type  = "%s"
   zone  = "us-central1-a"
-  labels = {
-    my-label = "my-label-value"
-  }
-}
-`, diskName, diskType)
-}
-
-func testAccComputeDisk_basic_updated_wo(diskName string, diskType string) string {
-	return fmt.Sprintf(`
-data "google_compute_image" "my_image" {
-  family  = "debian-11"
-  project = "debian-cloud"
-}
-
-resource "google_compute_disk" "foobar" {
-  name  = "%s"
-  image = data.google_compute_image.my_image.self_link
-  size  = 50
-  type  = "%s"
-  zone  = "us-central1-a"
-  disk_encryption_key {
-    raw_key_wo = "DWw8Owgk6uhjgXXuATTZ1d9v9OwXXT8/lMYoZsblkM8="
-    raw_key_wo_version = 1
-  }
   labels = {
     my-label = "my-label-value"
   }

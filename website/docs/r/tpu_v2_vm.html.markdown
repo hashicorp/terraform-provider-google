@@ -424,7 +424,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_network_endpoints_network_endpoints_access_config).
 
 
-<a name="nested_access_config"></a>The `access_config` block contains:
+<a name="nested_network_endpoints_network_endpoints_access_config"></a>The `access_config` block contains:
 
 * `external_ip` -
   (Output)

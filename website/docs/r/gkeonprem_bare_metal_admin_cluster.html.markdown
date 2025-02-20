@@ -286,7 +286,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_network_config_island_mode_cidr).
 
 
-<a name="nested_island_mode_cidr"></a>The `island_mode_cidr` block supports:
+<a name="nested_network_config_island_mode_cidr"></a>The `island_mode_cidr` block supports:
 
 * `service_address_cidr_blocks` -
   (Required)
@@ -312,7 +312,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_control_plane_api_server_args).
 
 
-<a name="nested_control_plane_node_pool_config"></a>The `control_plane_node_pool_config` block supports:
+<a name="nested_control_plane_control_plane_node_pool_config"></a>The `control_plane_node_pool_config` block supports:
 
 * `node_pool_config` -
   (Required)
@@ -320,7 +320,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_control_plane_control_plane_node_pool_config_node_pool_config).
 
 
-<a name="nested_node_pool_config"></a>The `node_pool_config` block supports:
+<a name="nested_control_plane_control_plane_node_pool_config_node_pool_config"></a>The `node_pool_config` block supports:
 
 * `node_configs` -
   (Optional)
@@ -350,7 +350,7 @@ The following arguments are supported:
   For example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
 
-<a name="nested_node_configs"></a>The `node_configs` block supports:
+<a name="nested_control_plane_control_plane_node_pool_config_node_pool_config_node_configs"></a>The `node_configs` block supports:
 
 * `node_ip` -
   (Optional)
@@ -370,7 +370,7 @@ The following arguments are supported:
   An object containing a list of "key": value pairs.
   For example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
-<a name="nested_taints"></a>The `taints` block supports:
+<a name="nested_control_plane_control_plane_node_pool_config_node_pool_config_taints"></a>The `taints` block supports:
 
 * `key` -
   (Optional)
@@ -385,7 +385,7 @@ The following arguments are supported:
   Specifies the nodes operating system (default: LINUX).
   Possible values are: `EFFECT_UNSPECIFIED`, `PREFER_NO_SCHEDULE`, `NO_EXECUTE`.
 
-<a name="nested_api_server_args"></a>The `api_server_args` block supports:
+<a name="nested_control_plane_api_server_args"></a>The `api_server_args` block supports:
 
 * `argument` -
   (Required)
@@ -413,19 +413,19 @@ The following arguments are supported:
   Structure is [documented below](#nested_load_balancer_manual_lb_config).
 
 
-<a name="nested_vip_config"></a>The `vip_config` block supports:
+<a name="nested_load_balancer_vip_config"></a>The `vip_config` block supports:
 
 * `control_plane_vip` -
   (Required)
   The VIP which you previously set aside for the Kubernetes API of this Bare Metal Admin Cluster.
 
-<a name="nested_port_config"></a>The `port_config` block supports:
+<a name="nested_load_balancer_port_config"></a>The `port_config` block supports:
 
 * `control_plane_load_balancer_port` -
   (Required)
   The port that control plane hosted load balancers will listen on.
 
-<a name="nested_manual_lb_config"></a>The `manual_lb_config` block supports:
+<a name="nested_load_balancer_manual_lb_config"></a>The `manual_lb_config` block supports:
 
 * `enabled` -
   (Required)
@@ -448,7 +448,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_storage_lvp_node_mounts_config).
 
 
-<a name="nested_lvp_share_config"></a>The `lvp_share_config` block supports:
+<a name="nested_storage_lvp_share_config"></a>The `lvp_share_config` block supports:
 
 * `lvp_config` -
   (Required)
@@ -460,7 +460,7 @@ The following arguments are supported:
   The number of subdirectories to create under path.
 
 
-<a name="nested_lvp_config"></a>The `lvp_config` block supports:
+<a name="nested_storage_lvp_share_config_lvp_config"></a>The `lvp_config` block supports:
 
 * `path` -
   (Required)
@@ -470,7 +470,7 @@ The following arguments are supported:
   (Required)
   The StorageClass name that PVs will be created with.
 
-<a name="nested_lvp_node_mounts_config"></a>The `lvp_node_mounts_config` block supports:
+<a name="nested_storage_lvp_node_mounts_config"></a>The `lvp_node_mounts_config` block supports:
 
 * `path` -
   (Required)
@@ -531,7 +531,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_security_config_authorization).
 
 
-<a name="nested_authorization"></a>The `authorization` block supports:
+<a name="nested_security_config_authorization"></a>The `authorization` block supports:
 
 * `admin_users` -
   (Required)
@@ -539,7 +539,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_security_config_authorization_admin_users).
 
 
-<a name="nested_admin_users"></a>The `admin_users` block supports:
+<a name="nested_security_config_authorization_admin_users"></a>The `admin_users` block supports:
 
 * `username` -
   (Required)
@@ -636,7 +636,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_conditions).
 
 
-<a name="nested_conditions"></a>The `conditions` block contains:
+<a name="nested_status_conditions"></a>The `conditions` block contains:
 
 * `type` -
   (Optional)
@@ -675,7 +675,7 @@ In addition to the arguments listed above, the following computed attributes are
   The scenario when the preflight checks were run..
 
 
-<a name="nested_status"></a>The `status` block contains:
+<a name="nested_validation_check_status"></a>The `status` block contains:
 
 * `result` -
   (Output)
@@ -683,7 +683,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_validation_check_status_result).
 
 
-<a name="nested_result"></a>The `result` block contains:
+<a name="nested_validation_check_status_result"></a>The `result` block contains:
 
 * `options` -
   (Output)

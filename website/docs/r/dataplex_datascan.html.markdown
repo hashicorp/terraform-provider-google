@@ -302,7 +302,7 @@ The following arguments are supported:
   The unnested field (of type Date or Timestamp) that contains values which monotonically increase over time. If not specified, a data scan will run for all data in the table.
 
 
-<a name="nested_trigger"></a>The `trigger` block supports:
+<a name="nested_execution_spec_trigger"></a>The `trigger` block supports:
 
 * `on_demand` -
   (Optional)
@@ -314,7 +314,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_execution_spec_trigger_schedule).
 
 
-<a name="nested_schedule"></a>The `schedule` block supports:
+<a name="nested_execution_spec_trigger_schedule"></a>The `schedule` block supports:
 
 * `cron` -
   (Required)
@@ -375,7 +375,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_data_quality_spec_rules).
 
 
-<a name="nested_post_scan_actions"></a>The `post_scan_actions` block supports:
+<a name="nested_data_quality_spec_post_scan_actions"></a>The `post_scan_actions` block supports:
 
 * `bigquery_export` -
   (Optional)
@@ -383,14 +383,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_data_quality_spec_post_scan_actions_bigquery_export).
 
 
-<a name="nested_bigquery_export"></a>The `bigquery_export` block supports:
+<a name="nested_data_quality_spec_post_scan_actions_bigquery_export"></a>The `bigquery_export` block supports:
 
 * `results_table` -
   (Optional)
   The BigQuery table to export DataQualityScan results to.
   Format://bigquery.googleapis.com/projects/PROJECT_ID/datasets/DATASET_ID/tables/TABLE_ID
 
-<a name="nested_rules"></a>The `rules` block supports:
+<a name="nested_data_quality_spec_rules"></a>The `rules` block supports:
 
 * `column` -
   (Optional)
@@ -465,7 +465,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_data_quality_spec_rules_rules_sql_assertion).
 
 
-<a name="nested_range_expectation"></a>The `range_expectation` block supports:
+<a name="nested_data_quality_spec_rules_rules_range_expectation"></a>The `range_expectation` block supports:
 
 * `min_value` -
   (Optional)
@@ -485,19 +485,19 @@ The following arguments are supported:
   Whether each value needs to be strictly lesser than ('<') the maximum, or if equality is allowed.
   Only relevant if a maxValue has been defined. Default = false.
 
-<a name="nested_set_expectation"></a>The `set_expectation` block supports:
+<a name="nested_data_quality_spec_rules_rules_set_expectation"></a>The `set_expectation` block supports:
 
 * `values` -
   (Required)
   Expected values for the column value.
 
-<a name="nested_regex_expectation"></a>The `regex_expectation` block supports:
+<a name="nested_data_quality_spec_rules_rules_regex_expectation"></a>The `regex_expectation` block supports:
 
 * `regex` -
   (Required)
   A regular expression the column value is expected to match.
 
-<a name="nested_statistic_range_expectation"></a>The `statistic_range_expectation` block supports:
+<a name="nested_data_quality_spec_rules_rules_statistic_range_expectation"></a>The `statistic_range_expectation` block supports:
 
 * `statistic` -
   (Required)
@@ -524,19 +524,19 @@ The following arguments are supported:
   Whether column statistic needs to be strictly lesser than ('<') the maximum, or if equality is allowed.
   Only relevant if a maxValue has been defined. Default = false.
 
-<a name="nested_row_condition_expectation"></a>The `row_condition_expectation` block supports:
+<a name="nested_data_quality_spec_rules_rules_row_condition_expectation"></a>The `row_condition_expectation` block supports:
 
 * `sql_expression` -
   (Required)
   The SQL expression.
 
-<a name="nested_table_condition_expectation"></a>The `table_condition_expectation` block supports:
+<a name="nested_data_quality_spec_rules_rules_table_condition_expectation"></a>The `table_condition_expectation` block supports:
 
 * `sql_expression` -
   (Required)
   The SQL expression.
 
-<a name="nested_sql_assertion"></a>The `sql_assertion` block supports:
+<a name="nested_data_quality_spec_rules_rules_sql_assertion"></a>The `sql_assertion` block supports:
 
 * `sql_statement` -
   (Required)
@@ -572,7 +572,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_data_profile_spec_exclude_fields).
 
 
-<a name="nested_post_scan_actions"></a>The `post_scan_actions` block supports:
+<a name="nested_data_profile_spec_post_scan_actions"></a>The `post_scan_actions` block supports:
 
 * `bigquery_export` -
   (Optional)
@@ -580,14 +580,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_data_profile_spec_post_scan_actions_bigquery_export).
 
 
-<a name="nested_bigquery_export"></a>The `bigquery_export` block supports:
+<a name="nested_data_profile_spec_post_scan_actions_bigquery_export"></a>The `bigquery_export` block supports:
 
 * `results_table` -
   (Optional)
   The BigQuery table to export DataProfileScan results to.
   Format://bigquery.googleapis.com/projects/PROJECT_ID/datasets/DATASET_ID/tables/TABLE_ID
 
-<a name="nested_include_fields"></a>The `include_fields` block supports:
+<a name="nested_data_profile_spec_include_fields"></a>The `include_fields` block supports:
 
 * `field_names` -
   (Optional)
@@ -595,7 +595,7 @@ The following arguments are supported:
   Only top-level field names for nested fields are supported.
   For instance, if 'x' is of nested field type, listing 'x' is supported but 'x.y.z' is not supported. Here 'y' and 'y.z' are nested fields of 'x'.
 
-<a name="nested_exclude_fields"></a>The `exclude_fields` block supports:
+<a name="nested_data_profile_spec_exclude_fields"></a>The `exclude_fields` block supports:
 
 * `field_names` -
   (Optional)

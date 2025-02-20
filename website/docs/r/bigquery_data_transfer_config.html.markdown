@@ -35,10 +35,6 @@ To get more information about Config, see:
 values will be stored in the raw state as plain text: `sensitive_params.secret_access_key`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
-~> **Warning:** All arguments including the following potentially write-only
-values will be stored in the raw state as plain text: `sensitive_params.secret_access_key_wo`.
-[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
-
 ## Example Usage - Bigquerydatatransfer Config Scheduled Query
 
 
@@ -227,10 +223,6 @@ The following arguments are supported:
   (Optional)
   When set to true, no runs are scheduled for a given transfer.
 
-* `sensitive_params_wo_version` -
-  (Optional)
-  The version of the sensitive params - used to trigger updates of the write-only params
-
 * `sensitive_params` -
   (Optional)
   Different parameters are configured primarily using the the `params` field on this
@@ -293,17 +285,12 @@ The following arguments are supported:
   (Required)
   The name of the KMS key used for encrypting BigQuery data.
 
-## Ephemeral Attributes Reference
-
-The following write-only attributes are supported:
-
-
 <a name="nested_sensitive_params"></a>The `sensitive_params` block supports:
 
-* `secret_access_key_wo` -
-  (Optional)
+* `secret_access_key` -
+  (Required)
   The Secret Access Key of the AWS account transferring data from.
-  **Note**: This property is write-only and will not be read from the API.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 ## Attributes Reference
 

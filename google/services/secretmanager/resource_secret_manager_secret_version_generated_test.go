@@ -49,7 +49,7 @@ func TestAccSecretManagerSecretVersion_secretVersionBasicExample(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret_version.secret-version-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"secret", "secret_data_wo_version"},
+				ImportStateVerifyIgnore: []string{"secret"},
 			},
 		},
 	})
@@ -78,54 +78,6 @@ resource "google_secret_manager_secret_version" "secret-version-basic" {
 `, context)
 }
 
-func TestAccSecretManagerSecretVersion_secretVersionBasicWriteOnlyExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckSecretManagerSecretVersionDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSecretManagerSecretVersion_secretVersionBasicWriteOnlyExample(context),
-			},
-			{
-				ResourceName:            "google_secret_manager_secret_version.secret-version-basic-write-only",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"secret", "secret_data_wo_version"},
-			},
-		},
-	})
-}
-
-func testAccSecretManagerSecretVersion_secretVersionBasicWriteOnlyExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_secret_manager_secret" "secret-basic-write-only" {
-  secret_id = "tf-test-secret-version-write-only%{random_suffix}"
-  
-  labels = {
-    label = "my-label"
-  }
-
-  replication {
-    auto {}
-  }
-}
-
-
-resource "google_secret_manager_secret_version" "secret-version-basic-write-only" {
-  secret = google_secret_manager_secret.secret-basic-write-only.id
-  secret_data_wo_version = 1
-  secret_data_wo = "tf-test-secret-data-write-only%{random_suffix}"
-}
-`, context)
-}
-
 func TestAccSecretManagerSecretVersion_secretVersionDeletionPolicyAbandonExample(t *testing.T) {
 	t.Parallel()
 
@@ -145,7 +97,7 @@ func TestAccSecretManagerSecretVersion_secretVersionDeletionPolicyAbandonExample
 				ResourceName:            "google_secret_manager_secret_version.secret-version-deletion-policy",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "secret", "secret_data_wo_version"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "secret"},
 			},
 		},
 	})
@@ -193,7 +145,7 @@ func TestAccSecretManagerSecretVersion_secretVersionDeletionPolicyDisableExample
 				ResourceName:            "google_secret_manager_secret_version.secret-version-deletion-policy",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "secret", "secret_data_wo_version"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "secret"},
 			},
 		},
 	})
@@ -242,7 +194,7 @@ func TestAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataEx
 				ResourceName:            "google_secret_manager_secret_version.secret-version-base64",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"is_secret_data_base64", "secret", "secret_data_wo_version"},
+				ImportStateVerifyIgnore: []string{"is_secret_data_base64", "secret"},
 			},
 		},
 	})
@@ -267,56 +219,6 @@ resource "google_secret_manager_secret_version" "secret-version-base64" {
 
   is_secret_data_base64 = true
   secret_data = filebase64("%{data}")
-}
-`, context)
-}
-
-func TestAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataWriteOnlyExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"data":          "./test-fixtures/binary-file.pfx",
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckSecretManagerSecretVersionDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataWriteOnlyExample(context),
-			},
-			{
-				ResourceName:            "google_secret_manager_secret_version.secret-version-base64-write-only",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"is_secret_data_base64", "secret", "secret_data_wo_version"},
-			},
-		},
-	})
-}
-
-func testAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataWriteOnlyExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "tf-test-secret-version-base64-write-only%{random_suffix}"
-
-  replication {
-    user_managed {
-      replicas {
-        location = "us-central1"
-      }
-    }
-  }
-}
-
-resource "google_secret_manager_secret_version" "secret-version-base64-write-only" {
-  secret = google_secret_manager_secret.secret-basic.id
-
-  is_secret_data_base64 = true
-  secret_data_wo_version = 1
-  secret_data_wo = filebase64("%{data}")
 }
 `, context)
 }

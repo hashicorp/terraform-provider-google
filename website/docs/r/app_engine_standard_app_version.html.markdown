@@ -169,7 +169,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_deployment_files).
 
 
-<a name="nested_zip"></a>The `zip` block supports:
+<a name="nested_deployment_zip"></a>The `zip` block supports:
 
 * `source_url` -
   (Required)
@@ -179,7 +179,7 @@ The following arguments are supported:
   (Optional)
   files count
 
-<a name="nested_files"></a>The `files` block supports:
+<a name="nested_deployment_files"></a>The `files` block supports:
 
 * `name` - (Required) The identifier for this object. Format specified above.
 
@@ -316,13 +316,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_handlers_handlers_static_files).
 
 
-<a name="nested_script"></a>The `script` block supports:
+<a name="nested_handlers_handlers_script"></a>The `script` block supports:
 
 * `script_path` -
   (Required)
   Path to the script from the application root directory.
 
-<a name="nested_static_files"></a>The `static_files` block supports:
+<a name="nested_handlers_handlers_static_files"></a>The `static_files` block supports:
 
 * `path` -
   (Optional)
@@ -408,7 +408,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_automatic_scaling_standard_scheduler_settings).
 
 
-<a name="nested_standard_scheduler_settings"></a>The `standard_scheduler_settings` block supports:
+<a name="nested_automatic_scaling_standard_scheduler_settings"></a>The `standard_scheduler_settings` block supports:
 
 * `target_cpu_utilization` -
   (Optional)

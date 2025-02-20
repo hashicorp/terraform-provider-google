@@ -204,7 +204,7 @@ The following arguments are supported:
   Whether the device needs to be corp owned.
 
 
-<a name="nested_os_constraints"></a>The `os_constraints` block supports:
+<a name="nested_device_policy_os_constraints"></a>The `os_constraints` block supports:
 
 * `minimum_version` -
   (Optional)
@@ -225,7 +225,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_vpc_network_sources_vpc_network_sources_vpc_subnetwork).
 
 
-<a name="nested_vpc_subnetwork"></a>The `vpc_subnetwork` block supports:
+<a name="nested_vpc_network_sources_vpc_network_sources_vpc_subnetwork"></a>The `vpc_subnetwork` block supports:
 
 * `network` -
   (Required)

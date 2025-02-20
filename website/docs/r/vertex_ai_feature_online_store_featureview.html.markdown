@@ -556,7 +556,7 @@ The following arguments are supported:
   The project number of the parent project of the feature Groups.
 
 
-<a name="nested_feature_groups"></a>The `feature_groups` block supports:
+<a name="nested_feature_registry_source_feature_groups"></a>The `feature_groups` block supports:
 
 * `feature_group_id` -
   (Required)
@@ -600,7 +600,7 @@ The following arguments are supported:
   The number of dimensions of the input embedding.
 
 
-<a name="nested_tree_ah_config"></a>The `tree_ah_config` block supports:
+<a name="nested_vector_search_config_tree_ah_config"></a>The `tree_ah_config` block supports:
 
 * `leaf_node_embedding_count` -
   (Optional)

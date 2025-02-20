@@ -146,7 +146,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_decrypted_credential_oidc_token).
 
 
-<a name="nested_username_and_password"></a>The `username_and_password` block supports:
+<a name="nested_decrypted_credential_username_and_password"></a>The `username_and_password` block supports:
 
 * `username` -
   (Optional)
@@ -156,7 +156,7 @@ The following arguments are supported:
   (Optional)
   Password to be used.
 
-<a name="nested_oauth2_authorization_code"></a>The `oauth2_authorization_code` block supports:
+<a name="nested_decrypted_credential_oauth2_authorization_code"></a>The `oauth2_authorization_code` block supports:
 
 * `client_id` -
   (Optional)
@@ -178,7 +178,7 @@ The following arguments are supported:
   (Optional)
   The token url endpoint to send the token request to.
 
-<a name="nested_oauth2_client_credentials"></a>The `oauth2_client_credentials` block supports:
+<a name="nested_decrypted_credential_oauth2_client_credentials"></a>The `oauth2_client_credentials` block supports:
 
 * `client_id` -
   (Optional)
@@ -207,7 +207,7 @@ The following arguments are supported:
   Possible values are: `REQUEST_TYPE_UNSPECIFIED`, `REQUEST_BODY`, `QUERY_PARAMETERS`, `ENCODED_HEADER`.
 
 
-<a name="nested_token_params"></a>The `token_params` block supports:
+<a name="nested_decrypted_credential_oauth2_client_credentials_token_params"></a>The `token_params` block supports:
 
 * `entries` -
   (Optional)
@@ -215,7 +215,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_decrypted_credential_oauth2_client_credentials_token_params_entries).
 
 
-<a name="nested_entries"></a>The `entries` block supports:
+<a name="nested_decrypted_credential_oauth2_client_credentials_token_params_entries"></a>The `entries` block supports:
 
 * `key` -
   (Optional)
@@ -228,7 +228,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_value).
 
 
-<a name="nested_key"></a>The `key` block supports:
+<a name="nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_key"></a>The `key` block supports:
 
 * `literal_value` -
   (Optional)
@@ -236,13 +236,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_key_literal_value).
 
 
-<a name="nested_literal_value"></a>The `literal_value` block supports:
+<a name="nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_key_literal_value"></a>The `literal_value` block supports:
 
 * `string_value` -
   (Optional)
   String.
 
-<a name="nested_value"></a>The `value` block supports:
+<a name="nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_value"></a>The `value` block supports:
 
 * `literal_value` -
   (Optional)
@@ -250,13 +250,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_value_literal_value).
 
 
-<a name="nested_literal_value"></a>The `literal_value` block supports:
+<a name="nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_value_literal_value"></a>The `literal_value` block supports:
 
 * `string_value` -
   (Optional)
   String.
 
-<a name="nested_jwt"></a>The `jwt` block supports:
+<a name="nested_decrypted_credential_jwt"></a>The `jwt` block supports:
 
 * `jwt_header` -
   (Optional)
@@ -274,7 +274,7 @@ The following arguments are supported:
   (Output)
   The token calculated by the header, payload and signature.
 
-<a name="nested_auth_token"></a>The `auth_token` block supports:
+<a name="nested_decrypted_credential_auth_token"></a>The `auth_token` block supports:
 
 * `type` -
   (Optional)
@@ -284,7 +284,7 @@ The following arguments are supported:
   (Optional)
   The token for the auth type.
 
-<a name="nested_service_account_credentials"></a>The `service_account_credentials` block supports:
+<a name="nested_decrypted_credential_service_account_credentials"></a>The `service_account_credentials` block supports:
 
 * `service_account` -
   (Optional)
@@ -294,7 +294,7 @@ The following arguments are supported:
   (Optional)
   A space-delimited list of requested scope permissions.
 
-<a name="nested_oidc_token"></a>The `oidc_token` block supports:
+<a name="nested_decrypted_credential_oidc_token"></a>The `oidc_token` block supports:
 
 * `service_account_email` -
   (Optional)

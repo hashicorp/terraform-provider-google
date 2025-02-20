@@ -1406,7 +1406,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_metadata_filters_metadata_filters_filter_labels).
 
 
-<a name="nested_filter_labels"></a>The `filter_labels` block supports:
+<a name="nested_metadata_filters_metadata_filters_filter_labels"></a>The `filter_labels` block supports:
 
 * `name` -
   (Required)

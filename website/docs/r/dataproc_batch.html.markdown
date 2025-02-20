@@ -378,7 +378,7 @@ The following arguments are supported:
   Optional. Cohort identifier. Identifies families of the workloads having the same shape, e.g. daily ETL jobs.
 
 
-<a name="nested_autotuning_config"></a>The `autotuning_config` block supports:
+<a name="nested_runtime_config_autotuning_config"></a>The `autotuning_config` block supports:
 
 * `scenarios` -
   (Optional)
@@ -398,7 +398,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_environment_config_peripherals_config).
 
 
-<a name="nested_execution_config"></a>The `execution_config` block supports:
+<a name="nested_environment_config_execution_config"></a>The `execution_config` block supports:
 
 * `service_account` -
   (Optional)
@@ -439,7 +439,7 @@ The following arguments are supported:
   (Optional)
   Subnetwork configuration for workload execution.
 
-<a name="nested_peripherals_config"></a>The `peripherals_config` block supports:
+<a name="nested_environment_config_peripherals_config"></a>The `peripherals_config` block supports:
 
 * `metastore_service` -
   (Optional)
@@ -451,7 +451,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_environment_config_peripherals_config_spark_history_server_config).
 
 
-<a name="nested_spark_history_server_config"></a>The `spark_history_server_config` block supports:
+<a name="nested_environment_config_peripherals_config_spark_history_server_config"></a>The `spark_history_server_config` block supports:
 
 * `dataproc_cluster` -
   (Optional)
@@ -620,7 +620,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_runtime_info_current_usage).
 
 
-<a name="nested_approximate_usage"></a>The `approximate_usage` block contains:
+<a name="nested_runtime_info_approximate_usage"></a>The `approximate_usage` block contains:
 
 * `milli_dcu_seconds` -
   (Output)
@@ -638,7 +638,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Accelerator type being used, if any
 
-<a name="nested_current_usage"></a>The `current_usage` block contains:
+<a name="nested_runtime_info_current_usage"></a>The `current_usage` block contains:
 
 * `milli_dcu` -
   (Output)

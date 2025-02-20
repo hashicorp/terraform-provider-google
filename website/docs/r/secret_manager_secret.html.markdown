@@ -167,7 +167,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_replication_user_managed).
 
 
-<a name="nested_auto"></a>The `auto` block supports:
+<a name="nested_replication_auto"></a>The `auto` block supports:
 
 * `customer_managed_encryption` -
   (Optional)
@@ -177,13 +177,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_replication_auto_customer_managed_encryption).
 
 
-<a name="nested_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
+<a name="nested_replication_auto_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
 
 * `kms_key_name` -
   (Required)
   The resource name of the Cloud KMS CryptoKey used to encrypt secret payloads.
 
-<a name="nested_user_managed"></a>The `user_managed` block supports:
+<a name="nested_replication_user_managed"></a>The `user_managed` block supports:
 
 * `replicas` -
   (Required)
@@ -191,7 +191,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_replication_user_managed_replicas).
 
 
-<a name="nested_replicas"></a>The `replicas` block supports:
+<a name="nested_replication_user_managed_replicas"></a>The `replicas` block supports:
 
 * `location` -
   (Required)
@@ -203,7 +203,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_replication_user_managed_replicas_replicas_customer_managed_encryption).
 
 
-<a name="nested_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
+<a name="nested_replication_user_managed_replicas_replicas_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
 
 * `kms_key_name` -
   (Required)

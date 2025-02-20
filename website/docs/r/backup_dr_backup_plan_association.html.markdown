@@ -180,7 +180,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_rules_config_info_rules_config_info_last_backup_error).
 
 
-<a name="nested_last_backup_error"></a>The `last_backup_error` block contains:
+<a name="nested_rules_config_info_rules_config_info_last_backup_error"></a>The `last_backup_error` block contains:
 
 * `code` -
   (Output)

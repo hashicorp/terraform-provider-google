@@ -144,7 +144,7 @@ The following arguments are supported:
   Possible values are: `SOURCE_RESTRICTION_UNSPECIFIED`, `SOURCE_RESTRICTION_ENABLED`, `SOURCE_RESTRICTION_DISABLED`.
 
 
-<a name="nested_sources"></a>The `sources` block supports:
+<a name="nested_egress_from_sources"></a>The `sources` block supports:
 
 * `access_level` -
   (Optional)
@@ -182,7 +182,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_egress_to_operations).
 
 
-<a name="nested_operations"></a>The `operations` block supports:
+<a name="nested_egress_to_operations"></a>The `operations` block supports:
 
 * `service_name` -
   (Optional)
@@ -199,7 +199,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_egress_to_operations_operations_method_selectors).
 
 
-<a name="nested_method_selectors"></a>The `method_selectors` block supports:
+<a name="nested_egress_to_operations_operations_method_selectors"></a>The `method_selectors` block supports:
 
 * `method` -
   (Optional)

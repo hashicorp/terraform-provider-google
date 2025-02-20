@@ -171,7 +171,7 @@ The following arguments are supported:
   this module in the nextSteps property of the finding JSON.
 
 
-<a name="nested_predicate"></a>The `predicate` block supports:
+<a name="nested_custom_config_predicate"></a>The `predicate` block supports:
 
 * `expression` -
   (Required)
@@ -192,7 +192,7 @@ The following arguments are supported:
   String indicating the location of the expression for error reporting, e.g. a
   file name and a position in the file.
 
-<a name="nested_custom_output"></a>The `custom_output` block supports:
+<a name="nested_custom_config_custom_output"></a>The `custom_output` block supports:
 
 * `properties` -
   (Optional)
@@ -200,7 +200,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_custom_config_custom_output_properties).
 
 
-<a name="nested_properties"></a>The `properties` block supports:
+<a name="nested_custom_config_custom_output_properties"></a>The `properties` block supports:
 
 * `name` -
   (Optional)
@@ -213,7 +213,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_custom_config_custom_output_properties_properties_value_expression).
 
 
-<a name="nested_value_expression"></a>The `value_expression` block supports:
+<a name="nested_custom_config_custom_output_properties_properties_value_expression"></a>The `value_expression` block supports:
 
 * `expression` -
   (Required)
@@ -234,7 +234,7 @@ The following arguments are supported:
   String indicating the location of the expression for error reporting, e.g. a
   file name and a position in the file.
 
-<a name="nested_resource_selector"></a>The `resource_selector` block supports:
+<a name="nested_custom_config_resource_selector"></a>The `resource_selector` block supports:
 
 * `resource_types` -
   (Required)

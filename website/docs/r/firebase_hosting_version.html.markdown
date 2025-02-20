@@ -299,7 +299,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_config_headers).
 
 
-<a name="nested_rewrites"></a>The `rewrites` block supports:
+<a name="nested_config_rewrites"></a>The `rewrites` block supports:
 
 * `glob` -
   (Optional)
@@ -323,7 +323,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_config_rewrites_rewrites_run).
 
 
-<a name="nested_run"></a>The `run` block supports:
+<a name="nested_config_rewrites_rewrites_run"></a>The `run` block supports:
 
 * `service_id` -
   (Required)
@@ -333,7 +333,7 @@ The following arguments are supported:
   (Optional)
   Optional. User-provided region where the Cloud Run service is hosted. Defaults to `us-central1` if not supplied.
 
-<a name="nested_redirects"></a>The `redirects` block supports:
+<a name="nested_config_redirects"></a>The `redirects` block supports:
 
 * `glob` -
   (Optional)
@@ -360,7 +360,7 @@ The following arguments are supported:
   }
   ```
 
-<a name="nested_headers"></a>The `headers` block supports:
+<a name="nested_config_headers"></a>The `headers` block supports:
 
 * `glob` -
   (Optional)

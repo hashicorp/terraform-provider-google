@@ -288,7 +288,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_network_match).
 
 
-<a name="nested_match"></a>The `match` block supports:
+<a name="nested_rules_rules_match"></a>The `match` block supports:
 
 * `versioned_expr` -
   (Optional)
@@ -308,19 +308,19 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_match_config).
 
 
-<a name="nested_expr"></a>The `expr` block supports:
+<a name="nested_rules_rules_match_expr"></a>The `expr` block supports:
 
 * `expression` -
   (Required)
   Textual representation of an expression in Common Expression Language syntax. The application context of the containing message determines which well-known feature set of CEL is supported.
 
-<a name="nested_config"></a>The `config` block supports:
+<a name="nested_rules_rules_match_config"></a>The `config` block supports:
 
 * `src_ip_ranges` -
   (Optional)
   CIDR IP address range. Maximum number of srcIpRanges allowed is 10.
 
-<a name="nested_preconfigured_waf_config"></a>The `preconfigured_waf_config` block supports:
+<a name="nested_rules_rules_preconfigured_waf_config"></a>The `preconfigured_waf_config` block supports:
 
 * `exclusion` -
   (Optional)
@@ -328,7 +328,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_preconfigured_waf_config_exclusion).
 
 
-<a name="nested_exclusion"></a>The `exclusion` block supports:
+<a name="nested_rules_rules_preconfigured_waf_config_exclusion"></a>The `exclusion` block supports:
 
 * `target_rule_set` -
   (Required)
@@ -362,7 +362,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_preconfigured_waf_config_exclusion_exclusion_request_query_param).
 
 
-<a name="nested_request_header"></a>The `request_header` block supports:
+<a name="nested_rules_rules_preconfigured_waf_config_exclusion_exclusion_request_header"></a>The `request_header` block supports:
 
 * `operator` -
   (Required)
@@ -380,7 +380,7 @@ The following arguments are supported:
   A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
   The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
 
-<a name="nested_request_cookie"></a>The `request_cookie` block supports:
+<a name="nested_rules_rules_preconfigured_waf_config_exclusion_exclusion_request_cookie"></a>The `request_cookie` block supports:
 
 * `operator` -
   (Required)
@@ -398,7 +398,7 @@ The following arguments are supported:
   A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
   The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
 
-<a name="nested_request_uri"></a>The `request_uri` block supports:
+<a name="nested_rules_rules_preconfigured_waf_config_exclusion_exclusion_request_uri"></a>The `request_uri` block supports:
 
 * `operator` -
   (Required)
@@ -416,7 +416,7 @@ The following arguments are supported:
   A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
   The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
 
-<a name="nested_request_query_param"></a>The `request_query_param` block supports:
+<a name="nested_rules_rules_preconfigured_waf_config_exclusion_exclusion_request_query_param"></a>The `request_query_param` block supports:
 
 * `operator` -
   (Required)
@@ -434,7 +434,7 @@ The following arguments are supported:
   A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
   The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
 
-<a name="nested_rate_limit_options"></a>The `rate_limit_options` block supports:
+<a name="nested_rules_rules_rate_limit_options"></a>The `rate_limit_options` block supports:
 
 * `rate_limit_threshold` -
   (Optional)
@@ -491,7 +491,7 @@ The following arguments are supported:
   If specified, determines the time (in seconds) the traffic will continue to be banned by the rate limit after the rate falls below the threshold.
 
 
-<a name="nested_rate_limit_threshold"></a>The `rate_limit_threshold` block supports:
+<a name="nested_rules_rules_rate_limit_options_rate_limit_threshold"></a>The `rate_limit_threshold` block supports:
 
 * `count` -
   (Optional)
@@ -501,7 +501,7 @@ The following arguments are supported:
   (Optional)
   Interval over which the threshold is computed.
 
-<a name="nested_enforce_on_key_configs"></a>The `enforce_on_key_configs` block supports:
+<a name="nested_rules_rules_rate_limit_options_enforce_on_key_configs"></a>The `enforce_on_key_configs` block supports:
 
 * `enforce_on_key_type` -
   (Optional)
@@ -524,7 +524,7 @@ The following arguments are supported:
   HTTP_HEADER -- Name of the HTTP header whose value is taken as the key value.
   HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.
 
-<a name="nested_ban_threshold"></a>The `ban_threshold` block supports:
+<a name="nested_rules_rules_rate_limit_options_ban_threshold"></a>The `ban_threshold` block supports:
 
 * `count` -
   (Optional)
@@ -534,7 +534,7 @@ The following arguments are supported:
   (Optional)
   Interval over which the threshold is computed.
 
-<a name="nested_network_match"></a>The `network_match` block supports:
+<a name="nested_rules_rules_network_match"></a>The `network_match` block supports:
 
 * `user_defined_fields` -
   (Optional)
@@ -570,7 +570,7 @@ The following arguments are supported:
   BGP Autonomous System Number associated with the source IP address.
 
 
-<a name="nested_user_defined_fields"></a>The `user_defined_fields` block supports:
+<a name="nested_rules_rules_network_match_user_defined_fields"></a>The `user_defined_fields` block supports:
 
 * `name` -
   (Optional)

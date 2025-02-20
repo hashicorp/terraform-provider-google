@@ -202,7 +202,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_sign_in_hash_config).
 
 
-<a name="nested_email"></a>The `email` block supports:
+<a name="nested_sign_in_email"></a>The `email` block supports:
 
 * `enabled` -
   (Required)
@@ -214,7 +214,7 @@ The following arguments are supported:
   password must be provided to sign in. If false, a user may sign in via either
   email/password or email link.
 
-<a name="nested_phone_number"></a>The `phone_number` block supports:
+<a name="nested_sign_in_phone_number"></a>The `phone_number` block supports:
 
 * `enabled` -
   (Required)
@@ -224,13 +224,13 @@ The following arguments are supported:
   (Optional)
   A map of <test phone number, fake code> that can be used for phone auth testing.
 
-<a name="nested_anonymous"></a>The `anonymous` block supports:
+<a name="nested_sign_in_anonymous"></a>The `anonymous` block supports:
 
 * `enabled` -
   (Required)
   Whether anonymous user auth is enabled for the project or not.
 
-<a name="nested_hash_config"></a>The `hash_config` block contains:
+<a name="nested_sign_in_hash_config"></a>The `hash_config` block contains:
 
 * `algorithm` -
   (Output)
@@ -265,7 +265,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_blocking_functions_forward_inbound_credentials).
 
 
-<a name="nested_triggers"></a>The `triggers` block supports:
+<a name="nested_blocking_functions_triggers"></a>The `triggers` block supports:
 
 * `event_type` - (Required) The identifier for this object. Format specified above.
 
@@ -277,7 +277,7 @@ The following arguments are supported:
   (Output)
   When the trigger was changed.
 
-<a name="nested_forward_inbound_credentials"></a>The `forward_inbound_credentials` block supports:
+<a name="nested_blocking_functions_forward_inbound_credentials"></a>The `forward_inbound_credentials` block supports:
 
 * `id_token` -
   (Optional)
@@ -299,7 +299,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_quota_sign_up_quota_config).
 
 
-<a name="nested_sign_up_quota_config"></a>The `sign_up_quota_config` block supports:
+<a name="nested_quota_sign_up_quota_config"></a>The `sign_up_quota_config` block supports:
 
 * `quota` -
   (Optional)
@@ -326,13 +326,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_sms_region_config_allowlist_only).
 
 
-<a name="nested_allow_by_default"></a>The `allow_by_default` block supports:
+<a name="nested_sms_region_config_allow_by_default"></a>The `allow_by_default` block supports:
 
 * `disallowed_regions` -
   (Optional)
   Two letter unicode region codes to disallow as defined by https://cldr.unicode.org/ The full list of these region codes is here: https://github.com/unicode-cldr/cldr-localenames-full/blob/master/main/en/territories.json
 
-<a name="nested_allowlist_only"></a>The `allowlist_only` block supports:
+<a name="nested_sms_region_config_allowlist_only"></a>The `allowlist_only` block supports:
 
 * `allowed_regions` -
   (Optional)
@@ -355,7 +355,7 @@ The following arguments are supported:
   Firebase subdomain.
 
 
-<a name="nested_permissions"></a>The `permissions` block supports:
+<a name="nested_client_permissions"></a>The `permissions` block supports:
 
 * `disabled_user_signup` -
   (Optional)
@@ -384,7 +384,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_mfa_provider_configs).
 
 
-<a name="nested_provider_configs"></a>The `provider_configs` block supports:
+<a name="nested_mfa_provider_configs"></a>The `provider_configs` block supports:
 
 * `state` -
   (Optional)
@@ -397,7 +397,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_mfa_provider_configs_provider_configs_totp_provider_config).
 
 
-<a name="nested_totp_provider_config"></a>The `totp_provider_config` block supports:
+<a name="nested_mfa_provider_configs_provider_configs_totp_provider_config"></a>The `totp_provider_config` block supports:
 
 * `adjacent_intervals` -
   (Optional)
@@ -423,7 +423,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_monitoring_request_logging).
 
 
-<a name="nested_request_logging"></a>The `request_logging` block supports:
+<a name="nested_monitoring_request_logging"></a>The `request_logging` block supports:
 
 * `enabled` -
   (Optional)

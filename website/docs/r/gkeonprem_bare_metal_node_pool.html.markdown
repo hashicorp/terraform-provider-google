@@ -260,7 +260,7 @@ The following arguments are supported:
   For example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
 
-<a name="nested_node_configs"></a>The `node_configs` block supports:
+<a name="nested_node_pool_config_node_configs"></a>The `node_configs` block supports:
 
 * `node_ip` -
   (Optional)
@@ -280,7 +280,7 @@ The following arguments are supported:
   An object containing a list of "key": value pairs.
   For example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
-<a name="nested_taints"></a>The `taints` block supports:
+<a name="nested_node_pool_config_taints"></a>The `taints` block supports:
 
 * `key` -
   (Optional)
@@ -375,7 +375,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_conditions).
 
 
-<a name="nested_conditions"></a>The `conditions` block contains:
+<a name="nested_status_conditions"></a>The `conditions` block contains:
 
 * `type` -
   (Optional)
