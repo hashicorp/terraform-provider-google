@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_document_ai_warehouse_location'
 generation_type: 'mmv1'
 source_file: 'products/documentaiwarehouse/Location.yaml'
