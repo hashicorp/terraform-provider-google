@@ -280,7 +280,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_properties_property).
 
 
-<a name="nested_properties_property"></a>The `property` block supports:
+<a name="nested_property"></a>The `property` block supports:
 
 * `name` -
   (Optional)

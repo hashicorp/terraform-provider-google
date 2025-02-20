@@ -101,7 +101,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_specific_reservation_instance_properties).
 
 
-<a name="nested_specific_reservation_instance_properties"></a>The `instance_properties` block supports:
+<a name="nested_instance_properties"></a>The `instance_properties` block supports:
 
 * `machine_type` -
   (Required)
@@ -126,7 +126,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_specific_reservation_instance_properties_local_ssds).
 
 
-<a name="nested_specific_reservation_instance_properties_guest_accelerators"></a>The `guest_accelerators` block supports:
+<a name="nested_guest_accelerators"></a>The `guest_accelerators` block supports:
 
 * `accelerator_type` -
   (Required)
@@ -140,7 +140,7 @@ The following arguments are supported:
   The number of the guest accelerator cards exposed to
   this instance.
 
-<a name="nested_specific_reservation_instance_properties_local_ssds"></a>The `local_ssds` block supports:
+<a name="nested_local_ssds"></a>The `local_ssds` block supports:
 
 * `interface` -
   (Optional)
@@ -187,7 +187,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_share_settings_project_map).
 
 
-<a name="nested_share_settings_project_map"></a>The `project_map` block supports:
+<a name="nested_project_map"></a>The `project_map` block supports:
 
 * `id` - (Required) The identifier for this object. Format specified above.
 

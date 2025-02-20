@@ -139,7 +139,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_tpu_node_spec).
 
 
-<a name="nested_tpu_node_spec"></a>The `node_spec` block supports:
+<a name="nested_node_spec"></a>The `node_spec` block supports:
 
 * `parent` -
   (Required)
@@ -155,7 +155,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_tpu_node_spec_node_spec_node).
 
 
-<a name="nested_tpu_node_spec_node_spec_node"></a>The `node` block supports:
+<a name="nested_node"></a>The `node` block supports:
 
 * `runtime_version` -
   (Required)
@@ -175,7 +175,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_tpu_node_spec_node_spec_node_network_config).
 
 
-<a name="nested_tpu_node_spec_node_spec_node_network_config"></a>The `network_config` block supports:
+<a name="nested_network_config"></a>The `network_config` block supports:
 
 * `network` -
   (Optional)

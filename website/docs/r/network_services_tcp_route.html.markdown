@@ -269,7 +269,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_action).
 
 
-<a name="nested_rules_rules_matches"></a>The `matches` block supports:
+<a name="nested_matches"></a>The `matches` block supports:
 
 * `address` -
   (Required)
@@ -280,7 +280,7 @@ The following arguments are supported:
   (Required)
   Specifies the destination port to match against.
 
-<a name="nested_rules_rules_action"></a>The `action` block supports:
+<a name="nested_action"></a>The `action` block supports:
 
 * `destinations` -
   (Optional)
@@ -297,7 +297,7 @@ The following arguments are supported:
   A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
 
 
-<a name="nested_rules_rules_action_destinations"></a>The `destinations` block supports:
+<a name="nested_destinations"></a>The `destinations` block supports:
 
 * `service_name` -
   (Optional)

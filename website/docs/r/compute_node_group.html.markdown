@@ -251,7 +251,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_share_settings_project_map).
 
 
-<a name="nested_share_settings_project_map"></a>The `project_map` block supports:
+<a name="nested_project_map"></a>The `project_map` block supports:
 
 * `id` - (Required) The identifier for this object. Format specified above.
 

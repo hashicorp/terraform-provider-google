@@ -498,7 +498,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_backup_schedule_rpo_config).
 
 
-<a name="nested_backup_schedule_rpo_config"></a>The `rpo_config` block supports:
+<a name="nested_rpo_config"></a>The `rpo_config` block supports:
 
 * `target_rpo_minutes` -
   (Required)
@@ -518,7 +518,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_backup_schedule_rpo_config_exclusion_windows).
 
 
-<a name="nested_backup_schedule_rpo_config_exclusion_windows"></a>The `exclusion_windows` block supports:
+<a name="nested_exclusion_windows"></a>The `exclusion_windows` block supports:
 
 * `start_time` -
   (Required)
@@ -555,7 +555,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_backup_schedule_rpo_config_exclusion_windows_exclusion_windows_days_of_week).
 
 
-<a name="nested_backup_schedule_rpo_config_exclusion_windows_exclusion_windows_start_time"></a>The `start_time` block supports:
+<a name="nested_start_time"></a>The `start_time` block supports:
 
 * `hours` -
   (Optional)
@@ -573,7 +573,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds.
 
-<a name="nested_backup_schedule_rpo_config_exclusion_windows_exclusion_windows_single_occurrence_date"></a>The `single_occurrence_date` block supports:
+<a name="nested_single_occurrence_date"></a>The `single_occurrence_date` block supports:
 
 * `year` -
   (Optional)
@@ -587,7 +587,7 @@ The following arguments are supported:
   (Optional)
   Day of a month.
 
-<a name="nested_backup_schedule_rpo_config_exclusion_windows_exclusion_windows_days_of_week"></a>The `days_of_week` block supports:
+<a name="nested_days_of_week"></a>The `days_of_week` block supports:
 
 * `days_of_week` -
   (Optional)
@@ -633,19 +633,19 @@ The following arguments are supported:
   non-standard or requires additional setup to restore.
 
 
-<a name="nested_backup_config_encryption_key"></a>The `encryption_key` block supports:
+<a name="nested_encryption_key"></a>The `encryption_key` block supports:
 
 * `gcp_kms_encryption_key` -
   (Required)
   Google Cloud KMS encryption key. Format: projects/*/locations/*/keyRings/*/cryptoKeys/*
 
-<a name="nested_backup_config_selected_namespaces"></a>The `selected_namespaces` block supports:
+<a name="nested_selected_namespaces"></a>The `selected_namespaces` block supports:
 
 * `namespaces` -
   (Required)
   A list of Kubernetes Namespaces.
 
-<a name="nested_backup_config_selected_applications"></a>The `selected_applications` block supports:
+<a name="nested_selected_applications"></a>The `selected_applications` block supports:
 
 * `namespaced_names` -
   (Required)
@@ -653,7 +653,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_backup_config_selected_applications_namespaced_names).
 
 
-<a name="nested_backup_config_selected_applications_namespaced_names"></a>The `namespaced_names` block supports:
+<a name="nested_namespaced_names"></a>The `namespaced_names` block supports:
 
 * `namespace` -
   (Required)

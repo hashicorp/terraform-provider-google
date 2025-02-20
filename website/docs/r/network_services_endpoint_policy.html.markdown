@@ -119,7 +119,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_endpoint_matcher_metadata_label_matcher).
 
 
-<a name="nested_endpoint_matcher_metadata_label_matcher"></a>The `metadata_label_matcher` block supports:
+<a name="nested_metadata_label_matcher"></a>The `metadata_label_matcher` block supports:
 
 * `metadata_label_match_criteria` -
   (Required)
@@ -132,7 +132,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_endpoint_matcher_metadata_label_matcher_metadata_labels).
 
 
-<a name="nested_endpoint_matcher_metadata_label_matcher_metadata_labels"></a>The `metadata_labels` block supports:
+<a name="nested_metadata_labels"></a>The `metadata_labels` block supports:
 
 * `label_name` -
   (Required)

@@ -163,7 +163,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_terms_terms_actions).
 
 
-<a name="nested_terms_terms_match"></a>The `match` block supports:
+<a name="nested_match"></a>The `match` block supports:
 
 * `expression` -
   (Required)
@@ -181,7 +181,7 @@ The following arguments are supported:
   (Optional)
   String indicating the location of the expression for error reporting, e.g. a file name and a position in the file
 
-<a name="nested_terms_terms_actions"></a>The `actions` block supports:
+<a name="nested_actions"></a>The `actions` block supports:
 
 * `expression` -
   (Required)

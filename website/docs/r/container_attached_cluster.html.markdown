@@ -286,7 +286,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_logging_config_component_config).
 
 
-<a name="nested_logging_config_component_config"></a>The `component_config` block supports:
+<a name="nested_component_config"></a>The `component_config` block supports:
 
 * `enable_components` -
   (Optional)
@@ -319,7 +319,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_monitoring_config_managed_prometheus_config).
 
 
-<a name="nested_monitoring_config_managed_prometheus_config"></a>The `managed_prometheus_config` block supports:
+<a name="nested_managed_prometheus_config"></a>The `managed_prometheus_config` block supports:
 
 * `enabled` -
   (Optional)
@@ -340,7 +340,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_proxy_config_kubernetes_secret).
 
 
-<a name="nested_proxy_config_kubernetes_secret"></a>The `kubernetes_secret` block supports:
+<a name="nested_kubernetes_secret"></a>The `kubernetes_secret` block supports:
 
 * `name` -
   (Required)

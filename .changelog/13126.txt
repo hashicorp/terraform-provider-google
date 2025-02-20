@@ -1,0 +1,15 @@
+```release-note:enhancement
+sql: added `password_wo` and `password_wo_version` fields to `google_sql_user` resource
+```
+```release-note:enhancement
+bigquerydatatransfer: added `secret_access_key_wo` write-only field to `google_bigquery_data_transfer_config` resource
+```
+```release-note:enhancement
+`secretmanager`: added `secret_version_wo` write-only field to `google_secret_version` resource
+```
+```release-note:enhancement
+compute: added `raw_key_wo`, `rsa_encrypted_key` and `new_keys_wo` fields in `resource_google_compute_disk` resource
+```
+```release-note:enhancement
+compute: added `raw_key_wo` and `new_keys_wo` fields in `resource_google_region_compute_disk` resource
+```

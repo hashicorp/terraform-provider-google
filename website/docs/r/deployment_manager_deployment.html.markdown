@@ -125,13 +125,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_target_imports).
 
 
-<a name="nested_target_config"></a>The `config` block supports:
+<a name="nested_config"></a>The `config` block supports:
 
 * `content` -
   (Required)
   The full YAML contents of your configuration file.
 
-<a name="nested_target_imports"></a>The `imports` block supports:
+<a name="nested_imports"></a>The `imports` block supports:
 
 * `content` -
   (Optional)

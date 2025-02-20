@@ -348,7 +348,7 @@ The following arguments are supported:
   CEL expression that describes the conditions to be satisfied for the action. The result of the CEL expression is ANDed with the from and to. Refer to the CEL language reference for a list of available attributes.
 
 
-<a name="nested_http_rules_http_rules_from"></a>The `from` block supports:
+<a name="nested_from"></a>The `from` block supports:
 
 * `sources` -
   (Optional)
@@ -361,7 +361,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_http_rules_http_rules_from_not_sources).
 
 
-<a name="nested_http_rules_http_rules_from_sources"></a>The `sources` block supports:
+<a name="nested_sources"></a>The `sources` block supports:
 
 * `principals` -
   (Optional)
@@ -376,7 +376,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_http_rules_http_rules_from_sources_sources_resources).
 
 
-<a name="nested_http_rules_http_rules_from_sources_sources_principals"></a>The `principals` block supports:
+<a name="nested_principals"></a>The `principals` block supports:
 
 * `ignore_case` -
   (Optional)
@@ -406,7 +406,7 @@ The following arguments are supported:
   Examples:
   * abc matches the value xyz.abc.def
 
-<a name="nested_http_rules_http_rules_from_sources_sources_resources"></a>The `resources` block supports:
+<a name="nested_resources"></a>The `resources` block supports:
 
 * `tag_value_id_set` -
   (Optional)
@@ -419,14 +419,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_http_rules_http_rules_from_sources_sources_resources_resources_iam_service_account).
 
 
-<a name="nested_http_rules_http_rules_from_sources_sources_resources_resources_tag_value_id_set"></a>The `tag_value_id_set` block supports:
+<a name="nested_tag_value_id_set"></a>The `tag_value_id_set` block supports:
 
 * `ids` -
   (Optional)
   A list of resource tag value permanent IDs to match against the resource manager tags value associated with the source VM of a request. The match follows AND semantics which means all the ids must match.
   Limited to 5 matches.
 
-<a name="nested_http_rules_http_rules_from_sources_sources_resources_resources_iam_service_account"></a>The `iam_service_account` block supports:
+<a name="nested_iam_service_account"></a>The `iam_service_account` block supports:
 
 * `ignore_case` -
   (Optional)
@@ -456,7 +456,7 @@ The following arguments are supported:
   Examples:
   * abc matches the value xyz.abc.def
 
-<a name="nested_http_rules_http_rules_from_not_sources"></a>The `not_sources` block supports:
+<a name="nested_not_sources"></a>The `not_sources` block supports:
 
 * `principals` -
   (Optional)
@@ -471,7 +471,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_http_rules_http_rules_from_not_sources_not_sources_resources).
 
 
-<a name="nested_http_rules_http_rules_from_not_sources_not_sources_principals"></a>The `principals` block supports:
+<a name="nested_principals"></a>The `principals` block supports:
 
 * `ignore_case` -
   (Optional)
@@ -501,7 +501,7 @@ The following arguments are supported:
   Examples:
   * abc matches the value xyz.abc.def
 
-<a name="nested_http_rules_http_rules_from_not_sources_not_sources_resources"></a>The `resources` block supports:
+<a name="nested_resources"></a>The `resources` block supports:
 
 * `tag_value_id_set` -
   (Optional)
@@ -514,14 +514,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_http_rules_http_rules_from_not_sources_not_sources_resources_resources_iam_service_account).
 
 
-<a name="nested_http_rules_http_rules_from_not_sources_not_sources_resources_resources_tag_value_id_set"></a>The `tag_value_id_set` block supports:
+<a name="nested_tag_value_id_set"></a>The `tag_value_id_set` block supports:
 
 * `ids` -
   (Optional)
   A list of resource tag value permanent IDs to match against the resource manager tags value associated with the source VM of a request. The match follows AND semantics which means all the ids must match.
   Limited to 5 matches.
 
-<a name="nested_http_rules_http_rules_from_not_sources_not_sources_resources_resources_iam_service_account"></a>The `iam_service_account` block supports:
+<a name="nested_iam_service_account"></a>The `iam_service_account` block supports:
 
 * `ignore_case` -
   (Optional)
@@ -551,7 +551,7 @@ The following arguments are supported:
   Examples:
   * abc matches the value xyz.abc.def
 
-<a name="nested_http_rules_http_rules_to"></a>The `to` block supports:
+<a name="nested_to"></a>The `to` block supports:
 
 * `operations` -
   (Optional)
@@ -559,7 +559,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_http_rules_http_rules_to_operations).
 
 
-<a name="nested_http_rules_http_rules_to_operations"></a>The `operations` block supports:
+<a name="nested_operations"></a>The `operations` block supports:
 
 * `header_set` -
   (Optional)
@@ -584,7 +584,7 @@ The following arguments are supported:
   A list of HTTP methods to match against. Each entry must be a valid HTTP method name (GET, PUT, POST, HEAD, PATCH, DELETE, OPTIONS). It only allows exact match and is always case sensitive.
 
 
-<a name="nested_http_rules_http_rules_to_operations_operations_header_set"></a>The `header_set` block supports:
+<a name="nested_header_set"></a>The `header_set` block supports:
 
 * `headers` -
   (Optional)
@@ -592,7 +592,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_http_rules_http_rules_to_operations_operations_header_set_headers).
 
 
-<a name="nested_http_rules_http_rules_to_operations_operations_header_set_headers"></a>The `headers` block supports:
+<a name="nested_headers"></a>The `headers` block supports:
 
 * `name` -
   (Optional)
@@ -604,7 +604,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_http_rules_http_rules_to_operations_operations_header_set_headers_headers_value).
 
 
-<a name="nested_http_rules_http_rules_to_operations_operations_header_set_headers_headers_value"></a>The `value` block supports:
+<a name="nested_value"></a>The `value` block supports:
 
 * `ignore_case` -
   (Optional)
@@ -634,7 +634,7 @@ The following arguments are supported:
   Examples:
   * abc matches the value xyz.abc.def
 
-<a name="nested_http_rules_http_rules_to_operations_operations_hosts"></a>The `hosts` block supports:
+<a name="nested_hosts"></a>The `hosts` block supports:
 
 * `ignore_case` -
   (Optional)
@@ -664,7 +664,7 @@ The following arguments are supported:
   Examples:
   * abc matches the value xyz.abc.def
 
-<a name="nested_http_rules_http_rules_to_operations_operations_paths"></a>The `paths` block supports:
+<a name="nested_paths"></a>The `paths` block supports:
 
 * `ignore_case` -
   (Optional)
@@ -707,13 +707,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_custom_provider_authz_extension).
 
 
-<a name="nested_custom_provider_cloud_iap"></a>The `cloud_iap` block supports:
+<a name="nested_cloud_iap"></a>The `cloud_iap` block supports:
 
 * `enabled` -
   (Required)
   Enable Cloud IAP at the AuthzPolicy level.
 
-<a name="nested_custom_provider_authz_extension"></a>The `authz_extension` block supports:
+<a name="nested_authz_extension"></a>The `authz_extension` block supports:
 
 * `resources` -
   (Required)

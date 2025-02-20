@@ -107,7 +107,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_backup_rules_backup_rules_standard_schedule).
 
 
-<a name="nested_backup_rules_backup_rules_standard_schedule"></a>The `standard_schedule` block supports:
+<a name="nested_standard_schedule"></a>The `standard_schedule` block supports:
 
 * `recurrence_type` -
   (Required)
@@ -149,7 +149,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_backup_rules_backup_rules_standard_schedule_backup_window).
 
 
-<a name="nested_backup_rules_backup_rules_standard_schedule_week_day_of_month"></a>The `week_day_of_month` block supports:
+<a name="nested_week_day_of_month"></a>The `week_day_of_month` block supports:
 
 * `week_of_month` -
   (Required)
@@ -161,7 +161,7 @@ The following arguments are supported:
   Specifies the day of the week.
   Possible values are: `DAY_OF_WEEK_UNSPECIFIED`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
-<a name="nested_backup_rules_backup_rules_standard_schedule_backup_window"></a>The `backup_window` block supports:
+<a name="nested_backup_window"></a>The `backup_window` block supports:
 
 * `start_hour_of_day` -
   (Required)

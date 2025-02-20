@@ -187,13 +187,13 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_details_cloud_vpns).
 
 
-<a name="nested_details_cloud_router"></a>The `cloud_router` block contains:
+<a name="nested_cloud_router"></a>The `cloud_router` block contains:
 
 * `name` -
   (Output)
   The associated Cloud Router name.
 
-<a name="nested_details_cloud_vpns"></a>The `cloud_vpns` block contains:
+<a name="nested_cloud_vpns"></a>The `cloud_vpns` block contains:
 
 * `gateway` -
   (Output)

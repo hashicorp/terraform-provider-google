@@ -293,7 +293,7 @@ The following arguments are supported:
   use the `specified_amount` block.
 
 
-<a name="nested_amount_specified_amount"></a>The `specified_amount` block supports:
+<a name="nested_specified_amount"></a>The `specified_amount` block supports:
 
 * `currency_code` -
   (Optional)
@@ -419,7 +419,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_budget_filter_custom_period).
 
 
-<a name="nested_budget_filter_custom_period"></a>The `custom_period` block supports:
+<a name="nested_custom_period"></a>The `custom_period` block supports:
 
 * `start_date` -
   (Required)
@@ -433,7 +433,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_budget_filter_custom_period_end_date).
 
 
-<a name="nested_budget_filter_custom_period_start_date"></a>The `start_date` block supports:
+<a name="nested_start_date"></a>The `start_date` block supports:
 
 * `year` -
   (Required)
@@ -447,7 +447,7 @@ The following arguments are supported:
   (Required)
   Day of a month. Must be from 1 to 31 and valid for the year and month.
 
-<a name="nested_budget_filter_custom_period_end_date"></a>The `end_date` block supports:
+<a name="nested_end_date"></a>The `end_date` block supports:
 
 * `year` -
   (Required)

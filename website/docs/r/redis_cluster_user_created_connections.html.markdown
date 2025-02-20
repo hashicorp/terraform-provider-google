@@ -345,7 +345,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_cluster_endpoints_cluster_endpoints_connections).
 
 
-<a name="nested_cluster_endpoints_cluster_endpoints_connections"></a>The `connections` block supports:
+<a name="nested_connections"></a>The `connections` block supports:
 
 * `psc_connection` -
   (Optional)
@@ -354,7 +354,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_cluster_endpoints_cluster_endpoints_connections_connections_psc_connection).
 
 
-<a name="nested_cluster_endpoints_cluster_endpoints_connections_connections_psc_connection"></a>The `psc_connection` block supports:
+<a name="nested_psc_connection"></a>The `psc_connection` block supports:
 
 * `psc_connection_id` -
   (Required)

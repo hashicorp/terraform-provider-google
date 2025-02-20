@@ -454,7 +454,7 @@ destroying the resource will fail if tables are present.
   Structure is [documented below](#nested_access_access_condition).
 
 
-<a name="nested_access_access_view"></a>The `view` block supports:
+<a name="nested_view"></a>The `view` block supports:
 
 * `dataset_id` -
   (Required)
@@ -470,7 +470,7 @@ destroying the resource will fail if tables are present.
   A-Z), numbers (0-9), or underscores (_). The maximum length
   is 1,024 characters.
 
-<a name="nested_access_access_dataset"></a>The `dataset` block supports:
+<a name="nested_dataset"></a>The `dataset` block supports:
 
 * `dataset` -
   (Required)
@@ -483,7 +483,7 @@ destroying the resource will fail if tables are present.
   but additional target types may be added in the future. Possible values: VIEWS
 
 
-<a name="nested_access_access_dataset_dataset"></a>The `dataset` block supports:
+<a name="nested_dataset"></a>The `dataset` block supports:
 
 * `dataset_id` -
   (Required)
@@ -493,7 +493,7 @@ destroying the resource will fail if tables are present.
   (Required)
   The ID of the project containing this table.
 
-<a name="nested_access_access_routine"></a>The `routine` block supports:
+<a name="nested_routine"></a>The `routine` block supports:
 
 * `dataset_id` -
   (Required)
@@ -509,7 +509,7 @@ destroying the resource will fail if tables are present.
   A-Z), numbers (0-9), or underscores (_). The maximum length
   is 256 characters.
 
-<a name="nested_access_access_condition"></a>The `condition` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expression` -
   (Required)

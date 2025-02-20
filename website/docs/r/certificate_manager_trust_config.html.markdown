@@ -146,7 +146,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_trust_stores_trust_stores_intermediate_cas).
 
 
-<a name="nested_trust_stores_trust_stores_trust_anchors"></a>The `trust_anchors` block supports:
+<a name="nested_trust_anchors"></a>The `trust_anchors` block supports:
 
 * `pem_certificate` -
   (Optional)
@@ -154,7 +154,7 @@ The following arguments are supported:
   Each certificate provided in PEM format may occupy up to 5kB.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-<a name="nested_trust_stores_trust_stores_intermediate_cas"></a>The `intermediate_cas` block supports:
+<a name="nested_intermediate_cas"></a>The `intermediate_cas` block supports:
 
 * `pem_certificate` -
   (Optional)

@@ -180,14 +180,14 @@ The following arguments are supported:
   Structure is [documented below](#nested_dictionary_cloud_storage_path).
 
 
-<a name="nested_dictionary_word_list"></a>The `word_list` block supports:
+<a name="nested_word_list"></a>The `word_list` block supports:
 
 * `words` -
   (Required)
   Words or phrases defining the dictionary. The dictionary must contain at least one
   phrase and every phrase must contain at least 2 characters that are letters or digits.
 
-<a name="nested_dictionary_cloud_storage_path"></a>The `cloud_storage_path` block supports:
+<a name="nested_cloud_storage_path"></a>The `cloud_storage_path` block supports:
 
 * `path` -
   (Required)
@@ -212,19 +212,19 @@ The following arguments are supported:
   Structure is [documented below](#nested_large_custom_dictionary_big_query_field).
 
 
-<a name="nested_large_custom_dictionary_output_path"></a>The `output_path` block supports:
+<a name="nested_output_path"></a>The `output_path` block supports:
 
 * `path` -
   (Required)
   A url representing a file or path (no wildcards) in Cloud Storage. Example: `gs://[BUCKET_NAME]/dictionary.txt`
 
-<a name="nested_large_custom_dictionary_cloud_storage_file_set"></a>The `cloud_storage_file_set` block supports:
+<a name="nested_cloud_storage_file_set"></a>The `cloud_storage_file_set` block supports:
 
 * `url` -
   (Required)
   The url, in the format `gs://<bucket>/<path>`. Trailing wildcard in the path is allowed.
 
-<a name="nested_large_custom_dictionary_big_query_field"></a>The `big_query_field` block supports:
+<a name="nested_big_query_field"></a>The `big_query_field` block supports:
 
 * `table` -
   (Required)
@@ -237,7 +237,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_large_custom_dictionary_big_query_field_field).
 
 
-<a name="nested_large_custom_dictionary_big_query_field_table"></a>The `table` block supports:
+<a name="nested_table"></a>The `table` block supports:
 
 * `project_id` -
   (Required)
@@ -251,7 +251,7 @@ The following arguments are supported:
   (Required)
   The name of the table.
 
-<a name="nested_large_custom_dictionary_big_query_field_field"></a>The `field` block supports:
+<a name="nested_field"></a>The `field` block supports:
 
 * `name` -
   (Required)

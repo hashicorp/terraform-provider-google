@@ -351,7 +351,7 @@ The following arguments are supported:
   https://cloud.google.com/vpc/docs/using-routes#canipforward
 
 
-<a name="nested_gce_setup_accelerator_configs"></a>The `accelerator_configs` block supports:
+<a name="nested_accelerator_configs"></a>The `accelerator_configs` block supports:
 
 * `type` -
   (Optional)
@@ -362,7 +362,7 @@ The following arguments are supported:
   (Optional)
   Optional. Count of cores of this accelerator.
 
-<a name="nested_gce_setup_shielded_instance_config"></a>The `shielded_instance_config` block supports:
+<a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
 
 * `enable_secure_boot` -
   (Optional)
@@ -384,7 +384,7 @@ The following arguments are supported:
   This baseline is initially derived from the implicitly trusted boot image
   when the VM instance is created. Enabled by default.
 
-<a name="nested_gce_setup_service_accounts"></a>The `service_accounts` block supports:
+<a name="nested_service_accounts"></a>The `service_accounts` block supports:
 
 * `email` -
   (Optional)
@@ -395,7 +395,7 @@ The following arguments are supported:
   Output only. The list of scopes to be made available for this
   service account. Set by the CLH to https://www.googleapis.com/auth/cloud-platform
 
-<a name="nested_gce_setup_vm_image"></a>The `vm_image` block supports:
+<a name="nested_vm_image"></a>The `vm_image` block supports:
 
 * `project` -
   (Optional)
@@ -411,7 +411,7 @@ The following arguments are supported:
   Optional. Use this VM image family to find the image; the newest
   image in this family will be used.
 
-<a name="nested_gce_setup_container_image"></a>The `container_image` block supports:
+<a name="nested_container_image"></a>The `container_image` block supports:
 
 * `repository` -
   (Required)
@@ -422,7 +422,7 @@ The following arguments are supported:
   (Optional)
   The tag of the container image. If not specified, this defaults to the latest tag.
 
-<a name="nested_gce_setup_boot_disk"></a>The `boot_disk` block supports:
+<a name="nested_boot_disk"></a>The `boot_disk` block supports:
 
 * `disk_size_gb` -
   (Optional)
@@ -447,7 +447,7 @@ The following arguments are supported:
   applicable if disk_encryption is CMEK. Format: `projects/{project_id}/locations/{location}/keyRings/{key_ring_id}/cryptoKeys/{key_id}`
   Learn more about using your own encryption keys.'
 
-<a name="nested_gce_setup_data_disks"></a>The `data_disks` block supports:
+<a name="nested_data_disks"></a>The `data_disks` block supports:
 
 * `disk_size_gb` -
   (Optional)
@@ -472,7 +472,7 @@ The following arguments are supported:
   only applicable if disk_encryption is CMEK. Format: `projects/{project_id}/locations/{location}/keyRings/{key_ring_id}/cryptoKeys/{key_id}`
   Learn more about using your own encryption keys.'
 
-<a name="nested_gce_setup_network_interfaces"></a>The `network_interfaces` block supports:
+<a name="nested_network_interfaces"></a>The `network_interfaces` block supports:
 
 * `network` -
   (Optional)
@@ -497,7 +497,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_gce_setup_network_interfaces_network_interfaces_access_configs).
 
 
-<a name="nested_gce_setup_network_interfaces_network_interfaces_access_configs"></a>The `access_configs` block supports:
+<a name="nested_access_configs"></a>The `access_configs` block supports:
 
 * `external_ip` -
   (Required)

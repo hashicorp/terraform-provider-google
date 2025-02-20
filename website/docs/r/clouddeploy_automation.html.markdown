@@ -160,7 +160,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_selector_targets).
 
 
-<a name="nested_selector_targets"></a>The `targets` block supports:
+<a name="nested_targets"></a>The `targets` block supports:
 
 * `id` -
   (Optional)
@@ -183,7 +183,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_rules_advance_rollout_rule).
 
 
-<a name="nested_rules_rules_promote_release_rule"></a>The `promote_release_rule` block supports:
+<a name="nested_promote_release_rule"></a>The `promote_release_rule` block supports:
 
 * `id` -
   (Required)
@@ -201,7 +201,7 @@ The following arguments are supported:
   (Optional)
   Optional. The starting phase of the rollout created by this operation. Default to the first phase.
 
-<a name="nested_rules_rules_advance_rollout_rule"></a>The `advance_rollout_rule` block supports:
+<a name="nested_advance_rollout_rule"></a>The `advance_rollout_rule` block supports:
 
 * `id` -
   (Required)

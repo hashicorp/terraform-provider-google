@@ -179,13 +179,13 @@ The following arguments are supported:
   All instances with these tags will be mirrored.
 
 
-<a name="nested_mirrored_resources_subnetworks"></a>The `subnetworks` block supports:
+<a name="nested_subnetworks"></a>The `subnetworks` block supports:
 
 * `url` -
   (Required)
   The URL of the subnetwork where this rule should be active.
 
-<a name="nested_mirrored_resources_instances"></a>The `instances` block supports:
+<a name="nested_instances"></a>The `instances` block supports:
 
 * `url` -
   (Required)

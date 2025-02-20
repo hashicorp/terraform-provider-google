@@ -307,7 +307,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_origin_override_action_header_action).
 
 
-<a name="nested_origin_override_action_url_rewrite"></a>The `url_rewrite` block supports:
+<a name="nested_url_rewrite"></a>The `url_rewrite` block supports:
 
 * `host_rewrite` -
   (Optional)
@@ -316,7 +316,7 @@ The following arguments are supported:
   contents of the hostRewrite.
   This value must be between 1 and 255 characters.
 
-<a name="nested_origin_override_action_header_action"></a>The `header_action` block supports:
+<a name="nested_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_add` -
   (Optional)
@@ -325,7 +325,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_origin_override_action_header_action_request_headers_to_add).
 
 
-<a name="nested_origin_override_action_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
+<a name="nested_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Required)

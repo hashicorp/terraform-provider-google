@@ -265,7 +265,7 @@ The following arguments are supported:
   Names of Network Threat Intelligence lists. The IPs in these lists will be matched against traffic source.
 
 
-<a name="nested_match_layer4_configs"></a>The `layer4_configs` block supports:
+<a name="nested_layer4_configs"></a>The `layer4_configs` block supports:
 
 * `ip_protocol` -
   (Required)
@@ -277,7 +277,7 @@ The following arguments are supported:
   An optional list of ports to which this rule applies. This field is only applicable for UDP or TCP protocol. Each entry must be either an integer or a range. If not specified, this rule applies to connections through any port.
   Example inputs include: ["22"], ["80","443"], and ["12345-12349"].
 
-<a name="nested_match_src_secure_tags"></a>The `src_secure_tags` block supports:
+<a name="nested_src_secure_tags"></a>The `src_secure_tags` block supports:
 
 * `name` -
   (Optional)

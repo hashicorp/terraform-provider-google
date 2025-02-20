@@ -97,7 +97,7 @@ The following arguments are supported:
   won't get updated when new versions are released.
 
 
-<a name="nested_details_rules"></a>The `rules` block supports:
+<a name="nested_rules"></a>The `rules` block supports:
 
 * `description` -
   (Optional)

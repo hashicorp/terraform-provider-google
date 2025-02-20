@@ -235,7 +235,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_test_case_conversation_turns_test_case_conversation_turns_virtual_agent_output).
 
 
-<a name="nested_test_case_conversation_turns_test_case_conversation_turns_user_input"></a>The `user_input` block supports:
+<a name="nested_user_input"></a>The `user_input` block supports:
 
 * `input` -
   (Optional)
@@ -255,7 +255,7 @@ The following arguments are supported:
   Whether sentiment analysis is enabled.
 
 
-<a name="nested_test_case_conversation_turns_test_case_conversation_turns_user_input_input"></a>The `input` block supports:
+<a name="nested_input"></a>The `input` block supports:
 
 * `language_code` -
   (Optional)
@@ -278,19 +278,19 @@ The following arguments are supported:
   Structure is [documented below](#nested_test_case_conversation_turns_test_case_conversation_turns_user_input_input_dtmf).
 
 
-<a name="nested_test_case_conversation_turns_test_case_conversation_turns_user_input_input_text"></a>The `text` block supports:
+<a name="nested_text"></a>The `text` block supports:
 
 * `text` -
   (Required)
   The natural language text to be processed. Text length must not exceed 256 characters.
 
-<a name="nested_test_case_conversation_turns_test_case_conversation_turns_user_input_input_event"></a>The `event` block supports:
+<a name="nested_event"></a>The `event` block supports:
 
 * `event` -
   (Required)
   Name of the event.
 
-<a name="nested_test_case_conversation_turns_test_case_conversation_turns_user_input_input_dtmf"></a>The `dtmf` block supports:
+<a name="nested_dtmf"></a>The `dtmf` block supports:
 
 * `digits` -
   (Optional)
@@ -300,7 +300,7 @@ The following arguments are supported:
   (Optional)
   The finish digit (if any).
 
-<a name="nested_test_case_conversation_turns_test_case_conversation_turns_virtual_agent_output"></a>The `virtual_agent_output` block supports:
+<a name="nested_virtual_agent_output"></a>The `virtual_agent_output` block supports:
 
 * `session_parameters` -
   (Optional)
@@ -322,7 +322,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_test_case_conversation_turns_test_case_conversation_turns_virtual_agent_output_text_responses).
 
 
-<a name="nested_test_case_conversation_turns_test_case_conversation_turns_virtual_agent_output_triggered_intent"></a>The `triggered_intent` block supports:
+<a name="nested_triggered_intent"></a>The `triggered_intent` block supports:
 
 * `name` -
   (Optional)
@@ -333,7 +333,7 @@ The following arguments are supported:
   (Output)
   The human-readable name of the intent, unique within the agent.
 
-<a name="nested_test_case_conversation_turns_test_case_conversation_turns_virtual_agent_output_current_page"></a>The `current_page` block supports:
+<a name="nested_current_page"></a>The `current_page` block supports:
 
 * `name` -
   (Optional)
@@ -344,7 +344,7 @@ The following arguments are supported:
   (Output)
   The human-readable name of the page, unique within the flow.
 
-<a name="nested_test_case_conversation_turns_test_case_conversation_turns_virtual_agent_output_text_responses"></a>The `text_responses` block supports:
+<a name="nested_text_responses"></a>The `text_responses` block supports:
 
 * `text` -
   (Optional)
@@ -396,7 +396,7 @@ In addition to the arguments listed above, the following computed attributes are
   The time that the test was run. A timestamp in RFC3339 text format.
 
 
-<a name="nested_last_test_result_conversation_turns"></a>The `conversation_turns` block supports:
+<a name="nested_conversation_turns"></a>The `conversation_turns` block supports:
 
 * `user_input` -
   (Optional)
@@ -409,7 +409,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_last_test_result_conversation_turns_conversation_turns_virtual_agent_output).
 
 
-<a name="nested_last_test_result_conversation_turns_conversation_turns_user_input"></a>The `user_input` block supports:
+<a name="nested_user_input"></a>The `user_input` block supports:
 
 * `input` -
   (Optional)
@@ -429,7 +429,7 @@ In addition to the arguments listed above, the following computed attributes are
   Whether sentiment analysis is enabled.
 
 
-<a name="nested_last_test_result_conversation_turns_conversation_turns_user_input_input"></a>The `input` block supports:
+<a name="nested_input"></a>The `input` block supports:
 
 * `language_code` -
   (Optional)
@@ -452,19 +452,19 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_last_test_result_conversation_turns_conversation_turns_user_input_input_dtmf).
 
 
-<a name="nested_last_test_result_conversation_turns_conversation_turns_user_input_input_text"></a>The `text` block supports:
+<a name="nested_text"></a>The `text` block supports:
 
 * `text` -
   (Required)
   The natural language text to be processed. Text length must not exceed 256 characters.
 
-<a name="nested_last_test_result_conversation_turns_conversation_turns_user_input_input_event"></a>The `event` block supports:
+<a name="nested_event"></a>The `event` block supports:
 
 * `event` -
   (Required)
   Name of the event.
 
-<a name="nested_last_test_result_conversation_turns_conversation_turns_user_input_input_dtmf"></a>The `dtmf` block supports:
+<a name="nested_dtmf"></a>The `dtmf` block supports:
 
 * `digits` -
   (Optional)
@@ -474,7 +474,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Optional)
   The finish digit (if any).
 
-<a name="nested_last_test_result_conversation_turns_conversation_turns_virtual_agent_output"></a>The `virtual_agent_output` block supports:
+<a name="nested_virtual_agent_output"></a>The `virtual_agent_output` block supports:
 
 * `session_parameters` -
   (Optional)
@@ -506,7 +506,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_last_test_result_conversation_turns_conversation_turns_virtual_agent_output_status).
 
 
-<a name="nested_last_test_result_conversation_turns_conversation_turns_virtual_agent_output_differences"></a>The `differences` block supports:
+<a name="nested_differences"></a>The `differences` block supports:
 
 * `type` -
   (Optional)
@@ -522,7 +522,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Optional)
   A human readable description of the diff, showing the actual output vs expected output.
 
-<a name="nested_last_test_result_conversation_turns_conversation_turns_virtual_agent_output_triggered_intent"></a>The `triggered_intent` block supports:
+<a name="nested_triggered_intent"></a>The `triggered_intent` block supports:
 
 * `name` -
   (Optional)
@@ -533,7 +533,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Optional)
   The human-readable name of the intent, unique within the agent.
 
-<a name="nested_last_test_result_conversation_turns_conversation_turns_virtual_agent_output_current_page"></a>The `current_page` block supports:
+<a name="nested_current_page"></a>The `current_page` block supports:
 
 * `name` -
   (Optional)
@@ -544,13 +544,13 @@ In addition to the arguments listed above, the following computed attributes are
   (Optional)
   The human-readable name of the page, unique within the flow.
 
-<a name="nested_last_test_result_conversation_turns_conversation_turns_virtual_agent_output_text_responses"></a>The `text_responses` block supports:
+<a name="nested_text_responses"></a>The `text_responses` block supports:
 
 * `text` -
   (Optional)
   A collection of text responses.
 
-<a name="nested_last_test_result_conversation_turns_conversation_turns_virtual_agent_output_status"></a>The `status` block supports:
+<a name="nested_status"></a>The `status` block supports:
 
 * `code` -
   (Optional)

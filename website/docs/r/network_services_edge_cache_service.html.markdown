@@ -437,7 +437,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_routing_path_matcher).
 
 
-<a name="nested_routing_host_rule"></a>The `host_rule` block supports:
+<a name="nested_host_rule"></a>The `host_rule` block supports:
 
 * `description` -
   (Optional)
@@ -461,7 +461,7 @@ The following arguments are supported:
   (Required)
   The name of the pathMatcher associated with this hostRule.
 
-<a name="nested_routing_path_matcher"></a>The `path_matcher` block supports:
+<a name="nested_path_matcher"></a>The `path_matcher` block supports:
 
 * `name` -
   (Required)
@@ -477,7 +477,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule).
 
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule"></a>The `route_rule` block supports:
+<a name="nested_route_rule"></a>The `route_rule` block supports:
 
 * `priority` -
   (Required)
@@ -523,7 +523,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_url_redirect).
 
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_match_rule"></a>The `match_rule` block supports:
+<a name="nested_match_rule"></a>The `match_rule` block supports:
 
 * `ignore_case` -
   (Optional)
@@ -559,7 +559,7 @@ The following arguments are supported:
   For satisfying the matchRule condition, the path of the request must exactly match the value specified in fullPathMatch after removing any query parameters and anchor that may be part of the original URL.
 
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_match_rule_match_rule_header_match"></a>The `header_match` block supports:
+<a name="nested_header_match"></a>The `header_match` block supports:
 
 * `header_name` -
   (Required)
@@ -586,7 +586,7 @@ The following arguments are supported:
   If set to false (default), the headerMatch is considered a match if the match criteria above are met.
   If set to true, the headerMatch is considered a match if the match criteria above are NOT met.
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_match_rule_match_rule_query_parameter_match"></a>The `query_parameter_match` block supports:
+<a name="nested_query_parameter_match"></a>The `query_parameter_match` block supports:
 
 * `name` -
   (Required)
@@ -600,14 +600,14 @@ The following arguments are supported:
   (Optional)
   The queryParameterMatch matches if the value of the parameter exactly matches the contents of exactMatch.
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_methods"></a>The `route_methods` block supports:
+<a name="nested_route_methods"></a>The `route_methods` block supports:
 
 * `allowed_methods` -
   (Optional)
   The non-empty set of HTTP methods that are allowed for this route.
   Any combination of "GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", and "PATCH".
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action"></a>The `header_action` block supports:
+<a name="nested_header_action"></a>The `header_action` block supports:
 
 * `request_header_to_add` -
   (Optional)
@@ -631,7 +631,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action_response_header_to_remove).
 
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action_request_header_to_add"></a>The `request_header_to_add` block supports:
+<a name="nested_request_header_to_add"></a>The `request_header_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -645,7 +645,7 @@ The following arguments are supported:
   (Optional)
   Whether to replace all existing headers with the same name.
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action_response_header_to_add"></a>The `response_header_to_add` block supports:
+<a name="nested_response_header_to_add"></a>The `response_header_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -659,20 +659,20 @@ The following arguments are supported:
   (Optional)
   Whether to replace all existing headers with the same name.
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action_request_header_to_remove"></a>The `request_header_to_remove` block supports:
+<a name="nested_request_header_to_remove"></a>The `request_header_to_remove` block supports:
 
 * `header_name` -
   (Required)
   The name of the header to remove.
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_header_action_response_header_to_remove"></a>The `response_header_to_remove` block supports:
+<a name="nested_response_header_to_remove"></a>The `response_header_to_remove` block supports:
 
 * `header_name` -
   (Required)
   Headers to remove from the response prior to sending it back to the client.
   Response headers are only sent to the client, and do not have an effect on the cache serving the response.
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action"></a>The `route_action` block supports:
+<a name="nested_route_action"></a>The `route_action` block supports:
 
 * `cdn_policy` -
   (Optional)
@@ -696,7 +696,7 @@ The following arguments are supported:
   Possible values are: `DISABLED`, `AUTOMATIC`.
 
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cdn_policy"></a>The `cdn_policy` block supports:
+<a name="nested_cdn_policy"></a>The `cdn_policy` block supports:
 
 * `cache_mode` -
   (Optional)
@@ -792,7 +792,7 @@ The following arguments are supported:
   By default, signedRequestMaximumExpirationTtl is not set and the expiration time of a signed request may be arbitrarily far into future.
 
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cdn_policy_cache_key_policy"></a>The `cache_key_policy` block supports:
+<a name="nested_cache_key_policy"></a>The `cache_key_policy` block supports:
 
 * `include_protocol` -
   (Optional)
@@ -840,7 +840,7 @@ The following arguments are supported:
     Note that specifying several cookies, and/or cookies that have a large range of values (e.g., per-user) will dramatically impact the cache hit rate, and may result in a higher eviction rate and reduced performance.
     You may specify up to three cookie names.
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cdn_policy_signed_token_options"></a>The `signed_token_options` block supports:
+<a name="nested_signed_token_options"></a>The `signed_token_options` block supports:
 
 * `token_query_parameter` -
   (Optional)
@@ -855,7 +855,7 @@ The following arguments are supported:
   You may specify up to 3 signature algorithms to use.
   Each value may be one of: `ED25519`, `HMAC_SHA_256`, `HMAC_SHA1`.
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cdn_policy_add_signatures"></a>The `add_signatures` block supports:
+<a name="nested_add_signatures"></a>The `add_signatures` block supports:
 
 * `actions` -
   (Required)
@@ -903,7 +903,7 @@ The following arguments are supported:
   You may specify up to 6 parameters to copy.  A given parameter is be copied only if the parameter exists in the verified token.  Parameter names are matched exactly as specified.  The order of the parameters does not matter.  Duplicates are not allowed.
   This field may only be specified when the GENERATE_COOKIE or GENERATE_TOKEN_HLS_COOKIELESS actions are specified.
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_url_rewrite"></a>The `url_rewrite` block supports:
+<a name="nested_url_rewrite"></a>The `url_rewrite` block supports:
 
 * `path_prefix_rewrite` -
   (Optional)
@@ -927,7 +927,7 @@ The following arguments are supported:
   Only one of pathPrefixRewrite and pathTemplateRewrite may be
   specified.
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_route_action_cors_policy"></a>The `cors_policy` block supports:
+<a name="nested_cors_policy"></a>The `cors_policy` block supports:
 
 * `max_age` -
   (Required)
@@ -963,7 +963,7 @@ The following arguments are supported:
   (Optional)
   If true, specifies the CORS policy is disabled. The default value is false, which indicates that the CORS policy is in effect.
 
-<a name="nested_routing_path_matcher_path_matcher_route_rule_route_rule_url_redirect"></a>The `url_redirect` block supports:
+<a name="nested_url_redirect"></a>The `url_redirect` block supports:
 
 * `host_redirect` -
   (Optional)

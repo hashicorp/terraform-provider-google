@@ -459,7 +459,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_managed_authorization_attempt_info).
 
 
-<a name="nested_managed_provisioning_issue"></a>The `provisioning_issue` block contains:
+<a name="nested_provisioning_issue"></a>The `provisioning_issue` block contains:
 
 * `reason` -
   (Output)
@@ -471,7 +471,7 @@ The following arguments are supported:
   the configuration issues.
   Not guaranteed to be stable. For programmatic access use `reason` field.
 
-<a name="nested_managed_authorization_attempt_info"></a>The `authorization_attempt_info` block contains:
+<a name="nested_authorization_attempt_info"></a>The `authorization_attempt_info` block contains:
 
 * `domain` -
   (Output)

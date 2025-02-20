@@ -667,19 +667,19 @@ The following arguments are supported:
   Structure is [documented below](#nested_restore_config_restore_order).
 
 
-<a name="nested_restore_config_excluded_namespaces"></a>The `excluded_namespaces` block supports:
+<a name="nested_excluded_namespaces"></a>The `excluded_namespaces` block supports:
 
 * `namespaces` -
   (Required)
   A list of Kubernetes Namespaces.
 
-<a name="nested_restore_config_selected_namespaces"></a>The `selected_namespaces` block supports:
+<a name="nested_selected_namespaces"></a>The `selected_namespaces` block supports:
 
 * `namespaces` -
   (Required)
   A list of Kubernetes Namespaces.
 
-<a name="nested_restore_config_selected_applications"></a>The `selected_applications` block supports:
+<a name="nested_selected_applications"></a>The `selected_applications` block supports:
 
 * `namespaced_names` -
   (Required)
@@ -687,7 +687,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_restore_config_selected_applications_namespaced_names).
 
 
-<a name="nested_restore_config_selected_applications_namespaced_names"></a>The `namespaced_names` block supports:
+<a name="nested_namespaced_names"></a>The `namespaced_names` block supports:
 
 * `namespace` -
   (Required)
@@ -697,7 +697,7 @@ The following arguments are supported:
   (Required)
   The name of a Kubernetes Resource.
 
-<a name="nested_restore_config_cluster_resource_restore_scope"></a>The `cluster_resource_restore_scope` block supports:
+<a name="nested_cluster_resource_restore_scope"></a>The `cluster_resource_restore_scope` block supports:
 
 * `all_group_kinds` -
   (Optional)
@@ -725,7 +725,7 @@ The following arguments are supported:
   Mutually exclusive to any other field in `clusterResourceRestoreScope`.
 
 
-<a name="nested_restore_config_cluster_resource_restore_scope_excluded_group_kinds"></a>The `excluded_group_kinds` block supports:
+<a name="nested_excluded_group_kinds"></a>The `excluded_group_kinds` block supports:
 
 * `resource_group` -
   (Optional)
@@ -738,7 +738,7 @@ The following arguments are supported:
   Kind of a Kubernetes resource, e.g.
   "CustomResourceDefinition", "StorageClass", etc.
 
-<a name="nested_restore_config_cluster_resource_restore_scope_selected_group_kinds"></a>The `selected_group_kinds` block supports:
+<a name="nested_selected_group_kinds"></a>The `selected_group_kinds` block supports:
 
 * `resource_group` -
   (Optional)
@@ -751,7 +751,7 @@ The following arguments are supported:
   Kind of a Kubernetes resource, e.g.
   "CustomResourceDefinition", "StorageClass", etc.
 
-<a name="nested_restore_config_transformation_rules"></a>The `transformation_rules` block supports:
+<a name="nested_transformation_rules"></a>The `transformation_rules` block supports:
 
 * `description` -
   (Optional)
@@ -775,7 +775,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_restore_config_transformation_rules_transformation_rules_field_actions).
 
 
-<a name="nested_restore_config_transformation_rules_transformation_rules_resource_filter"></a>The `resource_filter` block supports:
+<a name="nested_resource_filter"></a>The `resource_filter` block supports:
 
 * `namespaces` -
   (Optional)
@@ -804,7 +804,7 @@ The following arguments are supported:
   be candidates for transformation).
 
 
-<a name="nested_restore_config_transformation_rules_transformation_rules_resource_filter_group_kinds"></a>The `group_kinds` block supports:
+<a name="nested_group_kinds"></a>The `group_kinds` block supports:
 
 * `resource_group` -
   (Optional)
@@ -817,7 +817,7 @@ The following arguments are supported:
   Kind of a Kubernetes resource, e.g.
   "CustomResourceDefinition", "StorageClass", etc.
 
-<a name="nested_restore_config_transformation_rules_transformation_rules_field_actions"></a>The `field_actions` block supports:
+<a name="nested_field_actions"></a>The `field_actions` block supports:
 
 * `op` -
   (Required)
@@ -839,7 +839,7 @@ The following arguments are supported:
   A string that specifies the desired value in string format
   to use for transformation.
 
-<a name="nested_restore_config_volume_data_restore_policy_bindings"></a>The `volume_data_restore_policy_bindings` block supports:
+<a name="nested_volume_data_restore_policy_bindings"></a>The `volume_data_restore_policy_bindings` block supports:
 
 * `policy` -
   (Required)
@@ -854,7 +854,7 @@ The following arguments are supported:
   bound PV, to apply the policy to.
   Possible values are: `GCE_PERSISTENT_DISK`.
 
-<a name="nested_restore_config_restore_order"></a>The `restore_order` block supports:
+<a name="nested_restore_order"></a>The `restore_order` block supports:
 
 * `group_kind_dependencies` -
   (Required)
@@ -864,7 +864,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_restore_config_restore_order_group_kind_dependencies).
 
 
-<a name="nested_restore_config_restore_order_group_kind_dependencies"></a>The `group_kind_dependencies` block supports:
+<a name="nested_group_kind_dependencies"></a>The `group_kind_dependencies` block supports:
 
 * `satisfying` -
   (Required)
@@ -879,7 +879,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_restore_config_restore_order_group_kind_dependencies_group_kind_dependencies_requiring).
 
 
-<a name="nested_restore_config_restore_order_group_kind_dependencies_group_kind_dependencies_satisfying"></a>The `satisfying` block supports:
+<a name="nested_satisfying"></a>The `satisfying` block supports:
 
 * `resource_group` -
   (Optional)
@@ -892,7 +892,7 @@ The following arguments are supported:
   Kind of a Kubernetes resource, e.g.
   "CustomResourceDefinition", "StorageClass", etc.
 
-<a name="nested_restore_config_restore_order_group_kind_dependencies_group_kind_dependencies_requiring"></a>The `requiring` block supports:
+<a name="nested_requiring"></a>The `requiring` block supports:
 
 * `resource_group` -
   (Optional)

@@ -330,7 +330,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_persistence_config_aof_config).
 
 
-<a name="nested_persistence_config_rdb_config"></a>The `rdb_config` block supports:
+<a name="nested_rdb_config"></a>The `rdb_config` block supports:
 
 * `rdb_snapshot_period` -
   (Optional)
@@ -347,7 +347,7 @@ The following arguments are supported:
   snapshots will be aligned. If not provided, the current time will be
   used.
 
-<a name="nested_persistence_config_aof_config"></a>The `aof_config` block supports:
+<a name="nested_aof_config"></a>The `aof_config` block supports:
 
 * `append_fsync` -
   (Optional)
@@ -436,7 +436,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_state_info_update_info).
 
 
-<a name="nested_state_info_update_info"></a>The `update_info` block contains:
+<a name="nested_update_info"></a>The `update_info` block contains:
 
 * `target_shard_count` -
   (Output)
@@ -476,7 +476,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_endpoints_endpoints_connections).
 
 
-<a name="nested_endpoints_endpoints_connections"></a>The `connections` block supports:
+<a name="nested_connections"></a>The `connections` block supports:
 
 * `psc_auto_connection` -
   (Optional)
@@ -484,7 +484,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_endpoints_endpoints_connections_connections_psc_auto_connection).
 
 
-<a name="nested_endpoints_endpoints_connections_connections_psc_auto_connection"></a>The `psc_auto_connection` block supports:
+<a name="nested_psc_auto_connection"></a>The `psc_auto_connection` block supports:
 
 * `psc_connection_id` -
   (Output)

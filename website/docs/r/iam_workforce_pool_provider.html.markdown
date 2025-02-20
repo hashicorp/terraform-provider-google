@@ -454,7 +454,7 @@ The following arguments are supported:
   ```
 
 
-<a name="nested_oidc_client_secret"></a>The `client_secret` block supports:
+<a name="nested_client_secret"></a>The `client_secret` block supports:
 
 * `value` -
   (Optional)
@@ -462,7 +462,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_oidc_client_secret_value).
 
 
-<a name="nested_oidc_client_secret_value"></a>The `value` block supports:
+<a name="nested_value"></a>The `value` block supports:
 
 * `plain_text` -
   (Required)
@@ -473,7 +473,7 @@ The following arguments are supported:
   (Output)
   A thumbprint to represent the current client secret value.
 
-<a name="nested_oidc_web_sso_config"></a>The `web_sso_config` block supports:
+<a name="nested_web_sso_config"></a>The `web_sso_config` block supports:
 
 * `response_type` -
   (Required)
@@ -525,7 +525,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_extra_attributes_oauth2_client_query_parameters).
 
 
-<a name="nested_extra_attributes_oauth2_client_client_secret"></a>The `client_secret` block supports:
+<a name="nested_client_secret"></a>The `client_secret` block supports:
 
 * `value` -
   (Optional)
@@ -533,7 +533,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_extra_attributes_oauth2_client_client_secret_value).
 
 
-<a name="nested_extra_attributes_oauth2_client_client_secret_value"></a>The `value` block supports:
+<a name="nested_value"></a>The `value` block supports:
 
 * `plain_text` -
   (Required)
@@ -543,7 +543,7 @@ The following arguments are supported:
   (Output)
   A thumbprint to represent the current client secret value.
 
-<a name="nested_extra_attributes_oauth2_client_query_parameters"></a>The `query_parameters` block supports:
+<a name="nested_query_parameters"></a>The `query_parameters` block supports:
 
 * `filter` -
   (Optional)

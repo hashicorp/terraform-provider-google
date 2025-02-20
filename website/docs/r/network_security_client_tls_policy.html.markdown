@@ -135,13 +135,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_client_certificate_certificate_provider_instance).
 
 
-<a name="nested_client_certificate_grpc_endpoint"></a>The `grpc_endpoint` block supports:
+<a name="nested_grpc_endpoint"></a>The `grpc_endpoint` block supports:
 
 * `target_uri` -
   (Required)
   The target URI of the gRPC endpoint. Only UDS path is supported, and should start with "unix:".
 
-<a name="nested_client_certificate_certificate_provider_instance"></a>The `certificate_provider_instance` block supports:
+<a name="nested_certificate_provider_instance"></a>The `certificate_provider_instance` block supports:
 
 * `plugin_instance` -
   (Required)
@@ -160,13 +160,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_server_validation_ca_server_validation_ca_certificate_provider_instance).
 
 
-<a name="nested_server_validation_ca_server_validation_ca_grpc_endpoint"></a>The `grpc_endpoint` block supports:
+<a name="nested_grpc_endpoint"></a>The `grpc_endpoint` block supports:
 
 * `target_uri` -
   (Required)
   The target URI of the gRPC endpoint. Only UDS path is supported, and should start with "unix:".
 
-<a name="nested_server_validation_ca_server_validation_ca_certificate_provider_instance"></a>The `certificate_provider_instance` block supports:
+<a name="nested_certificate_provider_instance"></a>The `certificate_provider_instance` block supports:
 
 * `plugin_instance` -
   (Required)

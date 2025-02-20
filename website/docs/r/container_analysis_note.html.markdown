@@ -122,7 +122,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_attestation_authority_hint).
 
 
-<a name="nested_attestation_authority_hint"></a>The `hint` block supports:
+<a name="nested_hint"></a>The `hint` block supports:
 
 * `human_readable_name` -
   (Required)

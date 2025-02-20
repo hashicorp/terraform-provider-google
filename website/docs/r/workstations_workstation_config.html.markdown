@@ -769,7 +769,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_host_gce_instance).
 
 
-<a name="nested_host_gce_instance"></a>The `gce_instance` block supports:
+<a name="nested_gce_instance"></a>The `gce_instance` block supports:
 
 * `machine_type` -
   (Optional)
@@ -837,7 +837,7 @@ The following arguments are supported:
   values are in the format `tagValues/456`.
 
 
-<a name="nested_host_gce_instance_shielded_instance_config"></a>The `shielded_instance_config` block supports:
+<a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
 
 * `enable_secure_boot` -
   (Optional)
@@ -851,13 +851,13 @@ The following arguments are supported:
   (Optional)
   Whether the instance has integrity monitoring enabled.
 
-<a name="nested_host_gce_instance_confidential_instance_config"></a>The `confidential_instance_config` block supports:
+<a name="nested_confidential_instance_config"></a>The `confidential_instance_config` block supports:
 
 * `enable_confidential_compute` -
   (Optional)
   Whether the instance has confidential compute enabled.
 
-<a name="nested_host_gce_instance_accelerators"></a>The `accelerators` block supports:
+<a name="nested_accelerators"></a>The `accelerators` block supports:
 
 * `type` -
   (Required)
@@ -867,7 +867,7 @@ The following arguments are supported:
   (Required)
   Number of accelerator cards exposed to the instance.
 
-<a name="nested_host_gce_instance_boost_configs"></a>The `boost_configs` block supports:
+<a name="nested_boost_configs"></a>The `boost_configs` block supports:
 
 * `id` -
   (Required)
@@ -896,7 +896,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_host_gce_instance_boost_configs_boost_configs_accelerators).
 
 
-<a name="nested_host_gce_instance_boost_configs_boost_configs_accelerators"></a>The `accelerators` block supports:
+<a name="nested_accelerators"></a>The `accelerators` block supports:
 
 * `type` -
   (Required)
@@ -918,7 +918,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_persistent_directories_persistent_directories_gce_pd).
 
 
-<a name="nested_persistent_directories_persistent_directories_gce_pd"></a>The `gce_pd` block supports:
+<a name="nested_gce_pd"></a>The `gce_pd` block supports:
 
 * `fs_type` -
   (Optional)
@@ -954,7 +954,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_ephemeral_directories_ephemeral_directories_gce_pd).
 
 
-<a name="nested_ephemeral_directories_ephemeral_directories_gce_pd"></a>The `gce_pd` block supports:
+<a name="nested_gce_pd"></a>The `gce_pd` block supports:
 
 * `disk_type` -
   (Optional)

@@ -29,8 +29,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -357,6 +359,10 @@ func ResourceComputeDisk() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
+		ValidateRawResourceConfigFuncs: []schema.ValidateRawResourceConfigFunc{
+			validation.PreferWriteOnlyAttribute(cty.GetAttrPath("disk_encryption_key").IndexInt(0).GetAttr("raw_key"), cty.GetAttrPath("disk_encryption_key").IndexInt(0).GetAttr("raw_key_wo")),
+			validation.PreferWriteOnlyAttribute(cty.GetAttrPath("disk_encryption_key").IndexInt(0).GetAttr("rsa_encrypted_key"), cty.GetAttrPath("disk_encryption_key").IndexInt(0).GetAttr("rsa_encrypted_key_wo")),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -385,7 +391,6 @@ For example:
 			"async_primary_disk": {
 				Type:             schema.TypeList,
 				Optional:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 				Description:      `A nested object resource.`,
 				MaxItems:         1,
@@ -394,7 +399,6 @@ For example:
 						"disk": {
 							Type:        schema.TypeString,
 							Required:    true,
-							ForceNew:    true,
 							Description: `Primary disk for asynchronous disk replication.`,
 						},
 					},
@@ -403,14 +407,12 @@ For example:
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Description: `An optional description of this resource. Provide this property when
 you create the resource.`,
 			},
 			"disk_encryption_key": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `Encrypts the disk using a customer-supplied encryption key.
 
 After you encrypt a disk with a customer-supplied key, you must
@@ -450,7 +452,24 @@ If absent, the Compute Engine Service Agent service account is used.`,
 							ForceNew: true,
 							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
 RFC 4648 base64 to either encrypt or decrypt this resource.`,
-							Sensitive: true,
+							Sensitive:     true,
+							ConflictsWith: []string{"disk_encryption_key.0.raw_key_wo"},
+						},
+						"raw_key_wo": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
+RFC 4648 base64 to either encrypt or decrypt this resource.`,
+							WriteOnly:     true,
+							ConflictsWith: []string{"disk_encryption_key.0.raw_key"},
+							RequiredWith:  []string{"disk_encryption_key.0.raw_key_wo_version"},
+						},
+						"raw_key_wo_version": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Triggers update of write-only rawKey`,
+							Default:     0,
 						},
 						"rsa_encrypted_key": {
 							Type:     schema.TypeString,
@@ -459,7 +478,24 @@ RFC 4648 base64 to either encrypt or decrypt this resource.`,
 							Description: `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit
 customer-supplied encryption key to either encrypt or decrypt
 this resource. You can provide either the rawKey or the rsaEncryptedKey.`,
-							Sensitive: true,
+							Sensitive:     true,
+							ConflictsWith: []string{"disk_encryption_key.0.rsa_encrypted_key_wo"},
+						},
+						"rsa_encrypted_key_wo": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
+RFC 4648 base64 to either encrypt or decrypt this resource.`,
+							WriteOnly:     true,
+							ConflictsWith: []string{"disk_encryption_key.0.rsa_encrypted_key"},
+							RequiredWith:  []string{"disk_encryption_key.0.rsa_encrypted_key_wo_version"},
+						},
+						"rsa_encrypted_key_wo_version": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Triggers update of write-only rsaEncryptedKey`,
+							Default:     0,
 						},
 						"sha256": {
 							Type:     schema.TypeString,
@@ -474,7 +510,6 @@ encryption key that protects this resource.`,
 				Type:     schema.TypeBool,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
 				Description: `Whether this disk is using confidential compute mode.
 Note: Only supported on hyperdisk skus, disk_encryption_key is required when setting to true`,
 			},
@@ -482,7 +517,6 @@ Note: Only supported on hyperdisk skus, disk_encryption_key is required when set
 				Type:     schema.TypeSet,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
 				Description: `A list of features to enable on the guest operating system.
 Applicable only for bootable disks.`,
 				Elem: computeDiskGuestOsFeaturesSchema(),
@@ -528,7 +562,6 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
 				Description: `Physical block size of the persistent disk, in bytes. If not present
 in a request, a default value is used. Currently supported sizes
 are 4096 and 16384, other sizes may be added in the future.
@@ -572,7 +605,6 @@ and recreating.`,
 			"snapshot": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description: `The source snapshot used to create this disk. You can provide this as
 a partial or full URL to the resource. If the snapshot is in another
@@ -587,7 +619,6 @@ following are valid values:
 			"source_disk": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: sourceDiskDiffSuppress,
 				Description: `The source disk used to create this disk. You can provide this as a partial or full URL to the resource.
 For example, the following are valid values:
@@ -611,7 +642,6 @@ the source image is protected by a customer-supplied encryption key.`,
 						"kms_key_self_link": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 							Description: `The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
 in the cloud console. Your project's Compute Engine System service account
@@ -622,14 +652,12 @@ See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encr
 						"kms_key_service_account": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Description: `The service account used for the encryption request for the given KMS key.
 If absent, the Compute Engine Service Agent service account is used.`,
 						},
 						"raw_key": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
 RFC 4648 base64 to either encrypt or decrypt this resource.`,
 						},
@@ -655,7 +683,6 @@ key.`,
 						"kms_key_self_link": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 							Description: `The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
 in the cloud console. Your project's Compute Engine System service account
@@ -666,14 +693,12 @@ See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encr
 						"kms_key_service_account": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Description: `The service account used for the encryption request for the given KMS key.
 If absent, the Compute Engine Service Agent service account is used.`,
 						},
 						"raw_key": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
 RFC 4648 base64 to either encrypt or decrypt this resource.`,
 						},
@@ -701,7 +726,6 @@ For example:
 			"type": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareResourceNames,
 				Description: `URL of the disk type resource describing which disk type to use to
 create the disk. Provide this when creating the disk.`,
@@ -711,7 +735,6 @@ create the disk. Provide this when creating the disk.`,
 				Type:             schema.TypeString,
 				Computed:         true,
 				Optional:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `A reference to the zone where the disk resides.`,
 			},
@@ -810,7 +833,6 @@ func computeDiskGuestOsFeaturesSchema() *schema.Resource {
 			"type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.`,
 			},
 		},
@@ -1191,6 +1213,146 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 	billingProject = project
 
+	obj := make(map[string]interface{})
+	sourceImageEncryptionKeyProp, err := expandComputeDiskSourceImageEncryptionKey(d.Get("source_image_encryption_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_image_encryption_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceImageEncryptionKeyProp)) {
+		obj["sourceImageEncryptionKey"] = sourceImageEncryptionKeyProp
+	}
+	diskEncryptionKeyProp, err := expandComputeDiskDiskEncryptionKey(d.Get("disk_encryption_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disk_encryption_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, diskEncryptionKeyProp)) {
+		obj["diskEncryptionKey"] = diskEncryptionKeyProp
+	}
+	sourceSnapshotEncryptionKeyProp, err := expandComputeDiskSourceSnapshotEncryptionKey(d.Get("source_snapshot_encryption_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_snapshot_encryption_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceSnapshotEncryptionKeyProp)) {
+		obj["sourceSnapshotEncryptionKey"] = sourceSnapshotEncryptionKeyProp
+	}
+	descriptionProp, err := expandComputeDiskDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
+	nameProp, err := expandComputeDiskName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
+	physicalBlockSizeBytesProp, err := expandComputeDiskPhysicalBlockSizeBytes(d.Get("physical_block_size_bytes"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("physical_block_size_bytes"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, physicalBlockSizeBytesProp)) {
+		obj["physicalBlockSizeBytes"] = physicalBlockSizeBytesProp
+	}
+	sourceDiskProp, err := expandComputeDiskSourceDisk(d.Get("source_disk"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_disk"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceDiskProp)) {
+		obj["sourceDisk"] = sourceDiskProp
+	}
+	typeProp, err := expandComputeDiskType(d.Get("type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+		obj["type"] = typeProp
+	}
+	sourceImageProp, err := expandComputeDiskImage(d.Get("image"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("image"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceImageProp)) {
+		obj["sourceImage"] = sourceImageProp
+	}
+	enableConfidentialComputeProp, err := expandComputeDiskEnableConfidentialCompute(d.Get("enable_confidential_compute"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_confidential_compute"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableConfidentialComputeProp)) {
+		obj["enableConfidentialCompute"] = enableConfidentialComputeProp
+	}
+	asyncPrimaryDiskProp, err := expandComputeDiskAsyncPrimaryDisk(d.Get("async_primary_disk"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("async_primary_disk"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, asyncPrimaryDiskProp)) {
+		obj["asyncPrimaryDisk"] = asyncPrimaryDiskProp
+	}
+	guestOsFeaturesProp, err := expandComputeDiskGuestOsFeatures(d.Get("guest_os_features"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("guest_os_features"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, guestOsFeaturesProp)) {
+		obj["guestOsFeatures"] = guestOsFeaturesProp
+	}
+	licensesProp, err := expandComputeDiskLicenses(d.Get("licenses"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("licenses"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, licensesProp)) {
+		obj["licenses"] = licensesProp
+	}
+	storagePoolProp, err := expandComputeDiskStoragePool(d.Get("storage_pool"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("storage_pool"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, storagePoolProp)) {
+		obj["storagePool"] = storagePoolProp
+	}
+	zoneProp, err := expandComputeDiskZone(d.Get("zone"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
+		obj["zone"] = zoneProp
+	}
+	sourceSnapshotProp, err := expandComputeDiskSnapshot(d.Get("snapshot"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("snapshot"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceSnapshotProp)) {
+		obj["sourceSnapshot"] = sourceSnapshotProp
+	}
+
+	obj, err = resourceComputeDiskUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating Disk %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PUT",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Disk %q: %#v", d.Id(), res)
+	}
+
+	err = ComputeOperationWaitTime(
+		config, res, project, "Updating Disk", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return err
+	}
 	d.Partial(true)
 
 	if d.HasChange("label_fingerprint") || d.HasChange("effective_labels") {
@@ -1643,6 +1805,10 @@ func flattenComputeDiskDiskEncryptionKey(v interface{}, d *schema.ResourceData, 
 	transformed := make(map[string]interface{})
 	transformed["raw_key"] =
 		flattenComputeDiskDiskEncryptionKeyRawKey(original["rawKey"], d, config)
+	transformed["raw_key_wo_version"] =
+		flattenComputeDiskDiskEncryptionKeyRawKeyWoVersion(original["rawKeyWoVersion"], d, config)
+	transformed["rsa_encrypted_key_wo_version"] =
+		flattenComputeDiskDiskEncryptionKeyRsaEncryptedKeyWoVersion(original["rsaEncryptedKeyWoVersion"], d, config)
 	transformed["rsa_encrypted_key"] =
 		flattenComputeDiskDiskEncryptionKeyRsaEncryptedKey(original["rsaEncryptedKey"], d, config)
 	transformed["sha256"] =
@@ -1654,10 +1820,24 @@ func flattenComputeDiskDiskEncryptionKey(v interface{}, d *schema.ResourceData, 
 	return []interface{}{transformed}
 }
 func flattenComputeDiskDiskEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if d.Get("disk_encryption_key.0.raw_key").(string) == "" {
+		return nil
+	}
 	return v
 }
 
+func flattenComputeDiskDiskEncryptionKeyRawKeyWoVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("disk_encryption_key.0.raw_key_wo_version")
+}
+
+func flattenComputeDiskDiskEncryptionKeyRsaEncryptedKeyWoVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("disk_encryption_key.0.rsa_encrypted_key_wo_version")
+}
+
 func flattenComputeDiskDiskEncryptionKeyRsaEncryptedKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if d.Get("disk_encryption_key.0.rsa_encrypted_key").(string) == "" {
+		return nil
+	}
 	return v
 }
 
@@ -2015,11 +2195,39 @@ func expandComputeDiskDiskEncryptionKey(v interface{}, d tpgresource.TerraformRe
 		transformed["rawKey"] = transformedRawKey
 	}
 
+	transformedRawKeyWoVersion, err := expandComputeDiskDiskEncryptionKeyRawKeyWoVersion(original["raw_key_wo_version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRawKeyWoVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rawKeyWoVersion"] = transformedRawKeyWoVersion
+	}
+
+	transformedRawKeyWo, err := expandComputeDiskDiskEncryptionKeyRawKeyWo(original["raw_key_wo"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRawKeyWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rawKeyWo"] = transformedRawKeyWo
+	}
+
+	transformedRsaEncryptedKeyWoVersion, err := expandComputeDiskDiskEncryptionKeyRsaEncryptedKeyWoVersion(original["rsa_encrypted_key_wo_version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRsaEncryptedKeyWoVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rsaEncryptedKeyWoVersion"] = transformedRsaEncryptedKeyWoVersion
+	}
+
 	transformedRsaEncryptedKey, err := expandComputeDiskDiskEncryptionKeyRsaEncryptedKey(original["rsa_encrypted_key"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedRsaEncryptedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["rsaEncryptedKey"] = transformedRsaEncryptedKey
+	}
+
+	transformedRsaEncryptedKeyWo, err := expandComputeDiskDiskEncryptionKeyRsaEncryptedKeyWo(original["rsa_encrypted_key_wo"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRsaEncryptedKeyWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rsaEncryptedKeyWo"] = transformedRsaEncryptedKeyWo
 	}
 
 	transformedSha256, err := expandComputeDiskDiskEncryptionKeySha256(original["sha256"], d, config)
@@ -2050,7 +2258,23 @@ func expandComputeDiskDiskEncryptionKeyRawKey(v interface{}, d tpgresource.Terra
 	return v, nil
 }
 
+func expandComputeDiskDiskEncryptionKeyRawKeyWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeDiskDiskEncryptionKeyRawKeyWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeDiskDiskEncryptionKeyRsaEncryptedKeyWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeDiskDiskEncryptionKeyRsaEncryptedKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeDiskDiskEncryptionKeyRsaEncryptedKeyWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2308,6 +2532,17 @@ func resourceComputeDiskEncoder(d *schema.ResourceData, meta interface{}, obj ma
 		obj["sourceImage"] = imageUrl
 		log.Printf("[DEBUG] Image name resolved to: %s", imageUrl)
 	}
+	if rawKey, diags := d.GetRawConfigAt(cty.GetAttrPath("disk_encryption_key").IndexInt(0).GetAttr("raw_key_wo")); !diags.HasError() && rawKey.IsKnown() && !rawKey.IsNull() {
+		obj["diskEncryptionKey"] = map[string]interface{}{
+			"rawKey": rawKey.AsString(),
+		}
+	}
+
+	if rsaEncryptedKey, diags := d.GetRawConfigAt(cty.GetAttrPath("disk_encryption_key").IndexInt(0).GetAttr("rsa_encrypted_key_wo")); !diags.HasError() && rsaEncryptedKey.IsKnown() && !rsaEncryptedKey.IsNull() {
+		obj["diskEncryptionKey"] = map[string]interface{}{
+			"rsaEncryptedKey": rsaEncryptedKey.AsString(),
+		}
+	}
 
 	return obj, nil
 }
@@ -2331,7 +2566,6 @@ func resourceComputeDiskDecoder(d *schema.ResourceData, meta interface{}, res ma
 		transformed["rawKey"] = d.Get("disk_encryption_key.0.raw_key")
 		transformed["rsaEncryptedKey"] = d.Get("disk_encryption_key.0.rsa_encrypted_key")
 		transformed["sha256"] = original["sha256"]
-
 		if kmsKeyName, ok := original["kmsKeyName"]; ok {
 			// The response for crypto keys often includes the version of the key which needs to be removed
 			// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
