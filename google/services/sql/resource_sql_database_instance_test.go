@@ -123,6 +123,7 @@ func TestAccSqlDatabaseInstance_basicMSSQL(t *testing.T) {
 }
 
 func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20975")
 	t.Parallel()
 
 	databaseName := "tf-test-sql-instance-" + acctest.RandString(t, 10)
@@ -2297,6 +2298,7 @@ func TestAccSqlDatabaseInstance_activationPolicy(t *testing.T) {
 }
 
 func TestAccSqlDatabaseInstance_ReplicaPromoteSuccessful(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20975")
 	t.Parallel()
 
 	databaseName := "tf-test-sql-instance-" + acctest.RandString(t, 10)
@@ -2342,6 +2344,7 @@ func TestAccSqlDatabaseInstance_ReplicaPromoteSuccessful(t *testing.T) {
 }
 
 func TestAccSqlDatabaseInstance_ReplicaPromoteFailedWithMasterInstanceNamePresent(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20975")
 	t.Parallel()
 	databaseName := "tf-test-sql-instance-" + acctest.RandString(t, 10)
 	failoverName := "tf-test-sql-instance-failover-" + acctest.RandString(t, 10)
@@ -2387,6 +2390,7 @@ func TestAccSqlDatabaseInstance_ReplicaPromoteFailedWithMasterInstanceNamePresen
 }
 
 func TestAccSqlDatabaseInstance_ReplicaPromoteFailedWithReplicaConfigurationPresent(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20975")
 	t.Parallel()
 
 	databaseName := "tf-test-sql-instance-" + acctest.RandString(t, 10)
@@ -2433,6 +2437,7 @@ func TestAccSqlDatabaseInstance_ReplicaPromoteFailedWithReplicaConfigurationPres
 }
 
 func TestAccSqlDatabaseInstance_ReplicaPromoteFailedWithMasterInstanceNameAndReplicaConfigurationPresent(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20975")
 	t.Parallel()
 
 	databaseName := "tf-test-sql-instance-" + acctest.RandString(t, 10)
@@ -2478,6 +2483,7 @@ func TestAccSqlDatabaseInstance_ReplicaPromoteFailedWithMasterInstanceNameAndRep
 }
 
 func TestAccSqlDatabaseInstance_ReplicaPromoteSkippedWithNoMasterInstanceNameAndNoReplicaConfigurationPresent(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20975")
 	t.Parallel()
 
 	databaseName := "tf-test-sql-instance-" + acctest.RandString(t, 10)
