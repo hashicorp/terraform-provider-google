@@ -54,6 +54,8 @@ func ResourceNotebooksLocation() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		DeprecationMessage: "`google_notebooks_location` is deprecated and will be removed in a future major release. This resource is not functional.",
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
