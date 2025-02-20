@@ -1,0 +1,3 @@
+```release-note:none
+Added documentation on how to use the `credentials` parameter for the google terraform provider
+```
