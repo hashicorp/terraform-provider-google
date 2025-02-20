@@ -1,7 +1,7 @@
 resource: 'google_folder'
 generation_type: 'handwritten'
 api_service_name: 'cloudresourcemanager.googleapis.com'
-api_version: 'v1'
+api_version: 'v3'
 api_resource_type_kind: 'Folder'
 fields:
   - field: 'create_time'
