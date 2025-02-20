@@ -1,0 +1,3 @@
+```release-note:none
+Made storage_operation to gracefully cancel the LRO if an interrupt is received to prevent the orphaned LRO
+```
