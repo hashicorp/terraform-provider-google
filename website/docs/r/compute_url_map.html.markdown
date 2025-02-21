@@ -440,6 +440,10 @@ resource "google_compute_url_map" "urlmap" {
             }
           }
         }
+        max_stream_duration {
+          nanos   = 500000
+          seconds = 9
+        }
       }
     }
   }
@@ -1268,6 +1272,15 @@ The following arguments are supported:
   specified, the default value is 15 seconds.
   Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_timeout).
 
+* `max_stream_duration` -
+  (Optional)
+  Specifies the maximum duration (timeout) for streams on the selected route.
+  Unlike the `Timeout` field where the timeout duration starts from the time the request
+  has been fully processed (known as end-of-stream), the duration in this field
+  is computed from the beginning of the stream until the response has been processed,
+  including all retries. A stream that does not complete in this duration is closed.
+  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_max_stream_duration).
+
 * `url_rewrite` -
   (Optional)
   The spec to modify the URL of the request, prior to forwarding the request to
@@ -1438,6 +1451,19 @@ The following arguments are supported:
   inclusive.
 
 <a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_timeout"></a>The `timeout` block supports:
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution. Durations
+  less than one second are represented with a 0 `seconds` field and a positive
+  `nanos` field. Must be from 0 to 999,999,999 inclusive.
+
+* `seconds` -
+  (Required)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
+  inclusive.
+
+<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_max_stream_duration"></a>The `max_stream_duration` block supports:
 
 * `nanos` -
   (Optional)
@@ -1946,6 +1972,15 @@ The following arguments are supported:
   specified, the default value is 15 seconds.
   Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_timeout).
 
+* `max_stream_duration` -
+  (Optional)
+  Specifies the maximum duration (timeout) for streams on the selected route.
+  Unlike the `Timeout` field where the timeout duration starts from the time the request
+  has been fully processed (known as end-of-stream), the duration in this field
+  is computed from the beginning of the stream until the response has been processed,
+  including all retries. A stream that does not complete in this duration is closed.
+  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_max_stream_duration).
+
 * `url_rewrite` -
   (Optional)
   The spec to modify the URL of the request, prior to forwarding the request to
@@ -2119,6 +2154,19 @@ The following arguments are supported:
   inclusive.
 
 <a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_timeout"></a>The `timeout` block supports:
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution. Durations
+  less than one second are represented with a 0 `seconds` field and a positive
+  `nanos` field. Must be from 0 to 999,999,999 inclusive.
+
+* `seconds` -
+  (Required)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
+  inclusive.
+
+<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_max_stream_duration"></a>The `max_stream_duration` block supports:
 
 * `nanos` -
   (Optional)
@@ -2353,6 +2401,15 @@ The following arguments are supported:
   If not specified, will use the largest timeout among all backend services associated with the route.
   Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_timeout).
 
+* `max_stream_duration` -
+  (Optional)
+  Specifies the maximum duration (timeout) for streams on the selected route.
+  Unlike the `Timeout` field where the timeout duration starts from the time the request
+  has been fully processed (known as end-of-stream), the duration in this field
+  is computed from the beginning of the stream until the response has been processed,
+  including all retries. A stream that does not complete in this duration is closed.
+  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_max_stream_duration).
+
 * `retry_policy` -
   (Optional)
   Specifies the retry policy associated with this route.
@@ -2485,6 +2542,18 @@ The following arguments are supported:
   (Optional)
   Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are represented
   with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
+
+<a name="nested_path_matcher_path_matcher_default_route_action_max_stream_duration"></a>The `max_stream_duration` block supports:
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are represented
+  with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
+
+* `seconds` -
+  (Required)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
+  Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years
 
 <a name="nested_path_matcher_path_matcher_default_route_action_retry_policy"></a>The `retry_policy` block supports:
 
@@ -2758,6 +2827,15 @@ The following arguments are supported:
   If not specified, will use the largest timeout among all backend services associated with the route.
   Structure is [documented below](#nested_default_route_action_timeout).
 
+* `max_stream_duration` -
+  (Optional)
+  Specifies the maximum duration (timeout) for streams on the selected route.
+  Unlike the `Timeout` field where the timeout duration starts from the time the request
+  has been fully processed (known as end-of-stream), the duration in this field
+  is computed from the beginning of the stream until the response has been processed,
+  including all retries. A stream that does not complete in this duration is closed.
+  Structure is [documented below](#nested_default_route_action_max_stream_duration).
+
 * `retry_policy` -
   (Optional)
   Specifies the retry policy associated with this route.
@@ -2890,6 +2968,18 @@ The following arguments are supported:
   (Optional)
   Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are represented
   with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
+
+<a name="nested_default_route_action_max_stream_duration"></a>The `max_stream_duration` block supports:
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are represented
+  with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
+
+* `seconds` -
+  (Required)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
+  Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years
 
 <a name="nested_default_route_action_retry_policy"></a>The `retry_policy` block supports:
 
