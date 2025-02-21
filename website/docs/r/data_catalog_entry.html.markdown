@@ -20,6 +20,7 @@ description: |-
 ---
 
 # google_data_catalog_entry
+~> **Warning:** `google_data_catalog_entry` is deprecated and will be removed in a future major release. Data Catalog is deprecated and will be discontinued on January 30, 2026. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog.
 
 Entry Metadata. A Data Catalog Entry resource represents another resource in Google Cloud Platform
 (such as a BigQuery dataset or a Pub/Sub topic) or outside of Google Cloud Platform. Clients can use
