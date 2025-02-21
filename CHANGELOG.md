@@ -5,7 +5,7 @@ NOTES:
 
 DEPRECATIONS:
 * datacatalog: `google_data_catalog_tag_template` is deprecated and will be removed in a future major release. Use `google_dataplex_aspect_type` instead. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog. ([#9347](https://github.com/hashicorp/terraform-provider-google-beta/pull/9347))
-* datacatalog: `google_data_catalog_entry_group` is deprecated and will be removed in a future major release. Use `google_dataplex_entry_group` instead. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog. ([#9349](https://github.com/hashicorp/terraform-provider-google-beta/pull/9349))
+* datacatalog: deprecated `google_data_catalog_entry_group`. Use `google_dataplex_entry_group` instead. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog. ([#9349](https://github.com/hashicorp/terraform-provider-google-beta/pull/9349))
 
 FEATURES:
 * **New Data Source:** `google_alloydb_cluster` ([#21496](https://github.com/hashicorp/terraform-provider-google/pull/21496))
