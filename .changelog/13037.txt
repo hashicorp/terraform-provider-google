@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `max_stream_duration` field to `google_compute_url_map` resource
+```

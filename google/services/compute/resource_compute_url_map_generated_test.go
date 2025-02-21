@@ -536,6 +536,10 @@ resource "google_compute_url_map" "urlmap" {
             }
           }
         }
+        max_stream_duration {
+          nanos   = 500000
+          seconds = 9
+        }
       }
     }
   }
