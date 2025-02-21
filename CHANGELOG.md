@@ -17,7 +17,6 @@ FEATURES:
 
 IMPROVEMENTS:
 * backupdr: promoted `google_backup_dr_management_server`, `google_backup_dr_backup_plan_association`, and `google_backup_dr_backup_plan` resources to GA
-* composer:  Adding API Docs for google_composer_user_workloads_secret,google_composer_user_workloads_config_map,google_composer_image_versions, google_composer_environment ([#21403](https://github.com/hashicorp/terraform-provider-google/pull/21403))
 * compute: added `import_subnet_routes_with_public_ip` and `export_subnet_routes_with_public_ip` fields to `google_compute_network_peering_routes_config` resource ([#21405](https://github.com/hashicorp/terraform-provider-google/pull/21405))
 * developerconnect: added `bitbucket_cloud_config` and `bitbucket_data_center_config` fields to `google_developer_connect_connection` resource ([#21433](https://github.com/hashicorp/terraform-provider-google/pull/21433))
 * gemini: promoted `google_gemini_release_channel_setting` resource to GA ([#21481](https://github.com/hashicorp/terraform-provider-google/pull/21481))
