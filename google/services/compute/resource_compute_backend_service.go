@@ -633,11 +633,12 @@ For internal load balancing, a URL to a HealthCheck resource must be specified i
 				Set: tpgresource.SelfLinkRelativePathHash,
 			},
 			"iap": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Optional:    true,
-				Description: `Settings for enabling Cloud Identity Aware Proxy`,
-				MaxItems:    1,
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				Description: `Settings for enabling Cloud Identity Aware Proxy.
+If OAuth client is not set, the Google-managed OAuth client is used.`,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
