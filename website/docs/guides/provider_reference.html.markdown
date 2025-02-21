@@ -116,8 +116,8 @@ impersonated service account regardless of the primary identity in use.
 
 ## Authentication Configuration
 
-* `credentials` - (Optional) Either the path (as returned by the [file terraform function])
-to or the contents of a [service account key file] in JSON format. You can
+* `credentials` - (Optional) Either the path to or the contents of a
+[service account key file] in JSON format. You can
 [manage key files using the Cloud Console]. Your service account key file is
 used to complete a two-legged OAuth 2.0 flow to obtain access tokens to
 authenticate with the GCP API as needed; Terraform will use it to reauthenticate
@@ -136,15 +136,6 @@ by precedence.
     the path of your service account key file in the
     `GOOGLE_APPLICATION_CREDENTIALS` environment variable, or configure
     authentication through one of the following;
-  
-    ```hcl
-    provider "google" {
-        alias       = "other"
-        project     = var.my_other_project_id
-        region      = var.region
-        credentials = file(pathexpand(var.gcloud_other_dac_file))
-    }
-    ```
 
 * If you're running Terraform from a GCE instance, default credentials
 are automatically available. See
@@ -423,4 +414,3 @@ See [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#field.user-agent) for form
 [gcloud adc]: https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login
 [service accounts]: https://cloud.google.com/docs/authentication/getting-started
 [scopes]: https://developers.google.com/identity/protocols/googlescopes
-[file terraform function]: https://developer.hashicorp.com/terraform/language/functions/file
