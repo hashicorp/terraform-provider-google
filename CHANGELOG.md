@@ -4,7 +4,7 @@ NOTES:
 * provider: The Terraform Provider for Google Cloud's regular release date will move from Monday to Tuesday in early March. The 2025/03/10 release will be made on 2025/03/11.
 
 DEPRECATIONS:
-* datacatalog: `google_data_catalog_tag_template` is deprecated and will be removed in a future major release. Use `google_dataplex_aspect_type` instead. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog. ([#9347](https://github.com/hashicorp/terraform-provider-google-beta/pull/9347))
+* datacatalog: deprecated `google_data_catalog_tag_template`. Use `google_dataplex_aspect_type` instead. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog. ([#9347](https://github.com/hashicorp/terraform-provider-google-beta/pull/9347))
 * datacatalog: deprecated `google_data_catalog_entry_group`. Use `google_dataplex_entry_group` instead. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog. ([#9349](https://github.com/hashicorp/terraform-provider-google-beta/pull/9349))
 
 FEATURES:
