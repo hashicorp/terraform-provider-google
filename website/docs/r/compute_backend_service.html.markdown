@@ -507,7 +507,8 @@ The following arguments are supported:
 
 * `iap` -
   (Optional)
-  Settings for enabling Cloud Identity Aware Proxy
+  Settings for enabling Cloud Identity Aware Proxy.
+  If OAuth client is not set, the Google-managed OAuth client is used.
   Structure is [documented below](#nested_iap).
 
 * `ip_address_selection_policy` -
