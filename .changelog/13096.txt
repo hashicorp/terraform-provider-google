@@ -1,0 +1,3 @@
+```release-note:deprecation
+datacatalog: deprecated `google_data_catalog_entry` resource. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog.
+```
