@@ -60,6 +60,7 @@ func testAccGeminiGeminiGcpEnablementSetting_geminiGeminiGcpEnablementSettingBas
 resource "google_gemini_gemini_gcp_enablement_setting" "example" {
     gemini_gcp_enablement_setting_id = "tf-test-ls1-tf%{random_suffix}"
     location = "global"
+    labels = {"my_key": "my_value"}
     enable_customer_data_sharing = true
 }
 `, context)

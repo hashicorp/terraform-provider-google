@@ -37,6 +37,7 @@ The resource for managing GeminiGcpEnablement settings for Admin Control.
 resource "google_gemini_gemini_gcp_enablement_setting" "example" {
     gemini_gcp_enablement_setting_id = "ls1-tf"
     location = "global"
+    labels = {"my_key": "my_value"}
     enable_customer_data_sharing = true
 }
 ```
