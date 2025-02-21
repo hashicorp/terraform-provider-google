@@ -191,6 +191,42 @@ Default value is 1000. Valid range is 0 through 65535.`,
 				},
 				Set: schema.HashString,
 			},
+			"as_paths": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: ``,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"as_lists": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The AS numbers of the AS Path.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeInt,
+							},
+						},
+						"path_segment_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The type of the AS Path, which can be one of the following values:
+- 'AS_SET': unordered set of autonomous systems that the route in has traversed
+- 'AS_SEQUENCE': ordered set of autonomous systems that the route has traversed
+- 'AS_CONFED_SEQUENCE': ordered set of Member Autonomous Systems in the local confederation that the route has traversed
+- 'AS_CONFED_SET': unordered set of Member Autonomous Systems in the local confederation that the route has traversed`,
+						},
+					},
+				},
+			},
+			"creation_timestamp": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
+			},
+			"next_hop_hub": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The hub network that should handle matching packets, which should conform to RFC1035.`,
+			},
 			"next_hop_inter_region_cost": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -210,6 +246,67 @@ Default value is 1000. Valid range is 0 through 65535.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the origin of the route. Can be IGP (Interior Gateway Protocol), EGP (Exterior Gateway Protocol), or INCOMPLETE.`,
+			},
+			"next_hop_peering": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The network peering name that should handle matching packets, which should conform to RFC1035.`,
+			},
+			"route_status": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The status of the route, which can be one of the following values:
+- 'ACTIVE' for an active route
+- 'INACTIVE' for an inactive route`,
+			},
+			"route_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The type of this route, which can be one of the following values:
+- 'TRANSIT' for a transit route that this router learned from another Cloud Router and will readvertise to one of its BGP peers
+- 'SUBNET' for a route from a subnet of the VPC
+- 'BGP' for a route learned from a BGP peer of this router
+- 'STATIC' for a static route`,
+			},
+			"warnings": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `If potential misconfigurations are detected for this route, this field will be populated with warning messages.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"code": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `A warning code, if applicable. For example, Compute Engine returns
+NO_RESULTS_ON_PAGE if there are no results in the response.`,
+						},
+						"data": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Description: `Metadata about this warning in key: value format. For example:
+"data": [  {  "key": "scope",  "value": "zones/us-east1-d"  }`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `A key that provides more detail on the warning being returned. For example, for warnings where there are no results in a list request for a particular zone, this key might be scope and the key value might be the zone name. Other examples might be a key indicating a deprecated resource and a suggested replacement, or a warning about invalid network settings (for example, if an instance attempts to perform IP forwarding but is not enabled for IP forwarding).`,
+									},
+									"value": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `A warning data value corresponding to the key.`,
+									},
+								},
+							},
+						},
+						"message": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `A human-readable description of the warning code.`,
+						},
+					},
+				},
 			},
 			"next_hop_instance_zone": {
 				Type:        schema.TypeString,
@@ -472,6 +569,27 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("next_hop_ilb", flattenComputeRouteNextHopIlb(res["nextHopIlb"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
+	if err := d.Set("creation_timestamp", flattenComputeRouteCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Route: %s", err)
+	}
+	if err := d.Set("next_hop_peering", flattenComputeRouteNextHopPeering(res["nextHopPeering"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Route: %s", err)
+	}
+	if err := d.Set("warnings", flattenComputeRouteWarnings(res["warnings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Route: %s", err)
+	}
+	if err := d.Set("next_hop_hub", flattenComputeRouteNextHopHub(res["nextHopHub"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Route: %s", err)
+	}
+	if err := d.Set("route_type", flattenComputeRouteRouteType(res["routeType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Route: %s", err)
+	}
+	if err := d.Set("as_paths", flattenComputeRouteAsPaths(res["asPaths"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Route: %s", err)
+	}
+	if err := d.Set("route_status", flattenComputeRouteRouteStatus(res["routeStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Route: %s", err)
+	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
@@ -645,6 +763,108 @@ func flattenComputeRouteNextHopInterRegionCost(v interface{}, d *schema.Resource
 }
 
 func flattenComputeRouteNextHopIlb(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouteCreationTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouteNextHopPeering(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouteWarnings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"code":    flattenComputeRouteWarningsCode(original["code"], d, config),
+			"message": flattenComputeRouteWarningsMessage(original["message"], d, config),
+			"data":    flattenComputeRouteWarningsData(original["data"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeRouteWarningsCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouteWarningsMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouteWarningsData(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"key":   flattenComputeRouteWarningsDataKey(original["key"], d, config),
+			"value": flattenComputeRouteWarningsDataValue(original["value"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeRouteWarningsDataKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouteWarningsDataValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouteNextHopHub(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouteRouteType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouteAsPaths(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"path_segment_type": flattenComputeRouteAsPathsPathSegmentType(original["pathSegmentType"], d, config),
+			"as_lists":          flattenComputeRouteAsPathsAsLists(original["asLists"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeRouteAsPathsPathSegmentType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouteAsPathsAsLists(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouteRouteStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

@@ -338,8 +338,78 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `next_hop_inter_region_cost` -
   Internal fixed region-to-region cost that Google Cloud calculates based on factors such as network performance, distance, and available bandwidth between regions.
+
+* `creation_timestamp` -
+  Creation timestamp in RFC3339 text format.
+
+* `next_hop_peering` -
+  The network peering name that should handle matching packets, which should conform to RFC1035.
+
+* `warnings` -
+  If potential misconfigurations are detected for this route, this field will be populated with warning messages.
+  Structure is [documented below](#nested_warnings).
+
+* `next_hop_hub` -
+  The hub network that should handle matching packets, which should conform to RFC1035.
+
+* `route_type` -
+  The type of this route, which can be one of the following values:
+  - 'TRANSIT' for a transit route that this router learned from another Cloud Router and will readvertise to one of its BGP peers
+  - 'SUBNET' for a route from a subnet of the VPC
+  - 'BGP' for a route learned from a BGP peer of this router
+  - 'STATIC' for a static route
+
+* `as_paths` -
+  Structure is [documented below](#nested_as_paths).
+
+* `route_status` -
+  The status of the route, which can be one of the following values:
+  - 'ACTIVE' for an active route
+  - 'INACTIVE' for an inactive route
 * `self_link` - The URI of the created resource.
 
+
+<a name="nested_warnings"></a>The `warnings` block contains:
+
+* `code` -
+  (Output)
+  A warning code, if applicable. For example, Compute Engine returns
+  NO_RESULTS_ON_PAGE if there are no results in the response.
+
+* `message` -
+  (Output)
+  A human-readable description of the warning code.
+
+* `data` -
+  (Output)
+  Metadata about this warning in key: value format. For example:
+  "data": [  {  "key": "scope",  "value": "zones/us-east1-d"  }
+  Structure is [documented below](#nested_warnings_warnings_data).
+
+
+<a name="nested_warnings_warnings_data"></a>The `data` block contains:
+
+* `key` -
+  (Output)
+  A key that provides more detail on the warning being returned. For example, for warnings where there are no results in a list request for a particular zone, this key might be scope and the key value might be the zone name. Other examples might be a key indicating a deprecated resource and a suggested replacement, or a warning about invalid network settings (for example, if an instance attempts to perform IP forwarding but is not enabled for IP forwarding).
+
+* `value` -
+  (Output)
+  A warning data value corresponding to the key.
+
+<a name="nested_as_paths"></a>The `as_paths` block contains:
+
+* `path_segment_type` -
+  (Output)
+  The type of the AS Path, which can be one of the following values:
+  - 'AS_SET': unordered set of autonomous systems that the route in has traversed
+  - 'AS_SEQUENCE': ordered set of autonomous systems that the route has traversed
+  - 'AS_CONFED_SEQUENCE': ordered set of Member Autonomous Systems in the local confederation that the route has traversed
+  - 'AS_CONFED_SET': unordered set of Member Autonomous Systems in the local confederation that the route has traversed
+
+* `as_lists` -
+  (Output)
+  The AS numbers of the AS Path.
 
 ## Timeouts
 
