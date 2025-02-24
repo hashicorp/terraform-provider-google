@@ -24,6 +24,9 @@ func TestAccLoggingBucketConfigFolder_basic(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBucketConfigFolder_basic(context, 30),
@@ -261,12 +264,23 @@ resource "google_folder" "default" {
 	deletion_protection = false
 }
 
+// Give the _Default bucket a chance to be created
+resource "time_sleep" "wait_1_minute" {
+	create_duration = "1m"
+
+	depends_on = [
+	  google_folder.default,
+	]
+}
+
 resource "google_logging_folder_bucket_config" "basic" {
 	folder    = google_folder.default.name
 	location  = "global"
 	retention_days = %d
 	description = "retention test %d days"
 	bucket_id = "_Default"
+
+	depends_on = [time_sleep.wait_1_minute]
 }
 `, context), retention, retention)
 }
