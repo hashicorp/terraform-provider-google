@@ -40,7 +40,7 @@ func validateIAMMember(i interface{}, k string) ([]string, []error) {
 	if matched, err := regexp.MatchString("(.+:.+|projectOwners|projectReaders|projectWriters|allUsers|allAuthenticatedUsers)", v); err != nil {
 		return nil, []error{fmt.Errorf("error validating %s: %v", k, err)}
 	} else if !matched {
-		return nil, []error{fmt.Errorf("invalid value for %s (IAM members must have one of the values outlined here: https://cloud.google.com/billing/docs/reference/rest/v1/Policy#Binding)", k)}
+		return nil, []error{fmt.Errorf("invalid value \"%s\" for %s (IAM members must have one of the values outlined here: https://cloud.google.com/billing/docs/reference/rest/v1/Policy#Binding)", v, k)}
 	}
 	return nil, nil
 }
