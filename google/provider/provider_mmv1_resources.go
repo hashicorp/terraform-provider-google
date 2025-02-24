@@ -351,6 +351,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_tags_tag_values":                               tags.DataSourceGoogleTagsTagValues(),
 	"google_tpu_tensorflow_versions":                       tpu.DataSourceTpuTensorflowVersions(),
 	"google_vpc_access_connector":                          vpcaccess.DataSourceVPCAccessConnector(),
+	"google_memorystore_instance":                          memorystore.DataSourceMemorystoreInstance(),
 	"google_redis_instance":                                redis.DataSourceGoogleRedisInstance(),
 	"google_vertex_ai_index":                               vertexai.DataSourceVertexAIIndex(),
 	"google_vmwareengine_cluster":                          vmwareengine.DataSourceVmwareengineCluster(),
