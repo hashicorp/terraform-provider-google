@@ -1,0 +1,3 @@
+```release-note: enhancement
+alloydb: promote Major Version Upgrade feature to GA
+```
