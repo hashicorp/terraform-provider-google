@@ -1381,6 +1381,11 @@ func TestAccContainerNodePool_concurrent(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerNodePool_concurrentCreate(cluster, np1, np2, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_container_node_pool.np1",
@@ -1394,6 +1399,11 @@ func TestAccContainerNodePool_concurrent(t *testing.T) {
 			},
 			{
 				Config: testAccContainerNodePool_concurrentUpdate(cluster, np1, np2, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_container_node_pool.np1",
@@ -1591,7 +1601,6 @@ resource "google_container_cluster" "cluster" {
   deletion_protection = false
   network    = "%s"
   subnetwork    = "%s"
-  min_master_version = "1.28"
 }
 
 resource "google_container_node_pool" "np" {
@@ -1791,13 +1800,12 @@ func TestAccContainerNodePool_fastSocket(t *testing.T) {
 func testAccContainerNodePool_fastSocket(cluster, np, networkName, subnetworkName string, enabled bool) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
-  name               = "%s"
-  location           = "us-central1-f"
-  initial_node_count = 1
-  min_master_version = "1.28"
+  name                = "%s"
+  location            = "us-central1-f"
+  initial_node_count  = 1
   deletion_protection = false
-  network    = "%s"
-  subnetwork    = "%s"
+  network             = "%s"
+  subnetwork          = "%s"
 }
 
 resource "google_container_node_pool" "np" {
@@ -1808,11 +1816,11 @@ resource "google_container_node_pool" "np" {
 
   node_config {
     machine_type = "n1-standard-8"
-    image_type = "COS_CONTAINERD"
+    image_type   = "COS_CONTAINERD"
     guest_accelerator {
       type  = "nvidia-tesla-t4"
       count = 1
-      }
+    }
     gvnic {
       enabled = true
     }
@@ -1982,7 +1990,6 @@ resource "google_container_cluster" "cluster" {
   name                = "%s"
   location            = "us-central1-a"
   initial_node_count  = 1
-  min_master_version  = "1.28"
   deletion_protection = false
   network             = "%s"
   subnetwork          = "%s"
@@ -3011,7 +3018,6 @@ resource "google_container_node_pool" "with_workload_metadata_config" {
 `, projectID, cluster, networkName, subnetworkName, np)
 }
 
-// TODO: add allowed_unsafe_sysctls in the test after GKE version 1.32.0-gke.1448000 is default version in regular channel and used in Terraform test.
 func testAccContainerNodePool_withKubeletConfig(cluster, np, policy, period, networkName, subnetworkName, insecureKubeletReadonlyPortEnabled, containerLogMaxSize, imageMinimumGcAge, imageMaximumGcAge string, quota bool, podPidsLimit, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent int) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
@@ -3049,7 +3055,7 @@ resource "google_container_node_pool" "with_kubelet_config" {
       image_gc_high_threshold_percent        = %d
       image_minimum_gc_age                   = %q
       image_maximum_gc_age                   = %q
-      # allowed_unsafe_sysctls               = ["kernel.shm*", "kernel.msg*", "kernel.sem", "fs.mqueue.*", "net.*"]
+      allowed_unsafe_sysctls               = ["kernel.shm*", "kernel.msg*", "kernel.sem", "fs.mqueue.*", "net.*"]
     }
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
@@ -3756,14 +3762,21 @@ resource "google_container_node_pool" "np" {
 
 func testAccContainerNodePool_concurrentCreate(cluster, np1, np2, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
+data "google_container_engine_versions" "uscentral1a" {
+  location = "us-central1-a"
+}
+
 resource "google_container_cluster" "cluster" {
-  name                = "%s"
-  location            = "us-central1-a"
-  initial_node_count  = 3
+  name                     = "%s"
+  location                 = "us-central1-a"
+  initial_node_count       = 1
+  # Testing the node pool update, so don't need default-pool also.
+  remove_default_node_pool = true
+  min_master_version       = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
+  network                  = "%s"
+  subnetwork               = "%s"
+
   deletion_protection = false
-  network             = "%s"
-  subnetwork          = "%s"
-  min_master_version  = "1.32.0-gke.1448000"
 }
 
 resource "google_container_node_pool" "np1" {
@@ -3771,8 +3784,8 @@ resource "google_container_node_pool" "np1" {
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 2
-  // 2025-02-03: current default cluster version is 1.31.5-gke.1023000. This will change over time.
-  // Reference:  https://cloud.google.com/kubernetes-engine/docs/release-notes#current_versions
+  # Note: without version specified, this will likely get an older version than
+  # the control plane, which helps when we then update in the next step.
 }
 
 resource "google_container_node_pool" "np2" {
@@ -3780,22 +3793,29 @@ resource "google_container_node_pool" "np2" {
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 2
-  // 2025-02-03: current default cluster version is 1.31.5-gke.1023000. This will change over time.
-  // Reference:  https://cloud.google.com/kubernetes-engine/docs/release-notes#current_versions
+  # Note: without version specified, this will likely get an older version than
+  # the control plane, which helps when we then update in the next step.
 }
 `, cluster, networkName, subnetworkName, np1, np2)
 }
 
 func testAccContainerNodePool_concurrentUpdate(cluster, np1, np2, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
+data "google_container_engine_versions" "uscentral1a" {
+  location = "us-central1-a"
+}
+
 resource "google_container_cluster" "cluster" {
-  name                = "%s"
-  location            = "us-central1-a"
-  initial_node_count  = 3
+  name                     = "%s"
+  location                 = "us-central1-a"
+  initial_node_count       = 1
+  # Testing the node pool update, so don't need default-pool also.
+  remove_default_node_pool = true
+  min_master_version       = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
+  network                  = "%s"
+  subnetwork               = "%s"
+
   deletion_protection = false
-  network             = "%s"
-  subnetwork          = "%s"
-  min_master_version  = "1.32.0-gke.1448000"
 }
 
 resource "google_container_node_pool" "np1" {
@@ -3803,11 +3823,13 @@ resource "google_container_node_pool" "np1" {
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 2
-  version            = "1.32.0-gke.1448000"
-  // The node version must remain within one minor version of the cluster ("master") version, and it must not exceed the cluster ("master") version
-  // Cross-ref: https://github.com/hashicorp/terraform-provider-google/issues/21116
-  // Cross-ref: https://github.com/GoogleCloudPlatform/magic-modules/pull/11115
-  // Reference:  https://cloud.google.com/kubernetes-engine/docs/release-notes#current_versions
+  # Force an update by going to a different, but still compatible version.
+  version            = data.google_container_engine_versions.uscentral1a.release_channel_default_version["STABLE"]
+  # The node version must remain within one minor version of the cluster
+  # control-plane version, and it must not exceed the control-planeversion
+  # Cross-ref: https://github.com/hashicorp/terraform-provider-google/issues/21116
+  # Cross-ref: https://github.com/GoogleCloudPlatform/magic-modules/pull/11115
+  # Reference:  https://cloud.google.com/kubernetes-engine/docs/release-notes#current_versions
 }
 
 resource "google_container_node_pool" "np2" {
@@ -3815,11 +3837,12 @@ resource "google_container_node_pool" "np2" {
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 2
-  version            = "1.32.0-gke.1448000"
-  // The node version must remain within one minor version of the cluster ("master") version, and it must not exceed the cluster ("master") version
-  // Cross-ref: https://github.com/hashicorp/terraform-provider-google/issues/21116
-  // Cross-ref: https://github.com/GoogleCloudPlatform/magic-modules/pull/11115
-  // Reference:  https://cloud.google.com/kubernetes-engine/docs/release-notes#current_versions
+  version            = data.google_container_engine_versions.uscentral1a.release_channel_default_version["STABLE"]
+  # The node version must remain within one minor version of the cluster
+  # control-plane version, and it must not exceed the control-planeversion
+  # Cross-ref: https://github.com/hashicorp/terraform-provider-google/issues/21116
+  # Cross-ref: https://github.com/GoogleCloudPlatform/magic-modules/pull/11115
+  # Reference:  https://cloud.google.com/kubernetes-engine/docs/release-notes#current_versions
 }
 `, cluster, networkName, subnetworkName, np1, np2)
 }
