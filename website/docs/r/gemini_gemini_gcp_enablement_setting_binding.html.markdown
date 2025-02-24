@@ -23,8 +23,6 @@ description: |-
 
 The resource for managing GeminiGcpEnablementSetting setting bindings for Admin Control.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about GeminiGcpEnablementSettingBinding, see:
 * How-to Guides
@@ -35,7 +33,6 @@ To get more information about GeminiGcpEnablementSettingBinding, see:
 
 ```hcl
 resource "google_gemini_gemini_gcp_enablement_setting" "basic" {
-    provider = google-beta
     gemini_gcp_enablement_setting_id = "ls-tf1"
     location = "global"
     labels = {"my_key": "my_value"}
@@ -43,7 +40,6 @@ resource "google_gemini_gemini_gcp_enablement_setting" "basic" {
 }
 
 resource "google_gemini_gemini_gcp_enablement_setting_binding" "example" {
-    provider = google-beta
     gemini_gcp_enablement_setting_id = google_gemini_gemini_gcp_enablement_setting.basic.gemini_gcp_enablement_setting_id
     setting_binding_id = "ls-tf1b1"
     location = "global"
@@ -81,7 +77,7 @@ The following arguments are supported:
 * `product` -
   (Optional)
   Product type of the setting binding.
-  Possible values are: `GEMINI_CLOUD_ASSIST`, `GEMINI_CODE_ASSIST`.
+  Possible values are: `GEMINI_IN_BIGQUERY`.
 
 * `location` -
   (Optional)
