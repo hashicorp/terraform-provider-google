@@ -269,7 +269,7 @@ func TestAccProjectIamBinding_invalidMembers(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccProjectAssociateBindingBasic(pid, org, role, "admin@hashicorptest.com"),
-				ExpectError: regexp.MustCompile("invalid value for members\\.0 \\(IAM members must have one of the values outlined here: https://cloud.google.com/billing/docs/reference/rest/v1/Policy#Binding\\)"),
+				ExpectError: regexp.MustCompile("invalid value \"admin@hashicorptest.com\" for members\\.0 \\(IAM members must have one of the values outlined here: https://cloud.google.com/billing/docs/reference/rest/v1/Policy#Binding\\)"),
 			},
 			{
 				Config: testAccProjectAssociateBindingBasic(pid, org, role, "user:admin@hashicorptest.com"),
