@@ -1,4 +1,4 @@
-## 6.22.0 (Unreleased)
+## 6.22.0 (Feb 24, 2025)
 
 NOTES:
 * provider: The Terraform Provider for Google Cloud's regular release date will move from Monday to Tuesday in early March. The 2025/03/10 release will be made on 2025/03/11.
