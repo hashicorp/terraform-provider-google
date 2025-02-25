@@ -1,0 +1,27 @@
+resource: 'google_eventarc_message_bus'
+generation_type: 'mmv1'
+source_file: 'products/eventarc/MessageBus.yaml'
+api_service_name: 'eventarc.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'MessageBus'
+fields:
+  - field: 'annotations'
+  - field: 'create_time'
+  - field: 'crypto_key_name'
+  - field: 'display_name'
+  - field: 'effective_annotations'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'etag'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'logging_config.log_severity'
+  - field: 'message_bus_id'
+    provider_only: true
+  - field: 'name'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'
