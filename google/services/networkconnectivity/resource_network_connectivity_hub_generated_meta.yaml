@@ -12,6 +12,7 @@ fields:
   - field: 'export_psc'
   - field: 'labels'
   - field: 'name'
+  - field: 'policy_mode'
   - field: 'preset_topology'
   - field: 'routing_vpcs.uri'
   - field: 'state'
