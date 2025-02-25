@@ -3666,6 +3666,72 @@ func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resour
 	}
 }
 
+func TestAccComputeInstance_NetworkAttachment(t *testing.T) {
+	t.Parallel()
+	suffix := fmt.Sprintf("%s", acctest.RandString(t, 10))
+	envRegion := envvar.GetTestRegionFromEnv()
+	var instance compute.Instance
+
+	providerVersion := "v1"
+
+	testNetworkAttachmentName := fmt.Sprintf("tf-test-network-attachment-%s", suffix)
+
+	// Need to have the full network attachment name in the format project/{project_id}/regions/{region_id}/networkAttachments/{testNetworkAttachmentName}
+	fullFormNetworkAttachmentName := fmt.Sprintf("projects/%s/regions/%s/networkAttachments/%s", envvar.GetTestProjectFromEnv(), envRegion, testNetworkAttachmentName)
+
+	context := map[string]interface{}{
+		"suffix":                  (acctest.RandString(t, 10)),
+		"network_attachment_name": testNetworkAttachmentName,
+		"region":                  envRegion,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_networkAttachment(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNetworkAttachment(&instance, fmt.Sprintf("https://www.googleapis.com/compute/%s/%s", providerVersion, fullFormNetworkAttachmentName)),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_NetworkAttachmentUpdate(t *testing.T) {
+	t.Parallel()
+	suffix := acctest.RandString(t, 10)
+	envRegion := envvar.GetTestRegionFromEnv()
+	instanceName := fmt.Sprintf("tf-test-compute-instance-%s", suffix)
+
+	networkAttachmentSelflink1 := "google_compute_network_attachment.test_network_attachment_1.self_link"
+	networkAttachmentSelflink2 := "google_compute_network_attachment.test_network_attachment_2.self_link"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_networkAttachmentUpdate(networkAttachmentSelflink1, envRegion, suffix),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_networkAttachmentUpdate(networkAttachmentSelflink2, envRegion, suffix),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_networkAttachmentUpdate(networkAttachmentSelflink1, envRegion, suffix),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
 func TestAccComputeInstance_NicStackTypeUpdate(t *testing.T) {
 	t.Parallel()
 	suffix := acctest.RandString(t, 10)
@@ -4353,6 +4419,17 @@ func testAccCheckComputeInstanceHasMinCpuPlatform(instance *compute.Instance, mi
 		}
 
 		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasNetworkAttachment(instance *compute.Instance, networkAttachmentName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, networkInterface := range instance.NetworkInterfaces {
+			if networkInterface.NetworkAttachment != "" && networkInterface.NetworkAttachment == networkAttachmentName {
+				return nil
+			}
+		}
+		return fmt.Errorf("Network Attachment %s, was not found in the instance template", networkAttachmentName)
 	}
 }
 
@@ -9378,6 +9455,142 @@ resource "google_compute_disk" "debian" {
   zone  = "us-central1-c"
 }
 `, instance, diskName, suffix, suffix, suffix)
+}
+
+func testAccComputeInstance_networkAttachment(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_network" "test-network"{
+	name = "tf-test-network-%{suffix}"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test-subnetwork" {
+	name          = "tf-test-compute-subnet-%{suffix}"
+	ip_cidr_range = "10.0.0.0/16"
+	region        = "us-central1"
+	network       = google_compute_network.test-network.id
+}
+
+resource "google_compute_network_attachment" "test_network_attachment" {
+	name = "%{network_attachment_name}"
+    region = "us-central1"
+    description = "network attachment description"
+    connection_preference = "ACCEPT_AUTOMATIC"
+
+    subnetworks = [
+        google_compute_subnetwork.test-subnetwork.self_link
+    ]
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "tf-test-instance-%{suffix}"
+  machine_type = "e2-medium"
+  zone         = "%{region}-a"
+
+	boot_disk {
+		initialize_params {
+			image = data.google_compute_image.my_image.id
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	network_interface {
+		network_attachment = google_compute_network_attachment.test_network_attachment.self_link
+	}
+
+	metadata = {
+		foo = "bar"
+	}
+}
+`, context)
+}
+
+func testAccComputeInstance_networkAttachmentUpdate(networkAttachment, region, suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-11"
+	project = "debian-cloud"
+}
+
+resource "google_compute_network" "consumer_vpc_1" {
+	name = "tf-test-consumer-net-1-%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_network" "consumer_vpc_2" {
+	name = "tf-test-consumer-net-2-%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "consumer_subnet_1" {
+	name          = "tf-test-consumer-subnet-1-%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region        = "%s"
+	network       = google_compute_network.consumer_vpc_1.id
+}
+
+resource "google_compute_subnetwork" "consumer_subnet_2" {
+	name          = "tf-test-consumer-subnet-2-%s"
+	ip_cidr_range = "10.3.0.0/16"
+	region        = "%s"
+	network       = google_compute_network.consumer_vpc_2.id
+}
+
+resource "google_compute_network_attachment" "test_network_attachment_1" {
+	name = "tf-test-network-attachment-1-%s"
+    region = "%s"
+    description = "network attachment 1 description"
+    connection_preference = "ACCEPT_AUTOMATIC"
+
+    subnetworks = [
+        google_compute_subnetwork.consumer_subnet_1.self_link
+    ]
+}
+
+resource "google_compute_network_attachment" "test_network_attachment_2" {
+	name = "tf-test-network-attachment-2-%s"
+    region = "%s"
+    description = "network attachment 2 description"
+    connection_preference = "ACCEPT_AUTOMATIC"
+
+    subnetworks = [
+        google_compute_subnetwork.consumer_subnet_2.self_link
+    ]
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "tf-test-compute-instance-%s"
+	machine_type = "e2-medium"
+	zone         = "%s-a"
+	allow_stopping_for_update = true
+
+	boot_disk {
+		initialize_params {
+			image = data.google_compute_image.my_image.self_link
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	network_interface {
+		network_attachment = %s
+	}
+
+	metadata = {
+		foo = "bar"
+	}
+}
+`, suffix, suffix, suffix, region, suffix, region, suffix, region, suffix, region, suffix, region, networkAttachment)
 }
 
 func testAccComputeInstance_nicStackTypeUpdate(suffix, region, stack_type, instance string) string {

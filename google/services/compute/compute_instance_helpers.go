@@ -398,6 +398,14 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *transport_tpg.Conf
 			internalIP = iface.NetworkIP
 		}
 
+		if iface.NetworkAttachment != "" {
+			networkAttachment, err := tpgresource.GetRelativePath(iface.NetworkAttachment)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			flattened[i]["network_attachment"] = networkAttachment
+		}
+
 	}
 	return flattened, region, internalIP, externalIP, nil
 }
@@ -455,10 +463,15 @@ func expandNetworkInterfaces(d tpgresource.TerraformResourceData, config *transp
 	for i, raw := range configs {
 		data := raw.(map[string]interface{})
 
+		var networkAttachment = ""
 		network := data["network"].(string)
 		subnetwork := data["subnetwork"].(string)
-		if network == "" && subnetwork == "" {
-			return nil, fmt.Errorf("exactly one of network or subnetwork must be provided")
+		if networkAttachmentObj, ok := data["network_attachment"]; ok {
+			networkAttachment = networkAttachmentObj.(string)
+		}
+		// Checks if networkAttachment is not specified in resource, network or subnetwork have to be specified.
+		if networkAttachment == "" && network == "" && subnetwork == "" {
+			return nil, fmt.Errorf("exactly one of network, subnetwork, or network_attachment must be provided")
 		}
 
 		nf, err := tpgresource.ParseNetworkFieldValue(network, d, config)
@@ -475,6 +488,7 @@ func expandNetworkInterfaces(d tpgresource.TerraformResourceData, config *transp
 		ifaces[i] = &compute.NetworkInterface{
 			NetworkIP:         data["network_ip"].(string),
 			Network:           nf.RelativeLink(),
+			NetworkAttachment: networkAttachment,
 			Subnetwork:        sf.RelativeLink(),
 			AccessConfigs:     expandAccessConfigs(data["access_config"].([]interface{})),
 			AliasIpRanges:     expandAliasIpRanges(data["alias_ip_range"].([]interface{})),

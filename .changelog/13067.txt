@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `network_interface.network_attachment` field to `google_compute_instance` resource (ga)
+```
+```release-note:enhancement
+compute: added `network_interface.network_attachment` to `google_compute_instance` data source (ga)
+```
