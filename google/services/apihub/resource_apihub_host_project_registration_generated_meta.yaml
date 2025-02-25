@@ -1,0 +1,15 @@
+resource: 'google_apihub_host_project_registration'
+generation_type: 'mmv1'
+source_file: 'products/apihub/HostProjectRegistration.yaml'
+api_service_name: 'apihub.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'HostProjectRegistration'
+autogen_status: true
+fields:
+  - field: 'create_time'
+  - field: 'gcp_project'
+  - field: 'host_project_registration_id'
+    provider_only: true
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
