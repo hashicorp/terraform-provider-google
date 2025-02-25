@@ -1,0 +1,3 @@
+```release-note:bug
+chronicle: fixed an error during resource creation with certain `run_frequency` configurations in `google_chronicle_rule_deployment`
+```
