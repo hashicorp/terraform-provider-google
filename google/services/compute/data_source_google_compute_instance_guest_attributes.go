@@ -118,7 +118,7 @@ func dataSourceGoogleComputeInstanceGuestAttributesRead(d *schema.ResourceData, 
 		return fmt.Errorf("Error query_value: %s", err)
 	}
 
-	d.SetId(fmt.Sprintf(instanceGuestAttributes.SelfLink))
+	d.SetId(fmt.Sprint(instanceGuestAttributes.SelfLink))
 	return nil
 }
 
