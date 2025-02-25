@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: updated the `max_staleness` field in `google_bigquery_table` to be a computed field
+```
