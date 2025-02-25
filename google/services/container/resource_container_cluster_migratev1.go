@@ -915,10 +915,10 @@ func resourceContainerClusterResourceV1() *schema.Resource {
 												"event_type": {
 													Type:        schema.TypeList,
 													Required:    true,
-													Description: `Can be used to filter what notifications are sent. Valid values include include UPGRADE_AVAILABLE_EVENT, UPGRADE_EVENT and SECURITY_BULLETIN_EVENT`,
+													Description: `Can be used to filter what notifications are sent. Valid values include include UPGRADE_AVAILABLE_EVENT, UPGRADE_EVENT, SECURITY_BULLETIN_EVENT and UPGRADE_INFO_EVENT`,
 													Elem: &schema.Schema{
 														Type:         schema.TypeString,
-														ValidateFunc: validation.StringInSlice([]string{"UPGRADE_AVAILABLE_EVENT", "UPGRADE_EVENT", "SECURITY_BULLETIN_EVENT"}, false),
+														ValidateFunc: validation.StringInSlice([]string{"UPGRADE_AVAILABLE_EVENT", "UPGRADE_EVENT", "SECURITY_BULLETIN_EVENT", "UPGRADE_INFO_EVENT"}, false),
 													},
 												},
 											},

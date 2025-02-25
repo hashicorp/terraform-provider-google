@@ -1174,7 +1174,7 @@ notification_config {
 
 <a name="nested_notification_filter"></a> The `filter` block supports:
 
-* `event_type` (Optional) - Can be used to filter what notifications are sent. Accepted values are `UPGRADE_AVAILABLE_EVENT`, `UPGRADE_EVENT` and `SECURITY_BULLETIN_EVENT`. See [Filtering notifications](https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-notifications#filtering) for more details.
+* `event_type` (Optional) - Can be used to filter what notifications are sent. Accepted values are `UPGRADE_AVAILABLE_EVENT`, `UPGRADE_EVENT`, `SECURITY_BULLETIN_EVENT` and `UPGRADE_INFO_EVENT`. See [Filtering notifications](https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-notifications#filtering) for more details.
 
 <a name="nested_confidential_nodes"></a> The `confidential_nodes` block supports:
 
