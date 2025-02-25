@@ -844,6 +844,119 @@ func TestAccComputeDisk_cloneDisk(t *testing.T) {
 	})
 }
 
+func TestAccComputeDisk_architecture(t *testing.T) {
+	t.Parallel()
+
+	context_1 := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"architecture":  "X86_64",
+	}
+	context_2 := map[string]interface{}{
+		"random_suffix": context_1["random_suffix"],
+		"architecture":  "ARM64",
+	}
+	var disk compute.Disk
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_architecture(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						t, "google_compute_disk.foobar", envvar.GetTestProjectFromEnv(), &disk),
+				),
+			},
+			{
+				Config: testAccComputeDisk_architecture(context_2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						t, "google_compute_disk.foobar", envvar.GetTestProjectFromEnv(), &disk),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeDisk_sourceStorageObject(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":         acctest.RandString(t, 10),
+		"source_storage_object": "test-fixtures/empty-image.tar.gz",
+	}
+
+	var disk compute.Disk
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_sourceStorageObject(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						t, "google_compute_disk.foobar", envvar.GetTestProjectFromEnv(), &disk),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeDisk_resourceManagerTags(t *testing.T) {
+	t.Parallel()
+	pid := envvar.GetTestProjectFromEnv()
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"project_id":    pid,
+	}
+
+	var disk compute.Disk
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_resourceManagerTags(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						t, "google_compute_disk.foobar", pid, &disk),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeDisk_sourceInstantSnapshot(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	var disk compute.Disk
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_sourceInstantSnapshot(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						t, "google_compute_disk.foobar", envvar.GetTestProjectFromEnv(), &disk),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeDisk_featuresUpdated(t *testing.T) {
 	t.Parallel()
 
@@ -1706,4 +1819,92 @@ resource "google_compute_disk" "foobar" {
   access_mode = "%s"
 }
 `, diskName, accessMode)
+}
+
+func testAccComputeDisk_architecture(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_disk" "foobar" {
+	name = "tf-test-disk-%{random_suffix}"
+	type = "pd-ssd"
+	size = 10
+	zone = "us-central1-a"
+	architecture = "%{architecture}"
+}
+`, context)
+}
+
+func testAccComputeDisk_sourceInstantSnapshot(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_disk" "to-snapshot" {
+	name = "tf-test-disk-1-%{random_suffix}"
+	type = "pd-ssd"
+	size = 10
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instant_snapshot" "test" {
+	name = "tf-test-instant-snapshot-%{random_suffix}"
+	zone = "us-central1-a"
+	source_disk = google_compute_disk.to-snapshot.id
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "tf-test-disk-2-%{random_suffix}"
+	type = "pd-ssd"
+	size = 10
+	zone = "us-central1-a"
+	source_instant_snapshot = google_compute_instant_snapshot.test.id
+}
+`, context)
+}
+
+func testAccComputeDisk_sourceStorageObject(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "tf-test-bucket-%{random_suffix}"
+	location = "US"
+}
+
+resource "google_storage_bucket_object" "object" {
+	name = "tf-test-object-%{random_suffix}.tar.gz"
+	bucket = google_storage_bucket.bucket.name
+	source = "%{source_storage_object}"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "tf-test-disk-%{random_suffix}"
+	type = "pd-ssd"
+	size = 10
+	zone = "us-central1-a"
+	source_storage_object = "gs://${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.name}"
+
+	depends_on = [google_storage_bucket_object.object]
+}
+`, context)
+}
+
+func testAccComputeDisk_resourceManagerTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "tag_key" {
+  parent = "projects/%{project_id}"
+  short_name = "test"
+}
+
+resource "google_tags_tag_value" "tag_value" {
+  parent = "tagKeys/${google_tags_tag_key.tag_key.name}"
+  short_name = "name"
+}
+
+resource "google_compute_disk" "foobar" {
+  name = "tf-test-disk-%{random_suffix}"
+  type = "pd-ssd"
+  size = 10
+  zone = "us-central1-a"
+  params {
+	resource_manager_tags = {
+	  "${google_tags_tag_key.tag_key.id}" = "${google_tags_tag_value.tag_value.id}"
+  	}
+  }
+}
+`, context)
 }

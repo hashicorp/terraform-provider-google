@@ -1,0 +1,20 @@
+resource: 'google_compute_instant_snapshot'
+generation_type: 'mmv1'
+source_file: 'products/compute/InstantSnapshot.yaml'
+api_service_name: 'compute.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'InstantSnapshot'
+fields:
+  - field: 'creation_timestamp'
+  - field: 'description'
+  - field: 'disk_size_gb'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'label_fingerprint'
+  - field: 'labels'
+  - field: 'name'
+  - field: 'source_disk'
+  - field: 'source_disk_id'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'zone'

@@ -382,6 +382,12 @@ For example:
 * READ_WRITE_MANY
 * READ_ONLY_SINGLE`,
 			},
+			"architecture": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: ``,
+			},
 			"async_primary_disk": {
 				Type:             schema.TypeList,
 				Optional:         true,
@@ -524,6 +530,26 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 					DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				},
 			},
+			"params": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Additional params passed with the request, but not persisted as part of resource payload`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"resource_manager_tags": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							ForceNew: true,
+							Description: `Resource manager tags to be bound to the disk. Tag keys and values have the
+same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+and values are in the format tagValues/456.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
 			"physical_block_size_bytes": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -642,6 +668,18 @@ encryption key that protects this resource.`,
 					},
 				},
 			},
+			"source_instant_snapshot": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description: `The source instant snapshot used to create this disk. You can provide this as a partial or full URL to the resource.
+For example, the following are valid values:
+
+* 'https://www.googleapis.com/compute/v1/projects/project/zones/zone/instantSnapshots/instantSnapshot'
+* 'projects/project/zones/zone/instantSnapshots/instantSnapshot'
+* 'zones/zone/instantSnapshots/instantSnapshot'`,
+			},
 			"source_snapshot_encryption_key": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -685,6 +723,16 @@ encryption key that protects this resource.`,
 						},
 					},
 				},
+			},
+			"source_storage_object": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The full Google Cloud Storage URI where the disk image is stored.
+This file must be a gzip-compressed tarball whose name ends in .tar.gz or virtual machine disk whose name ends in vmdk.
+Valid URIs may start with gs:// or https://storage.googleapis.com/.
+This flag is not optimized for creating multiple disks from a source storage object.
+To create many disks from a source storage object, use gcloud compute images import instead.`,
 			},
 			"storage_pool": {
 				Type:             schema.TypeString,
@@ -763,6 +811,15 @@ disk. For example, if you created the persistent disk from an image
 that was later deleted and recreated under the same name, the source
 image ID would identify the exact version of the image that was used.`,
 			},
+			"source_instant_snapshot_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The unique ID of the instant snapshot used to create this disk. This value identifies
+the exact instant snapshot that was used to create this persistent disk.
+For example, if you created the persistent disk from an instant snapshot that was later
+deleted and recreated under the same name, the source instant snapshot ID would identify
+the exact version of the instant snapshot that was used.`,
+			},
 			"source_snapshot_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -831,6 +888,12 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("source_image_encryption_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceImageEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, sourceImageEncryptionKeyProp)) {
 		obj["sourceImageEncryptionKey"] = sourceImageEncryptionKeyProp
 	}
+	sourceInstantSnapshotProp, err := expandComputeDiskSourceInstantSnapshot(d.Get("source_instant_snapshot"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_instant_snapshot"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceInstantSnapshotProp)) && (ok || !reflect.DeepEqual(v, sourceInstantSnapshotProp)) {
+		obj["sourceInstantSnapshot"] = sourceInstantSnapshotProp
+	}
 	diskEncryptionKeyProp, err := expandComputeDiskDiskEncryptionKey(d.Get("disk_encryption_key"), d, config)
 	if err != nil {
 		return err
@@ -842,6 +905,12 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("source_snapshot_encryption_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceSnapshotEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, sourceSnapshotEncryptionKeyProp)) {
 		obj["sourceSnapshotEncryptionKey"] = sourceSnapshotEncryptionKeyProp
+	}
+	sourceStorageObjectProp, err := expandComputeDiskSourceStorageObject(d.Get("source_storage_object"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_storage_object"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceStorageObjectProp)) && (ok || !reflect.DeepEqual(v, sourceStorageObjectProp)) {
+		obj["sourceStorageObject"] = sourceStorageObjectProp
 	}
 	labelFingerprintProp, err := expandComputeDiskLabelFingerprint(d.Get("label_fingerprint"), d, config)
 	if err != nil {
@@ -914,6 +983,18 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("async_primary_disk"); !tpgresource.IsEmptyValue(reflect.ValueOf(asyncPrimaryDiskProp)) && (ok || !reflect.DeepEqual(v, asyncPrimaryDiskProp)) {
 		obj["asyncPrimaryDisk"] = asyncPrimaryDiskProp
+	}
+	architectureProp, err := expandComputeDiskArchitecture(d.Get("architecture"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("architecture"); !tpgresource.IsEmptyValue(reflect.ValueOf(architectureProp)) && (ok || !reflect.DeepEqual(v, architectureProp)) {
+		obj["architecture"] = architectureProp
+	}
+	paramsProp, err := expandComputeDiskParams(d.Get("params"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("params"); !tpgresource.IsEmptyValue(reflect.ValueOf(paramsProp)) && (ok || !reflect.DeepEqual(v, paramsProp)) {
+		obj["params"] = paramsProp
 	}
 	guestOsFeaturesProp, err := expandComputeDiskGuestOsFeatures(d.Get("guest_os_features"), d, config)
 	if err != nil {
@@ -1074,6 +1155,12 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if err := d.Set("source_image_encryption_key", flattenComputeDiskSourceImageEncryptionKey(res["sourceImageEncryptionKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err := d.Set("source_instant_snapshot", flattenComputeDiskSourceInstantSnapshot(res["sourceInstantSnapshot"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err := d.Set("source_instant_snapshot_id", flattenComputeDiskSourceInstantSnapshotId(res["sourceInstantSnapshotId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("source_image_id", flattenComputeDiskSourceImageId(res["sourceImageId"], d, config)); err != nil {
@@ -1628,6 +1715,14 @@ func flattenComputeDiskSourceImageEncryptionKeyKmsKeyServiceAccount(v interface{
 	return v
 }
 
+func flattenComputeDiskSourceInstantSnapshot(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeDiskSourceInstantSnapshotId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeDiskSourceImageId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1999,6 +2094,10 @@ func expandComputeDiskSourceImageEncryptionKeyKmsKeyServiceAccount(v interface{}
 	return v, nil
 }
 
+func expandComputeDiskSourceInstantSnapshot(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeDiskDiskEncryptionKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -2122,6 +2221,10 @@ func expandComputeDiskSourceSnapshotEncryptionKeyKmsKeyServiceAccount(v interfac
 	return v, nil
 }
 
+func expandComputeDiskSourceStorageObject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeDiskLabelFingerprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -2191,6 +2294,40 @@ func expandComputeDiskAsyncPrimaryDisk(v interface{}, d tpgresource.TerraformRes
 
 func expandComputeDiskAsyncPrimaryDiskDisk(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandComputeDiskArchitecture(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeDiskParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedResourceManagerTags, err := expandComputeDiskParamsResourceManagerTags(original["resource_manager_tags"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResourceManagerTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["resourceManagerTags"] = transformedResourceManagerTags
+	}
+
+	return transformed, nil
+}
+
+func expandComputeDiskParamsResourceManagerTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandComputeDiskGuestOsFeatures(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

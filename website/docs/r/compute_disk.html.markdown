@@ -158,6 +158,14 @@ The following arguments are supported:
   the source image is protected by a customer-supplied encryption key.
   Structure is [documented below](#nested_source_image_encryption_key).
 
+* `source_instant_snapshot` -
+  (Optional)
+  The source instant snapshot used to create this disk. You can provide this as a partial or full URL to the resource.
+  For example, the following are valid values:
+  * `https://www.googleapis.com/compute/v1/projects/project/zones/zone/instantSnapshots/instantSnapshot`
+  * `projects/project/zones/zone/instantSnapshots/instantSnapshot`
+  * `zones/zone/instantSnapshots/instantSnapshot`
+
 * `disk_encryption_key` -
   (Optional)
   Encrypts the disk using a customer-supplied encryption key.
@@ -177,6 +185,14 @@ The following arguments are supported:
   if the source snapshot is protected by a customer-supplied encryption
   key.
   Structure is [documented below](#nested_source_snapshot_encryption_key).
+
+* `source_storage_object` -
+  (Optional)
+  The full Google Cloud Storage URI where the disk image is stored.
+  This file must be a gzip-compressed tarball whose name ends in .tar.gz or virtual machine disk whose name ends in vmdk.
+  Valid URIs may start with gs:// or https://storage.googleapis.com/.
+  This flag is not optimized for creating multiple disks from a source storage object.
+  To create many disks from a source storage object, use gcloud compute images import instead.
 
 * `description` -
   (Optional)
@@ -280,6 +296,14 @@ The following arguments are supported:
   (Optional)
   A nested object resource.
   Structure is [documented below](#nested_async_primary_disk).
+
+* `architecture` -
+  (Optional)
+
+* `params` -
+  (Optional)
+  Additional params passed with the request, but not persisted as part of resource payload
+  Structure is [documented below](#nested_params).
 
 * `guest_os_features` -
   (Optional)
@@ -416,6 +440,14 @@ The following arguments are supported:
   (Required)
   Primary disk for asynchronous disk replication.
 
+<a name="nested_params"></a>The `params` block supports:
+
+* `resource_manager_tags` -
+  (Optional)
+  Resource manager tags to be bound to the disk. Tag keys and values have the
+  same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+  and values are in the format tagValues/456.
+
 <a name="nested_guest_os_features"></a>The `guest_os_features` block supports:
 
 * `type` -
@@ -427,6 +459,13 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/disks/{{name}}`
+
+* `source_instant_snapshot_id` -
+  The unique ID of the instant snapshot used to create this disk. This value identifies
+  the exact instant snapshot that was used to create this persistent disk.
+  For example, if you created the persistent disk from an instant snapshot that was later
+  deleted and recreated under the same name, the source instant snapshot ID would identify
+  the exact version of the instant snapshot that was used.
 
 * `source_image_id` -
   The ID value of the image used to create this disk. This value
