@@ -86,6 +86,14 @@ func ResourceNetworkConnectivityHub() *schema.Resource {
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"policy_mode": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"CUSTOM", "PRESET", ""}),
+				Description:  `Optional. The policy mode of this hub. This field can be either PRESET or CUSTOM. If unspecified, the policyMode defaults to PRESET. Possible values: ["CUSTOM", "PRESET"]`,
+			},
 			"preset_topology": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -178,6 +186,12 @@ func resourceNetworkConnectivityHubCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("preset_topology"); !tpgresource.IsEmptyValue(reflect.ValueOf(presetTopologyProp)) && (ok || !reflect.DeepEqual(v, presetTopologyProp)) {
 		obj["presetTopology"] = presetTopologyProp
+	}
+	policyModeProp, err := expandNetworkConnectivityHubPolicyMode(d.Get("policy_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("policy_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(policyModeProp)) && (ok || !reflect.DeepEqual(v, policyModeProp)) {
+		obj["policyMode"] = policyModeProp
 	}
 	exportPscProp, err := expandNetworkConnectivityHubExportPsc(d.Get("export_psc"), d, config)
 	if err != nil {
@@ -315,6 +329,9 @@ func resourceNetworkConnectivityHubRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Hub: %s", err)
 	}
 	if err := d.Set("preset_topology", flattenNetworkConnectivityHubPresetTopology(res["presetTopology"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
+	if err := d.Set("policy_mode", flattenNetworkConnectivityHubPolicyMode(res["policyMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Hub: %s", err)
 	}
 	if err := d.Set("export_psc", flattenNetworkConnectivityHubExportPsc(res["exportPsc"], d, config)); err != nil {
@@ -569,6 +586,10 @@ func flattenNetworkConnectivityHubPresetTopology(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenNetworkConnectivityHubPolicyMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkConnectivityHubExportPsc(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -601,6 +622,10 @@ func expandNetworkConnectivityHubDescription(v interface{}, d tpgresource.Terraf
 }
 
 func expandNetworkConnectivityHubPresetTopology(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivityHubPolicyMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
