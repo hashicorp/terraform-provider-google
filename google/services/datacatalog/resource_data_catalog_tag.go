@@ -51,6 +51,8 @@ func ResourceDataCatalogTag() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		DeprecationMessage: "`google_data_catalog_tag` is deprecated and will be removed in a future major release. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog.",
+
 		Schema: map[string]*schema.Schema{
 			"fields": {
 				Type:     schema.TypeSet,
