@@ -138,3 +138,91 @@ data "google_compute_instance" "baz" {
 }
 `, instanceName)
 }
+
+func TestAccDataSourceComputeInstance_networkAttachmentUsageExample(t *testing.T) {
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceComputeInstance_networkAttachmentUsageConfig(instanceName),
+				Check:  resource.TestCheckResourceAttrSet("data.google_compute_instance.bar", "network_interface.1.network_attachment"),
+			},
+		},
+	})
+}
+
+func testAccDataSourceComputeInstance_networkAttachmentUsageConfig(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "foo" {
+  name           = "%s"
+  machine_type   = "n1-standard-1"   // can't be e2 because of local-ssd
+  zone           = "us-central1-a"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  boot_disk {
+    initialize_params {
+      image = "debian-8-jessie-v20160803"
+    }
+  }
+
+  scratch_disk {
+  interface = "SCSI"
+  }
+
+  network_interface {
+    network = "default"
+
+    access_config {
+      // Ephemeral IP
+    }
+  }
+
+  network_interface { 
+  network_attachment = google_compute_network_attachment.net_attar_default.self_link   
+  }
+
+ 
+
+  labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
+
+  enable_display = true
+}
+
+data "google_compute_instance" "bar" {
+  name = google_compute_instance.foo.name
+  zone = "us-central1-a"
+}
+
+data "google_compute_instance" "baz" {
+  self_link = google_compute_instance.foo.self_link
+}
+resource "google_compute_network" "net_att_default" {   
+  name = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnet_att_default" {    
+  name   = "%s" 
+  region = "us-central1"  
+  network       = google_compute_network.net_att_default.id
+  ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_compute_network_attachment" "net_attar_default" {   
+  name   = "%s"
+  region = "us-central1"
+  subnetworks = [google_compute_subnetwork.subnet_att_default.id]
+  connection_preference = "ACCEPT_AUTOMATIC"
+}
+`, instanceName, instanceName, instanceName, instanceName)
+}
