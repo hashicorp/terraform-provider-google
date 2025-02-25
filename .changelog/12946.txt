@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added fields `architecture`, `source_instant_snapshot`, `source_storage_object`, `resource_manager_tags`  to `google_compute_disk`.
+```
+```release-note:new-resource
+`google_compute_instant_snapshot`
+```
