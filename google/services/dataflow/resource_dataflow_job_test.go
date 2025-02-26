@@ -23,9 +23,9 @@ import (
 )
 
 const (
-	testDataflowJobTemplateWordCountUrl = "gs://dataflow-templates/latest/Word_Count"
+	testDataflowJobTemplateWordCountUrl = "gs://dataflow-templates-us-central1/latest/Word_Count"
 	testDataflowJobSampleFileUrl        = "gs://dataflow-samples/shakespeare/various.txt"
-	testDataflowJobTemplateTextToPubsub = "gs://dataflow-templates/latest/Stream_GCS_Text_to_Cloud_PubSub"
+	testDataflowJobTemplateTextToPubsub = "gs://dataflow-templates-us-central1/latest/Stream_GCS_Text_to_Cloud_PubSub"
 	testDataflowJobRegion               = "us-central1"
 )
 
