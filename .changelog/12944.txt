@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed a 412 error returned on some `google_storage_bucket_iam_policy` deletions
+```

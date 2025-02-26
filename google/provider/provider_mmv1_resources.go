@@ -452,7 +452,6 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_endpoints_service_iam_policy":                    tpgiamresource.DataSourceIamPolicy(servicemanagement.ServiceManagementServiceIamSchema, servicemanagement.ServiceManagementServiceIamUpdaterProducer),
 	"google_endpoints_service_consumers_iam_policy":          tpgiamresource.DataSourceIamPolicy(servicemanagement.ServiceManagementServiceConsumersIamSchema, servicemanagement.ServiceManagementServiceConsumersIamUpdaterProducer),
 	"google_sourcerepo_repository_iam_policy":                tpgiamresource.DataSourceIamPolicy(sourcerepo.SourceRepoRepositoryIamSchema, sourcerepo.SourceRepoRepositoryIamUpdaterProducer),
-	"google_storage_bucket_iam_policy":                       tpgiamresource.DataSourceIamPolicy(storage.StorageBucketIamSchema, storage.StorageBucketIamUpdaterProducer),
 	"google_tags_tag_key_iam_policy":                         tpgiamresource.DataSourceIamPolicy(tags.TagsTagKeyIamSchema, tags.TagsTagKeyIamUpdaterProducer),
 	"google_tags_tag_value_iam_policy":                       tpgiamresource.DataSourceIamPolicy(tags.TagsTagValueIamSchema, tags.TagsTagValueIamUpdaterProducer),
 	"google_workbench_instance_iam_policy":                   tpgiamresource.DataSourceIamPolicy(workbench.WorkbenchInstanceIamSchema, workbench.WorkbenchInstanceIamUpdaterProducer),
@@ -481,13 +480,14 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 	"google_project_iam_policy":                 tpgiamresource.DataSourceIamPolicy(resourcemanager.IamProjectSchema, resourcemanager.NewProjectIamUpdater),
 	"google_pubsub_subscription_iam_policy":     tpgiamresource.DataSourceIamPolicy(pubsub.IamPubsubSubscriptionSchema, pubsub.NewPubsubSubscriptionIamUpdater),
 	"google_service_account_iam_policy":         tpgiamresource.DataSourceIamPolicy(resourcemanager.IamServiceAccountSchema, resourcemanager.NewServiceAccountIamUpdater),
+	"google_storage_bucket_iam_policy":          tpgiamresource.DataSourceIamPolicy(storage.StorageBucketIamSchema, storage.StorageBucketIamUpdaterProducer),
 	// ####### END non-generated IAM datasources ###########
 }
 
 // Resources
 // Generated resources: 535
-// Generated IAM resources: 279
-// Total generated resources: 814
+// Generated IAM resources: 276
+// Total generated resources: 811
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1234,9 +1234,6 @@ var generatedResources = map[string]*schema.Resource{
 	"google_sql_database":                                                        sql.ResourceSQLDatabase(),
 	"google_sql_source_representation_instance":                                  sql.ResourceSQLSourceRepresentationInstance(),
 	"google_storage_anywhere_cache":                                              storage.ResourceStorageAnywhereCache(),
-	"google_storage_bucket_iam_binding":                                          tpgiamresource.ResourceIamBinding(storage.StorageBucketIamSchema, storage.StorageBucketIamUpdaterProducer, storage.StorageBucketIdParseFunc),
-	"google_storage_bucket_iam_member":                                           tpgiamresource.ResourceIamMember(storage.StorageBucketIamSchema, storage.StorageBucketIamUpdaterProducer, storage.StorageBucketIdParseFunc),
-	"google_storage_bucket_iam_policy":                                           tpgiamresource.ResourceIamPolicy(storage.StorageBucketIamSchema, storage.StorageBucketIamUpdaterProducer, storage.StorageBucketIdParseFunc),
 	"google_storage_bucket_access_control":                                       storage.ResourceStorageBucketAccessControl(),
 	"google_storage_default_object_access_control":                               storage.ResourceStorageDefaultObjectAccessControl(),
 	"google_storage_folder":                                                      storage.ResourceStorageFolder(),
@@ -1427,6 +1424,9 @@ var handwrittenIAMResources = map[string]*schema.Resource{
 	"google_storage_managed_folder_iam_binding":  tpgiamresource.ResourceIamBinding(storage.StorageManagedFolderIamSchema, storage.StorageManagedFolderIamUpdaterProducer, storage.StorageManagedFolderIdParseFunc),
 	"google_storage_managed_folder_iam_member":   tpgiamresource.ResourceIamMember(storage.StorageManagedFolderIamSchema, storage.StorageManagedFolderIamUpdaterProducer, storage.StorageManagedFolderIdParseFunc),
 	"google_storage_managed_folder_iam_policy":   tpgiamresource.ResourceIamPolicy(storage.StorageManagedFolderIamSchema, storage.StorageManagedFolderIamUpdaterProducer, storage.StorageManagedFolderIdParseFunc),
+	"google_storage_bucket_iam_binding":          tpgiamresource.ResourceIamBinding(storage.StorageBucketIamSchema, storage.StorageBucketIamUpdaterProducer, storage.StorageBucketIdParseFunc),
+	"google_storage_bucket_iam_member":           tpgiamresource.ResourceIamMember(storage.StorageBucketIamSchema, storage.StorageBucketIamUpdaterProducer, storage.StorageBucketIdParseFunc),
+	"google_storage_bucket_iam_policy":           tpgiamresource.ResourceIamPolicy(storage.StorageBucketIamSchema, storage.StorageBucketIamUpdaterProducer, storage.StorageBucketIdParseFunc),
 	"google_organization_iam_binding":            tpgiamresource.ResourceIamBinding(resourcemanager.IamOrganizationSchema, resourcemanager.NewOrganizationIamUpdater, resourcemanager.OrgIdParseFunc),
 	"google_organization_iam_member":             tpgiamresource.ResourceIamMember(resourcemanager.IamOrganizationSchema, resourcemanager.NewOrganizationIamUpdater, resourcemanager.OrgIdParseFunc),
 	"google_organization_iam_policy":             tpgiamresource.ResourceIamPolicy(resourcemanager.IamOrganizationSchema, resourcemanager.NewOrganizationIamUpdater, resourcemanager.OrgIdParseFunc),
