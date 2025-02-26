@@ -154,6 +154,36 @@ resource "google_network_services_grpc_route" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_services_grpc_route_location&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Services Grpc Route Location
+
+
+```hcl
+resource "google_network_services_grpc_route" "default" {
+  provider               = google-beta
+  name                   = "my-grpc-route"
+  location               = "global"
+  hostnames              = ["example"]
+  rules                  {
+    matches {
+      headers {
+        key = "key"
+        value = "value"
+      }
+    }
+    action {
+      retry_policy {
+          retry_conditions = ["cancelled"]
+          num_retries = 1
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -327,6 +357,10 @@ The following arguments are supported:
   (Optional)
   List of gateways this GrpcRoute is attached to, as one of the routing rules to route the requests served by the gateway.
 
+* `location` -
+  (Optional)
+  Location (region) of the GRPCRoute resource to be created. Only the value 'global' is currently allowed; defaults to 'global' if omitted.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -335,7 +369,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/global/grpcRoutes/{{name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/grpcRoutes/{{name}}`
 
 * `self_link` -
   Server-defined URL of this resource.
@@ -368,16 +402,16 @@ This resource provides the following
 
 GrpcRoute can be imported using any of these accepted formats:
 
-* `projects/{{project}}/locations/global/grpcRoutes/{{name}}`
-* `{{project}}/{{name}}`
-* `{{name}}`
+* `projects/{{project}}/locations/{{location}}/grpcRoutes/{{name}}`
+* `{{project}}/{{location}}/{{name}}`
+* `{{location}}/{{name}}`
 
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import GrpcRoute using one of the formats above. For example:
 
 ```tf
 import {
-  id = "projects/{{project}}/locations/global/grpcRoutes/{{name}}"
+  id = "projects/{{project}}/locations/{{location}}/grpcRoutes/{{name}}"
   to = google_network_services_grpc_route.default
 }
 ```
@@ -385,9 +419,9 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), GrpcRoute can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_network_services_grpc_route.default projects/{{project}}/locations/global/grpcRoutes/{{name}}
-$ terraform import google_network_services_grpc_route.default {{project}}/{{name}}
-$ terraform import google_network_services_grpc_route.default {{name}}
+$ terraform import google_network_services_grpc_route.default projects/{{project}}/locations/{{location}}/grpcRoutes/{{name}}
+$ terraform import google_network_services_grpc_route.default {{project}}/{{location}}/{{name}}
+$ terraform import google_network_services_grpc_route.default {{location}}/{{name}}
 ```
 
 ## User Project Overrides
