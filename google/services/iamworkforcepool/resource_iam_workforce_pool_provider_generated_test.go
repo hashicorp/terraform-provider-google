@@ -131,7 +131,7 @@ resource "google_iam_workforce_pool_provider" "example" {
           plain_text = "client-secret"
         }
       }
-    attributes_type = "AZURE_AD_GROUPS_MAIL"
+    attributes_type = "AZURE_AD_GROUPS_ID"
     query_parameters {
         filter      = "mail:gcp"
     }
