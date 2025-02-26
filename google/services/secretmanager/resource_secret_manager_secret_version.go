@@ -29,7 +29,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -54,13 +56,33 @@ func ResourceSecretManagerSecretVersion() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		ValidateRawResourceConfigFuncs: []schema.ValidateRawResourceConfigFunc{
+			validation.PreferWriteOnlyAttribute(cty.GetAttrPath("secret_data"), cty.GetAttrPath("secret_data_wo")),
+		},
+
 		Schema: map[string]*schema.Schema{
-			"secret_data": {
-				Type:        schema.TypeString,
-				Required:    true,
+			"secret_data_wo_version": {
+				Type:        schema.TypeInt,
+				Optional:    true,
 				ForceNew:    true,
-				Description: `The secret data. Must be no larger than 64KiB.`,
-				Sensitive:   true,
+				Description: `Triggers update of secret data write-only. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)`,
+				Default:     0,
+			},
+			"secret_data": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				Description:   `The secret data. Must be no larger than 64KiB.`,
+				Sensitive:     true,
+				ConflictsWith: []string{},
+			},
+			"secret_data_wo": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Description:   `The secret data. Must be no larger than 64KiB. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)`,
+				WriteOnly:     true,
+				ConflictsWith: []string{"secret_data"},
+				RequiredWith:  []string{},
 			},
 
 			"secret": {
@@ -420,6 +442,10 @@ func flattenSecretManagerSecretVersionDestroyTime(v interface{}, d *schema.Resou
 
 func flattenSecretManagerSecretVersionPayload(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	transformed := make(map[string]interface{})
+	// write-only attributes are null on reads, secret_data_wo_version is used instead to return empty transformed that resolves a diff.
+	if _, ok := d.GetOkExists("secret_data_wo_version"); ok {
+		return []interface{}{transformed}
+	}
 
 	// if this secret version is disabled, the api will return an error, as the value cannot be accessed, return what we have
 	if d.Get("enabled").(bool) == false {
@@ -510,7 +536,12 @@ func expandSecretManagerSecretVersionPayload(v interface{}, d tpgresource.Terraf
 	} else if val := reflect.ValueOf(transformedSecretData); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["data"] = transformedSecretData
 	}
-
+	transformedSecretDataWo, err := expandSecretManagerSecretVersionPayloadSecretDataWo(d.Get("secret_data_wo"), d.(*schema.ResourceData), config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecretDataWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["data"] = transformedSecretDataWo
+	}
 	return transformed, nil
 }
 
@@ -523,6 +554,17 @@ func expandSecretManagerSecretVersionPayloadSecretData(v interface{}, d tpgresou
 		return v, nil
 	}
 	return base64.StdEncoding.EncodeToString([]byte(v.(string))), nil
+}
+func expandSecretManagerSecretVersionPayloadSecretDataWo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (interface{}, error) {
+	path := cty.GetAttrPath("secret_data_wo")
+	woVal, _ := d.GetRawConfigAt(path)
+	if !woVal.Type().Equals(cty.String) || woVal.IsNull() {
+		return nil, nil
+	}
+	if d.Get("is_secret_data_base64").(bool) {
+		return woVal.AsString(), nil
+	}
+	return base64.StdEncoding.EncodeToString([]byte(woVal.AsString())), nil
 }
 
 func resourceSecretManagerSecretVersionDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {

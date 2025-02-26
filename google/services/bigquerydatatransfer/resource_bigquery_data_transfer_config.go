@@ -29,14 +29,17 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var sensitiveParams = []string{"secret_access_key"}
+var sensitiveWoParams = []string{"secret_access_key_wo"}
 
 func sensitiveParamCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 	for _, sp := range sensitiveParams {
@@ -44,6 +47,18 @@ func sensitiveParamCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v
 		authLabel := diff.Get("sensitive_params.0." + sp).(string)
 		if mapLabel != "" && authLabel != "" {
 			return fmt.Errorf("Sensitive param [%s] cannot be set in both `params` and the `sensitive_params` block.", sp)
+		}
+	}
+	for _, sp := range sensitiveWoParams {
+		mapLabel := diff.Get("params." + sp[:len(sp)-3]).(string)
+		authLabel, _ := diff.GetRawConfigAt(cty.GetAttrPath("sensitive_params").IndexInt(0).GetAttr(sp))
+		if mapLabel != "" && authLabel.AsString() != "" {
+			return fmt.Errorf("Sensitive param [%s] cannot be set in both `params` and the `sensitive_params` block.", sp)
+		}
+		if authLabel.AsString() != "" {
+			if _, versionExists := diff.GetOkExists("sensitive_params.0.secret_access_key_wo_version"); !versionExists {
+				return fmt.Errorf("Sensitive param [%s] must be set with %s_version", sp, sp)
+			}
 		}
 	}
 	return nil
@@ -120,6 +135,9 @@ func ResourceBigqueryDataTransferConfig() *schema.Resource {
 			paramsCustomizeDiff,
 			tpgresource.DefaultProviderProject,
 		),
+		ValidateRawResourceConfigFuncs: []schema.ValidateRawResourceConfigFunc{
+			validation.PreferWriteOnlyAttribute(cty.GetAttrPath("sensitive_params").IndexInt(0).GetAttr("secret_access_key"), cty.GetAttrPath("sensitive_params").IndexInt(0).GetAttr("secret_access_key_wo")),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"data_source_id": {
@@ -273,10 +291,26 @@ to a different credential configuration in the config will require an apply to u
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"secret_access_key": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The Secret Access Key of the AWS account transferring data from.`,
-							Sensitive:   true,
+							Type:          schema.TypeString,
+							Optional:      true,
+							Description:   `The Secret Access Key of the AWS account transferring data from.`,
+							Sensitive:     true,
+							ConflictsWith: []string{"sensitive_params.0.secret_access_key_wo"},
+							AtLeastOneOf:  []string{"sensitive_params.0.secret_access_key", "sensitive_params.0.secret_access_key_wo"},
+						},
+						"secret_access_key_wo": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							Description:   `The Secret Access Key of the AWS account transferring data from.`,
+							WriteOnly:     true,
+							ConflictsWith: []string{"sensitive_params.0.secret_access_key"},
+							AtLeastOneOf:  []string{"sensitive_params.0.secret_access_key_wo", "sensitive_params.0.secret_access_key"},
+						},
+						"secret_access_key_wo_version": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Description:  `The version of the sensitive params - used to trigger updates of the write-only params. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)`,
+							RequiredWith: []string{"sensitive_params.0.secret_access_key_wo"},
 						},
 					},
 				},
@@ -1062,6 +1096,12 @@ func resourceBigqueryDataTransferConfigEncoder(d *schema.ResourceData, meta inte
 			params[sp] = auth.(string)
 		}
 	}
+	for _, sp := range sensitiveWoParams {
+		if auth, _ := d.GetRawConfigAt(cty.GetAttrPath("sensitive_params").IndexInt(0).GetAttr(sp)); !auth.IsNull() && auth.Type().Equals(cty.String) {
+			sp = sp[:len(sp)-3] // _wo is convention for write-only params and are removed here
+			params[sp] = auth.AsString()
+		}
+	}
 
 	obj["params"] = params
 
@@ -1074,6 +1114,8 @@ func resourceBigqueryDataTransferConfigDecoder(d *schema.ResourceData, meta inte
 		for _, sp := range sensitiveParams {
 			if _, apiOk := params[sp]; apiOk {
 				if _, exists := d.GetOkExists("sensitive_params.0." + sp); exists {
+					delete(params, sp)
+				} else if _, exists := d.GetOkExists("sensitive_params.0.secret_access_key_wo_version"); exists {
 					delete(params, sp)
 				} else {
 					params[sp] = d.Get("params." + sp)
