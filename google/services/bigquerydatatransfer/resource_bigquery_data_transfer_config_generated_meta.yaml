@@ -23,5 +23,9 @@ fields:
   - field: 'schedule_options.start_time'
   - field: 'sensitive_params.secret_access_key'
     provider_only: true
+  - field: 'sensitive_params.secret_access_key_wo'
+    provider_only: true
+  - field: 'sensitive_params.secret_access_key_wo_version'
+    provider_only: true
   - field: 'service_account_name'
     provider_only: true
