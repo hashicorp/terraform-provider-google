@@ -1,0 +1,3 @@
+```release-note:none
+dataproc: update document for `cluster_config.preemptible_worker_config.instance_flexibility_policy.provisioning_model_mix` field
+```
