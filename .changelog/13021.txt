@@ -1,0 +1,3 @@
+```release-note:bug
+discoveryengine: fixed bug preventing creation of `google_discovery_engine_target_site` resources
+```

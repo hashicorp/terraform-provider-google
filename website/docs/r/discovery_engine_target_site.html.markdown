@@ -42,7 +42,7 @@ To get more information about TargetSite, see:
 resource "google_discovery_engine_target_site" "basic" {
   location                    = google_discovery_engine_data_store.basic.location
   data_store_id               = google_discovery_engine_data_store.basic.data_store_id
-  provided_uri_pattern        = "http://cloud.google.com/docs/*"
+  provided_uri_pattern        = "cloud.google.com/docs/*"
   type                        = "INCLUDE"
   exact_match                 = false
 }
@@ -70,7 +70,7 @@ resource "google_discovery_engine_data_store" "basic" {
 resource "google_discovery_engine_target_site" "advanced" {
   location                    = google_discovery_engine_data_store.advanced.location
   data_store_id               = google_discovery_engine_data_store.advanced.data_store_id
-  provided_uri_pattern        = "http://cloud.google.com/docs/*"
+  provided_uri_pattern        = "cloud.google.com/docs/*"
   type                        = "INCLUDE"
   exact_match                 = false
 }
