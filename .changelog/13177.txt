@@ -1,0 +1,3 @@
+```release-note:none
+alloydb: add examples for AlloyDB Major Version Upgrade for `google_alloydb_cluster` resource.
+```
