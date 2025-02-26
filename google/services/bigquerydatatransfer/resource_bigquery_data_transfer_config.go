@@ -52,10 +52,10 @@ func sensitiveParamCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v
 	for _, sp := range sensitiveWoParams {
 		mapLabel := diff.Get("params." + sp[:len(sp)-3]).(string)
 		authLabel, _ := diff.GetRawConfigAt(cty.GetAttrPath("sensitive_params").IndexInt(0).GetAttr(sp))
-		if mapLabel != "" && authLabel.AsString() != "" {
+		if mapLabel != "" && (!authLabel.IsNull() && authLabel.Type() == cty.String) {
 			return fmt.Errorf("Sensitive param [%s] cannot be set in both `params` and the `sensitive_params` block.", sp)
 		}
-		if authLabel.AsString() != "" {
+		if !authLabel.IsNull() && authLabel.Type() == cty.String {
 			if _, versionExists := diff.GetOkExists("sensitive_params.0.secret_access_key_wo_version"); !versionExists {
 				return fmt.Errorf("Sensitive param [%s] must be set with %s_version", sp, sp)
 			}
