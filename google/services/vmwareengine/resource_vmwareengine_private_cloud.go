@@ -323,14 +323,16 @@ This cannot be changed once the PrivateCloud is created.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"preferred_location": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Zone that will remain operational when connection between the two zones is lost.`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Zone that will remain operational when connection between the two zones is lost.
+Specify the zone in the following format: projects/{project}/locations/{location}.`,
 									},
 									"secondary_location": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Additional zone for a higher level of availability and load balancing.`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Additional zone for a higher level of availability and load balancing.
+Specify the zone in the following format: projects/{project}/locations/{location}.`,
 									},
 								},
 							},
