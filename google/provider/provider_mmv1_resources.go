@@ -485,9 +485,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 535
+// Generated resources: 536
 // Generated IAM resources: 276
-// Total generated resources: 811
+// Total generated resources: 812
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -932,6 +932,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_firestore_index":                                                     firestore.ResourceFirestoreIndex(),
 	"google_gemini_code_repository_index":                                        gemini.ResourceGeminiCodeRepositoryIndex(),
 	"google_gemini_data_sharing_with_google_setting":                             gemini.ResourceGeminiDataSharingWithGoogleSetting(),
+	"google_gemini_data_sharing_with_google_setting_binding":                     gemini.ResourceGeminiDataSharingWithGoogleSettingBinding(),
 	"google_gemini_gemini_gcp_enablement_setting":                                gemini.ResourceGeminiGeminiGcpEnablementSetting(),
 	"google_gemini_gemini_gcp_enablement_setting_binding":                        gemini.ResourceGeminiGeminiGcpEnablementSettingBinding(),
 	"google_gemini_logging_setting":                                              gemini.ResourceGeminiLoggingSetting(),
