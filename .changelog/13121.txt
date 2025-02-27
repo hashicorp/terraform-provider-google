@@ -1,0 +1,9 @@
+```release-note:new-resource
+`google_gemini_data_sharing_with_google_setting_binding` (GA)
+```
+```release-note:bug
+gemini: fixed permadiff on `product` field in `google_gemini_data_sharing_with_google_setting_binding` resource (Beta)
+```
+```release-note:note
+gemini: removed unsupported value `GEMINI_CODE_ASSIST` for field `product` in `google_gemini_data_sharing_with_google_setting_binding` resource (Beta)
+```
