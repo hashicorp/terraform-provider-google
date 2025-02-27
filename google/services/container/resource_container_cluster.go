@@ -2009,8 +2009,7 @@ func ResourceContainerCluster() *schema.Resource {
 						},
 						"cluster_dns_scope": {
 							Type:         schema.TypeString,
-							Default:      "DNS_SCOPE_UNSPECIFIED",
-							ValidateFunc: validation.StringInSlice([]string{"DNS_SCOPE_UNSPECIFIED", "CLUSTER_SCOPE", "VPC_SCOPE"}, false),
+							ValidateFunc: validation.StringInSlice([]string{"CLUSTER_SCOPE", "VPC_SCOPE"}, false),
 							Description:  `The scope of access to cluster DNS records.`,
 							Optional:     true,
 						},
