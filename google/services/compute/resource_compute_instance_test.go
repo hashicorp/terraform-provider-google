@@ -579,6 +579,30 @@ func TestAccComputeInstance_internalIPv6(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_internalIPv6PrefixLength(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_internalIpv6PrefixLength("96", instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceIpv6AccessConfigHasInternalIPv6(&instance),
+				),
+			},
+			computeInstanceImportStep("us-west2-a", instanceName, []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
 func TestAccComputeInstance_PTRRecord(t *testing.T) {
 	t.Parallel()
 
@@ -5394,6 +5418,46 @@ func testAccComputeInstance_internalIpv6(ip, instance string) string {
   `, instance, instance, ip, instance)
 }
 
+func testAccComputeInstance_internalIpv6PrefixLength(length, instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "vpc" {
+  name                     = "%s-network"
+  auto_create_subnetworks  = "false"
+  enable_ula_internal_ipv6 = true
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name             = "%s-subnetwork"
+  ip_cidr_range    = "10.0.0.0/22"
+  region           = "us-west2"
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "INTERNAL"
+  network          = google_compute_network.vpc.id
+}
+
+resource "google_compute_instance" "foobar" {
+  name                      = "%s"
+  machine_type              = "e2-micro"
+  allow_stopping_for_update = true
+  zone                      = "us-west2-a"
+  boot_disk {
+    auto_delete = false
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network    = google_compute_network.vpc.self_link
+    subnetwork = google_compute_subnetwork.subnetwork.self_link
+    stack_type = "IPV4_IPV6"
+    access_config {
+      network_tier = "STANDARD"
+    }
+    internal_ipv6_prefix_length = %s
+  }
+}
+`, instance, instance, instance, length)
+}
 func testAccComputeInstance_ipv6ExternalReservation(instance string) string {
 	return fmt.Sprintf(`
 resource "google_compute_address" "ipv6-address" {
