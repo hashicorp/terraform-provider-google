@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fix `compute_instance.network_interface.internal_ipv6_prefix_length` not being set or read in Terraform state  
+```

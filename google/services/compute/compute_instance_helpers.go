@@ -375,17 +375,18 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *transport_tpg.Conf
 		region = subnet.Region
 
 		flattened[i] = map[string]interface{}{
-			"network_ip":         iface.NetworkIP,
-			"network":            tpgresource.ConvertSelfLinkToV1(iface.Network),
-			"subnetwork":         tpgresource.ConvertSelfLinkToV1(iface.Subnetwork),
-			"subnetwork_project": subnet.Project,
-			"access_config":      ac,
-			"alias_ip_range":     flattenAliasIpRange(d, iface.AliasIpRanges, i),
-			"nic_type":           iface.NicType,
-			"stack_type":         iface.StackType,
-			"ipv6_access_config": flattenIpv6AccessConfigs(iface.Ipv6AccessConfigs),
-			"ipv6_address":       iface.Ipv6Address,
-			"queue_count":        iface.QueueCount,
+			"network_ip":                  iface.NetworkIP,
+			"network":                     tpgresource.ConvertSelfLinkToV1(iface.Network),
+			"subnetwork":                  tpgresource.ConvertSelfLinkToV1(iface.Subnetwork),
+			"subnetwork_project":          subnet.Project,
+			"access_config":               ac,
+			"alias_ip_range":              flattenAliasIpRange(d, iface.AliasIpRanges, i),
+			"nic_type":                    iface.NicType,
+			"stack_type":                  iface.StackType,
+			"ipv6_access_config":          flattenIpv6AccessConfigs(iface.Ipv6AccessConfigs),
+			"ipv6_address":                iface.Ipv6Address,
+			"queue_count":                 iface.QueueCount,
+			"internal_ipv6_prefix_length": iface.InternalIpv6PrefixLength,
 		}
 		// Instance template interfaces never have names, so they're absent
 		// in the instance template network_interface schema. We want to use the
@@ -486,17 +487,18 @@ func expandNetworkInterfaces(d tpgresource.TerraformResourceData, config *transp
 		}
 
 		ifaces[i] = &compute.NetworkInterface{
-			NetworkIP:         data["network_ip"].(string),
-			Network:           nf.RelativeLink(),
-			NetworkAttachment: networkAttachment,
-			Subnetwork:        sf.RelativeLink(),
-			AccessConfigs:     expandAccessConfigs(data["access_config"].([]interface{})),
-			AliasIpRanges:     expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
-			NicType:           data["nic_type"].(string),
-			StackType:         data["stack_type"].(string),
-			QueueCount:        int64(data["queue_count"].(int)),
-			Ipv6AccessConfigs: expandIpv6AccessConfigs(data["ipv6_access_config"].([]interface{})),
-			Ipv6Address:       data["ipv6_address"].(string),
+			NetworkIP:                data["network_ip"].(string),
+			Network:                  nf.RelativeLink(),
+			NetworkAttachment:        networkAttachment,
+			Subnetwork:               sf.RelativeLink(),
+			AccessConfigs:            expandAccessConfigs(data["access_config"].([]interface{})),
+			AliasIpRanges:            expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
+			NicType:                  data["nic_type"].(string),
+			StackType:                data["stack_type"].(string),
+			QueueCount:               int64(data["queue_count"].(int)),
+			Ipv6AccessConfigs:        expandIpv6AccessConfigs(data["ipv6_access_config"].([]interface{})),
+			Ipv6Address:              data["ipv6_address"].(string),
+			InternalIpv6PrefixLength: int64(data["internal_ipv6_prefix_length"].(int)),
 		}
 	}
 	return ifaces, nil
