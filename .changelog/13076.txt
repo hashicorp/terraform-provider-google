@@ -1,0 +1,3 @@
+```release-note:enhancement
+workstations: added `tags` field to `google_workstations_workstation_cluster` resource
+```
