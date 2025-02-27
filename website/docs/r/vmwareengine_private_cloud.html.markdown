@@ -214,10 +214,12 @@ The following arguments are supported:
 * `preferred_location` -
   (Optional)
   Zone that will remain operational when connection between the two zones is lost.
+  Specify the zone in the following format: projects/{project}/locations/{location}.
 
 * `secondary_location` -
   (Optional)
   Additional zone for a higher level of availability and load balancing.
+  Specify the zone in the following format: projects/{project}/locations/{location}.
 
 <a name="nested_management_cluster_autoscaling_settings"></a>The `autoscaling_settings` block supports:
 
