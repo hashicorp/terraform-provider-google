@@ -1,6 +1,8 @@
 module github.com/hashicorp/terraform-provider-google
 
-go 1.18
+go 1.23.0
+
+toolchain go1.23.6
 
 require (
 	cloud.google.com/go/bigtable v1.16.0
@@ -22,7 +24,7 @@ require (
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/sirupsen/logrus v1.8.3
 	golang.org/x/net v0.24.0
-	golang.org/x/oauth2 v0.10.0
+	golang.org/x/oauth2 v0.27.0
 	google.golang.org/api v0.126.0
 	google.golang.org/grpc v1.58.3
 )
@@ -31,8 +33,7 @@ require (
 	4d63.com/gochecknoglobals v0.0.0-20201008074935-acfc0b28355a // indirect
 	bitbucket.org/creachadair/stringset v0.0.8 // indirect
 	cloud.google.com/go v0.110.4 // indirect
-	cloud.google.com/go/compute v1.21.0 // indirect
-	cloud.google.com/go/compute/metadata v0.2.3 // indirect
+	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	cloud.google.com/go/iam v1.1.1 // indirect
 	cloud.google.com/go/longrunning v0.5.1 // indirect
 	github.com/BurntSushi/toml v0.3.1 // indirect
