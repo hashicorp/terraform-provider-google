@@ -46,7 +46,7 @@ To get more information about RegionDisk, see:
     * [Adding or Resizing Regional Persistent Disks](https://cloud.google.com/compute/docs/disks/regional-persistent-disk)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `disk_encryption_key.raw_key`.
+values will be stored in the raw state as plain text: `disk_encryption_key.raw_key`, `disk_encryption_key.rsa_encrypted_key`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -273,6 +273,12 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `create_snapshot_before_destroy` - (Optional) If set to true, a snapshot of the disk will be created before it is destroyed.
+If your disk is encrypted with customer managed encryption keys these will be reused for the snapshot creation.
+The name of the snapshot by default will be `{{disk-name}}-YYYYMMDD-HHmm`
+
+* `create_snapshot_before_destroy_prefix` - (Optional) This will set a custom name prefix for the snapshot that's created when the disk is deleted.
+
 
 <a name="nested_disk_encryption_key"></a>The `disk_encryption_key` block supports:
 
@@ -280,6 +286,13 @@ The following arguments are supported:
   (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
   RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `rsa_encrypted_key` -
+  (Optional)
+  Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit
+  customer-supplied encryption key to either encrypt or decrypt
+  this resource. You can provide either the rawKey or the rsaEncryptedKey.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `sha256` -

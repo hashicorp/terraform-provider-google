@@ -8,6 +8,10 @@ fields:
   - field: 'access_mode'
   - field: 'architecture'
   - field: 'async_primary_disk.disk'
+  - field: 'create_snapshot_before_destroy'
+    provider_only: true
+  - field: 'create_snapshot_before_destroy_prefix'
+    provider_only: true
   - field: 'creation_timestamp'
   - field: 'description'
   - field: 'disk_encryption_key.kms_key_self_link'
