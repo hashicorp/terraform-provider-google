@@ -77,7 +77,7 @@ The following arguments are supported:
 * `product` -
   (Optional)
   Product type of the setting binding.
-  Possible values are: `GEMINI_CLOUD_ASSIST`, `GEMINI_CODE_ASSIST`.
+  Possible values are: `GEMINI_CODE_ASSIST`.
 
 * `location` -
   (Optional)
