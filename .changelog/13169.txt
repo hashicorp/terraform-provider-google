@@ -1,0 +1,3 @@
+```release-note:note
+gemini: removed unsupported value `GEMINI_CLOUD_ASSIST` for field `product` in `google_gemini_logging_setting_binding` resource
+```
