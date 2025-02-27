@@ -1,0 +1,3 @@
+```release-note:enhancement
+networksecurity: added wait time on `google_network_security_gateway_security_policy_rule` resource when creating and deleting to prevent race conditions
+```

@@ -194,6 +194,13 @@ func resourceNetworkSecurityGatewaySecurityPolicyRuleCreate(d *schema.ResourceDa
 		obj["basicProfile"] = basicProfileProp
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "gatewaySecurityPolicies/{{gateway_security_policy}}/rules")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{gateway_security_policy}}/rules?gatewaySecurityPolicyRuleId={{name}}")
 	if err != nil {
 		return err
@@ -385,6 +392,13 @@ func resourceNetworkSecurityGatewaySecurityPolicyRuleUpdate(d *schema.ResourceDa
 		obj["basicProfile"] = basicProfileProp
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "gatewaySecurityPolicies/{{gateway_security_policy}}/rules")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{gateway_security_policy}}/rules/{{name}}")
 	if err != nil {
 		return err
@@ -478,6 +492,13 @@ func resourceNetworkSecurityGatewaySecurityPolicyRuleDelete(d *schema.ResourceDa
 		return fmt.Errorf("Error fetching project for GatewaySecurityPolicyRule: %s", err)
 	}
 	billingProject = project
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "gatewaySecurityPolicies/{{gateway_security_policy}}/rules")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{gateway_security_policy}}/rules/{{name}}")
 	if err != nil {
