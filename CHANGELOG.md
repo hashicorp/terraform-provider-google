@@ -1,3 +1,15 @@
+## 6.23.0 (Feb 26, 2025)
+
+NOTES:
+* The `google_sql_user` resource now supports `password_wo` [write-only arguments](https://developer.hashicorp.com/terraform/language/v1.11.x/resources/ephemeral#write-only-arguments)
+* The `google_bigquery_data_transfer_config` resource now supports `secret_access_key_wo` [write-only arguments](https://developer.hashicorp.com/terraform/language/v1.11.x/resources/ephemeral#write-only-arguments)
+* The `google_secret_version` resource now supports `secret_data_wo` [write-only arguments](https://developer.hashicorp.com/terraform/language/v1.11.x/resources/ephemeral#write-only-arguments)
+
+IMPROVEMENTS:
+* sql: added `password_wo` and `password_wo_version` fields to `google_sql_user` resource ([#21616](https://github.com/hashicorp/terraform-provider-google/pull/21616))
+* bigquerydatatransfer: added `secret_access_key_wo` and `secret_access_key_wo_version` fields to `google_bigquery_data_transfer_config` resource ([#21617](https://github.com/hashicorp/terraform-provider-google/pull/21617))
+* secretmanager: added `secret_data_wo` and `secret_data_wo_version` fields to `google_secret_version` resource ([#21618](https://github.com/hashicorp/terraform-provider-google/pull/21618))
+
 ## 6.22.0 (Feb 24, 2025)
 
 NOTES:
