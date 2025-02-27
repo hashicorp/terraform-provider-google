@@ -350,6 +350,12 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `create_snapshot_before_destroy` - (Optional) If set to true, a snapshot of the disk will be created before it is destroyed.
+If your disk is encrypted with customer managed encryption keys these will be reused for the snapshot creation.
+The name of the snapshot by default will be `{{disk-name}}-YYYYMMDD-HHmm`
+
+* `create_snapshot_before_destroy_prefix` - (Optional) This will set a custom name prefix for the snapshot that's created when the disk is deleted.
+
 
 <a name="nested_source_image_encryption_key"></a>The `source_image_encryption_key` block supports:
 

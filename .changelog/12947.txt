@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `create_snapshot_before_destroy` to `google_compute_disk` and `google_compute_region_disk` to enable creating a snapshot before disk deletion
+```
+```release-note:enhancement
+compute: added `rsa_encrypted_key` to `google_compute_region_disk`
+```

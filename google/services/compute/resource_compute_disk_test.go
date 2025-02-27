@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -815,6 +816,26 @@ func testAccCheckEncryptionKey(t *testing.T, n string, disk *compute.Disk) resou
 	}
 }
 
+func testAccCheckComputeDisk_removeBackupSnapshot(t *testing.T, parentDiskName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+		snapshot, err := config.NewComputeClient(config.UserAgent).Snapshots.List(envvar.GetTestProjectFromEnv()).Filter(fmt.Sprintf("name eq %s.*", parentDiskName)).Do()
+		if err != nil {
+			return err
+		}
+
+		if len(snapshot.Items) == 0 {
+			return fmt.Errorf("No snapshot found")
+		}
+
+		op, err := config.NewComputeClient(config.UserAgent).Snapshots.Delete(envvar.GetTestProjectFromEnv(), snapshot.Items[0].Name).Do()
+		if err != nil {
+			return err
+		}
+		return tpgcompute.ComputeOperationWaitTime(config, op, envvar.GetTestProjectFromEnv(), "Deleting Snapshot", config.UserAgent, 10*time.Minute)
+	}
+}
+
 func TestAccComputeDisk_cloneDisk(t *testing.T) {
 	t.Parallel()
 	pid := envvar.GetTestProjectFromEnv()
@@ -983,6 +1004,52 @@ func TestAccComputeDisk_featuresUpdated(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func TestAccComputeDisk_createSnapshotBeforeDestroy(t *testing.T) {
+	acctest.SkipIfVcr(t) // Disk cleanup test check
+	t.Parallel()
+
+	var disk1 compute.Disk
+	var disk2 compute.Disk
+	var disk3 compute.Disk
+	context := map[string]interface{}{
+		"disk_name1":        fmt.Sprintf("tf-test-disk-%s", acctest.RandString(t, 10)),
+		"disk_name2":        fmt.Sprintf("test-%s", acctest.RandString(t, 44)), //this is over the snapshot character creation limit of 48
+		"disk_name3":        fmt.Sprintf("tf-test-disk-%s", acctest.RandString(t, 10)),
+		"snapshot_prefix":   fmt.Sprintf("tf-test-snapshot-%s", acctest.RandString(t, 10)),
+		"kms_key_self_link": acctest.BootstrapKMSKey(t).CryptoKey.Name,
+		"raw_key":           "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+		"rsa_encrypted_key": "ieCx/NcW06PcT7Ep1X6LUTc/hLvUDYyzSZPPVCVPTVEohpeHASqC8uw5TzyO9U+Fka9JFHz0mBibXUInrC/jEk014kCK/NPjYgEMOyssZ4ZINPKxlUh2zn1bV+MCaTICrdmuSBTWlUUiFoDD6PYznLwh8ZNdaheCeZ8ewEXgFQ8V+sDroLaN3Xs3MDTXQEMMoNUXMCZEIpg9Vtp9x2oeQ5lAbtt7bYAAHf5l+gJWw3sUfs0/Glw5fpdjT8Uggrr+RMZezGrltJEF293rvTIjWOEB3z5OHyHwQkvdrPDFcTqsLfh+8Hr8g+mf+7zVPEC8nEbqpdl3GPv3A7AwpFp7MA==",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_createSnapshotBeforeDestroy_init(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						t, "google_compute_disk.raw-encrypted-name", envvar.GetTestProjectFromEnv(), &disk1),
+					testAccCheckComputeDiskExists(
+						t, "google_compute_disk.rsa-encrypted-prefix", envvar.GetTestProjectFromEnv(), &disk2),
+					testAccCheckComputeDiskExists(
+						t, "google_compute_disk.kms-encrypted-name", envvar.GetTestProjectFromEnv(), &disk3),
+				),
+			},
+			{
+				Config:  testAccComputeDisk_createSnapshotBeforeDestroy_init(context),
+				Destroy: true,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDisk_removeBackupSnapshot(t, context["disk_name1"].(string)),
+					testAccCheckComputeDisk_removeBackupSnapshot(t, context["snapshot_prefix"].(string)),
+					testAccCheckComputeDisk_removeBackupSnapshot(t, context["disk_name3"].(string)),
+				),
 			},
 		},
 	})
@@ -1819,6 +1886,49 @@ resource "google_compute_disk" "foobar" {
   access_mode = "%s"
 }
 `, diskName, accessMode)
+}
+
+func testAccComputeDisk_createSnapshotBeforeDestroy_init(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_disk" "raw-encrypted-name" {
+  name = "%{disk_name1}"
+  type = "pd-ssd"
+  size = 10
+  zone  = "us-central1-a"
+
+  disk_encryption_key {
+	raw_key = "%{raw_key}"
+  }
+
+  create_snapshot_before_destroy = true
+}
+
+resource "google_compute_disk" "rsa-encrypted-prefix" {
+  name = "%{disk_name2}"
+  type = "pd-ssd"
+  size = 10
+  zone  = "us-central1-a"
+
+  disk_encryption_key {
+	rsa_encrypted_key = "%{rsa_encrypted_key}"
+  }
+
+  create_snapshot_before_destroy = true
+  create_snapshot_before_destroy_prefix = "%{snapshot_prefix}"
+}
+
+resource "google_compute_disk" "kms-encrypted-name" {
+  name = "%{disk_name3}"
+  type = "pd-ssd"
+  size = 10
+  zone  = "us-central1-a"
+
+  disk_encryption_key {
+	kms_key_self_link = "%{kms_key_self_link}"
+  }
+
+  create_snapshot_before_destroy = true
+}`, context)
 }
 
 func testAccComputeDisk_architecture(context map[string]interface{}) string {

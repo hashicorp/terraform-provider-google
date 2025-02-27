@@ -6,10 +6,15 @@ api_version: 'v1'
 api_resource_type_kind: 'Disk'
 fields:
   - field: 'async_primary_disk.disk'
+  - field: 'create_snapshot_before_destroy'
+    provider_only: true
+  - field: 'create_snapshot_before_destroy_prefix'
+    provider_only: true
   - field: 'creation_timestamp'
   - field: 'description'
   - field: 'disk_encryption_key.kms_key_name'
   - field: 'disk_encryption_key.raw_key'
+  - field: 'disk_encryption_key.rsa_encrypted_key'
   - field: 'disk_encryption_key.sha256'
   - field: 'effective_labels'
     provider_only: true
