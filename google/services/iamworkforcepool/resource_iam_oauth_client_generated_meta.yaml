@@ -1,0 +1,22 @@
+resource: 'google_iam_oauth_client'
+generation_type: 'mmv1'
+source_file: 'products/iamworkforcepool/OauthClient.yaml'
+api_service_name: 'iam.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'OauthClient'
+fields:
+  - field: 'allowed_grant_types'
+  - field: 'allowed_redirect_uris'
+  - field: 'allowed_scopes'
+  - field: 'client_id'
+  - field: 'client_type'
+  - field: 'description'
+  - field: 'disabled'
+  - field: 'display_name'
+  - field: 'expire_time'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'oauth_client_id'
+    provider_only: true
+  - field: 'state'
