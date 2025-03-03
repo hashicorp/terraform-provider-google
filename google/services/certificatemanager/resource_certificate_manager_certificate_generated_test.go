@@ -482,6 +482,45 @@ resource "google_certificate_manager_dns_authorization" "instance" {
 `, context)
 }
 
+func TestAccCertificateManagerCertificate_certificateManagerClientAuthCertificateExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCertificateManagerCertificateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCertificateManagerCertificate_certificateManagerClientAuthCertificateExample(context),
+			},
+			{
+				ResourceName:            "google_certificate_manager_certificate.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "self_managed", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccCertificateManagerCertificate_certificateManagerClientAuthCertificateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_certificate_manager_certificate" "default" {
+  name        = "tf-test-client-auth-cert%{random_suffix}"
+  description = "Global cert"
+  scope       = "CLIENT_AUTH"
+  self_managed {
+    pem_certificate = file("test-fixtures/cert.pem")
+    pem_private_key = file("test-fixtures/private-key.pem")
+  }
+}
+`, context)
+}
+
 func testAccCheckCertificateManagerCertificateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

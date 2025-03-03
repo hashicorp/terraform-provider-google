@@ -341,6 +341,25 @@ resource "google_certificate_manager_dns_authorization" "instance" {
   domain      = "subdomain.hashicorptest.com"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=certificate_manager_client_auth_certificate&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Certificate Manager Client Auth Certificate
+
+
+```hcl
+resource "google_certificate_manager_certificate" "default" {
+  name        = "client-auth-cert"
+  description = "Global cert"
+  scope       = "CLIENT_AUTH"
+  self_managed {
+    pem_certificate = file("test-fixtures/cert.pem")
+    pem_private_key = file("test-fixtures/private-key.pem")
+  }
+}
+```
 
 ## Argument Reference
 
@@ -375,7 +394,9 @@ The following arguments are supported:
   EDGE_CACHE: Certificates with scope EDGE_CACHE are special-purposed certificates, served from Edge Points of Presence.
   See https://cloud.google.com/vpc/docs/edge-locations.
   ALL_REGIONS: Certificates with ALL_REGIONS scope are served from all GCP regions (You can only use ALL_REGIONS with global certs).
-  See https://cloud.google.com/compute/docs/regions-zones
+  See https://cloud.google.com/compute/docs/regions-zones.
+  CLIENT_AUTH: Certificates with CLIENT_AUTH scope are used by a load balancer (TLS client) to be presented to the backend (TLS server) when backend mTLS is configured.
+  See https://cloud.google.com/load-balancing/docs/backend-authenticated-tls-backend-mtls#client-certificate.
 
 * `self_managed` -
   (Optional)
