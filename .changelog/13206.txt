@@ -1,0 +1,21 @@
+```release-note:new-resource
+`network_services_mesh` (GA)
+```
+```release-note:new-resource
+`network_services_http_route` (GA)
+```
+```release-note:new-resource
+`network_services_grpc_route` (GA)
+```
+```release-note:new-resource
+`network_services_tcp_route` (GA)
+```
+```release-note:new-resource
+`network_services_tls_route` (GA)
+```
+```release-note:new-resource
+`network_services_service_binding` (GA)
+```
+```release-note:new-resource
+`network_services_endpoint_policy` (GA)
+```

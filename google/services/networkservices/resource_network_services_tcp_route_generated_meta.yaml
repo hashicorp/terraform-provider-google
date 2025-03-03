@@ -1,0 +1,26 @@
+resource: 'google_network_services_tcp_route'
+generation_type: 'mmv1'
+source_file: 'products/networkservices/TcpRoute.yaml'
+api_service_name: 'networkservices.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'TcpRoute'
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'gateways'
+  - field: 'labels'
+  - field: 'meshes'
+  - field: 'name'
+    provider_only: true
+  - field: 'rules.action.destinations.service_name'
+  - field: 'rules.action.destinations.weight'
+  - field: 'rules.action.idle_timeout'
+  - field: 'rules.action.original_destination'
+  - field: 'rules.matches.address'
+  - field: 'rules.matches.port'
+  - field: 'self_link'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

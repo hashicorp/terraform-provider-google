@@ -25,8 +25,6 @@ description: |-
 ServiceBinding is the resource that defines a Service Directory Service to be used in a
 BackendService resource.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about ServiceBinding, see:
 
@@ -42,13 +40,11 @@ To get more information about ServiceBinding, see:
 
 ```hcl
 resource "google_service_directory_namespace" "default" {
-  provider     = google-beta
   namespace_id = "my-namespace"
   location     = "us-central1"
 }
 
 resource "google_service_directory_service" "default" {
-  provider   = google-beta
   service_id = "my-service"
   namespace  = google_service_directory_namespace.default.id
 
@@ -59,7 +55,6 @@ resource "google_service_directory_service" "default" {
 }
 
 resource "google_network_services_service_binding" "default" {
-  provider    = google-beta
   name        = "my-service-binding"
   labels      = {
     foo = "bar"

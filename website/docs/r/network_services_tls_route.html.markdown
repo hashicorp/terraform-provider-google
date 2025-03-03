@@ -23,8 +23,6 @@ description: |-
 
 TlsRoute defines how traffic should be routed based on SNI and other matching L3 attributes.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about TlsRoute, see:
 
@@ -40,13 +38,11 @@ To get more information about TlsRoute, see:
 
 ```hcl
 resource "google_compute_backend_service" "default" {
-  provider               = google-beta
   name          = "my-backend-service"
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  provider               = google-beta
   name               = "backend-service-health-check"
   request_path       = "/"
   check_interval_sec = 1
@@ -54,7 +50,6 @@ resource "google_compute_http_health_check" "default" {
 }
 
 resource "google_network_services_tls_route" "default" {
-  provider               = google-beta
   name                   = "my-tls-route"
   description             = "my description"
   rules                   {
@@ -81,13 +76,11 @@ resource "google_network_services_tls_route" "default" {
 
 ```hcl
 resource "google_compute_backend_service" "default" {
-  provider               = google-beta
   name          = "my-backend-service"
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  provider               = google-beta
   name               = "backend-service-health-check"
   request_path       = "/"
   check_interval_sec = 1
@@ -95,7 +88,6 @@ resource "google_compute_http_health_check" "default" {
 }
 
 resource "google_network_services_mesh" "default" {
-  provider    = google-beta
   name        = "my-tls-route"
   labels      = {
     foo = "bar"
@@ -105,7 +97,6 @@ resource "google_network_services_mesh" "default" {
 
 
 resource "google_network_services_tls_route" "default" {
-  provider               = google-beta
   name                   = "my-tls-route"
   description             = "my description"
   meshes = [
@@ -135,13 +126,11 @@ resource "google_network_services_tls_route" "default" {
 
 ```hcl
 resource "google_compute_backend_service" "default" {
-  provider               = google-beta
   name          = "my-backend-service"
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  provider               = google-beta
   name               = "backend-service-health-check"
   request_path       = "/"
   check_interval_sec = 1
@@ -149,7 +138,6 @@ resource "google_compute_http_health_check" "default" {
 }
 
 resource "google_network_services_gateway" "default" {
-  provider    = google-beta
   name        = "my-tls-route"
   labels      = {
     foo = "bar"
@@ -161,7 +149,6 @@ resource "google_network_services_gateway" "default" {
 }
 
 resource "google_network_services_tls_route" "default" {
-  provider               = google-beta
   name                   = "my-tls-route"
   description             = "my description"
   gateways = [
