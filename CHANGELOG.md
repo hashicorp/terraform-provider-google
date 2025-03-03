@@ -2,11 +2,10 @@
 
 NOTES:
 * gemini: removed unsupported value `GEMINI_CLOUD_ASSIST` for field `product` in `google_gemini_logging_setting_binding` resource ([#21630](https://github.com/hashicorp/terraform-provider-google/pull/21630))
-* gemini: removed unsupported value `GEMINI_CODE_ASSIST` for field `product` in `google_gemini_data_sharing_with_google_setting_binding` resource (Beta) ([#21629](https://github.com/hashicorp/terraform-provider-google/pull/21629))
 * iam: added member value to the error message when member validation fails for google_project_iam_* ([#21586](https://github.com/hashicorp/terraform-provider-google/pull/21586))
+
 DEPRECATIONS:
-* Deprecated google_data_catalog_tag ([#21604](https://github.com/hashicorp/terraform-provider-google/pull/21604))
-* datacatalog: deprecated `google_data_catalog_entry` resource. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog. ([#21541](https://github.com/hashicorp/terraform-provider-google/pull/21541))
+* datacatalog: deprecated `google_data_catalog_entry` and `google_data_catalog_tag` resources. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog. ([#21541](https://github.com/hashicorp/terraform-provider-google/pull/21541))
 * notebooks: deprecated non-functional `google_notebooks_location` resource ([#21517](https://github.com/hashicorp/terraform-provider-google/pull/21517))
 
 FEATURES:
@@ -20,7 +19,7 @@ FEATURES:
 * **New Resource:** `google_storage_anywhere_cache` ([#21537](https://github.com/hashicorp/terraform-provider-google/pull/21537))
 
 IMPROVEMENTS:
-* alloydb: promote Major Version Upgrade feature to GA ([#21582](https://github.com/hashicorp/terraform-provider-google/pull/21582))
+* alloydb: added ability to upgrade major version in `google_alloydb_cluster` with `database_version` ([#21582](https://github.com/hashicorp/terraform-provider-google/pull/21582))
 * compute: added `creation_timestamp`, `next_hop_peering`, ` warnings.code`, `warnings.message`, `warnings.data.key`, `warnings.data.value`, `next_hop_hub`, `route_type`, `as_paths.path_segment_type`, `as_paths.as_lists` and `route_status`  fields to `google_compute_route` resource ([#21534](https://github.com/hashicorp/terraform-provider-google/pull/21534))
 * compute: added `max_stream_duration` field to `google_compute_url_map` resource ([#21535](https://github.com/hashicorp/terraform-provider-google/pull/21535))
 * compute: added `network_interface.network_attachment` field to `google_compute_instance` resource (ga) ([#21606](https://github.com/hashicorp/terraform-provider-google/pull/21606))
@@ -37,7 +36,6 @@ BUG FIXES:
 * chronicle: fixed an error during resource creation with certain `run_frequency` configurations in `google_chronicle_rule_deployment` ([#21610](https://github.com/hashicorp/terraform-provider-google/pull/21610))
 * discoveryengine: fixed bug preventing creation of `google_discovery_engine_target_site` resources ([#21628](https://github.com/hashicorp/terraform-provider-google/pull/21628))
 * eventarc: fixed an issue where `google_eventarc_trigger` creation failed due to the region could not be parsed from the trigger's name ([#21528](https://github.com/hashicorp/terraform-provider-google/pull/21528))
-* gemini: fixed permadiff on `product` field in `google_gemini_data_sharing_with_google_setting_binding` resource (Beta) ([#21629](https://github.com/hashicorp/terraform-provider-google/pull/21629))
 * publicca: encode b64_mac_key in base64url, not in base64 ([#21612](https://github.com/hashicorp/terraform-provider-google/pull/21612))
 * storage: fixed a 412 error returned on some `google_storage_bucket_iam_policy` deletions ([#21626](https://github.com/hashicorp/terraform-provider-google/pull/21626))
 
