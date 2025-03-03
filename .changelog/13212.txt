@@ -1,0 +1,3 @@
+```release-note:enhancement
+certificatemanager: add CLIENT_AUTH value documentation/example for `scope`  in `google_certificate_manager_certificate`.
+```
