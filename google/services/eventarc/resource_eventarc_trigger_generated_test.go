@@ -162,10 +162,15 @@ resource "google_eventarc_trigger" "primary" {
 
 func TestAccEventarcTrigger_eventarcTriggerWithChannelCmekExample(t *testing.T) {
 	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-eventarc.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	context := map[string]interface{}{
 		"project_id":      envvar.GetTestProjectFromEnv(),
-		"project_number":  envvar.GetTestProjectNumberFromEnv(),
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
 		"key_name":        acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-eventarc-trigger-key").CryptoKey.Name,
 		"random_suffix":   acctest.RandString(t, 10),
@@ -191,18 +196,11 @@ func TestAccEventarcTrigger_eventarcTriggerWithChannelCmekExample(t *testing.T) 
 
 func testAccEventarcTrigger_eventarcTriggerWithChannelCmekExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_kms_crypto_key_iam_member" "key_member" {
-  crypto_key_id = "%{key_name}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:service-%{project_number}@gcp-sa-eventarc.iam.gserviceaccount.com"
-}
-
 resource "google_eventarc_channel" "test_channel" {
   location             = "us-central1"
   name                 = "tf-test-some-channel%{random_suffix}"
   crypto_key_name      = "%{key_name}"
   third_party_provider = "projects/%{project_id}/locations/us-central1/providers/datadog"
-  depends_on           = [google_kms_crypto_key_iam_member.key_member]
 }
 
 resource "google_cloud_run_service" "default" {

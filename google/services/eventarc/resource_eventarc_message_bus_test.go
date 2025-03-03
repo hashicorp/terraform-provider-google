@@ -41,6 +41,12 @@ func testAccEventarcMessageBus_basic(t *testing.T) {
 		"region":        envvar.GetTestRegionFromEnv(),
 		"random_suffix": acctest.RandString(t, 10),
 	}
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-eventarc.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -78,13 +84,18 @@ resource "google_eventarc_message_bus" "primary" {
 
 func testAccEventarcMessageBus_cryptoKey(t *testing.T) {
 	region := envvar.GetTestRegionFromEnv()
-
 	context := map[string]interface{}{
 		"project_number": envvar.GetTestProjectNumberFromEnv(),
 		"region":         region,
 		"key":            acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-messagebus-key").CryptoKey.Name,
 		"random_suffix":  acctest.RandString(t, 10),
 	}
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-eventarc.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -106,12 +117,6 @@ func testAccEventarcMessageBus_cryptoKey(t *testing.T) {
 
 func testAccEventarcMessageBus_cryptoKeyCfg(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_kms_crypto_key_iam_member" "key_member" {
-  crypto_key_id = "%{key}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:service-%{project_number}@gcp-sa-eventarc.iam.gserviceaccount.com"
-}
-
 resource "google_eventarc_message_bus" "primary" {
   location        = "%{region}"
   message_bus_id  = "tf-test-messagebus%{random_suffix}"
@@ -119,14 +124,12 @@ resource "google_eventarc_message_bus" "primary" {
   logging_config {
     log_severity = "ALERT"
   }
-  depends_on = [google_kms_crypto_key_iam_member.key_member]
 }
 `, context)
 }
 
 func testAccEventarcMessageBus_update(t *testing.T) {
 	region := envvar.GetTestRegionFromEnv()
-
 	context := map[string]interface{}{
 		"project_number": envvar.GetTestProjectNumberFromEnv(),
 		"region":         region,
@@ -134,6 +137,12 @@ func testAccEventarcMessageBus_update(t *testing.T) {
 		"key2":           acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-messagebus-key2").CryptoKey.Name,
 		"random_suffix":  acctest.RandString(t, 10),
 	}
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-eventarc.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -183,12 +192,6 @@ func testAccEventarcMessageBus_update(t *testing.T) {
 
 func testAccEventarcMessageBus_setCfg(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_kms_crypto_key_iam_member" "key1_member" {
-  crypto_key_id = "%{key1}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:service-%{project_number}@gcp-sa-eventarc.iam.gserviceaccount.com"
-}
-
 resource "google_eventarc_message_bus" "primary" {
   location        = "%{region}"
   message_bus_id  = "tf-test-messagebus%{random_suffix}"
@@ -197,25 +200,12 @@ resource "google_eventarc_message_bus" "primary" {
   logging_config {
     log_severity = "ALERT"
   }
-  depends_on = [google_kms_crypto_key_iam_member.key1_member]
 }
 `, context)
 }
 
 func testAccEventarcMessageBus_updateCfg(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_kms_crypto_key_iam_member" "key1_member" {
-  crypto_key_id = "%{key1}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:service-%{project_number}@gcp-sa-eventarc.iam.gserviceaccount.com"
-}
-
-resource "google_kms_crypto_key_iam_member" "key2_member" {
-  crypto_key_id = "%{key2}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:service-%{project_number}@gcp-sa-eventarc.iam.gserviceaccount.com"
-}
-
 resource "google_eventarc_message_bus" "primary" {
   location        = "%{region}"
   message_bus_id  = "tf-test-messagebus%{random_suffix}"
@@ -224,25 +214,12 @@ resource "google_eventarc_message_bus" "primary" {
   logging_config {
     log_severity = "DEBUG"
   }
-  depends_on = [google_kms_crypto_key_iam_member.key1_member, google_kms_crypto_key_iam_member.key2_member]
 }
 `, context)
 }
 
 func testAccEventarcMessageBus_deleteCfg(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_kms_crypto_key_iam_member" "key1_member" {
-  crypto_key_id = "%{key1}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:service-%{project_number}@gcp-sa-eventarc.iam.gserviceaccount.com"
-}
-
-resource "google_kms_crypto_key_iam_member" "key2_member" {
-  crypto_key_id = "%{key2}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:service-%{project_number}@gcp-sa-eventarc.iam.gserviceaccount.com"
-}
-
 resource "google_eventarc_message_bus" "primary" {
   location        = "%{region}"
   message_bus_id  = "tf-test-messagebus%{random_suffix}"
