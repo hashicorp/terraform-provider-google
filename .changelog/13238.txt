@@ -1,0 +1,3 @@
+```release-note:none
+kms: clarified description of the `state` argument of `google_kms_crypto_key_version`
+```
