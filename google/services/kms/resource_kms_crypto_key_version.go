@@ -84,7 +84,8 @@ Format: ''projects/{{project}}/locations/{{location}}/keyRings/{{keyring}}/crypt
 				Computed:     true,
 				Optional:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"PENDING_GENERATION", "ENABLED", "DISABLED", "DESTROYED", "DESTROY_SCHEDULED", "PENDING_IMPORT", "IMPORT_FAILED", ""}),
-				Description:  `The current state of the CryptoKeyVersion. Possible values: ["PENDING_GENERATION", "ENABLED", "DISABLED", "DESTROYED", "DESTROY_SCHEDULED", "PENDING_IMPORT", "IMPORT_FAILED"]`,
+				Description: `The current state of the CryptoKeyVersion. Note: you can only specify this field to manually 'ENABLE' or 'DISABLE' the CryptoKeyVersion,
+otherwise the value of this field is always retrieved automatically. Possible values: ["PENDING_GENERATION", "ENABLED", "DISABLED", "DESTROYED", "DESTROY_SCHEDULED", "PENDING_IMPORT", "IMPORT_FAILED"]`,
 			},
 			"algorithm": {
 				Type:        schema.TypeString,
