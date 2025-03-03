@@ -136,6 +136,28 @@ resource "google_monitoring_alert_policy" "alert_policy" {
   }
 }
 ```
+## Example Usage - Monitoring Alert Policy Sql Condition
+
+
+```hcl
+resource "google_monitoring_alert_policy" "alert_policy" {
+  display_name = "My Alert Policy"
+  combiner     = "OR"
+  conditions {
+    display_name = "minutes row count"
+    condition_sql {
+      query = "SELECT severity, resource FROM my_project.global._Default._AllLogs WHERE severity IS NOT NULL"
+      minutes {
+        periodicity = 600
+      }
+      row_count_test {
+        comparison = "COMPARISON_GT"
+        threshold  = "0"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -879,13 +901,12 @@ The following arguments are supported:
 
 * `row_count_test` -
   (Optional)
-  Test the row count against a threshold.
+  A test that checks if the number of rows in the result set violates some threshold.
   Structure is [documented below](#nested_conditions_conditions_condition_sql_row_count_test).
 
 * `boolean_test` -
   (Optional)
-  The start date and time of the query. If left unspecified, then the
-  query will start immediately.
+  A test that uses an alerting result in a boolean column produced by the SQL query.
   Structure is [documented below](#nested_conditions_conditions_condition_sql_boolean_test).
 
 
@@ -965,14 +986,14 @@ The following arguments are supported:
 
 * `threshold` -
   (Required)
-  Test the boolean value in the indicated column.
+  The value against which to compare the row count.
 
 <a name="nested_conditions_conditions_condition_sql_boolean_test"></a>The `boolean_test` block supports:
 
 * `column` -
   (Required)
-  The name of the column containing the boolean value. If the value
-  in a row is NULL, that row is ignored.
+  The name of the column containing the boolean value. If the value in a row is
+  NULL, that row is ignored.
 
 - - -
 

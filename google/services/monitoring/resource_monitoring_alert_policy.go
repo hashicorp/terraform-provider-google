@@ -474,18 +474,17 @@ to filter the input so that the query receives all rows received
 since the last time the query was run.`,
 									},
 									"boolean_test": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Description: `The start date and time of the query. If left unspecified, then the
-query will start immediately.`,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `A test that uses an alerting result in a boolean column produced by the SQL query.`,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"column": {
 													Type:     schema.TypeString,
 													Required: true,
-													Description: `The name of the column containing the boolean value. If the value
-in a row is NULL, that row is ignored.`,
+													Description: `The name of the column containing the boolean value. If the value in a row is
+NULL, that row is ignored.`,
 												},
 											},
 										},
@@ -591,7 +590,7 @@ equal to 5 minutes and less than or equal to 1440 minutes.`,
 									"row_count_test": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: `Test the row count against a threshold.`,
+										Description: `A test that checks if the number of rows in the result set violates some threshold.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -611,7 +610,7 @@ COMPARISON_GT are supported currently. Possible values: ["COMPARISON_GT", "COMPA
 												"threshold": {
 													Type:        schema.TypeInt,
 													Required:    true,
-													Description: `Test the boolean value in the indicated column.`,
+													Description: `The value against which to compare the row count.`,
 												},
 											},
 										},
