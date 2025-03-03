@@ -1,0 +1,3 @@
+```release-note:none
+Added examples of monitoring alert policy sql conditions. Corrected field labels to reflect their intended behavior.
+```
