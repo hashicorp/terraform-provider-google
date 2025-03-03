@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_healthcare_hl7_v2_store'
 generation_type: 'mmv1'
 source_file: 'products/healthcare/Hl7V2Store.yaml'

@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_public_ca_external_account_key'
 generation_type: 'mmv1'
 source_file: 'products/publicca/ExternalAccountKey.yaml'
