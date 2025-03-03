@@ -23,8 +23,6 @@ description: |-
 
 EndpointPolicy is a resource that helps apply desired configuration on the endpoints that match specific criteria.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about EndpointPolicy, see:
 
@@ -40,7 +38,6 @@ To get more information about EndpointPolicy, see:
 
 ```hcl
 resource "google_network_services_endpoint_policy" "default" {
-  provider               = google-beta
   name                   = "my-endpoint-policy"
   labels                 = {
     foo = "bar"
@@ -72,7 +69,6 @@ resource "google_network_services_endpoint_policy" "default" {
 
 ```hcl
 resource "google_network_services_endpoint_policy" "default" {
-  provider               = google-beta
   name                   = "my-endpoint-policy"
   labels                 = {
     foo = "bar"

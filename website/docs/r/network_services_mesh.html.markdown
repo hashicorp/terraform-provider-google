@@ -26,8 +26,6 @@ Mesh represents a logical configuration grouping for workload to workload commun
 service mesh. Routes that point to mesh dictate how requests are routed within this logical
 mesh boundary.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Mesh, see:
 
@@ -43,7 +41,6 @@ To get more information about Mesh, see:
 
 ```hcl
 resource "google_network_services_mesh" "default" {
-  provider    = google-beta
   name        = "my-mesh"
   labels      = {
     foo = "bar"
@@ -62,7 +59,6 @@ resource "google_network_services_mesh" "default" {
 
 ```hcl
 resource "google_network_services_mesh" "default" {
-  provider    = google-beta
   name        = "my-mesh-noport"
   labels      = {
     foo = "bar"
@@ -80,7 +76,6 @@ resource "google_network_services_mesh" "default" {
 
 ```hcl
 resource "google_network_services_mesh" "default" {
-  provider    = google-beta
   name        = "my-mesh"
   location    = "global"
 }

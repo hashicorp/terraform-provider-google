@@ -486,9 +486,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 537
+// Generated resources: 544
 // Generated IAM resources: 276
-// Total generated resources: 813
+// Total generated resources: 820
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1114,9 +1114,16 @@ var generatedResources = map[string]*schema.Resource{
 	"google_network_services_edge_cache_keyset":                                  networkservices.ResourceNetworkServicesEdgeCacheKeyset(),
 	"google_network_services_edge_cache_origin":                                  networkservices.ResourceNetworkServicesEdgeCacheOrigin(),
 	"google_network_services_edge_cache_service":                                 networkservices.ResourceNetworkServicesEdgeCacheService(),
+	"google_network_services_endpoint_policy":                                    networkservices.ResourceNetworkServicesEndpointPolicy(),
 	"google_network_services_gateway":                                            networkservices.ResourceNetworkServicesGateway(),
+	"google_network_services_grpc_route":                                         networkservices.ResourceNetworkServicesGrpcRoute(),
+	"google_network_services_http_route":                                         networkservices.ResourceNetworkServicesHttpRoute(),
 	"google_network_services_lb_route_extension":                                 networkservices.ResourceNetworkServicesLbRouteExtension(),
 	"google_network_services_lb_traffic_extension":                               networkservices.ResourceNetworkServicesLbTrafficExtension(),
+	"google_network_services_mesh":                                               networkservices.ResourceNetworkServicesMesh(),
+	"google_network_services_service_binding":                                    networkservices.ResourceNetworkServicesServiceBinding(),
+	"google_network_services_tcp_route":                                          networkservices.ResourceNetworkServicesTcpRoute(),
+	"google_network_services_tls_route":                                          networkservices.ResourceNetworkServicesTlsRoute(),
 	"google_notebooks_environment":                                               notebooks.ResourceNotebooksEnvironment(),
 	"google_notebooks_instance":                                                  notebooks.ResourceNotebooksInstance(),
 	"google_notebooks_instance_iam_binding":                                      tpgiamresource.ResourceIamBinding(notebooks.NotebooksInstanceIamSchema, notebooks.NotebooksInstanceIamUpdaterProducer, notebooks.NotebooksInstanceIdParseFunc),

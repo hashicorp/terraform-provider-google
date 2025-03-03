@@ -1,0 +1,18 @@
+resource: 'google_network_services_service_binding'
+generation_type: 'mmv1'
+source_file: 'products/networkservices/ServiceBinding.yaml'
+api_service_name: 'networkservices.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'ServiceBinding'
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'name'
+    provider_only: true
+  - field: 'service'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'
