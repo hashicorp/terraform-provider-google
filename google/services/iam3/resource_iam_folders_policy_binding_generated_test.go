@@ -51,7 +51,7 @@ func TestAccIAM3FoldersPolicyBinding_iamFoldersPolicyBindingExample(t *testing.T
 				Config: testAccIAM3FoldersPolicyBinding_iamFoldersPolicyBindingExample(context),
 			},
 			{
-				ResourceName:            "google_iam_folders_policy_binding.my-folder-binding",
+				ResourceName:            "google_iam_folders_policy_binding.binding-for-all-folder-principals",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "folder", "location", "policy_binding_id"},
@@ -65,12 +65,12 @@ func testAccIAM3FoldersPolicyBinding_iamFoldersPolicyBindingExample(context map[
 resource "google_iam_principal_access_boundary_policy" "pab_policy" {
   organization   = "%{org_id}"
   location       = "global"
-  display_name   = "test folder binding%{random_suffix}"
+  display_name   = "binding for all principals in the folder%{random_suffix}"
   principal_access_boundary_policy_id = "tf-test-my-pab-policy%{random_suffix}"
 }
 
 resource "google_folder" "folder" {
-  display_name        = "test folder%{random_suffix}"
+  display_name        = "my folder%{random_suffix}"
   parent              = "organizations/%{org_id}"
   deletion_protection = false
 }
@@ -80,12 +80,12 @@ resource "time_sleep" "wait_120s" {
   create_duration = "120s"
 }
 
-resource "google_iam_folders_policy_binding" "my-folder-binding" {
+resource "google_iam_folders_policy_binding" "binding-for-all-folder-principals" {
   folder         = google_folder.folder.folder_id
   location       = "global"
-  display_name   = "test folder binding%{random_suffix}"
+  display_name   = "binding for all principals in the folder%{random_suffix}"
   policy_kind    = "PRINCIPAL_ACCESS_BOUNDARY"
-  policy_binding_id = "tf-test-test-folder-binding%{random_suffix}"
+  policy_binding_id = "tf-test-binding-for-all-folder-principals%{random_suffix}"
   policy         = "organizations/%{org_id}/locations/global/principalAccessBoundaryPolicies/${google_iam_principal_access_boundary_policy.pab_policy.principal_access_boundary_policy_id}"
   target {
     principal_set = "//cloudresourcemanager.googleapis.com/folders/${google_folder.folder.folder_id}"

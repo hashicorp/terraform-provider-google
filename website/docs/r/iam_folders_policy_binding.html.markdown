@@ -16,12 +16,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Cloud IAM"
 description: |-
-  A policy binding to a folder
+  A policy binding to a folder.
 ---
 
 # google_iam_folders_policy_binding
 
-A policy binding to a folder
+A policy binding to a folder. This is a Terraform resource, and maps to a policy binding resource in GCP.
 
 
 To get more information about FoldersPolicyBinding, see:
@@ -37,12 +37,12 @@ To get more information about FoldersPolicyBinding, see:
 resource "google_iam_principal_access_boundary_policy" "pab_policy" {
   organization   = "123456789"
   location       = "global"
-  display_name   = "test folder binding"
+  display_name   = "binding for all principals in the folder"
   principal_access_boundary_policy_id = "my-pab-policy"
 }
 
 resource "google_folder" "folder" {
-  display_name        = "test folder"
+  display_name        = "my folder"
   parent              = "organizations/123456789"
   deletion_protection = false
 }
@@ -52,12 +52,12 @@ resource "time_sleep" "wait_120s" {
   create_duration = "120s"
 }
 
-resource "google_iam_folders_policy_binding" "my-folder-binding" {
+resource "google_iam_folders_policy_binding" "binding-for-all-folder-principals" {
   folder         = google_folder.folder.folder_id
   location       = "global"
-  display_name   = "test folder binding"
+  display_name   = "binding for all principals in the folder"
   policy_kind    = "PRINCIPAL_ACCESS_BOUNDARY"
-  policy_binding_id = "test-folder-binding"
+  policy_binding_id = "binding-for-all-folder-principals"
   policy         = "organizations/123456789/locations/global/principalAccessBoundaryPolicies/${google_iam_principal_access_boundary_policy.pab_policy.principal_access_boundary_policy_id}"
   target {
     principal_set = "//cloudresourcemanager.googleapis.com/folders/${google_folder.folder.folder_id}"
@@ -97,8 +97,10 @@ The following arguments are supported:
 
 * `principal_set` -
   (Optional)
-  Required. Immutable. The resource name of the policy to be bound.
-  The binding parent and policy must belong to the same Organization (or Project).
+  Required. Immutable. Full Resource Name of the principal set used for principal access boundary policy bindings.
+  Examples for each one of the following supported principal set types:
+  * Folder: `//cloudresourcemanager.googleapis.com/folders/FOLDER_ID`
+  It must be parent by the policy binding's parent (the folder).
 
 - - -
 
