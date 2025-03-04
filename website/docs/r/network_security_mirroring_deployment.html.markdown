@@ -16,12 +16,16 @@
 # ----------------------------------------------------------------------------
 subcategory: "Network Security"
 description: |-
-  MirroringDeployment represents the collectors within a Zone and is associated with a deployment group.
+  A deployment represents a zonal mirroring backend ready to accept
+  GENEVE-encapsulated replica traffic, e.
 ---
 
 # google_network_security_mirroring_deployment
 
-MirroringDeployment represents the collectors within a Zone and is associated with a deployment group.
+A deployment represents a zonal mirroring backend ready to accept
+GENEVE-encapsulated replica traffic, e.g. a zonal instance group fronted by
+an internal passthrough load balancer. Deployments are always part of a
+global deployment group which represents a global mirroring service.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
@@ -112,24 +116,24 @@ The following arguments are supported:
 
 * `forwarding_rule` -
   (Required)
-  Required. Immutable. The regional load balancer which the mirrored traffic should be forwarded
-  to. Format is:
-  projects/{project}/regions/{region}/forwardingRules/{forwardingRule}
+  The regional forwarding rule that fronts the mirroring collectors, for
+  example: `projects/123456789/regions/us-central1/forwardingRules/my-rule`.
+  See https://google.aip.dev/124.
 
 * `mirroring_deployment_group` -
   (Required)
-  Required. Immutable. The Mirroring Deployment Group that this resource is part of. Format is:
-  `projects/{project}/locations/global/mirroringDeploymentGroups/{mirroringDeploymentGroup}`
+  The deployment group that this deployment is a part of, for example:
+  `projects/123456789/locations/global/mirroringDeploymentGroups/my-dg`.
+  See https://google.aip.dev/124.
 
 * `location` -
   (Required)
-  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122. See documentation for resource type `networksecurity.googleapis.com/MirroringDeployment`.
+  The cloud location of the deployment, e.g. `us-central1-a` or `asia-south1-b`.
 
 * `mirroring_deployment_id` -
   (Required)
-  Required. Id of the requesting object
-  If auto-generating Id server-side, remove this field and
-  mirroring_deployment_id from the method_signature of Create RPC
+  The ID to use for the new deployment, which will become the final
+  component of the deployment's resource name.
 
 
 - - -
@@ -137,7 +141,7 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Optional. Labels as key value pairs 
+  Labels are key/value pairs that help to organize and filter resources.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
@@ -152,18 +156,23 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/mirroringDeployments/{{mirroring_deployment_id}}`
 
 * `name` -
-  Immutable. Identifier. The name of the MirroringDeployment.
+  The resource name of this deployment, for example:
+  `projects/123456789/locations/us-central1-a/mirroringDeployments/my-dep`.
+  See https://google.aip.dev/122 for more details.
 
 * `create_time` -
-  Output only. [Output only] Create time stamp
+  The timestamp when the resource was created.
+  See https://google.aip.dev/148#timestamps.
 
 * `update_time` -
-  Output only. [Output only] Update time stamp
+  The timestamp when the resource was most recently updated.
+  See https://google.aip.dev/148#timestamps.
 
 * `state` -
-  Output only. Current state of the deployment. 
-   Possible values:
-   STATE_UNSPECIFIED
+  The current state of the deployment.
+  See https://google.aip.dev/216.
+  Possible values:
+  STATE_UNSPECIFIED
   ACTIVE
   CREATING
   DELETING
@@ -171,8 +180,10 @@ In addition to the arguments listed above, the following computed attributes are
   DELETE_FAILED
 
 * `reconciling` -
-  Output only. Whether reconciling is in progress, recommended per
-  https://google.aip.dev/128.
+  The current state of the resource does not match the user's intended state,
+  and the system is working to reconcile them. This part of the normal
+  operation (e.g. linking a new association to the parent group).
+  See https://google.aip.dev/128.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

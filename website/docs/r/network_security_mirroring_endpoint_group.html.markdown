@@ -16,12 +16,16 @@
 # ----------------------------------------------------------------------------
 subcategory: "Network Security"
 description: |-
-  A mirroring endpoint group is a global resource in the consumer account representing the producer’s deployment group.
+  An endpoint group is a consumer frontend for a deployment group (backend).
 ---
 
 # google_network_security_mirroring_endpoint_group
 
-A mirroring endpoint group is a global resource in the consumer account representing the producer’s deployment group.
+An endpoint group is a consumer frontend for a deployment group (backend).
+In order to configure mirroring for a network, consumers must create:
+- An association between their network and the endpoint group.
+- A security profile that points to the endpoint group.
+- A mirroring rule that references the security profile (group).
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
@@ -72,19 +76,18 @@ The following arguments are supported:
 
 * `mirroring_deployment_group` -
   (Required)
-  Required. Immutable. The Mirroring Deployment Group that this resource is connected to. Format
-  is:
-  `projects/{project}/locations/global/mirroringDeploymentGroups/{mirroringDeploymentGroup}`
+  The deployment group that this DIRECT endpoint group is connected to, for example:
+  `projects/123456789/locations/global/mirroringDeploymentGroups/my-dg`.
+  See https://google.aip.dev/124.
 
 * `location` -
   (Required)
-  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122. See documentation for resource type `networksecurity.googleapis.com/MirroringEndpointGroup`.
+  The cloud location of the endpoint group, currently restricted to `global`.
 
 * `mirroring_endpoint_group_id` -
   (Required)
-  Required. Id of the requesting object
-  If auto-generating Id server-side, remove this field and
-  mirroring_endpoint_group_id from the method_signature of Create RPC
+  The ID to use for the endpoint group, which will become the final component
+  of the endpoint group's resource name.
 
 
 - - -
@@ -92,7 +95,7 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Optional. Labels as key value pairs 
+  Labels are key/value pairs that help to organize and filter resources.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
@@ -107,27 +110,35 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/mirroringEndpointGroups/{{mirroring_endpoint_group_id}}`
 
 * `name` -
-  Immutable. Identifier. The name of the MirroringEndpointGroup.
+  The resource name of this endpoint group, for example:
+  `projects/123456789/locations/global/mirroringEndpointGroups/my-eg`.
+  See https://google.aip.dev/122 for more details.
 
 * `create_time` -
-  Output only. [Output only] Create time stamp
+  The timestamp when the resource was created.
+  See https://google.aip.dev/148#timestamps.
 
 * `update_time` -
-  Output only. [Output only] Update time stamp
+  The timestamp when the resource was most recently updated.
+  See https://google.aip.dev/148#timestamps.
 
 * `state` -
-  Output only. Current state of the endpoint group. 
-   Possible values:
-   STATE_UNSPECIFIED
+  The current state of the endpoint group.
+  See https://google.aip.dev/216.
+  Possible values:
+  STATE_UNSPECIFIED
   ACTIVE
   CLOSED
   CREATING
   DELETING
   OUT_OF_SYNC
+  DELETE_FAILED
 
 * `reconciling` -
-  Output only. Whether reconciling is in progress, recommended per
-  https://google.aip.dev/128.
+  The current state of the resource does not match the user's intended state,
+  and the system is working to reconcile them. This is part of the normal
+  operation (e.g. adding a new association to the group).
+  See https://google.aip.dev/128.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
