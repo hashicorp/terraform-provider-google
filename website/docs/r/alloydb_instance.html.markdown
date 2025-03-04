@@ -367,6 +367,21 @@ The following arguments are supported:
   The DNS name of the instance for PSC connectivity.
   Name convention: <uid>.<uid>.<region>.alloydb-psc.goog
 
+* `psc_interface_configs` -
+  (Optional)
+  Configurations for setting up PSC interfaces attached to the instance
+  which are used for outbound connectivity. Currently, AlloyDB supports only 0 or 1 PSC interface.
+  Structure is [documented below](#nested_psc_instance_config_psc_interface_configs).
+
+
+<a name="nested_psc_instance_config_psc_interface_configs"></a>The `psc_interface_configs` block supports:
+
+* `network_attachment_resource` -
+  (Optional)
+  The network attachment resource created in the consumer project to which the PSC interface will be linked.
+  This is of the format: "projects/${CONSUMER_PROJECT}/regions/${REGION}/networkAttachments/${NETWORK_ATTACHMENT_NAME}".
+  The network attachment must be in the same region as the instance.
+
 <a name="nested_network_config"></a>The `network_config` block supports:
 
 * `authorized_external_networks` -

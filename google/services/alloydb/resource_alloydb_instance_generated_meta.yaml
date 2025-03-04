@@ -32,6 +32,7 @@ fields:
   - field: 'outbound_public_ip_addresses'
   - field: 'psc_instance_config.allowed_consumer_projects'
   - field: 'psc_instance_config.psc_dns_name'
+  - field: 'psc_instance_config.psc_interface_configs.network_attachment_resource'
   - field: 'psc_instance_config.service_attachment_link'
   - field: 'public_ip_address'
   - field: 'query_insights_config.query_plans_per_minute'
