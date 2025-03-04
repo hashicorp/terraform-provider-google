@@ -91,8 +91,10 @@ func ResourceIAM3FoldersPolicyBinding() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							Description: `Required. Immutable. The resource name of the policy to be bound.
-The binding parent and policy must belong to the same Organization (or Project).`,
+							Description: `Required. Immutable. Full Resource Name of the principal set used for principal access boundary policy bindings.
+Examples for each one of the following supported principal set types:
+* Folder: '//cloudresourcemanager.googleapis.com/folders/FOLDER_ID'
+It must be parent by the policy binding's parent (the folder).`,
 						},
 					},
 				},

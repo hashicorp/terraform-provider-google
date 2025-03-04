@@ -16,12 +16,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Cloud IAM"
 description: |-
-  A policy binding to a Project
+  A policy binding to a project.
 ---
 
 # google_iam_projects_policy_binding
 
-A policy binding to a Project
+A policy binding to a project. This is a Terraform resource, and maps to a policy binding resource in GCP.
 
 
 To get more information about ProjectsPolicyBinding, see:
@@ -41,7 +41,7 @@ data "google_project" "project" {
 resource "google_iam_principal_access_boundary_policy" "pab_policy" {
   organization   = "123456789"
   location       = "global"
-  display_name   = "test project binding"
+  display_name   = "binding for all principals in the project"
   principal_access_boundary_policy_id = "my-pab-policy"
 }
 
@@ -50,13 +50,13 @@ resource "time_sleep" "wait_60_seconds" {
   depends_on = [google_iam_principal_access_boundary_policy.pab_policy]
 }
 
-resource "google_iam_projects_policy_binding" "my-project-binding" {
+resource "google_iam_projects_policy_binding" "binding-for-all-project-principals" {
   depends_on = [time_sleep.wait_60_seconds]
   project        = data.google_project.project.project_id
   location       = "global"
-  display_name   = "test project binding"
+  display_name   = "binding for all principals in the project"
   policy_kind    = "PRINCIPAL_ACCESS_BOUNDARY"
-  policy_binding_id = "test-project-binding"
+  policy_binding_id = "binding-for-all-project-principals"
   policy         = "organizations/123456789/locations/global/principalAccessBoundaryPolicies/${google_iam_principal_access_boundary_policy.pab_policy.principal_access_boundary_policy_id}"
   target {
     principal_set = "//cloudresourcemanager.googleapis.com/projects/${data.google_project.project.project_id}"
@@ -91,8 +91,13 @@ The following arguments are supported:
 
 * `principal_set` -
   (Optional)
-  Required. Immutable. The resource name of the policy to be bound.
-  The binding parent and policy must belong to the same Organization (or Project).
+  Required. Immutable. Full Resource Name of the principal set used for principal access boundary policy bindings.
+  Examples for each one of the following supported principal set types:
+  * Project:
+    * `//cloudresourcemanager.googleapis.com/projects/PROJECT_NUMBER`
+    * `//cloudresourcemanager.googleapis.com/projects/PROJECT_ID`
+  * Workload Identity Pool: `//iam.googleapis.com/projects/PROJECT_NUMBER/locations/LOCATION/workloadIdentityPools/WORKLOAD_POOL_ID`
+  It must be parent by the policy binding's parent (the project).
 
 - - -
 

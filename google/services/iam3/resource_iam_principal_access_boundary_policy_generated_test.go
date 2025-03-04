@@ -42,13 +42,16 @@ func TestAccIAM3PrincipalAccessBoundaryPolicy_iamPrincipalAccessBoundaryPolicyEx
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckIAM3PrincipalAccessBoundaryPolicyDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckIAM3PrincipalAccessBoundaryPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIAM3PrincipalAccessBoundaryPolicy_iamPrincipalAccessBoundaryPolicyExample(context),
 			},
 			{
-				ResourceName:            "google_iam_principal_access_boundary_policy.my-pab-policy",
+				ResourceName:            "google_iam_principal_access_boundary_policy.pab-policy-for-org",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "organization", "principal_access_boundary_policy_id"},
@@ -59,11 +62,11 @@ func TestAccIAM3PrincipalAccessBoundaryPolicy_iamPrincipalAccessBoundaryPolicyEx
 
 func testAccIAM3PrincipalAccessBoundaryPolicy_iamPrincipalAccessBoundaryPolicyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_iam_principal_access_boundary_policy" "my-pab-policy" {
+resource "google_iam_principal_access_boundary_policy" "pab-policy-for-org" {
   organization   = "%{org_id}"
   location       = "global"
-  display_name   = "test pab policy%{random_suffix}"
-  principal_access_boundary_policy_id = "tf-test-test-pab-policy%{random_suffix}"
+  display_name   = "PAB policy for Organization%{random_suffix}"
+  principal_access_boundary_policy_id = "tf-test-pab-policy-for-org%{random_suffix}"
 }
 `, context)
 }

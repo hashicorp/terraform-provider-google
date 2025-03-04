@@ -16,12 +16,16 @@
 # ----------------------------------------------------------------------------
 subcategory: "Cloud IAM"
 description: |-
-  An IAM Principal Access Boundary Policy resource
+  An IAM Principal Access Boundary Policy resource.
 ---
 
 # google_iam_principal_access_boundary_policy
 
-An IAM Principal Access Boundary Policy resource
+An IAM Principal Access Boundary Policy resource. This resource has no effect on accesses until is bound to a target through policy bindings.
+You can see further documentation on policy bindings in:
+  - [Organizations](/providers/hashicorp/google/latest/docs/resources/iam_organizations_policy_binding)
+  - [Folders](/providers/hashicorp/google/latest/docs/resources/iam_folders_policy_binding)
+  - [Projects](/providers/hashicorp/google/latest/docs/resources/iam_projects_policy_binding)
 
 
 To get more information about PrincipalAccessBoundaryPolicy, see:
@@ -34,11 +38,40 @@ To get more information about PrincipalAccessBoundaryPolicy, see:
 
 
 ```hcl
-resource "google_iam_principal_access_boundary_policy" "my-pab-policy" {
+resource "google_iam_principal_access_boundary_policy" "pab-policy-for-org" {
   organization   = "123456789"
   location       = "global"
-  display_name   = "test pab policy"
-  principal_access_boundary_policy_id = "test-pab-policy"
+  display_name   = "PAB policy for Organization"
+  principal_access_boundary_policy_id = "pab-policy-for-org"
+}
+```
+## Example Usage - Iam Organizations Policy Binding
+
+
+```hcl
+resource "google_iam_principal_access_boundary_policy" "pab_policy" {
+  organization   = "123456789"
+  location       = "global"
+  display_name   = "Binding for all principals in the Organization"
+  principal_access_boundary_policy_id = "my-pab-policy"
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_iam_principal_access_boundary_policy.pab_policy]
+}
+
+resource "google_iam_organizations_policy_binding" "my-pab-policy" {
+  depends_on = [time_sleep.wait_60_seconds]
+  organization   = "123456789"
+  location       = "global"
+  display_name   = "Binding for all principals in the Organization"
+  policy_kind    = "PRINCIPAL_ACCESS_BOUNDARY"
+  policy_binding_id = "binding-for-all-org-principals"
+  policy         = "organizations/123456789/locations/global/principalAccessBoundaryPolicies/${google_iam_principal_access_boundary_policy.pab_policy.principal_access_boundary_policy_id}"
+  target {
+    principal_set = "//cloudresourcemanager.googleapis.com/organizations/123456789"
+  }
 }
 ```
 
