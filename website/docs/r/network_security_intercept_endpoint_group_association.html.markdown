@@ -16,12 +16,19 @@
 # ----------------------------------------------------------------------------
 subcategory: "Network Security"
 description: |-
-  Creates an association between a VPC and an Intercept Endpoint Group in order to intercept traffic in that VPC.
+  An endpoint group association represents a link between a network and an
+  endpoint group in the organization.
 ---
 
 # google_network_security_intercept_endpoint_group_association
 
-Creates an association between a VPC and an Intercept Endpoint Group in order to intercept traffic in that VPC.
+An endpoint group association represents a link between a network and an
+endpoint group in the organization.
+
+Creating an association creates the networking infrastructure linking the
+network to the endpoint group, but does not enable intercept by itself.
+To enable intercept, the user must also create a network firewall policy
+containing intercept rules and associate it with the network.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
@@ -81,18 +88,19 @@ The following arguments are supported:
 
 * `intercept_endpoint_group` -
   (Required)
-  Immutable. The Intercept Endpoint Group that this resource is connected to. Format
-  is:
-  `projects/{project}/locations/global/interceptEndpointGroups/{interceptEndpointGroup}`.
+  The endpoint group that this association is connected to, for example:
+  `projects/123456789/locations/global/interceptEndpointGroups/my-eg`.
+  See https://google.aip.dev/124.
 
 * `network` -
   (Required)
-  Immutable. The VPC network associated. Format:
-  `projects/{project}/global/networks/{network}`.
+  The VPC network that is associated. for example:
+  `projects/123456789/global/networks/my-network`.
+  See https://google.aip.dev/124.
 
 * `location` -
   (Required)
-  The location of the Intercept Endpoint Group Association, currently restricted to `global`.
+  The cloud location of the association, currently restricted to `global`.
 
 
 - - -
@@ -100,13 +108,15 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Optional. Labels as key value pairs.
+  Labels are key/value pairs that help to organize and filter resources.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `intercept_endpoint_group_association_id` -
   (Optional)
-  ID of the Intercept Endpoint Group Association.
+  The ID to use for the new association, which will become the final
+  component of the endpoint group's resource name. If not provided, the
+  server will generate a unique ID.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -119,22 +129,28 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/interceptEndpointGroupAssociations/{{intercept_endpoint_group_association_id}}`
 
 * `name` -
-  Identifier. The name of the Intercept Endpoint Group Association.
+  The resource name of this endpoint group association, for example:
+  `projects/123456789/locations/global/interceptEndpointGroupAssociations/my-eg-association`.
+  See https://google.aip.dev/122 for more details.
 
 * `create_time` -
-  Create time stamp.
+  The timestamp when the resource was created.
+  See https://google.aip.dev/148#timestamps.
 
 * `update_time` -
-  Update time stamp.
+  The timestamp when the resource was most recently updated.
+  See https://google.aip.dev/148#timestamps.
 
 * `locations_details` -
-  The list of locations that are currently supported by the associated Intercept Deployment Group and their state.
+  The list of locations where the association is present. This information
+  is retrieved from the linked endpoint group, and not configured as part
+  of the association itself.
   Structure is [documented below](#nested_locations_details).
 
 * `state` -
-  Current state of the Intercept Endpoint Group Association. 
-   Possible values:
-   STATE_UNSPECIFIED
+  Current state of the endpoint group association.
+  Possible values:
+  STATE_UNSPECIFIED
   ACTIVE
   CREATING
   DELETING
@@ -143,7 +159,10 @@ In addition to the arguments listed above, the following computed attributes are
   DELETE_FAILED
 
 * `reconciling` -
-  Whether reconciling is in progress.
+  The current state of the resource does not match the user's intended state,
+  and the system is working to reconcile them. This part of the normal
+  operation (e.g. adding a new location to the target deployment group).
+  See https://google.aip.dev/128.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
@@ -157,13 +176,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `location` -
   (Output)
-  Location supported by the Intercept Deployment Group, for example `us-central1-a`
+  The cloud location, e.g. `us-central1-a` or `asia-south1`.
 
 * `state` -
   (Output)
-  The association state in this location. 
-   Possible values:
-   STATE_UNSPECIFIED
+  The current state of the association in this location.
+  Possible values:
+  STATE_UNSPECIFIED
   ACTIVE
   OUT_OF_SYNC
 

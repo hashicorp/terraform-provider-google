@@ -16,12 +16,15 @@
 # ----------------------------------------------------------------------------
 subcategory: "Network Security"
 description: |-
-  A Deployment Group represents the collector deployments across different zones within an organization.
+  A deployment group aggregates many zonal intercept backends (deployments)
+  into a single global intercept service.
 ---
 
 # google_network_security_intercept_deployment_group
 
-A Deployment Group represents the collector deployments across different zones within an organization.
+A deployment group aggregates many zonal intercept backends (deployments)
+into a single global intercept service. Consumers can connect this service
+using an endpoint group.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
@@ -60,18 +63,18 @@ The following arguments are supported:
 
 * `network` -
   (Required)
-  Required. Immutable. The network that is being used for the deployment. Format is:
-  projects/{project}/global/networks/{network}.
+  The network that will be used for all child deployments, for example:
+  `projects/{project}/global/networks/{network}`.
+  See https://google.aip.dev/124.
 
 * `location` -
   (Required)
-  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122. See documentation for resource type `networksecurity.googleapis.com/InterceptDeploymentGroup`.
+  The cloud location of the deployment group, currently restricted to `global`.
 
 * `intercept_deployment_group_id` -
   (Required)
-  Required. Id of the requesting object
-  If auto-generating Id server-side, remove this field and
-  intercept_deployment_group_id from the method_signature of Create RPC
+  The ID to use for the new deployment group, which will become the final
+  component of the deployment group's resource name.
 
 
 - - -
@@ -79,7 +82,7 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Optional. Labels as key value pairs 
+  Labels are key/value pairs that help to organize and filter resources.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
@@ -94,29 +97,36 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/interceptDeploymentGroups/{{intercept_deployment_group_id}}`
 
 * `name` -
-  Output only. Identifier. Then name of the InterceptDeploymentGroup.
+  The resource name of this deployment group, for example:
+  `projects/123456789/locations/global/interceptDeploymentGroups/my-dg`.
+  See https://google.aip.dev/122 for more details.
 
 * `create_time` -
-  Output only. [Output only] Create time stamp
+  The timestamp when the resource was created.
+  See https://google.aip.dev/148#timestamps.
 
 * `update_time` -
-  Output only. [Output only] Update time stamp
+  The timestamp when the resource was most recently updated.
+  See https://google.aip.dev/148#timestamps.
 
 * `connected_endpoint_groups` -
-  Output only. The list of Intercept Endpoint Groups that are connected to this resource.
+  The list of endpoint groups that are connected to this resource.
   Structure is [documented below](#nested_connected_endpoint_groups).
 
 * `state` -
-  Output only. Current state of the deployment group. 
-   Possible values:
-   STATE_UNSPECIFIED
+  The current state of the deployment group.
+  See https://google.aip.dev/216.
+  Possible values:
+  STATE_UNSPECIFIED
   ACTIVE
   CREATING
   DELETING
 
 * `reconciling` -
-  Output only. Whether reconciling is in progress, recommended per
-  https://google.aip.dev/128.
+  The current state of the resource does not match the user's intended state,
+  and the system is working to reconcile them. This is part of the normal
+  operation (e.g. adding a new deployment to the group)
+  See https://google.aip.dev/128.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
@@ -130,7 +140,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   (Output)
-  Output only. A connected intercept endpoint group.
+  The connected endpoint group's resource name, for example:
+  `projects/123456789/locations/global/interceptEndpointGroups/my-eg`.
+  See https://google.aip.dev/124.
 
 ## Timeouts
 
