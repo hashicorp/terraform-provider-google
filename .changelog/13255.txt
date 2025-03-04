@@ -1,0 +1,3 @@
+```release-note:none
+Updated descriptions for Network Security's Mirroring resources.
+```
