@@ -16,12 +16,16 @@
 # ----------------------------------------------------------------------------
 subcategory: "Network Security"
 description: |-
-  InterceptDeployment represents the collectors within a Zone and is associated with a deployment group.
+  A deployment represents a zonal intercept backend ready to accept
+  GENEVE-encapsulated traffic, e.
 ---
 
 # google_network_security_intercept_deployment
 
-InterceptDeployment represents the collectors within a Zone and is associated with a deployment group.
+A deployment represents a zonal intercept backend ready to accept
+GENEVE-encapsulated traffic, e.g. a zonal instance group fronted by an
+internal passthrough load balancer. Deployments are always part of a
+global deployment group which represents a global intercept service.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
@@ -106,24 +110,24 @@ The following arguments are supported:
 
 * `forwarding_rule` -
   (Required)
-  Immutable. The regional load balancer which the intercepted traffic should be forwarded
-  to. Format is:
-  projects/{project}/regions/{region}/forwardingRules/{forwardingRule}
+  The regional forwarding rule that fronts the interceptors, for example:
+  `projects/123456789/regions/us-central1/forwardingRules/my-rule`.
+  See https://google.aip.dev/124.
 
 * `intercept_deployment_group` -
   (Required)
-  Immutable. The Intercept Deployment Group that this resource is part of. Format is:
-  `projects/{project}/locations/global/interceptDeploymentGroups/{interceptDeploymentGroup}`
+  The deployment group that this deployment is a part of, for example:
+  `projects/123456789/locations/global/interceptDeploymentGroups/my-dg`.
+  See https://google.aip.dev/124.
 
 * `location` -
   (Required)
-  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122. See documentation for resource type `networksecurity.googleapis.com/InterceptDeployment`.
+  The cloud location of the deployment, e.g. `us-central1-a` or `asia-south1-b`.
 
 * `intercept_deployment_id` -
   (Required)
-  Id of the requesting object
-  If auto-generating Id server-side, remove this field and
-  intercept_deployment_id from the method_signature of Create RPC
+  The ID to use for the new deployment, which will become the final
+  component of the deployment's resource name.
 
 
 - - -
@@ -131,7 +135,7 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Optional. Labels as key value pairs 
+  Labels are key/value pairs that help to organize and filter resources.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
@@ -146,18 +150,23 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/interceptDeployments/{{intercept_deployment_id}}`
 
 * `name` -
-  Identifier. The name of the InterceptDeployment.
+  The resource name of this deployment, for example:
+  `projects/123456789/locations/us-central1-a/interceptDeployments/my-dep`.
+  See https://google.aip.dev/122 for more details.
 
 * `create_time` -
-  Create time stamp
+  The timestamp when the resource was created.
+  See https://google.aip.dev/148#timestamps.
 
 * `update_time` -
-  Update time stamp
+  The timestamp when the resource was most recently updated.
+  See https://google.aip.dev/148#timestamps.
 
 * `state` -
-  Current state of the deployment. 
-   Possible values:
-   STATE_UNSPECIFIED
+  The current state of the deployment.
+  See https://google.aip.dev/216.
+  Possible values:
+  STATE_UNSPECIFIED
   ACTIVE
   CREATING
   DELETING
@@ -165,8 +174,10 @@ In addition to the arguments listed above, the following computed attributes are
   DELETE_FAILED
 
 * `reconciling` -
-  Whether reconciling is in progress, recommended per
-  https://google.aip.dev/128.
+  The current state of the resource does not match the user's intended state,
+  and the system is working to reconcile them. This part of the normal
+  operation (e.g. linking a new association to the parent group).
+  See https://google.aip.dev/128.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
