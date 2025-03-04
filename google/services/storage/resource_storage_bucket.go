@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"math"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -28,6 +27,12 @@ import (
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
 )
+
+/*
+Max retention period for GCS bucket is 100 years = 3155760000 seconds
+Reference: https://cloud.google.com/storage/docs/bucket-lock#retention-periods
+*/
+const ResourceStorageBucketMaxRetentionValue int = 3155760000
 
 func ResourceStorageBucket() *schema.Resource {
 	return &schema.Resource{
@@ -413,7 +418,7 @@ func ResourceStorageBucket() *schema.Resource {
 						"retention_period": {
 							Type:         schema.TypeInt,
 							Required:     true,
-							ValidateFunc: validation.IntBetween(1, math.MaxInt32),
+							ValidateFunc: validation.IntBetween(1, ResourceStorageBucketMaxRetentionValue), // 1 second to 100 years
 							Description:  `The period of time, in seconds, that objects in the bucket must be retained and cannot be deleted, overwritten, or archived. The value must be less than 3,155,760,000 seconds.`,
 						},
 					},
