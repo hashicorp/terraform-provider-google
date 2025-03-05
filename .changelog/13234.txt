@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed bug in `google_compute_router_nat` where `max_ports_per_vm` couldn't be unset once set.
+```

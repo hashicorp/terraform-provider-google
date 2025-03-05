@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -83,6 +84,11 @@ func TestAccComputeRouterNat_update(t *testing.T) {
 			},
 			{
 				Config: testAccComputeRouterNatUpdated(routerName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_router_nat.foobar", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_router_nat.foobar",
@@ -91,6 +97,11 @@ func TestAccComputeRouterNat_update(t *testing.T) {
 			},
 			{
 				Config: testAccComputeRouterNatUpdateToNatIPsId(routerName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_router_nat.foobar", plancheck.ResourceActionNoop),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_router_nat.foobar",
@@ -99,6 +110,11 @@ func TestAccComputeRouterNat_update(t *testing.T) {
 			},
 			{
 				Config: testAccComputeRouterNatUpdateToNatIPsName(routerName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_router_nat.foobar", plancheck.ResourceActionNoop),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_router_nat.foobar",
@@ -107,37 +123,11 @@ func TestAccComputeRouterNat_update(t *testing.T) {
 			},
 			{
 				Config: testAccComputeRouterNatBasicBeforeUpdate(routerName),
-			},
-			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccComputeRouterNat_removeLogConfig(t *testing.T) {
-	t.Parallel()
-
-	testId := acctest.RandString(t, 10)
-	routerName := fmt.Sprintf("tf-test-router-nat-%s", testId)
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeRouterNatDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeRouterNatLogConfig(routerName),
-			},
-			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccComputeRouterNatLogConfigRemoved(routerName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_router_nat.foobar", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_router_nat.foobar",
@@ -759,6 +749,7 @@ resource "google_compute_router" "foobar" {
 
 resource "google_compute_network" "foobar" {
   name = "%s-net"
+  auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "foobar" {
@@ -780,11 +771,6 @@ resource "google_compute_router_nat" "foobar" {
   nat_ip_allocate_option             = "AUTO_ONLY"
   nat_ips                            = []
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
-
-  log_config {
-    enable = true
-    filter = "ERRORS_ONLY"
-  }
 }
 `, routerName, routerName, routerName, routerName, routerName)
 }
@@ -799,6 +785,7 @@ resource "google_compute_router" "foobar" {
 
 resource "google_compute_network" "foobar" {
   name = "%s-net"
+  auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "foobar" {
@@ -833,6 +820,7 @@ resource "google_compute_router_nat" "foobar" {
   tcp_established_idle_timeout_sec = 1600
   tcp_transitory_idle_timeout_sec  = 60
   tcp_time_wait_timeout_sec        = 60
+  max_ports_per_vm                 = 128
 
   log_config {
     enable = true
@@ -885,7 +873,8 @@ network = google_compute_network.foobar.self_link
 }
 
 resource "google_compute_network" "foobar" {
-name = "%s-net"
+  name = "%s-net"
+  auto_create_subnetworks = false
 }
 resource "google_compute_subnetwork" "foobar" {
 name          = "%s-subnet"
@@ -919,6 +908,7 @@ resource "google_compute_router_nat" "foobar" {
   tcp_established_idle_timeout_sec = 1600
   tcp_transitory_idle_timeout_sec  = 60
   tcp_time_wait_timeout_sec        = 60
+  max_ports_per_vm                 = 128
 
   log_config {
     enable = true
@@ -937,7 +927,8 @@ network = google_compute_network.foobar.self_link
 }
 
 resource "google_compute_network" "foobar" {
-name = "%s-net"
+  name = "%s-net"
+  auto_create_subnetworks = false
 }
 resource "google_compute_subnetwork" "foobar" {
 name          = "%s-subnet"
@@ -971,6 +962,7 @@ resource "google_compute_router_nat" "foobar" {
   tcp_established_idle_timeout_sec = 1600
   tcp_transitory_idle_timeout_sec  = 60
   tcp_time_wait_timeout_sec        = 60
+  max_ports_per_vm                 = 128
 
   log_config {
     enable = true
@@ -1463,68 +1455,6 @@ resource "google_compute_router" "foobar" {
   network = google_compute_network.foobar.self_link
 }
 `, routerName, routerName, routerName)
-}
-
-func testAccComputeRouterNatLogConfig(routerName string) string {
-	return fmt.Sprintf(`
-resource "google_compute_network" "foobar" {
-  name = "%s-net"
-}
-
-resource "google_compute_subnetwork" "foobar" {
-  name          = "%s-subnet"
-  network       = google_compute_network.foobar.self_link
-  ip_cidr_range = "10.0.0.0/16"
-  region        = "us-central1"
-}
-
-resource "google_compute_router" "foobar" {
-  name    = "%s"
-  region  = google_compute_subnetwork.foobar.region
-  network = google_compute_network.foobar.self_link
-}
-
-resource "google_compute_router_nat" "foobar" {
-  name                               = "%s"
-  router                             = google_compute_router.foobar.name
-  region                             = google_compute_router.foobar.region
-  nat_ip_allocate_option             = "AUTO_ONLY"
-  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
-  log_config {
-    enable = false
-    filter = "ALL"
-  }
-}
-`, routerName, routerName, routerName, routerName)
-}
-
-func testAccComputeRouterNatLogConfigRemoved(routerName string) string {
-	return fmt.Sprintf(`
-resource "google_compute_network" "foobar" {
-  name = "%s-net"
-}
-
-resource "google_compute_subnetwork" "foobar" {
-  name          = "%s-subnet"
-  network       = google_compute_network.foobar.self_link
-  ip_cidr_range = "10.0.0.0/16"
-  region        = "us-central1"
-}
-
-resource "google_compute_router" "foobar" {
-  name    = "%s"
-  region  = google_compute_subnetwork.foobar.region
-  network = google_compute_network.foobar.self_link
-}
-
-resource "google_compute_router_nat" "foobar" {
-  name                               = "%s"
-  router                             = google_compute_router.foobar.name
-  region                             = google_compute_router.foobar.region
-  nat_ip_allocate_option             = "AUTO_ONLY"
-  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
-}
-`, routerName, routerName, routerName, routerName)
 }
 
 func testAccComputeRouterNatBaseResourcesWithPrivateNatSubnetworks(routerName, hubName string) string {
