@@ -733,11 +733,22 @@ func resourceComputeRouterNatAddressPatchUpdateEncoder(d *schema.ResourceData, m
 		return nil, fmt.Errorf("Unable to update RouterNatAddress %q - not found in list", d.Id())
 	}
 
-	// Merge new object into old.
-	for k, v := range obj {
-		item[k] = v
+	// Copy over values for immutable fields
+	obj["name"] = item["name"]
+	// Merge any fields in item that aren't managed by this resource into obj
+	// This is necessary because item might be managed by multiple resources.
+	settableFields := map[string]struct{}{
+		"natIps":      struct{}{},
+		"drainNatIps": struct{}{},
 	}
-	items[idx] = item
+	for k, v := range item {
+		if _, ok := settableFields[k]; !ok {
+			obj[k] = v
+		}
+	}
+
+	// Override old object with new
+	items[idx] = obj
 
 	// Return list with new item added
 	res := map[string]interface{}{

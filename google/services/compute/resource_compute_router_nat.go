@@ -1816,11 +1816,39 @@ func resourceComputeRouterNatPatchUpdateEncoder(d *schema.ResourceData, meta int
 		return nil, fmt.Errorf("Unable to update RouterNat %q - not found in list", d.Id())
 	}
 
-	// Merge new object into old.
-	for k, v := range obj {
-		item[k] = v
+	// Copy over values for immutable fields
+	obj["name"] = item["name"]
+	obj["initialNatIps"] = item["initialNatIps"]
+	obj["endpointTypes"] = item["endpointTypes"]
+	// Merge any fields in item that aren't managed by this resource into obj
+	// This is necessary because item might be managed by multiple resources.
+	settableFields := map[string]struct{}{
+		"natIpAllocateOption":              struct{}{},
+		"natIps":                           struct{}{},
+		"drainNatIps":                      struct{}{},
+		"sourceSubnetworkIpRangesToNat":    struct{}{},
+		"subnetworks":                      struct{}{},
+		"minPortsPerVm":                    struct{}{},
+		"maxPortsPerVm":                    struct{}{},
+		"enableDynamicPortAllocation":      struct{}{},
+		"udpIdleTimeoutSec":                struct{}{},
+		"icmpIdleTimeoutSec":               struct{}{},
+		"tcpEstablishedIdleTimeoutSec":     struct{}{},
+		"tcpTransitoryIdleTimeoutSec":      struct{}{},
+		"tcpTimeWaitTimeoutSec":            struct{}{},
+		"logConfig":                        struct{}{},
+		"rules":                            struct{}{},
+		"enableEndpointIndependentMapping": struct{}{},
+		"autoNetworkTier":                  struct{}{},
 	}
-	items[idx] = item
+	for k, v := range item {
+		if _, ok := settableFields[k]; !ok {
+			obj[k] = v
+		}
+	}
+
+	// Override old object with new
+	items[idx] = obj
 
 	// Return list with new item added
 	res := map[string]interface{}{
