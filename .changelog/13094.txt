@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `log_config.optional_mode` and `log_config.optional_fields` fields to `google_compute_region_backend_service` resource  
+```
