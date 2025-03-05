@@ -172,6 +172,9 @@ func expandScheduling(v interface{}) (*compute.Scheduling, error) {
 		scheduling.LocalSsdRecoveryTimeout = transformedLocalSsdRecoveryTimeout
 		scheduling.ForceSendFields = append(scheduling.ForceSendFields, "LocalSsdRecoveryTimeout")
 	}
+	if v, ok := original["termination_time"]; ok {
+		scheduling.TerminationTime = v.(string)
+	}
 	return scheduling, nil
 }
 
@@ -268,6 +271,7 @@ func flattenScheduling(resp *compute.Scheduling) []map[string]interface{} {
 		"provisioning_model":          resp.ProvisioningModel,
 		"instance_termination_action": resp.InstanceTerminationAction,
 		"availability_domain":         resp.AvailabilityDomain,
+		"termination_time":            resp.TerminationTime,
 	}
 
 	if resp.AutomaticRestart != nil {
@@ -663,7 +667,9 @@ func schedulingHasChangeRequiringReboot(d *schema.ResourceData) bool {
 	oScheduling := o.([]interface{})[0].(map[string]interface{})
 	newScheduling := n.([]interface{})[0].(map[string]interface{})
 
-	return hasNodeAffinitiesChanged(oScheduling, newScheduling) || hasMaxRunDurationChanged(oScheduling, newScheduling)
+	return (hasNodeAffinitiesChanged(oScheduling, newScheduling) ||
+		hasMaxRunDurationChanged(oScheduling, newScheduling) ||
+		hasTerminationTimeChanged(oScheduling, newScheduling))
 }
 
 // Terraform doesn't correctly calculate changes on schema.Set, so we do it manually
@@ -702,6 +708,24 @@ func schedulingHasChangeWithoutReboot(d *schema.ResourceData) bool {
 		return true
 	}
 	if oScheduling["availability_domain"] != newScheduling["availability_domain"] {
+		return true
+	}
+
+	return false
+}
+
+func hasTerminationTimeChanged(oScheduling, nScheduling map[string]interface{}) bool {
+	oTerminationTime := oScheduling["termination_time"].(string)
+	nTerminationTime := nScheduling["termination_time"].(string)
+
+	if len(oTerminationTime) == 0 && len(nTerminationTime) == 0 {
+		return false
+	}
+	if len(oTerminationTime) == 0 || len(nTerminationTime) == 0 {
+		return true
+	}
+
+	if oTerminationTime != nTerminationTime {
 		return true
 	}
 

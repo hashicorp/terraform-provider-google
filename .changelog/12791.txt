@@ -1,0 +1,15 @@
+```release-note:enhancement
+compute: added `scheduling.termination_time` field to `google_compute_instance` resource
+```
+```release-note:enhancement
+compute: added `scheduling.termination_time` field to `google_compute_instance_from_machine_image` resource
+```
+```release-note:enhancement
+compute: added `scheduling.termination_time` field to `google_compute_instance_from_template` resource
+```
+```release-note:enhancement
+compute: added `scheduling.termination_time` field to `google_compute_instance_template` resource
+```
+```release-note:enhancement
+compute: added `scheduling.termination_time` field to `google_compute_region_instance_template` resource
+```

@@ -1191,6 +1191,37 @@ func TestAccComputeRegionInstanceTemplate_maxRunDuration_onInstanceStopAction(t 
 	})
 }
 
+func TestAccComputeRegionInstanceTemplate_instanceTerminationAction_terminationTime(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	now := time.Now().UTC()
+	terminationTime := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 9999, now.Location()).Format(time.RFC3339)
+	var instanceTerminationAction = "STOP"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_onInstanceStopAction_terminationTime(acctest.RandString(t, 10), terminationTime),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeRegionInstanceTemplateInstanceTerminationAction(&instanceTemplate, instanceTerminationAction),
+					testAccCheckComputeRegionInstanceTemplateInstanceTerminationTime(&instanceTemplate, terminationTime),
+				),
+			},
+			{
+				ResourceName:      "google_compute_region_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeRegionInstanceTemplate_localSsdRecoveryTimeout(t *testing.T) {
 	t.Parallel()
 
@@ -1572,6 +1603,15 @@ func testAccCheckComputeRegionInstanceTemplateInstanceTerminationAction(instance
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.Scheduling.InstanceTerminationAction != instance_termination_action {
 			return fmt.Errorf("Expected instance_termination_action  %v, got %v", instance_termination_action, instanceTemplate.Properties.Scheduling.InstanceTerminationAction)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeRegionInstanceTemplateInstanceTerminationTime(instanceTemplate *compute.InstanceTemplate, termination_time string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instanceTemplate.Properties.Scheduling.TerminationTime != termination_time {
+			return fmt.Errorf("Expected instance_termination_time  %v, got %v", termination_time, instanceTemplate.Properties.Scheduling.TerminationTime)
 		}
 		return nil
 	}
@@ -3606,6 +3646,46 @@ resource "google_compute_region_instance_template" "foobar" {
   }
 }
 `, suffix)
+}
+
+func testAccComputeRegionInstanceTemplate_onInstanceStopAction_terminationTime(suffix string, terminationTime string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    automatic_restart = false
+    instance_termination_action = "STOP"
+    termination_time = "%s"
+  }
+
+  metadata = {
+	foo = "bar"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+`, suffix, terminationTime)
 }
 
 func testAccComputeRegionInstanceTemplate_localSsdRecoveryTimeout(suffix string) string {

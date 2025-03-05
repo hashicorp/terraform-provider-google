@@ -660,6 +660,15 @@ Google Cloud KMS.`,
 							AtLeastOneOf: schedulingInstTemplateKeys,
 							Description:  `Specifies the action GCE should take when SPOT VM is preempted.`,
 						},
+						"termination_time": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							AtLeastOneOf: schedulingKeys,
+							Description: `Specifies the timestamp, when the instance will be terminated,
+in RFC3339 text format. If specified, the instance termination action
+will be performed at the termination time.`,
+						},
 						"availability_domain": {
 							Type:         schema.TypeInt,
 							Optional:     true,
