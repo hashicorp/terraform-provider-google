@@ -83,6 +83,8 @@ fields:
   - field: 'load_balancing_scheme'
   - field: 'locality_lb_policy'
   - field: 'log_config.enable'
+  - field: 'log_config.optional_fields'
+  - field: 'log_config.optional_mode'
   - field: 'log_config.sample_rate'
   - field: 'name'
   - field: 'network'

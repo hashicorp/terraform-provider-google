@@ -1334,6 +1334,16 @@ The following arguments are supported:
   where 1.0 means all logged requests are reported and 0.0 means no logged requests are reported.
   The default value is 1.0.
 
+* `optional_mode` -
+  (Optional)
+  Specifies the optional logging mode for the load balancer traffic.
+  Supported values: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+  Possible values are: `INCLUDE_ALL_OPTIONAL`, `EXCLUDE_ALL_OPTIONAL`, `CUSTOM`.
+
+* `optional_fields` -
+  (Optional)
+  Specifies the fields to include in logging. This field can only be specified if logging is enabled for this backend service.
+
 <a name="nested_subsetting"></a>The `subsetting` block supports:
 
 * `policy` -
