@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_network_security_backend_authentication_config` (beta)
+```
