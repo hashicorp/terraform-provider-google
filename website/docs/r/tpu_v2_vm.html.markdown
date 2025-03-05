@@ -97,6 +97,7 @@ resource "google_tpu_v2_vm" "tpu" {
   
   scheduling_config {
     preemptible = true
+    spot = true
   }
 
   shielded_instance_config {
@@ -336,6 +337,10 @@ The following arguments are supported:
 * `reserved` -
   (Optional)
   Whether the node is created under a reservation.
+
+* `spot` -
+  (Optional)
+  Optional. Defines whether the node is Spot VM.
 
 <a name="nested_data_disks"></a>The `data_disks` block supports:
 
