@@ -55,6 +55,7 @@ resource "google_network_security_mirroring_deployment_group" "default" {
   mirroring_deployment_group_id = "example-dg"
   location                      = "global"
   network                       = google_compute_network.network.id
+  description                   = "some description"
   labels = {
     foo = "bar"
   }
@@ -90,6 +91,11 @@ The following arguments are supported:
   Labels are key/value pairs that help to organize and filter resources.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `description` -
+  (Optional)
+  User-provided description of the deployment group.
+  Used as additional context for the deployment group.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
