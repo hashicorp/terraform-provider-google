@@ -97,6 +97,7 @@ resource "google_network_security_intercept_deployment" "default" {
   location                   = "us-central1-a"
   forwarding_rule            = google_compute_forwarding_rule.forwarding_rule.id
   intercept_deployment_group = google_network_security_intercept_deployment_group.deployment_group.id
+  description                = "some description"
   labels = {
     foo = "bar"
   }
@@ -138,6 +139,11 @@ The following arguments are supported:
   Labels are key/value pairs that help to organize and filter resources.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `description` -
+  (Optional)
+  User-provided description of the deployment.
+  Used as additional context for the deployment.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

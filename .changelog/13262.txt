@@ -1,0 +1,3 @@
+```release-note:enhancement
+networksecurity: added `description` field to `google_network_security_intercept_deployment`, `google_network_security_intercept_deployment_group`, `google_network_security_intercept_endpoint_group` resources
+```
