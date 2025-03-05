@@ -1,0 +1,3 @@
+```release-note:bug
+compute: removed the warning that `google_compute_shared_vpc_service_project` requires project or org-level permissions. Folder-level permissions should work when using the GA API, and should have been working for some time.
+```
