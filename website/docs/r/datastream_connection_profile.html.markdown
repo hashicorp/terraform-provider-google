@@ -357,6 +357,27 @@ resource "google_datastream_connection_profile" "default" {
     }
 }
 ```
+## Example Usage - Datastream Connection Profile Salesforce
+
+
+```hcl
+resource "google_datastream_connection_profile" "default" {
+    display_name          = "Salesforce Source"
+    location              = "us-central1"
+    connection_profile_id = "source-profile"
+    create_without_validation: true
+    provider = google-beta
+
+    salesforce_profile {
+        domain = "fake-domain.my.salesforce.com"
+        user_credentials {
+          username = "fake-username"
+          secret_manager_stored_password = "fake-password"
+          secret_manager_stored_security_token = "fake-token"
+        }
+    }
+}
+```
 
 ## Argument Reference
 
@@ -408,6 +429,11 @@ The following arguments are supported:
   (Optional)
   PostgreSQL database profile.
   Structure is [documented below](#nested_postgresql_profile).
+
+* `salesforce_profile` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Salesforce profile.
+  Structure is [documented below](#nested_salesforce_profile).
 
 * `sql_server_profile` -
   (Optional)
@@ -551,6 +577,59 @@ The following arguments are supported:
 * `database` -
   (Required)
   Database for the PostgreSQL connection.
+
+<a name="nested_salesforce_profile"></a>The `salesforce_profile` block supports:
+
+* `domain` -
+  (Required)
+  Domain for the Salesforce Org.
+
+* `user_credentials` -
+  (Optional)
+  User credentials to use for Salesforce authentication.
+  Structure is [documented below](#nested_salesforce_profile_user_credentials).
+
+* `oauth2_client_credentials` -
+  (Optional)
+  OAuth credentials to use for Salesforce authentication.
+  Structure is [documented below](#nested_salesforce_profile_oauth2_client_credentials).
+
+
+<a name="nested_salesforce_profile_user_credentials"></a>The `user_credentials` block supports:
+
+* `username` -
+  (Optional)
+  Username to use for authentication.
+
+* `password` -
+  (Optional)
+  Password of the user.
+
+* `security_token` -
+  (Optional)
+  Security token of the user.
+
+* `secret_manager_stored_password` -
+  (Optional)
+  A reference to a Secret Manager resource name storing the user's password.
+
+* `secret_manager_stored_security_token` -
+  (Optional)
+  A reference to a Secret Manager resource name storing the user's security token.
+
+<a name="nested_salesforce_profile_oauth2_client_credentials"></a>The `oauth2_client_credentials` block supports:
+
+* `client_id` -
+  (Optional)
+  Client ID to use for authentication.
+
+* `client_secret` -
+  (Optional)
+  Client secret to use for authentication.
+
+* `secret_manager_stored_client_secret` -
+  (Optional)
+  A reference to a Secret Manager resource name storing the client secret.
 
 <a name="nested_sql_server_profile"></a>The `sql_server_profile` block supports:
 
