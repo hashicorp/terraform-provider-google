@@ -428,6 +428,67 @@ resource "google_compute_region_health_check" "health_check" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_backend_service_ilb_custom_metrics&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Backend Service Ilb Custom Metrics
+
+
+```hcl
+resource "google_compute_network" "default" {
+  provider = google-beta
+  name                    = "network"
+}
+
+// Zonal NEG with GCE_VM_IP_PORT
+resource "google_compute_network_endpoint_group" "default" {
+  provider = google-beta
+  name                  = "network-endpoint"
+  network               = google_compute_network.default.id
+  default_port          = "90"
+  zone                  = "us-central1-a"
+  network_endpoint_type = "GCE_VM_IP_PORT"
+}
+
+resource "google_compute_region_backend_service" "default" {
+  provider = google-beta
+
+  region = "us-central1"
+  name = "region-service"
+  health_checks = [google_compute_health_check.health_check.id]
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  locality_lb_policy    = "WEIGHTED_ROUND_ROBIN"
+  custom_metrics {
+    name    = "orca.application_utilization"
+    # At least one metric should be not dry_run.
+    dry_run = false
+  }
+  backend {
+    group = google_compute_network_endpoint_group.default.id
+    balancing_mode = "CUSTOM_METRICS"
+    custom_metrics {
+      name    = "orca.cpu_utilization"
+      max_utilization = 0.9
+      dry_run = true
+    }
+    custom_metrics {
+      name    = "orca.named_metrics.foo"
+      # At least one metric should be not dry_run.
+      dry_run = false
+    }
+  }
+}
+
+resource "google_compute_health_check" "health_check" {
+  provider = google-beta
+  name               = "rbs-health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
 
 ## Argument Reference
 
@@ -568,6 +629,12 @@ The following arguments are supported:
                        instance either reported a valid weight or had
                        UNAVAILABLE_WEIGHT. Otherwise, Load Balancing remains
                        equal-weight.
+  * `WEIGHTED_ROUND_ROBIN`: Per-endpoint weighted round-robin Load Balancing using weights computed
+                            from Backend reported Custom Metrics. If set, the Backend Service
+                            responses are expected to contain non-standard HTTP response header field
+                            X-Endpoint-Load-Metrics. The reported metrics
+                            to use for computing the weights are specified via the
+                            backends[].customMetrics fields.
   locality_lb_policy is applicable to either:
   * A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
     and loadBalancingScheme set to INTERNAL_MANAGED.
@@ -580,7 +647,12 @@ The following arguments are supported:
   Only ROUND_ROBIN and RING_HASH are supported when the backend service is referenced
   by a URL map that is bound to target gRPC proxy that has validate_for_proxyless
   field set to true.
-  Possible values are: `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, `MAGLEV`, `WEIGHTED_MAGLEV`.
+  Possible values are: `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, `MAGLEV`, `WEIGHTED_MAGLEV`, `WEIGHTED_ROUND_ROBIN`.
+
+* `custom_metrics` -
+  (Optional)
+  List of custom metrics that are used for the WEIGHTED_ROUND_ROBIN locality_lb_policy.
+  Structure is [documented below](#nested_custom_metrics).
 
 * `outlier_detection` -
   (Optional)
@@ -668,7 +740,7 @@ The following arguments are supported:
   See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
   for an explanation of load balancing modes.
   Default value is `UTILIZATION`.
-  Possible values are: `UTILIZATION`, `RATE`, `CONNECTION`.
+  Possible values are: `UTILIZATION`, `RATE`, `CONNECTION`, `CUSTOM_METRICS`.
 
 * `capacity_scaler` -
   (Optional)
@@ -769,6 +841,36 @@ The following arguments are supported:
   Used when balancingMode is UTILIZATION. This ratio defines the
   CPU utilization target for the group. Valid range is [0.0, 1.0].
   Cannot be set for INTERNAL backend services.
+
+* `custom_metrics` -
+  (Optional)
+  The set of custom metrics that are used for <code>CUSTOM_METRICS</code> BalancingMode.
+  Structure is [documented below](#nested_backend_backend_custom_metrics).
+
+
+<a name="nested_backend_backend_custom_metrics"></a>The `custom_metrics` block supports:
+
+* `name` -
+  (Required)
+  Name of a custom utilization signal. The name must be 1-64 characters
+  long and match the regular expression [a-z]([-_.a-z0-9]*[a-z0-9])? which
+  means the first character must be a lowercase letter, and all following
+  characters must be a dash, period, underscore, lowercase letter, or
+  digit, except the last character, which cannot be a dash, period, or
+  underscore. For usage guidelines, see Custom Metrics balancing mode. This
+  field can only be used for a global or regional backend service with the
+  loadBalancingScheme set to <code>EXTERNAL_MANAGED</code>,
+  <code>INTERNAL_MANAGED</code> <code>INTERNAL_SELF_MANAGED</code>.
+
+* `dry_run` -
+  (Required)
+  If true, the metric data is collected and reported to Cloud
+  Monitoring, but is not used for load balancing.
+
+* `max_utilization` -
+  (Optional)
+  Optional parameter to define a target utilization for the Custom Metrics
+  balancing mode. The valid range is <code>[0.0, 1.0]</code>.
 
 <a name="nested_circuit_breakers"></a>The `circuit_breakers` block supports:
 
@@ -1028,6 +1130,24 @@ The following arguments are supported:
   (Output)
   OAuth2 Client Secret SHA-256 for IAP
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+<a name="nested_custom_metrics"></a>The `custom_metrics` block supports:
+
+* `name` -
+  (Required)
+  Name of a custom utilization signal. The name must be 1-64 characters
+  long and match the regular expression [a-z]([-_.a-z0-9]*[a-z0-9])? which
+  means the first character must be a lowercase letter, and all following
+  characters must be a dash, period, underscore, lowercase letter, or
+  digit, except the last character, which cannot be a dash, period, or
+  underscore. For usage guidelines, see Custom Metrics balancing mode. This
+  field can only be used for a global or regional backend service with the
+  loadBalancingScheme set to <code>EXTERNAL_MANAGED</code>,
+  <code>INTERNAL_MANAGED</code> <code>INTERNAL_SELF_MANAGED</code>.
+
+* `dry_run` -
+  (Required)
+  If true, the metric data is not used for load balancing.
 
 <a name="nested_outlier_detection"></a>The `outlier_detection` block supports:
 

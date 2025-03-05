@@ -486,6 +486,33 @@ Defaults to 1024.`,
 					},
 				},
 			},
+			"custom_metrics": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `List of custom metrics that are used for the WEIGHTED_ROUND_ROBIN locality_lb_policy.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"dry_run": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `If true, the metric data is not used for load balancing.`,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `Name of a custom utilization signal. The name must be 1-64 characters
+long and match the regular expression [a-z]([-_.a-z0-9]*[a-z0-9])? which
+means the first character must be a lowercase letter, and all following
+characters must be a dash, period, underscore, lowercase letter, or
+digit, except the last character, which cannot be a dash, period, or
+underscore. For usage guidelines, see Custom Metrics balancing mode. This
+field can only be used for a global or regional backend service with the
+loadBalancingScheme set to <code>EXTERNAL_MANAGED</code>,
+<code>INTERNAL_MANAGED</code> <code>INTERNAL_SELF_MANAGED</code>.`,
+						},
+					},
+				},
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -613,7 +640,7 @@ balancing cannot be used with the other(s). For more information, refer to
 			"locality_lb_policy": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV", "WEIGHTED_MAGLEV", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV", "WEIGHTED_MAGLEV", "WEIGHTED_ROUND_ROBIN", ""}),
 				Description: `The load balancing algorithm used within the scope of the locality.
 The possible values are:
 
@@ -655,6 +682,13 @@ The possible values are:
                      UNAVAILABLE_WEIGHT. Otherwise, Load Balancing remains
                      equal-weight.
 
+* 'WEIGHTED_ROUND_ROBIN': Per-endpoint weighted round-robin Load Balancing using weights computed
+                          from Backend reported Custom Metrics. If set, the Backend Service
+                          responses are expected to contain non-standard HTTP response header field
+                          X-Endpoint-Load-Metrics. The reported metrics
+                          to use for computing the weights are specified via the
+                          backends[].customMetrics fields.
+
 locality_lb_policy is applicable to either:
 
 * A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
@@ -669,7 +703,7 @@ or RING_HASH, session affinity settings will not take effect.
 
 Only ROUND_ROBIN and RING_HASH are supported when the backend service is referenced
 by a URL map that is bound to target gRPC proxy that has validate_for_proxyless
-field set to true. Possible values: ["ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV", "WEIGHTED_MAGLEV"]`,
+field set to true. Possible values: ["ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV", "WEIGHTED_MAGLEV", "WEIGHTED_ROUND_ROBIN"]`,
 			},
 			"log_config": {
 				Type:     schema.TypeList,
@@ -1002,11 +1036,11 @@ partial URL.`,
 			"balancing_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"UTILIZATION", "RATE", "CONNECTION", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"UTILIZATION", "RATE", "CONNECTION", "CUSTOM_METRICS", ""}),
 				Description: `Specifies the balancing mode for this backend.
 
 See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
-for an explanation of load balancing modes. Default value: "UTILIZATION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
+for an explanation of load balancing modes. Default value: "UTILIZATION" Possible values: ["UTILIZATION", "RATE", "CONNECTION", "CUSTOM_METRICS"]`,
 				Default: "UTILIZATION",
 			},
 			"capacity_scaler": {
@@ -1022,6 +1056,41 @@ capacity_scaler for all backends must be non-zero.
 
 A setting of 0 means the group is completely drained, offering
 0% of its available Capacity. Valid range is [0.0,1.0].`,
+			},
+			"custom_metrics": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The set of custom metrics that are used for <code>CUSTOM_METRICS</code> BalancingMode.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"dry_run": {
+							Type:     schema.TypeBool,
+							Required: true,
+							Description: `If true, the metric data is collected and reported to Cloud
+Monitoring, but is not used for load balancing.`,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `Name of a custom utilization signal. The name must be 1-64 characters
+long and match the regular expression [a-z]([-_.a-z0-9]*[a-z0-9])? which
+means the first character must be a lowercase letter, and all following
+characters must be a dash, period, underscore, lowercase letter, or
+digit, except the last character, which cannot be a dash, period, or
+underscore. For usage guidelines, see Custom Metrics balancing mode. This
+field can only be used for a global or regional backend service with the
+loadBalancingScheme set to <code>EXTERNAL_MANAGED</code>,
+<code>INTERNAL_MANAGED</code> <code>INTERNAL_SELF_MANAGED</code>.`,
+						},
+						"max_utilization": {
+							Type:     schema.TypeFloat,
+							Optional: true,
+							Description: `Optional parameter to define a target utilization for the Custom Metrics
+balancing mode. The valid range is <code>[0.0, 1.0]</code>.`,
+							Default: 0.8,
+						},
+					},
+				},
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -1214,6 +1283,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
+	}
+	customMetricsProp, err := expandComputeRegionBackendServiceCustomMetrics(d.Get("custom_metrics"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_metrics"); !tpgresource.IsEmptyValue(reflect.ValueOf(customMetricsProp)) && (ok || !reflect.DeepEqual(v, customMetricsProp)) {
+		obj["customMetrics"] = customMetricsProp
 	}
 	outlierDetectionProp, err := expandComputeRegionBackendServiceOutlierDetection(d.Get("outlier_detection"), d, config)
 	if err != nil {
@@ -1451,6 +1526,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	if err := d.Set("name", flattenComputeRegionBackendServiceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
+	if err := d.Set("custom_metrics", flattenComputeRegionBackendServiceCustomMetrics(res["customMetrics"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
 	if err := d.Set("outlier_detection", flattenComputeRegionBackendServiceOutlierDetection(res["outlierDetection"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
@@ -1596,6 +1674,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
+	}
+	customMetricsProp, err := expandComputeRegionBackendServiceCustomMetrics(d.Get("custom_metrics"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_metrics"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customMetricsProp)) {
+		obj["customMetrics"] = customMetricsProp
 	}
 	outlierDetectionProp, err := expandComputeRegionBackendServiceOutlierDetection(d.Get("outlier_detection"), d, config)
 	if err != nil {
@@ -1817,6 +1901,7 @@ func flattenComputeRegionBackendServiceBackend(v interface{}, d *schema.Resource
 			"max_rate_per_instance":        flattenComputeRegionBackendServiceBackendMaxRatePerInstance(original["maxRatePerInstance"], d, config),
 			"max_rate_per_endpoint":        flattenComputeRegionBackendServiceBackendMaxRatePerEndpoint(original["maxRatePerEndpoint"], d, config),
 			"max_utilization":              flattenComputeRegionBackendServiceBackendMaxUtilization(original["maxUtilization"], d, config),
+			"custom_metrics":               flattenComputeRegionBackendServiceBackendCustomMetrics(original["customMetrics"], d, config),
 		})
 	}
 	return transformed
@@ -1921,6 +2006,38 @@ func flattenComputeRegionBackendServiceBackendMaxRatePerEndpoint(v interface{}, 
 }
 
 func flattenComputeRegionBackendServiceBackendMaxUtilization(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceBackendCustomMetrics(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":            flattenComputeRegionBackendServiceBackendCustomMetricsName(original["name"], d, config),
+			"dry_run":         flattenComputeRegionBackendServiceBackendCustomMetricsDryRun(original["dryRun"], d, config),
+			"max_utilization": flattenComputeRegionBackendServiceBackendCustomMetricsMaxUtilization(original["maxUtilization"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeRegionBackendServiceBackendCustomMetricsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceBackendCustomMetricsDryRun(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceBackendCustomMetricsMaxUtilization(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2502,6 +2619,33 @@ func flattenComputeRegionBackendServiceName(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenComputeRegionBackendServiceCustomMetrics(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":    flattenComputeRegionBackendServiceCustomMetricsName(original["name"], d, config),
+			"dry_run": flattenComputeRegionBackendServiceCustomMetricsDryRun(original["dryRun"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeRegionBackendServiceCustomMetricsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceCustomMetricsDryRun(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionBackendServiceOutlierDetection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -3025,6 +3169,13 @@ func expandComputeRegionBackendServiceBackend(v interface{}, d tpgresource.Terra
 			transformed["maxUtilization"] = transformedMaxUtilization
 		}
 
+		transformedCustomMetrics, err := expandComputeRegionBackendServiceBackendCustomMetrics(original["custom_metrics"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedCustomMetrics); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["customMetrics"] = transformedCustomMetrics
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -3075,6 +3226,54 @@ func expandComputeRegionBackendServiceBackendMaxRatePerEndpoint(v interface{}, d
 }
 
 func expandComputeRegionBackendServiceBackendMaxUtilization(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceBackendCustomMetrics(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandComputeRegionBackendServiceBackendCustomMetricsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedDryRun, err := expandComputeRegionBackendServiceBackendCustomMetricsDryRun(original["dry_run"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDryRun); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["dryRun"] = transformedDryRun
+		}
+
+		transformedMaxUtilization, err := expandComputeRegionBackendServiceBackendCustomMetricsMaxUtilization(original["max_utilization"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMaxUtilization); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["maxUtilization"] = transformedMaxUtilization
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeRegionBackendServiceBackendCustomMetricsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceBackendCustomMetricsDryRun(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceBackendCustomMetricsMaxUtilization(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3617,6 +3816,43 @@ func expandComputeRegionBackendServiceLocalityLbPolicy(v interface{}, d tpgresou
 }
 
 func expandComputeRegionBackendServiceName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCustomMetrics(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandComputeRegionBackendServiceCustomMetricsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedDryRun, err := expandComputeRegionBackendServiceCustomMetricsDryRun(original["dry_run"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDryRun); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["dryRun"] = transformedDryRun
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeRegionBackendServiceCustomMetricsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCustomMetricsDryRun(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
