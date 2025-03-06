@@ -24,7 +24,6 @@ import (
 	"log"
 	"net/http"
 	"reflect"
-	"regexp"
 	"strings"
 	"time"
 
@@ -34,27 +33,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
-
-const oauthClientIdRegexp = `^[a-z][a-z0-9-]{4,61}[a-z0-9]$`
-
-func ValidateOauthClientId(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-
-	if strings.HasPrefix(value, "gcp-") {
-		errors = append(errors, fmt.Errorf(
-			"%q (%q) can not start with \"gcp-\". "+
-				"The prefix `gcp-` is reserved for use by Google, and may not be specified.", k, value))
-	}
-
-	if !regexp.MustCompile(oauthClientIdRegexp).MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q (%q) must contain only lowercase letters [a-z], digits [0-9], and hyphens "+
-				"[-]. The OauthClient ID must be between 6 and 63 characters, begin "+
-				"with a letter, and cannot have a trailing hyphen.", k, value))
-	}
-
-	return
-}
 
 func ResourceIAMWorkforcePoolOauthClient() *schema.Resource {
 	return &schema.Resource{
@@ -145,20 +123,20 @@ CONFIDENTIAL_CLIENT`,
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Description: `Optional. A user-specified description of the OauthClient.
+				Description: `A user-specified description of the OauthClient.
 
 Cannot exceed 256 characters.`,
 			},
 			"disabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Description: `Optional. Whether the OauthClient is disabled. You cannot use a disabled OAuth
+				Description: `Whether the OauthClient is disabled. You cannot use a disabled OAuth
 client.`,
 			},
 			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Description: `Optional. A user-specified display name of the OauthClient.
+				Description: `A user-specified display name of the OauthClient.
 
 Cannot exceed 32 characters.`,
 			},
@@ -170,7 +148,7 @@ Cannot exceed 32 characters.`,
 			"expire_time": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `Output only. Time after which the OauthClient will be permanently purged and cannot
+				Description: `Time after which the OauthClient will be permanently purged and cannot
 be recovered.`,
 			},
 			"name": {
@@ -183,7 +161,7 @@ Format:'projects/{project}/locations/{location}/oauthClients/{oauth_client}'.`,
 			"state": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `Output only. The state of the OauthClient.
+				Description: `The state of the OauthClient.
 Possible values:
 STATE_UNSPECIFIED
 ACTIVE

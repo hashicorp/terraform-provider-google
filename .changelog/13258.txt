@@ -1,0 +1,3 @@
+```release-note: none
+Fix minor edit suggestions for IAM OAuth Client resource
+```
