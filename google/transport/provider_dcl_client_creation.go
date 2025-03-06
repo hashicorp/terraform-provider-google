@@ -34,7 +34,6 @@ import (
 	containerazure "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/containerazure"
 	dataplex "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/dataplex"
 	dataproc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/dataproc"
-	eventarc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/eventarc"
 	firebaserules "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/firebaserules"
 	gkehub "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/gkehub"
 	recaptchaenterprise "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/recaptchaenterprise"
@@ -268,29 +267,6 @@ func NewDCLDataprocClient(config *Config, userAgent, billingProject string, time
 
 	dclConfig := dcl.NewConfig(configOptions...)
 	return dataproc.NewClient(dclConfig)
-}
-
-func NewDCLEventarcClient(config *Config, userAgent, billingProject string, timeout time.Duration) *eventarc.Client {
-	configOptions := []dcl.ConfigOption{
-		dcl.WithHTTPClient(config.Client),
-		dcl.WithUserAgent(userAgent),
-		dcl.WithLogger(dclLogger{}),
-		dcl.WithBasePath(config.EventarcBasePath),
-	}
-
-	if timeout != 0 {
-		configOptions = append(configOptions, dcl.WithTimeout(timeout))
-	}
-
-	if config.UserProjectOverride {
-		configOptions = append(configOptions, dcl.WithUserProjectOverride())
-		if billingProject != "" {
-			configOptions = append(configOptions, dcl.WithBillingProject(billingProject))
-		}
-	}
-
-	dclConfig := dcl.NewConfig(configOptions...)
-	return eventarc.NewClient(dclConfig)
 }
 
 func NewDCLFirebaserulesClient(config *Config, userAgent, billingProject string, timeout time.Duration) *firebaserules.Client {

@@ -51,12 +51,6 @@ var CloudResourceManagerEndpointEntry = &schema.Schema{
 	Optional: true,
 }
 
-var EventarcEndpointEntryKey = "eventarc_custom_endpoint"
-var EventarcEndpointEntry = &schema.Schema{
-	Type:     schema.TypeString,
-	Optional: true,
-}
-
 var FirebaserulesEndpointEntryKey = "firebaserules_custom_endpoint"
 var FirebaserulesEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -80,7 +74,6 @@ type DCLConfig struct {
 	AssuredWorkloadsBasePath     string
 	CloudBuildWorkerPoolBasePath string
 	CloudResourceManagerBasePath string
-	EventarcBasePath             string
 	FirebaserulesBasePath        string
 	GKEHubFeatureBasePath        string
 	RecaptchaEnterpriseBasePath  string
@@ -91,7 +84,6 @@ func ConfigureDCLProvider(provider *schema.Provider) {
 	provider.Schema[AssuredWorkloadsEndpointEntryKey] = AssuredWorkloadsEndpointEntry
 	provider.Schema[CloudBuildWorkerPoolEndpointEntryKey] = CloudBuildWorkerPoolEndpointEntry
 	provider.Schema[CloudResourceManagerEndpointEntryKey] = CloudResourceManagerEndpointEntry
-	provider.Schema[EventarcEndpointEntryKey] = EventarcEndpointEntry
 	provider.Schema[FirebaserulesEndpointEntryKey] = FirebaserulesEndpointEntry
 	provider.Schema[GKEHubFeatureEndpointEntryKey] = GKEHubFeatureEndpointEntry
 	provider.Schema[RecaptchaEnterpriseEndpointEntryKey] = RecaptchaEnterpriseEndpointEntry
@@ -116,11 +108,6 @@ func HandleDCLCustomEndpointDefaults(d *schema.ResourceData) {
 	if d.Get(CloudResourceManagerEndpointEntryKey) == "" {
 		d.Set(CloudResourceManagerEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_RESOURCE_MANAGER_CUSTOM_ENDPOINT",
-		}, ""))
-	}
-	if d.Get(EventarcEndpointEntryKey) == "" {
-		d.Set(EventarcEndpointEntryKey, MultiEnvDefault([]string{
-			"GOOGLE_EVENTARC_CUSTOM_ENDPOINT",
 		}, ""))
 	}
 	if d.Get(FirebaserulesEndpointEntryKey) == "" {
@@ -161,12 +148,6 @@ func ConfigureDCLCustomEndpointAttributesFramework(frameworkSchema *framework_sc
 		},
 	}
 	frameworkSchema.Attributes["cloud_resource_manager_custom_endpoint"] = framework_schema.StringAttribute{
-		Optional: true,
-		Validators: []validator.String{
-			CustomEndpointValidator(),
-		},
-	}
-	frameworkSchema.Attributes["eventarc_custom_endpoint"] = framework_schema.StringAttribute{
 		Optional: true,
 		Validators: []validator.String{
 			CustomEndpointValidator(),

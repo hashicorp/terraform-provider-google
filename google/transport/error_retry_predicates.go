@@ -309,6 +309,16 @@ func IsMonitoringPermissionError(err error) (bool, string) {
 	return false, ""
 }
 
+// Retry if Eventarc Channel operation returns a 403
+func EventarcChannel403Retry(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 403 && strings.Contains(gerr.Body, "The caller does not have permission") {
+			return true, "Waiting for channel to be ready"
+		}
+	}
+	return false, ""
+}
+
 // Retry if KMS CryptoKeyVersions returns a 400 for PENDING_GENERATION
 func IsCryptoKeyVersionsPendingGeneration(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 400 {
