@@ -1,0 +1,3 @@
+```release-note:note
+eventarc: `google_eventarc_channel` now uses MMv1 engine instead of DCL.
+```
