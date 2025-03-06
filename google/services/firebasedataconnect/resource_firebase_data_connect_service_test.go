@@ -29,16 +29,16 @@ func TestAccFirebaseDataConnectService_Update(t *testing.T) {
 		CheckDestroy:             testAccCheckFirebaseDataConnectServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFirebaseDataConnectService_update(context, "Original display name"),
+				Config: testAccFirebaseDataConnectService_update(context, "Original display name", "DEFAULT"),
 			},
 			{
 				ResourceName:            "google_firebase_data_connect_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "service_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "service_id", "terraform_labels", "deletion_policy"},
 			},
 			{
-				Config: testAccFirebaseDataConnectService_update(context, "Updated display name"),
+				Config: testAccFirebaseDataConnectService_update(context, "Updated display name", "FORCE"),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_firebase_data_connect_service.default", plancheck.ResourceActionUpdate),
@@ -49,15 +49,15 @@ func TestAccFirebaseDataConnectService_Update(t *testing.T) {
 				ResourceName:            "google_firebase_data_connect_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "service_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "service_id", "terraform_labels", "deletion_policy"},
 			},
 		},
 	})
 }
 
-// TODO(b/394642094): Cover force deletion once it's supported
-func testAccFirebaseDataConnectService_update(context map[string]interface{}, display_name string) string {
+func testAccFirebaseDataConnectService_update(context map[string]interface{}, display_name string, deletion_policy string) string {
 	context["display_name"] = display_name
+	context["deletion_policy"] = deletion_policy
 	return acctest.Nprintf(`
 # Enable Firebase Data Connect API
 resource "google_project_service" "fdc" {
@@ -72,6 +72,7 @@ resource "google_firebase_data_connect_service" "default" {
   location = "us-central1"
   service_id = "tf-fdc-%{random_suffix}"
   display_name = "%{display_name}"
+  deletion_policy = "%{deletion_policy}"
 
   depends_on = [google_project_service.fdc]
 }

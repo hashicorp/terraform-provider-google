@@ -66,7 +66,7 @@ resource "google_project_service" "fdc" {
   disable_on_destroy = false
 }
 
-# Create an FDC service
+# Create a Firebase Data Connect service
 resource "google_firebase_data_connect_service" "default" {
   project = "%{project_id}"
   location = "us-central1"
@@ -81,6 +81,53 @@ resource "google_firebase_data_connect_service" "default" {
     key1 = "value1",
     key2 = "value2",
   }
+
+  depends_on = [google_project_service.fdc]
+}
+`, context)
+}
+
+func TestAccFirebaseDataConnectService_firebasedataconnectServiceWithForceDeletionExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirebaseDataConnectServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFirebaseDataConnectService_firebasedataconnectServiceWithForceDeletionExample(context),
+			},
+			{
+				ResourceName:            "google_firebase_data_connect_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_policy", "labels", "location", "service_id", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccFirebaseDataConnectService_firebasedataconnectServiceWithForceDeletionExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+# Enable Firebase Data Connect API
+resource "google_project_service" "fdc" {
+  project = "%{project_id}"
+  service = "firebasedataconnect.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Create a Firebase Data Connect service
+resource "google_firebase_data_connect_service" "default" {
+  project = "%{project_id}"
+  location = "us-central1"
+  service_id = "tf-test-example-service%{random_suffix}"
+  deletion_policy = "FORCE"
 
   depends_on = [google_project_service.fdc]
 }

@@ -41,7 +41,7 @@ resource "google_project_service" "fdc" {
   disable_on_destroy = false
 }
 
-# Create an FDC service
+# Create a Firebase Data Connect service
 resource "google_firebase_data_connect_service" "default" {
   project = "my-project-name"
   location = "us-central1"
@@ -56,6 +56,27 @@ resource "google_firebase_data_connect_service" "default" {
     key1 = "value1",
     key2 = "value2",
   }
+
+  depends_on = [google_project_service.fdc]
+}
+```
+## Example Usage - Firebasedataconnect Service With Force Deletion
+
+
+```hcl
+# Enable Firebase Data Connect API
+resource "google_project_service" "fdc" {
+  project = "my-project-name"
+  service = "firebasedataconnect.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Create a Firebase Data Connect service
+resource "google_firebase_data_connect_service" "default" {
+  project = "my-project-name"
+  location = "us-central1"
+  service_id = "example-service"
+  deletion_policy = "FORCE"
 
   depends_on = [google_project_service.fdc]
 }
