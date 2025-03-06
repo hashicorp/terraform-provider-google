@@ -49,7 +49,7 @@ func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_subnetwork.network-with-private-secondary-ip-ranges",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "reserved_internal_range"},
+				ImportStateVerifyIgnore: []string{"ip_collection", "network", "region", "reserved_internal_range"},
 			},
 		},
 	})
@@ -94,7 +94,7 @@ func TestAccComputeSubnetwork_subnetworkLoggingConfigExample(t *testing.T) {
 				ResourceName:            "google_compute_subnetwork.subnet-with-logging",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "reserved_internal_range"},
+				ImportStateVerifyIgnore: []string{"ip_collection", "network", "region", "reserved_internal_range"},
 			},
 		},
 	})
@@ -141,7 +141,7 @@ func TestAccComputeSubnetwork_subnetworkIpv6Example(t *testing.T) {
 				ResourceName:            "google_compute_subnetwork.subnetwork-ipv6",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "reserved_internal_range"},
+				ImportStateVerifyIgnore: []string{"ip_collection", "network", "region", "reserved_internal_range"},
 			},
 		},
 	})
@@ -187,7 +187,7 @@ func TestAccComputeSubnetwork_subnetworkInternalIpv6Example(t *testing.T) {
 				ResourceName:            "google_compute_subnetwork.subnetwork-internal-ipv6",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "reserved_internal_range"},
+				ImportStateVerifyIgnore: []string{"ip_collection", "network", "region", "reserved_internal_range"},
 			},
 		},
 	})
@@ -234,7 +234,7 @@ func TestAccComputeSubnetwork_subnetworkIpv6OnlyInternalExample(t *testing.T) {
 				ResourceName:            "google_compute_subnetwork.subnetwork-ipv6-only",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "reserved_internal_range"},
+				ImportStateVerifyIgnore: []string{"ip_collection", "network", "region", "reserved_internal_range"},
 			},
 		},
 	})
@@ -258,6 +258,50 @@ resource "google_compute_network" "custom-test" {
 `, context)
 }
 
+func TestAccComputeSubnetwork_subnetworkWithSubnetModePdpExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"ip_collection_url": "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/tf-test-subnet-mode-pdp",
+		"random_suffix":     acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_subnetworkWithSubnetModePdpExample(context),
+			},
+			{
+				ResourceName:            "google_compute_subnetwork.subnetwork-with-subnet-mode-pdp",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ip_collection", "network", "region", "reserved_internal_range"},
+			},
+		},
+	})
+}
+
+func testAccComputeSubnetwork_subnetworkWithSubnetModePdpExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_subnetwork" "subnetwork-with-subnet-mode-pdp" {
+  name             = "tf-test-subnet-mode-pdp-subnet%{random_suffix}"
+  region           = "us-central1"
+  network          = google_compute_network.custom-test-network.id
+  stack_type       = "IPV6_ONLY"
+  ipv6_access_type = "EXTERNAL"
+  ip_collection    = "%{ip_collection_url}"
+}
+
+resource "google_compute_network" "custom-test-network" {
+  name                    = "tf-test-network-byoipv6-external%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
 func TestAccComputeSubnetwork_subnetworkIpv6OnlyExternalExample(t *testing.T) {
 	t.Parallel()
 
@@ -277,7 +321,7 @@ func TestAccComputeSubnetwork_subnetworkIpv6OnlyExternalExample(t *testing.T) {
 				ResourceName:            "google_compute_subnetwork.subnetwork-ipv6-only",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "reserved_internal_range"},
+				ImportStateVerifyIgnore: []string{"ip_collection", "network", "region", "reserved_internal_range"},
 			},
 		},
 	})

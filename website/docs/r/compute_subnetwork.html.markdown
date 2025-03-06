@@ -437,6 +437,18 @@ The following arguments are supported:
   (Optional)
   The range of external IPv6 addresses that are owned by this subnetwork.
 
+* `ip_collection` -
+  (Optional)
+  Resource reference of a PublicDelegatedPrefix. The PDP must be a sub-PDP
+  in EXTERNAL_IPV6_SUBNETWORK_CREATION mode.
+  Use one of the following formats to specify a sub-PDP when creating an
+  IPv6 NetLB forwarding rule using BYOIP:
+  Full resource URL, as in:
+    * `https://www.googleapis.com/compute/v1/projects/{{projectId}}/regions/{{region}}/publicDelegatedPrefixes/{{sub-pdp-name}}`
+  Partial URL, as in:
+    * `projects/{{projectId}}/regions/region/publicDelegatedPrefixes/{{sub-pdp-name}}`
+    * `regions/{{region}}/publicDelegatedPrefixes/{{sub-pdp-name}}`
+
 * `allow_subnet_cidr_routes_overlap` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Typically packets destined to IPs within the subnetwork range that do not match
@@ -536,6 +548,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `internal_ipv6_prefix` -
   The internal IPv6 address range that is assigned to this subnetwork.
+
+* `ipv6_gce_endpoint` -
+  Possible endpoints of this subnetwork. It can be one of the following:
+    * VM_ONLY: The subnetwork can be used for creating instances and IPv6 addresses with VM endpoint type. Such a subnetwork
+    gets external IPv6 ranges from a public delegated prefix and cannot be used to create NetLb.
+    * VM_AND_FR: The subnetwork can be used for creating both VM instances and Forwarding Rules. It can also be used to reserve
+    IPv6 addresses with both VM and FR endpoint types. Such a subnetwork gets its IPv6 range from Google IP Pool directly.
 * `self_link` - The URI of the created resource.
 
 
