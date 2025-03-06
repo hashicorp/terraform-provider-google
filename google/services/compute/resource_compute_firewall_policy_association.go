@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -37,6 +38,7 @@ func ResourceComputeFirewallPolicyAssociation() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeFirewallPolicyAssociationCreate,
 		Read:   resourceComputeFirewallPolicyAssociationRead,
+		Update: resourceComputeFirewallPolicyAssociationUpdate,
 		Delete: resourceComputeFirewallPolicyAssociationDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -45,6 +47,7 @@ func ResourceComputeFirewallPolicyAssociation() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -63,9 +66,14 @@ func ResourceComputeFirewallPolicyAssociation() *schema.Resource {
 			"firewall_policy": {
 				Type:             schema.TypeString,
 				Required:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareResourceNames,
-				Description:      `The firewall policy of the resource.`,
+				Description: `The firewall policy of the resource.
+
+This field can be updated to refer to a different Firewall Policy, which will create a new association from that new
+firewall policy with the flag to override the existing attachmentTarget's policy association.
+
+**Note** Due to potential risks with this operation it is *highly* recommended to use the 'create_before_destroy' life cycle option
+on your exisiting firewall policy so as to prevent a situation where your attachment target has no associated policy.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -210,6 +218,84 @@ func resourceComputeFirewallPolicyAssociationRead(d *schema.ResourceData, meta i
 	}
 
 	return nil
+}
+
+func resourceComputeFirewallPolicyAssociationUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	obj := make(map[string]interface{})
+	nameProp, err := expandComputeFirewallPolicyAssociationName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
+	attachmentTargetProp, err := expandComputeFirewallPolicyAssociationAttachmentTarget(d.Get("attachment_target"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("attachment_target"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, attachmentTargetProp)) {
+		obj["attachmentTarget"] = attachmentTargetProp
+	}
+	firewallPolicyProp, err := expandComputeFirewallPolicyAssociationFirewallPolicy(d.Get("firewall_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("firewall_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, firewallPolicyProp)) {
+		obj["firewallPolicy"] = firewallPolicyProp
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{firewall_policy}}/addAssociation?replaceExistingAssociation=true")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating FirewallPolicyAssociation %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
+	//following section is the area of the `custom_update` function for this resource that is different
+	//`custom_update` was necessary over a `post_update"` because of the change to the error handler
+	if err != nil {
+		//before failing an update, restores the old firewall_policy value to prevent terraform state becoming broken
+		parts := strings.Split(d.Id(), "/")
+		oldPolicyPath := "locations/global/firewallPolicies/" + parts[len(parts)-3]
+		d.Set("firewall_policy", oldPolicyPath)
+		return fmt.Errorf("Error updating FirewallPolicyAssociation %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating FirewallPolicyAssociation %q: %#v", d.Id(), res)
+	}
+
+	// store the ID now, needed because this update function is changing a normally immutable URL parameter field
+	id, err := tpgresource.ReplaceVars(d, config, "locations/global/firewallPolicies/{{firewall_policy}}/associations/{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	//following the swapover briefly both associations exist and this can cause operations to fail
+	time.Sleep(60 * time.Second)
+	//end `custom_update` changed zone
+
+	return resourceComputeFirewallPolicyAssociationRead(d, meta)
 }
 
 func resourceComputeFirewallPolicyAssociationDelete(d *schema.ResourceData, meta interface{}) error {
