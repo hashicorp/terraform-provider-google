@@ -33,24 +33,6 @@ To get more information about OauthClient, see:
     * [Managing OAuth clients](https://cloud.google.com/iam/docs/workforce-manage-oauth-app#manage-clients)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=iam_oauth_client_basic&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Iam Oauth Client Basic
-
-
-```hcl
-resource "google_iam_oauth_client" "example" {
-  oauth_client_id = "example-client-id"
-  location                  = "global"
-  allowed_grant_types       = ["AUTHORIZATION_CODE_GRANT"]
-  allowed_redirect_uris     = ["https://www.example.com"]
-  allowed_scopes            = ["https://www.googleapis.com/auth/cloud-platform"]
-  client_type               = "CONFIDENTIAL_CLIENT"
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=iam_oauth_client_full&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -117,17 +99,17 @@ The following arguments are supported:
 
 * `disabled` -
   (Optional)
-  Optional. Whether the OauthClient is disabled. You cannot use a disabled OAuth
+  Whether the OauthClient is disabled. You cannot use a disabled OAuth
   client.
 
 * `display_name` -
   (Optional)
-  Optional. A user-specified display name of the OauthClient.
+  A user-specified display name of the OauthClient.
   Cannot exceed 32 characters.
 
 * `description` -
   (Optional)
-  Optional. A user-specified description of the OauthClient.
+  A user-specified description of the OauthClient.
   Cannot exceed 256 characters.
 
 * `client_type` -
@@ -155,7 +137,7 @@ In addition to the arguments listed above, the following computed attributes are
   Format:`projects/{project}/locations/{location}/oauthClients/{oauth_client}`.
 
 * `state` -
-  Output only. The state of the OauthClient.
+  The state of the OauthClient.
   Possible values:
   STATE_UNSPECIFIED
   ACTIVE
@@ -165,7 +147,7 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. The system-generated OauthClient id.
 
 * `expire_time` -
-  Output only. Time after which the OauthClient will be permanently purged and cannot
+  Time after which the OauthClient will be permanently purged and cannot
   be recovered.
 
 

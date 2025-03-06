@@ -30,44 +30,6 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccIAMWorkforcePoolOauthClient_iamOauthClientBasicExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckIAMWorkforcePoolOauthClientDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIAMWorkforcePoolOauthClient_iamOauthClientBasicExample(context),
-			},
-			{
-				ResourceName:            "google_iam_oauth_client.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "oauth_client_id"},
-			},
-		},
-	})
-}
-
-func testAccIAMWorkforcePoolOauthClient_iamOauthClientBasicExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_iam_oauth_client" "example" {
-  oauth_client_id = "tf-test-example-client-id%{random_suffix}"
-  location                  = "global"
-  allowed_grant_types       = ["AUTHORIZATION_CODE_GRANT"]
-  allowed_redirect_uris     = ["https://www.example.com"]
-  allowed_scopes            = ["https://www.googleapis.com/auth/cloud-platform"]
-  client_type               = "CONFIDENTIAL_CLIENT"
-}
-`, context)
-}
-
 func TestAccIAMWorkforcePoolOauthClient_iamOauthClientFullExample(t *testing.T) {
 	t.Parallel()
 
@@ -121,7 +83,7 @@ func testAccCheckIAMWorkforcePoolOauthClientDestroyProducer(t *testing.T) func(s
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{IAMWorkforcePoolBasePath}}projects/{{project}}/locations/global/oauthClients/{{oauth_client_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{IAMWorkforcePoolBasePath}}projects/{{project}}/locations/{{location}}/oauthClients/{{oauth_client_id}}")
 			if err != nil {
 				return err
 			}
@@ -140,7 +102,7 @@ func testAccCheckIAMWorkforcePoolOauthClientDestroyProducer(t *testing.T) func(s
 				return nil
 			}
 
-			return fmt.Errorf("IAMOAuthCLient still exists at %s", url)
+			return fmt.Errorf("IAMOAuthClient still exists at %s", url)
 		}
 
 		return nil
