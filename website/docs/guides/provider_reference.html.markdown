@@ -63,9 +63,9 @@ provider "google-beta" {}
 ### Running Terraform on your workstation.
 
 If you are using Terraform on your workstation we recommend that you install
-`gcloud` and authenticate using [User Application Default Credentials ("ADCs")](https://cloud.google.com/sdk/gcloud/reference/auth/application-default)
-as a primary authentication method. You can enable ADCs by running the command
-`gcloud auth application-default login`.
+the `gcloud` CLI and authenticate using [Application Default Credentials (ADC)][adc]
+as a primary authentication method. You can set up ADC with your user credentials by running the command
+[`gcloud auth application-default login`](https://cloud.google.com/sdk/gcloud/reference/auth/application-default).
 
 <!-- 
 TODO: quota project is not currently read from ADC file b/360405077#comment8
@@ -80,7 +80,7 @@ should return this message if you have set the correct billing project:
 ### Running Terraform on Google Cloud
 
 If you are running Terraform in a machine on Google Cloud, you can configure
-that instance or cluster to use a [Google Service Account](https://cloud.google.com/compute/docs/authentication).
+that instance or cluster to use a [Google Service Account](https://cloud.google.com/compute/docs/access/authenticate-workloads).
 This allows Terraform to authenticate to Google Cloud without a separate
 credential/authentication file. Ensure that the scope of the VM/Cluster is set
 to or includes `https://www.googleapis.com/auth/cloud-platform`.
@@ -105,7 +105,7 @@ All runs within the workspace will use the `GOOGLE_CREDENTIALS` variable to auth
 
 ### Impersonating Service Accounts
 
-Terraform can [impersonate a Google service account](https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials),
+Terraform can [impersonate a Google service account](https://cloud.google.com/docs/authentication/use-service-account-impersonation),
 acting as a service account without managing its key locally.
 
 To impersonate a service account, you must use another authentication method
@@ -409,8 +409,8 @@ See [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#field.user-agent) for form
 [OAuth 2.0 access token]: https://developers.google.com/identity/protocols/OAuth2
 [service account key file]: https://cloud.google.com/iam/docs/creating-managing-service-account-keys
 [manage key files using the Cloud Console]: https://console.cloud.google.com/apis/credentials/serviceaccountkey
-[adc]: https://cloud.google.com/docs/authentication/production
+[adc]: https://cloud.google.com/docs/authentication/application-default-credentials
 [gce-service-account]: https://cloud.google.com/compute/docs/authentication
 [gcloud adc]: https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login
-[service accounts]: https://cloud.google.com/docs/authentication/getting-started
+[service accounts]: https://cloud.google.com/docs/authentication/set-up-adc-attached-service-account
 [scopes]: https://developers.google.com/identity/protocols/googlescopes
