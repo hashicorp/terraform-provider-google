@@ -92,7 +92,7 @@ locals {
   project_id = "%s"
   region     = "%s"
   subnet_one = "%s"
-  subnet_two = "%s"	
+  subnet_two = "%s"
 }
 
 resource "google_compute_network" "this" {
