@@ -114,3 +114,70 @@ resource "google_compute_firewall_policy_association" "default" {
 }
 `, context)
 }
+
+func TestAccComputeFirewallPolicyAssociation_swapover(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"org_name":      fmt.Sprintf("organizations/%s", envvar.GetTestOrgFromEnv(t)),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeFirewallPolicyAssociation_basic(context),
+			},
+			{
+				ResourceName:      "google_compute_firewall_policy_association.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Referencing using ID causes import to fail
+				ImportStateVerifyIgnore: []string{"firewall_policy"},
+			},
+			{
+				Config: testAccComputeFirewallPolicyAssociation_swapover(context),
+			},
+			{
+				ResourceName:      "google_compute_firewall_policy_association.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Referencing using ID causes import to fail
+				ImportStateVerifyIgnore: []string{"firewall_policy"},
+			},
+		},
+	})
+}
+
+func testAccComputeFirewallPolicyAssociation_swapover(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "folder" {
+  display_name = "tf-test-folder-%{random_suffix}"
+  parent       = "%{org_name}"
+  deletion_protection = false
+}
+
+resource "google_folder" "target_folder" {
+  display_name = "tf-test-target-%{random_suffix}"
+  parent       = "%{org_name}"
+  deletion_protection = false
+}
+
+resource "google_compute_firewall_policy" "default" {
+  parent      = google_folder.folder.id
+  short_name  = "tf-test-policy-%{random_suffix}-swapover"
+  description = "Resource created for Terraform acceptance testing"
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "google_compute_firewall_policy_association" "default" {
+  firewall_policy = google_compute_firewall_policy.default.id
+  attachment_target = google_folder.target_folder.name
+  name = "tf-test-association-%{random_suffix}"
+}
+`, context)
+}

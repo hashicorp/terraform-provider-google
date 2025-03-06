@@ -51,6 +51,31 @@ resource "google_compute_firewall_policy_association" "default" {
   name = "my-association"
 }
 ```
+## Example Usage - Firewall Policy Association Swapover
+
+
+```hcl
+resource "google_folder" "folder" {
+  display_name = "my-folder"
+  parent       = "organizations/123456789"
+  deletion_protection = false
+}
+
+resource "google_compute_firewall_policy" "policy" {
+  parent      = "organizations/123456789"
+  short_name  = "my-policy" -> "my-policy-recreate"
+  description = "Example Resource"
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "google_compute_firewall_policy_association" "default" {
+  firewall_policy = google_compute_firewall_policy.policy.id
+  attachment_target = google_folder.folder.name
+  name = "my-association"
+}
+```
 
 ## Argument Reference
 
@@ -68,6 +93,10 @@ The following arguments are supported:
 * `firewall_policy` -
   (Required)
   The firewall policy of the resource.
+  This field can be updated to refer to a different Firewall Policy, which will create a new association from that new
+  firewall policy with the flag to override the existing attachmentTarget's policy association.
+  **Note** Due to potential risks with this operation it is *highly* recommended to use the `create_before_destroy` life cycle option
+  on your exisiting firewall policy so as to prevent a situation where your attachment target has no associated policy.
 
 
 - - -
@@ -90,6 +119,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import

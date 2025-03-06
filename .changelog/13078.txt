@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: update support has been added for the `firewall_policy` field in `google_compute_firewall_policy_association` resource. It is recommended to only perform this operation in combination with a protective lifecycle tag such as "create_before_destroy" or "prevent_destroy" on your previous `firewall_policy` resource in order to prevent situations where a target attachment has no associated policy.
+```
