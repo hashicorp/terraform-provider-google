@@ -1,0 +1,3 @@
+```release-note:enhancement
+firebasedataconnect: added `deletion_policy` support to `google_firebase_data_connect_service` resource
+```
