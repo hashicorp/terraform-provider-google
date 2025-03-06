@@ -1,0 +1,28 @@
+resource: 'google_eventarc_google_api_source'
+generation_type: 'mmv1'
+source_file: 'products/eventarc/GoogleApiSource.yaml'
+api_service_name: 'eventarc.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'GoogleApiSource'
+fields:
+  - field: 'annotations'
+  - field: 'create_time'
+  - field: 'crypto_key_name'
+  - field: 'destination'
+  - field: 'display_name'
+  - field: 'effective_annotations'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'etag'
+  - field: 'google_api_source_id'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'logging_config.log_severity'
+  - field: 'name'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'
