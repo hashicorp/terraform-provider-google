@@ -32,7 +32,7 @@ func TestAccWorkbenchInstance_shielded_config_update(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "update_time"},
 			},
 			{
 				Config: testAccWorkbenchInstance_shielded_config_true(context),
@@ -45,7 +45,7 @@ func TestAccWorkbenchInstance_shielded_config_update(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -73,7 +73,7 @@ func TestAccWorkbenchInstance_shielded_config_remove(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "update_time"},
 			},
 			{
 				Config: testAccWorkbenchInstance_shielded_config_none(context),
@@ -86,7 +86,7 @@ func TestAccWorkbenchInstance_shielded_config_remove(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -114,7 +114,7 @@ func TestAccWorkbenchInstance_shielded_config_double_apply(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "update_time"},
 			},
 			{
 				Config: testAccWorkbenchInstance_shielded_config_none(context),
@@ -127,7 +127,7 @@ func TestAccWorkbenchInstance_shielded_config_double_apply(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "update_time"},
 			},
 			{
 				Config: testAccWorkbenchInstance_shielded_config_false(context),
@@ -140,7 +140,7 @@ func TestAccWorkbenchInstance_shielded_config_double_apply(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "update_time"},
 			},
 			{
 				Config: testAccWorkbenchInstance_shielded_config_false(context),
@@ -153,7 +153,7 @@ func TestAccWorkbenchInstance_shielded_config_double_apply(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "update_time"},
 			},
 			{
 				Config: testAccWorkbenchInstance_shielded_config_true(context),
@@ -166,7 +166,7 @@ func TestAccWorkbenchInstance_shielded_config_double_apply(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "update_time"},
 			},
 			{
 				Config: testAccWorkbenchInstance_shielded_config_true(context),
@@ -179,7 +179,7 @@ func TestAccWorkbenchInstance_shielded_config_double_apply(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "update_time"},
 			},
 		},
 	})
