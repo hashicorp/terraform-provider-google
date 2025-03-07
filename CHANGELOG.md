@@ -1,4 +1,4 @@
-## 6.24.0 (Unreleased)
+## 6.25.0 (Unreleased)
 
 NOTES:
 * eventarc: `google_eventarc_channel` now uses MMv1 engine instead of DCL. ([#21728](https://github.com/hashicorp/terraform-provider-google/pull/21728))
@@ -24,18 +24,18 @@ IMPROVEMENTS:
 * compute: added `log_config.optional_mode` and `log_config.optional_fields` fields to `google_compute_region_backend_service` resource ([#21722](https://github.com/hashicorp/terraform-provider-google/pull/21722))
 * compute: added `rsa_encrypted_key` to `google_compute_region_disk` ([#21636](https://github.com/hashicorp/terraform-provider-google/pull/21636))
 * compute: added `scheduling.termination_time` field to `google_compute_instance`, `google_compute_instance_from_machine_image`, `google_compute_instance_from_template`, `google_compute_instance_template`, and `google_compute_region_instance_template` resources ([#21717](https://github.com/hashicorp/terraform-provider-google/pull/21717))
-* compute: added necessary code to make subnetwork's 'purpose' field updatable. ([#21729](https://github.com/hashicorp/terraform-provider-google/pull/21729))
+* compute: added update support for 'purpose' field in `google_compute_subnetwork` resource ([#21729](https://github.com/hashicorp/terraform-provider-google/pull/21729))
 * compute: added update support for `firewall_policy` in `google_compute_firewall_policy_association` resource. It is recommended to only perform this operation in combination with a protective lifecycle tag such as "create_before_destroy" or "prevent_destroy" on your previous `firewall_policy` resource in order to prevent situations where a target attachment has no associated policy. ([#21735](https://github.com/hashicorp/terraform-provider-google/pull/21735))
 * container: added "JOBSET" as a supported value for `enable_components` in `google_container_cluster` resource ([#21657](https://github.com/hashicorp/terraform-provider-google/pull/21657))
-* firebasedataconnect: added `deletion_policy` support to `google_firebase_data_connect_service` resource ([#21736](https://github.com/hashicorp/terraform-provider-google/pull/21736))
+* firebasedataconnect: added `deletion_policy` field to `google_firebase_data_connect_service` resource ([#21736](https://github.com/hashicorp/terraform-provider-google/pull/21736))
 * networksecurity: added `description` field to `google_network_security_intercept_deployment`, `google_network_security_intercept_deployment_group`, `google_network_security_intercept_endpoint_group` resources ([#21711](https://github.com/hashicorp/terraform-provider-google/pull/21711))
 * networksecurity: added `description` field to `google_network_security_mirroring_deployment`, `google_network_security_mirroring_deployment_group`, `google_network_security_mirroring_endpoint_group` resources ([#21714](https://github.com/hashicorp/terraform-provider-google/pull/21714))
 * tpuv2: added `spot` field to `google_tpu_v2_vm` resource ([#21716](https://github.com/hashicorp/terraform-provider-google/pull/21716))
 * workstations: added `tags` field to `google_workstations_workstation_cluster` resource ([#21635](https://github.com/hashicorp/terraform-provider-google/pull/21635))
 
 BUG FIXES:
-* backupdr: added missing SUNDAY option for `google_backup_dr_backup_plan.days_of_week` ([#21640](https://github.com/hashicorp/terraform-provider-google/pull/21640))
-* compute: fixed `compute_instance.network_interface.internal_ipv6_prefix_length` not being set or read in Terraform state ([#21638](https://github.com/hashicorp/terraform-provider-google/pull/21638))
+* backupdr: added missing `SUNDAY` option to `days_of_week` field in `google_backup_dr_backup_plan` resource ([#21640](https://github.com/hashicorp/terraform-provider-google/pull/21640))
+* compute: fixed `network_interface.internal_ipv6_prefix_length` not being set or read in Terraform state in `google_compute_instance` resource ([#21638](https://github.com/hashicorp/terraform-provider-google/pull/21638))
 * compute: fixed bug in `google_compute_router_nat` where `max_ports_per_vm` couldn't be unset once set. ([#21721](https://github.com/hashicorp/terraform-provider-google/pull/21721))
 * container: fixed perma-diff in `google_container_cluster` when `cluster_dns_scope` is unspecified ([#21637](https://github.com/hashicorp/terraform-provider-google/pull/21637))
 * networksecurity: added wait time on `google_network_security_gateway_security_policy_rule` resource when creating and deleting to prevent race conditions ([#21643](https://github.com/hashicorp/terraform-provider-google/pull/21643))
