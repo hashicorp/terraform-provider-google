@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: promote fields `singleInstanceAssignment` and `filter` to GA for `google_compute_autoscaler` resource
+```
