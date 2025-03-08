@@ -23,6 +23,7 @@ func TestAccEventarcMessageBus(t *testing.T) {
 		"cryptoKey":       testAccEventarcMessageBus_cryptoKey,
 		"update":          testAccEventarcMessageBus_update,
 		"googleApiSource": testAccEventarcMessageBus_googleApiSource,
+		"pipeline":        testAccEventarcMessageBus_pipeline,
 	}
 
 	for name, tc := range testCases {
@@ -286,8 +287,55 @@ resource "google_eventarc_google_api_source" "primary" {
     log_severity = "DEBUG"
   }
 }
-
 resource "google_eventarc_message_bus" "message_bus" {
+  location       = "%{region}"
+  message_bus_id = "tf-test-messagebus%{random_suffix}"
+}
+`, context)
+}
+
+// Although this test is defined in resource_eventarc_message_bus_test, it is primarily
+// concerned with testing the Pipeline resource, which depends on a singleton MessageBus.
+func testAccEventarcMessageBus_pipeline(t *testing.T) {
+	context := map[string]interface{}{
+		"project_id":              envvar.GetTestProjectFromEnv(),
+		"region":                  envvar.GetTestRegionFromEnv(),
+		"random_suffix":           acctest.RandString(t, 10),
+		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-test-eventarc-messagebus-na", acctest.BootstrapSubnet(t, "tf-test-eventarc-messagebus-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-test-eventarc-messagebus-network"))),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckEventarcPipelineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEventarcMessageBus_pipelineCfg(context),
+			},
+			{
+				ResourceName:            "google_eventarc_pipeline.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "annotations"},
+			},
+		},
+	})
+}
+
+func testAccEventarcMessageBus_pipelineCfg(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_eventarc_pipeline" "primary" {
+  location    = "%{region}"
+  pipeline_id = "tf-test-some-pipeline%{random_suffix}"
+  destinations {
+    message_bus = google_eventarc_message_bus.primary.id
+    network_config {
+      network_attachment = "projects/%{project_id}/regions/%{region}/networkAttachments/%{network_attachment_name}"
+    }
+  }
+}
+
+resource "google_eventarc_message_bus" "primary" {
   location       = "%{region}"
   message_bus_id = "tf-test-messagebus%{random_suffix}"
 }
