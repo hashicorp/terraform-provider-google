@@ -1,0 +1,3 @@
+```release-note:bug
+discoveryengine: changed field `dataStoreIds` to mutable in `google_discovery_engine_search_engine`
+```

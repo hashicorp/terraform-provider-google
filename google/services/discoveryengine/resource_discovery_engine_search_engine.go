@@ -66,7 +66,6 @@ func ResourceDiscoveryEngineSearchEngine() *schema.Resource {
 			"data_store_ids": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The data stores associated with this engine. For SOLUTION_TYPE_SEARCH type of engines, they can only associate with at most one data store.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -375,6 +374,12 @@ func resourceDiscoveryEngineSearchEngineUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	dataStoreIdsProp, err := expandDiscoveryEngineSearchEngineDataStoreIds(d.Get("data_store_ids"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("data_store_ids"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dataStoreIdsProp)) {
+		obj["dataStoreIds"] = dataStoreIdsProp
+	}
 	searchEngineConfigProp, err := expandDiscoveryEngineSearchEngineSearchEngineConfig(d.Get("search_engine_config"), d, config)
 	if err != nil {
 		return err
@@ -398,6 +403,10 @@ func resourceDiscoveryEngineSearchEngineUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("data_store_ids") {
+		updateMask = append(updateMask, "dataStoreIds")
 	}
 
 	if d.HasChange("search_engine_config") {
