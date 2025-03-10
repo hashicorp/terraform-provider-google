@@ -1,3 +1,6 @@
 ```release-note:none
 upgrade google.golang.org/api to v0.223.0
 ```
+```release-note:enhancement
+workflows: added `execution_history_level` field to `google_workflows_workflow` resource
+```
