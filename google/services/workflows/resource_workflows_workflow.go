@@ -86,6 +86,14 @@ Format: projects/{project}/locations/{location}/keyRings/{keyRing}/cryptoKeys/{c
 				Optional:    true,
 				Description: `Description of the workflow provided by the user. Must be at most 1000 unicode characters long.`,
 			},
+			"execution_history_level": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"EXECUTION_HISTORY_LEVEL_UNSPECIFIED", "EXECUTION_HISTORY_BASIC", "EXECUTION_HISTORY_DETAILED", ""}),
+				Description: `Describes the level of execution history to be stored for this workflow. This configuration
+determines how much information about workflow executions is preserved. If not specified,
+defaults to EXECUTION_HISTORY_LEVEL_UNSPECIFIED. Possible values: ["EXECUTION_HISTORY_LEVEL_UNSPECIFIED", "EXECUTION_HISTORY_BASIC", "EXECUTION_HISTORY_DETAILED"]`,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -139,7 +147,7 @@ the format tagValues/456. The field is ignored (both PUT & PATCH) when empty.`,
 			"user_env_vars": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: `User-defined environment variables associated with this workflow revision. This map has a maximum length of 20. Each string can take up to 4KiB. Keys cannot be empty strings and cannot start with “GOOGLE” or “WORKFLOWS".`,
+				Description: `User-defined environment variables associated with this workflow revision. This map has a maximum length of 20. Each string can take up to 4KiB. Keys cannot be empty strings and cannot start with "GOOGLE" or "WORKFLOWS".`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"create_time": {
@@ -247,6 +255,12 @@ func resourceWorkflowsWorkflowCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("call_log_level"); !tpgresource.IsEmptyValue(reflect.ValueOf(callLogLevelProp)) && (ok || !reflect.DeepEqual(v, callLogLevelProp)) {
 		obj["callLogLevel"] = callLogLevelProp
+	}
+	executionHistoryLevelProp, err := expandWorkflowsWorkflowExecutionHistoryLevel(d.Get("execution_history_level"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("execution_history_level"); !tpgresource.IsEmptyValue(reflect.ValueOf(executionHistoryLevelProp)) && (ok || !reflect.DeepEqual(v, executionHistoryLevelProp)) {
+		obj["executionHistoryLevel"] = executionHistoryLevelProp
 	}
 	userEnvVarsProp, err := expandWorkflowsWorkflowUserEnvVars(d.Get("user_env_vars"), d, config)
 	if err != nil {
@@ -423,6 +437,9 @@ func resourceWorkflowsWorkflowRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("call_log_level", flattenWorkflowsWorkflowCallLogLevel(res["callLogLevel"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Workflow: %s", err)
 	}
+	if err := d.Set("execution_history_level", flattenWorkflowsWorkflowExecutionHistoryLevel(res["executionHistoryLevel"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
 	if err := d.Set("user_env_vars", flattenWorkflowsWorkflowUserEnvVars(res["userEnvVars"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Workflow: %s", err)
 	}
@@ -482,6 +499,12 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("call_log_level"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, callLogLevelProp)) {
 		obj["callLogLevel"] = callLogLevelProp
 	}
+	executionHistoryLevelProp, err := expandWorkflowsWorkflowExecutionHistoryLevel(d.Get("execution_history_level"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("execution_history_level"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, executionHistoryLevelProp)) {
+		obj["executionHistoryLevel"] = executionHistoryLevelProp
+	}
 	userEnvVarsProp, err := expandWorkflowsWorkflowUserEnvVars(d.Get("user_env_vars"), d, config)
 	if err != nil {
 		return err
@@ -527,6 +550,10 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("call_log_level") {
 		updateMask = append(updateMask, "callLogLevel")
+	}
+
+	if d.HasChange("execution_history_level") {
+		updateMask = append(updateMask, "executionHistoryLevel")
 	}
 
 	if d.HasChange("user_env_vars") {
@@ -696,6 +723,10 @@ func flattenWorkflowsWorkflowCallLogLevel(v interface{}, d *schema.ResourceData,
 	return v
 }
 
+func flattenWorkflowsWorkflowExecutionHistoryLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenWorkflowsWorkflowUserEnvVars(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -740,6 +771,10 @@ func expandWorkflowsWorkflowCryptoKeyName(v interface{}, d tpgresource.Terraform
 }
 
 func expandWorkflowsWorkflowCallLogLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkflowsWorkflowExecutionHistoryLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

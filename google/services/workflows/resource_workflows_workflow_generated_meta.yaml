@@ -13,6 +13,7 @@ fields:
   - field: 'description'
   - field: 'effective_labels'
     provider_only: true
+  - field: 'execution_history_level'
   - field: 'labels'
   - field: 'name'
   - field: 'region'

@@ -30,7 +30,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -868,35 +867,49 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf(`Your %s name is too long to perform this action. The max is 48 characters. Please use "create_snapshot_before_destroy_prefix" to set a custom name for the snapshot.`, nameOrigin)
 		}
 
-		snapshotObj := &compute.Snapshot{
-			Name:       fmt.Sprintf("%s-%s", instanceName, time.Now().Format("20060102-150405")),
-			SourceDisk: d.Get("self_link").(string),
-		}
+		snapshotObj := make(map[string]interface{})
+		snapshotObj["name"] = fmt.Sprintf("%s-%s", instanceName, time.Now().Format("20060102-150405"))
+		snapshotObj["sourceDisk"] = d.Get("self_link").(string)
 
-		//Handling encryption
+		// Handling encryption
 		if d.Get("disk_encryption_key.0.raw_key").(string) != "" {
-			snapshotObj.SourceDiskEncryptionKey = &compute.CustomerEncryptionKey{
-				RawKey: d.Get("disk_encryption_key.0.raw_key").(string),
-			}
-			snapshotObj.SnapshotEncryptionKey = &compute.CustomerEncryptionKey{
-				RawKey: d.Get("disk_encryption_key.0.raw_key").(string),
-			}
+			sourceDiskEncryptionKey := make(map[string]interface{})
+			sourceDiskEncryptionKey["rawKey"] = d.Get("disk_encryption_key.0.raw_key").(string)
+			snapshotObj["sourceDiskEncryptionKey"] = sourceDiskEncryptionKey
+
+			snapshotEncryptionKey := make(map[string]interface{})
+			snapshotEncryptionKey["rawKey"] = d.Get("disk_encryption_key.0.raw_key").(string)
+			snapshotObj["snapshotEncryptionKey"] = snapshotEncryptionKey
 		}
 
 		if d.Get("disk_encryption_key.0.rsa_encrypted_key").(string) != "" {
-			snapshotObj.SourceDiskEncryptionKey = &compute.CustomerEncryptionKey{
-				RsaEncryptedKey: d.Get("disk_encryption_key.0.rsa_encrypted_key").(string),
-			}
-			snapshotObj.SnapshotEncryptionKey = &compute.CustomerEncryptionKey{
-				RsaEncryptedKey: d.Get("disk_encryption_key.0.rsa_encrypted_key").(string),
-			}
+			sourceDiskEncryptionKey := make(map[string]interface{})
+			sourceDiskEncryptionKey["rsaEncryptedKey"] = d.Get("disk_encryption_key.0.rsa_encrypted_key").(string)
+			snapshotObj["sourceDiskEncryptionKey"] = sourceDiskEncryptionKey
+
+			snapshotEncryptionKey := make(map[string]interface{})
+			snapshotEncryptionKey["rsaEncryptedKey"] = d.Get("disk_encryption_key.0.rsa_encrypted_key").(string)
+			snapshotObj["snapshotEncryptionKey"] = snapshotEncryptionKey
 		}
 
-		snapshot, err := config.NewComputeClient(userAgent).Snapshots.Insert(project, snapshotObj).Do()
+		snapshotUrl := fmt.Sprintf("%sprojects/%s/global/snapshots", config.ComputeBasePath, project)
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    snapshotUrl,
+			UserAgent: userAgent,
+			Body:      snapshotObj,
+			Timeout:   d.Timeout(schema.TimeoutCreate),
+		})
 		if err != nil {
 			return fmt.Errorf("Error creating snapshot: %s", err)
 		}
-		err = ComputeOperationWaitTime(config, snapshot, project, "Creating Snapshot", userAgent, d.Timeout(schema.TimeoutCreate))
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Creating Snapshot", userAgent,
+			d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return err
 		}
@@ -914,7 +927,19 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 				return err
 			}
 
-			i, err := config.NewComputeClient(userAgent).Instances.Get(instanceProject, instanceZone, instanceName).Do()
+			// Get instance details using REST API
+			instanceUrl, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", config.ComputeBasePath, instanceProject, instanceZone, instanceName))
+			if err != nil {
+				return err
+			}
+
+			instanceRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   instanceProject,
+				RawURL:    instanceUrl,
+				UserAgent: userAgent,
+			})
 			if err != nil {
 				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 					log.Printf("[WARN] instance %q not found, not bothering to detach disks", instance)
@@ -922,26 +947,43 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 				}
 				return fmt.Errorf("Error retrieving instance %s: %s", instance, err.Error())
 			}
-			for _, disk := range i.Disks {
-				if tpgresource.CompareSelfLinkOrResourceName("", disk.Source, self, nil) {
-					detachCalls = append(detachCalls, detachArgs{
-						project:    instanceProject,
-						zone:       tpgresource.GetResourceNameFromSelfLink(i.Zone),
-						instance:   i.Name,
-						deviceName: disk.DeviceName,
-					})
+
+			if disks, ok := instanceRes["disks"].([]interface{}); ok {
+				for _, diskInterface := range disks {
+					disk := diskInterface.(map[string]interface{})
+					if tpgresource.CompareSelfLinkOrResourceName("", disk["source"].(string), self, nil) {
+						detachCalls = append(detachCalls, detachArgs{
+							project:    instanceProject,
+							zone:       tpgresource.GetResourceNameFromSelfLink(instanceRes["zone"].(string)),
+							instance:   instanceRes["name"].(string),
+							deviceName: disk["deviceName"].(string),
+						})
+					}
 				}
 			}
 		}
 
 		for _, call := range detachCalls {
-			op, err := config.NewComputeClient(userAgent).Instances.DetachDisk(call.project, call.zone, call.instance, call.deviceName).Do()
+			detachUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/detachDisk?deviceName=%s",
+				config.ComputeBasePath, call.project, call.zone, call.instance, call.deviceName)
+
+			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "POST",
+				Project:   call.project,
+				RawURL:    detachUrl,
+				UserAgent: userAgent,
+				Timeout:   d.Timeout(schema.TimeoutDelete),
+			})
 			if err != nil {
 				return fmt.Errorf("Error detaching disk %s from instance %s/%s/%s: %s", call.deviceName, call.project,
 					call.zone, call.instance, err.Error())
 			}
-			err = ComputeOperationWaitTime(config, op, call.project,
-				fmt.Sprintf("Detaching disk from %s/%s/%s", call.project, call.zone, call.instance), userAgent, d.Timeout(schema.TimeoutDelete))
+
+			err = ComputeOperationWaitTime(
+				config, res, call.project,
+				fmt.Sprintf("Detaching disk from %s/%s/%s", call.project, call.zone, call.instance),
+				userAgent, d.Timeout(schema.TimeoutDelete))
 			if err != nil {
 				var opErr ComputeOperationError
 				if errors.As(err, &opErr) && len(opErr.Errors) == 1 && opErr.Errors[0].Code == "RESOURCE_NOT_FOUND" {
