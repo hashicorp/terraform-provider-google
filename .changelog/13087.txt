@@ -1,0 +1,6 @@
+```release-note:enhancement
+networkservices: added `ip_version` and `envoy_headers` fields to `google_network_services_gateway` resource
+```
+```release-note:bug
+networksecurity: `min_tls_version` and `tls_feature_profile` fields updated to use the server assigned default and prevent a permadiff in `google_network_security_tls_inspection_policy` resource.
+```

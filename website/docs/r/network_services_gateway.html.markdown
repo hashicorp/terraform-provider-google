@@ -234,18 +234,18 @@ The following arguments are supported:
 
 * `type` -
   (Required)
-  Immutable. The type of the customer-managed gateway. Possible values are: * OPEN_MESH * SECURE_WEB_GATEWAY.
-  Possible values are: `TYPE_UNSPECIFIED`, `OPEN_MESH`, `SECURE_WEB_GATEWAY`.
+  Immutable. The type of the customer managed gateway.
+  Possible values are: `OPEN_MESH`, `SECURE_WEB_GATEWAY`.
 
 * `ports` -
   (Required)
   One or more port numbers (1-65535), on which the Gateway will receive traffic.
-  The proxy binds to the specified ports. Gateways of type 'SECURE_WEB_GATEWAY' are
-  limited to 1 port. Gateways of type 'OPEN_MESH' listen on 0.0.0.0 and support multiple ports.
+  The proxy binds to the specified ports. Gateways of type 'SECURE_WEB_GATEWAY' are limited to 1 port.
+   Gateways of type 'OPEN_MESH' listen on 0.0.0.0 for IPv4 and :: for IPv6 and support multiple ports.
 
 * `name` -
   (Required)
-  Short name of the Gateway resource to be created.
+  Name of the Gateway resource.
 
 
 - - -
@@ -254,6 +254,7 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Set of label tags associated with the Gateway resource.
+
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
@@ -261,46 +262,57 @@ The following arguments are supported:
   (Optional)
   A free-text description of the resource. Max length 1024 characters.
 
+* `addresses` -
+  (Optional)
+  Zero or one IPv4 or IPv6 address on which the Gateway will receive the traffic.
+  When no address is provided, an IP from the subnetwork is allocated.
+  This field only applies to gateways of type 'SECURE_WEB_GATEWAY'.
+  Gateways of type 'OPEN_MESH' listen on 0.0.0.0 for IPv4 and :: for IPv6.
+
 * `scope` -
   (Optional)
   Immutable. Scope determines how configuration across multiple Gateway instances are merged.
-  The configuration for multiple Gateway instances with the same scope will be merged as presented as
-  a single coniguration to the proxy/load balancer.
+  The configuration for multiple Gateway instances with the same scope will be merged as presented as a single coniguration to the proxy/load balancer.
   Max length 64 characters. Scope should start with a letter and can only have letters, numbers, hyphens.
 
 * `server_tls_policy` -
   (Optional)
-  A fully-qualified ServerTLSPolicy URL reference. Specifies how TLS traffic is terminated.
-  If empty, TLS termination is disabled.
-
-* `addresses` -
-  (Optional)
-  Zero or one IPv4-address on which the Gateway will receive the traffic. When no address is provided,
-  an IP from the subnetwork is allocated This field only applies to gateways of type 'SECURE_WEB_GATEWAY'.
-  Gateways of type 'OPEN_MESH' listen on 0.0.0.0.
-
-* `subnetwork` -
-  (Optional)
-  The relative resource name identifying the subnetwork in which this SWG is allocated.
-  For example: `projects/*/regions/us-central1/subnetworks/network-1`.
-  Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY.
-
-* `network` -
-  (Optional)
-  The relative resource name identifying the VPC network that is using this configuration.
-  For example: `projects/*/global/networks/network-1`.
-  Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY'.
-
-* `gateway_security_policy` -
-  (Optional)
-  A fully-qualified GatewaySecurityPolicy URL reference. Defines how a server should apply security policy to inbound (VM to Proxy) initiated connections.
-  For example: `projects/*/locations/*/gatewaySecurityPolicies/swg-policy`.
-  This policy is specific to gateways of type 'SECURE_WEB_GATEWAY'.
+  A fully-qualified ServerTLSPolicy URL reference. Specifies how TLS traffic is terminated. If empty, TLS termination is disabled.
 
 * `certificate_urls` -
   (Optional)
   A fully-qualified Certificates URL reference. The proxy presents a Certificate (selected based on SNI) when establishing a TLS connection.
   This feature only applies to gateways of type 'SECURE_WEB_GATEWAY'.
+
+* `gateway_security_policy` -
+  (Optional)
+  A fully-qualified GatewaySecurityPolicy URL reference. Defines how a server should apply security policy to inbound (VM to Proxy) initiated connections.
+  For example: 'projects/*/locations/*/gatewaySecurityPolicies/swg-policy'.
+  This policy is specific to gateways of type 'SECURE_WEB_GATEWAY'.
+
+* `network` -
+  (Optional)
+  The relative resource name identifying the VPC network that is using this configuration.
+  For example: 'projects/*/global/networks/network-1'.
+  Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY'.
+
+* `subnetwork` -
+  (Optional)
+  The relative resource name identifying the subnetwork in which this SWG is allocated.
+  For example: projects/*/regions/us-central1/subnetworks/network-1.
+  Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY'.
+
+* `ip_version` -
+  (Optional)
+  The IP Version that will be used by this gateway.
+  Possible values are: `IPV4`, `IPV6`.
+
+* `envoy_headers` -
+  (Optional)
+  Determines if envoy will insert internal debug headers into upstream requests.
+  Other Envoy headers may still be injected.
+  By default, envoy will not insert any debug headers.
+  Possible values are: `NONE`, `DEBUG_HEADERS`.
 
 * `routing_mode` -
   (Optional)
@@ -329,10 +341,10 @@ In addition to the arguments listed above, the following computed attributes are
   Server-defined URL of this resource.
 
 * `create_time` -
-  Time the AccessPolicy was created in UTC.
+  The timestamp when the resource was created.
 
 * `update_time` -
-  Time the AccessPolicy was updated in UTC.
+  The timestamp when the resource was updated.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
