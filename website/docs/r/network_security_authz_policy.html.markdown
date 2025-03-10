@@ -558,6 +558,11 @@ The following arguments are supported:
   Describes properties of one or more targets of a request. At least one of operations or notOperations must be specified. Limited to 5 operations. A match occurs when ANY operation (in operations or notOperations) matches. Within an operation, the match follows AND semantics across fields and OR semantics within a field, i.e. a match occurs when ANY path matches AND ANY header matches and ANY method matches.
   Structure is [documented below](#nested_http_rules_http_rules_to_operations).
 
+* `not_operations` -
+  (Optional)
+  Describes the negated properties of the targets of a request. Matches requests for operations that do not match the criteria specified in this field. At least one of operations or notOperations must be specified.
+  Structure is [documented below](#nested_http_rules_http_rules_to_not_operations).
+
 
 <a name="nested_http_rules_http_rules_to_operations"></a>The `operations` block supports:
 
@@ -665,6 +670,141 @@ The following arguments are supported:
   * abc matches the value xyz.abc.def
 
 <a name="nested_http_rules_http_rules_to_operations_operations_paths"></a>The `paths` block supports:
+
+* `ignore_case` -
+  (Optional)
+  If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.
+
+* `exact` -
+  (Optional)
+  The input string must match exactly the string specified here.
+  Examples:
+  * abc only matches the value abc.
+
+* `prefix` -
+  (Optional)
+  The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value abc.xyz
+
+* `suffix` -
+  (Optional)
+  The input string must have the suffix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc
+
+* `contains` -
+  (Optional)
+  The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc.def
+
+<a name="nested_http_rules_http_rules_to_not_operations"></a>The `not_operations` block supports:
+
+* `header_set` -
+  (Optional)
+  A list of headers to match against in http header.
+  Structure is [documented below](#nested_http_rules_http_rules_to_not_operations_not_operations_header_set).
+
+* `hosts` -
+  (Optional)
+  A list of HTTP Hosts to match against. The match can be one of exact, prefix, suffix, or contains (substring match). Matches are always case sensitive unless the ignoreCase is set.
+  Limited to 5 matches.
+  Structure is [documented below](#nested_http_rules_http_rules_to_not_operations_not_operations_hosts).
+
+* `paths` -
+  (Optional)
+  A list of paths to match against. The match can be one of exact, prefix, suffix, or contains (substring match). Matches are always case sensitive unless the ignoreCase is set.
+  Limited to 5 matches.
+  Note that this path match includes the query parameters. For gRPC services, this should be a fully-qualified name of the form /package.service/method.
+  Structure is [documented below](#nested_http_rules_http_rules_to_not_operations_not_operations_paths).
+
+* `methods` -
+  (Optional)
+  A list of HTTP methods to match against. Each entry must be a valid HTTP method name (GET, PUT, POST, HEAD, PATCH, DELETE, OPTIONS). It only allows exact match and is always case sensitive.
+
+
+<a name="nested_http_rules_http_rules_to_not_operations_not_operations_header_set"></a>The `header_set` block supports:
+
+* `headers` -
+  (Optional)
+  A list of headers to match against in http header. The match can be one of exact, prefix, suffix, or contains (substring match). The match follows AND semantics which means all the headers must match. Matches are always case sensitive unless the ignoreCase is set. Limited to 5 matches.
+  Structure is [documented below](#nested_http_rules_http_rules_to_not_operations_not_operations_header_set_headers).
+
+
+<a name="nested_http_rules_http_rules_to_not_operations_not_operations_header_set_headers"></a>The `headers` block supports:
+
+* `name` -
+  (Optional)
+  Specifies the name of the header in the request.
+
+* `value` -
+  (Optional)
+  Specifies how the header match will be performed.
+  Structure is [documented below](#nested_http_rules_http_rules_to_not_operations_not_operations_header_set_headers_headers_value).
+
+
+<a name="nested_http_rules_http_rules_to_not_operations_not_operations_header_set_headers_headers_value"></a>The `value` block supports:
+
+* `ignore_case` -
+  (Optional)
+  If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.
+
+* `exact` -
+  (Optional)
+  The input string must match exactly the string specified here.
+  Examples:
+  * abc only matches the value abc.
+
+* `prefix` -
+  (Optional)
+  The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value abc.xyz
+
+* `suffix` -
+  (Optional)
+  The input string must have the suffix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc
+
+* `contains` -
+  (Optional)
+  The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc.def
+
+<a name="nested_http_rules_http_rules_to_not_operations_not_operations_hosts"></a>The `hosts` block supports:
+
+* `ignore_case` -
+  (Optional)
+  If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.
+
+* `exact` -
+  (Optional)
+  The input string must match exactly the string specified here.
+  Examples:
+  * abc only matches the value abc.
+
+* `prefix` -
+  (Optional)
+  The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value abc.xyz
+
+* `suffix` -
+  (Optional)
+  The input string must have the suffix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc
+
+* `contains` -
+  (Optional)
+  The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc.def
+
+<a name="nested_http_rules_http_rules_to_not_operations_not_operations_paths"></a>The `paths` block supports:
 
 * `ignore_case` -
   (Optional)

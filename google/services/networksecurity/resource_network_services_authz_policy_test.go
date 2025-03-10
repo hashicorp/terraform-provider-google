@@ -355,6 +355,79 @@ resource "google_network_security_authz_policy" "default" {
           ignore_case = true
         }
       }
+      not_operations {
+        methods = ["GET", "PUT", "POST", "HEAD", "PATCH", "DELETE", "OPTIONS"]
+		header_set {
+          # Prefix
+		  headers {
+            name = "PrefixHeader"
+            value {
+			  ignore_case = false
+			  prefix      = "prefix"
+            }
+          }
+		  # Suffix / Ignore case
+		  headers {
+			name = "SuffixHeader"
+			value {
+			  ignore_case = true
+			  suffix      = "suffix"
+			}
+		  }
+		  # Exact
+		  headers {
+            name = "ExactHeader"
+            value {
+              exact       = "exact"
+          	  ignore_case = false
+            }
+          }
+		  # Contains / Ignore case
+		  headers {
+            name = "ContainsHeader"
+            value {
+              contains    = "contains"
+          	  ignore_case = true
+            }
+          }
+        }
+        # Prefix
+		hosts {
+			ignore_case = false
+			prefix      = "prefix"
+        }
+		paths {
+          ignore_case = false
+          prefix      = "prefix"
+        }
+		# Suffix / Ignore case
+		hosts {
+          ignore_case = true
+          suffix      = "suffix"
+        }
+        paths {
+          ignore_case = true
+          suffix      = "suffix"
+        }
+		# Exact
+		hosts {
+          exact       = "exact"
+          ignore_case = false
+        }
+		paths {
+		  exact       = "exact"
+		  ignore_case = false
+        }
+		# Contains / Ignore case
+		hosts {
+          contains    = "contains"
+          ignore_case = true
+        }
+		paths {
+          contains    = "contains"
+          ignore_case = true
+        }
+      }
     }
 	when = "request.host.endsWith('.example.com')"
   }
