@@ -4,7 +4,7 @@ description: |-
  Provides access to data about all KMS key rings within a location with Google Cloud KMS.
 ---
 
-# google_kms_crypto_key_rings
+# google_kms_key_rings
 
 Provides access to all Google Cloud Platform KMS CryptoKeyRings in a set location. For more information see
 [the official documentation](https://cloud.google.com/kms/docs/resource-hierarchy#key_rings)
