@@ -204,9 +204,16 @@ The following arguments are supported:
   the execution level takes precedence.
   Possible values are: `CALL_LOG_LEVEL_UNSPECIFIED`, `LOG_ALL_CALLS`, `LOG_ERRORS_ONLY`, `LOG_NONE`.
 
+* `execution_history_level` -
+  (Optional)
+  Describes the level of execution history to be stored for this workflow. This configuration
+  determines how much information about workflow executions is preserved. If not specified,
+  defaults to EXECUTION_HISTORY_LEVEL_UNSPECIFIED.
+  Possible values are: `EXECUTION_HISTORY_LEVEL_UNSPECIFIED`, `EXECUTION_HISTORY_BASIC`, `EXECUTION_HISTORY_DETAILED`.
+
 * `user_env_vars` -
   (Optional)
-  User-defined environment variables associated with this workflow revision. This map has a maximum length of 20. Each string can take up to 4KiB. Keys cannot be empty strings and cannot start with “GOOGLE” or “WORKFLOWS".
+  User-defined environment variables associated with this workflow revision. This map has a maximum length of 20. Each string can take up to 4KiB. Keys cannot be empty strings and cannot start with "GOOGLE" or "WORKFLOWS".
 
 * `tags` -
   (Optional)

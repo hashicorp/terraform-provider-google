@@ -41,6 +41,7 @@ resource "google_workflows_workflow" "example" {
   region         = "us-central1"
   description    = "Magic"
   call_log_level = "LOG_ERRORS_ONLY"
+  execution_history_level = "EXECUTION_HISTORY_BASIC"
   user_env_vars = {
     url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam"
   }
@@ -86,6 +87,7 @@ resource "google_workflows_workflow" "example" {
   region         = "us-central1"
   description    = "Magic-updated"
   call_log_level = "LOG_ALL_CALLS"
+  execution_history_level = "EXECUTION_HISTORY_DETAILED"
   user_env_vars = {
     url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/London"
   }
