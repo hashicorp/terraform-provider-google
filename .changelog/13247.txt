@@ -1,0 +1,3 @@
+```release-note: bug
+compute: adjust mapped image names that were preventing usage of `fedora-coreos` in `google_compute_image` resource
+```
