@@ -13,7 +13,9 @@ fields:
   - field: 'description'
   - field: 'effective_labels'
     provider_only: true
+  - field: 'envoy_headers'
   - field: 'gateway_security_policy'
+  - field: 'ip_version'
   - field: 'labels'
   - field: 'location'
     provider_only: true

@@ -182,14 +182,14 @@ func ResourceNetworkServicesGateway() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Short name of the Gateway resource to be created.`,
+				Description: `Name of the Gateway resource.`,
 			},
 			"ports": {
 				Type:     schema.TypeList,
 				Required: true,
 				Description: `One or more port numbers (1-65535), on which the Gateway will receive traffic.
-The proxy binds to the specified ports. Gateways of type 'SECURE_WEB_GATEWAY' are
-limited to 1 port. Gateways of type 'OPEN_MESH' listen on 0.0.0.0 and support multiple ports.`,
+The proxy binds to the specified ports. Gateways of type 'SECURE_WEB_GATEWAY' are limited to 1 port.
+ Gateways of type 'OPEN_MESH' listen on 0.0.0.0 for IPv4 and :: for IPv6 and support multiple ports.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
 				},
@@ -198,17 +198,19 @@ limited to 1 port. Gateways of type 'OPEN_MESH' listen on 0.0.0.0 and support mu
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"TYPE_UNSPECIFIED", "OPEN_MESH", "SECURE_WEB_GATEWAY"}),
-				Description:  `Immutable. The type of the customer-managed gateway. Possible values are: * OPEN_MESH * SECURE_WEB_GATEWAY. Possible values: ["TYPE_UNSPECIFIED", "OPEN_MESH", "SECURE_WEB_GATEWAY"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"OPEN_MESH", "SECURE_WEB_GATEWAY"}),
+				Description:  `Immutable. The type of the customer managed gateway. Possible values: ["OPEN_MESH", "SECURE_WEB_GATEWAY"]`,
 			},
 			"addresses": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
-				Description: `Zero or one IPv4-address on which the Gateway will receive the traffic. When no address is provided,
-an IP from the subnetwork is allocated This field only applies to gateways of type 'SECURE_WEB_GATEWAY'.
-Gateways of type 'OPEN_MESH' listen on 0.0.0.0.`,
+				Description: `Zero or one IPv4 or IPv6 address on which the Gateway will receive the traffic.
+When no address is provided, an IP from the subnetwork is allocated.
+
+This field only applies to gateways of type 'SECURE_WEB_GATEWAY'.
+Gateways of type 'OPEN_MESH' listen on 0.0.0.0 for IPv4 and :: for IPv6.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -227,6 +229,14 @@ This feature only applies to gateways of type 'SECURE_WEB_GATEWAY'.`,
 				Optional:    true,
 				Description: `A free-text description of the resource. Max length 1024 characters.`,
 			},
+			"envoy_headers": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"NONE", "DEBUG_HEADERS", ""}),
+				Description: `Determines if envoy will insert internal debug headers into upstream requests.
+Other Envoy headers may still be injected.
+By default, envoy will not insert any debug headers. Possible values: ["NONE", "DEBUG_HEADERS"]`,
+			},
 			"gateway_security_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -234,10 +244,17 @@ This feature only applies to gateways of type 'SECURE_WEB_GATEWAY'.`,
 For example: 'projects/*/locations/*/gatewaySecurityPolicies/swg-policy'.
 This policy is specific to gateways of type 'SECURE_WEB_GATEWAY'.`,
 			},
+			"ip_version": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"IPV4", "IPV6", ""}),
+				Description:  `The IP Version that will be used by this gateway. Possible values: ["IPV4", "IPV6"]`,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Description: `Set of label tags associated with the Gateway resource.
+
 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
@@ -256,6 +273,7 @@ The default value is 'global'.`,
 				ForceNew: true,
 				Description: `The relative resource name identifying the VPC network that is using this configuration.
 For example: 'projects/*/global/networks/network-1'.
+
 Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY'.`,
 			},
 			"routing_mode": {
@@ -269,28 +287,28 @@ Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY'.`,
 				Optional: true,
 				ForceNew: true,
 				Description: `Immutable. Scope determines how configuration across multiple Gateway instances are merged.
-The configuration for multiple Gateway instances with the same scope will be merged as presented as
-a single coniguration to the proxy/load balancer.
+The configuration for multiple Gateway instances with the same scope will be merged as presented as a single coniguration to the proxy/load balancer.
+
 Max length 64 characters. Scope should start with a letter and can only have letters, numbers, hyphens.`,
 			},
 			"server_tls_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: `A fully-qualified ServerTLSPolicy URL reference. Specifies how TLS traffic is terminated.
-If empty, TLS termination is disabled.`,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A fully-qualified ServerTLSPolicy URL reference. Specifies how TLS traffic is terminated. If empty, TLS termination is disabled.`,
 			},
 			"subnetwork": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Description: `The relative resource name identifying the subnetwork in which this SWG is allocated.
-For example: 'projects/*/regions/us-central1/subnetworks/network-1'.
-Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY.`,
+For example: projects/*/regions/us-central1/subnetworks/network-1.
+
+Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY'.`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Time the AccessPolicy was created in UTC.`,
+				Description: `The timestamp when the resource was created.`,
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
@@ -313,7 +331,7 @@ Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY.`,
 			"update_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Time the AccessPolicy was updated in UTC.`,
+				Description: `The timestamp when the resource was updated.`,
 			},
 			"delete_swg_autogen_router_on_destroy": {
 				Type:     schema.TypeBool,
@@ -353,6 +371,12 @@ func resourceNetworkServicesGatewayCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
 	}
+	addressesProp, err := expandNetworkServicesGatewayAddresses(d.Get("addresses"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("addresses"); !tpgresource.IsEmptyValue(reflect.ValueOf(addressesProp)) && (ok || !reflect.DeepEqual(v, addressesProp)) {
+		obj["addresses"] = addressesProp
+	}
 	portsProp, err := expandNetworkServicesGatewayPorts(d.Get("ports"), d, config)
 	if err != nil {
 		return err
@@ -371,23 +395,11 @@ func resourceNetworkServicesGatewayCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("server_tls_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(serverTlsPolicyProp)) && (ok || !reflect.DeepEqual(v, serverTlsPolicyProp)) {
 		obj["serverTlsPolicy"] = serverTlsPolicyProp
 	}
-	addressesProp, err := expandNetworkServicesGatewayAddresses(d.Get("addresses"), d, config)
+	certificateUrlsProp, err := expandNetworkServicesGatewayCertificateUrls(d.Get("certificate_urls"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("addresses"); !tpgresource.IsEmptyValue(reflect.ValueOf(addressesProp)) && (ok || !reflect.DeepEqual(v, addressesProp)) {
-		obj["addresses"] = addressesProp
-	}
-	subnetworkProp, err := expandNetworkServicesGatewaySubnetwork(d.Get("subnetwork"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("subnetwork"); !tpgresource.IsEmptyValue(reflect.ValueOf(subnetworkProp)) && (ok || !reflect.DeepEqual(v, subnetworkProp)) {
-		obj["subnetwork"] = subnetworkProp
-	}
-	networkProp, err := expandNetworkServicesGatewayNetwork(d.Get("network"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
-		obj["network"] = networkProp
+	} else if v, ok := d.GetOkExists("certificate_urls"); !tpgresource.IsEmptyValue(reflect.ValueOf(certificateUrlsProp)) && (ok || !reflect.DeepEqual(v, certificateUrlsProp)) {
+		obj["certificateUrls"] = certificateUrlsProp
 	}
 	gatewaySecurityPolicyProp, err := expandNetworkServicesGatewayGatewaySecurityPolicy(d.Get("gateway_security_policy"), d, config)
 	if err != nil {
@@ -395,11 +407,29 @@ func resourceNetworkServicesGatewayCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("gateway_security_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(gatewaySecurityPolicyProp)) && (ok || !reflect.DeepEqual(v, gatewaySecurityPolicyProp)) {
 		obj["gatewaySecurityPolicy"] = gatewaySecurityPolicyProp
 	}
-	certificateUrlsProp, err := expandNetworkServicesGatewayCertificateUrls(d.Get("certificate_urls"), d, config)
+	networkProp, err := expandNetworkServicesGatewayNetwork(d.Get("network"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("certificate_urls"); !tpgresource.IsEmptyValue(reflect.ValueOf(certificateUrlsProp)) && (ok || !reflect.DeepEqual(v, certificateUrlsProp)) {
-		obj["certificateUrls"] = certificateUrlsProp
+	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
+		obj["network"] = networkProp
+	}
+	subnetworkProp, err := expandNetworkServicesGatewaySubnetwork(d.Get("subnetwork"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("subnetwork"); !tpgresource.IsEmptyValue(reflect.ValueOf(subnetworkProp)) && (ok || !reflect.DeepEqual(v, subnetworkProp)) {
+		obj["subnetwork"] = subnetworkProp
+	}
+	ipVersionProp, err := expandNetworkServicesGatewayIpVersion(d.Get("ip_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ip_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipVersionProp)) && (ok || !reflect.DeepEqual(v, ipVersionProp)) {
+		obj["ipVersion"] = ipVersionProp
+	}
+	envoyHeadersProp, err := expandNetworkServicesGatewayEnvoyHeaders(d.Get("envoy_headers"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("envoy_headers"); !tpgresource.IsEmptyValue(reflect.ValueOf(envoyHeadersProp)) && (ok || !reflect.DeepEqual(v, envoyHeadersProp)) {
+		obj["envoyHeaders"] = envoyHeadersProp
 	}
 	routingModeProp, err := expandNetworkServicesGatewayRoutingMode(d.Get("routing_mode"), d, config)
 	if err != nil {
@@ -536,6 +566,9 @@ func resourceNetworkServicesGatewayRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("type", flattenNetworkServicesGatewayType(res["type"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Gateway: %s", err)
 	}
+	if err := d.Set("addresses", flattenNetworkServicesGatewayAddresses(res["addresses"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Gateway: %s", err)
+	}
 	if err := d.Set("ports", flattenNetworkServicesGatewayPorts(res["ports"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Gateway: %s", err)
 	}
@@ -545,19 +578,22 @@ func resourceNetworkServicesGatewayRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("server_tls_policy", flattenNetworkServicesGatewayServerTlsPolicy(res["serverTlsPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Gateway: %s", err)
 	}
-	if err := d.Set("addresses", flattenNetworkServicesGatewayAddresses(res["addresses"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Gateway: %s", err)
-	}
-	if err := d.Set("subnetwork", flattenNetworkServicesGatewaySubnetwork(res["subnetwork"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Gateway: %s", err)
-	}
-	if err := d.Set("network", flattenNetworkServicesGatewayNetwork(res["network"], d, config)); err != nil {
+	if err := d.Set("certificate_urls", flattenNetworkServicesGatewayCertificateUrls(res["certificateUrls"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Gateway: %s", err)
 	}
 	if err := d.Set("gateway_security_policy", flattenNetworkServicesGatewayGatewaySecurityPolicy(res["gatewaySecurityPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Gateway: %s", err)
 	}
-	if err := d.Set("certificate_urls", flattenNetworkServicesGatewayCertificateUrls(res["certificateUrls"], d, config)); err != nil {
+	if err := d.Set("network", flattenNetworkServicesGatewayNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Gateway: %s", err)
+	}
+	if err := d.Set("subnetwork", flattenNetworkServicesGatewaySubnetwork(res["subnetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Gateway: %s", err)
+	}
+	if err := d.Set("ip_version", flattenNetworkServicesGatewayIpVersion(res["ipVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Gateway: %s", err)
+	}
+	if err := d.Set("envoy_headers", flattenNetworkServicesGatewayEnvoyHeaders(res["envoyHeaders"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Gateway: %s", err)
 	}
 	if err := d.Set("routing_mode", flattenNetworkServicesGatewayRoutingMode(res["routingMode"], d, config)); err != nil {
@@ -607,17 +643,29 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("server_tls_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serverTlsPolicyProp)) {
 		obj["serverTlsPolicy"] = serverTlsPolicyProp
 	}
+	certificateUrlsProp, err := expandNetworkServicesGatewayCertificateUrls(d.Get("certificate_urls"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("certificate_urls"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, certificateUrlsProp)) {
+		obj["certificateUrls"] = certificateUrlsProp
+	}
 	gatewaySecurityPolicyProp, err := expandNetworkServicesGatewayGatewaySecurityPolicy(d.Get("gateway_security_policy"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("gateway_security_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, gatewaySecurityPolicyProp)) {
 		obj["gatewaySecurityPolicy"] = gatewaySecurityPolicyProp
 	}
-	certificateUrlsProp, err := expandNetworkServicesGatewayCertificateUrls(d.Get("certificate_urls"), d, config)
+	ipVersionProp, err := expandNetworkServicesGatewayIpVersion(d.Get("ip_version"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("certificate_urls"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, certificateUrlsProp)) {
-		obj["certificateUrls"] = certificateUrlsProp
+	} else if v, ok := d.GetOkExists("ip_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ipVersionProp)) {
+		obj["ipVersion"] = ipVersionProp
+	}
+	envoyHeadersProp, err := expandNetworkServicesGatewayEnvoyHeaders(d.Get("envoy_headers"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("envoy_headers"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, envoyHeadersProp)) {
+		obj["envoyHeaders"] = envoyHeadersProp
 	}
 	routingModeProp, err := expandNetworkServicesGatewayRoutingMode(d.Get("routing_mode"), d, config)
 	if err != nil {
@@ -658,12 +706,20 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 		updateMask = append(updateMask, "serverTlsPolicy")
 	}
 
+	if d.HasChange("certificate_urls") {
+		updateMask = append(updateMask, "certificateUrls")
+	}
+
 	if d.HasChange("gateway_security_policy") {
 		updateMask = append(updateMask, "gatewaySecurityPolicy")
 	}
 
-	if d.HasChange("certificate_urls") {
-		updateMask = append(updateMask, "certificateUrls")
+	if d.HasChange("ip_version") {
+		updateMask = append(updateMask, "ipVersion")
+	}
+
+	if d.HasChange("envoy_headers") {
+		updateMask = append(updateMask, "envoyHeaders")
 	}
 
 	if d.HasChange("routing_mode") {
@@ -847,6 +903,10 @@ func flattenNetworkServicesGatewayType(v interface{}, d *schema.ResourceData, co
 	return v
 }
 
+func flattenNetworkServicesGatewayAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkServicesGatewayPorts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -859,15 +919,7 @@ func flattenNetworkServicesGatewayServerTlsPolicy(v interface{}, d *schema.Resou
 	return v
 }
 
-func flattenNetworkServicesGatewayAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenNetworkServicesGatewaySubnetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenNetworkServicesGatewayNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesGatewayCertificateUrls(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -875,7 +927,19 @@ func flattenNetworkServicesGatewayGatewaySecurityPolicy(v interface{}, d *schema
 	return v
 }
 
-func flattenNetworkServicesGatewayCertificateUrls(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesGatewayNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesGatewaySubnetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesGatewayIpVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesGatewayEnvoyHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -910,6 +974,10 @@ func expandNetworkServicesGatewayType(v interface{}, d tpgresource.TerraformReso
 	return v, nil
 }
 
+func expandNetworkServicesGatewayAddresses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkServicesGatewayPorts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -922,15 +990,7 @@ func expandNetworkServicesGatewayServerTlsPolicy(v interface{}, d tpgresource.Te
 	return v, nil
 }
 
-func expandNetworkServicesGatewayAddresses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandNetworkServicesGatewaySubnetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandNetworkServicesGatewayNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesGatewayCertificateUrls(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -938,7 +998,19 @@ func expandNetworkServicesGatewayGatewaySecurityPolicy(v interface{}, d tpgresou
 	return v, nil
 }
 
-func expandNetworkServicesGatewayCertificateUrls(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesGatewayNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesGatewaySubnetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesGatewayIpVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesGatewayEnvoyHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
