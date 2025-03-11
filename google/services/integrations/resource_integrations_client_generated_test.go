@@ -68,7 +68,10 @@ func TestAccIntegrationsClient_integrationsClientFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"crypto_key_name": "tftest-shared-key-1",
+		"key_ring_name":   "tftest-shared-keyring-1",
+		"kms_key":         acctest.BootstrapKMSKeyInLocation(t, "us-east1"),
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -91,22 +94,21 @@ func TestAccIntegrationsClient_integrationsClientFullExample(t *testing.T) {
 
 func testAccIntegrationsClient_integrationsClientFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_project" "test_project" {
+data "google_project" "default" {
 }
 
-resource "google_kms_key_ring" "keyring" {
-  name     = "tf-test-my-keyring%{random_suffix}"
+data "google_kms_key_ring" "keyring" {
+  name     = "%{key_ring_name}"
   location = "us-east1"
 }
 
-resource "google_kms_crypto_key" "cryptokey" {
-  name = "crypto-key-example"
-  key_ring = google_kms_key_ring.keyring.id
-  rotation_period = "7776000s"
+data "google_kms_crypto_key" "cryptokey" {
+  name = "%{crypto_key_name}"
+  key_ring = data.google_kms_key_ring.keyring.id
 }
 
-resource "google_kms_crypto_key_version" "test_key" {
-  crypto_key = google_kms_crypto_key.cryptokey.id
+data "google_kms_crypto_key_version" "test_key" {
+  crypto_key = data.google_kms_crypto_key.cryptokey.id
 }
 
 resource "google_service_account" "service_account" {
@@ -120,10 +122,10 @@ resource "google_integrations_client" "example" {
   run_as_service_account = google_service_account.service_account.email
   cloud_kms_config {
     kms_location = "us-east1"
-    kms_ring = basename(google_kms_key_ring.keyring.id)
-    key = basename(google_kms_crypto_key.cryptokey.id)
-    key_version = basename(google_kms_crypto_key_version.test_key.id)
-    kms_project_id = data.google_project.test_project.project_id
+    kms_ring = basename(data.google_kms_key_ring.keyring.id)
+    key = basename(data.google_kms_crypto_key.cryptokey.id)
+    key_version = basename(data.google_kms_crypto_key_version.test_key.id)
+    kms_project_id = data.google_project.default.project_id
   }
 }
 `, context)

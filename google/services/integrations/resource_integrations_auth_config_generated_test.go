@@ -84,6 +84,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigUsernameAndPasswordExam
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -107,12 +108,8 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigUsernameAndPasswordExam
 
 func testAccIntegrationsAuthConfig_integrationsAuthConfigUsernameAndPasswordExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_integrations_client" "client" {
-  location = "northamerica-northeast2"
-}
-
 resource "google_integrations_auth_config" "username_and_password_example" {
-    location = "northamerica-northeast2"
+    location = "us-east4"
     display_name = "tf-test-test-authconfig-username-and-password%{random_suffix}"
     description = "Test auth config created via terraform"
     decrypted_credential {
@@ -122,7 +119,6 @@ resource "google_integrations_auth_config" "username_and_password_example" {
             password = "test-password"
         }
     }
-    depends_on = [google_integrations_client.client]
 }
 `, context)
 }
@@ -131,6 +127,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOauth2AuthorizationCode
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -154,12 +151,8 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOauth2AuthorizationCode
 
 func testAccIntegrationsAuthConfig_integrationsAuthConfigOauth2AuthorizationCodeExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_integrations_client" "client" {
-  location = "asia-east1"
-}
-
 resource "google_integrations_auth_config" "oauth2_authotization_code_example" {
-    location = "asia-east1"
+    location = "us-east4"
     display_name = "tf-test-test-authconfig-oauth2-authorization-code%{random_suffix}"
     description = "Test auth config created via terraform"
     decrypted_credential {
@@ -172,7 +165,6 @@ resource "google_integrations_auth_config" "oauth2_authotization_code_example" {
             token_endpoint = "https://authorization-server.com/token"
         }
     }
-    depends_on = [google_integrations_client.client]
 }
 `, context)
 }
@@ -181,6 +173,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOauth2ClientCredentials
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -204,12 +197,8 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOauth2ClientCredentials
 
 func testAccIntegrationsAuthConfig_integrationsAuthConfigOauth2ClientCredentialsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_integrations_client" "client" {
-  location = "southamerica-east1"
-}
-
 resource "google_integrations_auth_config" "oauth2_client_credentials_example" {
-    location = "southamerica-east1"
+    location = "us-east4"
     display_name = "tf-test-test-authconfig-oauth2-client-credentials%{random_suffix}"
     description = "Test auth config created via terraform"
     decrypted_credential {
@@ -236,7 +225,6 @@ resource "google_integrations_auth_config" "oauth2_client_credentials_example" {
             }
         }
     }
-    depends_on = [google_integrations_client.client]
 }
 `, context)
 }
@@ -245,6 +233,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigJwtExample(t *testing.T
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -268,12 +257,8 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigJwtExample(t *testing.T
 
 func testAccIntegrationsAuthConfig_integrationsAuthConfigJwtExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_integrations_client" "client" {
-  location = "us-west4"
-}
-
 resource "google_integrations_auth_config" "jwt_example" {
-    location = "us-west4"
+    location = "us-east4"
     display_name = "tf-test-test-authconfig-jwt%{random_suffix}"
     description = "Test auth config created via terraform"
     decrypted_credential {
@@ -284,7 +269,6 @@ resource "google_integrations_auth_config" "jwt_example" {
             secret = "secret"
         }
     }
-    depends_on = [google_integrations_client.client]
 }
 `, context)
 }
@@ -293,6 +277,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigAuthTokenExample(t *tes
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -316,12 +301,8 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigAuthTokenExample(t *tes
 
 func testAccIntegrationsAuthConfig_integrationsAuthConfigAuthTokenExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_integrations_client" "client" {
-  location = "us-west2"
-}
-
 resource "google_integrations_auth_config" "auth_token_example" {
-    location = "us-west2"
+    location = "us-east4"
     display_name = "tf-test-test-authconfig-auth-token%{random_suffix}"
     description = "Test auth config created via terraform"
     decrypted_credential {
@@ -331,7 +312,6 @@ resource "google_integrations_auth_config" "auth_token_example" {
             token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
         }
     }
-    depends_on = [google_integrations_client.client]
 }
 `, context)
 }
@@ -340,6 +320,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigServiceAccountExample(t
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -363,17 +344,13 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigServiceAccountExample(t
 
 func testAccIntegrationsAuthConfig_integrationsAuthConfigServiceAccountExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_integrations_client" "client" {
-  location = "northamerica-northeast1"
-}
-
 resource "google_service_account" "service_account" {
   account_id   = "sa%{random_suffix}"
   display_name = "Service Account"
 }
 
 resource "google_integrations_auth_config" "service_account_example" {
-    location = "northamerica-northeast1"
+    location = "us-east4"
     display_name = "tf-test-test-authconfig-service-account%{random_suffix}"
     description = "Test auth config created via terraform"
     decrypted_credential {
@@ -383,7 +360,6 @@ resource "google_integrations_auth_config" "service_account_example" {
             scope = "https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/adexchange.buyer https://www.googleapis.com/auth/admob.readonly"
         }
     }
-    depends_on = [google_service_account.service_account, google_integrations_client.client]
 }
 `, context)
 }
@@ -392,6 +368,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOidcTokenExample(t *tes
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -415,17 +392,13 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOidcTokenExample(t *tes
 
 func testAccIntegrationsAuthConfig_integrationsAuthConfigOidcTokenExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_integrations_client" "client" {
-  location = "us-south1"
-}
-
 resource "google_service_account" "service_account" {
   account_id   = "sa%{random_suffix}"
   display_name = "Service Account"
 }
 
 resource "google_integrations_auth_config" "oidc_token_example" {
-    location = "us-south1"
+    location = "us-east4"
     display_name = "tf-test-test-authconfig-oidc-token%{random_suffix}"
     description = "Test auth config created via terraform"
     decrypted_credential {
@@ -435,7 +408,6 @@ resource "google_integrations_auth_config" "oidc_token_example" {
             audience = "https://us-south1-project.cloudfunctions.net/functionA 1234987819200.apps.googleusercontent.com"
         }
     }
-    depends_on = [google_service_account.service_account, google_integrations_client.client]
 }
 `, context)
 }
@@ -444,6 +416,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigClientCertificateOnlyEx
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -467,12 +440,8 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigClientCertificateOnlyEx
 
 func testAccIntegrationsAuthConfig_integrationsAuthConfigClientCertificateOnlyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_integrations_client" "client" {
-  location = "us-west3"
-}
-
 resource "google_integrations_auth_config" "client_certificate_example" {
-    location = "us-west3"
+    location = "us-east4"
     display_name = "tf-test-test-authconfig-client-certificate%{random_suffix}"
     description = "Test auth config created via terraform"
     decrypted_credential {
@@ -528,7 +497,6 @@ UwKadZbfwbVF5ipu59UxfVE3lipf/mYePDqMkHVWv/8p+OnnJt9uKnyW8VSOu5uk
 EOT
         passphrase = ""
     }
-    depends_on = [google_integrations_client.client]
 }
 `, context)
 }
