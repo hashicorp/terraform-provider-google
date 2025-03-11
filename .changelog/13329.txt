@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `UNRESTRICTED` option to the `tls_early_data` field in the `google_compute_target_https_proxy` resource
+```
