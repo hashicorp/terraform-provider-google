@@ -7,6 +7,7 @@ api_resource_type_kind: 'Federation'
 fields:
   - field: 'backend_metastores.backend_metastores.metastore_type'
   - field: 'backend_metastores.backend_metastores.name'
+  - field: 'create_time'
   - field: 'effective_labels'
     provider_only: true
   - field: 'endpoint_uri'
@@ -21,4 +22,5 @@ fields:
   - field: 'terraform_labels'
     provider_only: true
   - field: 'uid'
+  - field: 'update_time'
   - field: 'version'
