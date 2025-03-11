@@ -98,30 +98,11 @@ resource "google_storage_bucket_iam_member" "admin" {
 The following arguments are supported:
 
 
-* `csv_options` -
-  (Required)
-  Options for configuring the format of the inventory report CSV file.
-  Structure is [documented below](#nested_csv_options).
-
 * `location` -
   (Required)
   The location of the ReportConfig. The source and destination buckets specified in the ReportConfig
   must be in the same location.
 
-
-<a name="nested_csv_options"></a>The `csv_options` block supports:
-
-* `record_separator` -
-  (Optional)
-  The character used to separate the records in the inventory report CSV file.
-
-* `delimiter` -
-  (Optional)
-  The delimiter used to separate the fields in the inventory report CSV file.
-
-* `header_required` -
-  (Optional)
-  The boolean that indicates whether or not headers are included in the inventory report CSV file.
 
 - - -
 
@@ -130,6 +111,15 @@ The following arguments are supported:
   (Optional)
   Options for configuring how inventory reports are generated.
   Structure is [documented below](#nested_frequency_options).
+
+* `parquet_options` -
+  (Optional)
+  An option for outputting inventory reports as parquet files.
+
+* `csv_options` -
+  (Optional)
+  Options for configuring the format of the inventory report CSV file.
+  Structure is [documented below](#nested_csv_options).
 
 * `object_metadata_report_options` -
   (Optional)
@@ -189,6 +179,20 @@ The following arguments are supported:
 * `year` -
   (Required)
   The year to stop generating inventory reports
+
+<a name="nested_csv_options"></a>The `csv_options` block supports:
+
+* `record_separator` -
+  (Optional)
+  The character used to separate the records in the inventory report CSV file.
+
+* `delimiter` -
+  (Optional)
+  The delimiter used to separate the fields in the inventory report CSV file.
+
+* `header_required` -
+  (Optional)
+  The boolean that indicates whether or not headers are included in the inventory report CSV file.
 
 <a name="nested_object_metadata_report_options"></a>The `object_metadata_report_options` block supports:
 
