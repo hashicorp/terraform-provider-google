@@ -57,9 +57,16 @@ func ResourceStorageInsightsReportConfig() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"location": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `The location of the ReportConfig. The source and destination buckets specified in the ReportConfig
+must be in the same location.`,
+			},
 			"csv_options": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: `Options for configuring the format of the inventory report CSV file.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -81,13 +88,7 @@ func ResourceStorageInsightsReportConfig() *schema.Resource {
 						},
 					},
 				},
-			},
-			"location": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `The location of the ReportConfig. The source and destination buckets specified in the ReportConfig
-must be in the same location.`,
+				ExactlyOneOf: []string{"parquet_options", "csv_options"},
 			},
 			"display_name": {
 				Type:        schema.TypeString,
@@ -214,6 +215,16 @@ must be in the same location.`,
 					},
 				},
 			},
+			"parquet_options": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `An option for outputting inventory reports as parquet files.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{},
+				},
+				ExactlyOneOf: []string{"parquet_options", "csv_options"},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -243,6 +254,12 @@ func resourceStorageInsightsReportConfigCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("frequency_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(frequencyOptionsProp)) && (ok || !reflect.DeepEqual(v, frequencyOptionsProp)) {
 		obj["frequencyOptions"] = frequencyOptionsProp
+	}
+	parquetOptionsProp, err := expandStorageInsightsReportConfigParquetOptions(d.Get("parquet_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("parquet_options"); ok || !reflect.DeepEqual(v, parquetOptionsProp) {
+		obj["parquetOptions"] = parquetOptionsProp
 	}
 	csvOptionsProp, err := expandStorageInsightsReportConfigCsvOptions(d.Get("csv_options"), d, config)
 	if err != nil {
@@ -360,6 +377,9 @@ func resourceStorageInsightsReportConfigRead(d *schema.ResourceData, meta interf
 	if err := d.Set("frequency_options", flattenStorageInsightsReportConfigFrequencyOptions(res["frequencyOptions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ReportConfig: %s", err)
 	}
+	if err := d.Set("parquet_options", flattenStorageInsightsReportConfigParquetOptions(res["parquetOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReportConfig: %s", err)
+	}
 	if err := d.Set("csv_options", flattenStorageInsightsReportConfigCsvOptions(res["csvOptions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ReportConfig: %s", err)
 	}
@@ -395,6 +415,12 @@ func resourceStorageInsightsReportConfigUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("frequency_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, frequencyOptionsProp)) {
 		obj["frequencyOptions"] = frequencyOptionsProp
 	}
+	parquetOptionsProp, err := expandStorageInsightsReportConfigParquetOptions(d.Get("parquet_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("parquet_options"); ok || !reflect.DeepEqual(v, parquetOptionsProp) {
+		obj["parquetOptions"] = parquetOptionsProp
+	}
 	csvOptionsProp, err := expandStorageInsightsReportConfigCsvOptions(d.Get("csv_options"), d, config)
 	if err != nil {
 		return err
@@ -425,6 +451,10 @@ func resourceStorageInsightsReportConfigUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("frequency_options") {
 		updateMask = append(updateMask, "frequencyOptions")
+	}
+
+	if d.HasChange("parquet_options") {
+		updateMask = append(updateMask, "parquetOptions")
 	}
 
 	if d.HasChange("csv_options") {
@@ -708,6 +738,14 @@ func flattenStorageInsightsReportConfigFrequencyOptionsEndDateYear(v interface{}
 	return v // let terraform core handle it otherwise
 }
 
+func flattenStorageInsightsReportConfigParquetOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
 func flattenStorageInsightsReportConfigCsvOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -927,6 +965,21 @@ func expandStorageInsightsReportConfigFrequencyOptionsEndDateMonth(v interface{}
 
 func expandStorageInsightsReportConfigFrequencyOptionsEndDateYear(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandStorageInsightsReportConfigParquetOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
 
 func expandStorageInsightsReportConfigCsvOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
