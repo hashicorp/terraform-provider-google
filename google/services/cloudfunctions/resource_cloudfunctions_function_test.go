@@ -1162,7 +1162,7 @@ resource "google_storage_bucket_object" "cloud_function_zip_object" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs14"
+  runtime               = "nodejs20"
   service_account_email = google_service_account.cloud_function_runner.email
   entry_point           = "echoSecret"
   source_archive_bucket = google_storage_bucket.cloud_functions.id
@@ -1227,7 +1227,7 @@ resource "google_storage_bucket_object" "cloud_function_zip_object" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs14"
+  runtime               = "nodejs20"
   service_account_email = google_service_account.cloud_function_runner.email
   entry_point           = "echoSecret"
   source_archive_bucket = google_storage_bucket.cloud_functions.id

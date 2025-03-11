@@ -289,7 +289,7 @@ func ResourceCloudFunctionsFunction() *schema.Resource {
 			"runtime": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `The runtime in which the function is going to run. Eg. "nodejs12", "nodejs14", "python37", "go111".`,
+				Description: `The runtime in which the function is going to run. Eg. "nodejs20", "python37", "go111".`,
 			},
 
 			"service_account_email": {

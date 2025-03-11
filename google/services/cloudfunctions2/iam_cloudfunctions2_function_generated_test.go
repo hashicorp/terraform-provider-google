@@ -161,7 +161,7 @@ resource "google_cloudfunctions2_function" "function" {
   description = "a new function"
  
   build_config {
-    runtime = "nodejs16"
+    runtime = "nodejs20"
     entry_point = "helloHttp"  # Set the entry point 
     source {
       storage_source {
@@ -212,7 +212,7 @@ resource "google_cloudfunctions2_function" "function" {
   description = "a new function"
  
   build_config {
-    runtime = "nodejs16"
+    runtime = "nodejs20"
     entry_point = "helloHttp"  # Set the entry point 
     source {
       storage_source {
@@ -278,7 +278,7 @@ resource "google_cloudfunctions2_function" "function" {
   description = "a new function"
  
   build_config {
-    runtime = "nodejs16"
+    runtime = "nodejs20"
     entry_point = "helloHttp"  # Set the entry point 
     source {
       storage_source {
@@ -331,7 +331,7 @@ resource "google_cloudfunctions2_function" "function" {
   description = "a new function"
  
   build_config {
-    runtime = "nodejs16"
+    runtime = "nodejs20"
     entry_point = "helloHttp"  # Set the entry point 
     source {
       storage_source {
@@ -382,7 +382,7 @@ resource "google_cloudfunctions2_function" "function" {
   description = "a new function"
  
   build_config {
-    runtime = "nodejs16"
+    runtime = "nodejs20"
     entry_point = "helloHttp"  # Set the entry point 
     source {
       storage_source {

@@ -71,7 +71,7 @@ resource "google_compute_region_network_endpoint_group" "function_neg" {
 resource "google_cloudfunctions_function" "function_neg" {
   name        = "tf-test-function-neg%{random_suffix}"
   description = "My function"
-  runtime     = "nodejs10"
+  runtime     = "nodejs20"
 
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
