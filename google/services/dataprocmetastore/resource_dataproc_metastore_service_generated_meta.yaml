@@ -6,6 +6,7 @@ api_version: 'v1'
 api_resource_type_kind: 'Service'
 fields:
   - field: 'artifact_gcs_uri'
+  - field: 'create_time'
   - field: 'database_type'
   - field: 'deletion_protection'
   - field: 'effective_labels'
@@ -47,3 +48,4 @@ fields:
     provider_only: true
   - field: 'tier'
   - field: 'uid'
+  - field: 'update_time'
