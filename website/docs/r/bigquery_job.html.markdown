@@ -610,6 +610,10 @@ The following arguments are supported:
   Options controlling the execution of scripts.
   Structure is [documented below](#nested_configuration_query_script_options).
 
+* `continuous` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Whether to run the query as continuous or a regular query.
+
 
 <a name="nested_configuration_query_destination_table"></a>The `destination_table` block supports:
 

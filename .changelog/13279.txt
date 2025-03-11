@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added support for continuous query to `google_bigquery_job` (beta)
+```
