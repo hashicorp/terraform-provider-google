@@ -53,22 +53,21 @@ resource "google_integrations_client" "example" {
 
 
 ```hcl
-data "google_project" "test_project" {
+data "google_project" "default" {
 }
 
-resource "google_kms_key_ring" "keyring" {
+data "google_kms_key_ring" "keyring" {
   name     = "my-keyring"
   location = "us-east1"
 }
 
-resource "google_kms_crypto_key" "cryptokey" {
-  name = "crypto-key-example"
-  key_ring = google_kms_key_ring.keyring.id
-  rotation_period = "7776000s"
+data "google_kms_crypto_key" "cryptokey" {
+  name = "my-crypto-key"
+  key_ring = data.google_kms_key_ring.keyring.id
 }
 
-resource "google_kms_crypto_key_version" "test_key" {
-  crypto_key = google_kms_crypto_key.cryptokey.id
+data "google_kms_crypto_key_version" "test_key" {
+  crypto_key = data.google_kms_crypto_key.cryptokey.id
 }
 
 resource "google_service_account" "service_account" {
@@ -82,10 +81,10 @@ resource "google_integrations_client" "example" {
   run_as_service_account = google_service_account.service_account.email
   cloud_kms_config {
     kms_location = "us-east1"
-    kms_ring = basename(google_kms_key_ring.keyring.id)
-    key = basename(google_kms_crypto_key.cryptokey.id)
-    key_version = basename(google_kms_crypto_key_version.test_key.id)
-    kms_project_id = data.google_project.test_project.project_id
+    kms_ring = basename(data.google_kms_key_ring.keyring.id)
+    key = basename(data.google_kms_crypto_key.cryptokey.id)
+    key_version = basename(data.google_kms_crypto_key_version.test_key.id)
+    kms_project_id = data.google_project.default.project_id
   }
 }
 ```
