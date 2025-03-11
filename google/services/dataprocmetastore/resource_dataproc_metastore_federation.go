@@ -111,6 +111,11 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				ForceNew:    true,
 				Description: `The location where the metastore federation should reside.`,
 			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The time when the metastore federation was created.`,
+			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
@@ -148,6 +153,11 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The globally unique resource identifier of the metastore federation.`,
+			},
+			"update_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The time when the metastore federation was last updated.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -286,6 +296,12 @@ func resourceDataprocMetastoreFederationRead(d *schema.ResourceData, meta interf
 	}
 
 	if err := d.Set("name", flattenDataprocMetastoreFederationName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Federation: %s", err)
+	}
+	if err := d.Set("create_time", flattenDataprocMetastoreFederationCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Federation: %s", err)
+	}
+	if err := d.Set("update_time", flattenDataprocMetastoreFederationUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Federation: %s", err)
 	}
 	if err := d.Set("labels", flattenDataprocMetastoreFederationLabels(res["labels"], d, config)); err != nil {
@@ -484,6 +500,14 @@ func resourceDataprocMetastoreFederationImport(d *schema.ResourceData, meta inte
 }
 
 func flattenDataprocMetastoreFederationName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataprocMetastoreFederationCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataprocMetastoreFederationUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
