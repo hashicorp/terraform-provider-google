@@ -404,6 +404,11 @@ There must be at least one IP address available in the subnet's primary range. T
 				Computed:    true,
 				Description: `A Cloud Storage URI (starting with gs://) that specifies where artifacts related to the metastore service are stored.`,
 			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The time when the metastore service was created.`,
+			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
@@ -441,6 +446,11 @@ There must be at least one IP address available in the subnet's primary range. T
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The globally unique resource identifier of the metastore service.`,
+			},
+			"update_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The time when the metastore service was last updated.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -651,6 +661,12 @@ func resourceDataprocMetastoreServiceRead(d *schema.ResourceData, meta interface
 	}
 
 	if err := d.Set("name", flattenDataprocMetastoreServiceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err := d.Set("create_time", flattenDataprocMetastoreServiceCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err := d.Set("update_time", flattenDataprocMetastoreServiceUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
 	if err := d.Set("labels", flattenDataprocMetastoreServiceLabels(res["labels"], d, config)); err != nil {
@@ -978,6 +994,14 @@ func resourceDataprocMetastoreServiceImport(d *schema.ResourceData, meta interfa
 }
 
 func flattenDataprocMetastoreServiceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataprocMetastoreServiceCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataprocMetastoreServiceUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

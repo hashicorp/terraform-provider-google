@@ -711,6 +711,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `name` -
   The relative resource name of the metastore service.
 
+* `create_time` -
+  Output only. The time when the metastore service was created.
+
+* `update_time` -
+  Output only. The time when the metastore service was last updated.
+
 * `endpoint_uri` -
   The URI of the endpoint used to access the metastore service.
 
