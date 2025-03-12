@@ -562,6 +562,12 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					transport_tpg.CustomEndpointValidator(),
 				},
 			},
+			"firebase_app_hosting_custom_endpoint": &schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					transport_tpg.CustomEndpointValidator(),
+				},
+			},
 			"firebase_data_connect_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{

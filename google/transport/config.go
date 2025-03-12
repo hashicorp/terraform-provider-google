@@ -255,6 +255,7 @@ type Config struct {
 	EventarcBasePath                 string
 	FilestoreBasePath                string
 	FirebaseAppCheckBasePath         string
+	FirebaseAppHostingBasePath       string
 	FirebaseDataConnectBasePath      string
 	FirestoreBasePath                string
 	GeminiBasePath                   string
@@ -409,6 +410,7 @@ const EssentialContactsBasePathKey = "EssentialContacts"
 const EventarcBasePathKey = "Eventarc"
 const FilestoreBasePathKey = "Filestore"
 const FirebaseAppCheckBasePathKey = "FirebaseAppCheck"
+const FirebaseAppHostingBasePathKey = "FirebaseAppHosting"
 const FirebaseDataConnectBasePathKey = "FirebaseDataConnect"
 const FirestoreBasePathKey = "Firestore"
 const GeminiBasePathKey = "Gemini"
@@ -557,6 +559,7 @@ var DefaultBasePaths = map[string]string{
 	EventarcBasePathKey:                 "https://eventarc.googleapis.com/v1/",
 	FilestoreBasePathKey:                "https://file.googleapis.com/v1/",
 	FirebaseAppCheckBasePathKey:         "https://firebaseappcheck.googleapis.com/v1/",
+	FirebaseAppHostingBasePathKey:       "https://firebaseapphosting.googleapis.com/v1main/",
 	FirebaseDataConnectBasePathKey:      "https://firebasedataconnect.googleapis.com/v1/",
 	FirestoreBasePathKey:                "https://firestore.googleapis.com/v1/",
 	GeminiBasePathKey:                   "https://cloudaicompanion.googleapis.com/v1/",
@@ -1043,6 +1046,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("firebase_app_check_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_FIREBASE_APP_CHECK_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[FirebaseAppCheckBasePathKey]))
+	}
+	if d.Get("firebase_app_hosting_custom_endpoint") == "" {
+		d.Set("firebase_app_hosting_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_FIREBASE_APP_HOSTING_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[FirebaseAppHostingBasePathKey]))
 	}
 	if d.Get("firebase_data_connect_custom_endpoint") == "" {
 		d.Set("firebase_data_connect_custom_endpoint", MultiEnvDefault([]string{
@@ -2371,6 +2379,7 @@ func ConfigureBasePaths(c *Config) {
 	c.EventarcBasePath = DefaultBasePaths[EventarcBasePathKey]
 	c.FilestoreBasePath = DefaultBasePaths[FilestoreBasePathKey]
 	c.FirebaseAppCheckBasePath = DefaultBasePaths[FirebaseAppCheckBasePathKey]
+	c.FirebaseAppHostingBasePath = DefaultBasePaths[FirebaseAppHostingBasePathKey]
 	c.FirebaseDataConnectBasePath = DefaultBasePaths[FirebaseDataConnectBasePathKey]
 	c.FirestoreBasePath = DefaultBasePaths[FirestoreBasePathKey]
 	c.GeminiBasePath = DefaultBasePaths[GeminiBasePathKey]
