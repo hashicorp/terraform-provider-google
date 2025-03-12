@@ -3784,55 +3784,56 @@ func TestAccContainerCluster_withLoggingConfig(t *testing.T) {
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
 	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	minVersion := "1.32"
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_basic(clusterName, networkName, subnetworkName),
+				Config: testAccContainerCluster_basicWithMinGKEVersion(clusterName, networkName, subnetworkName, minVersion),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_withLoggingConfigEnabled(clusterName, networkName, subnetworkName),
-			},
-			{
-				ResourceName:            "google_container_cluster.primary",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
-			},
-			{
-				Config: testAccContainerCluster_withLoggingConfigDisabled(clusterName, networkName, subnetworkName),
+				Config: testAccContainerCluster_withLoggingConfigEnabled(clusterName, networkName, subnetworkName, minVersion),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_withLoggingConfigUpdated(clusterName, networkName, subnetworkName),
-			},
-			{
-				ResourceName:            "google_container_cluster.primary",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
-			},
-			{
-				Config: testAccContainerCluster_basic(clusterName, networkName, subnetworkName),
+				Config: testAccContainerCluster_withLoggingConfigDisabled(clusterName, networkName, subnetworkName, minVersion),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withLoggingConfigUpdated(clusterName, networkName, subnetworkName, minVersion),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_basicWithMinGKEVersion(clusterName, networkName, subnetworkName, minVersion),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -5852,6 +5853,21 @@ resource "google_container_cluster" "primary" {
   deletion_protection = false
 }
 `, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_basicWithMinGKEVersion(name, networkName, subnetworkName string, minVersion string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  network            = "%s"
+  subnetwork         = "%s"
+  min_master_version = "%s"
+
+  deletion_protection = false
+}
+`, name, networkName, subnetworkName, minVersion)
 }
 
 func testAccContainerCluster_forSecretManagerConfig(projectID, name, networkName, subnetworkName string) string {
@@ -10145,7 +10161,7 @@ resource "google_container_cluster" "primary" {
 `, projectID, name, networkName, subnetworkName)
 }
 
-func testAccContainerCluster_withLoggingConfigEnabled(name, networkName, subnetworkName string) string {
+func testAccContainerCluster_withLoggingConfigEnabled(name, networkName, subnetworkName string, minVersion string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%s"
@@ -10160,11 +10176,12 @@ resource "google_container_cluster" "primary" {
   deletion_protection = false
   network    = "%s"
   subnetwork    = "%s"
+  min_master_version = "%s"
 }
-`, name, networkName, subnetworkName)
+`, name, networkName, subnetworkName, minVersion)
 }
 
-func testAccContainerCluster_withLoggingConfigDisabled(name, networkName, subnetworkName string) string {
+func testAccContainerCluster_withLoggingConfigDisabled(name, networkName, subnetworkName string, minVersion string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%s"
@@ -10176,18 +10193,19 @@ resource "google_container_cluster" "primary" {
   deletion_protection = false
   network    = "%s"
   subnetwork    = "%s"
+  min_master_version = "%s"
 }
-`, name, networkName, subnetworkName)
+`, name, networkName, subnetworkName, minVersion)
 }
 
-func testAccContainerCluster_withLoggingConfigUpdated(name, networkName, subnetworkName string) string {
+func testAccContainerCluster_withLoggingConfigUpdated(name, networkName, subnetworkName string, minVersion string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 1
   logging_config {
-    enable_components = [ "SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER", "KCP_CONNECTION", "KCP_SSHD"]
+    enable_components = [ "SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER", "KCP_CONNECTION", "KCP_SSHD", "KCP_HPA"]
   }
   monitoring_config {
     enable_components = [ "SYSTEM_COMPONENTS" ]
@@ -10195,8 +10213,9 @@ resource "google_container_cluster" "primary" {
   deletion_protection = false
   network    = "%s"
   subnetwork    = "%s"
+  min_master_version = "%s"
 }
-`, name, networkName, subnetworkName)
+`, name, networkName, subnetworkName, minVersion)
 }
 
 func testAccContainerCluster_withMonitoringConfigEnabled(name, networkName, subnetworkName string) string {
