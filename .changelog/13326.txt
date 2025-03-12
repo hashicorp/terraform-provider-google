@@ -1,0 +1,3 @@
+```release-note:none
+docs: updated `automated_backup_policy` in `google_bigtable_table` documentation
+```
