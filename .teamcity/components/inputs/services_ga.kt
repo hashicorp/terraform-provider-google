@@ -401,6 +401,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Firebaseappcheck",
         "path" to "./google/services/firebaseappcheck"
     ),
+    "firebaseapphosting" to mapOf(
+        "name" to "firebaseapphosting",
+        "displayName" to "Firebase App Hosting",
+        "path" to "./google/services/firebaseapphosting"
+    ),
     "firebasedatabase" to mapOf(
         "name" to "firebasedatabase",
         "displayName" to "Firebasedatabase",

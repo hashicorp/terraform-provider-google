@@ -1,0 +1,35 @@
+resource: 'google_firebase_app_hosting_backend'
+generation_type: 'mmv1'
+source_file: 'products/firebaseapphosting/Backend.yaml'
+api_service_name: 'firebaseapphosting.googleapis.com'
+api_version: 'v1main'
+api_resource_type_kind: 'Backend'
+autogen_status: true
+fields:
+  - field: 'annotations'
+  - field: 'app_id'
+  - field: 'backend_id'
+    provider_only: true
+  - field: 'codebase.repository'
+  - field: 'codebase.root_directory'
+  - field: 'create_time'
+  - field: 'delete_time'
+  - field: 'display_name'
+  - field: 'effective_annotations'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'environment'
+  - field: 'etag'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'managed_resources.run_service.service'
+  - field: 'name'
+  - field: 'service_account'
+  - field: 'serving_locality'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'
+  - field: 'uri'
