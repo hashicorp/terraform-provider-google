@@ -18,7 +18,7 @@ data "google_container_attached_versions" "uswest" {
 
 
 output "first_available_version" {
-  value = data.google_container_attached_versions.versions.valid_versions[0]
+  value = data.google_container_attached_versions.uswest.valid_versions[0]
 }
 ```
 
