@@ -1,0 +1,3 @@
+```release-note:enhancement
+memorystore: added update support for `engine_version` field in `google_memorystore_instance` resource
+```

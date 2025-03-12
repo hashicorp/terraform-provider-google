@@ -109,8 +109,7 @@ IAM_AUTH`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
-				Description: `Optional. Immutable. Engine version of the instance.`,
+				Description: `Optional. Engine version of the instance.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -877,6 +876,12 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("persistence_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, persistenceConfigProp)) {
 		obj["persistenceConfig"] = persistenceConfigProp
 	}
+	engineVersionProp, err := expandMemorystoreInstanceEngineVersion(d.Get("engine_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("engine_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, engineVersionProp)) {
+		obj["engineVersion"] = engineVersionProp
+	}
 	engineConfigsProp, err := expandMemorystoreInstanceEngineConfigs(d.Get("engine_configs"), d, config)
 	if err != nil {
 		return err
@@ -920,6 +925,10 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("persistence_config") {
 		updateMask = append(updateMask, "persistenceConfig")
+	}
+
+	if d.HasChange("engine_version") {
+		updateMask = append(updateMask, "engineVersion")
 	}
 
 	if d.HasChange("engine_configs") {
