@@ -77,7 +77,7 @@ func dataSourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta
 
 	policies, err := parse_policies_response(res)
 	if err != nil {
-		fmt.Errorf("Error parsing list policies response: %s", err)
+		return fmt.Errorf("Error parsing list policies response: %s", err)
 	}
 
 	// Find the matching policy in the list of policies response. Both the parent and scopes
@@ -104,6 +104,11 @@ func dataSourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta
 
 func parse_policies_response(res map[string]interface{}) ([]AccessPolicy, error) {
 	var policies []AccessPolicy
+	if _, ok := res["accessPolicies"].([]interface{}); !ok {
+		// response did not include any policies
+		return policies, nil
+	}
+
 	for _, res_policy := range res["accessPolicies"].([]interface{}) {
 		parsed_policy := &AccessPolicy{}
 
