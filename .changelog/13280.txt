@@ -1,0 +1,3 @@
+```release-note:bug
+accesscontextmanager: fix panic on empty accessPolicies in `google_access_context_manager_access_policy`
+```
