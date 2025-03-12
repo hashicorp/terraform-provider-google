@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `table_metadata_view` query param to `google_bigquery_table`
+```

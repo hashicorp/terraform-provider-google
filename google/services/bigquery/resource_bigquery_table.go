@@ -1411,6 +1411,11 @@ func ResourceBigQueryTable() *schema.Resource {
 					},
 				},
 			},
+			"table_metadata_view": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `View sets the optional parameter "view": Specifies the view that determines which table information is returned. By default, basic table information and storage statistics (STORAGE_STATS) are returned. Possible values: TABLE_METADATA_VIEW_UNSPECIFIED, BASIC, STORAGE_STATS, FULL`,
+			},
 			// TableReplicationInfo: [Optional] Replication info of a table created using `AS REPLICA` DDL like: `CREATE MATERIALIZED VIEW mv1 AS REPLICA OF src_mv`.
 			"table_replication_info": {
 				Type:        schema.TypeList,
@@ -1696,7 +1701,12 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	datasetID := d.Get("dataset_id").(string)
 	tableID := d.Get("table_id").(string)
 
-	res, err := config.NewBigQueryClient(userAgent).Tables.Get(project, datasetID, tableID).Do()
+	client := config.NewBigQueryClient(userAgent).Tables.Get(project, datasetID, tableID)
+	if tableMetadataViewRaw, ok := d.GetOk("table_metadata_view"); ok {
+		client = client.View(tableMetadataViewRaw.(string))
+	}
+	res, err := client.Do()
+
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigQuery table %q", tableID))
 	}
@@ -1903,7 +1913,7 @@ type TableReference struct {
 
 func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error {
 	// If only client-side fields were modified, short-circuit the Update function to avoid sending an update API request.
-	clientSideFields := map[string]bool{"deletion_protection": true}
+	clientSideFields := map[string]bool{"deletion_protection": true, "table_metadata_view": true}
 	clientSideOnly := true
 	for field := range ResourceBigQueryTable().Schema {
 		if d.HasChange(field) && !clientSideFields[field] {
@@ -1940,6 +1950,10 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 
 	datasetID := d.Get("dataset_id").(string)
 	tableID := d.Get("table_id").(string)
+	var tableMetadataView string
+	if tableMetadataViewRaw, ok := d.GetOk("table_metadata_view"); ok {
+		tableMetadataView = tableMetadataViewRaw.(string)
+	}
 
 	tableReference := &TableReference{
 		project:   project,
@@ -1947,7 +1961,7 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 		tableID:   tableID,
 	}
 
-	if err = resourceBigQueryTableColumnDrop(config, userAgent, table, tableReference); err != nil {
+	if err = resourceBigQueryTableColumnDrop(config, userAgent, table, tableReference, tableMetadataView); err != nil {
 		return err
 	}
 
@@ -1958,8 +1972,13 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 	return resourceBigQueryTableRead(d, meta)
 }
 
-func resourceBigQueryTableColumnDrop(config *transport_tpg.Config, userAgent string, table *bigquery.Table, tableReference *TableReference) error {
-	oldTable, err := config.NewBigQueryClient(userAgent).Tables.Get(tableReference.project, tableReference.datasetID, tableReference.tableID).Do()
+func resourceBigQueryTableColumnDrop(config *transport_tpg.Config, userAgent string, table *bigquery.Table, tableReference *TableReference, tableMetadataView string) error {
+	client := config.NewBigQueryClient(userAgent).Tables.Get(tableReference.project, tableReference.datasetID, tableReference.tableID)
+	if len(tableMetadataView) > 0 {
+		client = client.View(tableMetadataView)
+	}
+	oldTable, err := client.Do()
+
 	if err != nil {
 		return err
 	}
@@ -3048,6 +3067,8 @@ func resourceBigQueryTableImport(d *schema.ResourceData, meta interface{}) ([]*s
 	if err := d.Set("deletion_protection", true); err != nil {
 		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
 	}
+
+	// Explicitly set virtual fields with default values to their default values on import
 
 	// Replace import id for the resource id
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}")

@@ -47,6 +47,39 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryTable_TableMetadataView(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableBasicWithTableMetadataView(datasetID, tableID),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "last_modified_time", "table_metadata_view"},
+			},
+			{
+				Config: testAccBigQueryTableUpdated(datasetID, tableID),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "last_modified_time", "table_metadata_view"},
+			},
+		},
+	})
+}
+
 func TestAccBigQueryTable_OnlyDeletionProtectionUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -1881,6 +1914,22 @@ resource "google_bigquery_table" "test" {
 ]
 EOH
 
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTableBasicWithTableMetadataView(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  table_metadata_view = "BASIC"
 }
 `, datasetID, tableID)
 }
