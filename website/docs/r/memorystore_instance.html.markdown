@@ -280,7 +280,7 @@ The following arguments are supported:
 
 * `engine_version` -
   (Optional)
-  Optional. Immutable. Engine version of the instance.
+  Optional. Engine version of the instance.
 
 * `engine_configs` -
   (Optional)

@@ -188,6 +188,49 @@ func TestAccMemorystoreInstance_updateDeletionProtection(t *testing.T) {
 	})
 }
 
+// Validate that engine version is updated for the cluster
+func TestAccMemorystoreInstance_updateEngineVersion(t *testing.T) {
+	t.Parallel()
+
+	name := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMemorystoreInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// create cluster with engine version 7.2
+				Config: createOrUpdateMemorystoreInstance(&InstanceParams{
+					name:                 name,
+					shardCount:           3,
+					zoneDistributionMode: "MULTI_ZONE",
+					engineVersion:        "VALKEY_7_2",
+				}),
+			},
+			{
+				ResourceName:      "google_memorystore_instance.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// update cluster with engine version 8.0
+				Config: createOrUpdateMemorystoreInstance(&InstanceParams{
+					name:                 name,
+					shardCount:           3,
+					zoneDistributionMode: "MULTI_ZONE",
+					engineVersion:        "VALKEY_8_0",
+				}),
+			},
+			{
+				ResourceName:      "google_memorystore_instance.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 // Validate that persistence config is updated for the cluster
 func TestAccMemorystoreInstance_updatePersistence(t *testing.T) {
 	t.Parallel()
@@ -236,6 +279,7 @@ type InstanceParams struct {
 	zone                      string
 	deletionProtectionEnabled bool
 	persistenceMode           string
+	engineVersion             string
 }
 
 func createOrUpdateMemorystoreInstance(params *InstanceParams) string {
@@ -280,6 +324,7 @@ resource "google_memorystore_instance" "test" {
             project_id = data.google_project.project.project_id
 	}
     deletion_protection_enabled = %t
+	engine_version = "%s"
 	engine_configs = {
 		%s
 	}
@@ -316,5 +361,5 @@ resource "google_compute_network" "producer_net" {
 
 data "google_project" "project" {
 }
-`, params.name, params.replicaCount, params.shardCount, params.nodeType, params.deletionProtectionEnabled, strBuilder.String(), zoneDistributionConfigBlock, persistenceBlock, lifecycleBlock, params.name, params.name, params.name)
+`, params.name, params.replicaCount, params.shardCount, params.nodeType, params.deletionProtectionEnabled, params.engineVersion, strBuilder.String(), zoneDistributionConfigBlock, persistenceBlock, lifecycleBlock, params.name, params.name, params.name)
 }
