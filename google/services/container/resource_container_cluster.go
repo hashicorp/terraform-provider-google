@@ -186,6 +186,13 @@ func isBeenEnabled(_ context.Context, old, new, _ interface{}) bool {
 	return false
 }
 
+func suppressDiffForClusterDnsScope(k, o, n string, d *schema.ResourceData) bool {
+	if o == "" && n == "DNS_SCOPE_UNSPECIFIED" {
+		return true
+	}
+	return false
+}
+
 func ResourceContainerCluster() *schema.Resource {
 	return &schema.Resource{
 		UseJSONNumber: true,
@@ -2008,10 +2015,11 @@ func ResourceContainerCluster() *schema.Resource {
 							Optional:     true,
 						},
 						"cluster_dns_scope": {
-							Type:         schema.TypeString,
-							ValidateFunc: validation.StringInSlice([]string{"CLUSTER_SCOPE", "VPC_SCOPE"}, false),
-							Description:  `The scope of access to cluster DNS records.`,
-							Optional:     true,
+							Type:             schema.TypeString,
+							ValidateFunc:     validation.StringInSlice([]string{"DNS_SCOPE_UNSPECIFIED", "CLUSTER_SCOPE", "VPC_SCOPE"}, false),
+							Description:      `The scope of access to cluster DNS records.`,
+							Optional:         true,
+							DiffSuppressFunc: suppressDiffForClusterDnsScope,
 						},
 						"cluster_dns_domain": {
 							Type:        schema.TypeString,
