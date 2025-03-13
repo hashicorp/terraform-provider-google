@@ -1503,6 +1503,9 @@ func resourceSpannerInstanceUpdateEncoder(d *schema.ResourceData, meta interface
 		newSlice := new.([]interface{})
 		if len(oldSlice) == 0 || len(newSlice) == 0 {
 			updateMask = append(updateMask, "autoscalingConfig")
+			if len(newSlice) == 0 {
+				updateMask = append(updateMask, "processingUnits")
+			}
 		} else {
 			if d.HasChange("autoscaling_config.0.autoscaling_limits.0.max_processing_units") {
 				updateMask = append(updateMask, "autoscalingConfig.autoscalingLimits.maxProcessingUnits")
