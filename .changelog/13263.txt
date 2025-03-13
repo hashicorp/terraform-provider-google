@@ -1,0 +1,3 @@
+```release-note: bug
+spanner: fixed issue with disabling autoscaling in `google_spanner_instance`
+```
