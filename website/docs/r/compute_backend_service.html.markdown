@@ -422,13 +422,11 @@ resource "google_compute_backend_service" "default" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider = google-beta
   name                    = "network"
 }
 
 // Zonal NEG with GCE_VM_IP_PORT
 resource "google_compute_network_endpoint_group" "default" {
-  provider = google-beta
   name                  = "network-endpoint"
   network               = google_compute_network.default.id
   default_port          = "90"
@@ -437,7 +435,6 @@ resource "google_compute_network_endpoint_group" "default" {
 }
 
 resource "google_compute_backend_service" "default" {
-  provider = google-beta
   name                  = "backend-service"
   health_checks = [google_compute_health_check.default.id]
 
@@ -466,7 +463,6 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  provider = google-beta
   name               = "health-check"
   timeout_sec        = 1
   check_interval_sec = 1

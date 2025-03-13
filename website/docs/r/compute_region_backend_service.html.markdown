@@ -438,13 +438,11 @@ resource "google_compute_region_health_check" "health_check" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider = google-beta
   name                    = "network"
 }
 
 // Zonal NEG with GCE_VM_IP_PORT
 resource "google_compute_network_endpoint_group" "default" {
-  provider = google-beta
   name                  = "network-endpoint"
   network               = google_compute_network.default.id
   default_port          = "90"
@@ -453,8 +451,6 @@ resource "google_compute_network_endpoint_group" "default" {
 }
 
 resource "google_compute_region_backend_service" "default" {
-  provider = google-beta
-
   region = "us-central1"
   name = "region-service"
   health_checks = [google_compute_health_check.health_check.id]
@@ -482,7 +478,6 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "health_check" {
-  provider = google-beta
   name               = "rbs-health-check"
   http_health_check {
     port = 80
