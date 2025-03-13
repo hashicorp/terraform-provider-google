@@ -5609,7 +5609,21 @@ func TestAccContainerCluster_cloudDns_nil_scope(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, false, true, true, false, ""),
+				Config: testAccContainerCluster_withDNSConfigWithoutScope(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withDNSConfigWithUnspecifiedScope(clusterName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionNoop),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -5619,6 +5633,37 @@ func TestAccContainerCluster_cloudDns_nil_scope(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccContainerCluster_withDNSConfigWithoutScope(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 2
+  dns_config {
+    cluster_dns      = "CLOUD_DNS"
+  }
+
+  deletion_protection = false
+}
+`, clusterName)
+}
+
+func testAccContainerCluster_withDNSConfigWithUnspecifiedScope(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 2
+  dns_config {
+    cluster_dns       = "CLOUD_DNS"
+    cluster_dns_scope = "DNS_SCOPE_UNSPECIFIED"
+  }
+
+  deletion_protection = false
+}
+`, clusterName)
 }
 
 func TestAccContainerCluster_autopilot_withAdditiveVPCMutation(t *testing.T) {
