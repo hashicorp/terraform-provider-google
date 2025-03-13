@@ -518,6 +518,7 @@ resource "google_clouddeploy_target" "primary" {
 
   gke {
     cluster = "projects/%{project_name}/locations/%{region}/clusters/example-cluster-name"
+    dns_endpoint = true
   }
 
   project          = "%{project_name}"
