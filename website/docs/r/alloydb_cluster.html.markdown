@@ -523,6 +523,11 @@ Default value: "true"
   (Optional)
   Create an instance that allows connections from Private Service Connect endpoints to the instance.
 
+* `service_owned_project_number` -
+  (Output)
+  The project number that needs to be allowlisted on the network attachment to enable outbound connectivity, if the network attachment is configured to ACCEPT_MANUAL connections.
+  In case the network attachment is configured to ACCEPT_AUTOMATIC, this project number does not need to be allowlisted explicitly.
+
 <a name="nested_initial_user"></a>The `initial_user` block supports:
 
 * `user` -

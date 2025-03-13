@@ -1474,6 +1474,7 @@ func TestAccAlloydbCluster_withPrivateServiceConnect(t *testing.T) {
 				Config: testAccAlloydbCluster_withPrivateServiceConnect(context),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "psc_config.0.psc_enabled", "true"),
+					resource.TestMatchResourceAttr("google_alloydb_cluster.default", "psc_config.0.service_owned_project_number", regexp.MustCompile("^[1-9]\\d*$")),
 				),
 			},
 		},

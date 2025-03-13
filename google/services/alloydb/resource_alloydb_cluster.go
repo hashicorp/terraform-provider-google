@@ -423,6 +423,12 @@ It is specified in the form: "projects/{projectNumber}/global/networks/{network_
 							Optional:    true,
 							Description: `Create an instance that allows connections from Private Service Connect endpoints to the instance.`,
 						},
+						"service_owned_project_number": {
+							Type:     schema.TypeInt,
+							Computed: true,
+							Description: `The project number that needs to be allowlisted on the network attachment to enable outbound connectivity, if the network attachment is configured to ACCEPT_MANUAL connections.
+In case the network attachment is configured to ACCEPT_AUTOMATIC, this project number does not need to be allowlisted explicitly.`,
+						},
 					},
 				},
 			},
@@ -1679,10 +1685,29 @@ func flattenAlloydbClusterPscConfig(v interface{}, d *schema.ResourceData, confi
 	transformed := make(map[string]interface{})
 	transformed["psc_enabled"] =
 		flattenAlloydbClusterPscConfigPscEnabled(original["pscEnabled"], d, config)
+	transformed["service_owned_project_number"] =
+		flattenAlloydbClusterPscConfigServiceOwnedProjectNumber(original["serviceOwnedProjectNumber"], d, config)
 	return []interface{}{transformed}
 }
 func flattenAlloydbClusterPscConfigPscEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenAlloydbClusterPscConfigServiceOwnedProjectNumber(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAlloydbClusterContinuousBackupConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2293,10 +2318,21 @@ func expandAlloydbClusterPscConfig(v interface{}, d tpgresource.TerraformResourc
 		transformed["pscEnabled"] = transformedPscEnabled
 	}
 
+	transformedServiceOwnedProjectNumber, err := expandAlloydbClusterPscConfigServiceOwnedProjectNumber(original["service_owned_project_number"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceOwnedProjectNumber); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceOwnedProjectNumber"] = transformedServiceOwnedProjectNumber
+	}
+
 	return transformed, nil
 }
 
 func expandAlloydbClusterPscConfigPscEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterPscConfigServiceOwnedProjectNumber(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
