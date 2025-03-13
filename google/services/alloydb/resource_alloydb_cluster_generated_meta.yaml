@@ -59,6 +59,7 @@ fields:
   - field: 'network_config.allocated_ip_range'
   - field: 'network_config.network'
   - field: 'psc_config.psc_enabled'
+  - field: 'psc_config.service_owned_project_number'
   - field: 'reconciling'
   - field: 'restore_backup_source.backup_name'
   - field: 'restore_continuous_backup_source.cluster'
