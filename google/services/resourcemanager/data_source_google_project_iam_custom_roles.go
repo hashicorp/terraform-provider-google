@@ -15,7 +15,7 @@ import (
 
 func DataSourceGoogleProjectIamCustomRoles() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceProjectIamCustomRoleRead,
+		Read: dataSourceProjectIamCustomRolesRead,
 		Schema: map[string]*schema.Schema{
 			"project": {
 				Type:     schema.TypeString,
@@ -30,7 +30,7 @@ func DataSourceGoogleProjectIamCustomRoles() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "BASIC",
-				ValidateFunc: validateView,
+				ValidateFunc: validateViewProjectIamCustomRoles,
 			},
 			"roles": {
 				Type:     schema.TypeList,
@@ -77,7 +77,7 @@ func DataSourceGoogleProjectIamCustomRoles() *schema.Resource {
 	}
 }
 
-func validateView(val interface{}, key string) ([]string, []error) {
+func validateViewProjectIamCustomRoles(val interface{}, key string) ([]string, []error) {
 	v := val.(string)
 	var errs []error
 
@@ -88,7 +88,7 @@ func validateView(val interface{}, key string) ([]string, []error) {
 	return nil, errs
 }
 
-func dataSourceProjectIamCustomRoleRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceProjectIamCustomRolesRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
