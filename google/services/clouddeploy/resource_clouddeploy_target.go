@@ -373,6 +373,12 @@ func ClouddeployTargetGkeSchema() *schema.Resource {
 				Description:      "Information specifying a GKE Cluster. Format is `projects/{project_id}/locations/{location_id}/clusters/{cluster_id}.",
 			},
 
+			"dns_endpoint": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Optional. If set, the cluster will be accessed using the DNS endpoint. Note that both `dns_endpoint` and `internal_ip` cannot be set to true.",
+			},
+
 			"internal_ip": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -1027,9 +1033,10 @@ func expandClouddeployTargetGke(o interface{}) *clouddeploy.TargetGke {
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &clouddeploy.TargetGke{
-		Cluster:    dcl.String(obj["cluster"].(string)),
-		InternalIP: dcl.Bool(obj["internal_ip"].(bool)),
-		ProxyUrl:   dcl.String(obj["proxy_url"].(string)),
+		Cluster:     dcl.String(obj["cluster"].(string)),
+		DnsEndpoint: dcl.Bool(obj["dns_endpoint"].(bool)),
+		InternalIP:  dcl.Bool(obj["internal_ip"].(bool)),
+		ProxyUrl:    dcl.String(obj["proxy_url"].(string)),
 	}
 }
 
@@ -1038,9 +1045,10 @@ func flattenClouddeployTargetGke(obj *clouddeploy.TargetGke) interface{} {
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"cluster":     obj.Cluster,
-		"internal_ip": obj.InternalIP,
-		"proxy_url":   obj.ProxyUrl,
+		"cluster":      obj.Cluster,
+		"dns_endpoint": obj.DnsEndpoint,
+		"internal_ip":  obj.InternalIP,
+		"proxy_url":    obj.ProxyUrl,
 	}
 
 	return []interface{}{transformed}

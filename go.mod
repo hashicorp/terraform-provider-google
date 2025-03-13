@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	cloud.google.com/go/bigtable v1.33.0
-	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.77.0
+	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.78.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dnaeon/go-vcr v1.0.1
 	github.com/gammazero/workerpool v0.0.0-20181230203049-86a96b5d5d92
