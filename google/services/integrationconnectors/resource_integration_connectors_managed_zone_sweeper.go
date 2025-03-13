@@ -105,10 +105,18 @@ func testSweepIntegrationConnectorsManagedZone(_ string) error {
 			return err
 		}
 
+		// First try the expected resource key
 		resourceList, ok := res["managedZones"]
-		if !ok {
-			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			continue
+		if ok {
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'managedZones'")
+		} else {
+			// Next, try the common "items" pattern
+			resourceList, ok = res["items"]
+			if ok {
+				log.Printf("[INFO][SWEEPER_LOG] Found resources under standard 'items' key")
+			} else {
+				continue
+			}
 		}
 		rl := resourceList.([]interface{})
 
