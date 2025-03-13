@@ -26,12 +26,10 @@ A deployment group aggregates many zonal mirroring backends (deployments)
 into a single global mirroring service. Consumers can connect this service
 using an endpoint group.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about MirroringDeploymentGroup, see:
 
-* [API documentation](https://cloud.google.com/network-security-integration/docs/reference/rest/v1beta1/projects.locations.mirroringDeploymentGroups)
+* [API documentation](https://cloud.google.com/network-security-integration/docs/reference/rest/v1/projects.locations.mirroringDeploymentGroups)
 * How-to Guides
     * [Mirroring deployment group overview](https://cloud.google.com/network-security-integration/docs/out-of-band/deployment-groups-overview)
 
@@ -45,13 +43,11 @@ To get more information about MirroringDeploymentGroup, see:
 
 ```hcl
 resource "google_compute_network" "network" {
-  provider                = google-beta
   name                    = "example-network"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_mirroring_deployment_group" "default" {
-  provider                      = google-beta
   mirroring_deployment_group_id = "example-dg"
   location                      = "global"
   network                       = google_compute_network.network.id

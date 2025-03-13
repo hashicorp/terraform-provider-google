@@ -27,12 +27,10 @@ In order to configure mirroring for a network, consumers must create:
 - A security profile that points to the endpoint group.
 - A mirroring rule that references the security profile (group).
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about MirroringEndpointGroup, see:
 
-* [API documentation](https://cloud.google.com/network-security-integration/docs/reference/rest/v1beta1/projects.locations.mirroringEndpointGroups)
+* [API documentation](https://cloud.google.com/network-security-integration/docs/reference/rest/v1/projects.locations.mirroringEndpointGroups)
 * How-to Guides
     * [Mirroring endpoint group overview](https://cloud.google.com/network-security-integration/docs/out-of-band/endpoint-groups-overview)
 
@@ -46,20 +44,17 @@ To get more information about MirroringEndpointGroup, see:
 
 ```hcl
 resource "google_compute_network" "network" {
-  provider                = google-beta
   name                    = "example-network"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_mirroring_deployment_group" "deployment_group" {
-  provider                      = google-beta
   mirroring_deployment_group_id = "example-dg"
   location                      = "global"
   network                       = google_compute_network.network.id
 }
 
 resource "google_network_security_mirroring_endpoint_group" "default" {
-  provider                      = google-beta
   mirroring_endpoint_group_id   = "example-eg"
   location                      = "global"
   mirroring_deployment_group    = google_network_security_mirroring_deployment_group.deployment_group.id

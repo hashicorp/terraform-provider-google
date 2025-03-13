@@ -1,0 +1,3 @@
+```release-note:note
+networksecurity: promoted `google_network_security_mirroring_deployment`, `google_network_security_mirroring_deployment_group`, `google_network_security_mirroring_endpoint_group_association`, `google_network_security_mirroring_endpoint_group` resources from Beta to GA
+```
