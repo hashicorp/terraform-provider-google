@@ -83,6 +83,7 @@ resource "google_dataform_repository" "dataform_repository" {
   display_name = "dataform_repository"
   npmrc_environment_variables_secret_version = google_secret_manager_secret_version.secret_version.id
   kms_key_name = google_kms_crypto_key.example_key.id
+  deletion_policy = "FORCE"
 
   labels = {
     label_foo1 = "label-bar1"
@@ -160,6 +161,8 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_policy` - (Optional) Policy to control how the repository and its child resources are deleted. When set to `FORCE`, any child resources of this repository will also be deleted. Possible values: `DELETE`, `FORCE`. Defaults to `DELETE`.
 
 
 <a name="nested_git_remote_settings"></a>The `git_remote_settings` block supports:
