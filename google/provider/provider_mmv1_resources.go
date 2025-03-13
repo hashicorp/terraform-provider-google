@@ -308,6 +308,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_project":                                       resourcemanager.DataSourceGoogleProject(),
 	"google_projects":                                      resourcemanager.DataSourceGoogleProjects(),
 	"google_project_ancestry":                              resourcemanager.DataSourceGoogleProjectAncestry(),
+	"google_project_iam_custom_role":                       resourcemanager.DataSourceGoogleProjectIamCustomRole(),
 	"google_project_iam_custom_roles":                      resourcemanager.DataSourceGoogleProjectIamCustomRoles(),
 	"google_project_organization_policy":                   resourcemanager.DataSourceGoogleProjectOrganizationPolicy(),
 	"google_project_service":                               resourcemanager.DataSourceGoogleProjectService(),
