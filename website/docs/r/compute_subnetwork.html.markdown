@@ -456,6 +456,13 @@ The following arguments are supported:
   Setting this field to true will allow these packets to match dynamic routes injected
   via BGP even if their destinations match existing subnet ranges.
 
+* `enable_flow_logs` -
+  (Optional)
+  Whether to enable flow logging for this subnetwork. If this field is not explicitly set,
+  it will not appear in get listings. If not set the default behavior is determined by the
+  org policy, if there is no org policy specified, then it will default to disabled.
+  This field isn't supported if the subnet purpose field is set to REGIONAL_MANAGED_PROXY.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -555,6 +562,12 @@ In addition to the arguments listed above, the following computed attributes are
     gets external IPv6 ranges from a public delegated prefix and cannot be used to create NetLb.
     * VM_AND_FR: The subnetwork can be used for creating both VM instances and Forwarding Rules. It can also be used to reserve
     IPv6 addresses with both VM and FR endpoint types. Such a subnetwork gets its IPv6 range from Google IP Pool directly.
+
+* `state` -
+  'The state of the subnetwork, which can be one of the following values:
+   READY: Subnetwork is created and ready to use DRAINING: only applicable to subnetworks that have the purpose
+   set to INTERNAL_HTTPS_LOAD_BALANCER and indicates that connections to the load balancer are being drained.
+   A subnetwork that is draining cannot be used or modified until it reaches a status of READY'
 * `self_link` - The URI of the created resource.
 
 

@@ -7,6 +7,7 @@ api_resource_type_kind: 'Subnetwork'
 fields:
   - field: 'creation_timestamp'
   - field: 'description'
+  - field: 'enable_flow_logs'
   - field: 'external_ipv6_prefix'
   - field: 'gateway_address'
   - field: 'internal_ipv6_prefix'
@@ -37,5 +38,6 @@ fields:
   - field: 'send_secondary_ip_range_if_empty'
     provider_only: true
   - field: 'stack_type'
+  - field: 'state'
   - field: 'subnetwork_id'
     api_field: 'id'

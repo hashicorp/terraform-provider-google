@@ -493,6 +493,66 @@ func TestAccComputeSubnetwork_internal_ipv6(t *testing.T) {
 	})
 }
 
+func TestAccComputeSubnetwork_enableFlowLogs(t *testing.T) {
+	t.Parallel()
+	var subnetwork compute.Subnetwork
+
+	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_enableFlowLogs(cnName, subnetworkName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.subnetwork", &subnetwork),
+					testAccCheckComputeSubnetworkIfLogConfigExists(&subnetwork, "google_compute_subnetwork.subnetwork"),
+					testAccCheckComputeSubnetworkLogConfig(&subnetwork, "log_config.0.enable", "true"),
+					resource.TestCheckResourceAttr("google_compute_subnetwork.subnetwork", "enable_flow_logs", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.subnetwork",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSubnetwork_enableFlowLogs_with_logConfig(cnName, subnetworkName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.subnetwork", &subnetwork),
+					resource.TestCheckResourceAttr("google_compute_subnetwork.subnetwork", "enable_flow_logs", "true"),
+					testAccCheckComputeSubnetworkLogConfig(&subnetwork, "log_config.0.enable", "true"),
+					testAccCheckComputeSubnetworkLogConfig(&subnetwork, "log_config.0.aggregation_interval", "INTERVAL_1_MIN"),
+					testAccCheckComputeSubnetworkLogConfig(&subnetwork, "log_config.0.metadata", "INCLUDE_ALL_METADATA"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.subnetwork",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSubnetwork_enableFlowLogs(cnName, subnetworkName, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.subnetwork", &subnetwork),
+					resource.TestCheckResourceAttr("google_compute_subnetwork.subnetwork", "enable_flow_logs", "false"),
+					testAccCheckComputeSubnetworkLogConfig(&subnetwork, "log_config.0.enable", "false"),
+					testAccCheckComputeSubnetworkLogConfig(&subnetwork, "log_config.0.aggregation_interval", "INTERVAL_1_MIN"),
+					testAccCheckComputeSubnetworkLogConfig(&subnetwork, "log_config.0.metadata", "INCLUDE_ALL_METADATA"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.subnetwork",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeSubnetworkExists(t *testing.T, n string, subnetwork *compute.Subnetwork) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -547,6 +607,111 @@ func testAccCheckComputeSubnetworkHasNotSecondaryIpRange(subnetwork *compute.Sub
 					return fmt.Errorf("Secondary range %s has the wrong ip_cidr_range. Expected %s, got %s", rangeName, ipCidrRange, secondaryRange.IpCidrRange)
 				}
 			}
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeSubnetworkIfLogConfigExists(subnetwork *compute.Subnetwork, resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		// Retrieve the resource state using a fixed resource name
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource google_compute_subnetwork.subnetwork not found in state")
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("resource ID is not set")
+		}
+
+		// Ensure that the log_config exists in the API response.
+		if subnetwork.LogConfig == nil {
+			return fmt.Errorf("no log_config exists in subnetwork")
+		}
+
+		stateAttrs := rs.Primary.Attributes
+
+		// Check aggregation_interval.
+		aggInterval, ok := stateAttrs["log_config.0.aggregation_interval"]
+		if !ok {
+			return fmt.Errorf("aggregation_interval not found in state")
+		}
+		if subnetwork.LogConfig.AggregationInterval != aggInterval {
+			return fmt.Errorf("aggregation_interval mismatch: expected %s, got %s", aggInterval, subnetwork.LogConfig.AggregationInterval)
+		}
+
+		// Check flow_sampling.
+		fsState, ok := stateAttrs["log_config.0.flow_sampling"]
+		if !ok {
+			return fmt.Errorf("flow_sampling not found in state")
+		}
+		actualFS := fmt.Sprintf("%g", subnetwork.LogConfig.FlowSampling)
+		if actualFS != fsState {
+			return fmt.Errorf("flow_sampling mismatch: expected %s, got %s", fsState, actualFS)
+		}
+
+		// Check metadata.
+		metadata, ok := stateAttrs["log_config.0.metadata"]
+		if !ok {
+			return fmt.Errorf("metadata not found in state")
+		}
+		if subnetwork.LogConfig.Metadata != metadata {
+			return fmt.Errorf("metadata mismatch: expected %s, got %s", metadata, subnetwork.LogConfig.Metadata)
+		}
+
+		// Optionally, check filter_expr if it exists.
+		if subnetwork.LogConfig.FilterExpr != "" {
+			filterExpr, ok := stateAttrs["log_config.0.filter_expr"]
+			if !ok {
+				return fmt.Errorf("filter_expr is set in API but not found in state")
+			}
+			if subnetwork.LogConfig.FilterExpr != filterExpr {
+				return fmt.Errorf("filter_expr mismatch: expected %s, got %s", filterExpr, subnetwork.LogConfig.FilterExpr)
+			}
+		}
+
+		// Optionally, check metadata_fields if present.
+		if len(subnetwork.LogConfig.MetadataFields) > 0 {
+			if _, ok := stateAttrs["log_config.0.metadata_fields"]; !ok {
+				return fmt.Errorf("metadata_fields are set in API but not found in state")
+			}
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeSubnetworkLogConfig(subnetwork *compute.Subnetwork, key, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if subnetwork.LogConfig == nil {
+			return fmt.Errorf("no log_config found")
+		}
+
+		switch key {
+		case "log_config.0.enable":
+			if subnetwork.LogConfig.Enable != (value == "true") {
+				return fmt.Errorf("expected %s to be '%s', got '%t'", key, value, subnetwork.LogConfig.Enable)
+			}
+		case "log_config.0.aggregation_interval":
+			if subnetwork.LogConfig.AggregationInterval != value {
+				return fmt.Errorf("expected %s to be '%s', got '%s'", key, value, subnetwork.LogConfig.AggregationInterval)
+			}
+		case "log_config.0.metadata":
+			if subnetwork.LogConfig.Metadata != value {
+				return fmt.Errorf("expected %s to be '%s', got '%s'", key, value, subnetwork.LogConfig.Metadata)
+			}
+		case "log_config.0.flow_sampling":
+			flowSamplingStr := fmt.Sprintf("%g", subnetwork.LogConfig.FlowSampling)
+			if flowSamplingStr != value {
+				return fmt.Errorf("expected %s to be '%s', got '%s'", key, value, flowSamplingStr)
+			}
+		case "log_config.0.filterExpr":
+			if subnetwork.LogConfig.FilterExpr != value {
+				return fmt.Errorf("expected %s to be '%s', got '%s'", key, value, subnetwork.LogConfig.FilterExpr)
+			}
+		default:
+			return fmt.Errorf("unknown log_config key: %s", key)
 		}
 
 		return nil
@@ -1029,4 +1194,43 @@ resource "google_compute_subnetwork" "subnetwork" {
   ipv6_access_type = "INTERNAL"
 }
 `, cnName, subnetworkName)
+}
+
+func testAccComputeSubnetwork_enableFlowLogs(cnName, subnetworkName string, enableFlowLogs bool) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name          = "%s"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.custom-test.self_link
+  enable_flow_logs = %t
+}
+`, cnName, subnetworkName, enableFlowLogs)
+}
+
+func testAccComputeSubnetwork_enableFlowLogs_with_logConfig(cnName, subnetworkName string, enableFlowLogs bool) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name          = "%s"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.custom-test.self_link
+  enable_flow_logs = %t
+
+  log_config {
+    aggregation_interval = "INTERVAL_1_MIN"
+    metadata = "INCLUDE_ALL_METADATA"
+  }
+}
+`, cnName, subnetworkName, enableFlowLogs)
 }
