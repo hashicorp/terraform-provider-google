@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_managed_kafka_connect_cluster` (beta)
+```
+```release-note:new-resource
+`google_managed_kafka_connector` (beta)
+```
