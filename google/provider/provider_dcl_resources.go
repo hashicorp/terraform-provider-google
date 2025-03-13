@@ -24,7 +24,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/assuredworkloads"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudbuild"
 	"github.com/hashicorp/terraform-provider-google/google/services/clouddeploy"
-	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/containeraws"
 	"github.com/hashicorp/terraform-provider-google/google/services/containerazure"
 	"github.com/hashicorp/terraform-provider-google/google/services/dataplex"
@@ -40,7 +39,6 @@ var dclResources = map[string]*schema.Resource{
 	"google_cloudbuild_worker_pool":        cloudbuild.ResourceCloudbuildWorkerPool(),
 	"google_clouddeploy_delivery_pipeline": clouddeploy.ResourceClouddeployDeliveryPipeline(),
 	"google_clouddeploy_target":            clouddeploy.ResourceClouddeployTarget(),
-	"google_compute_firewall_policy":       compute.ResourceComputeFirewallPolicy(),
 	"google_container_aws_cluster":         containeraws.ResourceContainerAwsCluster(),
 	"google_container_aws_node_pool":       containeraws.ResourceContainerAwsNodePool(),
 	"google_container_azure_client":        containerazure.ResourceContainerAzureClient(),
