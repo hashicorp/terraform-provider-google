@@ -430,6 +430,66 @@ resource "google_compute_backend_service" "default" {
 `, context)
 }
 
+func TestAccComputeBackendService_backendServiceTlsSettingsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_backendServiceTlsSettingsExample(context),
+			},
+			{
+				ResourceName:            "google_compute_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "security_settings.0.aws_v4_authentication.0.access_key"},
+			},
+		},
+	})
+}
+
+func testAccComputeBackendService_backendServiceTlsSettingsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_backend_service" "default" {
+  name          = "tf-test-backend-service%{random_suffix}"
+  health_checks = [google_compute_health_check.default.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol = "HTTPS"
+  tls_settings {
+    sni = "example.com"
+    subjectAltNames = [
+      {
+        dns_name = "example.com"
+      },
+      {
+        uniform_resource_identifier = "https://example.com"
+      }
+    ]
+    authentication_config = [google_network_security_backend_authentication_config.default.id]
+  }
+}
+
+resource "google_compute_health_check" "default" {
+  name = "tf-test-health-check%{random_suffix}"
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_network_security_backend_authentication_config" "default" {
+  name             = "authentication%{random_suffix}"
+  well_known_roots = "PUBLIC_ROOTS"
+}
+`, context)
+}
+
 func testAccCheckComputeBackendServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

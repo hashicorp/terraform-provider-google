@@ -119,3 +119,7 @@ fields:
   - field: 'strong_session_affinity_cookie.ttl.nanos'
   - field: 'strong_session_affinity_cookie.ttl.seconds'
   - field: 'timeout_sec'
+  - field: 'tls_settings.authentication_config'
+  - field: 'tls_settings.sni'
+  - field: 'tls_settings.subject_alt_names.dns_name'
+  - field: 'tls_settings.subject_alt_names.uniform_resource_identifier'

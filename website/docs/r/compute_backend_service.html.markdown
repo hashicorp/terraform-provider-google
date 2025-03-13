@@ -476,6 +476,46 @@ resource "google_compute_health_check" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=backend_service_tls_settings&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Tls Settings
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  name          = "backend-service"
+  health_checks = [google_compute_health_check.default.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol = "HTTPS"
+  tls_settings {
+    sni = "example.com"
+    subjectAltNames = [
+      {
+        dns_name = "example.com"
+      },
+      {
+        uniform_resource_identifier = "https://example.com"
+      }
+    ]
+    authentication_config = [google_network_security_backend_authentication_config.default.id]
+  }
+}
+
+resource "google_compute_health_check" "default" {
+  name = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_network_security_backend_authentication_config" "default" {
+  name             = "authentication"
+  well_known_roots = "PUBLIC_ROOTS"
+}
+```
 
 ## Argument Reference
 
@@ -725,6 +765,11 @@ The following arguments are supported:
   (Optional)
   URL to networkservices.ServiceLbPolicy resource.
   Can only be set if load balancing scheme is EXTERNAL, EXTERNAL_MANAGED, INTERNAL_MANAGED or INTERNAL_SELF_MANAGED and the scope is global.
+
+* `tls_settings` -
+  (Optional)
+  Configuration for Backend Authenticated TLS and mTLS. May only be specified when the backend protocol is SSL, HTTPS or HTTP2.
+  Structure is [documented below](#nested_tls_settings).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -1368,6 +1413,41 @@ The following arguments are supported:
   the field must be in [0, 1]. This configures the sampling rate of requests to the load balancer
   where 1.0 means all logged requests are reported and 0.0 means no logged requests are reported.
   The default value is 1.0.
+
+<a name="nested_tls_settings"></a>The `tls_settings` block supports:
+
+* `sni` -
+  (Optional)
+  Server Name Indication - see RFC3546 section 3.1. If set, the load balancer sends this string as the SNI hostname in the
+  TLS connection to the backend, and requires that this string match a Subject Alternative Name (SAN) in the backend's
+  server certificate. With a Regional Internet NEG backend, if the SNI is specified here, the load balancer uses it
+  regardless of whether the Regional Internet NEG is specified with FQDN or IP address and port.
+
+* `subject_alt_names` -
+  (Optional)
+  A list of Subject Alternative Names (SANs) that the Load Balancer verifies during a TLS handshake with the backend.
+  When the server presents its X.509 certificate to the Load Balancer, the Load Balancer inspects the certificate's SAN field,
+  and requires that at least one SAN match one of the subjectAltNames in the list. This field is limited to 5 entries.
+  When both sni and subjectAltNames are specified, the load balancer matches the backend certificate's SAN only to
+  subjectAltNames.
+  Structure is [documented below](#nested_tls_settings_subject_alt_names).
+
+* `authentication_config` -
+  (Optional)
+  Reference to the BackendAuthenticationConfig resource from the networksecurity.googleapis.com namespace.
+  Can be used in authenticating TLS connections to the backend, as specified by the authenticationMode field.
+  Can only be specified if authenticationMode is not NONE.
+
+
+<a name="nested_tls_settings_subject_alt_names"></a>The `subject_alt_names` block supports:
+
+* `dns_name` -
+  (Optional)
+  The SAN specified as a DNS Name.
+
+* `uniform_resource_identifier` -
+  (Optional)
+  The SAN specified as a URI.
 
 ## Attributes Reference
 
