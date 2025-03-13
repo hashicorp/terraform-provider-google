@@ -30,12 +30,10 @@ network to the endpoint group, but does not enable mirroring by itself.
 To enable mirroring, the user must also create a network firewall policy
 containing mirroring rules and associate it with the network.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about MirroringEndpointGroupAssociation, see:
 
-* [API documentation](https://cloud.google.com/network-security-integration/docs/reference/rest/v1beta1/projects.locations.mirroringEndpointGroupAssociations)
+* [API documentation](https://cloud.google.com/network-security-integration/docs/reference/rest/v1/projects.locations.mirroringEndpointGroupAssociations)
 * How-to Guides
     * [Mirroring endpoint group association overview](https://cloud.google.com/network-security-integration/docs/out-of-band/endpoint-groups-overview#mirroring-endpoint-group-association)
 
@@ -49,33 +47,28 @@ To get more information about MirroringEndpointGroupAssociation, see:
 
 ```hcl
 resource "google_compute_network" "producer_network" {
-  provider                = google-beta
   name                    = "example-prod-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "consumer_network" {
-  provider                = google-beta
   name                    = "example-cons-network"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_mirroring_deployment_group" "deployment_group" {
-  provider                      = google-beta
   mirroring_deployment_group_id = "example-dg"
   location                      = "global"
   network                       = google_compute_network.producer_network.id
 }
 
 resource "google_network_security_mirroring_endpoint_group" "endpoint_group" {
-  provider                      = google-beta
   mirroring_endpoint_group_id   = "example-eg"
   location                      = "global"
   mirroring_deployment_group    = google_network_security_mirroring_deployment_group.deployment_group.id
 }
 
 resource "google_network_security_mirroring_endpoint_group_association" "default" {
-  provider                                = google-beta
   mirroring_endpoint_group_association_id = "example-ega"
   location                                = "global"
   network                                 = google_compute_network.consumer_network.id
