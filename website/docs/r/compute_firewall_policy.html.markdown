@@ -27,8 +27,6 @@ This resource should be generally be used with `google_compute_firewall_policy_a
 
 For more information see the [official documentation](https://cloud.google.com/vpc/docs/firewall-policies)
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about FirewallPolicy, see:
 
@@ -39,8 +37,6 @@ To get more information about FirewallPolicy, see:
 
 ```hcl
 resource "google_compute_firewall_policy" "default" {
-  provider = google-beta
-  
   parent      = "organizations/123456789"
   short_name  = "my-policy"
   description = "Example Resource"
