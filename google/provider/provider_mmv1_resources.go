@@ -212,6 +212,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_compute_ha_vpn_gateway":                        compute.DataSourceGoogleComputeHaVpnGateway(),
 	"google_compute_health_check":                          compute.DataSourceGoogleComputeHealthCheck(),
 	"google_compute_image":                                 compute.DataSourceGoogleComputeImage(),
+	"google_compute_images":                                compute.DataSourceGoogleComputeImages(),
 	"google_compute_instance":                              compute.DataSourceGoogleComputeInstance(),
 	"google_compute_instance_group":                        compute.DataSourceGoogleComputeInstanceGroup(),
 	"google_compute_instance_group_manager":                compute.DataSourceGoogleComputeInstanceGroupManager(),
