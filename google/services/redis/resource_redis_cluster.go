@@ -307,7 +307,6 @@ resolution and up to nine fractional digits.`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ForceNew:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"REDIS_SHARED_CORE_NANO", "REDIS_HIGHMEM_MEDIUM", "REDIS_HIGHMEM_XLARGE", "REDIS_STANDARD_SMALL", ""}),
 				Description: `The nodeType for the Redis cluster.
 If not provided, REDIS_HIGHMEM_MEDIUM will be used as default Possible values: ["REDIS_SHARED_CORE_NANO", "REDIS_HIGHMEM_MEDIUM", "REDIS_HIGHMEM_XLARGE", "REDIS_STANDARD_SMALL"]`,
@@ -928,6 +927,12 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	nodeTypeProp, err := expandRedisClusterNodeType(d.Get("node_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("node_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeTypeProp)) {
+		obj["nodeType"] = nodeTypeProp
+	}
 	pscConfigsProp, err := expandRedisClusterPscConfigs(d.Get("psc_configs"), d, config)
 	if err != nil {
 		return err
@@ -991,6 +996,10 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Updating Cluster %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 	updateMask := []string{}
+
+	if d.HasChange("node_type") {
+		updateMask = append(updateMask, "nodeType")
+	}
 
 	if d.HasChange("psc_configs") {
 		updateMask = append(updateMask, "pscConfigs")
