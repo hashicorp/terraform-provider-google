@@ -292,7 +292,6 @@ resource "google_storage_bucket" "bucket" {
 
 ```hcl
 resource "google_dataproc_metastore_service" "test_resource" {
-  provider = google-beta
   service_id = "test-service"
   location   = "us-central1"
 
@@ -324,7 +323,6 @@ resource "google_dataproc_metastore_service" "test_resource" {
 
 ```hcl
 resource "google_dataproc_metastore_service" "test_resource" {
-  provider = google-beta
   service_id = "test-service"
   location   = "us-central1"
 
@@ -357,7 +355,6 @@ resource "google_dataproc_metastore_service" "test_resource" {
 
 ```hcl
 resource "google_dataproc_metastore_service" "test_resource" {
-  provider = google-beta
   service_id = "test-service"
   location   = "us-central1"
 
@@ -389,7 +386,6 @@ resource "google_dataproc_metastore_service" "test_resource" {
 
 ```hcl
 resource "google_dataproc_metastore_service" "test_resource" {
-  provider = google-beta  
   service_id = "test-service"
   location   = "us-central1"
 
@@ -524,7 +520,7 @@ The following arguments are supported:
   Scaling factor, in increments of 0.1 for values less than 1.0, and increments of 1.0 for values greater than 1.0.
 
 * `autoscaling_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Represents the autoscaling configuration of a metastore service.
   Structure is [documented below](#nested_scaling_config_autoscaling_config).
 
@@ -534,6 +530,10 @@ The following arguments are supported:
 * `autoscaling_enabled` -
   (Optional)
   Defines whether autoscaling is enabled. The default value is false.
+
+* `autoscaling_factor` -
+  (Output)
+  Output only. The scaling factor of a service with autoscaling enabled.
 
 * `limit_config` -
   (Optional)
