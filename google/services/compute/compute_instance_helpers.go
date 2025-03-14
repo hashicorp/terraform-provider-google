@@ -852,6 +852,34 @@ func expandNetworkPerformanceConfig(d tpgresource.TerraformResourceData, config 
 	}, nil
 }
 
+func flattenComputeInstanceGuestOsFeatures(v interface{}) []interface{} {
+	if v == nil {
+		return nil
+	}
+	features, ok := v.([]*compute.GuestOsFeature)
+	if !ok {
+		return nil
+	}
+	var result []interface{}
+	for _, feature := range features {
+		if feature != nil && feature.Type != "" {
+			result = append(result, feature.Type)
+		}
+	}
+	return result
+}
+
+func expandComputeInstanceGuestOsFeatures(v interface{}) []*compute.GuestOsFeature {
+	if v == nil {
+		return nil
+	}
+	var result []*compute.GuestOsFeature
+	for _, feature := range v.([]interface{}) {
+		result = append(result, &compute.GuestOsFeature{Type: feature.(string)})
+	}
+	return result
+}
+
 func flattenNetworkPerformanceConfig(c *compute.NetworkPerformanceConfig) []map[string]interface{} {
 	if c == nil {
 		return nil

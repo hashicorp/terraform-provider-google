@@ -62,6 +62,7 @@ var (
 	}
 
 	bootDiskKeys = []string{
+		"boot_disk.0.guest_os_features",
 		"boot_disk.0.auto_delete",
 		"boot_disk.0.device_name",
 		"boot_disk.0.disk_encryption_key_raw",
@@ -82,6 +83,7 @@ var (
 		"boot_disk.0.initialize_params.0.enable_confidential_compute",
 		"boot_disk.0.initialize_params.0.storage_pool",
 		"boot_disk.0.initialize_params.0.resource_policies",
+		"boot_disk.0.initialize_params.0.architecture",
 	}
 
 	schedulingKeys = []string{
@@ -260,6 +262,18 @@ func ResourceComputeInstance() *schema.Resource {
 							Description:      `The self_link of the encryption key that is stored in Google Cloud KMS to encrypt this disk. Only one of kms_key_self_link and disk_encryption_key_raw may be set.`,
 						},
 
+						"guest_os_features": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							AtLeastOneOf: bootDiskKeys,
+							ForceNew:     true,
+							Computed:     true,
+							Description:  `A list of features to enable on the guest operating system. Applicable only for bootable images.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+
 						"initialize_params": {
 							Type:         schema.TypeList,
 							Optional:     true,
@@ -361,6 +375,16 @@ func ResourceComputeInstance() *schema.Resource {
 										ForceNew:         true,
 										DiffSuppressFunc: tpgresource.CompareResourceNames,
 										Description:      `The URL of the storage pool in which the new disk is created`,
+									},
+
+									"architecture": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ForceNew:     true,
+										AtLeastOneOf: initializeParamsKeys,
+										ValidateFunc: validation.StringInSlice([]string{"X86_64", "ARM64"}, false),
+										Description:  `The architecture of the disk. One of "X86_64" or "ARM64".`,
 									},
 								},
 							},
@@ -2986,6 +3010,10 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 		disk.Interface = v.(string)
 	}
 
+	if v, ok := d.GetOk("boot_disk.0.guest_os_features"); ok {
+		disk.GuestOsFeatures = expandComputeInstanceGuestOsFeatures(v)
+	}
+
 	if v, ok := d.GetOk("boot_disk.0.disk_encryption_key_raw"); ok {
 		if v != "" {
 			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
@@ -3075,6 +3103,10 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 			}
 			disk.InitializeParams.StoragePool = storagePoolUrl.(string)
 		}
+
+		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.architecture"); ok {
+			disk.InitializeParams.Architecture = v.(string)
+		}
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.mode"); ok {
@@ -3086,10 +3118,11 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 
 func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config *transport_tpg.Config) []map[string]interface{} {
 	result := map[string]interface{}{
-		"auto_delete": disk.AutoDelete,
-		"device_name": disk.DeviceName,
-		"mode":        disk.Mode,
-		"source":      tpgresource.ConvertSelfLinkToV1(disk.Source),
+		"auto_delete":       disk.AutoDelete,
+		"device_name":       disk.DeviceName,
+		"mode":              disk.Mode,
+		"source":            tpgresource.ConvertSelfLinkToV1(disk.Source),
+		"guest_os_features": flattenComputeInstanceGuestOsFeatures(disk.GuestOsFeatures),
 		// disk_encryption_key_raw is not returned from the API, so copy it from what the user
 		// originally specified to avoid diffs.
 		"disk_encryption_key_raw": d.Get("boot_disk.0.disk_encryption_key_raw"),
@@ -3121,6 +3154,7 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config 
 			// If the config specifies a family name that doesn't match the image name, then
 			// the diff won't be properly suppressed. See DiffSuppressFunc for this field.
 			"image":                       diskDetails.SourceImage,
+			"architecture":                diskDetails.Architecture,
 			"size":                        diskDetails.SizeGb,
 			"labels":                      diskDetails.Labels,
 			"resource_manager_tags":       d.Get("boot_disk.0.initialize_params.0.resource_manager_tags"),
