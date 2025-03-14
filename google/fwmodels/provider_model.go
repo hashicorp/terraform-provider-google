@@ -132,6 +132,7 @@ type ProviderModel struct {
 	OracleDatabaseCustomEndpoint           types.String `tfsdk:"oracle_database_custom_endpoint"`
 	OrgPolicyCustomEndpoint                types.String `tfsdk:"org_policy_custom_endpoint"`
 	OSConfigCustomEndpoint                 types.String `tfsdk:"os_config_custom_endpoint"`
+	OSConfigV2CustomEndpoint               types.String `tfsdk:"os_config_v2_custom_endpoint"`
 	OSLoginCustomEndpoint                  types.String `tfsdk:"os_login_custom_endpoint"`
 	ParallelstoreCustomEndpoint            types.String `tfsdk:"parallelstore_custom_endpoint"`
 	PrivatecaCustomEndpoint                types.String `tfsdk:"privateca_custom_endpoint"`
