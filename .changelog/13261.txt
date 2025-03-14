@@ -1,0 +1,3 @@
+```release-note:bug
+storage: lowered the minimum required items for `custom_placement_config.data_locations` from 2 to 1, and removed the Terraform-enforced maximum item limit for the field in `google_storage_bucket`
+```
