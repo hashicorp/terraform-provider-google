@@ -662,6 +662,25 @@ func schemaNodeConfig() *schema.Schema {
 						},
 					},
 				},
+				"windows_node_config": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					Computed:    true,
+					MaxItems:    1,
+					Description: `Parameters that can be configured on Windows nodes.`,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"osversion": {
+								Type:         schema.TypeString,
+								Optional:     true,
+								ForceNew:     true,
+								Default:      "OS_VERSION_UNSPECIFIED",
+								Description:  `The OS Version of the windows nodepool.Values are OS_VERSION_UNSPECIFIED,OS_VERSION_LTSC2019 and OS_VERSION_LTSC2022`,
+								ValidateFunc: validation.StringInSlice([]string{"OS_VERSION_UNSPECIFIED", "OS_VERSION_LTSC2019", "OS_VERSION_LTSC2022"}, false),
+							},
+						},
+					},
+				},
 				"node_group": {
 					Type:        schema.TypeString,
 					Optional:    true,
@@ -1150,6 +1169,10 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		nc.LinuxNodeConfig = expandLinuxNodeConfig(v)
 	}
 
+	if v, ok := nodeConfig["windows_node_config"]; ok {
+		nc.WindowsNodeConfig = expandWindowsNodeConfig(v)
+	}
+
 	if v, ok := nodeConfig["node_group"]; ok {
 		nc.NodeGroup = v.(string)
 	}
@@ -1311,6 +1334,24 @@ func expandLinuxNodeConfig(v interface{}) *container.LinuxNodeConfig {
 	}
 
 	return linuxNodeConfig
+}
+
+func expandWindowsNodeConfig(v interface{}) *container.WindowsNodeConfig {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	cfg := ls[0].(map[string]interface{})
+	osversionRaw, ok := cfg["osversion"]
+	if !ok {
+		return nil
+	}
+	return &container.WindowsNodeConfig{
+		OsVersion: osversionRaw.(string),
+	}
 }
 
 func expandSysctls(cfg map[string]interface{}) map[string]string {
@@ -1555,6 +1596,7 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 		"boot_disk_kms_key":                  c.BootDiskKmsKey,
 		"kubelet_config":                     flattenKubeletConfig(c.KubeletConfig),
 		"linux_node_config":                  flattenLinuxNodeConfig(c.LinuxNodeConfig),
+		"windows_node_config":                flattenWindowsNodeConfig(c.WindowsNodeConfig),
 		"node_group":                         c.NodeGroup,
 		"advanced_machine_features":          flattenAdvancedMachineFeaturesConfig(c.AdvancedMachineFeatures),
 		"max_run_duration":                   c.MaxRunDuration,
@@ -1818,6 +1860,16 @@ func flattenLinuxNodeConfig(c *container.LinuxNodeConfig) []map[string]interface
 			"sysctls":          c.Sysctls,
 			"cgroup_mode":      c.CgroupMode,
 			"hugepages_config": flattenHugepagesConfig(c.Hugepages),
+		})
+	}
+	return result
+}
+
+func flattenWindowsNodeConfig(c *container.WindowsNodeConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"osversion": c.OsVersion,
 		})
 	}
 	return result
@@ -2465,6 +2517,40 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 			}
 
 			log.Printf("[INFO] Updated linux_node_config for node pool %s", name)
+		}
+		if d.HasChange(prefix + "node_config.0.windows_node_config") {
+			req := &container.UpdateNodePoolRequest{
+				NodePoolId: name,
+				WindowsNodeConfig: expandWindowsNodeConfig(
+					d.Get(prefix + "node_config.0.windows_node_config")),
+			}
+			if req.WindowsNodeConfig == nil {
+				req.WindowsNodeConfig = &container.WindowsNodeConfig{}
+				req.ForceSendFields = []string{"WindowsNodeConfig"}
+			}
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return ContainerOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location,
+					"updating GKE node pool windows_node_config", userAgent,
+					timeout)
+			}
+
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] Updated windows_node_config for node pool %s", name)
 		}
 		if d.HasChange(prefix + "node_config.0.fast_socket") {
 			req := &container.UpdateNodePoolRequest{

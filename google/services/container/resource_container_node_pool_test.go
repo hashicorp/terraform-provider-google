@@ -623,6 +623,38 @@ func TestAccContainerNodePool_withLinuxNodeConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withWindowsNodeConfig(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withWindowsNodeConfig(cluster, np, "OS_VERSION_LTSC2019"),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_windows_node_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Perform an update.
+			{
+				Config: testAccContainerNodePool_withWindowsNodeConfig(cluster, np, "OS_VERSION_LTSC2022"),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_windows_node_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withCgroupMode(t *testing.T) {
 	t.Parallel()
 
@@ -3122,6 +3154,41 @@ resource "google_container_node_pool" "with_linux_node_config" {
   }
 }
 `, cluster, networkName, subnetworkName, np, linuxNodeConfig)
+}
+
+func testAccContainerNodePool_withWindowsNodeConfig(cluster, np string, osversion string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  min_master_version  = data.google_container_engine_versions.central1a.latest_master_version
+  deletion_protection = false
+  networking_mode     = "VPC_NATIVE"
+  ip_allocation_policy {}
+}
+
+resource "google_container_node_pool" "with_windows_node_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    image_type = "WINDOWS_LTSC_CONTAINERD"
+    windows_node_config {
+		osversion = "%s"
+    }
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+  }
+}
+`, cluster, np, osversion)
 }
 
 func testAccContainerNodePool_withCgroupMode(cluster, np, mode, networkName, subnetworkName string) string {
