@@ -325,13 +325,56 @@ There must be at least one IP address available in the subnet's primary range. T
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"autoscaling_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Represents the autoscaling configuration of a metastore service.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"autoscaling_enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Defines whether autoscaling is enabled. The default value is false.`,
+									},
+									"limit_config": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Optional:    true,
+										Description: `Represents the limit configuration of a metastore service.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"max_scaling_factor": {
+													Type:        schema.TypeFloat,
+													Computed:    true,
+													Optional:    true,
+													Description: `The maximum scaling factor that the service will autoscale to. The default value is 6.0.`,
+												},
+												"min_scaling_factor": {
+													Type:        schema.TypeFloat,
+													Computed:    true,
+													Optional:    true,
+													Description: `The minimum scaling factor that the service will autoscale to. The default value is 0.1.`,
+												},
+											},
+										},
+									},
+									"autoscaling_factor": {
+										Type:        schema.TypeFloat,
+										Computed:    true,
+										Description: `Output only. The scaling factor of a service with autoscaling enabled.`,
+									},
+								},
+							},
+						},
 						"instance_size": {
 							Type:          schema.TypeString,
 							Optional:      true,
 							ValidateFunc:  verify.ValidateEnum([]string{"EXTRA_SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA_LARGE", ""}),
 							Description:   `Metastore instance sizes. Possible values: ["EXTRA_SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA_LARGE"]`,
 							ConflictsWith: []string{"tier"},
-							ExactlyOneOf:  []string{"scaling_config.0.instance_size", "scaling_config.0.scaling_factor"},
+							ExactlyOneOf:  []string{"scaling_config.0.instance_size", "scaling_config.0.scaling_factor", "scaling_config.0.autoscaling_config"},
 						},
 						"scaling_factor": {
 							Type:        schema.TypeFloat,
@@ -1074,6 +1117,8 @@ func flattenDataprocMetastoreServiceScalingConfig(v interface{}, d *schema.Resou
 		flattenDataprocMetastoreServiceScalingConfigInstanceSize(original["instanceSize"], d, config)
 	transformed["scaling_factor"] =
 		flattenDataprocMetastoreServiceScalingConfigScalingFactor(original["scalingFactor"], d, config)
+	transformed["autoscaling_config"] =
+		flattenDataprocMetastoreServiceScalingConfigAutoscalingConfig(original["autoscalingConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataprocMetastoreServiceScalingConfigInstanceSize(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1081,6 +1126,54 @@ func flattenDataprocMetastoreServiceScalingConfigInstanceSize(v interface{}, d *
 }
 
 func flattenDataprocMetastoreServiceScalingConfigScalingFactor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataprocMetastoreServiceScalingConfigAutoscalingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["autoscaling_enabled"] =
+		flattenDataprocMetastoreServiceScalingConfigAutoscalingConfigAutoscalingEnabled(original["autoscalingEnabled"], d, config)
+	transformed["autoscaling_factor"] =
+		flattenDataprocMetastoreServiceScalingConfigAutoscalingConfigAutoscalingFactor(original["autoscalingFactor"], d, config)
+	transformed["limit_config"] =
+		flattenDataprocMetastoreServiceScalingConfigAutoscalingConfigLimitConfig(original["limitConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataprocMetastoreServiceScalingConfigAutoscalingConfigAutoscalingEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataprocMetastoreServiceScalingConfigAutoscalingConfigAutoscalingFactor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataprocMetastoreServiceScalingConfigAutoscalingConfigLimitConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["min_scaling_factor"] =
+		flattenDataprocMetastoreServiceScalingConfigAutoscalingConfigLimitConfigMinScalingFactor(original["minScalingFactor"], d, config)
+	transformed["max_scaling_factor"] =
+		flattenDataprocMetastoreServiceScalingConfigAutoscalingConfigLimitConfigMaxScalingFactor(original["maxScalingFactor"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataprocMetastoreServiceScalingConfigAutoscalingConfigLimitConfigMinScalingFactor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataprocMetastoreServiceScalingConfigAutoscalingConfigLimitConfigMaxScalingFactor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1428,6 +1521,13 @@ func expandDataprocMetastoreServiceScalingConfig(v interface{}, d tpgresource.Te
 		transformed["scalingFactor"] = transformedScalingFactor
 	}
 
+	transformedAutoscalingConfig, err := expandDataprocMetastoreServiceScalingConfigAutoscalingConfig(original["autoscaling_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAutoscalingConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["autoscalingConfig"] = transformedAutoscalingConfig
+	}
+
 	return transformed, nil
 }
 
@@ -1436,6 +1536,81 @@ func expandDataprocMetastoreServiceScalingConfigInstanceSize(v interface{}, d tp
 }
 
 func expandDataprocMetastoreServiceScalingConfigScalingFactor(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataprocMetastoreServiceScalingConfigAutoscalingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAutoscalingEnabled, err := expandDataprocMetastoreServiceScalingConfigAutoscalingConfigAutoscalingEnabled(original["autoscaling_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAutoscalingEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["autoscalingEnabled"] = transformedAutoscalingEnabled
+	}
+
+	transformedAutoscalingFactor, err := expandDataprocMetastoreServiceScalingConfigAutoscalingConfigAutoscalingFactor(original["autoscaling_factor"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAutoscalingFactor); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["autoscalingFactor"] = transformedAutoscalingFactor
+	}
+
+	transformedLimitConfig, err := expandDataprocMetastoreServiceScalingConfigAutoscalingConfigLimitConfig(original["limit_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLimitConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["limitConfig"] = transformedLimitConfig
+	}
+
+	return transformed, nil
+}
+
+func expandDataprocMetastoreServiceScalingConfigAutoscalingConfigAutoscalingEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataprocMetastoreServiceScalingConfigAutoscalingConfigAutoscalingFactor(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataprocMetastoreServiceScalingConfigAutoscalingConfigLimitConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMinScalingFactor, err := expandDataprocMetastoreServiceScalingConfigAutoscalingConfigLimitConfigMinScalingFactor(original["min_scaling_factor"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinScalingFactor); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minScalingFactor"] = transformedMinScalingFactor
+	}
+
+	transformedMaxScalingFactor, err := expandDataprocMetastoreServiceScalingConfigAutoscalingConfigLimitConfigMaxScalingFactor(original["max_scaling_factor"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxScalingFactor); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxScalingFactor"] = transformedMaxScalingFactor
+	}
+
+	return transformed, nil
+}
+
+func expandDataprocMetastoreServiceScalingConfigAutoscalingConfigLimitConfigMinScalingFactor(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataprocMetastoreServiceScalingConfigAutoscalingConfigLimitConfigMaxScalingFactor(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
