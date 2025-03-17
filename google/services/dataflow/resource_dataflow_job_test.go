@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/services/dataflow"
@@ -23,7 +24,7 @@ import (
 )
 
 const (
-	testDataflowJobTemplateWordCountUrl = "gs://dataflow-templates-us-central1/latest/Word_Count"
+	testDataflowJobTemplateWordCountUrl = "gs://dataflow-templates/latest/Word_Count"
 	testDataflowJobSampleFileUrl        = "gs://dataflow-samples/shakespeare/various.txt"
 	testDataflowJobTemplateTextToPubsub = "gs://dataflow-templates-us-central1/latest/Stream_GCS_Text_to_Cloud_PubSub"
 	testDataflowJobRegion               = "us-central1"
@@ -1368,4 +1369,40 @@ resource "google_dataflow_job" "pubsub_stream" {
 	on_delete = "%s"
 }
   `, suffix, suffix, suffix, testDataflowJobTemplateTextToPubsub, onDelete)
+}
+
+func TestResourceDataflowJobTemplateGcsPathDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"same bucket": {
+			Old:                "gs://template-bucket/path/to/file",
+			New:                "gs://template-bucket/path/to/file",
+			ExpectDiffSuppress: true,
+		},
+		"different bucket": {
+			Old:                "gs://template-bucket-foo/path/to/file1",
+			New:                "gs://template-bucket/path/to/file1",
+			ExpectDiffSuppress: false,
+		},
+		"different object": {
+			Old:                "gs://template-bucket-foo/path/to/file2",
+			New:                "gs://template-bucket/path/to/file",
+			ExpectDiffSuppress: false,
+		},
+		"regional bucket name change is okay": {
+			Old:                "gs://template-bucket-us-central1/path/to/file1",
+			New:                "gs://template-bucket/path/to/file1",
+			ExpectDiffSuppress: true,
+		},
+	}
+	rd := schema.TestResourceDataRaw(t, dataflow.ResourceDataflowJob().Schema, nil)
+	rd.Set("region", "us-central1")
+
+	for tn, tc := range cases {
+		if dataflow.ResourceDataflowJobTemplateGcsPathDiffSuppress("template_gcs_path", tc.Old, tc.New, rd) != tc.ExpectDiffSuppress {
+			t.Errorf("bad: %s, '%s' => '%s' expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
 }

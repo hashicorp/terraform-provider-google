@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 
@@ -53,6 +54,34 @@ func resourceDataflowJobLabelDiffSuppress(k, old, new string, d *schema.Resource
 	return false
 }
 
+// ResourceDataflowJobTemplateGcsPathDiffSuppress suppresses diffs on the template_gcs_path field
+// when the only diff is the region name in the bucket.
+// `old` is the value set by service and `new` is what is stored in the config. When using a public
+// template bucket, it will be automatically turned to use a regional bucket path. In this case,
+// we want to supress the diff.
+// Example:
+//   - old: gs://template-bucket-us-central1/path/to/file.txt
+//   - new: gs://template-bucket/path/to/file.txt
+func ResourceDataflowJobTemplateGcsPathDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if old == new {
+		return true
+	}
+
+	return isRegionSuffixedPathMatch(old, new)
+}
+
+func isRegionSuffixedPathMatch(old, new string) bool {
+	re := regexp.MustCompile(`gs://([a-z0-9\-]+)-[a-z0-9]+-[a-z0-9]+(/.*)?`)
+	matches := re.FindStringSubmatch(old)
+
+	if len(matches) == 3 && matches[2] != "" {
+		modifiedOld := "gs://" + matches[1] + matches[2]
+		return modifiedOld == new
+	}
+
+	return false
+}
+
 func ResourceDataflowJob() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataflowJobCreate,
@@ -87,9 +116,10 @@ func ResourceDataflowJob() *schema.Resource {
 			},
 
 			"template_gcs_path": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `The Google Cloud Storage path to the Dataflow job template.`,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: ResourceDataflowJobTemplateGcsPathDiffSuppress,
+				Description:      `The Google Cloud Storage path to the Dataflow job template.`,
 			},
 
 			"temp_gcs_location": {
@@ -264,13 +294,20 @@ func resourceDataflowJobTypeCustomizeDiff(_ context.Context, d *schema.ResourceD
 			}
 
 			if field != "terraform_labels" && d.HasChange(field) {
+				if field == "template_gcs_path" {
+					old, new := d.GetChange("template_gcs_path")
+
+					if isRegionSuffixedPathMatch(old.(string), new.(string)) {
+						continue
+					}
+				}
+
 				if err := d.ForceNew(field); err != nil {
 					return err
 				}
 			}
 		}
 	}
-
 	return nil
 }
 
