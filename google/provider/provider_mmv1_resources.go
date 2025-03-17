@@ -129,6 +129,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/spanner"
 	"github.com/hashicorp/terraform-provider-google/google/services/sql"
 	"github.com/hashicorp/terraform-provider-google/google/services/storage"
+	"github.com/hashicorp/terraform-provider-google/google/services/storagecontrol"
 	"github.com/hashicorp/terraform-provider-google/google/services/storageinsights"
 	"github.com/hashicorp/terraform-provider-google/google/services/storagetransfer"
 	"github.com/hashicorp/terraform-provider-google/google/services/tags"
@@ -349,6 +350,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_storage_bucket_object_content":                 storage.DataSourceGoogleStorageBucketObjectContent(),
 	"google_storage_object_signed_url":                     storage.DataSourceGoogleSignedUrl(),
 	"google_storage_project_service_account":               storage.DataSourceGoogleStorageProjectServiceAccount(),
+	"google_storage_control_project_intelligence_config":   storagecontrol.DataSourceGoogleStorageControlProjectIntelligenceConfig(),
 	"google_storage_transfer_project_service_account":      storagetransfer.DataSourceGoogleStorageTransferProjectServiceAccount(),
 	"google_tags_tag_key":                                  tags.DataSourceGoogleTagsTagKey(),
 	"google_tags_tag_keys":                                 tags.DataSourceGoogleTagsTagKeys(),
@@ -490,9 +492,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 554
+// Generated resources: 555
 // Generated IAM resources: 276
-// Total generated resources: 830
+// Total generated resources: 831
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1264,6 +1266,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_storage_hmac_key":                                                    storage.ResourceStorageHmacKey(),
 	"google_storage_managed_folder":                                              storage.ResourceStorageManagedFolder(),
 	"google_storage_object_access_control":                                       storage.ResourceStorageObjectAccessControl(),
+	"google_storage_control_project_intelligence_config":                         storagecontrol.ResourceStorageControlProjectIntelligenceConfig(),
 	"google_storage_insights_report_config":                                      storageinsights.ResourceStorageInsightsReportConfig(),
 	"google_storage_transfer_agent_pool":                                         storagetransfer.ResourceStorageTransferAgentPool(),
 	"google_tags_tag_binding":                                                    tags.ResourceTagsTagBinding(),
