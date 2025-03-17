@@ -156,6 +156,7 @@ type ProviderModel struct {
 	SpannerCustomEndpoint                  types.String `tfsdk:"spanner_custom_endpoint"`
 	SQLCustomEndpoint                      types.String `tfsdk:"sql_custom_endpoint"`
 	StorageCustomEndpoint                  types.String `tfsdk:"storage_custom_endpoint"`
+	StorageControlCustomEndpoint           types.String `tfsdk:"storage_control_custom_endpoint"`
 	StorageInsightsCustomEndpoint          types.String `tfsdk:"storage_insights_custom_endpoint"`
 	StorageTransferCustomEndpoint          types.String `tfsdk:"storage_transfer_custom_endpoint"`
 	TagsCustomEndpoint                     types.String `tfsdk:"tags_custom_endpoint"`
