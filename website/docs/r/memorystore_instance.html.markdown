@@ -266,7 +266,7 @@ The following arguments are supported:
 
 * `node_type` -
   (Optional)
-  Optional. Immutable. Machine type for individual nodes of the instance. 
+  Optional. Machine type for individual nodes of the instance. 
    Possible values:
    SHARED_CORE_NANO
   HIGHMEM_MEDIUM

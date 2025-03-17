@@ -188,6 +188,49 @@ func TestAccMemorystoreInstance_updateDeletionProtection(t *testing.T) {
 	})
 }
 
+// Validate that node type is updated for the cluster
+func TestAccMemorystoreInstance_updateNodeType(t *testing.T) {
+	t.Parallel()
+
+	name := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMemorystoreInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// create cluster with node type highmem medium
+				Config: createOrUpdateMemorystoreInstance(&InstanceParams{
+					name:                 name,
+					shardCount:           3,
+					zoneDistributionMode: "MULTI_ZONE",
+					nodeType:             "HIGHMEM_MEDIUM",
+				}),
+			},
+			{
+				ResourceName:      "google_memorystore_instance.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// update cluster with node type standard small
+				Config: createOrUpdateMemorystoreInstance(&InstanceParams{
+					name:                 name,
+					shardCount:           3,
+					zoneDistributionMode: "MULTI_ZONE",
+					nodeType:             "STANDARD_SMALL",
+				}),
+			},
+			{
+				ResourceName:      "google_memorystore_instance.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 // Validate that engine version is updated for the cluster
 func TestAccMemorystoreInstance_updateEngineVersion(t *testing.T) {
 	t.Parallel()

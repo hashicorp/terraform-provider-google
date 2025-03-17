@@ -135,8 +135,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
-				Description: `Optional. Immutable. Machine type for individual nodes of the instance. 
+				Description: `Optional. Machine type for individual nodes of the instance. 
  Possible values:
  SHARED_CORE_NANO
 HIGHMEM_MEDIUM
@@ -870,6 +869,12 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("shard_count"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, shardCountProp)) {
 		obj["shardCount"] = shardCountProp
 	}
+	nodeTypeProp, err := expandMemorystoreInstanceNodeType(d.Get("node_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("node_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeTypeProp)) {
+		obj["nodeType"] = nodeTypeProp
+	}
 	persistenceConfigProp, err := expandMemorystoreInstancePersistenceConfig(d.Get("persistence_config"), d, config)
 	if err != nil {
 		return err
@@ -921,6 +926,10 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("shard_count") {
 		updateMask = append(updateMask, "shardCount")
+	}
+
+	if d.HasChange("node_type") {
+		updateMask = append(updateMask, "nodeType")
 	}
 
 	if d.HasChange("persistence_config") {
