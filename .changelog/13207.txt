@@ -1,0 +1,3 @@
+```release-note:bug
+dataflow: fixed a permadiff on `template_gcs_path` in `google_dataflow_job` resource
+```
