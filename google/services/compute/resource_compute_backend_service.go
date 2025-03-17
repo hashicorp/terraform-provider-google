@@ -1204,56 +1204,6 @@ For more information see, [Backend service settings](https://cloud.google.com/co
 The default is 30 seconds.
 The full range of timeout values allowed goes from 1 through 2,147,483,647 seconds.`,
 			},
-			"tls_settings": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `Configuration for Backend Authenticated TLS and mTLS. May only be specified when the backend protocol is SSL, HTTPS or HTTP2.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"authentication_config": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `Reference to the BackendAuthenticationConfig resource from the networksecurity.googleapis.com namespace.
-Can be used in authenticating TLS connections to the backend, as specified by the authenticationMode field.
-Can only be specified if authenticationMode is not NONE.`,
-						},
-						"sni": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `Server Name Indication - see RFC3546 section 3.1. If set, the load balancer sends this string as the SNI hostname in the
-TLS connection to the backend, and requires that this string match a Subject Alternative Name (SAN) in the backend's
-server certificate. With a Regional Internet NEG backend, if the SNI is specified here, the load balancer uses it
-regardless of whether the Regional Internet NEG is specified with FQDN or IP address and port.`,
-						},
-						"subject_alt_names": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Description: `A list of Subject Alternative Names (SANs) that the Load Balancer verifies during a TLS handshake with the backend.
-When the server presents its X.509 certificate to the Load Balancer, the Load Balancer inspects the certificate's SAN field,
-and requires that at least one SAN match one of the subjectAltNames in the list. This field is limited to 5 entries.
-When both sni and subjectAltNames are specified, the load balancer matches the backend certificate's SAN only to
-subjectAltNames.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"dns_name": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Description:  `The SAN specified as a DNS Name.`,
-										ExactlyOneOf: []string{},
-									},
-									"uniform_resource_identifier": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Description:  `The SAN specified as a URI.`,
-										ExactlyOneOf: []string{},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1646,12 +1596,6 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("service_lb_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(serviceLbPolicyProp)) && (ok || !reflect.DeepEqual(v, serviceLbPolicyProp)) {
 		obj["serviceLbPolicy"] = serviceLbPolicyProp
 	}
-	tlsSettingsProp, err := expandComputeBackendServiceTlsSettings(d.Get("tls_settings"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("tls_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(tlsSettingsProp)) && (ok || !reflect.DeepEqual(v, tlsSettingsProp)) {
-		obj["tlsSettings"] = tlsSettingsProp
-	}
 
 	obj, err = resourceComputeBackendServiceEncoder(d, meta, obj)
 	if err != nil {
@@ -1918,9 +1862,6 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("service_lb_policy", flattenComputeBackendServiceServiceLbPolicy(res["serviceLbPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("tls_settings", flattenComputeBackendServiceTlsSettings(res["tlsSettings"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackendService: %s", err)
-	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
@@ -2129,12 +2070,6 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("service_lb_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceLbPolicyProp)) {
 		obj["serviceLbPolicy"] = serviceLbPolicyProp
-	}
-	tlsSettingsProp, err := expandComputeBackendServiceTlsSettings(d.Get("tls_settings"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("tls_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tlsSettingsProp)) {
-		obj["tlsSettings"] = tlsSettingsProp
 	}
 
 	obj, err = resourceComputeBackendServiceEncoder(d, meta, obj)
@@ -3660,58 +3595,6 @@ func flattenComputeBackendServiceServiceLbPolicy(v interface{}, d *schema.Resour
 	return v
 }
 
-func flattenComputeBackendServiceTlsSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["sni"] =
-		flattenComputeBackendServiceTlsSettingsSni(original["sni"], d, config)
-	transformed["subject_alt_names"] =
-		flattenComputeBackendServiceTlsSettingsSubjectAltNames(original["subjectAltNames"], d, config)
-	transformed["authentication_config"] =
-		flattenComputeBackendServiceTlsSettingsAuthenticationConfig(original["authenticationConfig"], d, config)
-	return []interface{}{transformed}
-}
-func flattenComputeBackendServiceTlsSettingsSni(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenComputeBackendServiceTlsSettingsSubjectAltNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"dns_name":                    flattenComputeBackendServiceTlsSettingsSubjectAltNamesDnsName(original["dnsName"], d, config),
-			"uniform_resource_identifier": flattenComputeBackendServiceTlsSettingsSubjectAltNamesUniformResourceIdentifier(original["uniformResourceIdentifier"], d, config),
-		})
-	}
-	return transformed
-}
-func flattenComputeBackendServiceTlsSettingsSubjectAltNamesDnsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenComputeBackendServiceTlsSettingsSubjectAltNamesUniformResourceIdentifier(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenComputeBackendServiceTlsSettingsAuthenticationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func expandComputeBackendServiceAffinityCookieTtlSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -5021,84 +4904,6 @@ func expandComputeBackendServiceLogConfigSampleRate(v interface{}, d tpgresource
 }
 
 func expandComputeBackendServiceServiceLbPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeBackendServiceTlsSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedSni, err := expandComputeBackendServiceTlsSettingsSni(original["sni"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSni); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["sni"] = transformedSni
-	}
-
-	transformedSubjectAltNames, err := expandComputeBackendServiceTlsSettingsSubjectAltNames(original["subject_alt_names"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedSubjectAltNames); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["subjectAltNames"] = transformedSubjectAltNames
-	}
-
-	transformedAuthenticationConfig, err := expandComputeBackendServiceTlsSettingsAuthenticationConfig(original["authentication_config"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedAuthenticationConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["authenticationConfig"] = transformedAuthenticationConfig
-	}
-
-	return transformed, nil
-}
-
-func expandComputeBackendServiceTlsSettingsSni(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeBackendServiceTlsSettingsSubjectAltNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
-
-		transformedDnsName, err := expandComputeBackendServiceTlsSettingsSubjectAltNamesDnsName(original["dns_name"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedDnsName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["dnsName"] = transformedDnsName
-		}
-
-		transformedUniformResourceIdentifier, err := expandComputeBackendServiceTlsSettingsSubjectAltNamesUniformResourceIdentifier(original["uniform_resource_identifier"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedUniformResourceIdentifier); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["uniformResourceIdentifier"] = transformedUniformResourceIdentifier
-		}
-
-		req = append(req, transformed)
-	}
-	return req, nil
-}
-
-func expandComputeBackendServiceTlsSettingsSubjectAltNamesDnsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeBackendServiceTlsSettingsSubjectAltNamesUniformResourceIdentifier(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeBackendServiceTlsSettingsAuthenticationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
