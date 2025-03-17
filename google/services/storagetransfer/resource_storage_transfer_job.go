@@ -43,12 +43,38 @@ var (
 		"transfer_spec.0.transfer_options.0.delete_objects_unique_in_sink",
 		"transfer_spec.0.transfer_options.0.delete_objects_from_source_after_transfer",
 		"transfer_spec.0.transfer_options.0.overwrite_when",
+		"transfer_spec.0.transfer_options.0.metadata_options",
 	}
 	replicationSpecTransferOptionsKeys = []string{
 		"replication_spec.0.transfer_options.0.overwrite_objects_already_existing_in_sink",
 		"replication_spec.0.transfer_options.0.delete_objects_unique_in_sink",
 		"replication_spec.0.transfer_options.0.delete_objects_from_source_after_transfer",
 		"replication_spec.0.transfer_options.0.overwrite_when",
+		"replication_spec.0.transfer_options.0.metadata_options",
+	}
+
+	transferSpecMetadataOptionsKeys = []string{
+		"transfer_spec.0.transfer_options.0.metadata_options.0.time_created",
+		"transfer_spec.0.transfer_options.0.metadata_options.0.symlink",
+		"transfer_spec.0.transfer_options.0.metadata_options.0.mode",
+		"transfer_spec.0.transfer_options.0.metadata_options.0.gid",
+		"transfer_spec.0.transfer_options.0.metadata_options.0.uid",
+		"transfer_spec.0.transfer_options.0.metadata_options.0.acl",
+		"transfer_spec.0.transfer_options.0.metadata_options.0.storage_class",
+		"transfer_spec.0.transfer_options.0.metadata_options.0.temporary_hold",
+		"transfer_spec.0.transfer_options.0.metadata_options.0.kms_key",
+	}
+
+	replicationSpecMetadataOptionsKeys = []string{
+		"replication_spec.0.transfer_options.0.metadata_options.0.symlink",
+		"replication_spec.0.transfer_options.0.metadata_options.0.mode",
+		"replication_spec.0.transfer_options.0.metadata_options.0.gid",
+		"replication_spec.0.transfer_options.0.metadata_options.0.uid",
+		"replication_spec.0.transfer_options.0.metadata_options.0.acl",
+		"replication_spec.0.transfer_options.0.metadata_options.0.storage_class",
+		"replication_spec.0.transfer_options.0.metadata_options.0.temporary_hold",
+		"replication_spec.0.transfer_options.0.metadata_options.0.kms_key",
+		"replication_spec.0.transfer_options.0.metadata_options.0.time_created",
 	}
 
 	transferSpecDataSourceKeys = []string{
@@ -148,7 +174,7 @@ func ResourceStorageTransferJob() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"object_conditions": objectConditionsSchema(replicationSpecObjectConditionsKeys),
-						"transfer_options":  transferOptionsSchema(replicationSpecTransferOptionsKeys),
+						"transfer_options":  transferOptionsSchema(replicationSpecTransferOptionsKeys, replicationSpecMetadataOptionsKeys),
 						"gcs_data_sink": {
 							Type:         schema.TypeList,
 							Optional:     true,
@@ -178,7 +204,7 @@ func ResourceStorageTransferJob() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"object_conditions": objectConditionsSchema(transferSpecObjectConditionsKeys),
-						"transfer_options":  transferOptionsSchema(transferSpecTransferOptionsKeys),
+						"transfer_options":  transferOptionsSchema(transferSpecTransferOptionsKeys, transferSpecMetadataOptionsKeys),
 						"source_agent_pool_name": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -455,7 +481,7 @@ func objectConditionsSchema(objectConditionsKeys []string) *schema.Schema {
 	}
 }
 
-func transferOptionsSchema(transferOptionsKeys []string) *schema.Schema {
+func transferOptionsSchema(transferOptionsKeys []string, metadataOptionsKeys []string) *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
 		Optional: true,
@@ -489,9 +515,111 @@ func transferOptionsSchema(transferOptionsKeys []string) *schema.Schema {
 					ValidateFunc: validation.StringInSlice([]string{"DIFFERENT", "NEVER", "ALWAYS"}, false),
 					Description:  `When to overwrite objects that already exist in the sink. If not set, overwrite behavior is determined by overwriteObjectsAlreadyExistingInSink.`,
 				},
+				"metadata_options": {
+					Type:         schema.TypeList,
+					Optional:     true,
+					MaxItems:     1,
+					AtLeastOneOf: transferOptionsKeys,
+					Elem:         metadataOptionsSchema(metadataOptionsKeys),
+					Description:  `Specifies the metadata options for running a transfer`,
+				},
 			},
 		},
 		Description: `Characteristics of how to treat files from datasource and sink during job. If the option delete_objects_unique_in_sink is true, object conditions based on objects' last_modification_time are ignored and do not exclude objects in a data source or a data sink.`,
+	}
+}
+
+func metadataOptionsSchema(metadataOptionsKeys []string) *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"symlink": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Specifies how symlinks should be handled by the transfer.",
+				ValidateFunc: validation.StringInSlice([]string{
+					"SYMLINK_UNSPECIFIED", "SYMLINK_SKIP", "SYMLINK_PRESERVE",
+				}, false),
+				AtLeastOneOf: metadataOptionsKeys,
+			},
+			"mode": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Specifies how each file's mode attribute should be handled by the transfer.",
+				ValidateFunc: validation.StringInSlice([]string{
+					"MODE_UNSPECIFIED", "MODE_SKIP", "MODE_PRESERVE",
+				}, false),
+				AtLeastOneOf: metadataOptionsKeys,
+			},
+			"gid": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Specifies how each file's POSIX group ID (GID) attribute should be handled by the transfer.",
+				ValidateFunc: validation.StringInSlice([]string{
+					"GID_UNSPECIFIED", "GID_SKIP", "GID_NUMBER",
+				}, false),
+				AtLeastOneOf: metadataOptionsKeys,
+			},
+			"uid": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Specifies how each file's POSIX user ID (UID) attribute should be handled by the transfer.",
+				ValidateFunc: validation.StringInSlice([]string{
+					"UID_UNSPECIFIED", "UID_SKIP", "UID_NUMBER",
+				}, false),
+				AtLeastOneOf: metadataOptionsKeys,
+			},
+			"acl": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Specifies how each object's ACLs should be preserved for transfers between Google Cloud Storage buckets",
+				ValidateFunc: validation.StringInSlice([]string{
+					"ACL_UNSPECIFIED", "ACL_DESTINATION_BUCKET_DEFAULT", "ACL_PRESERVE",
+				}, false),
+				AtLeastOneOf: metadataOptionsKeys,
+			},
+			"storage_class": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Specifies the storage class to set on objects being transferred to Google Cloud Storage buckets",
+				ValidateFunc: validation.StringInSlice([]string{
+					"STORAGE_CLASS_UNSPECIFIED",
+					"STORAGE_CLASS_DESTINATION_BUCKET_DEFAULT",
+					"STORAGE_CLASS_PRESERVE",
+					"STORAGE_CLASS_STANDARD",
+					"STORAGE_CLASS_NEARLINE",
+					"STORAGE_CLASS_COLDLINE",
+					"STORAGE_CLASS_ARCHIVE",
+				}, false),
+				AtLeastOneOf: metadataOptionsKeys,
+			},
+			"temporary_hold": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "SSpecifies how each object's temporary hold status should be preserved for transfers between Google Cloud Storage buckets",
+				ValidateFunc: validation.StringInSlice([]string{
+					"TEMPORARY_HOLD_UNSPECIFIED", "TEMPORARY_HOLD_SKIP", "TEMPORARY_HOLD_PRESERVE",
+				}, false),
+				AtLeastOneOf: metadataOptionsKeys,
+			},
+			"kms_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Specifies how each object's Cloud KMS customer-managed encryption key (CMEK) is preserved for transfers between Google Cloud Storage buckets",
+				ValidateFunc: validation.StringInSlice([]string{
+					"KMS_KEY_UNSPECIFIED", "KMS_KEY_DESTINATION_BUCKET_DEFAULT", "KMS_KEY_PRESERVE",
+				}, false),
+				AtLeastOneOf: metadataOptionsKeys,
+			},
+			"time_created": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Specifies how each object's timeCreated metadata is preserved for transfers.",
+				ValidateFunc: validation.StringInSlice([]string{
+					"TIME_CREATED_UNSPECIFIED", "TIME_CREATED_SKIP", "TIME_CREATED_PRESERVE_AS_CUSTOM_TIME",
+				}, false),
+				AtLeastOneOf: metadataOptionsKeys,
+			},
+		},
 	}
 }
 
@@ -1331,6 +1459,26 @@ func expandTransferOptions(options []interface{}) *storagetransfer.TransferOptio
 		DeleteObjectsUniqueInSink:             option["delete_objects_unique_in_sink"].(bool),
 		OverwriteObjectsAlreadyExistingInSink: option["overwrite_objects_already_existing_in_sink"].(bool),
 		OverwriteWhen:                         option["overwrite_when"].(string),
+		MetadataOptions:                       expandMetadataOptions(option["metadata_options"].([]interface{})),
+	}
+}
+
+func expandMetadataOptions(options []interface{}) *storagetransfer.MetadataOptions {
+	if len(options) == 0 || options == nil {
+		return nil
+	}
+
+	option := options[0].(map[string]interface{})
+	return &storagetransfer.MetadataOptions{
+		Symlink:       option["symlink"].(string),
+		Uid:           option["uid"].(string),
+		Gid:           option["gid"].(string),
+		Mode:          option["mode"].(string),
+		Acl:           option["acl"].(string),
+		StorageClass:  option["storage_class"].(string),
+		TemporaryHold: option["temporary_hold"].(string),
+		KmsKey:        option["kms_key"].(string),
+		TimeCreated:   option["time_created"].(string),
 	}
 }
 
@@ -1340,8 +1488,27 @@ func flattenTransferOption(option *storagetransfer.TransferOptions) []map[string
 		"delete_objects_unique_in_sink":              option.DeleteObjectsUniqueInSink,
 		"overwrite_objects_already_existing_in_sink": option.OverwriteObjectsAlreadyExistingInSink,
 		"overwrite_when":                             option.OverwriteWhen,
+		"metadata_options":                           flattenMetadataOptions(option.MetadataOptions),
 	}
 
+	return []map[string]interface{}{data}
+}
+
+func flattenMetadataOptions(options *storagetransfer.MetadataOptions) []map[string]interface{} {
+	if options == nil {
+		return nil
+	}
+	data := map[string]interface{}{
+		"symlink":        options.Symlink,
+		"uid":            options.Uid,
+		"mode":           options.Mode,
+		"gid":            options.Gid,
+		"acl":            options.Acl,
+		"storage_class":  options.StorageClass,
+		"temporary_hold": options.TemporaryHold,
+		"kms_key":        options.KmsKey,
+		"time_created":   options.TimeCreated,
+	}
 	return []map[string]interface{}{data}
 }
 
