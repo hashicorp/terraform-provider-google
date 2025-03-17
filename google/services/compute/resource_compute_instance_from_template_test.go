@@ -322,7 +322,29 @@ func TestAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(t *test
 			},
 		},
 	})
+}
 
+func TestAccComputeInstanceFromTemplate_useDiskSelfLink(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	resourceName := "google_compute_instance_from_template.foobar"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceFromTemplate_regionalDisk(instanceName, templateName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
+				),
+			},
+		},
+	})
 }
 
 func testAccCheckComputeInstanceFromTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
@@ -661,6 +683,73 @@ resource "google_compute_instance_from_template" "foobar" {
 			nanos = 0
 			seconds = 7200
     }
+  }
+}
+`, template, template, instance)
+}
+
+func testAccComputeInstanceFromTemplate_regionalDisk(instance, template string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_disk" "foobar" {
+  name          = "%s"
+  size          = 10
+  type          = "pd-ssd"
+  region        = "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-f"]
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-1"  // can't be e2 because of local-ssd
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 100
+    boot         = true
+    disk_type    = "pd-ssd"
+    type         = "PERSISTENT"
+  }
+
+  disk {
+    source      = google_compute_region_disk.foobar.self_link
+    auto_delete = false
+    boot        = false
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  scheduling {
+    automatic_restart = true
+  }
+
+  can_ip_forward = true
+}
+
+resource "google_compute_instance_from_template" "foobar" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  source_instance_template = google_compute_instance_template.foobar.id
+
+  // Overrides
+  can_ip_forward = false
+  labels = {
+    my_key = "my_value"
+  }
+  scheduling {
+    automatic_restart = false
   }
 }
 `, template, template, instance)

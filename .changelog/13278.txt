@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed the issue that user can't use regional disk in `global_instance_template`.
+```
