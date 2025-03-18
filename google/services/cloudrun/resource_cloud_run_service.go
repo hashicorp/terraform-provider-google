@@ -1208,6 +1208,7 @@ func cloudrunServiceSpecTemplateSpecContainersContainersEnvSchema() *schema.Reso
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Defaults to "".`,
+				Default:     "",
 			},
 			"value_from": {
 				Type:        schema.TypeList,
