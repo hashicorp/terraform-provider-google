@@ -293,6 +293,9 @@ region are guaranteed to support the same version.
     [PodSecurityPolicy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies) feature.
     Structure is [documented below](#nested_pod_security_policy_config).
 
+* `pod_autoscaling` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration for the
+    Structure is [documented below](#nested_pod_autoscaling).
+
 * `secret_manager_config` - (Optional) Configuration for the
     [SecretManagerConfig](https://cloud.google.com/secret-manager/docs/secret-manager-managed-csi-component) feature.
     Structure is [documented below](#nested_secret_manager_config).
@@ -1194,6 +1197,14 @@ notification_config {
 
 * `enabled` (Required) - Enable the PodSecurityPolicy controller for this cluster.
     If enabled, pods must be valid under a PodSecurityPolicy to be created.
+
+<a name="nested_pod_autoscaling"></a>The `pod_autoscaling` block supports:
+
+* `hpa_profile` (Required) - Enable the Horizontal Pod Autoscaling profile for this cluster.
+    Acceptable values are:
+    * `"NONE"`: Customers explicitly opt-out of HPA profiles.
+    * `"PERFORMANCE"`: PERFORMANCE is used when customers opt-in to the performance HPA profile. In this profile we support a higher number of HPAs per cluster and faster metrics collection for workload autoscaling.
+    See [HPAProfile](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#hpaprofile) for more details.
 
 <a name="nested_secret_manager_config"></a>The `secret_manager_config` block supports:
 
