@@ -66,7 +66,8 @@ The following arguments are supported:
   bundle, not the speed of the entire bundle. Can take one of the following values:
     - LINK_TYPE_ETHERNET_10G_LR: A 10G Ethernet with LR optics.
     - LINK_TYPE_ETHERNET_100G_LR: A 100G Ethernet with LR optics.
-  Possible values are: `LINK_TYPE_ETHERNET_10G_LR`, `LINK_TYPE_ETHERNET_100G_LR`.
+    - LINK_TYPE_ETHERNET_400G_LR4: A 400G Ethernet with LR4 optics
+  Possible values are: `LINK_TYPE_ETHERNET_10G_LR`, `LINK_TYPE_ETHERNET_100G_LR`, `LINK_TYPE_ETHERNET_400G_LR4`.
 
 * `requested_link_count` -
   (Required)
