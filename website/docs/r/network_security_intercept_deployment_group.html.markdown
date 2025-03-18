@@ -134,6 +134,10 @@ In addition to the arguments listed above, the following computed attributes are
   operation (e.g. adding a new deployment to the group)
   See https://google.aip.dev/128.
 
+* `locations` -
+  The list of locations where the deployment group is present.
+  Structure is [documented below](#nested_locations).
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -149,6 +153,20 @@ In addition to the arguments listed above, the following computed attributes are
   The connected endpoint group's resource name, for example:
   `projects/123456789/locations/global/interceptEndpointGroups/my-eg`.
   See https://google.aip.dev/124.
+
+<a name="nested_locations"></a>The `locations` block contains:
+
+* `state` -
+  (Output)
+  The current state of the association in this location.
+  Possible values:
+  STATE_UNSPECIFIED
+  ACTIVE
+  OUT_OF_SYNC
+
+* `location` -
+  (Output)
+  The cloud location, e.g. `us-central1-a` or `asia-south1-b`.
 
 ## Timeouts
 
