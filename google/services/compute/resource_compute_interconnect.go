@@ -76,11 +76,12 @@ Can take one of the following values:
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"LINK_TYPE_ETHERNET_10G_LR", "LINK_TYPE_ETHERNET_100G_LR"}),
+				ValidateFunc: verify.ValidateEnum([]string{"LINK_TYPE_ETHERNET_10G_LR", "LINK_TYPE_ETHERNET_100G_LR", "LINK_TYPE_ETHERNET_400G_LR4"}),
 				Description: `Type of link requested. Note that this field indicates the speed of each of the links in the
 bundle, not the speed of the entire bundle. Can take one of the following values:
   - LINK_TYPE_ETHERNET_10G_LR: A 10G Ethernet with LR optics.
-  - LINK_TYPE_ETHERNET_100G_LR: A 100G Ethernet with LR optics. Possible values: ["LINK_TYPE_ETHERNET_10G_LR", "LINK_TYPE_ETHERNET_100G_LR"]`,
+  - LINK_TYPE_ETHERNET_100G_LR: A 100G Ethernet with LR optics.
+  - LINK_TYPE_ETHERNET_400G_LR4: A 400G Ethernet with LR4 optics Possible values: ["LINK_TYPE_ETHERNET_10G_LR", "LINK_TYPE_ETHERNET_100G_LR", "LINK_TYPE_ETHERNET_400G_LR4"]`,
 			},
 			"name": {
 				Type:         schema.TypeString,
