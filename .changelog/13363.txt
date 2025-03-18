@@ -1,0 +1,6 @@
+```release-note:bug
+cloudrun: fixed the perma-diffs for unchanged `template.spec.containers.env` in `google_cloud_run_service` resource
+```
+```release-note:bug
+cloudrunv2: fixed the perma-diffs for unchanged `template.containers.env` in `google_cloud_run_v2_service` resource
+```
