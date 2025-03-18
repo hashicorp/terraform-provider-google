@@ -16,8 +16,7 @@ IMPROVEMENTS:
 * clouddeploy: added `dns_endpoint` field to to `google_clouddeploy_target` resource ([#21868](https://github.com/hashicorp/terraform-provider-google/pull/21868))
 * compute: added `UNRESTRICTED` option to the `tls_early_data` field in the `google_compute_target_https_proxy` resource ([#21821](https://github.com/hashicorp/terraform-provider-google/pull/21821))
 * compute: added `enable_flow_logs` and `state` fields to `google_compute_subnetwork` resource ([#21851](https://github.com/hashicorp/terraform-provider-google/pull/21851))
-* compute: added `tls_settings` field to `google_compute_backend_service` resource ([#21850](https://github.com/hashicorp/terraform-provider-google/pull/21850))
-* compute: promote fields `single_instance_assignment` and `filter` to GA for `google_compute_autoscaler` resource ([#21760](https://github.com/hashicorp/terraform-provider-google/pull/21760))
+* compute: promoted fields `single_instance_assignment` and `filter` to GA for `google_compute_autoscaler` resource ([#21760](https://github.com/hashicorp/terraform-provider-google/pull/21760))
 * container: added additional value `KCP_HPA` for `logging_config.enable_components` field in `google_container_cluster` resource ([#21836](https://github.com/hashicorp/terraform-provider-google/pull/21836))
 * dataform: added `deletion_policy` field to `google_dataform_repository` resource. Default value is `DELETE`. Setting `deletion_policy` to `FORCE` will delete any child resources of this repository as well. ([#21864](https://github.com/hashicorp/terraform-provider-google/pull/21864))
 * memorystore: added update support for `engine_version` field in `google_memorystore_instance` resource ([#21843](https://github.com/hashicorp/terraform-provider-google/pull/21843))
@@ -30,8 +29,8 @@ IMPROVEMENTS:
 * workflows: added `execution_history_level` field to `google_workflows_workflow` resource ([#21782](https://github.com/hashicorp/terraform-provider-google/pull/21782))
 
 BUG FIXES:
-* accesscontextmanager: fix panic on empty `access_policies` in `google_access_context_manager_access_policy` ([#21845](https://github.com/hashicorp/terraform-provider-google/pull/21845))
-* compute: adjust mapped image names that were preventing usage of `fedora-coreos` in `google_compute_image` resource ([#21787](https://github.com/hashicorp/terraform-provider-google/pull/21787))
+* accesscontextmanager: fixed panic on empty `access_policies` in `google_access_context_manager_access_policy` ([#21845](https://github.com/hashicorp/terraform-provider-google/pull/21845))
+* compute: adjusted mapped image names that were preventing usage of `fedora-coreos` in `google_compute_image` resource ([#21787](https://github.com/hashicorp/terraform-provider-google/pull/21787))
 * container: re-added `DNS_SCOPE_UNSPECIFIED` value to the `dns_config.cluster_dns_scope` field in `google_container_cluster` resource and suppressed diffs between `DNS_SCOPE_UNSPECIFIED` in config and empty/null in state ([#21861](https://github.com/hashicorp/terraform-provider-google/pull/21861))
 * discoveryengine: changed field `dataStoreIds` to mutable in `google_discovery_engine_search_engine` ([#21759](https://github.com/hashicorp/terraform-provider-google/pull/21759))
 * networksecurity: `min_tls_version` and `tls_feature_profile` fields updated to use the server assigned default and prevent a permadiff in `google_network_security_tls_inspection_policy` resource. ([#21788](https://github.com/hashicorp/terraform-provider-google/pull/21788))
