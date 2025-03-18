@@ -117,6 +117,74 @@ capacity specified above at most.`,
 Examples: US, EU, asia-northeast1. The default value is US.`,
 				Default: "US",
 			},
+			"secondary_location": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The current location of the reservation's secondary replica. This field is only set for
+reservations using the managed disaster recovery feature. Users can set this in create
+reservation calls to create a failover reservation or in update reservation calls to convert
+a non-failover reservation to a failover reservation(or vice versa).`,
+			},
+			"original_primary_location": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The location where the reservation was originally created. This is set only during the
+failover reservation's creation. All billing charges for the failover reservation will be
+applied to this location.`,
+			},
+			"primary_location": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The current location of the reservation's primary replica. This field is only set for
+reservations using the managed disaster recovery feature.`,
+			},
+			"replication_status": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Description: `The Disaster Recovery(DR) replication status of the reservation. This is only available for
+the primary replicas of DR/failover reservations and provides information about the both the
+staleness of the secondary and the last error encountered while trying to replicate changes
+from the primary to the secondary. If this field is blank, it means that the reservation is
+either not a DR reservation or the reservation is a DR secondary or that any replication
+operations on the reservation have succeeded.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"error": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Description: `The last error encountered while trying to replicate changes from the primary to the
+secondary. This field is only available if the replication has not succeeded since.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"code": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: `The status code, which should be an enum value of [google.rpc.Code](https://cloud.google.com/bigquery/docs/reference/reservations/rpc/google.rpc#google.rpc.Code).`,
+									},
+									"message": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `A developer-facing error message, which should be in English.`,
+									},
+								},
+							},
+						},
+						"last_error_time": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The time at which the last error was encountered while trying to replicate changes from
+the primary to the secondary. This field is only available if the replication has not
+succeeded since.`,
+						},
+						"last_replication_time": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `A timestamp corresponding to the last change on the primary that was successfully
+replicated to the secondary.`,
+						},
+					},
+				},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -165,6 +233,12 @@ func resourceBigqueryReservationReservationCreate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("autoscale"); !tpgresource.IsEmptyValue(reflect.ValueOf(autoscaleProp)) && (ok || !reflect.DeepEqual(v, autoscaleProp)) {
 		obj["autoscale"] = autoscaleProp
+	}
+	secondaryLocationProp, err := expandBigqueryReservationReservationSecondaryLocation(d.Get("secondary_location"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("secondary_location"); !tpgresource.IsEmptyValue(reflect.ValueOf(secondaryLocationProp)) && (ok || !reflect.DeepEqual(v, secondaryLocationProp)) {
+		obj["secondaryLocation"] = secondaryLocationProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations?reservationId={{name}}")
@@ -270,6 +344,18 @@ func resourceBigqueryReservationReservationRead(d *schema.ResourceData, meta int
 	if err := d.Set("autoscale", flattenBigqueryReservationReservationAutoscale(res["autoscale"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
+	if err := d.Set("primary_location", flattenBigqueryReservationReservationPrimaryLocation(res["primaryLocation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Reservation: %s", err)
+	}
+	if err := d.Set("secondary_location", flattenBigqueryReservationReservationSecondaryLocation(res["secondaryLocation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Reservation: %s", err)
+	}
+	if err := d.Set("original_primary_location", flattenBigqueryReservationReservationOriginalPrimaryLocation(res["originalPrimaryLocation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Reservation: %s", err)
+	}
+	if err := d.Set("replication_status", flattenBigqueryReservationReservationReplicationStatus(res["replicationStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Reservation: %s", err)
+	}
 
 	return nil
 }
@@ -314,6 +400,12 @@ func resourceBigqueryReservationReservationUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("autoscale"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, autoscaleProp)) {
 		obj["autoscale"] = autoscaleProp
 	}
+	secondaryLocationProp, err := expandBigqueryReservationReservationSecondaryLocation(d.Get("secondary_location"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("secondary_location"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, secondaryLocationProp)) {
+		obj["secondaryLocation"] = secondaryLocationProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{name}}")
 	if err != nil {
@@ -338,6 +430,10 @@ func resourceBigqueryReservationReservationUpdate(d *schema.ResourceData, meta i
 
 	if d.HasChange("autoscale") {
 		updateMask = append(updateMask, "autoscale")
+	}
+
+	if d.HasChange("secondary_location") {
+		updateMask = append(updateMask, "secondaryLocation")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -534,6 +630,79 @@ func flattenBigqueryReservationReservationAutoscaleMaxSlots(v interface{}, d *sc
 	return v // let terraform core handle it otherwise
 }
 
+func flattenBigqueryReservationReservationPrimaryLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryReservationReservationSecondaryLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryReservationReservationOriginalPrimaryLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryReservationReservationReplicationStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["error"] =
+		flattenBigqueryReservationReservationReplicationStatusError(original["error"], d, config)
+	transformed["last_error_time"] =
+		flattenBigqueryReservationReservationReplicationStatusLastErrorTime(original["lastErrorTime"], d, config)
+	transformed["last_replication_time"] =
+		flattenBigqueryReservationReservationReplicationStatusLastReplicationTime(original["lastReplicationTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryReservationReservationReplicationStatusError(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["code"] =
+		flattenBigqueryReservationReservationReplicationStatusErrorCode(original["code"], d, config)
+	transformed["message"] =
+		flattenBigqueryReservationReservationReplicationStatusErrorMessage(original["message"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryReservationReservationReplicationStatusErrorCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenBigqueryReservationReservationReplicationStatusErrorMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryReservationReservationReplicationStatusLastErrorTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryReservationReservationReplicationStatusLastReplicationTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandBigqueryReservationReservationSlotCapacity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -581,5 +750,9 @@ func expandBigqueryReservationReservationAutoscaleCurrentSlots(v interface{}, d 
 }
 
 func expandBigqueryReservationReservationAutoscaleMaxSlots(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryReservationReservationSecondaryLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

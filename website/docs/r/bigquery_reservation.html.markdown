@@ -91,6 +91,13 @@ The following arguments are supported:
   The configuration parameters for the auto scaling feature.
   Structure is [documented below](#nested_autoscale).
 
+* `secondary_location` -
+  (Optional)
+  The current location of the reservation's secondary replica. This field is only set for
+  reservations using the managed disaster recovery feature. Users can set this in create
+  reservation calls to create a failover reservation or in update reservation calls to convert
+  a non-failover reservation to a failover reservation(or vice versa).
+
 * `location` -
   (Optional)
   The geographic location where the transfer config should reside.
@@ -116,6 +123,54 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/reservations/{{name}}`
 
+* `primary_location` -
+  The current location of the reservation's primary replica. This field is only set for
+  reservations using the managed disaster recovery feature.
+
+* `original_primary_location` -
+  The location where the reservation was originally created. This is set only during the
+  failover reservation's creation. All billing charges for the failover reservation will be
+  applied to this location.
+
+* `replication_status` -
+  The Disaster Recovery(DR) replication status of the reservation. This is only available for
+  the primary replicas of DR/failover reservations and provides information about the both the
+  staleness of the secondary and the last error encountered while trying to replicate changes
+  from the primary to the secondary. If this field is blank, it means that the reservation is
+  either not a DR reservation or the reservation is a DR secondary or that any replication
+  operations on the reservation have succeeded.
+  Structure is [documented below](#nested_replication_status).
+
+
+<a name="nested_replication_status"></a>The `replication_status` block contains:
+
+* `error` -
+  (Output)
+  The last error encountered while trying to replicate changes from the primary to the
+  secondary. This field is only available if the replication has not succeeded since.
+  Structure is [documented below](#nested_replication_status_error).
+
+* `last_error_time` -
+  (Output)
+  The time at which the last error was encountered while trying to replicate changes from
+  the primary to the secondary. This field is only available if the replication has not
+  succeeded since.
+
+* `last_replication_time` -
+  (Output)
+  A timestamp corresponding to the last change on the primary that was successfully
+  replicated to the secondary.
+
+
+<a name="nested_replication_status_error"></a>The `error` block contains:
+
+* `code` -
+  (Output)
+  The status code, which should be an enum value of [google.rpc.Code](https://cloud.google.com/bigquery/docs/reference/reservations/rpc/google.rpc#google.rpc.Code).
+
+* `message` -
+  (Output)
+  A developer-facing error message, which should be in English.
 
 ## Timeouts
 

@@ -14,4 +14,11 @@ fields:
     provider_only: true
   - field: 'name'
     provider_only: true
+  - field: 'original_primary_location'
+  - field: 'primary_location'
+  - field: 'replication_status.error.code'
+  - field: 'replication_status.error.message'
+  - field: 'replication_status.last_error_time'
+  - field: 'replication_status.last_replication_time'
+  - field: 'secondary_location'
   - field: 'slot_capacity'
