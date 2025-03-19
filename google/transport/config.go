@@ -563,7 +563,7 @@ var DefaultBasePaths = map[string]string{
 	EventarcBasePathKey:                 "https://eventarc.googleapis.com/v1/",
 	FilestoreBasePathKey:                "https://file.googleapis.com/v1/",
 	FirebaseAppCheckBasePathKey:         "https://firebaseappcheck.googleapis.com/v1/",
-	FirebaseAppHostingBasePathKey:       "https://firebaseapphosting.googleapis.com/v1main/",
+	FirebaseAppHostingBasePathKey:       "https://firebaseapphosting.googleapis.com/v1/",
 	FirebaseDataConnectBasePathKey:      "https://firebasedataconnect.googleapis.com/v1/",
 	FirestoreBasePathKey:                "https://firestore.googleapis.com/v1/",
 	GeminiBasePathKey:                   "https://cloudaicompanion.googleapis.com/v1/",

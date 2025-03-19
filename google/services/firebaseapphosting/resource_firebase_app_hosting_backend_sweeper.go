@@ -85,7 +85,7 @@ func testSweepFirebaseAppHostingBackend(_ string) error {
 			},
 		}
 
-		listTemplate := strings.Split("https://firebaseapphosting.googleapis.com/v1main/projects/{{project}}/locations/{{location}}/backends", "?")[0]
+		listTemplate := strings.Split("https://firebaseapphosting.googleapis.com/v1/projects/{{project}}/locations/{{location}}/backends", "?")[0]
 		listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -141,7 +141,7 @@ func testSweepFirebaseAppHostingBackend(_ string) error {
 				continue
 			}
 
-			deleteTemplate := "https://firebaseapphosting.googleapis.com/v1main/projects/{{project}}/locations/{{location}}/backends/{{backend_id}}?force=true"
+			deleteTemplate := "https://firebaseapphosting.googleapis.com/v1/projects/{{project}}/locations/{{location}}/backends/{{backend_id}}?force=true"
 
 			deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 			if err != nil {
