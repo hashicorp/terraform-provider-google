@@ -290,6 +290,7 @@ type Config struct {
 	OracleDatabaseBasePath           string
 	OrgPolicyBasePath                string
 	OSConfigBasePath                 string
+	OSConfigV2BasePath               string
 	OSLoginBasePath                  string
 	ParallelstoreBasePath            string
 	PrivatecaBasePath                string
@@ -446,6 +447,7 @@ const NotebooksBasePathKey = "Notebooks"
 const OracleDatabaseBasePathKey = "OracleDatabase"
 const OrgPolicyBasePathKey = "OrgPolicy"
 const OSConfigBasePathKey = "OSConfig"
+const OSConfigV2BasePathKey = "OSConfigV2"
 const OSLoginBasePathKey = "OSLogin"
 const ParallelstoreBasePathKey = "Parallelstore"
 const PrivatecaBasePathKey = "Privateca"
@@ -596,6 +598,7 @@ var DefaultBasePaths = map[string]string{
 	OracleDatabaseBasePathKey:           "https://oracledatabase.googleapis.com/v1/",
 	OrgPolicyBasePathKey:                "https://orgpolicy.googleapis.com/v2/",
 	OSConfigBasePathKey:                 "https://osconfig.googleapis.com/v1/",
+	OSConfigV2BasePathKey:               "https://osconfig.googleapis.com/v2/",
 	OSLoginBasePathKey:                  "https://oslogin.googleapis.com/v1/",
 	ParallelstoreBasePathKey:            "https://parallelstore.googleapis.com/v1/",
 	PrivatecaBasePathKey:                "https://privateca.googleapis.com/v1/",
@@ -1224,6 +1227,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("os_config_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_OS_CONFIG_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[OSConfigBasePathKey]))
+	}
+	if d.Get("os_config_v2_custom_endpoint") == "" {
+		d.Set("os_config_v2_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_OS_CONFIG_V2_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[OSConfigV2BasePathKey]))
 	}
 	if d.Get("os_login_custom_endpoint") == "" {
 		d.Set("os_login_custom_endpoint", MultiEnvDefault([]string{
@@ -2422,6 +2430,7 @@ func ConfigureBasePaths(c *Config) {
 	c.OracleDatabaseBasePath = DefaultBasePaths[OracleDatabaseBasePathKey]
 	c.OrgPolicyBasePath = DefaultBasePaths[OrgPolicyBasePathKey]
 	c.OSConfigBasePath = DefaultBasePaths[OSConfigBasePathKey]
+	c.OSConfigV2BasePath = DefaultBasePaths[OSConfigV2BasePathKey]
 	c.OSLoginBasePath = DefaultBasePaths[OSLoginBasePathKey]
 	c.ParallelstoreBasePath = DefaultBasePaths[ParallelstoreBasePathKey]
 	c.PrivatecaBasePath = DefaultBasePaths[PrivatecaBasePathKey]
