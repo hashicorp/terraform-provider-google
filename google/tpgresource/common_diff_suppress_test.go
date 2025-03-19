@@ -215,3 +215,42 @@ func TestEmptyOrUnsetBlockDiffSuppress(t *testing.T) {
 		}
 	}
 }
+
+func TestBase64DiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"identical strings": {
+			Old:                "aGVsbG8=",
+			New:                "aGVsbG8=",
+			ExpectDiffSuppress: true,
+		},
+		"standard vs url safe": {
+			Old:                "hello+world/123==",
+			New:                "hello-world_123",
+			ExpectDiffSuppress: true,
+		},
+		"with line endings": {
+			Old:                "aGVs\nbG8=\r\n",
+			New:                "aGVsbG8=",
+			ExpectDiffSuppress: true,
+		},
+		"different content": {
+			Old:                "aGVsbG8=",
+			New:                "d29ybGQ=",
+			ExpectDiffSuppress: false,
+		},
+		"empty strings": {
+			Old:                "",
+			New:                "",
+			ExpectDiffSuppress: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		if Base64DiffSuppress("key", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}

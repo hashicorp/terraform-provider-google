@@ -247,6 +247,11 @@ The following arguments are supported:
   * The rawDisk.source URL
   * The sourceDisk URL
 
+* `shielded_instance_initial_state` -
+  (Optional)
+  Set the secure boot keys of shielded instance.
+  Structure is [documented below](#nested_shielded_instance_initial_state).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -292,6 +297,73 @@ The following arguments are supported:
   The full Google Cloud Storage URL where disk storage is stored
   You must provide either this property or the sourceDisk property
   but not both.
+
+<a name="nested_shielded_instance_initial_state"></a>The `shielded_instance_initial_state` block supports:
+
+* `pk` -
+  (Optional)
+  The Platform Key (PK).
+  Structure is [documented below](#nested_shielded_instance_initial_state_pk).
+
+* `keks` -
+  (Optional)
+  The Key Exchange Key (KEK).
+  Structure is [documented below](#nested_shielded_instance_initial_state_keks).
+
+* `dbs` -
+  (Optional)
+  The Key Database (db).
+  Structure is [documented below](#nested_shielded_instance_initial_state_dbs).
+
+* `dbxs` -
+  (Optional)
+  The forbidden key database (dbx).
+  Structure is [documented below](#nested_shielded_instance_initial_state_dbxs).
+
+
+<a name="nested_shielded_instance_initial_state_pk"></a>The `pk` block supports:
+
+* `content` -
+  (Required)
+  The raw content in the secure keys file.
+  A base64-encoded string.
+
+* `file_type` -
+  (Optional)
+  The file type of source file.
+
+<a name="nested_shielded_instance_initial_state_keks"></a>The `keks` block supports:
+
+* `content` -
+  (Required)
+  The raw content in the secure keys file.
+  A base64-encoded string.
+
+* `file_type` -
+  (Optional)
+  The file type of source file.
+
+<a name="nested_shielded_instance_initial_state_dbs"></a>The `dbs` block supports:
+
+* `content` -
+  (Required)
+  The raw content in the secure keys file.
+  A base64-encoded string.
+
+* `file_type` -
+  (Optional)
+  The file type of source file.
+
+<a name="nested_shielded_instance_initial_state_dbxs"></a>The `dbxs` block supports:
+
+* `content` -
+  (Required)
+  The raw content in the secure keys file.
+  A base64-encoded string.
+
+* `file_type` -
+  (Optional)
+  The file type of source file.
 
 ## Attributes Reference
 

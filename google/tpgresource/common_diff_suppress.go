@@ -136,3 +136,13 @@ func CidrOrSizeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// If the user specified a size and the API returned a full cidr block, suppress.
 	return strings.HasPrefix(new, "/") && strings.HasSuffix(old, new)
 }
+
+// Base64DiffSuppress compares two Base64 strings, ignoring differences
+// between standard encoding and web safe URL encoding, padding, and
+// embedded line endings.
+func Base64DiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	r := strings.NewReplacer("\r", "", "\n", "", "+", "-", "/", "_", "=", "")
+	normalizedOld := r.Replace(old)
+	normalizedNew := r.Replace(new)
+	return normalizedOld == normalizedNew
+}
