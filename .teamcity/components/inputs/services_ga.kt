@@ -596,6 +596,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Osconfig",
         "path" to "./google/services/osconfig"
     ),
+    "osconfigv2" to mapOf(
+        "name" to "osconfigv2",
+        "displayName" to "Osconfigv2",
+        "path" to "./google/services/osconfigv2"
+    ),
     "oslogin" to mapOf(
         "name" to "oslogin",
         "displayName" to "Oslogin",
