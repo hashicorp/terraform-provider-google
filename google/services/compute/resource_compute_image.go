@@ -183,11 +183,125 @@ image is created. Default value: "TAR" Possible values: ["TAR"]`,
 							Default: "TAR",
 						},
 						"sha1": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: tpgresource.Base64DiffSuppress,
 							Description: `An optional SHA1 checksum of the disk image before unpackaging.
 This is provided by the client when the disk image is created.`,
+						},
+					},
+				},
+			},
+			"shielded_instance_initial_state": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Set the secure boot keys of shielded instance.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"dbs": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The Key Database (db).`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"content": {
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: tpgresource.Base64DiffSuppress,
+										Description: `The raw content in the secure keys file.
+
+A base64-encoded string.`,
+									},
+									"file_type": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The file type of source file.`,
+									},
+								},
+							},
+						},
+						"dbxs": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The forbidden key database (dbx).`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"content": {
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: tpgresource.Base64DiffSuppress,
+										Description: `The raw content in the secure keys file.
+
+A base64-encoded string.`,
+									},
+									"file_type": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The file type of source file.`,
+									},
+								},
+							},
+						},
+						"keks": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The Key Exchange Key (KEK).`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"content": {
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: tpgresource.Base64DiffSuppress,
+										Description: `The raw content in the secure keys file.
+
+A base64-encoded string.`,
+									},
+									"file_type": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The file type of source file.`,
+									},
+								},
+							},
+						},
+						"pk": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The Platform Key (PK).`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"content": {
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: tpgresource.Base64DiffSuppress,
+										Description: `The raw content in the secure keys file.
+
+A base64-encoded string.`,
+									},
+									"file_type": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The file type of source file.`,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -386,6 +500,12 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("source_snapshot"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceSnapshotProp)) && (ok || !reflect.DeepEqual(v, sourceSnapshotProp)) {
 		obj["sourceSnapshot"] = sourceSnapshotProp
 	}
+	shieldedInstanceInitialStateProp, err := expandComputeImageShieldedInstanceInitialState(d.Get("shielded_instance_initial_state"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("shielded_instance_initial_state"); !tpgresource.IsEmptyValue(reflect.ValueOf(shieldedInstanceInitialStateProp)) && (ok || !reflect.DeepEqual(v, shieldedInstanceInitialStateProp)) {
+		obj["shieldedInstanceInitialState"] = shieldedInstanceInitialStateProp
+	}
 	labelsProp, err := expandComputeImageEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -534,6 +654,9 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 	if err := d.Set("source_snapshot", flattenComputeImageSourceSnapshot(res["sourceSnapshot"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err := d.Set("shielded_instance_initial_state", flattenComputeImageShieldedInstanceInitialState(res["shieldedInstanceInitialState"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenComputeImageTerraformLabels(res["labels"], d, config)); err != nil {
@@ -849,6 +972,129 @@ func flattenComputeImageSourceSnapshot(v interface{}, d *schema.ResourceData, co
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeImageShieldedInstanceInitialState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["pk"] =
+		flattenComputeImageShieldedInstanceInitialStatePk(original["pk"], d, config)
+	transformed["keks"] =
+		flattenComputeImageShieldedInstanceInitialStateKeks(original["keks"], d, config)
+	transformed["dbs"] =
+		flattenComputeImageShieldedInstanceInitialStateDbs(original["dbs"], d, config)
+	transformed["dbxs"] =
+		flattenComputeImageShieldedInstanceInitialStateDbxs(original["dbxs"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeImageShieldedInstanceInitialStatePk(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["content"] =
+		flattenComputeImageShieldedInstanceInitialStatePkContent(original["content"], d, config)
+	transformed["file_type"] =
+		flattenComputeImageShieldedInstanceInitialStatePkFileType(original["fileType"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeImageShieldedInstanceInitialStatePkContent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeImageShieldedInstanceInitialStatePkFileType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeImageShieldedInstanceInitialStateKeks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"content":   flattenComputeImageShieldedInstanceInitialStateKeksContent(original["content"], d, config),
+			"file_type": flattenComputeImageShieldedInstanceInitialStateKeksFileType(original["fileType"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeImageShieldedInstanceInitialStateKeksContent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeImageShieldedInstanceInitialStateKeksFileType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeImageShieldedInstanceInitialStateDbs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"content":   flattenComputeImageShieldedInstanceInitialStateDbsContent(original["content"], d, config),
+			"file_type": flattenComputeImageShieldedInstanceInitialStateDbsFileType(original["fileType"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeImageShieldedInstanceInitialStateDbsContent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeImageShieldedInstanceInitialStateDbsFileType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeImageShieldedInstanceInitialStateDbxs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"content":   flattenComputeImageShieldedInstanceInitialStateDbxsContent(original["content"], d, config),
+			"file_type": flattenComputeImageShieldedInstanceInitialStateDbxsFileType(original["fileType"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeImageShieldedInstanceInitialStateDbxsContent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeImageShieldedInstanceInitialStateDbxsFileType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeImageTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1036,6 +1282,191 @@ func expandComputeImageSourceSnapshot(v interface{}, d tpgresource.TerraformReso
 		return nil, fmt.Errorf("Invalid value for source_snapshot: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeImageShieldedInstanceInitialState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPk, err := expandComputeImageShieldedInstanceInitialStatePk(original["pk"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPk); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pk"] = transformedPk
+	}
+
+	transformedKeks, err := expandComputeImageShieldedInstanceInitialStateKeks(original["keks"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKeks); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["keks"] = transformedKeks
+	}
+
+	transformedDbs, err := expandComputeImageShieldedInstanceInitialStateDbs(original["dbs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDbs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dbs"] = transformedDbs
+	}
+
+	transformedDbxs, err := expandComputeImageShieldedInstanceInitialStateDbxs(original["dbxs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDbxs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dbxs"] = transformedDbxs
+	}
+
+	return transformed, nil
+}
+
+func expandComputeImageShieldedInstanceInitialStatePk(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedContent, err := expandComputeImageShieldedInstanceInitialStatePkContent(original["content"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["content"] = transformedContent
+	}
+
+	transformedFileType, err := expandComputeImageShieldedInstanceInitialStatePkFileType(original["file_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFileType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fileType"] = transformedFileType
+	}
+
+	return transformed, nil
+}
+
+func expandComputeImageShieldedInstanceInitialStatePkContent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeImageShieldedInstanceInitialStatePkFileType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeImageShieldedInstanceInitialStateKeks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedContent, err := expandComputeImageShieldedInstanceInitialStateKeksContent(original["content"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedContent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["content"] = transformedContent
+		}
+
+		transformedFileType, err := expandComputeImageShieldedInstanceInitialStateKeksFileType(original["file_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFileType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["fileType"] = transformedFileType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeImageShieldedInstanceInitialStateKeksContent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeImageShieldedInstanceInitialStateKeksFileType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeImageShieldedInstanceInitialStateDbs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedContent, err := expandComputeImageShieldedInstanceInitialStateDbsContent(original["content"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedContent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["content"] = transformedContent
+		}
+
+		transformedFileType, err := expandComputeImageShieldedInstanceInitialStateDbsFileType(original["file_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFileType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["fileType"] = transformedFileType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeImageShieldedInstanceInitialStateDbsContent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeImageShieldedInstanceInitialStateDbsFileType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeImageShieldedInstanceInitialStateDbxs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedContent, err := expandComputeImageShieldedInstanceInitialStateDbxsContent(original["content"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedContent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["content"] = transformedContent
+		}
+
+		transformedFileType, err := expandComputeImageShieldedInstanceInitialStateDbxsFileType(original["file_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFileType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["fileType"] = transformedFileType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeImageShieldedInstanceInitialStateDbxsContent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeImageShieldedInstanceInitialStateDbxsFileType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeImageEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
