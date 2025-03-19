@@ -35,8 +35,9 @@ func TestAccFirebaseAppHostingBackend_firebaseAppHostingBackendMinimalExample(t 
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_id":     envvar.GetTestProjectFromEnv(),
+		"service_act_id": "tf-test-fah-minimal",
+		"random_suffix":  acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,7 +78,7 @@ resource "google_service_account" "service_account" {
   project = "%{project_id}"
 
   # Must be firebase-app-hosting-compute
-  account_id                   = "firebase-app-hosting-compute"
+  account_id                   = "%{service_act_id}"
   display_name                 = "Firebase App Hosting compute service account"
 
   # Do not throw if already exists
@@ -106,8 +107,9 @@ func TestAccFirebaseAppHostingBackend_firebaseAppHostingBackendFullExample(t *te
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_id":    envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_id":     envvar.GetTestProjectFromEnv(),
+		"service_act_id": "tf-test-fah-full",
+		"random_suffix":  acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -158,7 +160,7 @@ resource "google_service_account" "service_account" {
   project = "%{project_id}"
 
   # Must be firebase-app-hosting-compute
-  account_id                   = "firebase-app-hosting-compute"
+  account_id                   = "%{service_act_id}"
   display_name                 = "Firebase App Hosting compute service account"
 
   # Do not throw if already exists
