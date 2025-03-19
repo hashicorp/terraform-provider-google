@@ -2,7 +2,7 @@ resource: 'google_firebase_app_hosting_backend'
 generation_type: 'mmv1'
 source_file: 'products/firebaseapphosting/Backend.yaml'
 api_service_name: 'firebaseapphosting.googleapis.com'
-api_version: 'v1main'
+api_version: 'v1'
 api_resource_type_kind: 'Backend'
 autogen_status: true
 fields:
