@@ -1308,7 +1308,7 @@ The following arguments are supported:
 
 * `invoker_iam_disabled` -
   (Optional)
-  Disables IAM permission check for run.routes.invoke for callers of this service. This feature is available by invitation only. For more information, visit https://cloud.google.com/run/docs/securing/managing-access#invoker_check.
+  Disables IAM permission check for run.routes.invoke for callers of this service. For more information, visit https://cloud.google.com/run/docs/securing/managing-access#invoker_check.
 
 * `build_config` -
   (Optional)

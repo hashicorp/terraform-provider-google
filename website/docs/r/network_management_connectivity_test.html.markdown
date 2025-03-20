@@ -156,6 +156,44 @@ resource "google_compute_address" "dest-addr" {
   region       = "us-central1"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_management_connectivity_test_endpoints&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Management Connectivity Test Endpoints
+
+
+```hcl
+resource "google_network_management_connectivity_test" "endpoints-test" {
+  name = "conn-test-endpoints"
+  source {
+    gke_master_cluster =  "projects/test-project/locations/us-central1/clusters/name"
+    cloud_sql_instance = "projects/test-project/instances/name"
+    app_engine_version {
+         uri = "apps/test-project/services/default/versions/name"
+    }
+    cloud_function {
+      uri = "projects/test-project/locations/us-central1/functions/name"
+    }
+    cloud_run_revision {
+        uri = "projects/test-project/locations/us-central1/revisions/name"
+    }
+    port = 80
+  }
+  destination {
+    port = 443
+    forwarding_rule = "projects/test-project/regions/us-central1/forwardingRules/name"
+    gke_master_cluster = "projects/test-project/locations/us-central1/clusters/name"
+    fqdn = "name.us-central1.gke.goog"
+    cloud_sql_instance = "projects/test-project/instances/name"
+    redis_instance = "projects/test-project/locations/us-central1/instances/name"
+    redis_cluster = "projects/test-project/locations/us-central1/clusters/name"
+  }
+  bypass_firewall_checks = true
+  round_trip = true
+}
+```
 
 ## Argument Reference
 
@@ -169,41 +207,21 @@ The following arguments are supported:
 * `source` -
   (Required)
   Required. Source specification of the Connectivity Test.
-  You can use a combination of source IP address, virtual machine
-  (VM) instance, or Compute Engine network to uniquely identify the
-  source location.
-  Examples: If the source IP address is an internal IP address within
-  a Google Cloud Virtual Private Cloud (VPC) network, then you must
-  also specify the VPC network. Otherwise, specify the VM instance,
-  which already contains its internal IP address and VPC network
-  information.
-  If the source of the test is within an on-premises network, then
-  you must provide the destination VPC network.
-  If the source endpoint is a Compute Engine VM instance with multiple
-  network interfaces, the instance itself is not sufficient to
-  identify the endpoint. So, you must also specify the source IP
-  address or VPC network.
-  A reachability analysis proceeds even if the source location is
-  ambiguous. However, the test result may include endpoints that
-  you don't intend to test.
+  You can use a combination of source IP address, URI of a supported
+  endpoint, project ID, or VPC network to identify the source location.
+  Reachability analysis might proceed even if the source location is
+  ambiguous. However, the test result might include endpoints or use a source
+  that you don't intend to test.
   Structure is [documented below](#nested_source).
 
 * `destination` -
   (Required)
   Required. Destination specification of the Connectivity Test.
-  You can use a combination of destination IP address, Compute
-  Engine VM instance, or VPC network to uniquely identify the
-  destination location.
-  Even if the destination IP address is not unique, the source IP
-  location is unique. Usually, the analysis can infer the destination
-  endpoint from route information.
-  If the destination you specify is a VM instance and the instance has
-  multiple network interfaces, then you must also specify either a
-  destination IP address or VPC network to identify the destination
-  interface.
-  A reachability analysis proceeds even if the destination location
-  is ambiguous. However, the result can include endpoints that you
-  don't intend to test.
+  You can use a combination of destination IP address, URI of a supported
+  endpoint, project ID, or VPC network to identify the destination location.
+  Reachability analysis proceeds even if the destination location is
+  ambiguous. However, the test result might include endpoints or use a
+  destination that you don't intend to test.
   Structure is [documented below](#nested_destination).
 
 
@@ -211,22 +229,43 @@ The following arguments are supported:
 
 * `ip_address` -
   (Optional)
-  The IP address of the endpoint, which can be an external or
-  internal IP. An IPv6 address is only allowed when the test's
-  destination is a global load balancer VIP.
+  The IP address of the endpoint, which can be an external or internal IP.
 
 * `port` -
   (Optional)
-  The IP protocol port of the endpoint. Only applicable when
-  protocol is TCP or UDP.
+  The IP protocol port of the endpoint. Only applicable when protocol is
+  TCP or UDP.
 
 * `instance` -
   (Optional)
   A Compute Engine instance URI.
 
+* `gke_master_cluster` -
+  (Optional)
+  A cluster URI for Google Kubernetes Engine cluster control plane.
+
+* `cloud_sql_instance` -
+  (Optional)
+  A Cloud SQL instance URI.
+
+* `cloud_function` -
+  (Optional)
+  A Cloud Function.
+  Structure is [documented below](#nested_source_cloud_function).
+
+* `app_engine_version` -
+  (Optional)
+  An App Engine service version.
+  Structure is [documented below](#nested_source_app_engine_version).
+
+* `cloud_run_revision` -
+  (Optional)
+  A Cloud Run revision.
+  Structure is [documented below](#nested_source_cloud_run_revision).
+
 * `network` -
   (Optional)
-  A Compute Engine network URI.
+  A VPC network URI.
 
 * `network_type` -
   (Optional)
@@ -235,47 +274,92 @@ The following arguments are supported:
 
 * `project_id` -
   (Optional)
-  Project ID where the endpoint is located. The Project ID can be
-  derived from the URI if you provide a VM instance or network URI.
-  The following are two cases where you must provide the project ID:
-  1. Only the IP address is specified, and the IP address is
-     within a GCP project.
-  2. When you are using Shared VPC and the IP address
-     that you provide is from the service project. In this case,
-     the network that the IP address resides in is defined in the
-     host project.
+  Project ID where the endpoint is located.
+  The project ID can be derived from the URI if you provide a endpoint or
+  network URI.
+  The following are two cases where you may need to provide the project ID:
+  1. Only the IP address is specified, and the IP address is within a Google
+  Cloud project.
+  2. When you are using Shared VPC and the IP address that you provide is
+  from the service project. In this case, the network that the IP address
+  resides in is defined in the host project.
+
+
+<a name="nested_source_cloud_function"></a>The `cloud_function` block supports:
+
+* `uri` -
+  (Optional)
+  A Cloud Function name.
+
+<a name="nested_source_app_engine_version"></a>The `app_engine_version` block supports:
+
+* `uri` -
+  (Optional)
+  An App Engine service version name.
+
+<a name="nested_source_cloud_run_revision"></a>The `cloud_run_revision` block supports:
+
+* `uri` -
+  (Optional)
+  A Cloud Run revision URI.
 
 <a name="nested_destination"></a>The `destination` block supports:
 
 * `ip_address` -
   (Optional)
-  The IP address of the endpoint, which can be an external or
-  internal IP. An IPv6 address is only allowed when the test's
-  destination is a global load balancer VIP.
+  The IP address of the endpoint, which can be an external or internal IP.
 
 * `port` -
   (Optional)
-  The IP protocol port of the endpoint. Only applicable when
-  protocol is TCP or UDP.
+  The IP protocol port of the endpoint. Only applicable when protocol is
+  TCP or UDP.
 
 * `instance` -
   (Optional)
   A Compute Engine instance URI.
 
+* `forwarding_rule` -
+  (Optional)
+  Forwarding rule URI. Forwarding rules are frontends for load balancers,
+  PSC endpoints, and Protocol Forwarding.
+
+* `gke_master_cluster` -
+  (Optional)
+  A cluster URI for Google Kubernetes Engine cluster control plane.
+
+* `fqdn` -
+  (Optional)
+  A DNS endpoint of Google Kubernetes Engine cluster control plane.
+  Requires gke_master_cluster to be set, can't be used simultaneoulsly with
+  ip_address or network. Applicable only to destination endpoint.
+
+* `cloud_sql_instance` -
+  (Optional)
+  A Cloud SQL instance URI.
+
+* `redis_instance` -
+  (Optional)
+  A Redis Instance URI.
+
+* `redis_cluster` -
+  (Optional)
+  A Redis Cluster URI.
+
 * `network` -
   (Optional)
-  A Compute Engine network URI.
+  A VPC network URI.
 
 * `project_id` -
   (Optional)
-  Project ID where the endpoint is located. The Project ID can be
-  derived from the URI if you provide a VM instance or network URI.
-  The following are two cases where you must provide the project ID:
-  1. Only the IP address is specified, and the IP address is within
-  a GCP project. 2. When you are using Shared VPC and the IP address
-  that you provide is from the service project. In this case, the
-  network that the IP address resides in is defined in the host
-  project.
+  Project ID where the endpoint is located.
+  The project ID can be derived from the URI if you provide a endpoint or
+  network URI.
+  The following are two cases where you may need to provide the project ID:
+  1. Only the IP address is specified, and the IP address is within a Google
+  Cloud project.
+  2. When you are using Shared VPC and the IP address that you provide is
+  from the service project. In this case, the network that the IP address
+  resides in is defined in the host project.
 
 - - -
 
@@ -302,6 +386,15 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `round_trip` -
+  (Optional)
+  Whether run analysis for the return path from destination to source.
+  Default value is false.
+
+* `bypass_firewall_checks` -
+  (Optional)
+  Whether the analysis should skip firewall checking. Default value is false.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -325,9 +418,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 20 minutes.
-- `update` - Default is 20 minutes.
-- `delete` - Default is 20 minutes.
+- `create` - Default is 5 minutes.
+- `update` - Default is 5 minutes.
+- `delete` - Default is 5 minutes.
 
 ## Import
 

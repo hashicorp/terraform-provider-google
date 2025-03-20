@@ -47,9 +47,9 @@ func ResourceNetworkManagementConnectivityTest() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Minute),
-			Update: schema.DefaultTimeout(20 * time.Minute),
-			Delete: schema.DefaultTimeout(20 * time.Minute),
+			Create: schema.DefaultTimeout(5 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
+			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -63,59 +63,81 @@ func ResourceNetworkManagementConnectivityTest() *schema.Resource {
 				Required: true,
 				Description: `Required. Destination specification of the Connectivity Test.
 
-You can use a combination of destination IP address, Compute
-Engine VM instance, or VPC network to uniquely identify the
-destination location.
+You can use a combination of destination IP address, URI of a supported
+endpoint, project ID, or VPC network to identify the destination location.
 
-Even if the destination IP address is not unique, the source IP
-location is unique. Usually, the analysis can infer the destination
-endpoint from route information.
-
-If the destination you specify is a VM instance and the instance has
-multiple network interfaces, then you must also specify either a
-destination IP address or VPC network to identify the destination
-interface.
-
-A reachability analysis proceeds even if the destination location
-is ambiguous. However, the result can include endpoints that you
-don't intend to test.`,
+Reachability analysis proceeds even if the destination location is
+ambiguous. However, the test result might include endpoints or use a
+destination that you don't intend to test.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"cloud_sql_instance": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A Cloud SQL instance URI.`,
+						},
+						"forwarding_rule": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Forwarding rule URI. Forwarding rules are frontends for load balancers,
+PSC endpoints, and Protocol Forwarding.`,
+						},
+						"fqdn": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `A DNS endpoint of Google Kubernetes Engine cluster control plane.
+Requires gke_master_cluster to be set, can't be used simultaneoulsly with
+ip_address or network. Applicable only to destination endpoint.`,
+						},
+						"gke_master_cluster": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A cluster URI for Google Kubernetes Engine cluster control plane.`,
+						},
 						"instance": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `A Compute Engine instance URI.`,
 						},
 						"ip_address": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `The IP address of the endpoint, which can be an external or
-internal IP. An IPv6 address is only allowed when the test's
-destination is a global load balancer VIP.`,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The IP address of the endpoint, which can be an external or internal IP.`,
 						},
 						"network": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: `A Compute Engine network URI.`,
+							Description: `A VPC network URI.`,
 						},
 						"port": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Description: `The IP protocol port of the endpoint. Only applicable when
-protocol is TCP or UDP.`,
+							Description: `The IP protocol port of the endpoint. Only applicable when protocol is
+TCP or UDP.`,
 						},
 						"project_id": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `Project ID where the endpoint is located. The Project ID can be
-derived from the URI if you provide a VM instance or network URI.
-The following are two cases where you must provide the project ID:
-1. Only the IP address is specified, and the IP address is within
-a GCP project. 2. When you are using Shared VPC and the IP address
-that you provide is from the service project. In this case, the
-network that the IP address resides in is defined in the host
-project.`,
+							Description: `Project ID where the endpoint is located.
+The project ID can be derived from the URI if you provide a endpoint or
+network URI.
+The following are two cases where you may need to provide the project ID:
+1. Only the IP address is specified, and the IP address is within a Google
+Cloud project.
+2. When you are using Shared VPC and the IP address that you provide is
+from the service project. In this case, the network that the IP address
+resides in is defined in the host project.`,
+						},
+						"redis_cluster": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A Redis Cluster URI.`,
+						},
+						"redis_instance": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A Redis Instance URI.`,
 						},
 					},
 				},
@@ -131,46 +153,87 @@ project.`,
 				Required: true,
 				Description: `Required. Source specification of the Connectivity Test.
 
-You can use a combination of source IP address, virtual machine
-(VM) instance, or Compute Engine network to uniquely identify the
-source location.
+You can use a combination of source IP address, URI of a supported
+endpoint, project ID, or VPC network to identify the source location.
 
-Examples: If the source IP address is an internal IP address within
-a Google Cloud Virtual Private Cloud (VPC) network, then you must
-also specify the VPC network. Otherwise, specify the VM instance,
-which already contains its internal IP address and VPC network
-information.
-
-If the source of the test is within an on-premises network, then
-you must provide the destination VPC network.
-
-If the source endpoint is a Compute Engine VM instance with multiple
-network interfaces, the instance itself is not sufficient to
-identify the endpoint. So, you must also specify the source IP
-address or VPC network.
-
-A reachability analysis proceeds even if the source location is
-ambiguous. However, the test result may include endpoints that
-you don't intend to test.`,
+Reachability analysis might proceed even if the source location is
+ambiguous. However, the test result might include endpoints or use a source
+that you don't intend to test.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"app_engine_version": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `An App Engine service version.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"uri": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `An App Engine service version name.`,
+									},
+								},
+							},
+						},
+						"cloud_function": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `A Cloud Function.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"uri": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `A Cloud Function name.`,
+									},
+								},
+							},
+						},
+						"cloud_run_revision": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `A Cloud Run revision.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"uri": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `A Cloud Run revision URI.`,
+									},
+								},
+							},
+						},
+						"cloud_sql_instance": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A Cloud SQL instance URI.`,
+						},
+						"gke_master_cluster": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A cluster URI for Google Kubernetes Engine cluster control plane.`,
+						},
 						"instance": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `A Compute Engine instance URI.`,
 						},
 						"ip_address": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `The IP address of the endpoint, which can be an external or
-internal IP. An IPv6 address is only allowed when the test's
-destination is a global load balancer VIP.`,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The IP address of the endpoint, which can be an external or internal IP.`,
 						},
 						"network": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: `A Compute Engine network URI.`,
+							Description: `A VPC network URI.`,
 						},
 						"network_type": {
 							Type:         schema.TypeString,
@@ -181,25 +244,29 @@ destination is a global load balancer VIP.`,
 						"port": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Description: `The IP protocol port of the endpoint. Only applicable when
-protocol is TCP or UDP.`,
+							Description: `The IP protocol port of the endpoint. Only applicable when protocol is
+TCP or UDP.`,
 						},
 						"project_id": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `Project ID where the endpoint is located. The Project ID can be
-derived from the URI if you provide a VM instance or network URI.
-The following are two cases where you must provide the project ID:
-
-1. Only the IP address is specified, and the IP address is
-   within a GCP project.
-2. When you are using Shared VPC and the IP address
-   that you provide is from the service project. In this case,
-   the network that the IP address resides in is defined in the
-   host project.`,
+							Description: `Project ID where the endpoint is located.
+The project ID can be derived from the URI if you provide a endpoint or
+network URI.
+The following are two cases where you may need to provide the project ID:
+1. Only the IP address is specified, and the IP address is within a Google
+Cloud project.
+2. When you are using Shared VPC and the IP address that you provide is
+from the service project. In this case, the network that the IP address
+resides in is defined in the host project.`,
 						},
 					},
 				},
+			},
+			"bypass_firewall_checks": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether the analysis should skip firewall checking. Default value is false.`,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -232,6 +299,12 @@ boundaries.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"round_trip": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Whether run analysis for the return path from destination to source.
+Default value is false.`,
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
@@ -300,6 +373,18 @@ func resourceNetworkManagementConnectivityTestCreate(d *schema.ResourceData, met
 		return err
 	} else if v, ok := d.GetOkExists("related_projects"); !tpgresource.IsEmptyValue(reflect.ValueOf(relatedProjectsProp)) && (ok || !reflect.DeepEqual(v, relatedProjectsProp)) {
 		obj["relatedProjects"] = relatedProjectsProp
+	}
+	roundTripProp, err := expandNetworkManagementConnectivityTestRoundTrip(d.Get("round_trip"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("round_trip"); !tpgresource.IsEmptyValue(reflect.ValueOf(roundTripProp)) && (ok || !reflect.DeepEqual(v, roundTripProp)) {
+		obj["roundTrip"] = roundTripProp
+	}
+	bypassFirewallChecksProp, err := expandNetworkManagementConnectivityTestBypassFirewallChecks(d.Get("bypass_firewall_checks"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("bypass_firewall_checks"); !tpgresource.IsEmptyValue(reflect.ValueOf(bypassFirewallChecksProp)) && (ok || !reflect.DeepEqual(v, bypassFirewallChecksProp)) {
+		obj["bypassFirewallChecks"] = bypassFirewallChecksProp
 	}
 	labelsProp, err := expandNetworkManagementConnectivityTestEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -441,6 +526,12 @@ func resourceNetworkManagementConnectivityTestRead(d *schema.ResourceData, meta 
 	if err := d.Set("labels", flattenNetworkManagementConnectivityTestLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
 	}
+	if err := d.Set("round_trip", flattenNetworkManagementConnectivityTestRoundTrip(res["roundTrip"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
+	}
+	if err := d.Set("bypass_firewall_checks", flattenNetworkManagementConnectivityTestBypassFirewallChecks(res["bypassFirewallChecks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetworkManagementConnectivityTestTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ConnectivityTest: %s", err)
 	}
@@ -497,6 +588,18 @@ func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, met
 	} else if v, ok := d.GetOkExists("related_projects"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, relatedProjectsProp)) {
 		obj["relatedProjects"] = relatedProjectsProp
 	}
+	roundTripProp, err := expandNetworkManagementConnectivityTestRoundTrip(d.Get("round_trip"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("round_trip"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, roundTripProp)) {
+		obj["roundTrip"] = roundTripProp
+	}
+	bypassFirewallChecksProp, err := expandNetworkManagementConnectivityTestBypassFirewallChecks(d.Get("bypass_firewall_checks"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("bypass_firewall_checks"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bypassFirewallChecksProp)) {
+		obj["bypassFirewallChecks"] = bypassFirewallChecksProp
+	}
 	labelsProp, err := expandNetworkManagementConnectivityTestEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -521,6 +624,11 @@ func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, met
 		updateMask = append(updateMask, "source.ipAddress",
 			"source.port",
 			"source.instance",
+			"source.gkeMasterCluster",
+			"source.cloudSqlInstance",
+			"source.cloudFunction",
+			"source.appEngineVersion",
+			"source.cloudRunRevision",
 			"source.network",
 			"source.networkType",
 			"source.projectId")
@@ -530,6 +638,12 @@ func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, met
 		updateMask = append(updateMask, "destination.ipAddress",
 			"destination.port",
 			"destination.instance",
+			"destination.forwardingRule",
+			"destination.gkeMasterCluster",
+			"destination.fqdn",
+			"destination.cloudSqlInstance",
+			"destination.redisInstance",
+			"destination.redisCluster",
 			"destination.network",
 			"destination.projectId")
 	}
@@ -540,6 +654,14 @@ func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, met
 
 	if d.HasChange("related_projects") {
 		updateMask = append(updateMask, "relatedProjects")
+	}
+
+	if d.HasChange("round_trip") {
+		updateMask = append(updateMask, "roundTrip")
+	}
+
+	if d.HasChange("bypass_firewall_checks") {
+		updateMask = append(updateMask, "bypassFirewallChecks")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -690,6 +812,16 @@ func flattenNetworkManagementConnectivityTestSource(v interface{}, d *schema.Res
 		flattenNetworkManagementConnectivityTestSourcePort(original["port"], d, config)
 	transformed["instance"] =
 		flattenNetworkManagementConnectivityTestSourceInstance(original["instance"], d, config)
+	transformed["gke_master_cluster"] =
+		flattenNetworkManagementConnectivityTestSourceGkeMasterCluster(original["gkeMasterCluster"], d, config)
+	transformed["cloud_sql_instance"] =
+		flattenNetworkManagementConnectivityTestSourceCloudSqlInstance(original["cloudSqlInstance"], d, config)
+	transformed["cloud_function"] =
+		flattenNetworkManagementConnectivityTestSourceCloudFunction(original["cloudFunction"], d, config)
+	transformed["app_engine_version"] =
+		flattenNetworkManagementConnectivityTestSourceAppEngineVersion(original["appEngineVersion"], d, config)
+	transformed["cloud_run_revision"] =
+		flattenNetworkManagementConnectivityTestSourceCloudRunRevision(original["cloudRunRevision"], d, config)
 	transformed["network"] =
 		flattenNetworkManagementConnectivityTestSourceNetwork(original["network"], d, config)
 	transformed["network_type"] =
@@ -723,6 +855,65 @@ func flattenNetworkManagementConnectivityTestSourceInstance(v interface{}, d *sc
 	return v
 }
 
+func flattenNetworkManagementConnectivityTestSourceGkeMasterCluster(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementConnectivityTestSourceCloudSqlInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementConnectivityTestSourceCloudFunction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["uri"] =
+		flattenNetworkManagementConnectivityTestSourceCloudFunctionUri(original["uri"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkManagementConnectivityTestSourceCloudFunctionUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementConnectivityTestSourceAppEngineVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["uri"] =
+		flattenNetworkManagementConnectivityTestSourceAppEngineVersionUri(original["uri"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkManagementConnectivityTestSourceAppEngineVersionUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementConnectivityTestSourceCloudRunRevision(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["uri"] =
+		flattenNetworkManagementConnectivityTestSourceCloudRunRevisionUri(original["uri"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkManagementConnectivityTestSourceCloudRunRevisionUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkManagementConnectivityTestSourceNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -750,6 +941,18 @@ func flattenNetworkManagementConnectivityTestDestination(v interface{}, d *schem
 		flattenNetworkManagementConnectivityTestDestinationPort(original["port"], d, config)
 	transformed["instance"] =
 		flattenNetworkManagementConnectivityTestDestinationInstance(original["instance"], d, config)
+	transformed["forwarding_rule"] =
+		flattenNetworkManagementConnectivityTestDestinationForwardingRule(original["forwardingRule"], d, config)
+	transformed["gke_master_cluster"] =
+		flattenNetworkManagementConnectivityTestDestinationGkeMasterCluster(original["gkeMasterCluster"], d, config)
+	transformed["fqdn"] =
+		flattenNetworkManagementConnectivityTestDestinationFqdn(original["fqdn"], d, config)
+	transformed["cloud_sql_instance"] =
+		flattenNetworkManagementConnectivityTestDestinationCloudSqlInstance(original["cloudSqlInstance"], d, config)
+	transformed["redis_instance"] =
+		flattenNetworkManagementConnectivityTestDestinationRedisInstance(original["redisInstance"], d, config)
+	transformed["redis_cluster"] =
+		flattenNetworkManagementConnectivityTestDestinationRedisCluster(original["redisCluster"], d, config)
 	transformed["network"] =
 		flattenNetworkManagementConnectivityTestDestinationNetwork(original["network"], d, config)
 	transformed["project_id"] =
@@ -778,6 +981,30 @@ func flattenNetworkManagementConnectivityTestDestinationPort(v interface{}, d *s
 }
 
 func flattenNetworkManagementConnectivityTestDestinationInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementConnectivityTestDestinationForwardingRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementConnectivityTestDestinationGkeMasterCluster(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementConnectivityTestDestinationFqdn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementConnectivityTestDestinationCloudSqlInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementConnectivityTestDestinationRedisInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementConnectivityTestDestinationRedisCluster(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -810,6 +1037,14 @@ func flattenNetworkManagementConnectivityTestLabels(v interface{}, d *schema.Res
 	}
 
 	return transformed
+}
+
+func flattenNetworkManagementConnectivityTestRoundTrip(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementConnectivityTestBypassFirewallChecks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenNetworkManagementConnectivityTestTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -874,6 +1109,41 @@ func expandNetworkManagementConnectivityTestSource(v interface{}, d tpgresource.
 		transformed["instance"] = transformedInstance
 	}
 
+	transformedGkeMasterCluster, err := expandNetworkManagementConnectivityTestSourceGkeMasterCluster(original["gke_master_cluster"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGkeMasterCluster); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["gkeMasterCluster"] = transformedGkeMasterCluster
+	}
+
+	transformedCloudSqlInstance, err := expandNetworkManagementConnectivityTestSourceCloudSqlInstance(original["cloud_sql_instance"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCloudSqlInstance); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cloudSqlInstance"] = transformedCloudSqlInstance
+	}
+
+	transformedCloudFunction, err := expandNetworkManagementConnectivityTestSourceCloudFunction(original["cloud_function"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCloudFunction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cloudFunction"] = transformedCloudFunction
+	}
+
+	transformedAppEngineVersion, err := expandNetworkManagementConnectivityTestSourceAppEngineVersion(original["app_engine_version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAppEngineVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["appEngineVersion"] = transformedAppEngineVersion
+	}
+
+	transformedCloudRunRevision, err := expandNetworkManagementConnectivityTestSourceCloudRunRevision(original["cloud_run_revision"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCloudRunRevision); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cloudRunRevision"] = transformedCloudRunRevision
+	}
+
 	transformedNetwork, err := expandNetworkManagementConnectivityTestSourceNetwork(original["network"], d, config)
 	if err != nil {
 		return nil, err
@@ -907,6 +1177,83 @@ func expandNetworkManagementConnectivityTestSourcePort(v interface{}, d tpgresou
 }
 
 func expandNetworkManagementConnectivityTestSourceInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkManagementConnectivityTestSourceGkeMasterCluster(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkManagementConnectivityTestSourceCloudSqlInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkManagementConnectivityTestSourceCloudFunction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedUri, err := expandNetworkManagementConnectivityTestSourceCloudFunctionUri(original["uri"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["uri"] = transformedUri
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkManagementConnectivityTestSourceCloudFunctionUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkManagementConnectivityTestSourceAppEngineVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedUri, err := expandNetworkManagementConnectivityTestSourceAppEngineVersionUri(original["uri"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["uri"] = transformedUri
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkManagementConnectivityTestSourceAppEngineVersionUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkManagementConnectivityTestSourceCloudRunRevision(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedUri, err := expandNetworkManagementConnectivityTestSourceCloudRunRevisionUri(original["uri"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["uri"] = transformedUri
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkManagementConnectivityTestSourceCloudRunRevisionUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -952,6 +1299,48 @@ func expandNetworkManagementConnectivityTestDestination(v interface{}, d tpgreso
 		transformed["instance"] = transformedInstance
 	}
 
+	transformedForwardingRule, err := expandNetworkManagementConnectivityTestDestinationForwardingRule(original["forwarding_rule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedForwardingRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["forwardingRule"] = transformedForwardingRule
+	}
+
+	transformedGkeMasterCluster, err := expandNetworkManagementConnectivityTestDestinationGkeMasterCluster(original["gke_master_cluster"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGkeMasterCluster); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["gkeMasterCluster"] = transformedGkeMasterCluster
+	}
+
+	transformedFqdn, err := expandNetworkManagementConnectivityTestDestinationFqdn(original["fqdn"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFqdn); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fqdn"] = transformedFqdn
+	}
+
+	transformedCloudSqlInstance, err := expandNetworkManagementConnectivityTestDestinationCloudSqlInstance(original["cloud_sql_instance"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCloudSqlInstance); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cloudSqlInstance"] = transformedCloudSqlInstance
+	}
+
+	transformedRedisInstance, err := expandNetworkManagementConnectivityTestDestinationRedisInstance(original["redis_instance"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRedisInstance); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["redisInstance"] = transformedRedisInstance
+	}
+
+	transformedRedisCluster, err := expandNetworkManagementConnectivityTestDestinationRedisCluster(original["redis_cluster"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRedisCluster); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["redisCluster"] = transformedRedisCluster
+	}
+
 	transformedNetwork, err := expandNetworkManagementConnectivityTestDestinationNetwork(original["network"], d, config)
 	if err != nil {
 		return nil, err
@@ -981,6 +1370,30 @@ func expandNetworkManagementConnectivityTestDestinationInstance(v interface{}, d
 	return v, nil
 }
 
+func expandNetworkManagementConnectivityTestDestinationForwardingRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkManagementConnectivityTestDestinationGkeMasterCluster(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkManagementConnectivityTestDestinationFqdn(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkManagementConnectivityTestDestinationCloudSqlInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkManagementConnectivityTestDestinationRedisInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkManagementConnectivityTestDestinationRedisCluster(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkManagementConnectivityTestDestinationNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -994,6 +1407,14 @@ func expandNetworkManagementConnectivityTestProtocol(v interface{}, d tpgresourc
 }
 
 func expandNetworkManagementConnectivityTestRelatedProjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkManagementConnectivityTestRoundTrip(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkManagementConnectivityTestBypassFirewallChecks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
