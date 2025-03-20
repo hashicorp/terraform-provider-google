@@ -787,6 +787,7 @@ resource "google_compute_region_instance_group_manager" "igm-update" {
   instance_lifecycle_policy {
     force_update_on_repair = "NO"
     default_action_on_failure = "REPAIR"
+
   }
 }
 `, template1, target1, target2, template2, igm)
