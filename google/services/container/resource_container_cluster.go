@@ -1588,7 +1588,7 @@ func ResourceContainerCluster() *schema.Resource {
 				MaxItems:    1,
 				Computed:    true,
 				Optional:    true,
-				Description: `Configuration for all of the cluster's control plane endpoints. Currently supports only DNS endpoint configuration, IP endpoint configuration is available in private_cluster_config.`,
+				Description: `Configuration for all of the cluster's control plane endpoints. Currently supports only DNS endpoint configuration and disable IP endpoint. Other IP endpoint configurations are available in private_cluster_config.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"dns_endpoint_config": {
@@ -1609,6 +1609,22 @@ func ResourceContainerCluster() *schema.Resource {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: `Controls whether user traffic is allowed over this endpoint. Note that GCP-managed services may still use the endpoint even if this is false.`,
+									},
+								},
+							},
+						},
+						"ip_endpoints_config": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Description: `IP endpoint configuration.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Controls whether to allow direct IP access.`,
 									},
 								},
 							},
@@ -5164,9 +5180,18 @@ func expandControlPlaneEndpointsConfig(d *schema.ResourceData) *container.Contro
 	}
 
 	ip := &container.IPEndpointsConfig{
-		// There isn't yet a config field to disable IP endpoints, so this is hardcoded to be enabled for the time being.
 		Enabled:         true,
 		ForceSendFields: []string{"Enabled"},
+	}
+	if v := d.Get("control_plane_endpoints_config.0.ip_endpoints_config.#"); v != 0 {
+		ip.Enabled = d.Get("control_plane_endpoints_config.0.ip_endpoints_config.0.enabled").(bool)
+
+		if !ip.Enabled {
+			return &container.ControlPlaneEndpointsConfig{
+				DnsEndpointConfig: dns,
+				IpEndpointsConfig: ip,
+			}
+		}
 	}
 	if v := d.Get("private_cluster_config.0.enable_private_endpoint"); v != nil {
 		ip.EnablePublicEndpoint = !v.(bool)
@@ -5790,6 +5815,7 @@ func flattenControlPlaneEndpointsConfig(c *container.ControlPlaneEndpointsConfig
 	return []map[string]interface{}{
 		{
 			"dns_endpoint_config": flattenDnsEndpointConfig(c.DnsEndpointConfig),
+			"ip_endpoints_config": flattenIpEndpointsConfig(c.IpEndpointsConfig),
 		},
 	}
 }
@@ -5802,6 +5828,17 @@ func flattenDnsEndpointConfig(dns *container.DNSEndpointConfig) []map[string]int
 		{
 			"endpoint":               dns.Endpoint,
 			"allow_external_traffic": dns.AllowExternalTraffic,
+		},
+	}
+}
+
+func flattenIpEndpointsConfig(ip *container.IPEndpointsConfig) []map[string]interface{} {
+	if ip == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"enabled": ip.Enabled,
 		},
 	}
 }
