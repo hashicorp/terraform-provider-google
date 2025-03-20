@@ -43,6 +43,17 @@ resource "google_memorystore_instance" "instance-basic" {
   }
   location                    = "us-central1"
   deletion_protection_enabled = false
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
   depends_on = [
     google_network_connectivity_service_connection_policy.default
   ]
@@ -105,6 +116,17 @@ resource "google_memorystore_instance" "instance-full" {
   zone_distribution_config {
     mode = "SINGLE_ZONE"
     zone = "us-central1-b"
+  }
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
   }
   engine_version              = "VALKEY_7_2"
   deletion_protection_enabled = false
@@ -278,6 +300,11 @@ The following arguments are supported:
   Represents persistence configuration for a instance.
   Structure is [documented below](#nested_persistence_config).
 
+* `maintenance_policy` -
+  (Optional)
+  Maintenance policy for a cluster
+  Structure is [documented below](#nested_maintenance_policy).
+
 * `engine_version` -
   (Optional)
   Optional. Engine version of the instance.
@@ -357,6 +384,76 @@ The following arguments are supported:
   EVERY_SEC
   ALWAYS
 
+<a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
+
+* `create_time` -
+  (Output)
+  The time when the policy was created.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `update_time` -
+  (Output)
+  The time when the policy was last updated.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `weekly_maintenance_window` -
+  (Optional)
+  Optional. Maintenance window that is applied to resources covered by this policy.
+  Minimum 1. For the current version, the maximum number
+  of weekly_window is expected to be one.
+  Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_window).
+
+
+<a name="nested_maintenance_policy_weekly_maintenance_window"></a>The `weekly_maintenance_window` block supports:
+
+* `day` -
+  (Required)
+  The day of week that maintenance updates occur.
+  - DAY_OF_WEEK_UNSPECIFIED: The day of the week is unspecified.
+  - MONDAY: Monday
+  - TUESDAY: Tuesday
+  - WEDNESDAY: Wednesday
+  - THURSDAY: Thursday
+  - FRIDAY: Friday
+  - SATURDAY: Saturday
+  - SUNDAY: Sunday
+  Possible values are: `DAY_OF_WEEK_UNSPECIFIED`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
+
+* `duration` -
+  (Output)
+  Duration of the maintenance window.
+  The current window is fixed at 1 hour.
+  A duration in seconds with up to nine fractional digits,
+  terminated by 's'. Example: "3.5s".
+
+* `start_time` -
+  (Required)
+  Start time of the window in UTC time.
+  Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_window_weekly_maintenance_window_start_time).
+
+
+<a name="nested_maintenance_policy_weekly_maintenance_window_weekly_maintenance_window_start_time"></a>The `start_time` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format. Should be from 0 to 23.
+  An API may choose to allow the value "24:00:00" for scenarios like business closing time.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Must be from 0 to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Must normally be from 0 to 59.
+  An API may allow the value 60 if it allows leap-seconds.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+
 <a name="nested_zone_distribution_config"></a>The `zone_distribution_config` block supports:
 
 * `zone` -
@@ -407,6 +504,10 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. Endpoints clients can connect to the instance through. Currently only one
   discovery endpoint is supported.
   Structure is [documented below](#nested_discovery_endpoints).
+
+* `maintenance_schedule` -
+  Upcoming maintenance schedule.
+  Structure is [documented below](#nested_maintenance_schedule).
 
 * `node_config` -
   Represents configuration for nodes of the instance.
@@ -461,6 +562,27 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. The network where the IP address of the discovery endpoint will be
   reserved, in the form of
   projects/{network_project}/global/networks/{network_id}.
+
+<a name="nested_maintenance_schedule"></a>The `maintenance_schedule` block contains:
+
+* `start_time` -
+  (Output)
+  The start time of any upcoming scheduled maintenance for this cluster.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `end_time` -
+  (Output)
+  The end time of any upcoming scheduled maintenance for this cluster.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `schedule_deadline_time` -
+  (Output)
+  The deadline that the maintenance schedule start time
+  can not go beyond, including reschedule.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
 
 <a name="nested_node_config"></a>The `node_config` block contains:
 

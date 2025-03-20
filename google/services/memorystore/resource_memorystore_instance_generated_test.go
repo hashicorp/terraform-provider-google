@@ -67,6 +67,17 @@ resource "google_memorystore_instance" "instance-basic" {
   }
   location                    = "us-central1"
   deletion_protection_enabled = false
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
   depends_on = [
     google_network_connectivity_service_connection_policy.default
   ]
@@ -150,6 +161,17 @@ resource "google_memorystore_instance" "instance-full" {
   zone_distribution_config {
     mode = "SINGLE_ZONE"
     zone = "us-central1-b"
+  }
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
   }
   engine_version              = "VALKEY_7_2"
   deletion_protection_enabled = false
