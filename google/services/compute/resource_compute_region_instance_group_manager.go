@@ -313,6 +313,7 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"REPAIR", "DO_NOTHING"}, true),
 							Description:  `Default behavior for all instance or health check failures.`,
 						},
+
 						"force_update_on_repair": {
 							Type:         schema.TypeString,
 							Default:      "NO",
