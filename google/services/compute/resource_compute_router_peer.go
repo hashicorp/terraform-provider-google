@@ -308,6 +308,24 @@ assigns unused addresses from the 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64 range
 				ValidateFunc: verify.ValidateIpAddress,
 				Description:  `IPv4 address of the BGP interface outside Google Cloud Platform.`,
 			},
+			"export_policies": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `routers.list of export policies applied to this peer, in the order they must be evaluated. 
+The name must correspond to an existing policy that has ROUTE_POLICY_TYPE_EXPORT type.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"import_policies": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `routers.list of import policies applied to this peer, in the order they must be evaluated. 
+The name must correspond to an existing policy that has ROUTE_POLICY_TYPE_IMPORT type.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -513,6 +531,18 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("peer_ipv6_nexthop_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(peerIpv4NexthopAddressProp)) && (ok || !reflect.DeepEqual(v, peerIpv4NexthopAddressProp)) {
 		obj["peerIpv4NexthopAddress"] = peerIpv4NexthopAddressProp
+	}
+	exportPoliciesProp, err := expandNestedComputeRouterBgpPeerExportPolicies(d.Get("export_policies"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("export_policies"); ok || !reflect.DeepEqual(v, exportPoliciesProp) {
+		obj["exportPolicies"] = exportPoliciesProp
+	}
+	importPoliciesProp, err := expandNestedComputeRouterBgpPeerImportPolicies(d.Get("import_policies"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("import_policies"); ok || !reflect.DeepEqual(v, importPoliciesProp) {
+		obj["importPolicies"] = importPoliciesProp
 	}
 	ipv6NexthopAddressProp, err := expandNestedComputeRouterBgpPeerIpv6NexthopAddress(d.Get("ipv6_nexthop_address"), d, config)
 	if err != nil {
@@ -720,6 +750,12 @@ func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("peer_ipv4_nexthop_address", flattenNestedComputeRouterBgpPeerPeerIpv4NexthopAddress(res["peerIpv4NexthopAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
+	if err := d.Set("export_policies", flattenNestedComputeRouterBgpPeerExportPolicies(res["exportPolicies"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
+	}
+	if err := d.Set("import_policies", flattenNestedComputeRouterBgpPeerImportPolicies(res["importPolicies"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
+	}
 	if err := d.Set("ipv6_nexthop_address", flattenNestedComputeRouterBgpPeerIpv6NexthopAddress(res["ipv6NexthopAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
@@ -868,6 +904,18 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("peer_ipv4_nexthop_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, peerIpv4NexthopAddressProp)) {
 		obj["peerIpv4NexthopAddress"] = peerIpv4NexthopAddressProp
+	}
+	exportPoliciesProp, err := expandNestedComputeRouterBgpPeerExportPolicies(d.Get("export_policies"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("export_policies"); ok || !reflect.DeepEqual(v, exportPoliciesProp) {
+		obj["exportPolicies"] = exportPoliciesProp
+	}
+	importPoliciesProp, err := expandNestedComputeRouterBgpPeerImportPolicies(d.Get("import_policies"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("import_policies"); ok || !reflect.DeepEqual(v, importPoliciesProp) {
+		obj["importPolicies"] = importPoliciesProp
 	}
 	ipv6NexthopAddressProp, err := expandNestedComputeRouterBgpPeerIpv6NexthopAddress(d.Get("ipv6_nexthop_address"), d, config)
 	if err != nil {
@@ -1291,6 +1339,14 @@ func flattenNestedComputeRouterBgpPeerPeerIpv4NexthopAddress(v interface{}, d *s
 	return v
 }
 
+func flattenNestedComputeRouterBgpPeerExportPolicies(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedComputeRouterBgpPeerImportPolicies(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNestedComputeRouterBgpPeerIpv6NexthopAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1515,6 +1571,14 @@ func expandNestedComputeRouterBgpPeerIpv4NexthopAddress(v interface{}, d tpgreso
 }
 
 func expandNestedComputeRouterBgpPeerPeerIpv4NexthopAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterBgpPeerExportPolicies(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterBgpPeerImportPolicies(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
