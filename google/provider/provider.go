@@ -263,6 +263,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"chronicle_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"cloud_asset_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1052,6 +1057,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.BinaryAuthorizationBasePath = d.Get("binary_authorization_custom_endpoint").(string)
 	config.BlockchainNodeEngineBasePath = d.Get("blockchain_node_engine_custom_endpoint").(string)
 	config.CertificateManagerBasePath = d.Get("certificate_manager_custom_endpoint").(string)
+	config.ChronicleBasePath = d.Get("chronicle_custom_endpoint").(string)
 	config.CloudAssetBasePath = d.Get("cloud_asset_custom_endpoint").(string)
 	config.CloudBuildBasePath = d.Get("cloud_build_custom_endpoint").(string)
 	config.Cloudbuildv2BasePath = d.Get("cloudbuildv2_custom_endpoint").(string)

@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/binaryauthorization"
 	"github.com/hashicorp/terraform-provider-google/google/services/blockchainnodeengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/certificatemanager"
+	"github.com/hashicorp/terraform-provider-google/google/services/chronicle"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudasset"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudbuild"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudbuildv2"
@@ -493,9 +494,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 556
+// Generated resources: 557
 // Generated IAM resources: 276
-// Total generated resources: 832
+// Total generated resources: 833
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -625,6 +626,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_certificate_manager_certificate_map_entry":                           certificatemanager.ResourceCertificateManagerCertificateMapEntry(),
 	"google_certificate_manager_dns_authorization":                               certificatemanager.ResourceCertificateManagerDnsAuthorization(),
 	"google_certificate_manager_trust_config":                                    certificatemanager.ResourceCertificateManagerTrustConfig(),
+	"google_chronicle_data_access_label":                                         chronicle.ResourceChronicleDataAccessLabel(),
 	"google_cloud_asset_folder_feed":                                             cloudasset.ResourceCloudAssetFolderFeed(),
 	"google_cloud_asset_organization_feed":                                       cloudasset.ResourceCloudAssetOrganizationFeed(),
 	"google_cloud_asset_project_feed":                                            cloudasset.ResourceCloudAssetProjectFeed(),

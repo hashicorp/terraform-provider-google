@@ -1,0 +1,22 @@
+resource: 'google_chronicle_data_access_label'
+generation_type: 'mmv1'
+source_file: 'products/chronicle/DataAccessLabel.yaml'
+api_service_name: 'chronicle.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'DataAccessLabel'
+autogen_status: true
+fields:
+  - field: 'author'
+  - field: 'create_time'
+  - field: 'data_access_label_id'
+    provider_only: true
+  - field: 'description'
+  - field: 'display_name'
+  - field: 'instance'
+    provider_only: true
+  - field: 'last_editor'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'udm_query'
+  - field: 'update_time'

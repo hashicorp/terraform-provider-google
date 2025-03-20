@@ -23,8 +23,6 @@ description: |-
 
 A DataAccessLabel is a label on events to define user access to data.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about DataAccessLabel, see:
 
@@ -37,7 +35,6 @@ To get more information about DataAccessLabel, see:
 
 ```hcl
 resource "google_chronicle_data_access_label" "example" {
-  provider = "google-beta"
   location = "us" 
   instance = "00000000-0000-0000-0000-000000000000"
   data_access_label_id = "label-id"
