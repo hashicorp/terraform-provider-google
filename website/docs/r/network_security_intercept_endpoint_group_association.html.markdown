@@ -142,10 +142,13 @@ In addition to the arguments listed above, the following computed attributes are
   See https://google.aip.dev/148#timestamps.
 
 * `locations_details` -
+  (Deprecated)
   The list of locations where the association is present. This information
   is retrieved from the linked endpoint group, and not configured as part
   of the association itself.
   Structure is [documented below](#nested_locations_details).
+
+  ~> **Warning:** `locationsDetails` is deprecated and will be removed in a future major release. Use `locations` instead.
 
 * `state` -
   Current state of the endpoint group association.
@@ -164,6 +167,11 @@ In addition to the arguments listed above, the following computed attributes are
   operation (e.g. adding a new location to the target deployment group).
   See https://google.aip.dev/128.
 
+* `locations` -
+  The list of locations where the association is configured. This information
+  is retrieved from the linked endpoint group.
+  Structure is [documented below](#nested_locations).
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -177,6 +185,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `location` -
   (Output)
   The cloud location, e.g. `us-central1-a` or `asia-south1`.
+
+* `state` -
+  (Output)
+  The current state of the association in this location.
+  Possible values:
+  STATE_UNSPECIFIED
+  ACTIVE
+  OUT_OF_SYNC
+
+<a name="nested_locations"></a>The `locations` block contains:
+
+* `location` -
+  (Output)
+  The cloud location, e.g. `us-central1-a` or `asia-south1-b`.
 
 * `state` -
   (Output)
