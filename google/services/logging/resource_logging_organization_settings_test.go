@@ -3,6 +3,7 @@
 package logging_test
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -11,7 +12,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
+var orgSettingsMu sync.Mutex
+
 func TestAccLoggingOrganizationSettings_update(t *testing.T) {
+	// google_logging_organization_settings is a singleton, and multiple tests mutate it.
+	orgSettingsMu.Lock()
+	t.Cleanup(orgSettingsMu.Unlock)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
