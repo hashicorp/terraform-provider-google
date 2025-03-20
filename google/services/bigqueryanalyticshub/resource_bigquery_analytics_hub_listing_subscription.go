@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -133,7 +134,7 @@ organize and group your datasets.`,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CaseDiffSuppress,
-				Description:      `The name of the location for this subscription.`,
+				Description:      `The name of the location of the data exchange. Distinct from the location of the destination data set.`,
 			},
 			"creation_time": {
 				Type:        schema.TypeString,
@@ -335,6 +336,21 @@ func resourceBigqueryAnalyticsHubListingSubscriptionRead(d *schema.ResourceData,
 	}
 
 	headers := make(http.Header)
+	// The project used for Create and Read may be different.
+	// Here, we will use the destination project specifically for reading and deleting.
+	// This cannot be done editing the self_link since the destination project is not a top-level field.
+	destinationProject, ok := d.GetOk("destination_dataset.0.dataset_reference.0.project_id")
+	if ok {
+		billingProject = destinationProject.(string)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+		destinationLocation := d.Get("destination_dataset.0.location")
+		partToReplace := regexp.MustCompile(`projects\/.*\/locations\/.*\/subscriptions`)
+		url = partToReplace.ReplaceAllString(url, fmt.Sprintf("projects/%s/locations/%s/subscriptions", destinationProject, destinationLocation))
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -413,6 +429,21 @@ func resourceBigqueryAnalyticsHubListingSubscriptionDelete(d *schema.ResourceDat
 	}
 
 	headers := make(http.Header)
+	// The project used for Create and Read may be different.
+	// Here, we will use the destination project specifically for reading and deleting.
+	// This cannot be done editing the self_link since the destination project is not a top-level field.
+	destinationProject, ok := d.GetOk("destination_dataset.0.dataset_reference.0.project_id")
+	if ok {
+		billingProject = destinationProject.(string)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+		destinationLocation := d.Get("destination_dataset.0.location")
+		partToReplace := regexp.MustCompile(`projects\/.*\/locations\/.*\/subscriptions`)
+		url = partToReplace.ReplaceAllString(url, fmt.Sprintf("projects/%s/locations/%s/subscriptions", destinationProject, destinationLocation))
+	}
 
 	log.Printf("[DEBUG] Deleting ListingSubscription %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
