@@ -11,10 +11,13 @@ import (
 )
 
 func TestAccLoggingOrganizationSettings_datasource(t *testing.T) {
-	t.Parallel()
+	// google_logging_organization_settings is a singleton, and multiple tests mutate it.
+	orgSettingsMu.Lock()
+	t.Cleanup(orgSettingsMu.Unlock)
 
 	context := map[string]interface{}{
-		"org_id": envvar.GetTestOrgFromEnv(t),
+		"org_id":       envvar.GetTestOrgFromEnv(t),
+		"original_key": acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 	}
 	resourceName := "data.google_logging_organization_settings.settings"
 
@@ -22,6 +25,9 @@ func TestAccLoggingOrganizationSettings_datasource(t *testing.T) {
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingOrganizationSettings_full(context),
+			},
 			{
 				Config: testAccLoggingOrganizationSettings_datasource(context),
 				Check: resource.ComposeTestCheckFunc(
