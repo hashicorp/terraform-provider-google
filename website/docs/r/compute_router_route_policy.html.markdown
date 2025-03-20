@@ -23,8 +23,6 @@ description: |-
 
 A route policy created in a router
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about RouterRoutePolicy, see:
 
@@ -42,13 +40,11 @@ To get more information about RouterRoutePolicy, see:
 
 ```hcl
 resource "google_compute_network" "net" {
-  provider = google-beta
   name                    = "my-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnet" {
-  provider = google-beta
   name          = "my-subnetwork"
   network       = google_compute_network.net.id
   ip_cidr_range = "10.0.0.0/16"
@@ -56,14 +52,12 @@ resource "google_compute_subnetwork" "subnet" {
 }
 
 resource "google_compute_router" "router" {
-  provider = google-beta
   name    = "my-router"
   region  = google_compute_subnetwork.subnet.region
   network = google_compute_network.net.id
 }
 
 resource "google_compute_router_route_policy" "rp-export" {
-  provider = google-beta
   router = google_compute_router.router.name
   region = google_compute_router.router.region
 	name = "my-rp1"
@@ -89,13 +83,11 @@ resource "google_compute_router_route_policy" "rp-export" {
 
 ```hcl
 resource "google_compute_network" "net" {
-  provider = google-beta
   name                    = "my-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnet" {
-  provider = google-beta
   name          = "my-subnetwork"
   network       = google_compute_network.net.id
   ip_cidr_range = "10.0.0.0/16"
@@ -103,15 +95,13 @@ resource "google_compute_subnetwork" "subnet" {
 }
 
 resource "google_compute_router" "router" {
-  provider = google-beta
   name    = "my-router"
   region  = google_compute_subnetwork.subnet.region
   network = google_compute_network.net.id
 }
 
 resource "google_compute_router_route_policy" "rp-import" {
-  provider = google-beta
-	name = "my-rp2"
+  name = "my-rp2"
   router = google_compute_router.router.name
   region = google_compute_router.router.region
 	type = "ROUTE_POLICY_TYPE_IMPORT"

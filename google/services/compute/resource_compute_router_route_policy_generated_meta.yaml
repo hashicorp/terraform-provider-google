@@ -1,0 +1,23 @@
+resource: 'google_compute_router_route_policy'
+generation_type: 'mmv1'
+source_file: 'products/compute/RouterRoutePolicy.yaml'
+api_service_name: 'compute.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Router'
+fields:
+  - field: 'fingerprint'
+  - field: 'name'
+  - field: 'region'
+    provider_only: true
+  - field: 'router'
+    provider_only: true
+  - field: 'terms.actions.description'
+  - field: 'terms.actions.expression'
+  - field: 'terms.actions.location'
+  - field: 'terms.actions.title'
+  - field: 'terms.match.description'
+  - field: 'terms.match.expression'
+  - field: 'terms.match.location'
+  - field: 'terms.match.title'
+  - field: 'terms.priority'
+  - field: 'type'
