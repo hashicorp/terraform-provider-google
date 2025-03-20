@@ -192,6 +192,64 @@ resource "google_compute_address" "dest-addr" {
 `, context)
 }
 
+func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestEndpointsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkManagementConnectivityTestDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkManagementConnectivityTest_networkManagementConnectivityTestEndpointsExample(context),
+			},
+			{
+				ResourceName:            "google_network_management_connectivity_test.endpoints-test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkManagementConnectivityTest_networkManagementConnectivityTestEndpointsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_management_connectivity_test" "endpoints-test" {
+  name = "tf-test-conn-test-endpoints%{random_suffix}"
+  source {
+    gke_master_cluster =  "projects/test-project/locations/us-central1/clusters/name"
+    cloud_sql_instance = "projects/test-project/instances/name"
+    app_engine_version {
+         uri = "apps/test-project/services/default/versions/name"
+    }
+    cloud_function {
+      uri = "projects/test-project/locations/us-central1/functions/name"
+    }
+    cloud_run_revision {
+        uri = "projects/test-project/locations/us-central1/revisions/name"
+    }
+    port = 80
+  }
+  destination {
+    port = 443
+    forwarding_rule = "projects/test-project/regions/us-central1/forwardingRules/name"
+    gke_master_cluster = "projects/test-project/locations/us-central1/clusters/name"
+    fqdn = "name.us-central1.gke.goog"
+    cloud_sql_instance = "projects/test-project/instances/name"
+    redis_instance = "projects/test-project/locations/us-central1/instances/name"
+    redis_cluster = "projects/test-project/locations/us-central1/clusters/name"
+  }
+  bypass_firewall_checks = true
+  round_trip = true
+}
+`, context)
+}
+
 func testAccCheckNetworkManagementConnectivityTestDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

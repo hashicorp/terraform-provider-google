@@ -885,7 +885,7 @@ For more information, see https://cloud.google.com/run/docs/configuring/custom-a
 			"invoker_iam_disabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: `Disables IAM permission check for run.routes.invoke for callers of this service. This feature is available by invitation only. For more information, visit https://cloud.google.com/run/docs/securing/managing-access#invoker_check.`,
+				Description: `Disables IAM permission check for run.routes.invoke for callers of this service. For more information, visit https://cloud.google.com/run/docs/securing/managing-access#invoker_check.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
