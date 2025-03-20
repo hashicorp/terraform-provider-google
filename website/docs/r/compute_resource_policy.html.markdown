@@ -198,6 +198,62 @@ resource "google_compute_resource_policy" "cgroup" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=resource_policy_workload_policy&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Resource Policy Workload Policy
+
+
+```hcl
+resource "google_compute_resource_policy" "bar" {
+  name   = "gce-policy"
+  region = "europe-west1"
+  provider = google-beta
+  workload_policy {
+    type = "HIGH_AVAILABILITY"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=resource_policy_workload_policy_accelerator_topology&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Resource Policy Workload Policy Accelerator Topology
+
+
+```hcl
+resource "google_compute_resource_policy" "bar" {
+  name   = "gce-policy"
+  region = "europe-west1"
+  provider = google-beta
+  workload_policy {
+    type = "HIGH_THROUGHPUT"
+    accelerator_topology = "SOME NEW TOPOLOGY"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=resource_policy_workload_policy_max_topology_distance&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Resource Policy Workload Policy Max Topology Distance
+
+
+```hcl
+resource "google_compute_resource_policy" "bar" {
+  name   = "gce-policy"
+  region = "europe-west1"
+  provider = google-beta
+  workload_policy {
+    type = "HIGH_THROUGHPUT"
+    max_topology_distance = "BLOCK"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=resource_policy_placement_policy_gpu_topology&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -260,6 +316,11 @@ The following arguments are supported:
   (Optional)
   Replication consistency group for asynchronous disk replication.
   Structure is [documented below](#nested_disk_consistency_group_policy).
+
+* `workload_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Represents the workload policy.
+  Structure is [documented below](#nested_workload_policy).
 
 * `region` -
   (Optional)
@@ -455,6 +516,24 @@ The following arguments are supported:
 * `enabled` -
   (Required)
   Enable disk consistency on the resource policy.
+
+<a name="nested_workload_policy"></a>The `workload_policy` block supports:
+
+* `type` -
+  (Required)
+  The type of workload policy.
+  Possible values are: `HIGH_AVAILABILITY`, `HIGH_THROUGHPUT`.
+
+* `max_topology_distance` -
+  (Optional)
+  The maximum topology distance. This field can be set only when the workload policy type is HIGH_THROUGHPUT
+  and cannot be set if accelerator topology is set.
+  Possible values are: `BLOCK`, `CLUSTER`, `SUBBLOCK`.
+
+* `accelerator_topology` -
+  (Optional)
+  The accelerator topology. This field can be set only when the workload policy type is HIGH_THROUGHPUT
+  and cannot be set if max topology distance is set.
 
 ## Attributes Reference
 

@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `workload_policy.type`, `workload_policy.max_topology_distance` and `workload_policy.accelerator_topology` fields to `google_compute_resource_policy` resource
+```
