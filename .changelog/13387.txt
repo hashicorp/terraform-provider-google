@@ -1,0 +1,9 @@
+```release-note:enhancement
+networkmanagement: added `source.gkeMasterCluster`,  `source.cloudSqlInstance`, `source.cloudFunction`, `source.appEngineVersion`, `source.cloudRunRevision` fields to `google_network_management_connectivity_test` resource
+```
+```release-note:enhancement
+networkmanagement: added `destination.forwardingRule`, `destination.gkeMasterCluster`, `destination.fqdn`, `destination.cloudSqlInstance`, `destination.redisInstance`, `destination.redisCluster`,  fields to `google_network_management_connectivity_test` resource
+```
+```release-note:enhancement
+networkmanagement: added `roundTrip`, `bypassFirewallChecks` fields to `google_network_management_connectivity_test` resource
+```
