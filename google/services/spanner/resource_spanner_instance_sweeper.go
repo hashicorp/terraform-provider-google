@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("SpannerInstance", testSweepSpannerInstance)
+	sweeper.AddTestSweepersLegacy("SpannerInstance", testSweepSpannerInstance)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region

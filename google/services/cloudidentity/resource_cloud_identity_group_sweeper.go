@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("CloudIdentityGroup", testSweepCloudIdentityGroup)
+	sweeper.AddTestSweepersLegacy("CloudIdentityGroup", testSweepCloudIdentityGroup)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region

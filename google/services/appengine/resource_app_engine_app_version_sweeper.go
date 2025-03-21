@@ -12,7 +12,7 @@ import (
 
 // This will sweep both Standard and Flexible App Engine App Versions
 func init() {
-	sweeper.AddTestSweepers("AppEngineAppVersion", testSweepAppEngineAppVersion)
+	sweeper.AddTestSweepersLegacy("AppEngineAppVersion", testSweepAppEngineAppVersion)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region

@@ -15,7 +15,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("DataflowJob", testSweepDataFlowJob)
+	sweeper.AddTestSweepersLegacy("DataflowJob", testSweepDataFlowJob)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region

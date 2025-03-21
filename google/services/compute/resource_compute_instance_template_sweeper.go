@@ -11,7 +11,7 @@ import (
 
 // This will sweep Compute Instance Templates
 func init() {
-	sweeper.AddTestSweepers("ComputeInstanceTemplate", testSweepComputeInstanceTemplate)
+	sweeper.AddTestSweepersLegacy("ComputeInstanceTemplate", testSweepComputeInstanceTemplate)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region

@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("ComputeInstance", testSweepComputeInstance)
+	sweeper.AddTestSweepersLegacy("ComputeInstance", testSweepComputeInstance)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region.

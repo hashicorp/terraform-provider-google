@@ -16,7 +16,7 @@ import (
 const testFunctionsSourceArchivePrefix = "cloudfunczip"
 
 func init() {
-	sweeper.AddTestSweepers("gcp_cloud_function_source_archive", sweepCloudFunctionSourceZipArchives)
+	sweeper.AddTestSweepersLegacy("gcp_cloud_function_source_archive", sweepCloudFunctionSourceZipArchives)
 }
 
 func sweepCloudFunctionSourceZipArchives(_ string) error {

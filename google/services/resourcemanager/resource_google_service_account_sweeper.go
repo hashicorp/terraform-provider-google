@@ -13,7 +13,7 @@ import (
 
 // This will sweep Service Account resources
 func init() {
-	sweeper.AddTestSweepers("ServiceAccount", testSweepServiceAccount)
+	sweeper.AddTestSweepersLegacy("ServiceAccount", testSweepServiceAccount)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region

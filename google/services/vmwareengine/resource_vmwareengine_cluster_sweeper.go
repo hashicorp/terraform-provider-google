@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("VmwareengineCluster", testSweepVmwareengineCluster)
+	sweeper.AddTestSweepersLegacy("VmwareengineCluster", testSweepVmwareengineCluster)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region

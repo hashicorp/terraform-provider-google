@@ -12,7 +12,7 @@ import (
 
 // This will sweep GCE Target Pool resources
 func init() {
-	sweeper.AddTestSweepers("ComputeTargetPool", testSweepTargetPool)
+	sweeper.AddTestSweepersLegacy("ComputeTargetPool", testSweepTargetPool)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region

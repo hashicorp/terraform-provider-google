@@ -30,7 +30,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("ClouddeployDeliveryPipeline", testSweepClouddeployDeliveryPipeline)
+	sweeper.AddTestSweepersLegacy("ClouddeployDeliveryPipeline", testSweepClouddeployDeliveryPipeline)
 }
 
 func testSweepClouddeployDeliveryPipeline(region string) error {

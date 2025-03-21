@@ -3,11 +3,8 @@
 package sweeper
 
 import (
-	"encoding/hex"
 	"fmt"
-	"hash/crc32"
 	"log"
-	"runtime"
 	"strings"
 
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -107,17 +104,4 @@ func ListParentResourcesInLocation(d *tpgresource.ResourceDataMock, config *tran
 
 	}
 	return names, nil
-}
-
-func AddTestSweepers(name string, sweeper func(region string) error) {
-	_, filename, _, _ := runtime.Caller(0)
-	hash := crc32.NewIEEE()
-	hash.Write([]byte(filename))
-	hashedFilename := hex.EncodeToString(hash.Sum(nil))
-	uniqueName := name + "_" + hashedFilename
-
-	addTestSweepers(uniqueName, &Sweeper{
-		Name: name,
-		F:    sweeper,
-	})
 }

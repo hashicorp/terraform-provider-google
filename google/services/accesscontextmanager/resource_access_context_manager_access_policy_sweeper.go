@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("gcp_access_context_manager_policy", testSweepAccessContextManagerPolicies)
+	sweeper.AddTestSweepersLegacy("gcp_access_context_manager_policy", testSweepAccessContextManagerPolicies)
 }
 
 func testSweepAccessContextManagerPolicies(region string) error {

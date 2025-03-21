@@ -30,7 +30,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("RecaptchaEnterpriseKey", testSweepRecaptchaEnterpriseKey)
+	sweeper.AddTestSweepersLegacy("RecaptchaEnterpriseKey", testSweepRecaptchaEnterpriseKey)
 }
 
 func testSweepRecaptchaEnterpriseKey(region string) error {

@@ -30,7 +30,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("FirebaserulesRelease", testSweepFirebaserulesRelease)
+	sweeper.AddTestSweepersLegacy("FirebaserulesRelease", testSweepFirebaserulesRelease)
 }
 
 func testSweepFirebaserulesRelease(region string) error {

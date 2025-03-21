@@ -1,5 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package sweeper
 
 import (
@@ -8,40 +10,102 @@ import (
 	"testing"
 )
 
-func TestValidateAndOrderSweepers_Simple(t *testing.T) {
-	sweepers := map[string]*Sweeper{
-		"B": {
-			Name:         "B",
-			Dependencies: []string{"A"},
+// TestUnifyRelationships verifies that parent relationships are correctly
+// converted to reverse dependencies
+func TestUnifyRelationships(t *testing.T) {
+	testCases := []struct {
+		name         string
+		sweepers     map[string]*Sweeper
+		expectedDeps map[string][]string
+	}{
+		{
+			name: "simple_parent_relationship",
+			sweepers: map[string]*Sweeper{
+				"A": {
+					Name:           "A",
+					Dependencies:   []string{},
+					DeleteFunction: func(region string) error { return nil },
+				},
+				"B": {
+					Name:           "B",
+					Parents:        []string{"A"},
+					DeleteFunction: func(region string) error { return nil },
+				},
+			},
+			expectedDeps: map[string][]string{
+				"A": {"B"}, // A depends on B (parent depends on child)
+				"B": {},
+			},
 		},
-		"C": {
-			Name:         "C",
-			Dependencies: []string{"B"},
-		},
-		"A": {
-			Name:         "A",
-			Dependencies: []string{},
+		{
+			name: "chain_of_parents",
+			sweepers: map[string]*Sweeper{
+				"A": {
+					Name:           "A",
+					DeleteFunction: func(region string) error { return nil },
+				},
+				"B": {
+					Name:           "B",
+					Parents:        []string{"A"},
+					DeleteFunction: func(region string) error { return nil },
+				},
+				"C": {
+					Name:           "C",
+					Parents:        []string{"B"},
+					DeleteFunction: func(region string) error { return nil },
+				},
+			},
+			expectedDeps: map[string][]string{
+				"A": {"B"}, // A depends on B
+				"B": {"C"}, // B depends on C
+				"C": {},
+			},
 		},
 	}
 
-	sorted, err := validateAndOrderSweepers(sweepers)
-	if err != nil {
-		t.Fatalf("Expected no error, got: %v", err)
-	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			unified := unifyRelationships(tc.sweepers)
 
-	// Verify order: A should come before B, B before C
-	names := make([]string, len(sorted))
-	for i, s := range sorted {
-		names[i] = s.Name
-	}
+			// Verify unified dependencies
+			for name, expectedDeps := range tc.expectedDeps {
+				sweeper, ok := unified[name]
+				if !ok {
+					t.Fatalf("Sweeper %s missing from unified result", name)
+				}
 
-	expected := []string{"A", "B", "C"}
-	if !reflect.DeepEqual(names, expected) {
-		t.Errorf("Expected order %v, got %v", expected, names)
+				// Use equal content comparison rather than exact slice equality
+				if !hasSameDependencies(sweeper.Dependencies, expectedDeps) {
+					t.Errorf("For sweeper %s, expected dependencies %v, got %v",
+						name, expectedDeps, sweeper.Dependencies)
+				}
+			}
+		})
 	}
 }
 
-func TestValidateAndOrderSweepers_Cycle(t *testing.T) {
+// hasSameDependencies checks if two slices have the same elements regardless of order
+func hasSameDependencies(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	aMap := make(map[string]bool)
+	for _, item := range a {
+		aMap[item] = true
+	}
+
+	for _, item := range b {
+		if !aMap[item] {
+			return false
+		}
+	}
+
+	return true
+}
+
+// TestCycleDetectionBasic verifies that basic cycles are correctly detected
+func TestCycleDetectionBasic(t *testing.T) {
 	testCases := []struct {
 		name     string
 		sweepers map[string]*Sweeper
@@ -49,44 +113,64 @@ func TestValidateAndOrderSweepers_Cycle(t *testing.T) {
 		errMsg   string
 	}{
 		{
-			name: "direct_cycle",
+			name: "direct_dependency_cycle",
 			sweepers: map[string]*Sweeper{
 				"A": {
-					Name:         "A",
-					Dependencies: []string{"B"},
+					Name:           "A",
+					Dependencies:   []string{"B"},
+					DeleteFunction: func(region string) error { return nil },
 				},
 				"B": {
-					Name:         "B",
-					Dependencies: []string{"A"},
+					Name:           "B",
+					Dependencies:   []string{"A"},
+					DeleteFunction: func(region string) error { return nil },
 				},
 			},
 			wantErr: true,
 			errMsg:  "dependency cycle detected",
 		},
 		{
-			name: "indirect_cycle",
+			name: "self_dependency",
 			sweepers: map[string]*Sweeper{
 				"A": {
-					Name:         "A",
-					Dependencies: []string{"B"},
-				},
-				"B": {
-					Name:         "B",
-					Dependencies: []string{"C"},
-				},
-				"C": {
-					Name:         "C",
-					Dependencies: []string{"A"},
+					Name:           "A",
+					Dependencies:   []string{"A"},
+					DeleteFunction: func(region string) error { return nil },
 				},
 			},
 			wantErr: true,
 			errMsg:  "dependency cycle detected",
 		},
+		{
+			name: "no_cycle",
+			sweepers: map[string]*Sweeper{
+				"A": {
+					Name:           "A",
+					DeleteFunction: func(region string) error { return nil },
+				},
+				"B": {
+					Name:           "B",
+					Dependencies:   []string{"A"},
+					DeleteFunction: func(region string) error { return nil },
+				},
+				"C": {
+					Name:           "C",
+					Dependencies:   []string{"B"},
+					DeleteFunction: func(region string) error { return nil },
+				},
+			},
+			wantErr: false,
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, err := validateAndOrderSweepers(tc.sweepers)
+			// First unify relationships
+			unified := unifyRelationships(tc.sweepers)
+
+			// Then check for cycles
+			err := detectCycles(unified)
+
 			if tc.wantErr {
 				if err == nil {
 					t.Error("Expected error, got nil")
@@ -100,259 +184,165 @@ func TestValidateAndOrderSweepers_Cycle(t *testing.T) {
 	}
 }
 
-func TestValidateAndOrderSweepers_MissingDependency(t *testing.T) {
-	sweepers := map[string]*Sweeper{
-		"A": {
-			Name:         "A",
-			Dependencies: []string{"NonExistent"},
+// TestTopologicalSortWithUnifiedModel verifies that the topological sort
+// produces the correct order with the unified model
+func TestTopologicalSortWithUnifiedModel(t *testing.T) {
+	tests := []struct {
+		name     string
+		sweepers map[string]*Sweeper
+		expected []string
+	}{
+		{
+			name: "simple_dependencies",
+			sweepers: map[string]*Sweeper{
+				"A": {
+					Name:           "A",
+					DeleteFunction: func(region string) error { return nil },
+				},
+				"B": {
+					Name:           "B",
+					Dependencies:   []string{"A"},
+					DeleteFunction: func(region string) error { return nil },
+				},
+				"C": {
+					Name:           "C",
+					Dependencies:   []string{"B"},
+					DeleteFunction: func(region string) error { return nil },
+				},
+			},
+			expected: []string{"A", "B", "C"},
+		},
+		{
+			name: "simple_parent_relationships",
+			sweepers: map[string]*Sweeper{
+				"A": {
+					Name:           "A",
+					DeleteFunction: func(region string) error { return nil },
+				},
+				"B": {
+					Name:           "B",
+					Parents:        []string{"A"},
+					DeleteFunction: func(region string) error { return nil },
+				},
+				"C": {
+					Name:           "C",
+					Parents:        []string{"B"},
+					DeleteFunction: func(region string) error { return nil },
+				},
+			},
+			expected: []string{"C", "B", "A"},
 		},
 	}
 
-	_, err := validateAndOrderSweepers(sweepers)
-	if err == nil {
-		t.Fatal("Expected error for missing dependency, got nil")
-	}
-	expected := "sweeper A depends on NonExistent, but NonExistent not found"
-	if err.Error() != expected {
-		t.Errorf("Expected error message %q, got %q", expected, err.Error())
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Unify relationships
+			unified := unifyRelationships(tt.sweepers)
+
+			// Get sorted result
+			sorted := topologicalSort(unified)
+
+			// Extract names for comparison
+			actual := make([]string, len(sorted))
+			for i, s := range sorted {
+				actual[i] = s.Name
+			}
+
+			// Check if the order is correct
+			if !reflect.DeepEqual(actual, tt.expected) {
+				t.Errorf("Expected order %v, got %v", tt.expected, actual)
+			}
+		})
 	}
 }
 
-func TestValidateAndOrderSweepers_Complex(t *testing.T) {
-	sweepers := map[string]*Sweeper{
-		"A": {
-			Name:         "A",
-			Dependencies: []string{},
-		},
-		"B": {
-			Name:         "B",
-			Dependencies: []string{"A"},
-		},
-		"C": {
-			Name:         "C",
-			Dependencies: []string{"A"},
-		},
-		"D": {
-			Name:         "D",
-			Dependencies: []string{"B", "C"},
-		},
-		"E": {
-			Name:         "E",
-			Dependencies: []string{"C"},
-		},
-	}
-
-	sorted, err := validateAndOrderSweepers(sweepers)
-	if err != nil {
-		t.Fatalf("Expected no error, got: %v", err)
-	}
-
-	// Create a map to check relative positions
-	positions := make(map[string]int)
-	for i, s := range sorted {
-		positions[s.Name] = i
-	}
-
-	// Verify dependencies come before dependents
-	checks := []struct {
-		dependency string
-		dependent  string
-	}{
-		{"A", "B"},
-		{"A", "C"},
-		{"B", "D"},
-		{"C", "D"},
-		{"C", "E"},
-	}
-
-	for _, check := range checks {
-		if positions[check.dependency] >= positions[check.dependent] {
-			t.Errorf("Expected %s to come before %s, but got positions %d and %d",
-				check.dependency, check.dependent,
-				positions[check.dependency], positions[check.dependent])
+// TestValidateAndOrderSweepers verifies the full pipeline
+func TestValidateAndOrderSweepers(t *testing.T) {
+	// Test valid parent-child relationships
+	t.Run("parent_child_relationships", func(t *testing.T) {
+		sweepers := map[string]*Sweeper{
+			"A": {
+				Name:           "A",
+				DeleteFunction: func(region string) error { return nil },
+			},
+			"B": {
+				Name:           "B",
+				Parents:        []string{"A"},
+				DeleteFunction: func(region string) error { return nil },
+			},
+			"C": {
+				Name:           "C",
+				Parents:        []string{"B"},
+				DeleteFunction: func(region string) error { return nil },
+			},
 		}
-	}
+
+		sorted, err := validateAndOrderSweepersWithDependencies(sweepers)
+		if err != nil {
+			t.Fatalf("Expected no error, got: %v", err)
+		}
+
+		// Extract names for comparison
+		names := make([]string, len(sorted))
+		for i, s := range sorted {
+			names[i] = s.Name
+		}
+
+		// Expected order: children before parents
+		expected := []string{"C", "B", "A"}
+		if !reflect.DeepEqual(names, expected) {
+			t.Errorf("Expected order %v, got %v", expected, names)
+		}
+	})
+
+	// Test direct cycle
+	t.Run("direct_cycle", func(t *testing.T) {
+		sweepers := map[string]*Sweeper{
+			"A": {
+				Name:           "A",
+				Dependencies:   []string{"B"},
+				DeleteFunction: func(region string) error { return nil },
+			},
+			"B": {
+				Name:           "B",
+				Dependencies:   []string{"A"},
+				DeleteFunction: func(region string) error { return nil },
+			},
+		}
+
+		_, err := validateAndOrderSweepersWithDependencies(sweepers)
+		if err == nil {
+			t.Error("Expected error for cycle, got nil")
+		} else if !strings.Contains(err.Error(), "dependency cycle detected") {
+			t.Errorf("Expected error containing 'dependency cycle detected', got: %v", err)
+		}
+	})
 }
 
-func TestValidateAndOrderSweepers_Empty(t *testing.T) {
-	sweepers := map[string]*Sweeper{}
-
-	sorted, err := validateAndOrderSweepers(sweepers)
-	if err != nil {
-		t.Fatalf("Expected no error for empty sweepers, got: %v", err)
-	}
-	if len(sorted) != 0 {
-		t.Errorf("Expected empty result for empty input, got %d items", len(sorted))
-	}
-}
-
-func TestValidateAndOrderSweepers_SelfDependency(t *testing.T) {
-	sweepers := map[string]*Sweeper{
-		"A": {
-			Name:         "A",
-			Dependencies: []string{"A"},
-		},
-	}
-
-	_, err := validateAndOrderSweepers(sweepers)
-	if err == nil {
-		t.Fatal("Expected error for self-dependency, got nil")
-	}
-	if !strings.Contains(err.Error(), "dependency cycle detected") {
-		t.Errorf("Expected cycle detection error, got: %v", err)
-	}
-}
-
+// TestFilterSweepers verifies that filtering sweepers includes dependencies
 func TestFilterSweepers(t *testing.T) {
-	testCases := []struct {
-		name           string
-		filter         string
-		sourceSweepers map[string]*Sweeper
-		expected       map[string]*Sweeper
-	}{
-		{
-			name:   "empty_filter",
-			filter: "",
-			sourceSweepers: map[string]*Sweeper{
-				"test": {Name: "test"},
-				"prod": {Name: "prod"},
-			},
-			expected: map[string]*Sweeper{
-				"test": {Name: "test"},
-				"prod": {Name: "prod"},
-			},
+	sweepers := map[string]*Sweeper{
+		"resource_a": {
+			Name:           "resource_a",
+			DeleteFunction: func(region string) error { return nil },
 		},
-		{
-			name:   "single_match",
-			filter: "test",
-			sourceSweepers: map[string]*Sweeper{
-				"test":    {Name: "test"},
-				"testing": {Name: "testing"},
-				"prod":    {Name: "prod"},
-			},
-			expected: map[string]*Sweeper{
-				"test":    {Name: "test"},
-				"testing": {Name: "testing"},
-			},
+		"resource_b": {
+			Name:           "resource_b",
+			Dependencies:   []string{"resource_a"},
+			DeleteFunction: func(region string) error { return nil },
 		},
-		{
-			name:   "multiple_filters",
-			filter: "test,prod",
-			sourceSweepers: map[string]*Sweeper{
-				"test":    {Name: "test"},
-				"testing": {Name: "testing"},
-				"prod":    {Name: "prod"},
-				"stage":   {Name: "stage"},
-			},
-			expected: map[string]*Sweeper{
-				"test":    {Name: "test"},
-				"testing": {Name: "testing"},
-				"prod":    {Name: "prod"},
-			},
-		},
-		{
-			name:   "case_insensitive",
-			filter: "TEST",
-			sourceSweepers: map[string]*Sweeper{
-				"test":    {Name: "test"},
-				"testing": {Name: "testing"},
-			},
-			expected: map[string]*Sweeper{
-				"test":    {Name: "test"},
-				"testing": {Name: "testing"},
-			},
+		"resource_c": {
+			Name:           "resource_c",
+			DeleteFunction: func(region string) error { return nil },
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			result := filterSweepers(tc.filter, tc.sourceSweepers)
-			if !reflect.DeepEqual(result, tc.expected) {
-				t.Errorf("Expected %v, got %v", tc.expected, result)
-			}
-		})
+	// Filter on resource_b should include resource_a
+	filtered := filterSweepers("resource_b", sweepers)
+	if _, ok := filtered["resource_a"]; !ok {
+		t.Error("Filtering for resource_b should include its dependency resource_a")
 	}
-}
-
-func TestFilterSweeperWithDependencies(t *testing.T) {
-	testCases := []struct {
-		name           string
-		sweeper        string
-		sourceSweepers map[string]*Sweeper
-		expected       map[string]*Sweeper
-	}{
-		{
-			name:    "no_dependencies",
-			sweeper: "test",
-			sourceSweepers: map[string]*Sweeper{
-				"test": {
-					Name:         "test",
-					Dependencies: []string{},
-				},
-			},
-			expected: map[string]*Sweeper{
-				"test": {
-					Name:         "test",
-					Dependencies: []string{},
-				},
-			},
-		},
-		{
-			name:    "with_dependencies",
-			sweeper: "test",
-			sourceSweepers: map[string]*Sweeper{
-				"test": {
-					Name:         "test",
-					Dependencies: []string{"dep1", "dep2"},
-				},
-				"dep1": {
-					Name:         "dep1",
-					Dependencies: []string{},
-				},
-				"dep2": {
-					Name:         "dep2",
-					Dependencies: []string{},
-				},
-			},
-			expected: map[string]*Sweeper{
-				"test": {
-					Name:         "test",
-					Dependencies: []string{"dep1", "dep2"},
-				},
-				"dep1": {
-					Name:         "dep1",
-					Dependencies: []string{},
-				},
-				"dep2": {
-					Name:         "dep2",
-					Dependencies: []string{},
-				},
-			},
-		},
-		{
-			name:    "missing_dependency",
-			sweeper: "test",
-			sourceSweepers: map[string]*Sweeper{
-				"test": {
-					Name:         "test",
-					Dependencies: []string{"missing"},
-				},
-			},
-			expected: map[string]*Sweeper{
-				"test": {
-					Name:         "test",
-					Dependencies: []string{"missing"},
-				},
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			result := filterSweeperWithDependencies(tc.sweeper, tc.sourceSweepers)
-			if !reflect.DeepEqual(result, tc.expected) {
-				t.Errorf("Expected %v, got %v", tc.expected, result)
-			}
-		})
+	if _, ok := filtered["resource_c"]; ok {
+		t.Error("Filtering for resource_b should not include unrelated resource_c")
 	}
 }

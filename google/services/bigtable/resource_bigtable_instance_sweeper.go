@@ -12,7 +12,7 @@ import (
 
 // This will sweep GCE Disk resources
 func init() {
-	sweeper.AddTestSweepers("BigtableInstance", testSweepBigtableInstance)
+	sweeper.AddTestSweepersLegacy("BigtableInstance", testSweepBigtableInstance)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region

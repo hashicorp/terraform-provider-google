@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("VmwareengineExternalAddress", testSweepVmwareengineExternalAddress)
+	sweeper.AddTestSweepersLegacy("VmwareengineExternalAddress", testSweepVmwareengineExternalAddress)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region

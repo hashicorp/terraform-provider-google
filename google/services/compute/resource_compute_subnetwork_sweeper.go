@@ -33,72 +33,116 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("ComputeSubnetwork", testSweepComputeSubnetwork)
+	// Initialize base sweeper object
+	s := &sweeper.Sweeper{
+		Name:           "google_compute_subnetwork",
+		ListAndAction:  listAndActionComputeSubnetwork,
+		DeleteFunction: testSweepComputeSubnetwork,
+	}
+	// Add dependencies
+	s.Dependencies = []string{
+		"google_compute_forwarding_rule",
+	}
+
+	// Register the sweeper
+	sweeper.AddTestSweepers(s)
 }
 
 func testSweepComputeSubnetwork(_ string) error {
-	var deletionerror error
+	return listAndActionComputeSubnetwork(deleteResourceComputeSubnetwork)
+}
+
+func listAndActionComputeSubnetwork(action sweeper.ResourceAction) error {
+	var lastError error
 	resourceName := "ComputeSubnetwork"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	// Using URL substitutions for region/zone pairs
-	substitutions := []struct {
-		region string
-		zone   string
-	}{
-		{region: "us-west2", zone: ""},
-		{region: "us-central1", zone: ""},
-		{region: "us-east1", zone: ""},
-		{region: "europe-west4", zone: ""},
-		{region: "europe-west1", zone: ""},
-		{region: "southamerica-west1", zone: ""},
-		{region: "us-west1", zone: ""},
-		{region: "us-south1", zone: ""},
+
+	// Prepare configurations to iterate over
+	var configs []*tpgresource.ResourceDataMock
+	t := &testing.T{}
+	billingId := envvar.GetTestBillingAccountFromEnv(t)
+	// Build URL substitution maps individually to ensure proper formatting
+	intermediateValues := make([]map[string]string, 8)
+	intermediateValues[0] = map[string]string{}
+	intermediateValues[0]["region"] = "us-west2"
+	intermediateValues[1] = map[string]string{}
+	intermediateValues[1]["region"] = "us-central1"
+	intermediateValues[2] = map[string]string{}
+	intermediateValues[2]["region"] = "us-east1"
+	intermediateValues[3] = map[string]string{}
+	intermediateValues[3]["region"] = "europe-west4"
+	intermediateValues[4] = map[string]string{}
+	intermediateValues[4]["region"] = "europe-west1"
+	intermediateValues[5] = map[string]string{}
+	intermediateValues[5]["region"] = "southamerica-west1"
+	intermediateValues[6] = map[string]string{}
+	intermediateValues[6]["region"] = "us-west1"
+	intermediateValues[7] = map[string]string{}
+	intermediateValues[7]["region"] = "us-south1"
+
+	// Create configs from intermediate values
+	for _, values := range intermediateValues {
+		mockConfig := &tpgresource.ResourceDataMock{
+			FieldsInSchema: map[string]interface{}{
+				"project":         envvar.GetTestProjectFromEnv(),
+				"billing_account": billingId,
+			},
+		}
+
+		// Apply all provided values
+		for key, value := range values {
+			mockConfig.FieldsInSchema[key] = value
+		}
+
+		// Set fallback values for common fields
+		region, hasRegion := mockConfig.FieldsInSchema["region"].(string)
+		if !hasRegion {
+			region = "us-central1"
+			mockConfig.FieldsInSchema["region"] = region
+		}
+
+		if _, hasLocation := mockConfig.FieldsInSchema["location"]; !hasLocation {
+			mockConfig.FieldsInSchema["location"] = region
+		}
+
+		if _, hasZone := mockConfig.FieldsInSchema["zone"]; !hasZone {
+			mockConfig.FieldsInSchema["zone"] = region + "-a"
+		}
+
+		configs = append(configs, mockConfig)
 	}
 
-	// Iterate through each substitution
-	for _, sub := range substitutions {
-		config, err := sweeper.SharedConfigForRegion(sub.region)
+	// Process all configurations (either from parent resources or direct substitutions)
+	for _, mockConfig := range configs {
+		// Get region from config
+		region := sweeper.GetFieldOrDefault(mockConfig, "region", "us-central1")
+
+		// Create shared config for this region
+		config, err := sweeper.SharedConfigForRegion(region)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
-			return err
+			lastError = err
+			continue
 		}
 
 		err = config.LoadAndValidate(context.Background())
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error loading: %s", err)
-			return err
+			lastError = err
+			continue
 		}
 
-		t := &testing.T{}
-		billingId := envvar.GetTestBillingAccountFromEnv(t)
-
-		// Set fallback values for empty region/zone
-		if sub.region == "" {
-			log.Printf("[INFO][SWEEPER_LOG] Empty region provided, falling back to us-central1")
-			sub.region = "us-central1"
-		}
-		if sub.zone == "" {
-			log.Printf("[INFO][SWEEPER_LOG] Empty zone provided, falling back to us-central1-a")
-			sub.zone = "us-central1-a"
-		}
-
-		// Setup variables to replace in list template
-		d := &tpgresource.ResourceDataMock{
-			FieldsInSchema: map[string]interface{}{
-				"project":         config.Project,
-				"region":          sub.region,
-				"location":        sub.region,
-				"zone":            sub.zone,
-				"billing_account": billingId,
-			},
-		}
-
+		// Prepare list URL
 		listTemplate := strings.Split("https://compute.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/subnetworks", "?")[0]
-		listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
+		listUrl, err := tpgresource.ReplaceVars(mockConfig, config, listTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
-			return err
+			lastError = err
+			continue
 		}
+
+		// Log additional info for parent-based resources
+		log.Printf("[INFO][SWEEPER_LOG] Listing %s resources at %s", resourceName, listUrl)
 
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
@@ -109,7 +153,8 @@ func testSweepComputeSubnetwork(_ string) error {
 		})
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
-			return err
+			lastError = err
+			continue
 		}
 
 		// First try the expected resource key
@@ -122,6 +167,7 @@ func testSweepComputeSubnetwork(_ string) error {
 			if ok {
 				log.Printf("[INFO][SWEEPER_LOG] Found resources under standard 'items' key")
 			} else {
+				log.Printf("[INFO][SWEEPER_LOG] no resources found")
 				continue
 			}
 		}
@@ -131,48 +177,62 @@ func testSweepComputeSubnetwork(_ string) error {
 		// Keep count of items that aren't sweepable for logging.
 		nonPrefixCount := 0
 		for _, ri := range rl {
-			obj := ri.(map[string]interface{})
-			if obj["name"] == nil {
-				log.Printf("[INFO][SWEEPER_LOG] %s resource name was nil", resourceName)
-				return fmt.Errorf("%s resource name was nil", resourceName)
-			}
-
-			name := tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
-
-			// Skip resources that shouldn't be sweeped
-			if !sweeper.IsSweepableTestResource(name) {
-				nonPrefixCount++
+			obj, ok := ri.(map[string]interface{})
+			if !ok {
+				log.Printf("[INFO][SWEEPER_LOG] Item was not a map: %T", ri)
 				continue
 			}
 
-			deleteTemplate := "https://compute.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/subnetworks/{{name}}"
-
-			deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
-			if err != nil {
-				log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
-				deletionerror = err
-			}
-			deleteUrl = deleteUrl + name
-
-			// Don't wait on operations as we may have a lot to delete
-			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "DELETE",
-				Project:   config.Project,
-				RawURL:    deleteUrl,
-				UserAgent: config.UserAgent,
-			})
-			if err != nil {
-				log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
-				deletionerror = err
+			if err := action(config, mockConfig, obj); err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] Error in action: %s", err)
+				lastError = err
 			} else {
-				log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)
+				nonPrefixCount++
 			}
 		}
+	}
 
-		if nonPrefixCount > 0 {
-			log.Printf("[INFO][SWEEPER_LOG] %d items were non-sweepable and skipped.", nonPrefixCount)
-		}
+	return lastError
+}
+
+func deleteResourceComputeSubnetwork(config *transport_tpg.Config, d *tpgresource.ResourceDataMock, obj map[string]interface{}) error {
+	var deletionerror error
+	resourceName := "ComputeSubnetwork"
+	var name string
+	if obj["name"] == nil {
+		log.Printf("[INFO][SWEEPER_LOG] %s resource name was nil", resourceName)
+		return fmt.Errorf("%s resource name was nil", resourceName)
+	}
+
+	name = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
+
+	// Skip resources that shouldn't be sweeped
+	if !sweeper.IsSweepableTestResource(name) {
+		return nil
+	}
+
+	deleteTemplate := "https://compute.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/subnetworks/{{name}}"
+
+	deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
+	if err != nil {
+		log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
+		deletionerror = err
+	}
+	deleteUrl = deleteUrl + name
+
+	// Don't wait on operations as we may have a lot to delete
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "DELETE",
+		Project:   config.Project,
+		RawURL:    deleteUrl,
+		UserAgent: config.UserAgent,
+	})
+	if err != nil {
+		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
+		deletionerror = err
+	} else {
+		log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)
 	}
 
 	return deletionerror

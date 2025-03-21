@@ -12,7 +12,7 @@ import (
 
 // This will sweep GCE Disk resources
 func init() {
-	sweeper.AddTestSweepers("ComputeDisk", testSweepDisk)
+	sweeper.AddTestSweepersLegacy("ComputeDisk", testSweepDisk)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region

@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("gcp_container_cluster", testSweepContainerClusters)
+	sweeper.AddTestSweepersLegacy("gcp_container_cluster", testSweepContainerClusters)
 }
 
 func testSweepContainerClusters(region string) error {

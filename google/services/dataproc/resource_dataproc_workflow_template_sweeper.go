@@ -30,7 +30,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("DataprocWorkflowTemplate", testSweepDataprocWorkflowTemplate)
+	sweeper.AddTestSweepersLegacy("DataprocWorkflowTemplate", testSweepDataprocWorkflowTemplate)
 }
 
 func testSweepDataprocWorkflowTemplate(region string) error {
