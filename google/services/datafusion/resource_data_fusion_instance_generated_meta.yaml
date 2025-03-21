@@ -37,6 +37,7 @@ fields:
   - field: 'service_endpoint'
   - field: 'state'
   - field: 'state_message'
+  - field: 'tags'
   - field: 'tenant_project_id'
   - field: 'terraform_labels'
     provider_only: true
