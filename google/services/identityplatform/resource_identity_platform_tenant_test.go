@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
@@ -31,6 +32,11 @@ func TestAccIdentityPlatformTenant_identityPlatformTenantUpdate(t *testing.T) {
 			},
 			{
 				Config: testAccIdentityPlatformTenant_identityPlatformTenantUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_identity_platform_tenant.tenant", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_identity_platform_tenant.tenant",
@@ -57,6 +63,12 @@ resource "google_identity_platform_tenant" "tenant" {
   allow_password_signup    = false
   enable_email_link_signin = true
   disable_auth             = true
+  client {
+    permissions {
+      disabled_user_signup   = true
+      disabled_user_deletion = true
+    }
+  }
 }
 `, context)
 }
