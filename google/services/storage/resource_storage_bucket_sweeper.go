@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("StorageBucket", testSweepStorageBucket)
+	sweeper.AddTestSweepersLegacy("StorageBucket", testSweepStorageBucket)
 }
 
 func disableAnywhereCacheIfAny(config *transport_tpg.Config, bucket string) bool {

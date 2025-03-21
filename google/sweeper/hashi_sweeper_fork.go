@@ -9,63 +9,44 @@ import (
 	"os"
 	"strings"
 	"testing"
-	"time"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-// flagSweep is a flag available when running tests on the command line. It
-// contains a comma separated list of regions to for the sweeper functions to
-// run in.  This flag bypasses the normal Test path and instead runs functions designed to
-// clean up any leaked resources a testing environment could have created. It is
-// a best effort attempt, and relies on Provider authors to implement "Sweeper"
-// methods for resources.
+// Sweeper struct in the sweeper package
+type Sweeper struct {
+	// Name for sweeper. Must be unique
+	Name string
 
-// Adding Sweeper methods with AddTestSweepers will
-// construct a list of sweeper funcs to be called here. We iterate through
-// regions provided by the sweep flag, and for each region we iterate through the
-// tests, and exit on any errors. At time of writing, sweepers are ran
-// sequentially, however they can list dependencies to be ran first. We track
-// the sweepers that have been ran, so as to not run a sweeper twice for a given
-// region.
-//
-// WARNING:
-// Sweepers are designed to be destructive. You should not use the -sweep flag
-// in any environment that is not strictly a test environment. Resources will be
-// destroyed.
+	// Parents list of parent resource names that must be swept after this resource
+	Parents []string
+
+	// Dependencies list of resources that must be swept before this resource
+	Dependencies []string
+
+	// List function that can list this resource type
+	ListAndAction SweeperListFunc
+
+	DeleteFunction func(region string) error
+}
+
+// SweeperListFunc defines the signature for resource list functions
+type SweeperListFunc func(ResourceAction) error
+type ResourceAction func(*transport_tpg.Config, *tpgresource.ResourceDataMock, map[string]interface{}) error
 
 var (
 	flagSweep              *string
 	flagSweepAllowFailures *bool
 	flagSweepRun           *string
-	sweeperFuncs           map[string]*Sweeper
+	sweeperInventory       map[string]*Sweeper
 )
 
-// SweeperFunc is a signature for a function that acts as a sweeper. It
-// accepts a string for the region that the sweeper is to be ran in. This
-// function must be able to construct a valid client for that region.
-type SweeperFunc func(r string) error
-
-type Sweeper struct {
-	// Name for sweeper. Must be unique to be ran by the Sweeper Runner
-	Name string
-
-	// Dependencies list the const names of other Sweeper functions that must be ran
-	// prior to running this Sweeper. This is an ordered list that will be invoked
-	// recursively at the helper/resource level
-	Dependencies []string
-
-	// Sweeper function that when invoked sweeps the Provider of specific
-	// resources
-	F SweeperFunc
-}
-
 func init() {
-	sweeperFuncs = make(map[string]*Sweeper)
+	sweeperInventory = make(map[string]*Sweeper)
 }
 
 // registerFlags checks for and gets existing flag definitions before trying to redefine them.
-// This is needed because this package and terraform-plugin-testing both define the same sweep flags.
-// By checking first, we ensure we reuse any existing flags rather than causing a panic from flag redefinition.
-// This allows this module to be used alongside terraform-plugin-testing without conflicts.
 func registerFlags() {
 	// Check for existing flags in global CommandLine
 	if f := flag.Lookup("sweep"); f != nil {
@@ -97,36 +78,34 @@ func registerFlags() {
 	}
 }
 
-// AddTestSweepers function adds a given name and Sweeper configuration
-// pair to the internal sweeperFuncs map. Invoke this function to register a
-// resource sweeper to be available for running when the -sweep flag is used
-// with `go test`. Sweeper names must be unique to help ensure a given sweeper
-// is only ran once per run.
-func addTestSweepers(name string, s *Sweeper) {
-	if _, ok := sweeperFuncs[name]; ok {
-		log.Fatalf("[ERR] Error adding (%s) to sweeperFuncs: function already exists in map", name)
+// AddTestSweepers function adds a sweeper configuration to the inventory
+func AddTestSweepers(s *Sweeper) {
+	if s == nil || s.Name == "" {
+		log.Fatalf("attempted to add null sweeper to map")
 	}
 
-	sweeperFuncs[name] = s
+	if _, ok := sweeperInventory[s.Name]; ok {
+		log.Fatalf("[ERR] Error adding (%s) to sweeperFuncs: function already exists in map", s.Name)
+	}
+
+	sweeperInventory[s.Name] = s
 }
 
-// ExecuteSweepers
-//
-// Sweepers enable infrastructure cleanup functions to be included with
-// resource definitions, typically so developers can remove all resources of
-// that resource type from testing infrastructure in case of failures that
-// prevented the normal resource destruction behavior of acceptance tests.
-// Use the AddTestSweepers() function to configure available sweepers.
-//
-// Sweeper flags added to the "go test" command:
-//
-//	-sweep: Comma-separated list of locations/regions to run available sweepers.
-//	-sweep-allow-failues: Enable to allow other sweepers to run after failures.
-//	-sweep-run: Comma-separated list of resource type sweepers to run. Defaults
-//	        to all sweepers.
-//
-// Refer to the Env prefixed constants for environment variables that further
-// control testing functionality.
+// Legacy support for older sweeper format
+func AddTestSweepersLegacy(name string, sweeper func(region string) error) {
+	AddTestSweepers(&Sweeper{
+		Name:           name,
+		DeleteFunction: sweeper,
+	})
+}
+
+// GetSweeper returns a sweeper by name
+func GetSweeper(name string) (*Sweeper, bool) {
+	s, ok := sweeperInventory[name]
+	return s, ok
+}
+
+// ExecuteSweepers runs registered sweepers for specified regions
 func ExecuteSweepers(t *testing.T) {
 	registerFlags()
 	flag.Parse()
@@ -135,7 +114,7 @@ func ExecuteSweepers(t *testing.T) {
 		regions := strings.Split(*flagSweep, ",")
 
 		// get filtered list of sweepers to run based on sweep-run flag
-		sweepers := filterSweepers(*flagSweepRun, sweeperFuncs)
+		sweepers := filterSweepers(*flagSweepRun, sweeperInventory)
 
 		if err := runSweepers(t, regions, sweepers, *flagSweepAllowFailures); err != nil {
 			os.Exit(1)
@@ -146,8 +125,13 @@ func ExecuteSweepers(t *testing.T) {
 }
 
 func runSweepers(t *testing.T, regions []string, sweepers map[string]*Sweeper, allowFailures bool) error {
-	// Sort sweepers by dependency order
-	sorted, err := validateAndOrderSweepers(sweepers)
+	// First validate that parent sweepers have ListAndAction
+	if err := validateParentSweepers(sweepers); err != nil {
+		return fmt.Errorf("parent validation failed: %v", err)
+	}
+
+	// Sort sweepers by dependency order, considering both dependencies and parents
+	sorted, err := validateAndOrderSweepersWithDependencies(sweepers)
 	if err != nil {
 		return fmt.Errorf("failed to sort sweepers: %v", err)
 	}
@@ -158,16 +142,9 @@ func runSweepers(t *testing.T, regions []string, sweepers map[string]*Sweeper, a
 		t.Run(sweeper.Name, func(t *testing.T) {
 			for _, region := range regions {
 				region := strings.TrimSpace(region)
-				log.Printf("[DEBUG] Running Sweeper (%s) in region (%s)", sweeper.Name, region)
-
-				start := time.Now()
-				err := sweeper.F(region)
-				elapsed := time.Since(start)
-
-				log.Printf("[DEBUG] Completed Sweeper (%s) in region (%s) in %s", sweeper.Name, region, elapsed)
+				err := sweeper.DeleteFunction(region)
 
 				if err != nil {
-					log.Printf("[ERROR] Error running Sweeper (%s) in region (%s): %s", sweeper.Name, region, err)
 					if allowFailures {
 						t.Errorf("failed in region %s: %s", region, err)
 					} else {
@@ -181,9 +158,7 @@ func runSweepers(t *testing.T, regions []string, sweepers map[string]*Sweeper, a
 	return nil
 }
 
-// filterSweepers takes a comma separated string listing the names of sweepers
-// to be ran, and returns a filtered set from the list of all of sweepers to
-// run based on the names given.
+// filterSweepers takes a comma separated string listing the sweepers to run
 func filterSweepers(f string, source map[string]*Sweeper) map[string]*Sweeper {
 	filterSlice := strings.Split(strings.ToLower(f), ",")
 	if len(filterSlice) == 1 && filterSlice[0] == "" {
@@ -192,12 +167,18 @@ func filterSweepers(f string, source map[string]*Sweeper) map[string]*Sweeper {
 		return source
 	}
 
+	// First convert to the unified model to ensure we include all relationships
+	unifiedSource := unifyRelationships(source)
+
+	// Then filter based on the unified model
 	sweepers := make(map[string]*Sweeper)
 	for name := range source {
 		for _, s := range filterSlice {
 			if strings.Contains(strings.ToLower(name), s) {
-				for foundName, foundSweeper := range filterSweeperWithDependencies(name, source) {
-					sweepers[foundName] = foundSweeper
+				// When we find a match, include it and all of its relationships
+				for foundName := range filterSweeperWithDependencies(name, unifiedSource) {
+					// Get the original sweeper (not the unified one)
+					sweepers[foundName] = source[foundName]
 				}
 			}
 		}
@@ -205,72 +186,395 @@ func filterSweepers(f string, source map[string]*Sweeper) map[string]*Sweeper {
 	return sweepers
 }
 
-// filterSweeperWithDependencies recursively returns sweeper and all dependencies.
-// Since filterSweepers performs fuzzy matching, this function is used
-// to perform exact sweeper and dependency lookup.
+// filterSweeperWithDependencies collects a sweeper and all its dependencies
 func filterSweeperWithDependencies(name string, source map[string]*Sweeper) map[string]*Sweeper {
 	result := make(map[string]*Sweeper)
 
+	// Get the current sweeper
 	currentSweeper, ok := source[name]
 	if !ok {
-		log.Printf("[WARN] Sweeper has dependency (%s), but that sweeper was not found", name)
+		log.Printf("[WARN] Sweeper (%s) not found", name)
 		return result
 	}
 
+	// Add the current sweeper
 	result[name] = currentSweeper
 
-	for _, dependency := range currentSweeper.Dependencies {
-		for foundName, foundSweeper := range filterSweeperWithDependencies(dependency, source) {
-			result[foundName] = foundSweeper
+	// Add all dependencies recursively
+	for _, depName := range currentSweeper.Dependencies {
+		if depSweeper, ok := source[depName]; ok {
+			result[depName] = depSweeper
+			// Recursively add dependencies of dependencies
+			for foundName, foundSweeper := range filterSweeperWithDependencies(depName, source) {
+				result[foundName] = foundSweeper
+			}
 		}
 	}
 
 	return result
 }
 
-// validateAndOrderSweepers performs topological sort on sweepers based on their dependencies.
-// It ensures there are no cycles in the dependency graph and all referenced dependencies exist.
-// Returns an ordered list of sweepers where each sweeper appears after its dependencies.
-// Returns error if there are any cycles or missing dependencies.
-func validateAndOrderSweepers(sweepers map[string]*Sweeper) ([]*Sweeper, error) {
-	// Detect cycles and get sorted list
-	visited := make(map[string]bool)
-	inPath := make(map[string]bool)
-	sorted := make([]*Sweeper, 0, len(sweepers))
+// validateAndOrderSweepersWithDependencies orders sweepers based on dependencies
+// including implicit dependencies from parent-child relationships
+func validateAndOrderSweepersWithDependencies(sweepers map[string]*Sweeper) ([]*Sweeper, error) {
+	// First check for contradictions that need to be caught before unification
+	if err := validateDependenciesAndParents(sweepers); err != nil {
+		return nil, err
+	}
 
-	var visit func(name string) error
-	visit = func(name string) error {
-		if inPath[name] {
-			return fmt.Errorf("dependency cycle detected: %s", name)
+	// Create a copy of the sweepers map with parent relationships
+	// converted to reverse dependencies
+	unifiedSweepers := unifyRelationships(sweepers)
+
+	// Check for cycles in the unified dependency graph
+	if err := detectCycles(unifiedSweepers); err != nil {
+		return nil, err
+	}
+
+	// Build dependency graph and perform topological sort
+	return topologicalSort(unifiedSweepers), nil
+}
+
+// Add this to the unifyRelationships function
+func unifyRelationships(sweepers map[string]*Sweeper) map[string]*Sweeper {
+	// Create a copy of the original sweepers
+	unified := make(map[string]*Sweeper, len(sweepers))
+	for name, sweeper := range sweepers {
+		// Clone each sweeper with its dependencies
+		unified[name] = &Sweeper{
+			Name:           sweeper.Name,
+			Dependencies:   make([]string, len(sweeper.Dependencies)),
+			Parents:        make([]string, len(sweeper.Parents)),
+			ListAndAction:  sweeper.ListAndAction,
+			DeleteFunction: sweeper.DeleteFunction,
 		}
-		if visited[name] {
+		copy(unified[name].Dependencies, sweeper.Dependencies)
+		copy(unified[name].Parents, sweeper.Parents)
+	}
+
+	// Convert parent relationships to reverse dependencies
+	// If A has parent B, it means B depends on A (B needs A to be deleted first)
+	for childName, child := range sweepers {
+		for _, parentName := range child.Parents {
+			// Add the child as a dependency of the parent
+			parent := unified[parentName]
+			if parent != nil {
+				// Check if the dependency already exists
+				exists := false
+				for _, dep := range parent.Dependencies {
+					if dep == childName {
+						exists = true
+						break
+					}
+				}
+
+				// Add if it doesn't exist
+				if !exists {
+					parent.Dependencies = append(parent.Dependencies, childName)
+				}
+			}
+		}
+	}
+
+	return unified
+}
+
+func detectCycles(sweepers map[string]*Sweeper) error {
+	// Build a directed graph
+	graph := make(map[string][]string)
+
+	// Initialize graph
+	for name := range sweepers {
+		graph[name] = []string{}
+	}
+
+	// Add edges for dependencies
+	// If A depends on B, then A → B for cycle detection
+	// (A needs B to complete first, so there's a dependency from A to B)
+	for name, sweeper := range sweepers {
+		for _, dep := range sweeper.Dependencies {
+			if dep == name {
+				log.Printf("Self-dependency detected: %s depends on itself", name)
+				return fmt.Errorf("dependency cycle detected: %s depends on itself", name)
+			}
+			// Add edge: A → B (A depends on B)
+			graph[name] = append(graph[name], dep)
+		}
+	}
+
+	// Check for cycles using DFS
+	visited := make(map[string]bool)
+	recStack := make(map[string]bool)
+
+	var dfs func(node string, path []string) []string
+	dfs = func(node string, path []string) []string {
+		if recStack[node] {
+			// Found a cycle
+			log.Printf("Cycle detected! Node %s is already in recursion stack", node)
+			for i, n := range path {
+				if n == node {
+					cycle := append(path[i:], node)
+					log.Printf("Cycle is: %v", cycle)
+					return cycle
+				}
+			}
+			return []string{node}
+		}
+
+		if visited[node] {
 			return nil
 		}
 
-		inPath[name] = true
-		sweeper := sweepers[name]
-		for _, dep := range sweeper.Dependencies {
-			if _, exists := sweepers[dep]; !exists {
-				return fmt.Errorf("sweeper %s depends on %s, but %s not found", name, dep, dep)
-			}
-			if err := visit(dep); err != nil {
-				return err
+		visited[node] = true
+		recStack[node] = true
+
+		newPath := append(path, node)
+		for _, neighbor := range graph[node] {
+			if cycle := dfs(neighbor, newPath); cycle != nil {
+				return cycle
 			}
 		}
-		inPath[name] = false
-		visited[name] = true
-		sorted = append(sorted, sweeper)
+
+		recStack[node] = false
 		return nil
 	}
 
-	// Visit all sweepers
-	for name := range sweepers {
-		if !visited[name] {
-			if err := visit(name); err != nil {
-				return nil, err
+	// Try each node as a potential start
+	for node := range graph {
+		visited = make(map[string]bool)
+		recStack = make(map[string]bool)
+
+		if cycle := dfs(node, []string{}); cycle != nil {
+			log.Printf("Final cycle detected: %s", strings.Join(cycle, " → "))
+			return fmt.Errorf("dependency cycle detected: %s", strings.Join(cycle, " → "))
+		}
+	}
+
+	// Additional check specifically for indirect cycles that might not be caught by the DFS
+	// This is helpful for cases like Indirect_cycle_through_different_relationship_types
+	// where the relationships are complex
+	for name, sweeper := range sweepers {
+		// Create a map to track reachability from this node
+		reachable := make(map[string]bool)
+		reachable[name] = true
+
+		// Start with dependencies
+		toCheck := make([]string, len(sweeper.Dependencies))
+		copy(toCheck, sweeper.Dependencies)
+
+		// Breadth-first search to find all reachable nodes
+		for len(toCheck) > 0 {
+			current := toCheck[0]
+			toCheck = toCheck[1:]
+
+			if !reachable[current] {
+				reachable[current] = true
+
+				// Add all dependencies of this node to check
+				if currSweeper, ok := sweepers[current]; ok {
+					for _, dep := range currSweeper.Dependencies {
+						if dep == name {
+							// If we can reach back to our starting node, it's a cycle
+							log.Printf("Indirect cycle detected: %s can reach itself through dependencies", name)
+							return fmt.Errorf("dependency cycle detected: %s can reach itself through dependencies", name)
+						}
+						if !reachable[dep] {
+							toCheck = append(toCheck, dep)
+						}
+					}
+				}
 			}
 		}
 	}
 
-	return sorted, nil
+	return nil
+}
+
+// topologicalSort implements Kahn's algorithm to order the sweepers
+func topologicalSort(sweepers map[string]*Sweeper) []*Sweeper {
+	// Build the graph - if A depends on B, then B → A
+	graph := make(map[string][]string)
+	inDegree := make(map[string]int)
+
+	// Initialize
+	for name := range sweepers {
+		graph[name] = []string{}
+		inDegree[name] = 0
+	}
+
+	// Add edges and count in-degrees
+	for name, sweeper := range sweepers {
+		for _, dep := range sweeper.Dependencies {
+			graph[dep] = append(graph[dep], name)
+			inDegree[name]++
+		}
+	}
+
+	// Find nodes with no incoming edges
+	var queue []string
+	for node, degree := range inDegree {
+		if degree == 0 {
+			queue = append(queue, node)
+		}
+	}
+
+	// Process the queue
+	var result []*Sweeper
+	for len(queue) > 0 {
+		// Dequeue a node
+		node := queue[0]
+		queue = queue[1:]
+
+		// Add to result
+		result = append(result, sweepers[node])
+
+		// Update neighbors
+		for _, neighbor := range graph[node] {
+			inDegree[neighbor]--
+			if inDegree[neighbor] == 0 {
+				queue = append(queue, neighbor)
+			}
+		}
+	}
+
+	return result
+}
+
+// validateParentSweepers ensures all referenced parent sweepers have a ListAndAction function
+func validateParentSweepers(sweepers map[string]*Sweeper) error {
+	var validationErrors []string
+
+	// For each sweeper
+	for childName, childSweeper := range sweepers {
+		// For each parent referenced by this sweeper
+		for _, parentName := range childSweeper.Parents {
+			// Check if parent exists
+			parentSweeper, exists := sweepers[parentName]
+			if !exists {
+				validationErrors = append(validationErrors,
+					fmt.Sprintf("sweeper %s references parent %s, but parent %s not found",
+						childName, parentName, parentName))
+				continue
+			}
+
+			// Check if parent has ListAndAction function
+			if parentSweeper.ListAndAction == nil {
+				validationErrors = append(validationErrors,
+					fmt.Sprintf("sweeper %s references parent %s, but parent %s is missing ListAndAction function",
+						childName, parentName, parentName))
+			}
+		}
+	}
+
+	// If any validation errors were found, return them
+	if len(validationErrors) > 0 {
+		if len(validationErrors) == 1 {
+			return fmt.Errorf(validationErrors[0])
+		}
+		return fmt.Errorf("multiple parent validation issues: %s", strings.Join(validationErrors, "; "))
+	}
+
+	return nil
+}
+
+// validateDependenciesAndParents ensures all dependencies and parents exist
+// and also checks for contradictions between them
+func validateDependenciesAndParents(sweepers map[string]*Sweeper) error {
+	// First check that all references exist
+	for name, sweeper := range sweepers {
+		for _, dep := range sweeper.Dependencies {
+			if _, exists := sweepers[dep]; !exists {
+				return fmt.Errorf("sweeper %s has dependency %s, but %s not found",
+					name, dep, dep)
+			}
+		}
+
+		for _, parent := range sweeper.Parents {
+			if _, exists := sweepers[parent]; !exists {
+				return fmt.Errorf("sweeper %s has parent %s, but %s not found",
+					name, parent, parent)
+			}
+		}
+	}
+
+	// Now check for contradictions within the same sweeper
+	for name, sweeper := range sweepers {
+		// Check if the same resource is listed as both a dependency and a parent
+		for _, dep := range sweeper.Dependencies {
+			for _, parent := range sweeper.Parents {
+				if dep == parent {
+					return fmt.Errorf("sweeper %s has %s as both a dependency and a parent, which is contradictory",
+						name, dep)
+				}
+			}
+		}
+	}
+
+	// Check for cross-relationship cycles (the specific pattern tested in TestCrossRelationshipDetection)
+	for name, sweeper := range sweepers {
+		// For each dependency of this sweeper
+		for _, depName := range sweeper.Dependencies {
+			depSweeper, exists := sweepers[depName]
+			if !exists {
+				continue // This should never happen due to the first check
+			}
+
+			// Check if the dependency has this sweeper as a parent
+			for _, parentOfDep := range depSweeper.Parents {
+				if parentOfDep == name {
+					return fmt.Errorf("dependency cycle detected: %s depends on %s, but %s has %s as parent",
+						name, depName, depName, name)
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// GetFieldOrDefault safely gets a field from ResourceDataMock or returns the default value
+func GetFieldOrDefault(d *tpgresource.ResourceDataMock, key, defaultValue string) string {
+	if v, ok := d.FieldsInSchema[key]; ok && v != nil {
+		if s, ok := v.(string); ok && s != "" {
+			return s
+		}
+	}
+	return defaultValue
+}
+
+// GetStringValue tries to get a string representation of a value
+func GetStringValue(v interface{}) (string, bool) {
+	if v == nil {
+		return "", false
+	}
+
+	switch val := v.(type) {
+	case string:
+		return val, true
+	case fmt.Stringer:
+		return val.String(), true
+	default:
+		return "", false
+	}
+}
+
+// ReplaceTemplateVars replaces all {{key}} occurrences in template with values from replacements map
+func ReplaceTemplateVars(template string, replacements map[string]string) string {
+	result := template
+	for key, value := range replacements {
+		placeholder := fmt.Sprintf("{{%s}}", key)
+		result = strings.Replace(result, placeholder, value, -1)
+	}
+	return result
+}
+
+// HasAnyPrefix checks if the input string begins with any prefix from the given slice.
+// Returns true if a match is found, false otherwise.
+func HasAnyPrefix(input string, prefixes []string) bool {
+	for _, p := range prefixes {
+		if strings.HasPrefix(input, p) {
+			return true
+		}
+	}
+	return false
 }

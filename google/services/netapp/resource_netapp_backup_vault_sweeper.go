@@ -15,7 +15,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("NetappBackupVault", testSweepNetappBackupVault)
+	sweeper.AddTestSweepersLegacy("NetappBackupVault", testSweepNetappBackupVault)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region

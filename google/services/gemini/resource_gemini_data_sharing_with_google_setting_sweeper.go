@@ -21,6 +21,7 @@ package gemini
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 	"testing"
@@ -32,65 +33,98 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("GeminiDataSharingWithGoogleSetting", testSweepGeminiDataSharingWithGoogleSetting)
+	// Initialize base sweeper object
+	s := &sweeper.Sweeper{
+		Name:           "google_gemini_data_sharing_with_google_setting",
+		ListAndAction:  listAndActionGeminiDataSharingWithGoogleSetting,
+		DeleteFunction: testSweepGeminiDataSharingWithGoogleSetting,
+	}
+
+	// Register the sweeper
+	sweeper.AddTestSweepers(s)
 }
 
 func testSweepGeminiDataSharingWithGoogleSetting(_ string) error {
-	var deletionerror error
+	return listAndActionGeminiDataSharingWithGoogleSetting(deleteResourceGeminiDataSharingWithGoogleSetting)
+}
+
+func listAndActionGeminiDataSharingWithGoogleSetting(action sweeper.ResourceAction) error {
+	var lastError error
 	resourceName := "GeminiDataSharingWithGoogleSetting"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	// Using URL substitutions for region/zone pairs
-	substitutions := []struct {
-		region string
-		zone   string
-	}{
-		{region: "global", zone: ""},
+
+	// Prepare configurations to iterate over
+	var configs []*tpgresource.ResourceDataMock
+	t := &testing.T{}
+	billingId := envvar.GetTestBillingAccountFromEnv(t)
+	// Build URL substitution maps individually to ensure proper formatting
+	intermediateValues := make([]map[string]string, 1)
+	intermediateValues[0] = map[string]string{}
+	intermediateValues[0]["region"] = "global"
+
+	// Create configs from intermediate values
+	for _, values := range intermediateValues {
+		mockConfig := &tpgresource.ResourceDataMock{
+			FieldsInSchema: map[string]interface{}{
+				"project":         envvar.GetTestProjectFromEnv(),
+				"billing_account": billingId,
+			},
+		}
+
+		// Apply all provided values
+		for key, value := range values {
+			mockConfig.FieldsInSchema[key] = value
+		}
+
+		// Set fallback values for common fields
+		region, hasRegion := mockConfig.FieldsInSchema["region"].(string)
+		if !hasRegion {
+			region = "us-central1"
+			mockConfig.FieldsInSchema["region"] = region
+		}
+
+		if _, hasLocation := mockConfig.FieldsInSchema["location"]; !hasLocation {
+			mockConfig.FieldsInSchema["location"] = region
+		}
+
+		if _, hasZone := mockConfig.FieldsInSchema["zone"]; !hasZone {
+			mockConfig.FieldsInSchema["zone"] = region + "-a"
+		}
+
+		configs = append(configs, mockConfig)
 	}
 
-	// Iterate through each substitution
-	for _, sub := range substitutions {
-		config, err := sweeper.SharedConfigForRegion(sub.region)
+	// Process all configurations (either from parent resources or direct substitutions)
+	for _, mockConfig := range configs {
+		// Get region from config
+		region := sweeper.GetFieldOrDefault(mockConfig, "region", "us-central1")
+
+		// Create shared config for this region
+		config, err := sweeper.SharedConfigForRegion(region)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
-			return err
+			lastError = err
+			continue
 		}
 
 		err = config.LoadAndValidate(context.Background())
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error loading: %s", err)
-			return err
+			lastError = err
+			continue
 		}
 
-		t := &testing.T{}
-		billingId := envvar.GetTestBillingAccountFromEnv(t)
-
-		// Set fallback values for empty region/zone
-		if sub.region == "" {
-			log.Printf("[INFO][SWEEPER_LOG] Empty region provided, falling back to us-central1")
-			sub.region = "us-central1"
-		}
-		if sub.zone == "" {
-			log.Printf("[INFO][SWEEPER_LOG] Empty zone provided, falling back to us-central1-a")
-			sub.zone = "us-central1-a"
-		}
-
-		// Setup variables to replace in list template
-		d := &tpgresource.ResourceDataMock{
-			FieldsInSchema: map[string]interface{}{
-				"project":         config.Project,
-				"region":          sub.region,
-				"location":        sub.region,
-				"zone":            sub.zone,
-				"billing_account": billingId,
-			},
-		}
-
+		// Prepare list URL
 		listTemplate := strings.Split("https://cloudaicompanion.googleapis.com/v1/projects/{{project}}/locations/{{location}}/dataSharingWithGoogleSettings", "?")[0]
-		listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
+		listUrl, err := tpgresource.ReplaceVars(mockConfig, config, listTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
-			return err
+			lastError = err
+			continue
 		}
+
+		// Log additional info for parent-based resources
+		log.Printf("[INFO][SWEEPER_LOG] Listing %s resources at %s", resourceName, listUrl)
 
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
@@ -101,7 +135,8 @@ func testSweepGeminiDataSharingWithGoogleSetting(_ string) error {
 		})
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
-			return err
+			lastError = err
+			continue
 		}
 
 		// First try the expected resource key
@@ -114,6 +149,7 @@ func testSweepGeminiDataSharingWithGoogleSetting(_ string) error {
 			if ok {
 				log.Printf("[INFO][SWEEPER_LOG] Found resources under standard 'items' key")
 			} else {
+				log.Printf("[INFO][SWEEPER_LOG] no resources found")
 				continue
 			}
 		}
@@ -123,52 +159,65 @@ func testSweepGeminiDataSharingWithGoogleSetting(_ string) error {
 		// Keep count of items that aren't sweepable for logging.
 		nonPrefixCount := 0
 		for _, ri := range rl {
-			obj := ri.(map[string]interface{})
-			var name string
-			// Id detected in the delete URL, attempt to use id.
-			if obj["id"] != nil {
-				name = tpgresource.GetResourceNameFromSelfLink(obj["id"].(string))
-			} else if obj["name"] != nil {
-				name = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
-			} else {
-				log.Printf("[INFO][SWEEPER_LOG] %s resource name and id were nil", resourceName)
-				return err
-			}
-
-			// Skip resources that shouldn't be sweeped
-			if !sweeper.IsSweepableTestResource(name) {
-				nonPrefixCount++
+			obj, ok := ri.(map[string]interface{})
+			if !ok {
+				log.Printf("[INFO][SWEEPER_LOG] Item was not a map: %T", ri)
 				continue
 			}
 
-			deleteTemplate := "https://cloudaicompanion.googleapis.com/v1/projects/{{project}}/locations/{{location}}/dataSharingWithGoogleSettings/{{data_sharing_with_google_setting_id}}"
-
-			deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
-			if err != nil {
-				log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
-				deletionerror = err
-			}
-			deleteUrl = deleteUrl + name
-
-			// Don't wait on operations as we may have a lot to delete
-			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "DELETE",
-				Project:   config.Project,
-				RawURL:    deleteUrl,
-				UserAgent: config.UserAgent,
-			})
-			if err != nil {
-				log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
-				deletionerror = err
+			if err := action(config, mockConfig, obj); err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] Error in action: %s", err)
+				lastError = err
 			} else {
-				log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)
+				nonPrefixCount++
 			}
 		}
+	}
 
-		if nonPrefixCount > 0 {
-			log.Printf("[INFO][SWEEPER_LOG] %d items were non-sweepable and skipped.", nonPrefixCount)
-		}
+	return lastError
+}
+
+func deleteResourceGeminiDataSharingWithGoogleSetting(config *transport_tpg.Config, d *tpgresource.ResourceDataMock, obj map[string]interface{}) error {
+	var deletionerror error
+	resourceName := "GeminiDataSharingWithGoogleSetting"
+	var name string
+	// Id detected in the delete URL, attempt to use id.
+	if obj["id"] != nil {
+		name = tpgresource.GetResourceNameFromSelfLink(obj["id"].(string))
+	} else if obj["name"] != nil {
+		name = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
+	} else {
+		log.Printf("[INFO][SWEEPER_LOG] %s resource name and id were nil", resourceName)
+		return fmt.Errorf("%s resource name was nil", resourceName)
+	}
+
+	// Skip resources that shouldn't be sweeped
+	if !sweeper.IsSweepableTestResource(name) {
+		return nil
+	}
+
+	deleteTemplate := "https://cloudaicompanion.googleapis.com/v1/projects/{{project}}/locations/{{location}}/dataSharingWithGoogleSettings/{{data_sharing_with_google_setting_id}}"
+
+	deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
+	if err != nil {
+		log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
+		deletionerror = err
+	}
+	deleteUrl = deleteUrl + name
+
+	// Don't wait on operations as we may have a lot to delete
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "DELETE",
+		Project:   config.Project,
+		RawURL:    deleteUrl,
+		UserAgent: config.UserAgent,
+	})
+	if err != nil {
+		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
+		deletionerror = err
+	} else {
+		log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)
 	}
 
 	return deletionerror

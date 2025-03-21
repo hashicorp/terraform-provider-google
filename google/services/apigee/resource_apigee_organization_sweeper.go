@@ -21,6 +21,7 @@ package apigee
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 	"testing"
@@ -32,65 +33,100 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("ApigeeOrganization", testSweepApigeeOrganization)
+	// Initialize base sweeper object
+	s := &sweeper.Sweeper{
+		Name:           "google_apigee_organization",
+		ListAndAction:  listAndActionApigeeOrganization,
+		DeleteFunction: testSweepApigeeOrganization,
+	}
+
+	// Register the sweeper
+	sweeper.AddTestSweepers(s)
 }
 
 func testSweepApigeeOrganization(_ string) error {
-	var deletionerror error
+	return listAndActionApigeeOrganization(deleteResourceApigeeOrganization)
+}
+
+func listAndActionApigeeOrganization(action sweeper.ResourceAction) error {
+	var lastError error
 	resourceName := "ApigeeOrganization"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
-	// Using default region since neither URL substitutions nor regions are defined
-	substitutions := []struct {
-		region string
-		zone   string
-	}{
-		{region: "us-central1"},
+
+	// Prepare configurations to iterate over
+	var configs []*tpgresource.ResourceDataMock
+	t := &testing.T{}
+	billingId := envvar.GetTestBillingAccountFromEnv(t)
+	// Default single config
+	intermediateValues := []map[string]string{
+		{
+			"region": "us-central1",
+		},
 	}
 
-	// Iterate through each substitution
-	for _, sub := range substitutions {
-		config, err := sweeper.SharedConfigForRegion(sub.region)
+	// Create configs from intermediate values
+	for _, values := range intermediateValues {
+		mockConfig := &tpgresource.ResourceDataMock{
+			FieldsInSchema: map[string]interface{}{
+				"project":         envvar.GetTestProjectFromEnv(),
+				"billing_account": billingId,
+			},
+		}
+
+		// Apply all provided values
+		for key, value := range values {
+			mockConfig.FieldsInSchema[key] = value
+		}
+
+		// Set fallback values for common fields
+		region, hasRegion := mockConfig.FieldsInSchema["region"].(string)
+		if !hasRegion {
+			region = "us-central1"
+			mockConfig.FieldsInSchema["region"] = region
+		}
+
+		if _, hasLocation := mockConfig.FieldsInSchema["location"]; !hasLocation {
+			mockConfig.FieldsInSchema["location"] = region
+		}
+
+		if _, hasZone := mockConfig.FieldsInSchema["zone"]; !hasZone {
+			mockConfig.FieldsInSchema["zone"] = region + "-a"
+		}
+
+		configs = append(configs, mockConfig)
+	}
+
+	// Process all configurations (either from parent resources or direct substitutions)
+	for _, mockConfig := range configs {
+		// Get region from config
+		region := sweeper.GetFieldOrDefault(mockConfig, "region", "us-central1")
+
+		// Create shared config for this region
+		config, err := sweeper.SharedConfigForRegion(region)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
-			return err
+			lastError = err
+			continue
 		}
 
 		err = config.LoadAndValidate(context.Background())
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error loading: %s", err)
-			return err
+			lastError = err
+			continue
 		}
 
-		t := &testing.T{}
-		billingId := envvar.GetTestBillingAccountFromEnv(t)
-
-		// Set fallback values for empty region/zone
-		if sub.region == "" {
-			log.Printf("[INFO][SWEEPER_LOG] Empty region provided, falling back to us-central1")
-			sub.region = "us-central1"
-		}
-		if sub.zone == "" {
-			log.Printf("[INFO][SWEEPER_LOG] Empty zone provided, falling back to us-central1-a")
-			sub.zone = "us-central1-a"
-		}
-
-		// Setup variables to replace in list template
-		d := &tpgresource.ResourceDataMock{
-			FieldsInSchema: map[string]interface{}{
-				"project":         config.Project,
-				"region":          sub.region,
-				"location":        sub.region,
-				"zone":            sub.zone,
-				"billing_account": billingId,
-			},
-		}
-
+		// Prepare list URL
 		listTemplate := strings.Split("https://apigee.googleapis.com/v1/organizations", "?")[0]
-		listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
+		listUrl, err := tpgresource.ReplaceVars(mockConfig, config, listTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
-			return err
+			lastError = err
+			continue
 		}
+
+		// Log additional info for parent-based resources
+		log.Printf("[INFO][SWEEPER_LOG] Listing %s resources at %s", resourceName, listUrl)
 
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
@@ -101,7 +137,8 @@ func testSweepApigeeOrganization(_ string) error {
 		})
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
-			return err
+			lastError = err
+			continue
 		}
 
 		// First try the expected resource key
@@ -114,6 +151,7 @@ func testSweepApigeeOrganization(_ string) error {
 			if ok {
 				log.Printf("[INFO][SWEEPER_LOG] Found resources under standard 'items' key")
 			} else {
+				log.Printf("[INFO][SWEEPER_LOG] no resources found")
 				continue
 			}
 		}
@@ -123,43 +161,61 @@ func testSweepApigeeOrganization(_ string) error {
 		// Keep count of items that aren't sweepable for logging.
 		nonPrefixCount := 0
 		for _, ri := range rl {
-			obj := ri.(map[string]interface{})
-			name := obj["organization"].(string)
-
-			// Skip resources that shouldn't be sweeped
-			if !sweeper.IsSweepableTestResource(name) {
-				nonPrefixCount++
+			obj, ok := ri.(map[string]interface{})
+			if !ok {
+				log.Printf("[INFO][SWEEPER_LOG] Item was not a map: %T", ri)
 				continue
 			}
 
-			deleteTemplate := "https://apigee.googleapis.com/v1/organizations/{{name}}?retention={{retention}}"
-
-			deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
-			if err != nil {
-				log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
-				deletionerror = err
-			}
-			deleteUrl = deleteUrl + name
-
-			// Don't wait on operations as we may have a lot to delete
-			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "DELETE",
-				Project:   config.Project,
-				RawURL:    deleteUrl,
-				UserAgent: config.UserAgent,
-			})
-			if err != nil {
-				log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
-				deletionerror = err
+			if err := action(config, mockConfig, obj); err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] Error in action: %s", err)
+				lastError = err
 			} else {
-				log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)
+				nonPrefixCount++
 			}
 		}
+	}
 
-		if nonPrefixCount > 0 {
-			log.Printf("[INFO][SWEEPER_LOG] %d items were non-sweepable and skipped.", nonPrefixCount)
-		}
+	return lastError
+}
+
+func deleteResourceApigeeOrganization(config *transport_tpg.Config, d *tpgresource.ResourceDataMock, obj map[string]interface{}) error {
+	var deletionerror error
+	resourceName := "ApigeeOrganization"
+	var name string
+	if obj["organization"] == nil {
+		log.Printf("[INFO][SWEEPER_LOG] %s resource organization was nil", resourceName)
+		return fmt.Errorf("%s resource organization was nil", resourceName)
+	}
+	name = obj["organization"].(string)
+
+	// Skip resources that shouldn't be sweeped
+	if !sweeper.IsSweepableTestResource(name) {
+		return nil
+	}
+
+	deleteTemplate := "https://apigee.googleapis.com/v1/organizations/{{name}}?retention={{retention}}"
+
+	deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
+	if err != nil {
+		log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
+		deletionerror = err
+	}
+	deleteUrl = deleteUrl + name
+
+	// Don't wait on operations as we may have a lot to delete
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "DELETE",
+		Project:   config.Project,
+		RawURL:    deleteUrl,
+		UserAgent: config.UserAgent,
+	})
+	if err != nil {
+		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
+		deletionerror = err
+	} else {
+		log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)
 	}
 
 	return deletionerror

@@ -30,7 +30,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("ApikeysKey", testSweepApikeysKey)
+	sweeper.AddTestSweepersLegacy("ApikeysKey", testSweepApikeysKey)
 }
 
 func testSweepApikeysKey(region string) error {

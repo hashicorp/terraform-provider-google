@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("VmwareengineExternalAccessRule", testSweepVmwareengineExternalAccessRule)
+	sweeper.AddTestSweepersLegacy("VmwareengineExternalAccessRule", testSweepVmwareengineExternalAccessRule)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region

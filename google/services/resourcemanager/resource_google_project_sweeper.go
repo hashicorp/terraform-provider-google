@@ -27,7 +27,7 @@ func init() {
 		return
 	}
 
-	sweeper.AddTestSweepers("GoogleProject", testSweepProject)
+	sweeper.AddTestSweepersLegacy("GoogleProject", testSweepProject)
 }
 
 func testSweepProject(region string) error {

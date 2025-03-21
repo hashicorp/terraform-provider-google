@@ -30,7 +30,7 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("DataplexLake", testSweepDataplexLake)
+	sweeper.AddTestSweepersLegacy("DataplexLake", testSweepDataplexLake)
 }
 
 func testSweepDataplexLake(region string) error {
