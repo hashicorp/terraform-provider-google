@@ -815,6 +815,13 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["annotations"] = annotationsProp
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/clusters?clusterId={{cluster_id}}")
 	if err != nil {
 		return err
@@ -1177,6 +1184,13 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 		obj["annotations"] = annotationsProp
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
 	if err != nil {
 		return err
@@ -1424,6 +1438,13 @@ func resourceAlloydbClusterDelete(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error fetching project for Cluster: %s", err)
 	}
 	billingProject = project
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
 	if err != nil {
