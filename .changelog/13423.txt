@@ -1,0 +1,3 @@
+```release-note:none
+redis: fix for test failure TestAccRedisCluster_updateClusterEndpoints issue 21374
+```

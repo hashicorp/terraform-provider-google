@@ -462,8 +462,12 @@ func flattenRedisClusterUserCreatedConnectionsClusterEndpoints(v interface{}, d 
 			// Do not include empty json objects coming back from the api
 			continue
 		}
+		connection := flattenRedisClusterUserCreatedConnectionsClusterEndpointsConnections(original["connections"], d, config)
+		if len(connection.([]interface{})) == 0 {
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
-			"connections": flattenRedisClusterUserCreatedConnectionsClusterEndpointsConnections(original["connections"], d, config),
+			"connections": connection,
 		})
 	}
 	return transformed
@@ -480,9 +484,14 @@ func flattenRedisClusterUserCreatedConnectionsClusterEndpointsConnections(v inte
 			// Do not include empty json objects coming back from the api
 			continue
 		}
+		pscConnections := flattenRedisClusterUserCreatedConnectionsClusterEndpointsConnectionsPscConnection(original["pscConnection"], d, config)
+		if pscConnections == nil {
+			continue
+		}
 		transformed = append(transformed, map[string]interface{}{
-			"psc_connection": flattenRedisClusterUserCreatedConnectionsClusterEndpointsConnectionsPscConnection(original["pscConnection"], d, config),
+			"psc_connection": pscConnections,
 		})
+
 	}
 	return transformed
 }
