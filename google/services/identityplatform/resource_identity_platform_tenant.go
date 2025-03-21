@@ -66,6 +66,36 @@ func ResourceIdentityPlatformTenant() *schema.Resource {
 				Optional:    true,
 				Description: `Whether to allow email/password user authentication.`,
 			},
+			"client": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Options related to how clients making requests on behalf of a tenant should be configured.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"permissions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Configuration related to restricting a user's ability to affect their account.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"disabled_user_deletion": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `When true, end users cannot delete their account on the associated project through any of our API methods.`,
+									},
+									"disabled_user_signup": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `When true, end users cannot sign up for a new account on the associated project through any of our API methods.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"disable_auth": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -125,6 +155,12 @@ func resourceIdentityPlatformTenantCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("disable_auth"); !tpgresource.IsEmptyValue(reflect.ValueOf(disableAuthProp)) && (ok || !reflect.DeepEqual(v, disableAuthProp)) {
 		obj["disableAuth"] = disableAuthProp
+	}
+	clientProp, err := expandIdentityPlatformTenantClient(d.Get("client"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("client"); !tpgresource.IsEmptyValue(reflect.ValueOf(clientProp)) && (ok || !reflect.DeepEqual(v, clientProp)) {
+		obj["client"] = clientProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants")
@@ -248,6 +284,9 @@ func resourceIdentityPlatformTenantRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("disable_auth", flattenIdentityPlatformTenantDisableAuth(res["disableAuth"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tenant: %s", err)
 	}
+	if err := d.Set("client", flattenIdentityPlatformTenantClient(res["client"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tenant: %s", err)
+	}
 
 	return nil
 }
@@ -292,6 +331,12 @@ func resourceIdentityPlatformTenantUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("disable_auth"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableAuthProp)) {
 		obj["disableAuth"] = disableAuthProp
 	}
+	clientProp, err := expandIdentityPlatformTenantClient(d.Get("client"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("client"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, clientProp)) {
+		obj["client"] = clientProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{name}}")
 	if err != nil {
@@ -316,6 +361,10 @@ func resourceIdentityPlatformTenantUpdate(d *schema.ResourceData, meta interface
 
 	if d.HasChange("disable_auth") {
 		updateMask = append(updateMask, "disableAuth")
+	}
+
+	if d.HasChange("client") {
+		updateMask = append(updateMask, "client")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -444,6 +493,42 @@ func flattenIdentityPlatformTenantDisableAuth(v interface{}, d *schema.ResourceD
 	return v
 }
 
+func flattenIdentityPlatformTenantClient(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["permissions"] =
+		flattenIdentityPlatformTenantClientPermissions(original["permissions"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformTenantClientPermissions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["disabled_user_signup"] =
+		flattenIdentityPlatformTenantClientPermissionsDisabledUserSignup(original["disabledUserSignup"], d, config)
+	transformed["disabled_user_deletion"] =
+		flattenIdentityPlatformTenantClientPermissionsDisabledUserDeletion(original["disabledUserDeletion"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformTenantClientPermissionsDisabledUserSignup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformTenantClientPermissionsDisabledUserDeletion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandIdentityPlatformTenantDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -457,5 +542,58 @@ func expandIdentityPlatformTenantEnableEmailLinkSignin(v interface{}, d tpgresou
 }
 
 func expandIdentityPlatformTenantDisableAuth(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformTenantClient(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPermissions, err := expandIdentityPlatformTenantClientPermissions(original["permissions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPermissions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["permissions"] = transformedPermissions
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformTenantClientPermissions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDisabledUserSignup, err := expandIdentityPlatformTenantClientPermissionsDisabledUserSignup(original["disabled_user_signup"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisabledUserSignup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["disabledUserSignup"] = transformedDisabledUserSignup
+	}
+
+	transformedDisabledUserDeletion, err := expandIdentityPlatformTenantClientPermissionsDisabledUserDeletion(original["disabled_user_deletion"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisabledUserDeletion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["disabledUserDeletion"] = transformedDisabledUserDeletion
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformTenantClientPermissionsDisabledUserSignup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformTenantClientPermissionsDisabledUserDeletion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -74,9 +74,32 @@ The following arguments are supported:
   the disabled tenant are not allowed to sign-in. Admins of the disabled tenant
   are not able to manage its users.
 
+* `client` -
+  (Optional)
+  Options related to how clients making requests on behalf of a tenant should be configured.
+  Structure is [documented below](#nested_client).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_client"></a>The `client` block supports:
+
+* `permissions` -
+  (Optional)
+  Configuration related to restricting a user's ability to affect their account.
+  Structure is [documented below](#nested_client_permissions).
+
+
+<a name="nested_client_permissions"></a>The `permissions` block supports:
+
+* `disabled_user_signup` -
+  (Optional)
+  When true, end users cannot sign up for a new account on the associated project through any of our API methods.
+
+* `disabled_user_deletion` -
+  (Optional)
+  When true, end users cannot delete their account on the associated project through any of our API methods.
 
 ## Attributes Reference
 
