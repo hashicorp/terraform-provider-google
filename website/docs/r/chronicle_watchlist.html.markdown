@@ -23,8 +23,6 @@ description: |-
 
 A watchlist is a list of entities that allows for bulk operations over the included entities.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Watchlist, see:
 
@@ -37,7 +35,6 @@ To get more information about Watchlist, see:
 
 ```hcl
 resource "google_chronicle_watchlist" "example" {
-  provider = "google-beta"
   location = "us"
   instance = "00000000-0000-0000-0000-000000000000"
   watchlist_id = "watchlist-id"
@@ -59,7 +56,6 @@ resource "google_chronicle_watchlist" "example" {
 
 ```hcl
 resource "google_chronicle_watchlist" "example" {
-  provider = "google-beta"
   location = "us"
   instance = "00000000-0000-0000-0000-000000000000"
   description = "watchlist-description"

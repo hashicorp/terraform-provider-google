@@ -1,0 +1,23 @@
+resource: 'google_chronicle_watchlist'
+generation_type: 'mmv1'
+source_file: 'products/chronicle/Watchlist.yaml'
+api_service_name: 'chronicle.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Watchlist'
+autogen_status: true
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'display_name'
+  - field: 'entity_count.asset'
+  - field: 'entity_count.user'
+  - field: 'entity_population_mechanism.manual'
+  - field: 'instance'
+    provider_only: true
+  - field: 'location'
+    provider_only: true
+  - field: 'multiplying_factor'
+  - field: 'name'
+  - field: 'update_time'
+  - field: 'watchlist_id'
+  - field: 'watchlist_user_preferences.pinned'
