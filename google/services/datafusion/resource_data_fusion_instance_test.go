@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccDataFusionInstance_update(t *testing.T) {
@@ -209,4 +210,50 @@ resource "google_data_fusion_instance" "basic_instance" {
   version = "%{version}"
 }
 `, context)
+}
+
+func TestAccDatafusionInstance_tags(t *testing.T) {
+	t.Parallel()
+	org := envvar.GetTestOrgFromEnv(t)
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"version":       "6.9.1",
+	}
+	tagKey := acctest.BootstrapSharedTestTagKey(t, "datafusion-instances-tagkey")
+	tagValue := acctest.BootstrapSharedTestTagValue(t, "datafusion-instances-tagvalue", tagKey)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDatafusionInstanceTags(context, map[string]string{org + "/" + tagKey: tagValue}),
+			},
+			{
+				ResourceName:            "google_data_fusion_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region", "labels", "terraform_labels", "tags"},
+			},
+		},
+	})
+}
+
+func testAccDatafusionInstanceTags(context map[string]interface{}, tags map[string]string) string {
+
+	r := acctest.Nprintf(`
+	resource "google_data_fusion_instance" "instance" {
+        name   = "my-instance"
+        region = "us-central1"
+        type   = "BASIC"
+	  tags = {`, context)
+
+	l := ""
+	for key, value := range tags {
+		l += fmt.Sprintf("%q = %q\n", key, value)
+	}
+
+	l += fmt.Sprintf("}\n}")
+	return r + l
 }

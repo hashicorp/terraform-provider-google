@@ -1,0 +1,3 @@
+```release-note:enhancement
+datafusion: added `tags` field to `google_data_fusion_instance` resource to allow setting tags for instances at creation time
+```

@@ -343,6 +343,13 @@ The following arguments are supported:
   Users will need to either manually update their state file to include these diffed options, or include the field in a [lifecycle ignore changes block](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle#ignore_changes).
   Structure is [documented below](#nested_accelerators).
 
+* `tags` -
+  (Optional)
+  A map of resource manager tags.
+  Resource manager tag keys and values have the same definition as resource manager tags.
+  Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/{tag_value_id}.
+  The field is ignored (both PUT & PATCH) when empty.
+
 * `region` -
   (Optional)
   The region of the Data Fusion instance.
