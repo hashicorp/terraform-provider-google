@@ -39,6 +39,14 @@ func TestAccComputeSecurityPolicyRule_basicUpdate(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccComputeSecurityPolicyRule_preBasicUpdate(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
