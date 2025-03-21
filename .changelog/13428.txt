@@ -1,0 +1,3 @@
+```release-note: note
+secretmanager: Updated the documentation for the clarification of `google_secret_manager_secret_version` and `google_secret_manager_regional_secret_version` resources
+```

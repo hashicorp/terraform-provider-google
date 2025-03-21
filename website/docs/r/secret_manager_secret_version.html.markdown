@@ -30,6 +30,12 @@ To get more information about SecretVersion, see:
 * How-to Guides
     * [Create and deploy a Secret Version](https://cloud.google.com/secret-manager/docs/add-secret-version)
 
+~> **Warning:** The behavior of the `secret_data` field is [force new](https://developer.hashicorp.com/terraform/plugin/sdkv2/schemas/schema-behaviors#forcenew).
+While updating this field, Terraform deletes the existing resource and then creates a new one, which may cause potential outages. To mitigate
+this, use the `create_before_destroy` field within the lifecycle block.
+
+For more details, refer to the [Terraform lifecycle documentation](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle#the-lifecycle-meta-argument).
+
 ~> **Warning:** All arguments including the following potentially sensitive
 values will be stored in the raw state as plain text: `payload.secret_data`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
