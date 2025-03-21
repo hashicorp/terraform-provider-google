@@ -1,0 +1,3 @@
+```release-note:bug
+orgpolicy: fix permadiff in `google_org_policy_policy`  when multiple rules are present
+```
