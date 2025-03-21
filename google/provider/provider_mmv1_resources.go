@@ -424,6 +424,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_dataplex_task_iam_policy":                        tpgiamresource.DataSourceIamPolicy(dataplex.DataplexTaskIamSchema, dataplex.DataplexTaskIamUpdaterProducer),
 	"google_dataplex_zone_iam_policy":                        tpgiamresource.DataSourceIamPolicy(dataplex.DataplexZoneIamSchema, dataplex.DataplexZoneIamUpdaterProducer),
 	"google_dataproc_autoscaling_policy_iam_policy":          tpgiamresource.DataSourceIamPolicy(dataproc.DataprocAutoscalingPolicyIamSchema, dataproc.DataprocAutoscalingPolicyIamUpdaterProducer),
+	"google_dataproc_metastore_database_iam_policy":          tpgiamresource.DataSourceIamPolicy(dataprocmetastore.DataprocMetastoreDatabaseIamSchema, dataprocmetastore.DataprocMetastoreDatabaseIamUpdaterProducer),
 	"google_dataproc_metastore_federation_iam_policy":        tpgiamresource.DataSourceIamPolicy(dataprocmetastore.DataprocMetastoreFederationIamSchema, dataprocmetastore.DataprocMetastoreFederationIamUpdaterProducer),
 	"google_dataproc_metastore_service_iam_policy":           tpgiamresource.DataSourceIamPolicy(dataprocmetastore.DataprocMetastoreServiceIamSchema, dataprocmetastore.DataprocMetastoreServiceIamUpdaterProducer),
 	"google_dns_managed_zone_iam_policy":                     tpgiamresource.DataSourceIamPolicy(dns.DNSManagedZoneIamSchema, dns.DNSManagedZoneIamUpdaterProducer),
@@ -496,8 +497,8 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 
 // Resources
 // Generated resources: 560
-// Generated IAM resources: 276
-// Total generated resources: 836
+// Generated IAM resources: 279
+// Total generated resources: 839
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -874,6 +875,9 @@ var generatedResources = map[string]*schema.Resource{
 	"google_dataproc_gdc_application_environment":                                dataprocgdc.ResourceDataprocGdcApplicationEnvironment(),
 	"google_dataproc_gdc_service_instance":                                       dataprocgdc.ResourceDataprocGdcServiceInstance(),
 	"google_dataproc_gdc_spark_application":                                      dataprocgdc.ResourceDataprocGdcSparkApplication(),
+	"google_dataproc_metastore_database_iam_binding":                             tpgiamresource.ResourceIamBinding(dataprocmetastore.DataprocMetastoreDatabaseIamSchema, dataprocmetastore.DataprocMetastoreDatabaseIamUpdaterProducer, dataprocmetastore.DataprocMetastoreDatabaseIdParseFunc),
+	"google_dataproc_metastore_database_iam_member":                              tpgiamresource.ResourceIamMember(dataprocmetastore.DataprocMetastoreDatabaseIamSchema, dataprocmetastore.DataprocMetastoreDatabaseIamUpdaterProducer, dataprocmetastore.DataprocMetastoreDatabaseIdParseFunc),
+	"google_dataproc_metastore_database_iam_policy":                              tpgiamresource.ResourceIamPolicy(dataprocmetastore.DataprocMetastoreDatabaseIamSchema, dataprocmetastore.DataprocMetastoreDatabaseIamUpdaterProducer, dataprocmetastore.DataprocMetastoreDatabaseIdParseFunc),
 	"google_dataproc_metastore_federation":                                       dataprocmetastore.ResourceDataprocMetastoreFederation(),
 	"google_dataproc_metastore_federation_iam_binding":                           tpgiamresource.ResourceIamBinding(dataprocmetastore.DataprocMetastoreFederationIamSchema, dataprocmetastore.DataprocMetastoreFederationIamUpdaterProducer, dataprocmetastore.DataprocMetastoreFederationIdParseFunc),
 	"google_dataproc_metastore_federation_iam_member":                            tpgiamresource.ResourceIamMember(dataprocmetastore.DataprocMetastoreFederationIamSchema, dataprocmetastore.DataprocMetastoreFederationIamUpdaterProducer, dataprocmetastore.DataprocMetastoreFederationIdParseFunc),
