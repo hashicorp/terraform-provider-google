@@ -1,0 +1,3 @@
+```release-note:enhancement
+alloydb: added a mutex to `google_alloydb_cluster` to prevent conflicts among multiple cluster operations
+```
