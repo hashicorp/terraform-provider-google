@@ -121,6 +121,13 @@ See https://google.aip.dev/148#timestamps.`,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"locations": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: `The list of locations where the deployment group is present.`,
+				Elem:        networksecurityMirroringDeploymentGroupLocationsSchema(),
+				// Default schema.HashSchema is used.
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -168,6 +175,27 @@ See https://google.aip.dev/148#timestamps.`,
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+func networksecurityMirroringDeploymentGroupLocationsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"location": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The cloud location, e.g. 'us-central1-a' or 'asia-south1-b'.`,
+			},
+			"state": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The current state of the association in this location.
+Possible values:
+STATE_UNSPECIFIED
+ACTIVE
+OUT_OF_SYNC`,
+			},
+		},
 	}
 }
 
@@ -335,6 +363,9 @@ func resourceNetworkSecurityMirroringDeploymentGroupRead(d *schema.ResourceData,
 		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
 	}
 	if err := d.Set("description", flattenNetworkSecurityMirroringDeploymentGroupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
+	}
+	if err := d.Set("locations", flattenNetworkSecurityMirroringDeploymentGroupLocations(res["locations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MirroringDeploymentGroup: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenNetworkSecurityMirroringDeploymentGroupTerraformLabels(res["labels"], d, config)); err != nil {
@@ -573,6 +604,33 @@ func flattenNetworkSecurityMirroringDeploymentGroupReconciling(v interface{}, d 
 }
 
 func flattenNetworkSecurityMirroringDeploymentGroupDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityMirroringDeploymentGroupLocations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := schema.NewSet(schema.HashResource(networksecurityMirroringDeploymentGroupLocationsSchema()), []interface{}{})
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed.Add(map[string]interface{}{
+			"location": flattenNetworkSecurityMirroringDeploymentGroupLocationsLocation(original["location"], d, config),
+			"state":    flattenNetworkSecurityMirroringDeploymentGroupLocationsState(original["state"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityMirroringDeploymentGroupLocationsLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityMirroringDeploymentGroupLocationsState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

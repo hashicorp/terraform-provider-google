@@ -13,6 +13,8 @@ fields:
   - field: 'labels'
   - field: 'location'
     provider_only: true
+  - field: 'locations.location'
+  - field: 'locations.state'
   - field: 'mirroring_deployment_group_id'
     provider_only: true
   - field: 'name'
