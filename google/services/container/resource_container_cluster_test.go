@@ -3926,6 +3926,30 @@ func TestAccContainerCluster_withMonitoringConfig(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
+			{
+				Config: testAccContainerCluster_withMonitoringConfigScopeAll(clusterName, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "monitoring_config.0.managed_prometheus.0.auto_monitoring_config.0.scope", "ALL"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withMonitoringConfigScopeNone(clusterName, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "monitoring_config.0.managed_prometheus.0.auto_monitoring_config.0.scope", "NONE"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
 			// Back to basic settings to test setting Prometheus on its own
 			{
 				Config: testAccContainerCluster_basic(clusterName, networkName, subnetworkName),
@@ -10362,6 +10386,48 @@ resource "google_container_cluster" "primary" {
   monitoring_config {
     managed_prometheus {
       enabled = true
+    }
+  }
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
+}
+`, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withMonitoringConfigScopeAll(name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  monitoring_config {
+    managed_prometheus {
+      enabled = true
+      auto_monitoring_config {
+        scope = "ALL"
+      }
+    }
+  }
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
+}
+`, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withMonitoringConfigScopeNone(name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  monitoring_config {
+    managed_prometheus {
+      enabled = true
+      auto_monitoring_config {
+        scope = "NONE"
+      }
     }
   }
   deletion_protection = false
