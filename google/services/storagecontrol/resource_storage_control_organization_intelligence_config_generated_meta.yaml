@@ -1,0 +1,17 @@
+resource: 'google_storage_control_organization_intelligence_config'
+generation_type: 'mmv1'
+source_file: 'products/storagecontrol/OrganizationIntelligenceConfig.yaml'
+api_service_name: 'storage.googleapis.com'
+api_version: 'v2'
+api_resource_type_kind: 'OrganizationIntelligenceConfig'
+fields:
+  - field: 'edition_config'
+  - field: 'effective_intelligence_config.effective_edition'
+  - field: 'effective_intelligence_config.intelligence_config'
+  - field: 'filter.excluded_cloud_storage_buckets.bucket_id_regexes'
+  - field: 'filter.excluded_cloud_storage_locations.locations'
+  - field: 'filter.included_cloud_storage_buckets.bucket_id_regexes'
+  - field: 'filter.included_cloud_storage_locations.locations'
+  - field: 'name'
+    provider_only: true
+  - field: 'update_time'
