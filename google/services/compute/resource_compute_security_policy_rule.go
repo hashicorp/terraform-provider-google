@@ -594,7 +594,7 @@ func resourceComputeSecurityPolicyRuleCreate(d *schema.ResourceData, meta interf
 	previewProp, err := expandComputeSecurityPolicyRulePreview(d.Get("preview"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("preview"); !tpgresource.IsEmptyValue(reflect.ValueOf(previewProp)) && (ok || !reflect.DeepEqual(v, previewProp)) {
+	} else if v, ok := d.GetOkExists("preview"); ok || !reflect.DeepEqual(v, previewProp) {
 		obj["preview"] = previewProp
 	}
 
@@ -805,7 +805,7 @@ func resourceComputeSecurityPolicyRuleUpdate(d *schema.ResourceData, meta interf
 	previewProp, err := expandComputeSecurityPolicyRulePreview(d.Get("preview"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("preview"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, previewProp)) {
+	} else if v, ok := d.GetOkExists("preview"); ok || !reflect.DeepEqual(v, previewProp) {
 		obj["preview"] = previewProp
 	}
 

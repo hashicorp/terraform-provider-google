@@ -1,0 +1,6 @@
+```release-note:bug
+compute: fixed unable to update the `preview` field for `google_compute_security_policy_rule` resource
+```
+```release-note:bug
+compute: fixed unable to update the `preview` field for `google_compute_region_security_policy_rule` resource (beta)
+```
