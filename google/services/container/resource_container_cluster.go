@@ -1152,6 +1152,23 @@ func ResourceContainerCluster() *schema.Resource {
 										Required:    true,
 										Description: `Whether or not the managed collection is enabled.`,
 									},
+									"auto_monitoring_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Computed:    true,
+										MaxItems:    1,
+										Description: `Configuration for GKE Workload Auto-Monitoring.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"scope": {
+													Type:         schema.TypeString,
+													Required:     true,
+													Description:  `The scope of auto-monitoring.`,
+													ValidateFunc: validation.StringInSlice([]string{"ALL", "NONE"}, false),
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -5502,6 +5519,18 @@ func expandMonitoringConfig(configured interface{}) *container.MonitoringConfig 
 		mc.ManagedPrometheusConfig = &container.ManagedPrometheusConfig{
 			Enabled: managed_prometheus["enabled"].(bool),
 		}
+		if autoMonitoring, ok := managed_prometheus["auto_monitoring_config"]; ok {
+			if autoMonitoringList, ok := autoMonitoring.([]interface{}); ok {
+				if len(autoMonitoringList) > 0 {
+					autoMonitoringConfig := autoMonitoringList[0].(map[string]interface{})
+					if scope, ok := autoMonitoringConfig["scope"].(string); ok && scope != "" {
+						mc.ManagedPrometheusConfig.AutoMonitoringConfig = &container.AutoMonitoringConfig{
+							Scope: scope,
+						}
+					}
+				}
+			}
+		}
 	}
 
 	if v, ok := config["advanced_datapath_observability_config"]; ok && len(v.([]interface{})) > 0 {
@@ -6415,6 +6444,16 @@ func flattenManagedPrometheusConfig(c *container.ManagedPrometheusConfig) []map[
 
 	result := make(map[string]interface{})
 	result["enabled"] = c.Enabled
+
+	autoMonitoringList := []map[string]interface{}{}
+	if c.AutoMonitoringConfig != nil && c.AutoMonitoringConfig.Scope != "" {
+		autoMonitoringMap := map[string]interface{}{
+			"scope": c.AutoMonitoringConfig.Scope,
+		}
+		autoMonitoringList = append(autoMonitoringList, autoMonitoringMap)
+	}
+
+	result["auto_monitoring_config"] = autoMonitoringList
 
 	return []map[string]interface{}{result}
 }

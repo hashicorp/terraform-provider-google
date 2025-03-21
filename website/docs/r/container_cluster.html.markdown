@@ -666,7 +666,7 @@ This block also contains several computed attributes, documented below.
 <a name="nested_managed_prometheus"></a>The `managed_prometheus` block supports:
 
 * `enabled` - (Required) Whether or not the managed collection is enabled.
-* `auto_monitoring_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration options for GKE Auto-Monitoring.
+* `auto_monitoring_config` - (Optional) Configuration options for GKE Auto-Monitoring.
 
 <a name="auto_monitoring_config"></a>The `auto_monitoring_config` block supports:
 
