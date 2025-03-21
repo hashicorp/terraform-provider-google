@@ -141,6 +141,15 @@ In addition to the arguments listed above, the following computed attributes are
   operation (e.g. adding a new association to the group).
   See https://google.aip.dev/128.
 
+* `associations` -
+  List of associations to this endpoint group.
+  Structure is [documented below](#nested_associations).
+
+* `connected_deployment_groups` -
+  List of details about the connected deployment groups to this endpoint
+  group.
+  Structure is [documented below](#nested_connected_deployment_groups).
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -148,6 +157,60 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+
+<a name="nested_associations"></a>The `associations` block contains:
+
+* `name` -
+  (Output)
+  The connected association's resource name, for example:
+  `projects/123456789/locations/global/mirroringEndpointGroupAssociations/my-ega`.
+  See https://google.aip.dev/124.
+
+* `network` -
+  (Output)
+  The associated network, for example:
+  projects/123456789/global/networks/my-network.
+  See https://google.aip.dev/124.
+
+* `state` -
+  (Output)
+  Most recent known state of the association.
+  Possible values:
+  STATE_UNSPECIFIED
+  ACTIVE
+  CREATING
+  DELETING
+  CLOSED
+  OUT_OF_SYNC
+  DELETE_FAILED
+
+<a name="nested_connected_deployment_groups"></a>The `connected_deployment_groups` block contains:
+
+* `name` -
+  (Output)
+  The connected deployment group's resource name, for example:
+  `projects/123456789/locations/global/mirroringDeploymentGroups/my-dg`.
+  See https://google.aip.dev/124.
+
+* `locations` -
+  (Output)
+  The list of locations where the deployment group is present.
+  Structure is [documented below](#nested_connected_deployment_groups_connected_deployment_groups_locations).
+
+
+<a name="nested_connected_deployment_groups_connected_deployment_groups_locations"></a>The `locations` block contains:
+
+* `location` -
+  (Output)
+  The cloud location, e.g. `us-central1-a` or `asia-south1-b`.
+
+* `state` -
+  (Output)
+  The current state of the association in this location.
+  Possible values:
+  STATE_UNSPECIFIED
+  ACTIVE
+  OUT_OF_SYNC
 
 ## Timeouts
 

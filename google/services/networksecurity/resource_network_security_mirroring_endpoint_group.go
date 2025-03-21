@@ -93,6 +93,21 @@ Used as additional context for the endpoint group.`,
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"associations": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: `List of associations to this endpoint group.`,
+				Elem:        networksecurityMirroringEndpointGroupAssociationsSchema(),
+				// Default schema.HashSchema is used.
+			},
+			"connected_deployment_groups": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Description: `List of details about the connected deployment groups to this endpoint
+group.`,
+				Elem: networksecurityMirroringEndpointGroupConnectedDeploymentGroupsSchema(),
+				// Default schema.HashSchema is used.
+			},
 			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -155,6 +170,82 @@ See https://google.aip.dev/148#timestamps.`,
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+func networksecurityMirroringEndpointGroupAssociationsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The connected association's resource name, for example:
+'projects/123456789/locations/global/mirroringEndpointGroupAssociations/my-ega'.
+See https://google.aip.dev/124.`,
+			},
+			"network": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The associated network, for example:
+projects/123456789/global/networks/my-network.
+See https://google.aip.dev/124.`,
+			},
+			"state": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Most recent known state of the association.
+Possible values:
+STATE_UNSPECIFIED
+ACTIVE
+CREATING
+DELETING
+CLOSED
+OUT_OF_SYNC
+DELETE_FAILED`,
+			},
+		},
+	}
+}
+
+func networksecurityMirroringEndpointGroupConnectedDeploymentGroupsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"locations": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: `The list of locations where the deployment group is present.`,
+				Elem:        networksecurityMirroringEndpointGroupConnectedDeploymentGroupsConnectedDeploymentGroupsLocationsSchema(),
+				// Default schema.HashSchema is used.
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The connected deployment group's resource name, for example:
+'projects/123456789/locations/global/mirroringDeploymentGroups/my-dg'.
+See https://google.aip.dev/124.`,
+			},
+		},
+	}
+}
+
+func networksecurityMirroringEndpointGroupConnectedDeploymentGroupsConnectedDeploymentGroupsLocationsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"location": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The cloud location, e.g. 'us-central1-a' or 'asia-south1-b'.`,
+			},
+			"state": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The current state of the association in this location.
+Possible values:
+STATE_UNSPECIFIED
+ACTIVE
+OUT_OF_SYNC`,
+			},
+		},
 	}
 }
 
@@ -319,6 +410,12 @@ func resourceNetworkSecurityMirroringEndpointGroupRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading MirroringEndpointGroup: %s", err)
 	}
 	if err := d.Set("description", flattenNetworkSecurityMirroringEndpointGroupDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroup: %s", err)
+	}
+	if err := d.Set("associations", flattenNetworkSecurityMirroringEndpointGroupAssociations(res["associations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroup: %s", err)
+	}
+	if err := d.Set("connected_deployment_groups", flattenNetworkSecurityMirroringEndpointGroupConnectedDeploymentGroups(res["connectedDeploymentGroups"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MirroringEndpointGroup: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenNetworkSecurityMirroringEndpointGroupTerraformLabels(res["labels"], d, config)); err != nil {
@@ -535,6 +632,88 @@ func flattenNetworkSecurityMirroringEndpointGroupReconciling(v interface{}, d *s
 }
 
 func flattenNetworkSecurityMirroringEndpointGroupDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityMirroringEndpointGroupAssociations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := schema.NewSet(schema.HashResource(networksecurityMirroringEndpointGroupAssociationsSchema()), []interface{}{})
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed.Add(map[string]interface{}{
+			"name":    flattenNetworkSecurityMirroringEndpointGroupAssociationsName(original["name"], d, config),
+			"network": flattenNetworkSecurityMirroringEndpointGroupAssociationsNetwork(original["network"], d, config),
+			"state":   flattenNetworkSecurityMirroringEndpointGroupAssociationsState(original["state"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityMirroringEndpointGroupAssociationsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityMirroringEndpointGroupAssociationsNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityMirroringEndpointGroupAssociationsState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityMirroringEndpointGroupConnectedDeploymentGroups(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := schema.NewSet(schema.HashResource(networksecurityMirroringEndpointGroupConnectedDeploymentGroupsSchema()), []interface{}{})
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed.Add(map[string]interface{}{
+			"name":      flattenNetworkSecurityMirroringEndpointGroupConnectedDeploymentGroupsName(original["name"], d, config),
+			"locations": flattenNetworkSecurityMirroringEndpointGroupConnectedDeploymentGroupsLocations(original["locations"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityMirroringEndpointGroupConnectedDeploymentGroupsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityMirroringEndpointGroupConnectedDeploymentGroupsLocations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := schema.NewSet(schema.HashResource(networksecurityMirroringEndpointGroupConnectedDeploymentGroupsConnectedDeploymentGroupsLocationsSchema()), []interface{}{})
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed.Add(map[string]interface{}{
+			"location": flattenNetworkSecurityMirroringEndpointGroupConnectedDeploymentGroupsLocationsLocation(original["location"], d, config),
+			"state":    flattenNetworkSecurityMirroringEndpointGroupConnectedDeploymentGroupsLocationsState(original["state"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityMirroringEndpointGroupConnectedDeploymentGroupsLocationsLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityMirroringEndpointGroupConnectedDeploymentGroupsLocationsState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
