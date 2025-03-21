@@ -140,6 +140,15 @@ func TestAccOrgPolicyPolicy_ProjectPolicy(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "spec.0.rules.0.condition.0.expression"},
 			},
+			{
+				Config: testAccOrgPolicyPolicy_ProjectPolicyUpdate1(context),
+			},
+			{
+				ResourceName:            "google_org_policy_policy.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "spec.0.rules.0.condition.0.expression"},
+			},
 		},
 	})
 }
@@ -371,6 +380,39 @@ resource "google_org_policy_policy" "primary" {
 
     rules {
       deny_all = "TRUE"
+    }
+  }
+}
+
+resource "google_project" "basic" {
+  project_id = "tf-test-id%{random_suffix}"
+  name       = "tf-test-id%{random_suffix}"
+  org_id     = "%{org_id}"
+  deletion_policy = "DELETE"
+}
+
+
+`, context)
+}
+
+func testAccOrgPolicyPolicy_ProjectPolicyUpdate1(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_org_policy_policy" "primary" {
+  name   = "projects/${google_project.basic.name}/policies/gcp.resourceLocations"
+  parent = "projects/${google_project.basic.name}"
+
+  spec {
+	rules {
+	  deny_all = "TRUE"
+	}
+    rules {
+      allow_all = "TRUE"
+      condition {
+        description = "A sample condition for the policy"
+        expression  = "resource.matchTagId('tagKeys/123', 'tagValues/345')"
+        location    = "sample-location.log"
+        title       = "sample-condition"
+      }
     }
   }
 }

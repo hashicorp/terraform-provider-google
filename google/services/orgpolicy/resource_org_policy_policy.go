@@ -42,6 +42,63 @@ func resourceOrgpolicyPolicyRulesConditionExpressionDiffSuppress(_, old, new str
 	newReplaced := strings.ReplaceAll(strings.ReplaceAll(new, "Labels", "TagId"), "label", "tag")
 	return oldReplaced == newReplaced
 }
+func resourceOrgPolicyPolicySpecRulesDiffSuppress(k, o, n string, d *schema.ResourceData) bool {
+	oldCount, newCount := d.GetChange("spec.0.rules.#")
+	var count int
+	// There could be duplicates - worth continuing even if the counts are unequal.
+	if oldCount.(int) < newCount.(int) {
+		count = newCount.(int)
+	} else {
+		count = oldCount.(int)
+	}
+
+	old := make([]interface{}, 0, count)
+	new := make([]interface{}, 0, count)
+	for i := 0; i < count; i++ {
+		o, n := d.GetChange(fmt.Sprintf("spec.0.rules.%d", i))
+
+		if o != nil {
+			old = append(old, o)
+		}
+		if n != nil {
+			new = append(new, n)
+		}
+	}
+
+	oldSet := schema.NewSet(schema.HashResource(ResourceOrgPolicyPolicy().Schema["spec"].Elem.(*schema.Resource).Schema["rules"].Elem.(*schema.Resource)), old)
+	newSet := schema.NewSet(schema.HashResource(ResourceOrgPolicyPolicy().Schema["spec"].Elem.(*schema.Resource).Schema["rules"].Elem.(*schema.Resource)), new)
+
+	return oldSet.Equal(newSet)
+}
+
+func resourceOrgPolicyPolicyDryRunSpecRulesDiffSuppress(k, o, n string, d *schema.ResourceData) bool {
+	oldCount, newCount := d.GetChange("dry_run_spec.0.rules.#")
+	var count int
+	// There could be duplicates - worth continuing even if the counts are unequal.
+	if oldCount.(int) < newCount.(int) {
+		count = newCount.(int)
+	} else {
+		count = oldCount.(int)
+	}
+
+	old := make([]interface{}, 0, count)
+	new := make([]interface{}, 0, count)
+	for i := 0; i < count; i++ {
+		o, n := d.GetChange(fmt.Sprintf("dry_run_spec.0.rules.%d", i))
+
+		if o != nil {
+			old = append(old, o)
+		}
+		if n != nil {
+			new = append(new, n)
+		}
+	}
+
+	oldSet := schema.NewSet(schema.HashResource(ResourceOrgPolicyPolicy().Schema["dry_run_spec"].Elem.(*schema.Resource).Schema["rules"].Elem.(*schema.Resource)), old)
+	newSet := schema.NewSet(schema.HashResource(ResourceOrgPolicyPolicy().Schema["dry_run_spec"].Elem.(*schema.Resource).Schema["rules"].Elem.(*schema.Resource)), new)
+
+	return oldSet.Equal(newSet)
+}
 
 func ResourceOrgPolicyPolicy() *schema.Resource {
 	return &schema.Resource{
@@ -93,9 +150,10 @@ func ResourceOrgPolicyPolicy() *schema.Resource {
 							Description: `Ignores policies set above this resource and restores the 'constraint_default' enforcement behavior of the specific constraint at this resource. This field can be set in policies for either list or boolean constraints. If set, 'rules' must be empty and 'inherit_from_parent' must be set to false.`,
 						},
 						"rules": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							Description: `In policies for boolean constraints, the following requirements apply: - There must be one and only one policy rule where condition is unset. - Boolean policy rules with conditions must set 'enforced' to the opposite of the policy rule without a condition. - During policy evaluation, policy rules with conditions that are true for a target resource take precedence.`,
+							Type:             schema.TypeList,
+							Optional:         true,
+							DiffSuppressFunc: resourceOrgPolicyPolicyDryRunSpecRulesDiffSuppress,
+							Description:      `In policies for boolean constraints, the following requirements apply: - There must be one and only one policy rule where condition is unset. - Boolean policy rules with conditions must set 'enforced' to the opposite of the policy rule without a condition. - During policy evaluation, policy rules with conditions that are true for a target resource take precedence.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"allow_all": {
@@ -211,9 +269,10 @@ func ResourceOrgPolicyPolicy() *schema.Resource {
 							Description: `Ignores policies set above this resource and restores the 'constraint_default' enforcement behavior of the specific 'Constraint' at this resource. This field can be set in policies for either list or boolean constraints. If set, 'rules' must be empty and 'inherit_from_parent' must be set to false.`,
 						},
 						"rules": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							Description: `In Policies for boolean constraints, the following requirements apply: - There must be one and only one PolicyRule where condition is unset. - BooleanPolicyRules with conditions must set 'enforced' to the opposite of the PolicyRule without a condition. - During policy evaluation, PolicyRules with conditions that are true for a target resource take precedence.`,
+							Type:             schema.TypeList,
+							Optional:         true,
+							DiffSuppressFunc: resourceOrgPolicyPolicySpecRulesDiffSuppress,
+							Description:      `In Policies for boolean constraints, the following requirements apply: - There must be one and only one PolicyRule where condition is unset. - BooleanPolicyRules with conditions must set 'enforced' to the opposite of the PolicyRule without a condition. - During policy evaluation, PolicyRules with conditions that are true for a target resource take precedence.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"allow_all": {
