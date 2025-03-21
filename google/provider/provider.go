@@ -588,6 +588,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"lustre_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"managed_kafka_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1122,6 +1127,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.KMSBasePath = d.Get("kms_custom_endpoint").(string)
 	config.LoggingBasePath = d.Get("logging_custom_endpoint").(string)
 	config.LookerBasePath = d.Get("looker_custom_endpoint").(string)
+	config.LustreBasePath = d.Get("lustre_custom_endpoint").(string)
 	config.ManagedKafkaBasePath = d.Get("managed_kafka_custom_endpoint").(string)
 	config.MemcacheBasePath = d.Get("memcache_custom_endpoint").(string)
 	config.MemorystoreBasePath = d.Get("memorystore_custom_endpoint").(string)

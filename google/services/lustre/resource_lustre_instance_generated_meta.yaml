@@ -1,0 +1,27 @@
+resource: 'google_lustre_instance'
+generation_type: 'mmv1'
+source_file: 'products/lustre/Instance.yaml'
+api_service_name: 'lustre.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Instance'
+autogen_status: true
+fields:
+  - field: 'capacity_gib'
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'filesystem'
+  - field: 'gke_support_enabled'
+  - field: 'instance_id'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'mount_point'
+  - field: 'name'
+  - field: 'network'
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'
