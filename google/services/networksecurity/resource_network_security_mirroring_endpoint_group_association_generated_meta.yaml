@@ -11,6 +11,8 @@ fields:
   - field: 'labels'
   - field: 'location'
     provider_only: true
+  - field: 'locations.location'
+  - field: 'locations.state'
   - field: 'locations_details.location'
   - field: 'locations_details.state'
   - field: 'mirroring_endpoint_group'
