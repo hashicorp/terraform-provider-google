@@ -108,9 +108,18 @@ See https://google.aip.dev/148#timestamps.`,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
-			"locations_details": {
-				Type:     schema.TypeList,
+			"locations": {
+				Type:     schema.TypeSet,
 				Computed: true,
+				Description: `The list of locations where the association is configured. This information
+is retrieved from the linked endpoint group.`,
+				Elem: networksecurityMirroringEndpointGroupAssociationLocationsSchema(),
+				// Default schema.HashSchema is used.
+			},
+			"locations_details": {
+				Type:       schema.TypeList,
+				Computed:   true,
+				Deprecated: "`locationsDetails` is deprecated and will be removed in a future major release. Use `locations` instead.",
 				Description: `The list of locations where the association is present. This information
 is retrieved from the linked endpoint group, and not configured as part
 of the association itself.`,
@@ -182,6 +191,27 @@ See https://google.aip.dev/148#timestamps.`,
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+func networksecurityMirroringEndpointGroupAssociationLocationsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"location": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The cloud location, e.g. 'us-central1-a' or 'asia-south1-b'.`,
+			},
+			"state": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The current state of the association in this location.
+Possible values:
+STATE_UNSPECIFIED
+ACTIVE
+OUT_OF_SYNC`,
+			},
+		},
 	}
 }
 
@@ -349,6 +379,9 @@ func resourceNetworkSecurityMirroringEndpointGroupAssociationRead(d *schema.Reso
 		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
 	}
 	if err := d.Set("reconciling", flattenNetworkSecurityMirroringEndpointGroupAssociationReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
+	}
+	if err := d.Set("locations", flattenNetworkSecurityMirroringEndpointGroupAssociationLocations(res["locations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenNetworkSecurityMirroringEndpointGroupAssociationTerraformLabels(res["labels"], d, config)); err != nil {
@@ -582,6 +615,33 @@ func flattenNetworkSecurityMirroringEndpointGroupAssociationState(v interface{},
 }
 
 func flattenNetworkSecurityMirroringEndpointGroupAssociationReconciling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityMirroringEndpointGroupAssociationLocations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := schema.NewSet(schema.HashResource(networksecurityMirroringEndpointGroupAssociationLocationsSchema()), []interface{}{})
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed.Add(map[string]interface{}{
+			"location": flattenNetworkSecurityMirroringEndpointGroupAssociationLocationsLocation(original["location"], d, config),
+			"state":    flattenNetworkSecurityMirroringEndpointGroupAssociationLocationsState(original["state"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityMirroringEndpointGroupAssociationLocationsLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityMirroringEndpointGroupAssociationLocationsState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
