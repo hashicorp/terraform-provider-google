@@ -1,0 +1,3 @@
+```release-note: bug
+spanner: fixed issue with applying changes in provider `default_labels` on `google_spanner_instance`
+```
