@@ -38,6 +38,43 @@ func TestAccSpannerInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccSpannerInstance_basicUpdateWithProviderDefaultLabels(t *testing.T) {
+	t.Parallel()
+
+	idName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerInstance_basicWithProviderLabel(idName, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.basic", "state"),
+				),
+			},
+			{
+				ResourceName:            "google_spanner_instance.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccSpannerInstance_basicWithProviderLabel(idName, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.basic", "state"),
+				),
+			},
+			{
+				ResourceName:            "google_spanner_instance.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func TestAccSpannerInstance_noNodeCountSpecified(t *testing.T) {
 	t.Parallel()
 
@@ -502,6 +539,34 @@ resource "google_spanner_instance" "basic" {
   default_backup_schedule_type = "NONE"
 }
 `, name, name, processingUnits)
+}
+
+func testAccSpannerInstance_basicWithProviderLabel(name string, addLabel bool) string {
+	extraLabel := ""
+	if addLabel {
+		extraLabel = "\"key2\" = \"value2\""
+	}
+	return fmt.Sprintf(`
+provider "google" {
+  alias          = "with-labels"
+  default_labels = {
+    %s
+  }
+}
+
+resource "google_spanner_instance" "basic" {
+  provider     = google.with-labels
+  config       = "regional-us-central1"
+  name         = "%s"
+  display_name = "%s"
+
+  processing_units = 100
+
+  labels = {
+    "key1" = "value1"
+  }
+}
+`, extraLabel, name, name)
 }
 
 func testAccSpannerInstance_noNodeCountSpecified(name string) string {

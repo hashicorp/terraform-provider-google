@@ -1491,7 +1491,7 @@ func resourceSpannerInstanceUpdateEncoder(d *schema.ResourceData, meta interface
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
 	}
-	if d.HasChange("labels") {
+	if d.HasChange("labels") || d.HasChange("terraform_labels") {
 		updateMask = append(updateMask, "labels")
 	}
 	if d.HasChange("processing_units") {
