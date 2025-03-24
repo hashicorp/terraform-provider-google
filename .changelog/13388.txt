@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: fixing automated_backup_policy field for bigtable table
+```
