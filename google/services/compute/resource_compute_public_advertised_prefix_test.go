@@ -18,10 +18,11 @@ import (
 // Since we only have access to one test prefix range we cannot run tests in parallel
 func TestAccComputePublicPrefixes(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"delegated_prefix":                     testAccComputePublicDelegatedPrefix_publicDelegatedPrefixesBasicTest,
-		"advertised_prefix":                    testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesBasicTest,
-		"public_delegated_prefixes_ipv6":       testAccComputePublicDelegatedPrefix_publicDelegatedPrefixesIpv6Test,
-		"public_advertised_prefixes_pdp_scope": testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesPdpScopeTest,
+		"delegated_prefix":                         testAccComputePublicDelegatedPrefix_publicDelegatedPrefixesBasicTest,
+		"advertised_prefix":                        testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesBasicTest,
+		"public_delegated_prefixes_ipv6":           testAccComputePublicDelegatedPrefix_publicDelegatedPrefixesIpv6Test,
+		"public_advertised_prefixes_pdp_scope":     testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesPdpScopeTest,
+		"public_delegated_prefix_ipv6_subnet_mode": testAccComputePublicDelegatedPrefix_publicDelegatedPrefixIpv6SubnetModeTest,
 	}
 
 	for name, tc := range testCases {
@@ -209,6 +210,60 @@ resource "google_compute_public_delegated_prefix" "subprefix" {
   parent_prefix = google_compute_public_delegated_prefix.prefix.id
   allocatable_prefix_length = 64
   mode = "EXTERNAL_IPV6_FORWARDING_RULE_CREATION"
+}
+`, context)
+}
+
+func testAccComputePublicDelegatedPrefix_publicDelegatedPrefixIpv6SubnetModeTest(t *testing.T) {
+	context := map[string]interface{}{
+		"description":   envvar.GetTestPublicAdvertisedPrefixDescriptionFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputePublicDelegatedPrefixDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputePublicDelegatedPrefix_publicDelegatedPrefixIpv6SubnetModeExample(context),
+			},
+			{
+				ResourceName:            "google_compute_public_delegated_prefix.prefix",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccComputePublicDelegatedPrefix_publicDelegatedPrefixIpv6SubnetModeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_public_advertised_prefix" "advertised" {
+  name = "tf-test-ipv6-pap%{random_suffix}"
+  description = "%{description}"
+  dns_verification_ip = "2001:db8::"
+  ip_cidr_range = "2001:db8::/32"
+  pdp_scope = "REGIONAL"
+}
+
+resource "google_compute_public_delegated_prefix" "prefix" {
+  name = "tf-test-root-pdp%{random_suffix}"
+  description = "test-delegation-mode-pdp"
+  region = "us-east1"
+  ip_cidr_range = "2001:db8::/40"
+  parent_prefix = google_compute_public_advertised_prefix.advertised.id
+  mode = "DELEGATION"
+}
+
+resource "google_compute_public_delegated_prefix" "subprefix" {
+  name = "tf-test-sub-pdp%{random_suffix}"
+  description = "test-subnet-mode-pdp"
+  region = "us-east1"
+  ip_cidr_range = "2001:db8::/48"
+  parent_prefix = google_compute_public_delegated_prefix.prefix.id
+  mode = "EXTERNAL_IPV6_SUBNETWORK_CREATION"
 }
 `, context)
 }

@@ -80,6 +80,36 @@ resource "google_compute_public_delegated_prefix" "subprefix" {
   mode = "EXTERNAL_IPV6_FORWARDING_RULE_CREATION"
 }
 ```
+## Example Usage - Public Delegated Prefix Ipv6 Subnet Mode
+
+
+```hcl
+resource "google_compute_public_advertised_prefix" "advertised" {
+  name = "ipv6-pap"
+  description = "description"
+  dns_verification_ip = "2001:db8::"
+  ip_cidr_range = "2001:db8::/32"
+  pdp_scope = "REGIONAL"
+}
+
+resource "google_compute_public_delegated_prefix" "prefix" {
+  name = "ipv6-root-pdp"
+  description = "test-delegation-mode-pdp"
+  region = "us-east1"
+  ip_cidr_range = "2001:db8::/40"
+  parent_prefix = google_compute_public_advertised_prefix.advertised.id
+  mode = "DELEGATION"
+}
+
+resource "google_compute_public_delegated_prefix" "subprefix" {
+  name = "ipv6-sub-pdp"
+  description = "test-subnet-mode-pdp"
+  region = "us-east1"
+  ip_cidr_range = "2001:db8::/48"
+  parent_prefix = google_compute_public_delegated_prefix.prefix.id
+  mode = "EXTERNAL_IPV6_SUBNETWORK_CREATION"
+}
+```
 
 ## Argument Reference
 
@@ -122,8 +152,8 @@ The following arguments are supported:
 * `mode` -
   (Optional)
   Specifies the mode of this IPv6 PDP. MODE must be one of: DELEGATION,
-  EXTERNAL_IPV6_FORWARDING_RULE_CREATION.
-  Possible values are: `DELEGATION`, `EXTERNAL_IPV6_FORWARDING_RULE_CREATION`.
+  EXTERNAL_IPV6_FORWARDING_RULE_CREATION and EXTERNAL_IPV6_SUBNETWORK_CREATION.
+  Possible values are: `DELEGATION`, `EXTERNAL_IPV6_FORWARDING_RULE_CREATION`, `EXTERNAL_IPV6_SUBNETWORK_CREATION`.
 
 * `allocatable_prefix_length` -
   (Optional)

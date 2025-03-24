@@ -58,11 +58,13 @@ func listAndActionComputePublicDelegatedPrefix(action sweeper.ResourceAction) er
 	t := &testing.T{}
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	// Build URL substitution maps individually to ensure proper formatting
-	intermediateValues := make([]map[string]string, 2)
+	intermediateValues := make([]map[string]string, 3)
 	intermediateValues[0] = map[string]string{}
 	intermediateValues[0]["region"] = "us-central1"
 	intermediateValues[1] = map[string]string{}
 	intermediateValues[1]["region"] = "us-west1"
+	intermediateValues[2] = map[string]string{}
+	intermediateValues[2]["region"] = "us-east1"
 
 	// Create configs from intermediate values
 	for _, values := range intermediateValues {
