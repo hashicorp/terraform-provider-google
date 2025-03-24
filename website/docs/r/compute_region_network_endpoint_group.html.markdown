@@ -25,9 +25,13 @@ description: |-
 A regional NEG that can support Serverless Products, proxying traffic to
 external backends and providing traffic to the PSC port mapping endpoints.
 
-Recreating a region network endpoint group that's in use by another resource will give a
-`resourceInUseByAnotherResource` error. Use `lifecycle.create_before_destroy`
-to avoid this type of error.
+When in use by a resource that can be updated, recreating a RegionNetworkEndpointGroup
+will give a `resourceInUseByAnotherResource` error because Terraform will attempt to
+delete the  RegionNetworkEndpointGroup first, but an in-use RegionNetworkEndpointGroup
+can't be deleted in the API. Use `lifecycle.create_before_destroy` to reorder the plan
+and create the new resource first, allowing the deletion to go through successfully.
+This is only recommended when strictly necessary, as the `create_before_destroy`
+directive can be passed onto further dependencies, creating unexpected plans.
 
 
 To get more information about RegionNetworkEndpointGroup, see:
