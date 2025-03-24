@@ -1,0 +1,28 @@
+resource: 'google_eventarc_enrollment'
+generation_type: 'mmv1'
+source_file: 'products/eventarc/Enrollment.yaml'
+api_service_name: 'eventarc.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Enrollment'
+fields:
+  - field: 'annotations'
+  - field: 'cel_match'
+  - field: 'create_time'
+  - field: 'destination'
+  - field: 'display_name'
+  - field: 'effective_annotations'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'enrollment_id'
+    provider_only: true
+  - field: 'etag'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'message_bus'
+  - field: 'name'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'
