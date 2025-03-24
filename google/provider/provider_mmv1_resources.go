@@ -308,6 +308,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_organization":                                     resourcemanager.DataSourceGoogleOrganization(),
 	"google_organizations":                                    resourcemanager.DataSourceGoogleOrganizations(),
 	"google_organization_iam_custom_role":                     resourcemanager.DataSourceGoogleOrganizationIamCustomRole(),
+	"google_organization_iam_custom_roles":                    resourcemanager.DataSourceGoogleOrganizationIamCustomRoles(),
 	"google_privateca_certificate_authority":                  privateca.DataSourcePrivatecaCertificateAuthority(),
 	"google_privileged_access_manager_entitlement":            privilegedaccessmanager.DataSourceGooglePrivilegedAccessManagerEntitlement(),
 	"google_project":                                          resourcemanager.DataSourceGoogleProject(),
