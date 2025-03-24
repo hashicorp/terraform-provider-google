@@ -33,7 +33,7 @@ BUG FIXES:
 * bigqueryanalyticshub: fixed a bug in `google_bigquery_analytics_hub_listing_subscription` where a subscription using a different project than the dataset would not work ([#21958](https://github.com/hashicorp/terraform-provider-google/pull/21958))
 * cloudrun: fixed the perma-diffs for unchanged `template.spec.containers.env` in `google_cloud_run_service` resource ([#21916](https://github.com/hashicorp/terraform-provider-google/pull/21916))
 * cloudrunv2: fixed the perma-diffs for unchanged `template.containers.env` in `google_cloud_run_v2_service` resource ([#21916](https://github.com/hashicorp/terraform-provider-google/pull/21916))
-* compute: fixed the issue that user can't use regional disk in `google_compute_instance_template`. ([#21901](https://github.com/hashicorp/terraform-provider-google/pull/21901))
+* compute: fixed the issue that user can't use regional disk in `google_compute_instance_template` ([#21901](https://github.com/hashicorp/terraform-provider-google/pull/21901))
 * dataflow: fixed a permadiff on `template_gcs_path` in `google_dataflow_job` resource ([#21894](https://github.com/hashicorp/terraform-provider-google/pull/21894))
 * storage: lowered the minimum required items for `custom_placement_config.data_locations` from 2 to 1, and removed the Terraform-enforced maximum item limit for the field in `google_storage_bucket` ([#21878](https://github.com/hashicorp/terraform-provider-google/pull/21878))
 
