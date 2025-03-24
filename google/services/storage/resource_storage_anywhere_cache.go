@@ -176,23 +176,30 @@ func resourceStorageAnywhereCacheCreate(d *schema.ResourceData, meta interface{}
 	err = StorageOperationWaitTimeWithResponse(
 		config, res, &opRes, "Creating AnywhereCache", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
 
-		return fmt.Errorf("Error waiting to create AnywhereCache: %s", err)
-	}
+		// If any error comes due to LRO, cancel the LRO
+		opSelfLink, ok := res["selfLink"].(string)
+		if !ok {
+			return fmt.Errorf("Unable to parse selfLink from LRO metadata")
+		}
+		log.Printf("[DEBUG] Cancelling LRO: %s", opSelfLink)
+		opCancelUrl := fmt.Sprintf("%s/cancel", opSelfLink)
+		_, opCancelErr := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			RawURL:    opCancelUrl,
+			UserAgent: userAgent,
+		})
+		if opCancelErr != nil {
+			return fmt.Errorf("Error cancelling the LRO: %s", opCancelErr)
+		}
 
-	if err := d.Set("anywhere_cache_id", flattenStorageAnywhereCacheAnywhereCacheId(opRes["anywhereCacheId"], d, config)); err != nil {
 		return err
 	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{bucket}}/{{anywhere_cache_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	nameVal, ok := opRes["name"].(string)
 	if !ok {
@@ -339,6 +346,22 @@ func resourceStorageAnywhereCacheUpdate(d *schema.ResourceData, meta interface{}
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
+		// If any error comes due to LRO, cancel the LRO
+		opSelfLink, ok := res["selfLink"].(string)
+		if !ok {
+			return fmt.Errorf("Unable to parse selfLink from LRO metadata")
+		}
+		log.Printf("[DEBUG] Cancelling LRO: %s", opSelfLink)
+		opCancelUrl := fmt.Sprintf("%s/cancel", opSelfLink)
+		_, opCancelErr := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			RawURL:    opCancelUrl,
+			UserAgent: userAgent,
+		})
+		if opCancelErr != nil {
+			return fmt.Errorf("Error cancelling the LRO: %s", opCancelErr)
+		}
 		return err
 	}
 
