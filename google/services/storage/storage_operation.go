@@ -29,18 +29,7 @@ func (w *StorageOperationWaiter) QueryOp() (interface{}, error) {
 	if w.Config.Context != nil {
 		select {
 		case <-w.Config.Context.Done():
-			opCancelUrl := fmt.Sprintf("%s/cancel", w.SelfLink)
-			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    w.Config,
-				Method:    "POST",
-				RawURL:    opCancelUrl,
-				UserAgent: w.UserAgent,
-			})
-			if err != nil {
-				return nil, fmt.Errorf("Error cancelling the LRO: %s", err)
-			}
-			return nil, fmt.Errorf("Interrupt recieved, operation cancelled")
-
+			return nil, fmt.Errorf("Interrupt recieved, Polling stopped, exiting...")
 		default:
 			// Default case is intentionally left empty, as per original logic.
 		}
