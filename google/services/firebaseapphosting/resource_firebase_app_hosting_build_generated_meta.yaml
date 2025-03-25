@@ -1,0 +1,47 @@
+resource: 'google_firebase_app_hosting_build'
+generation_type: 'mmv1'
+source_file: 'products/firebaseapphosting/Build.yaml'
+api_service_name: 'firebaseapphosting.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Build'
+autogen_status: true
+fields:
+  - field: 'annotations'
+  - field: 'backend'
+    provider_only: true
+  - field: 'build_id'
+    provider_only: true
+  - field: 'build_logs_uri'
+  - field: 'create_time'
+  - field: 'display_name'
+  - field: 'effective_annotations'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'environment'
+  - field: 'error.code'
+  - field: 'error.details'
+  - field: 'error.message'
+  - field: 'error_source'
+  - field: 'etag'
+  - field: 'image'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'source.codebase.author.display_name'
+  - field: 'source.codebase.author.email'
+  - field: 'source.codebase.author.image_uri'
+  - field: 'source.codebase.branch'
+  - field: 'source.codebase.commit'
+  - field: 'source.codebase.commit_message'
+  - field: 'source.codebase.commit_time'
+  - field: 'source.codebase.display_name'
+  - field: 'source.codebase.hash'
+  - field: 'source.codebase.uri'
+  - field: 'source.container.image'
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'
