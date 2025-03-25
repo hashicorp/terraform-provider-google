@@ -1164,3 +1164,115 @@ resource "google_cloud_run_service" "default" {
 }
 `, name, project)
 }
+
+func TestAccCloudRunService_resourcesRequirements(t *testing.T) {
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Service_cloudrunServiceWithoutGpu(name, project),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
+			},
+			{
+				Config: testAccCloudRunV2Service_cloudrunServiceWithGpu(name, project),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
+			},
+			{
+				Config: testAccCloudRunV2Service_cloudrunServiceWithoutGpu(name, project),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_cloudrunServiceWithoutGpu(name, project string) string {
+	return fmt.Sprintf(`
+resource "google_cloud_run_service" "default" {
+  name     = "%s"
+  location = "us-central1"
+
+  metadata {
+    namespace = "%s"
+  }
+
+  template {
+    metadata {
+      annotations = {
+        "autoscaling.knative.dev/maxScale": "1"
+        "run.googleapis.com/cpu-throttling": "false"
+      }
+    }
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+        resources {
+          limits = {
+            "cpu" = "4"
+            "memory" = "16Gi"
+          }
+        }
+      }
+    }
+  }
+}
+`, name, project)
+}
+
+func testAccCloudRunV2Service_cloudrunServiceWithGpu(name, project string) string {
+	return fmt.Sprintf(`
+resource "google_cloud_run_service" "default" {
+  name     = "%s"
+  location = "us-central1"
+
+  metadata {
+    namespace = "%s"
+  }
+
+  template {
+    metadata {
+      annotations = {
+        "autoscaling.knative.dev/maxScale": "1"
+        "run.googleapis.com/cpu-throttling": "false"
+        "run.googleapis.com/gpu-zonal-redundancy-disabled" = "true"
+      }
+    }
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+        resources {
+          limits = {
+            "cpu" = "4"
+            "memory" = "16Gi"
+            "nvidia.com/gpu" = "1"
+          }
+        }
+      }
+      node_selector = {
+        "run.googleapis.com/accelerator" = "nvidia-l4"
+      }
+    }
+  }
+}
+`, name, project)
+}

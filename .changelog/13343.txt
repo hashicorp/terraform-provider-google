@@ -1,0 +1,9 @@
+```release-note:enhancement
+cloudrun: promoted `node_selector` field in `google_cloud_run_service` resource to GA.
+```
+```release-note:enhancement
+cloudrunv2: promoted `node_selector` field in  `google_cloud_run_v2_service` resource to GA.
+```
+```release-note:enhancement
+cloudrunv2: added `gpu_zonal_redundancy_disabled` field to `google_cloud_run_v2_service` resource.
+```

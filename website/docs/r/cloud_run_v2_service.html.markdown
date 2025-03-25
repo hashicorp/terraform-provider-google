@@ -254,7 +254,6 @@ resource "google_cloud_run_v2_service" "default" {
 
 ```hcl
 resource "google_cloud_run_v2_service" "default" {
-  provider = google-beta
   name     = "cloudrun-service"
   location = "us-central1"
   deletion_protection = false
@@ -756,9 +755,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_template_service_mesh).
 
 * `node_selector` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Node Selector describes the hardware requirements of the resources.
   Structure is [documented below](#nested_template_node_selector).
+
+* `gpu_zonal_redundancy_disabled` -
+  (Optional)
+  True if GPU zonal redundancy is disabled on this revision.
 
 
 <a name="nested_template_scaling"></a>The `scaling` block supports:
