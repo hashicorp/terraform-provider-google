@@ -221,6 +221,12 @@ resource "google_workbench_instance" "instance" {
 
   enable_third_party_identity = "true"
 
+    depends_on = [
+    google_compute_network.my_network,
+    google_compute_subnetwork.my_subnetwork,
+    google_compute_address.static,
+    google_service_account_iam_binding.act_as_permission,
+  ]
 }
 ```
 
