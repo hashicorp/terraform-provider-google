@@ -66,7 +66,7 @@ func ResourceBigqueryReservationReservationAssignment() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Types of job, which could be specified when using the reservation. Possible values: JOB_TYPE_UNSPECIFIED, PIPELINE, QUERY`,
+				Description: `Types of job, which could be specified when using the reservation. Possible values: JOB_TYPE_UNSPECIFIED, PIPELINE, QUERY, CONTINUOUS`,
 			},
 			"reservation": {
 				Type:             schema.TypeString,
