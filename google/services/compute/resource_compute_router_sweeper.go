@@ -193,7 +193,10 @@ func deleteResourceComputeRouter(config *transport_tpg.Config, d *tpgresource.Re
 	name = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
 
 	// Skip resources that shouldn't be sweeped
-	if !sweeper.IsSweepableTestResource(name) {
+	prefixes := []string{
+		"swg-autogen-router",
+	}
+	if !sweeper.IsSweepableTestResource(name) && !sweeper.HasAnyPrefix(name, prefixes) {
 		return nil
 	}
 
