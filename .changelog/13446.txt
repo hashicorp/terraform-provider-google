@@ -1,0 +1,9 @@
+```release-note:new-resource
+`google_dataproc_metastore_table_iam_member`
+```
+```release-note:new-resource
+`google_dataproc_metastore_table_iam_policy`
+```
+```release-note:new-resource
+`google_dataproc_metastore_table_iam_binding`
+```
