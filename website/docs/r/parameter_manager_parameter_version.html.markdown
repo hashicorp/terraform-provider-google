@@ -81,6 +81,33 @@ resource "google_parameter_manager_parameter_version" "parameter-version-with-js
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=parameter_version_with_kms_key&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Parameter Version With Kms Key
+
+
+```hcl
+data "google_project" "project" {
+  provider = google-beta
+}
+
+resource "google_parameter_manager_parameter" "parameter-basic" {
+  provider  = google-beta
+  parameter_id = "parameter"
+
+  kms_key = "kms-key"
+}
+
+resource "google_parameter_manager_parameter_version" "parameter-version-with-kms-key" {
+  provider = google-beta
+  parameter = google_parameter_manager_parameter.parameter-basic.id
+  parameter_version_id = "parameter_version"
+  parameter_data = "app-parameter-version-data"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=parameter_version_with_yaml_format&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -148,6 +175,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `update_time` -
   The time at which the Parameter Version was updated.
+
+* `kms_key_version` -
+  The resource name of the Cloud KMS CryptoKeyVersion used to decrypt parameter version payload. Format
+  `projects/{{project}}/locations/global/keyRings/{{key_ring}}/cryptoKeys/{{crypto_key}}/cryptoKeyVersions/{{crypto_key_version}}`
 
 
 ## Timeouts
