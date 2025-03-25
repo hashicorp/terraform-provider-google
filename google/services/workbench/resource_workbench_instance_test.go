@@ -380,6 +380,7 @@ resource "google_workbench_instance" "instance" {
   gce_setup {
     metadata = {
       terraform = "true"
+      "resource-url" = "new-fake-value",
     }
   }
 
@@ -401,6 +402,7 @@ resource "google_workbench_instance" "instance" {
     metadata = {
       terraform = "true",
       "idle-timeout-seconds" = "10800",
+      "image-url" = "fake-value",
     }
   }
 

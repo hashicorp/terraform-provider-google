@@ -123,7 +123,7 @@ var WorkbenchInstanceProvidedMetadata = []string{
 func WorkbenchInstanceMetadataDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// Suppress diffs for the Metadata
 	for _, metadata := range WorkbenchInstanceProvidedMetadata {
-		if strings.Contains(k, metadata) && new == "" {
+		if strings.Contains(k, metadata) {
 			return true
 		}
 	}
