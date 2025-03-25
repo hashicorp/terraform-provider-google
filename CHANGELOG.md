@@ -15,7 +15,6 @@ IMPROVEMENTS:
 * compute: added `shielded_instance_initial_state` structure to `google_compute_image` resource ([#21937](https://github.com/hashicorp/terraform-provider-google/pull/21937))
 * compute: added `LINK_TYPE_ETHERNET_400G_LR4` enum value to `link_type` field in `google_compute_interconnect` resource ([#21903](https://github.com/hashicorp/terraform-provider-google/pull/21903))
 * compute: added `architecture` and `guest_os_features` to `google_compute_instance` ([#21875](https://github.com/hashicorp/terraform-provider-google/pull/21875))
-* compute: added `instance_lifecycle_policy.on_failed_health_check` field in resources `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` (beta) ([#21960](https://github.com/hashicorp/terraform-provider-google/pull/21960))
 * compute: added `workload_policy.type`, `workload_policy.max_topology_distance` and `workload_policy.accelerator_topology` fields to `google_compute_resource_policy` resource ([#21961](https://github.com/hashicorp/terraform-provider-google/pull/21961))
 * container: added `ip_endpoints_config` field to `google_container_cluster` resource ([#21959](https://github.com/hashicorp/terraform-provider-google/pull/21959))
 * container: added `node_config.windows_node_config` field to `google_container_node_pool` resource. ([#21876](https://github.com/hashicorp/terraform-provider-google/pull/21876))
