@@ -60,7 +60,7 @@ The following arguments are supported:
 
 * `job_type` -
   (Required)
-  Types of job, which could be specified when using the reservation. Possible values: JOB_TYPE_UNSPECIFIED, PIPELINE, QUERY
+  Types of job, which could be specified when using the reservation. Possible values: JOB_TYPE_UNSPECIFIED, PIPELINE, QUERY, CONTINUOUS
 
 * `reservation` -
   (Required)
