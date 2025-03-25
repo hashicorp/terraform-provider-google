@@ -431,6 +431,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_dataproc_metastore_database_iam_policy":          tpgiamresource.DataSourceIamPolicy(dataprocmetastore.DataprocMetastoreDatabaseIamSchema, dataprocmetastore.DataprocMetastoreDatabaseIamUpdaterProducer),
 	"google_dataproc_metastore_federation_iam_policy":        tpgiamresource.DataSourceIamPolicy(dataprocmetastore.DataprocMetastoreFederationIamSchema, dataprocmetastore.DataprocMetastoreFederationIamUpdaterProducer),
 	"google_dataproc_metastore_service_iam_policy":           tpgiamresource.DataSourceIamPolicy(dataprocmetastore.DataprocMetastoreServiceIamSchema, dataprocmetastore.DataprocMetastoreServiceIamUpdaterProducer),
+	"google_dataproc_metastore_table_iam_policy":             tpgiamresource.DataSourceIamPolicy(dataprocmetastore.DataprocMetastoreTableIamSchema, dataprocmetastore.DataprocMetastoreTableIamUpdaterProducer),
 	"google_dns_managed_zone_iam_policy":                     tpgiamresource.DataSourceIamPolicy(dns.DNSManagedZoneIamSchema, dns.DNSManagedZoneIamUpdaterProducer),
 	"google_gemini_repository_group_iam_policy":              tpgiamresource.DataSourceIamPolicy(gemini.GeminiRepositoryGroupIamSchema, gemini.GeminiRepositoryGroupIamUpdaterProducer),
 	"google_gke_backup_backup_plan_iam_policy":               tpgiamresource.DataSourceIamPolicy(gkebackup.GKEBackupBackupPlanIamSchema, gkebackup.GKEBackupBackupPlanIamUpdaterProducer),
@@ -501,8 +502,8 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 
 // Resources
 // Generated resources: 566
-// Generated IAM resources: 279
-// Total generated resources: 845
+// Generated IAM resources: 282
+// Total generated resources: 848
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -892,6 +893,9 @@ var generatedResources = map[string]*schema.Resource{
 	"google_dataproc_metastore_service_iam_binding":                              tpgiamresource.ResourceIamBinding(dataprocmetastore.DataprocMetastoreServiceIamSchema, dataprocmetastore.DataprocMetastoreServiceIamUpdaterProducer, dataprocmetastore.DataprocMetastoreServiceIdParseFunc),
 	"google_dataproc_metastore_service_iam_member":                               tpgiamresource.ResourceIamMember(dataprocmetastore.DataprocMetastoreServiceIamSchema, dataprocmetastore.DataprocMetastoreServiceIamUpdaterProducer, dataprocmetastore.DataprocMetastoreServiceIdParseFunc),
 	"google_dataproc_metastore_service_iam_policy":                               tpgiamresource.ResourceIamPolicy(dataprocmetastore.DataprocMetastoreServiceIamSchema, dataprocmetastore.DataprocMetastoreServiceIamUpdaterProducer, dataprocmetastore.DataprocMetastoreServiceIdParseFunc),
+	"google_dataproc_metastore_table_iam_binding":                                tpgiamresource.ResourceIamBinding(dataprocmetastore.DataprocMetastoreTableIamSchema, dataprocmetastore.DataprocMetastoreTableIamUpdaterProducer, dataprocmetastore.DataprocMetastoreTableIdParseFunc),
+	"google_dataproc_metastore_table_iam_member":                                 tpgiamresource.ResourceIamMember(dataprocmetastore.DataprocMetastoreTableIamSchema, dataprocmetastore.DataprocMetastoreTableIamUpdaterProducer, dataprocmetastore.DataprocMetastoreTableIdParseFunc),
+	"google_dataproc_metastore_table_iam_policy":                                 tpgiamresource.ResourceIamPolicy(dataprocmetastore.DataprocMetastoreTableIamSchema, dataprocmetastore.DataprocMetastoreTableIamUpdaterProducer, dataprocmetastore.DataprocMetastoreTableIdParseFunc),
 	"google_datastream_connection_profile":                                       datastream.ResourceDatastreamConnectionProfile(),
 	"google_datastream_private_connection":                                       datastream.ResourceDatastreamPrivateConnection(),
 	"google_datastream_stream":                                                   datastream.ResourceDatastreamStream(),
