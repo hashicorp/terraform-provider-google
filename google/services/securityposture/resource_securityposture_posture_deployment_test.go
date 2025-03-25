@@ -71,12 +71,19 @@ resource "google_securityposture_posture" "posture_one" {
     }
 }
 
+resource "google_project" "posture_project" {
+  name       = "Posture Project"
+  project_id = "tf-test-posture-%{random_suffix}"
+  org_id     = "%{org_id}"
+  deletion_policy = "DELETE"
+}
+
 resource "google_securityposture_posture_deployment" "postureDeployment_one" {
     posture_deployment_id          = "posture_deployment_one"
     parent = "organizations/%{org_id}"
     location = "global"
     description = "a new posture deployment"
-    target_resource = "projects/%{project_number}"
+    target_resource = "projects/${google_project.posture_project.number}"
     posture_id = google_securityposture_posture.posture_one.name
     posture_revision_id = google_securityposture_posture.posture_one.revision_id
 }
@@ -108,12 +115,19 @@ resource "google_securityposture_posture" "posture_one" {
     }
 }
 
+resource "google_project" "posture_project" {
+  name       = "Posture Project"
+  project_id = "tf-test-posture-%{random_suffix}"
+  org_id     = "%{org_id}"
+  deletion_policy = "DELETE"
+}
+
 resource "google_securityposture_posture_deployment" "postureDeployment_one" {
     posture_deployment_id          = "posture_deployment_one"
     parent = "organizations/%{org_id}"
     location = "global"
     description = "an updated posture deployment"
-    target_resource = "projects/%{project_number}"
+    target_resource = "projects/${google_project.posture_project.number}"
     posture_id = google_securityposture_posture.posture_one.name
     posture_revision_id = google_securityposture_posture.posture_one.revision_id
 }
