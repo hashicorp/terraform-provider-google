@@ -352,6 +352,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_storage_bucket_object":                            storage.DataSourceGoogleStorageBucketObject(),
 	"google_storage_bucket_objects":                           storage.DataSourceGoogleStorageBucketObjects(),
 	"google_storage_bucket_object_content":                    storage.DataSourceGoogleStorageBucketObjectContent(),
+	"google_storage_control_folder_intelligence_config":       storagecontrol.DataSourceGoogleStorageControlFolderIntelligenceConfig(),
 	"google_storage_control_organization_intelligence_config": storagecontrol.DataSourceGoogleStorageControlOrganizationIntelligenceConfig(),
 	"google_storage_control_project_intelligence_config":      storagecontrol.DataSourceGoogleStorageControlProjectIntelligenceConfig(),
 	"google_storage_object_signed_url":                        storage.DataSourceGoogleSignedUrl(),
@@ -499,9 +500,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 564
+// Generated resources: 565
 // Generated IAM resources: 279
-// Total generated resources: 843
+// Total generated resources: 844
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1284,6 +1285,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_storage_hmac_key":                                                    storage.ResourceStorageHmacKey(),
 	"google_storage_managed_folder":                                              storage.ResourceStorageManagedFolder(),
 	"google_storage_object_access_control":                                       storage.ResourceStorageObjectAccessControl(),
+	"google_storage_control_folder_intelligence_config":                          storagecontrol.ResourceStorageControlFolderIntelligenceConfig(),
 	"google_storage_control_organization_intelligence_config":                    storagecontrol.ResourceStorageControlOrganizationIntelligenceConfig(),
 	"google_storage_control_project_intelligence_config":                         storagecontrol.ResourceStorageControlProjectIntelligenceConfig(),
 	"google_storage_insights_report_config":                                      storageinsights.ResourceStorageInsightsReportConfig(),
