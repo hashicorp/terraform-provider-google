@@ -143,6 +143,13 @@ Format: organizations/{organization_id}.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"antivirus_overrides": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: `Defines what action to take for antivirus threats per protocol.`,
+							Elem:        networksecuritySecurityProfileThreatPreventionProfileAntivirusOverridesSchema(),
+							// Default schema.HashSchema is used.
+						},
 						"severity_overrides": {
 							Type:        schema.TypeSet,
 							Optional:    true,
@@ -240,6 +247,25 @@ func networksecuritySecurityProfileThreatPreventionProfileThreatOverridesSchema(
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Type of threat.`,
+			},
+		},
+	}
+}
+
+func networksecuritySecurityProfileThreatPreventionProfileAntivirusOverridesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"action": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"ALERT", "ALLOW", "DEFAULT_ACTION", "DENY"}),
+				Description:  `Threat action override. For some threat types, only a subset of actions applies. Possible values: ["ALERT", "ALLOW", "DEFAULT_ACTION", "DENY"]`,
+			},
+			"protocol": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"SMTP", "SMB", "POP3", "IMAP", "HTTP2", "HTTP", "FTP"}),
+				Description:  `Required protocol to match. Possible values: ["SMTP", "SMB", "POP3", "IMAP", "HTTP2", "HTTP", "FTP"]`,
 			},
 		},
 	}
@@ -643,6 +669,8 @@ func flattenNetworkSecuritySecurityProfileThreatPreventionProfile(v interface{},
 		flattenNetworkSecuritySecurityProfileThreatPreventionProfileSeverityOverrides(original["severityOverrides"], d, config)
 	transformed["threat_overrides"] =
 		flattenNetworkSecuritySecurityProfileThreatPreventionProfileThreatOverrides(original["threatOverrides"], d, config)
+	transformed["antivirus_overrides"] =
+		flattenNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverrides(original["antivirusOverrides"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNetworkSecuritySecurityProfileThreatPreventionProfileSeverityOverrides(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -701,6 +729,33 @@ func flattenNetworkSecuritySecurityProfileThreatPreventionProfileThreatOverrides
 }
 
 func flattenNetworkSecuritySecurityProfileThreatPreventionProfileThreatOverridesType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverrides(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := schema.NewSet(schema.HashResource(networksecuritySecurityProfileThreatPreventionProfileAntivirusOverridesSchema()), []interface{}{})
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed.Add(map[string]interface{}{
+			"protocol": flattenNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverridesProtocol(original["protocol"], d, config),
+			"action":   flattenNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverridesAction(original["action"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverridesProtocol(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverridesAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -786,6 +841,13 @@ func expandNetworkSecuritySecurityProfileThreatPreventionProfile(v interface{}, 
 		return nil, err
 	} else if val := reflect.ValueOf(transformedThreatOverrides); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["threatOverrides"] = transformedThreatOverrides
+	}
+
+	transformedAntivirusOverrides, err := expandNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverrides(original["antivirus_overrides"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAntivirusOverrides); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["antivirusOverrides"] = transformedAntivirusOverrides
 	}
 
 	return transformed, nil
@@ -875,6 +937,44 @@ func expandNetworkSecuritySecurityProfileThreatPreventionProfileThreatOverridesT
 }
 
 func expandNetworkSecuritySecurityProfileThreatPreventionProfileThreatOverridesType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverrides(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedProtocol, err := expandNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverridesProtocol(original["protocol"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedProtocol); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["protocol"] = transformedProtocol
+		}
+
+		transformedAction, err := expandNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverridesAction(original["action"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["action"] = transformedAction
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverridesProtocol(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverridesAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

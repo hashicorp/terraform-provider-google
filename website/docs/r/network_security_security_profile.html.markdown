@@ -70,6 +70,11 @@ resource "google_network_security_security_profile" "default" {
       action    = "ALLOW"
       threat_id = "280647"
     }
+
+    antivirus_overrides {
+      protocol = "SMTP"
+      action   = "ALLOW"
+    }
   }
 }
 ```
@@ -217,6 +222,11 @@ The following arguments are supported:
   and threat overrides, the threat overrides action is applied.
   Structure is [documented below](#nested_threat_prevention_profile_threat_overrides).
 
+* `antivirus_overrides` -
+  (Optional)
+  Defines what action to take for antivirus threats per protocol.
+  Structure is [documented below](#nested_threat_prevention_profile_antivirus_overrides).
+
 
 <a name="nested_threat_prevention_profile_severity_overrides"></a>The `severity_overrides` block supports:
 
@@ -244,6 +254,18 @@ The following arguments are supported:
 * `type` -
   (Output)
   Type of threat.
+
+<a name="nested_threat_prevention_profile_antivirus_overrides"></a>The `antivirus_overrides` block supports:
+
+* `protocol` -
+  (Required)
+  Required protocol to match.
+  Possible values are: `SMTP`, `SMB`, `POP3`, `IMAP`, `HTTP2`, `HTTP`, `FTP`.
+
+* `action` -
+  (Required)
+  Threat action override. For some threat types, only a subset of actions applies.
+  Possible values are: `ALERT`, `ALLOW`, `DEFAULT_ACTION`, `DENY`.
 
 <a name="nested_custom_mirroring_profile"></a>The `custom_mirroring_profile` block supports:
 

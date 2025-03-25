@@ -22,6 +22,8 @@ fields:
   - field: 'self_link'
   - field: 'terraform_labels'
     provider_only: true
+  - field: 'threat_prevention_profile.antivirus_overrides.action'
+  - field: 'threat_prevention_profile.antivirus_overrides.protocol'
   - field: 'threat_prevention_profile.severity_overrides.action'
   - field: 'threat_prevention_profile.severity_overrides.severity'
   - field: 'threat_prevention_profile.threat_overrides.action'
