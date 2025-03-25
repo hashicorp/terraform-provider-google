@@ -3,6 +3,7 @@
 package storage
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -23,6 +24,13 @@ func DataSourceGoogleStorageBucketObjectContent() *schema.Resource {
 
 	// The field must be optional for backward compatibility.
 	dsSchema["content"].Optional = true
+	dsSchema["content_base64"] = &schema.Schema{
+		Type:        schema.TypeString,
+		Description: "Base64 encoded version of the object content. Use this when dealing with binary data.",
+		Computed:    true,
+		Optional:    false,
+		Required:    false,
+	}
 
 	return &schema.Resource{
 		Read:   dataSourceGoogleStorageBucketObjectContentRead,
@@ -49,18 +57,22 @@ func dataSourceGoogleStorageBucketObjectContentRead(d *schema.ResourceData, meta
 	}
 
 	defer res.Body.Close()
-	var bodyString string
+	var objectBytes []byte
 
 	if res.StatusCode == http.StatusOK {
 		bodyBytes, err := ioutil.ReadAll(res.Body)
 		if err != nil {
 			return fmt.Errorf("Error reading all  from res.Body: %s", err)
 		}
-		bodyString = string(bodyBytes)
+		objectBytes = bodyBytes
 	}
 
-	if err := d.Set("content", bodyString); err != nil {
+	if err := d.Set("content", string(objectBytes)); err != nil {
 		return fmt.Errorf("Error setting content: %s", err)
+	}
+
+	if err := d.Set("content_base64", base64.StdEncoding.EncodeToString(objectBytes)); err != nil {
+		return fmt.Errorf("Error setting content_base64: %s", err)
 	}
 
 	d.SetId(bucket + "-" + name)

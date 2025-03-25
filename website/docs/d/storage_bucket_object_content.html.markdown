@@ -42,3 +42,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `content` - (Computed) The content of the object.
+
+* `content_base64` - (Computed) Base64 encoded version of the object content.
+  Use this when dealing with binary data.
