@@ -378,6 +378,31 @@ resource "google_datastream_connection_profile" "default" {
     }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=datastream_connection_profile_postgres_secret_manager&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Datastream Connection Profile Postgres Secret Manager
+
+
+```hcl
+resource "google_datastream_connection_profile" "default" {
+    display_name              = "Postgres Source With Secret Manager"
+    location                  = "us-central1"
+    connection_profile_id     = "source-profile"
+    create_without_validation = true
+
+
+    postgresql_profile {
+        hostname = "fake-hostname"
+        port = 3306
+        username = "fake-username"
+        secret_manager_stored_password = "projects/fake-project/secrets/fake-secret/versions/1"
+        database = "fake-database"
+    }
+}
+```
 
 ## Argument Reference
 
@@ -473,9 +498,13 @@ The following arguments are supported:
   Username for the Oracle connection.
 
 * `password` -
-  (Required)
+  (Optional)
   Password for the Oracle connection.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `secret_manager_stored_password` -
+  (Optional)
+  A reference to a Secret Manager resource name storing the user's password.
 
 * `database_service` -
   (Required)
@@ -510,9 +539,13 @@ The following arguments are supported:
   Username for the MySQL connection.
 
 * `password` -
-  (Required)
+  (Optional)
   Password for the MySQL connection.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `secret_manager_stored_password` -
+  (Optional)
+  A reference to a Secret Manager resource name storing the user's password.
 
 * `ssl_config` -
   (Optional)
@@ -570,9 +603,13 @@ The following arguments are supported:
   Username for the PostgreSQL connection.
 
 * `password` -
-  (Required)
+  (Optional)
   Password for the PostgreSQL connection.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `secret_manager_stored_password` -
+  (Optional)
+  A reference to a Secret Manager resource name storing the user's password.
 
 * `database` -
   (Required)
@@ -646,9 +683,13 @@ The following arguments are supported:
   Username for the SQL Server connection.
 
 * `password` -
-  (Required)
+  (Optional)
   Password for the SQL Server connection.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `secret_manager_stored_password` -
+  (Optional)
+  A reference to a Secret Manager resource name storing the user's password.
 
 * `database` -
   (Required)

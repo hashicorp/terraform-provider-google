@@ -176,22 +176,27 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 							Required:    true,
 							Description: `Hostname for the MySQL connection.`,
 						},
-						"password": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `Password for the MySQL connection.`,
-							Sensitive:   true,
-						},
 						"username": {
 							Type:        schema.TypeString,
 							Required:    true,
 							Description: `Username for the MySQL connection.`,
+						},
+						"password": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Password for the MySQL connection.`,
+							Sensitive:   true,
 						},
 						"port": {
 							Type:        schema.TypeInt,
 							Optional:    true,
 							Description: `Port for the MySQL connection.`,
 							Default:     3306,
+						},
+						"secret_manager_stored_password": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A reference to a Secret Manager resource name storing the user's password.`,
 						},
 						"ssl_config": {
 							Type:        schema.TypeList,
@@ -266,12 +271,6 @@ If this field is used then the 'client_certificate' and the
 							Required:    true,
 							Description: `Hostname for the Oracle connection.`,
 						},
-						"password": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `Password for the Oracle connection.`,
-							Sensitive:   true,
-						},
 						"username": {
 							Type:        schema.TypeString,
 							Required:    true,
@@ -283,11 +282,22 @@ If this field is used then the 'client_certificate' and the
 							Description: `Connection string attributes`,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
+						"password": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Password for the Oracle connection.`,
+							Sensitive:   true,
+						},
 						"port": {
 							Type:        schema.TypeInt,
 							Optional:    true,
 							Description: `Port for the Oracle connection.`,
 							Default:     1521,
+						},
+						"secret_manager_stored_password": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A reference to a Secret Manager resource name storing the user's password.`,
 						},
 					},
 				},
@@ -310,22 +320,27 @@ If this field is used then the 'client_certificate' and the
 							Required:    true,
 							Description: `Hostname for the PostgreSQL connection.`,
 						},
-						"password": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `Password for the PostgreSQL connection.`,
-							Sensitive:   true,
-						},
 						"username": {
 							Type:        schema.TypeString,
 							Required:    true,
 							Description: `Username for the PostgreSQL connection.`,
+						},
+						"password": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Password for the PostgreSQL connection.`,
+							Sensitive:   true,
 						},
 						"port": {
 							Type:        schema.TypeInt,
 							Optional:    true,
 							Description: `Port for the PostgreSQL connection.`,
 							Default:     5432,
+						},
+						"secret_manager_stored_password": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A reference to a Secret Manager resource name storing the user's password.`,
 						},
 					},
 				},
@@ -364,22 +379,27 @@ If this field is used then the 'client_certificate' and the
 							Required:    true,
 							Description: `Hostname for the SQL Server connection.`,
 						},
-						"password": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `Password for the SQL Server connection.`,
-							Sensitive:   true,
-						},
 						"username": {
 							Type:        schema.TypeString,
 							Required:    true,
 							Description: `Username for the SQL Server connection.`,
+						},
+						"password": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Password for the SQL Server connection.`,
+							Sensitive:   true,
 						},
 						"port": {
 							Type:        schema.TypeInt,
 							Optional:    true,
 							Description: `Port for the SQL Server connection.`,
 							Default:     1433,
+						},
+						"secret_manager_stored_password": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A reference to a Secret Manager resource name storing the user's password.`,
 						},
 					},
 				},
@@ -922,6 +942,8 @@ func flattenDatastreamConnectionProfileOracleProfile(v interface{}, d *schema.Re
 		flattenDatastreamConnectionProfileOracleProfileUsername(original["username"], d, config)
 	transformed["password"] =
 		flattenDatastreamConnectionProfileOracleProfilePassword(original["password"], d, config)
+	transformed["secret_manager_stored_password"] =
+		flattenDatastreamConnectionProfileOracleProfileSecretManagerStoredPassword(original["secretManagerStoredPassword"], d, config)
 	transformed["database_service"] =
 		flattenDatastreamConnectionProfileOracleProfileDatabaseService(original["databaseService"], d, config)
 	transformed["connection_attributes"] =
@@ -955,6 +977,10 @@ func flattenDatastreamConnectionProfileOracleProfileUsername(v interface{}, d *s
 
 func flattenDatastreamConnectionProfileOracleProfilePassword(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("oracle_profile.0.password")
+}
+
+func flattenDatastreamConnectionProfileOracleProfileSecretManagerStoredPassword(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenDatastreamConnectionProfileOracleProfileDatabaseService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1005,6 +1031,8 @@ func flattenDatastreamConnectionProfileMysqlProfile(v interface{}, d *schema.Res
 		flattenDatastreamConnectionProfileMysqlProfileUsername(original["username"], d, config)
 	transformed["password"] =
 		flattenDatastreamConnectionProfileMysqlProfilePassword(original["password"], d, config)
+	transformed["secret_manager_stored_password"] =
+		flattenDatastreamConnectionProfileMysqlProfileSecretManagerStoredPassword(original["secretManagerStoredPassword"], d, config)
 	transformed["ssl_config"] =
 		flattenDatastreamConnectionProfileMysqlProfileSslConfig(original["sslConfig"], d, config)
 	return []interface{}{transformed}
@@ -1036,6 +1064,10 @@ func flattenDatastreamConnectionProfileMysqlProfileUsername(v interface{}, d *sc
 
 func flattenDatastreamConnectionProfileMysqlProfilePassword(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("mysql_profile.0.password")
+}
+
+func flattenDatastreamConnectionProfileMysqlProfileSecretManagerStoredPassword(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenDatastreamConnectionProfileMysqlProfileSslConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1111,6 +1143,8 @@ func flattenDatastreamConnectionProfilePostgresqlProfile(v interface{}, d *schem
 		flattenDatastreamConnectionProfilePostgresqlProfileUsername(original["username"], d, config)
 	transformed["password"] =
 		flattenDatastreamConnectionProfilePostgresqlProfilePassword(original["password"], d, config)
+	transformed["secret_manager_stored_password"] =
+		flattenDatastreamConnectionProfilePostgresqlProfileSecretManagerStoredPassword(original["secretManagerStoredPassword"], d, config)
 	transformed["database"] =
 		flattenDatastreamConnectionProfilePostgresqlProfileDatabase(original["database"], d, config)
 	return []interface{}{transformed}
@@ -1144,6 +1178,10 @@ func flattenDatastreamConnectionProfilePostgresqlProfilePassword(v interface{}, 
 	return d.Get("postgresql_profile.0.password")
 }
 
+func flattenDatastreamConnectionProfilePostgresqlProfileSecretManagerStoredPassword(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDatastreamConnectionProfilePostgresqlProfileDatabase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1165,6 +1203,8 @@ func flattenDatastreamConnectionProfileSqlServerProfile(v interface{}, d *schema
 		flattenDatastreamConnectionProfileSqlServerProfileUsername(original["username"], d, config)
 	transformed["password"] =
 		flattenDatastreamConnectionProfileSqlServerProfilePassword(original["password"], d, config)
+	transformed["secret_manager_stored_password"] =
+		flattenDatastreamConnectionProfileSqlServerProfileSecretManagerStoredPassword(original["secretManagerStoredPassword"], d, config)
 	transformed["database"] =
 		flattenDatastreamConnectionProfileSqlServerProfileDatabase(original["database"], d, config)
 	return []interface{}{transformed}
@@ -1196,6 +1236,10 @@ func flattenDatastreamConnectionProfileSqlServerProfileUsername(v interface{}, d
 
 func flattenDatastreamConnectionProfileSqlServerProfilePassword(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("sql_server_profile.0.password")
+}
+
+func flattenDatastreamConnectionProfileSqlServerProfileSecretManagerStoredPassword(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenDatastreamConnectionProfileSqlServerProfileDatabase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1333,6 +1377,13 @@ func expandDatastreamConnectionProfileOracleProfile(v interface{}, d tpgresource
 		transformed["password"] = transformedPassword
 	}
 
+	transformedSecretManagerStoredPassword, err := expandDatastreamConnectionProfileOracleProfileSecretManagerStoredPassword(original["secret_manager_stored_password"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecretManagerStoredPassword); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["secretManagerStoredPassword"] = transformedSecretManagerStoredPassword
+	}
+
 	transformedDatabaseService, err := expandDatastreamConnectionProfileOracleProfileDatabaseService(original["database_service"], d, config)
 	if err != nil {
 		return nil, err
@@ -1363,6 +1414,10 @@ func expandDatastreamConnectionProfileOracleProfileUsername(v interface{}, d tpg
 }
 
 func expandDatastreamConnectionProfileOracleProfilePassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamConnectionProfileOracleProfileSecretManagerStoredPassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1452,6 +1507,13 @@ func expandDatastreamConnectionProfileMysqlProfile(v interface{}, d tpgresource.
 		transformed["password"] = transformedPassword
 	}
 
+	transformedSecretManagerStoredPassword, err := expandDatastreamConnectionProfileMysqlProfileSecretManagerStoredPassword(original["secret_manager_stored_password"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecretManagerStoredPassword); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["secretManagerStoredPassword"] = transformedSecretManagerStoredPassword
+	}
+
 	transformedSslConfig, err := expandDatastreamConnectionProfileMysqlProfileSslConfig(original["ssl_config"], d, config)
 	if err != nil {
 		return nil, err
@@ -1475,6 +1537,10 @@ func expandDatastreamConnectionProfileMysqlProfileUsername(v interface{}, d tpgr
 }
 
 func expandDatastreamConnectionProfileMysqlProfilePassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamConnectionProfileMysqlProfileSecretManagerStoredPassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1608,6 +1674,13 @@ func expandDatastreamConnectionProfilePostgresqlProfile(v interface{}, d tpgreso
 		transformed["password"] = transformedPassword
 	}
 
+	transformedSecretManagerStoredPassword, err := expandDatastreamConnectionProfilePostgresqlProfileSecretManagerStoredPassword(original["secret_manager_stored_password"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecretManagerStoredPassword); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["secretManagerStoredPassword"] = transformedSecretManagerStoredPassword
+	}
+
 	transformedDatabase, err := expandDatastreamConnectionProfilePostgresqlProfileDatabase(original["database"], d, config)
 	if err != nil {
 		return nil, err
@@ -1631,6 +1704,10 @@ func expandDatastreamConnectionProfilePostgresqlProfileUsername(v interface{}, d
 }
 
 func expandDatastreamConnectionProfilePostgresqlProfilePassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamConnectionProfilePostgresqlProfileSecretManagerStoredPassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1675,6 +1752,13 @@ func expandDatastreamConnectionProfileSqlServerProfile(v interface{}, d tpgresou
 		transformed["password"] = transformedPassword
 	}
 
+	transformedSecretManagerStoredPassword, err := expandDatastreamConnectionProfileSqlServerProfileSecretManagerStoredPassword(original["secret_manager_stored_password"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecretManagerStoredPassword); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["secretManagerStoredPassword"] = transformedSecretManagerStoredPassword
+	}
+
 	transformedDatabase, err := expandDatastreamConnectionProfileSqlServerProfileDatabase(original["database"], d, config)
 	if err != nil {
 		return nil, err
@@ -1698,6 +1782,10 @@ func expandDatastreamConnectionProfileSqlServerProfileUsername(v interface{}, d 
 }
 
 func expandDatastreamConnectionProfileSqlServerProfilePassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamConnectionProfileSqlServerProfileSecretManagerStoredPassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
