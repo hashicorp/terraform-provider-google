@@ -802,7 +802,7 @@ func ListCurrentlyEnabledServices(project, billingProject, userAgent string, con
 	err := transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() error {
 			ctx := context.Background()
-			call := config.NewServiceUsageClient(userAgent).Services.List(fmt.Sprintf("projects/%s", project))
+			call := config.NewServiceUsageClient(userAgent).Services.List(fmt.Sprintf("projects/%s", project)).PageSize(200)
 			if config.UserProjectOverride && billingProject != "" {
 				call.Header().Add("X-Goog-User-Project", billingProject)
 			}
