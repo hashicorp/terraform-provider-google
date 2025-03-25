@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `source_machine_image_encryption_key` field to `google_compute_instance_from_machine_image` resource  
+```
