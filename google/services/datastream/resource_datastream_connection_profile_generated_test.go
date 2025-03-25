@@ -287,6 +287,51 @@ resource "google_datastream_connection_profile" "default" {
 `, context)
 }
 
+func TestAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresSecretManagerExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDatastreamConnectionProfileDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresSecretManagerExample(context),
+			},
+			{
+				ResourceName:            "google_datastream_connection_profile.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"connection_profile_id", "create_without_validation", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresSecretManagerExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_datastream_connection_profile" "default" {
+    display_name              = "Postgres Source With Secret Manager"
+    location                  = "us-central1"
+    connection_profile_id     = "tf-test-source-profile%{random_suffix}"
+    create_without_validation = true
+
+
+    postgresql_profile {
+        hostname = "fake-hostname"
+        port = 3306
+        username = "fake-username"
+        secret_manager_stored_password = "projects/fake-project/secrets/fake-secret/versions/1"
+        database = "fake-database"
+    }
+}
+`, context)
+}
+
 func testAccCheckDatastreamConnectionProfileDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
