@@ -75,6 +75,7 @@ fields:
   - field: 'spec.template.spec.containers.volume_mounts.mount_path'
   - field: 'spec.template.spec.containers.volume_mounts.name'
   - field: 'spec.template.spec.containers.working_dir'
+  - field: 'spec.template.spec.node_selector'
   - field: 'spec.template.spec.service_account_name'
   - field: 'spec.template.spec.serving_state'
   - field: 'spec.template.spec.timeout_seconds'

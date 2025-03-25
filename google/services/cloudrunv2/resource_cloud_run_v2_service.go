@@ -488,6 +488,11 @@ If not specified, defaults to the same value as container.ports[0].containerPort
 							ValidateFunc: verify.ValidateEnum([]string{"EXECUTION_ENVIRONMENT_GEN1", "EXECUTION_ENVIRONMENT_GEN2", ""}),
 							Description:  `The sandbox environment to host this Revision. Possible values: ["EXECUTION_ENVIRONMENT_GEN1", "EXECUTION_ENVIRONMENT_GEN2"]`,
 						},
+						"gpu_zonal_redundancy_disabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `True if GPU zonal redundancy is disabled on this revision.`,
+						},
 						"labels": {
 							Type:     schema.TypeMap,
 							Optional: true,
@@ -504,6 +509,21 @@ All system labels in v1 now have a corresponding field in v2 RevisionTemplate.`,
 							Optional: true,
 							Description: `Sets the maximum number of requests that each serving instance can receive.
 If not specified or 0, defaults to 80 when requested CPU >= 1 and defaults to 1 when requested CPU < 1.`,
+						},
+						"node_selector": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Node Selector describes the hardware requirements of the resources.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"accelerator": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The GPU to attach to an instance. See https://cloud.google.com/run/docs/configuring/services/gpu for configuring GPU.`,
+									},
+								},
+							},
 						},
 						"revision": {
 							Type:        schema.TypeString,
@@ -1983,6 +2003,10 @@ func flattenCloudRunV2ServiceTemplate(v interface{}, d *schema.ResourceData, con
 		flattenCloudRunV2ServiceTemplateMaxInstanceRequestConcurrency(original["maxInstanceRequestConcurrency"], d, config)
 	transformed["session_affinity"] =
 		flattenCloudRunV2ServiceTemplateSessionAffinity(original["sessionAffinity"], d, config)
+	transformed["node_selector"] =
+		flattenCloudRunV2ServiceTemplateNodeSelector(original["nodeSelector"], d, config)
+	transformed["gpu_zonal_redundancy_disabled"] =
+		flattenCloudRunV2ServiceTemplateGpuZonalRedundancyDisabled(original["gpuZonalRedundancyDisabled"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2ServiceTemplateRevision(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3020,6 +3044,27 @@ func flattenCloudRunV2ServiceTemplateSessionAffinity(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenCloudRunV2ServiceTemplateNodeSelector(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["accelerator"] =
+		flattenCloudRunV2ServiceTemplateNodeSelectorAccelerator(original["accelerator"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudRunV2ServiceTemplateNodeSelectorAccelerator(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceTemplateGpuZonalRedundancyDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCloudRunV2ServiceTraffic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -3551,6 +3596,20 @@ func expandCloudRunV2ServiceTemplate(v interface{}, d tpgresource.TerraformResou
 		return nil, err
 	} else if val := reflect.ValueOf(transformedSessionAffinity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["sessionAffinity"] = transformedSessionAffinity
+	}
+
+	transformedNodeSelector, err := expandCloudRunV2ServiceTemplateNodeSelector(original["node_selector"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNodeSelector); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["nodeSelector"] = transformedNodeSelector
+	}
+
+	transformedGpuZonalRedundancyDisabled, err := expandCloudRunV2ServiceTemplateGpuZonalRedundancyDisabled(original["gpu_zonal_redundancy_disabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGpuZonalRedundancyDisabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["gpuZonalRedundancyDisabled"] = transformedGpuZonalRedundancyDisabled
 	}
 
 	return transformed, nil
@@ -4861,6 +4920,33 @@ func expandCloudRunV2ServiceTemplateMaxInstanceRequestConcurrency(v interface{},
 }
 
 func expandCloudRunV2ServiceTemplateSessionAffinity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateNodeSelector(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAccelerator, err := expandCloudRunV2ServiceTemplateNodeSelectorAccelerator(original["accelerator"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAccelerator); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["accelerator"] = transformedAccelerator
+	}
+
+	return transformed, nil
+}
+
+func expandCloudRunV2ServiceTemplateNodeSelectorAccelerator(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateGpuZonalRedundancyDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

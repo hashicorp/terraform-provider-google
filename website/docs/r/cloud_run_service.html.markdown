@@ -60,7 +60,6 @@ resource "google_cloud_run_service" "default" {
 
 ```hcl
 resource "google_cloud_run_service" "default" {
-  provider = google-beta
   name     = "cloudrun-srv"
   location = "us-central1"
 
@@ -408,10 +407,14 @@ The following arguments are supported:
     for connections to the Revision.
   - `run.googleapis.com/startup-cpu-boost` sets whether to allocate extra CPU to containers on startup.
     See https://cloud.google.com/sdk/gcloud/reference/run/deploy#--[no-]cpu-boost.
+  - `run.googleapis.com/network-interfaces` sets [Direct VPC egress](https://cloud.google.com/run/docs/configuring/vpc-direct-vpc#yaml)
+    for the Revision.
   - `run.googleapis.com/vpc-access-connector` sets a [VPC connector](https://cloud.google.com/run/docs/configuring/connecting-vpc#terraform_1)
     for the Revision.
   - `run.googleapis.com/vpc-access-egress` sets the outbound traffic to send through the VPC connector for this resource.
     See https://cloud.google.com/sdk/gcloud/reference/run/deploy#--vpc-egress.
+  - `run.googleapis.com/gpu-zonal-redundancy-disabled` sets
+    [GPU zonal redundancy](https://cloud.google.com/run/docs/configuring/services/gpu-zonal-redundancy) for the Revision.
 
 * `name` -
   (Optional)
@@ -427,7 +430,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec_template_spec_containers).
 
 * `node_selector` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Node Selector describes the hardware requirements of the resources.
   Use the following node selector keys to configure features on a Revision:
     - `run.googleapis.com/accelerator` sets the [type of GPU](https://cloud.google.com/run/docs/configuring/services/gpu) required by the Revision to run.
