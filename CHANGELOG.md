@@ -19,7 +19,7 @@ IMPROVEMENTS:
 * container: added `ip_endpoints_config` field to `google_container_cluster` resource ([#21959](https://github.com/hashicorp/terraform-provider-google/pull/21959))
 * container: added `node_config.windows_node_config` field to `google_container_node_pool` resource. ([#21876](https://github.com/hashicorp/terraform-provider-google/pull/21876))
 * container: added `pod_autoscaling` field to `google_container_cluster` resource ([#21919](https://github.com/hashicorp/terraform-provider-google/pull/21919))
-* memorystore: added the maintenance_policy field to the google_memorystore_instance resource ([#21957](https://github.com/hashicorp/terraform-provider-google/pull/21957))
+* memorystore: added the `maintenance_policy` field to the `google_memorystore_instance` resource ([#21957](https://github.com/hashicorp/terraform-provider-google/pull/21957))
 * memorystore: enabled update support for `node_type` field in `google_memorystore_instance` resource ([#21899](https://github.com/hashicorp/terraform-provider-google/pull/21899))
 * metastore: promoted `scaling_config` field of `google_dataproc_metastore_service` resource to GA ([#21877](https://github.com/hashicorp/terraform-provider-google/pull/21877))
 * networksecurity: added `connected_deployment_group` and `associations` fields to `google_network_security_intercept_endpoint_group` resource ([#21940](https://github.com/hashicorp/terraform-provider-google/pull/21940))
