@@ -121,6 +121,11 @@ resource "google_network_security_security_profile" "default" {
       action    = "ALLOW"
       threat_id = "280647"
     }
+
+    antivirus_overrides {
+      protocol = "SMTP"
+      action   = "ALLOW"
+    }
   }
 }
 `, context)
