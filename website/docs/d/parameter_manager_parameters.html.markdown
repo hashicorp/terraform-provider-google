@@ -49,6 +49,8 @@ exported:
 
 * `name` - The resource name of the parameter. Format: `projects/{{project}}/locations/global/parameters/{{parameter_id}}`
 
+* `kms_key` - The resource name of the Cloud KMS CryptoKey used to encrypt parameter version payload. Format `projects/{{project}}/locations/global/keyRings/{{key_ring}}/cryptoKeys/{{crypto_key}}`
+
 * `policy_member` - An object containing a unique resource identity tied to the parameter. Structure is [documented below](#nested_policy_member).
 
 <a name="nested_policy_member"></a>The `policy_member` block contains:

@@ -81,6 +81,26 @@ resource "google_parameter_manager_parameter" "parameter-with-labels" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=parameter_with_kms_key&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Parameter With Kms Key
+
+
+```hcl
+data "google_project" "project" {
+  provider = google-beta
+}
+
+resource "google_parameter_manager_parameter" "parameter-with-kms-key" {
+  provider  = google-beta
+  parameter_id = "parameter"
+
+  kms_key = "kms-key"
+}
+```
 
 ## Argument Reference
 
@@ -114,6 +134,11 @@ The following arguments are supported:
   The format type of the parameter resource.
   Default value is `UNFORMATTED`.
   Possible values are: `UNFORMATTED`, `YAML`, `JSON`.
+
+* `kms_key` -
+  (Optional)
+  The resource name of the Cloud KMS CryptoKey used to encrypt parameter version payload. Format
+  `projects/{{project}}/locations/global/keyRings/{{key_ring}}/cryptoKeys/{{crypto_key}}`
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
