@@ -1680,6 +1680,11 @@ The following arguments are supported:
   set.
   Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_url_redirect).
 
+* `custom_error_response_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  customErrorResponsePolicy specifies how the Load Balancer returns error responses when BackendService or BackendBucket responds with an error.
+  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_custom_error_response_policy).
+
 
 <a name="nested_path_matcher_path_matcher_route_rules_route_rules_header_action"></a>The `header_action` block supports:
 
@@ -2327,6 +2332,48 @@ The following arguments are supported:
   If set to true, any accompanying query portion of the original URL is removed
   prior to redirecting the request. If set to false, the query portion of the
   original URL is retained. Defaults to false.
+
+<a name="nested_path_matcher_path_matcher_route_rules_route_rules_custom_error_response_policy"></a>The `custom_error_response_policy` block supports:
+
+* `error_response_rule` -
+  (Optional)
+  Specifies rules for returning error responses.
+  In a given policy, if you specify rules for both a range of error codes as well as rules for specific error codes then rules with specific error codes have a higher priority.
+  For example, assume that you configure a rule for 401 (Un-authorized) code, and another for all 4 series error codes (4XX).
+  If the backend service returns a 401, then the rule for 401 will be applied. However if the backend service returns a 403, the rule for 4xx takes effect.
+  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_custom_error_response_policy_error_response_rule).
+
+* `error_service` -
+  (Optional)
+  The full or partial URL to the BackendBucket resource that contains the custom error content. Examples are:
+  https://www.googleapis.com/compute/v1/projects/project/global/backendBuckets/myBackendBucket
+  compute/v1/projects/project/global/backendBuckets/myBackendBucket
+  global/backendBuckets/myBackendBucket
+  If errorService is not specified at lower levels like pathMatcher, pathRule and routeRule, an errorService specified at a higher level in the UrlMap will be used. If UrlMap.defaultCustomErrorResponsePolicy contains one or more errorResponseRules[], it must specify errorService.
+  If load balancer cannot reach the backendBucket, a simple Not Found Error will be returned, with the original response code (or overrideResponseCode if configured).
+
+
+<a name="nested_path_matcher_path_matcher_route_rules_route_rules_custom_error_response_policy_error_response_rule"></a>The `error_response_rule` block supports:
+
+* `match_response_codes` -
+  (Optional)
+  Valid values include:
+  - A number between 400 and 599: For example 401 or 503, in which case the load balancer applies the policy if the error code exactly matches this value.
+  - 5xx: Load Balancer will apply the policy if the backend service responds with any response code in the range of 500 to 599.
+  - 4xx: Load Balancer will apply the policy if the backend service responds with any response code in the range of 400 to 499.
+  Values must be unique within matchResponseCodes and across all errorResponseRules of CustomErrorResponsePolicy.
+
+* `path` -
+  (Optional)
+  The full path to a file within backendBucket . For example: /errors/defaultError.html
+  path must start with a leading slash. path cannot have trailing slashes.
+  If the file is not available in backendBucket or the load balancer cannot reach the BackendBucket, a simple Not Found Error is returned to the client.
+  The value must be from 1 to 1024 characters
+
+* `override_response_code` -
+  (Optional)
+  The HTTP status code returned with the response containing the custom error content.
+  If overrideResponseCode is not supplied, the same response code returned by the original backend bucket or backend service is returned to the client.
 
 <a name="nested_path_matcher_path_matcher_default_url_redirect"></a>The `default_url_redirect` block supports:
 
