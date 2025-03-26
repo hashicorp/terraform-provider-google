@@ -367,6 +367,11 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 Defaults to 256M. Supported units are k, M, G, Mi, Gi. If no unit is
 supplied the value is interpreted as bytes.`,
 						},
+						"binary_authorization_policy": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The binary authorization policy to be checked when deploying the Cloud Run service.`,
+						},
 						"environment_variables": {
 							Type:             schema.TypeMap,
 							Computed:         true,
@@ -1302,6 +1307,8 @@ func flattenCloudfunctions2functionServiceConfig(v interface{}, d *schema.Resour
 		flattenCloudfunctions2functionServiceConfigSecretEnvironmentVariables(original["secretEnvironmentVariables"], d, config)
 	transformed["secret_volumes"] =
 		flattenCloudfunctions2functionServiceConfigSecretVolumes(original["secretVolumes"], d, config)
+	transformed["binary_authorization_policy"] =
+		flattenCloudfunctions2functionServiceConfigBinaryAuthorizationPolicy(original["binaryAuthorizationPolicy"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudfunctions2functionServiceConfigService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1510,6 +1517,10 @@ func flattenCloudfunctions2functionServiceConfigSecretVolumesVersionsVersion(v i
 }
 
 func flattenCloudfunctions2functionServiceConfigSecretVolumesVersionsPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionServiceConfigBinaryAuthorizationPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2092,6 +2103,13 @@ func expandCloudfunctions2functionServiceConfig(v interface{}, d tpgresource.Ter
 		transformed["secretVolumes"] = transformedSecretVolumes
 	}
 
+	transformedBinaryAuthorizationPolicy, err := expandCloudfunctions2functionServiceConfigBinaryAuthorizationPolicy(original["binary_authorization_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBinaryAuthorizationPolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["binaryAuthorizationPolicy"] = transformedBinaryAuthorizationPolicy
+	}
+
 	return transformed, nil
 }
 
@@ -2310,6 +2328,10 @@ func expandCloudfunctions2functionServiceConfigSecretVolumesVersionsVersion(v in
 }
 
 func expandCloudfunctions2functionServiceConfigSecretVolumesVersionsPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudfunctions2functionServiceConfigBinaryAuthorizationPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

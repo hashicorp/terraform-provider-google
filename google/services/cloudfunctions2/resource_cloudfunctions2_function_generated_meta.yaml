@@ -45,6 +45,7 @@ fields:
   - field: 'service_config.all_traffic_on_latest_revision'
   - field: 'service_config.available_cpu'
   - field: 'service_config.available_memory'
+  - field: 'service_config.binary_authorization_policy'
   - field: 'service_config.environment_variables'
   - field: 'service_config.gcf_uri'
   - field: 'service_config.ingress_settings'
