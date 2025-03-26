@@ -72,7 +72,7 @@ resource "google_managed_kafka_cluster" "example" {
     }
   }
   rebalance_config {
-    mode = "NO_REBALANCE"
+    mode = "AUTO_REBALANCE_ON_SCALE_UP"
   }
   labels = {
     key = "value"
