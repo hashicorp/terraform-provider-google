@@ -4,9 +4,11 @@ package fwvalidators
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -207,4 +209,58 @@ func (v BoundedDuration) ValidateString(ctx context.Context, req validator.Strin
 			fmt.Sprintf("Duration must be between %v and %v", v.MinDuration, v.MaxDuration),
 		)
 	}
+}
+
+type jwtValidator struct {
+}
+
+func (v jwtValidator) Description(_ context.Context) string {
+	return "value must be a valid JWT token"
+}
+
+func (v jwtValidator) MarkdownDescription(ctx context.Context) string {
+	return v.Description(ctx)
+}
+
+func (v jwtValidator) ValidateString(ctx context.Context, request validator.StringRequest, response *validator.StringResponse) {
+	if request.ConfigValue.IsNull() || request.ConfigValue.IsUnknown() {
+		return
+	}
+
+	value := request.ConfigValue.ValueString()
+
+	if value == "" {
+		response.Diagnostics.AddAttributeError(
+			request.Path,
+			"Invalid JWT Token",
+			"JWT token must not be empty",
+		)
+		return
+	}
+
+	// JWT consists of 3 parts separated by dots: header.payload.signature
+	parts := strings.Split(value, ".")
+	if len(parts) != 3 {
+		response.Diagnostics.AddAttributeError(
+			request.Path,
+			"Invalid JWT Format",
+			"JWT token must have 3 parts separated by dots (header.payload.signature)",
+		)
+		return
+	}
+
+	// Check that each part is base64 encoded
+	for i, part := range parts {
+		if _, err := base64.RawURLEncoding.DecodeString(part); err != nil {
+			response.Diagnostics.AddAttributeError(
+				request.Path,
+				"Invalid JWT Encoding",
+				fmt.Sprintf("Part %d of JWT is not valid base64: %v", i+1, err),
+			)
+		}
+	}
+}
+
+func JWTValidator() validator.String {
+	return jwtValidator{}
 }

@@ -179,6 +179,20 @@ variable.
 
 * `impersonate_service_account_delegates` - (Optional) The delegation chain for an impersonating a service account as described [here](https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials#sa-credentials-delegated).
 
+---
+
+* `external_credentials` - (Optional) Configuration of external credentials for the provider, such as Workload Identity Federation credentials. Terraform constructs a function as a [user-defined function credentials source](https://pkg.go.dev/golang.org/x/oauth2/google/externalaccount#hdr-Workload_Identity_Federation) based on the fixed (per execution) `identity_token` value. To use this with HCP Terraform, see the [External Credentials in Terraform Stacks](/website/docs/guides/external_credentials_stacks.html.markdown) guide.
+
+`external_credentials` takes precedence over `credentials` and `access_token` as well as `GOOGLE_CREDENTIALS` and `GOOGLE_OAUTH_ACCESS_TOKEN` environment variables. It includes the following fields:
+
+* `audience` - (Required) The Secure Token Service (STS) audience for the external credentials.
+* `service_account_email` - (Required) The email of the service account to impersonate when retrieving a Google access token.
+* `identity_token` - (Required) An identity token from the external identity provider to use for authentication with the external provider.
+
+    -> Terraform cannot renew these access tokens, and they will eventually
+    expire (default `1 hour`). If Terraform needs access for longer than a token's
+    lifetime, supply a [credential configuration](https://cloud.google.com/iam/docs/workload-identity-federation-with-other-providers#create-credential-config) through the `credentials` field instead.
+
 ## Quota Management Configuration
 
 * `user_project_override` - (Optional) Defaults to `false`. Controls the

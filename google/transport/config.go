@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -31,6 +32,7 @@ import (
 
 	"golang.org/x/oauth2"
 	googleoauth "golang.org/x/oauth2/google"
+	externalaccount "golang.org/x/oauth2/google/externalaccount"
 	appengine "google.golang.org/api/appengine/v1"
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/bigtableadmin/v2"
@@ -156,12 +158,63 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 	return []byte(output), nil
 }
 
+type ExternalCredentials struct {
+	Audience            string
+	ServiceAccountEmail string
+	IdentityToken       string
+}
+
+var _ externalaccount.SubjectTokenSupplier = ExternalCredentials{}
+
+// SubjectToken returns the identity token passed to the provider as an argument from the config.
+// We do not interact with an external system to get a token.
+func (e ExternalCredentials) SubjectToken(ctx context.Context, options externalaccount.SupplierOptions) (string, error) {
+	if e.IdentityToken != "" {
+		return e.IdentityToken, nil
+	}
+	return "", errors.New("identity token unavailable in Config when configuring the provider")
+}
+
+func ExpandExternalCredentialsConfig(v interface{}) (*ExternalCredentials, error) {
+	if v == nil {
+		return nil, nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 || ls[0] == nil {
+		return nil, nil
+	}
+
+	config := &ExternalCredentials{}
+	cfgV := ls[0].(map[string]interface{})
+
+	audience, ok := cfgV["audience"]
+	if !ok || audience.(string) == "" {
+		return nil, errors.New("missing value for external_credentials.audience")
+	}
+	config.Audience = audience.(string)
+
+	email, ok := cfgV["service_account_email"]
+	if !ok || email.(string) == "" {
+		return nil, errors.New("missing value for external_credentials.service_account_email")
+	}
+	config.ServiceAccountEmail = email.(string)
+
+	jwt, ok := cfgV["identity_token"]
+	if !ok || jwt.(string) == "" {
+		return nil, errors.New("missing value for external_credentials.identity_token")
+	}
+	config.IdentityToken = jwt.(string)
+
+	return config, nil
+}
+
 // Config is the configuration structure used to instantiate the Google
 // provider.
 type Config struct {
 	DCLConfig
 	AccessToken                               string
 	Credentials                               string
+	ExternalCredentials                       *ExternalCredentials
 	ImpersonateServiceAccount                 string
 	ImpersonateServiceAccountDelegates        []string
 	Project                                   string
@@ -1501,7 +1554,7 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 
 	c.Context = ctx
 
-	tokenSource, err := c.getTokenSource(c.Scopes, false)
+	tokenSource, err := c.getTokenSource(ctx, c.Scopes, false)
 	if err != nil {
 		return err
 	}
@@ -1526,7 +1579,7 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	}
 
 	// Userinfo is fetched before request logging is enabled to reduce additional noise.
-	err = c.logGoogleIdentities()
+	err = c.logGoogleIdentities(ctx)
 	if err != nil {
 		return err
 	}
@@ -1592,6 +1645,23 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	return nil
 }
 
+// getExternalAccountConfig returns an externalaccount.Config based on the Config object.
+// The external account config is intended to be used to create a token source.
+func (c *Config) getExternalAccountConfig(clientScopes []string) externalaccount.Config {
+	eaConfig := externalaccount.Config{
+		Audience:                       c.ExternalCredentials.Audience,
+		SubjectTokenType:               "urn:ietf:params:oauth:token-type:jwt",
+		ServiceAccountImpersonationURL: fmt.Sprintf("https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/%s:generateAccessToken", c.ExternalCredentials.ServiceAccountEmail),
+		Scopes:                         clientScopes,
+		SubjectTokenSupplier:           c.ExternalCredentials,
+	}
+	// If UniverseDomain is set, the externalaccount package will use it to set the TokenURL (https://sts.UNIVERSE_DOMAIN/v1/token). Otherwise TokenURL defaults to https://sts.googleapis.com/v1/token
+	if c.UniverseDomain != "" && c.UniverseDomain != "googleapis.com" {
+		eaConfig.UniverseDomain = c.UniverseDomain
+	}
+	return eaConfig
+}
+
 func ExpandProviderBatchingConfig(v interface{}) (*BatchingConfig, error) {
 	config := &BatchingConfig{
 		SendAfter:      time.Second * DefaultBatchSendIntervalSec,
@@ -1630,10 +1700,10 @@ func (c *Config) synchronousTimeout() time.Duration {
 }
 
 // Print Identities executing terraform API Calls.
-func (c *Config) logGoogleIdentities() error {
+func (c *Config) logGoogleIdentities(ctx context.Context) error {
 	if c.ImpersonateServiceAccount == "" {
 
-		tokenSource, err := c.getTokenSource(c.Scopes, true)
+		tokenSource, err := c.getTokenSource(ctx, c.Scopes, true)
 		if err != nil {
 			return err
 		}
@@ -1652,7 +1722,7 @@ func (c *Config) logGoogleIdentities() error {
 
 	// Drop Impersonated ClientOption from OAuth2 TokenSource to infer original identity
 
-	tokenSource, err := c.getTokenSource(c.Scopes, true)
+	tokenSource, err := c.getTokenSource(ctx, c.Scopes, true)
 	if err != nil {
 		return err
 	}
@@ -1667,7 +1737,7 @@ func (c *Config) logGoogleIdentities() error {
 
 	// Add the Impersonated ClientOption back in to the OAuth2 TokenSource
 
-	tokenSource, err = c.getTokenSource(c.Scopes, false)
+	tokenSource, err = c.getTokenSource(ctx, c.Scopes, false)
 	if err != nil {
 		return err
 	}
@@ -1678,7 +1748,18 @@ func (c *Config) logGoogleIdentities() error {
 
 // Get a TokenSource based on the Google Credentials configured.
 // If initialCredentialsOnly is true, don't follow the impersonation settings and return the initial set of creds.
-func (c *Config) getTokenSource(clientScopes []string, initialCredentialsOnly bool) (oauth2.TokenSource, error) {
+func (c *Config) getTokenSource(ctx context.Context, clientScopes []string, initialCredentialsOnly bool) (oauth2.TokenSource, error) {
+
+	if c.ExternalCredentials != nil {
+		log.Printf("[INFO] Using external credentials")
+		eaConfig := c.getExternalAccountConfig(clientScopes)
+		creds, err := externalaccount.NewTokenSource(ctx, eaConfig)
+		if err != nil {
+			return nil, fmt.Errorf("error creating token source from external credentials: %s", err)
+		}
+		return creds, nil
+	}
+
 	creds, err := c.GetCredentials(clientScopes, initialCredentialsOnly)
 	if err != nil {
 		return nil, fmt.Errorf("%s", err)

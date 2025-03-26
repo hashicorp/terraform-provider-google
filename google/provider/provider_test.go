@@ -4,11 +4,13 @@ package provider_test
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/provider"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -166,6 +168,114 @@ func TestAccProviderEmptyStrings(t *testing.T) {
 			},
 		},
 	})
+}
+
+// TestAccProvider_external_credentials_upgrade verifies that credentials and access_token
+// continue to function properly when upgrading to a version with external_credentials
+func TestAccProvider_external_credentials_upgrade(t *testing.T) {
+	acctest.SkipIfVcr(t) // Test doesn't interact with API
+
+	// Skip if not running in a acc test environment,
+	// as acc test environment variables needed to get accessToken
+	if v := os.Getenv("TF_ACC"); v == "" {
+		t.Skip("Acceptance tests skipped unless env 'TF_ACC' set")
+	}
+
+	accessToken := acctest.GetAccessTokenFromTestCredsFromEnv(t)
+	credentials := transport_tpg.TestFakeCredentialsPath
+
+	// Define old version (without external_credentials)
+	oldVersion := map[string]resource.ExternalProvider{
+		"google": {
+			VersionConstraint: "6.10.0", // a version before external_credentials was added
+			Source:            "registry.terraform.io/hashicorp/google",
+		},
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		Steps: []resource.TestStep{
+			// old provider - access_token
+			{
+				PreConfig: func() {
+					for _, env := range envvar.CredsEnvVars {
+						t.Setenv(env, "")
+					}
+				},
+				ExternalProviders: oldVersion,
+				Config: testAccProviderExternalCredentialsUpgrade_AccessTokenConfig(map[string]interface{}{
+					"access_token": accessToken,
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.google_client_config.default", "access_token", accessToken),
+				),
+			},
+			{
+				// new provider - access_token
+				PreConfig: func() {
+					for _, env := range envvar.CredsEnvVars {
+						t.Setenv(env, "")
+					}
+				},
+				Config: testAccProviderExternalCredentialsUpgrade_AccessTokenConfig(map[string]interface{}{
+					"access_token": accessToken,
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.google_client_config.default", "access_token", accessToken),
+				),
+			},
+			// old provider - credentials
+			{
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+				ExternalProviders:        oldVersion,
+				PreConfig: func() {
+					for _, env := range envvar.CredsEnvVars {
+						t.Setenv(env, "")
+					}
+				},
+				Config: testAccProviderExternalCredentialsUpgrade_CredentialsConfig(map[string]interface{}{
+					"credentials": credentials,
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.google_provider_config_sdk.default", "credentials", credentials),
+				),
+			},
+			{
+				// new provider - credentials
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+				PreConfig: func() {
+					for _, env := range envvar.CredsEnvVars {
+						t.Setenv(env, "")
+					}
+				},
+				Config: testAccProviderExternalCredentialsUpgrade_CredentialsConfig(map[string]interface{}{
+					"credentials": credentials,
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.google_provider_config_sdk.default", "credentials", credentials),
+				),
+			},
+		},
+	})
+}
+
+func testAccProviderExternalCredentialsUpgrade_AccessTokenConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+provider "google" {
+  access_token = "%{access_token}"
+}
+
+data "google_client_config" "default" {}
+`, context)
+}
+
+func testAccProviderExternalCredentialsUpgrade_CredentialsConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+provider "google" {
+  credentials = "%{credentials}"
+}
+
+data "google_provider_config_sdk" "default" {}
+`, context)
 }
 
 func testAccProviderBasePath_setBasePath(endpoint, name string) string {

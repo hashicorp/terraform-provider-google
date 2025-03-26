@@ -1,0 +1,3 @@
+```release-note:note
+`external_credentials` block in provider
+```
