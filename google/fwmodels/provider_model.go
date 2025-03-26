@@ -7,27 +7,35 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// ExternalCredentialsModel contains the information necessary to retrieve external credentials (like Workload Identity Federation credentials) using the user-defined function retrieval method (https://pkg.go.dev/golang.org/x/oauth2/google/externalaccount)
+type ExternalCredentialsModel struct {
+	Audience            types.String `tfsdk:"audience"`
+	ServiceAccountEmail types.String `tfsdk:"service_account_email"`
+	IdentityToken       types.String `tfsdk:"identity_token"`
+}
+
 // ProviderModel maps provider schema data to a Go type.
 // When the plugin-framework provider is configured, the Configure function receives data about
 // the provider block in the configuration. That data is used to populate this struct.
 type ProviderModel struct {
-	Credentials                               types.String `tfsdk:"credentials"`
-	AccessToken                               types.String `tfsdk:"access_token"`
-	ImpersonateServiceAccount                 types.String `tfsdk:"impersonate_service_account"`
-	ImpersonateServiceAccountDelegates        types.List   `tfsdk:"impersonate_service_account_delegates"`
-	Project                                   types.String `tfsdk:"project"`
-	BillingProject                            types.String `tfsdk:"billing_project"`
-	Region                                    types.String `tfsdk:"region"`
-	Zone                                      types.String `tfsdk:"zone"`
-	Scopes                                    types.List   `tfsdk:"scopes"`
-	Batching                                  types.List   `tfsdk:"batching"`
-	UserProjectOverride                       types.Bool   `tfsdk:"user_project_override"`
-	RequestTimeout                            types.String `tfsdk:"request_timeout"`
-	RequestReason                             types.String `tfsdk:"request_reason"`
-	UniverseDomain                            types.String `tfsdk:"universe_domain"`
-	DefaultLabels                             types.Map    `tfsdk:"default_labels"`
-	AddTerraformAttributionLabel              types.Bool   `tfsdk:"add_terraform_attribution_label"`
-	TerraformAttributionLabelAdditionStrategy types.String `tfsdk:"terraform_attribution_label_addition_strategy"`
+	ExternalCredentials                       []ExternalCredentialsModel `tfsdk:"external_credentials"`
+	Credentials                               types.String               `tfsdk:"credentials"`
+	AccessToken                               types.String               `tfsdk:"access_token"`
+	ImpersonateServiceAccount                 types.String               `tfsdk:"impersonate_service_account"`
+	ImpersonateServiceAccountDelegates        types.List                 `tfsdk:"impersonate_service_account_delegates"`
+	Project                                   types.String               `tfsdk:"project"`
+	BillingProject                            types.String               `tfsdk:"billing_project"`
+	Region                                    types.String               `tfsdk:"region"`
+	Zone                                      types.String               `tfsdk:"zone"`
+	Scopes                                    types.List                 `tfsdk:"scopes"`
+	Batching                                  types.List                 `tfsdk:"batching"`
+	UserProjectOverride                       types.Bool                 `tfsdk:"user_project_override"`
+	RequestTimeout                            types.String               `tfsdk:"request_timeout"`
+	RequestReason                             types.String               `tfsdk:"request_reason"`
+	UniverseDomain                            types.String               `tfsdk:"universe_domain"`
+	DefaultLabels                             types.Map                  `tfsdk:"default_labels"`
+	AddTerraformAttributionLabel              types.Bool                 `tfsdk:"add_terraform_attribution_label"`
+	TerraformAttributionLabelAdditionStrategy types.String               `tfsdk:"terraform_attribution_label_addition_strategy"`
 
 	// Generated Products
 	AccessApprovalCustomEndpoint           types.String `tfsdk:"access_approval_custom_endpoint"`

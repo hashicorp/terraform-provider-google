@@ -1075,6 +1075,30 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					},
 				},
 			},
+			"external_credentials": schema.ListNestedBlock{
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"audience": schema.StringAttribute{
+							Required: true,
+							Validators: []validator.String{
+								fwvalidators.NonEmptyStringValidator(),
+							},
+						},
+						"service_account_email": schema.StringAttribute{
+							Required: true,
+							Validators: []validator.String{
+								fwvalidators.ServiceAccountEmailValidator{},
+							},
+						},
+						"identity_token": schema.StringAttribute{
+							Required: true,
+							Validators: []validator.String{
+								fwvalidators.JWTValidator(),
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 

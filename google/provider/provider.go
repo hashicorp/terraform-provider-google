@@ -39,14 +39,40 @@ func Provider() *schema.Provider {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ValidateFunc:  ValidateCredentials,
-				ConflictsWith: []string{"access_token"},
+				ConflictsWith: []string{"access_token", "external_credentials"},
 			},
 
 			"access_token": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ValidateFunc:  ValidateEmptyStrings,
-				ConflictsWith: []string{"credentials"},
+				ConflictsWith: []string{"credentials", "external_credentials"},
+			},
+
+			"external_credentials": {
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				ConflictsWith: []string{"credentials", "access_token"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"audience": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: ValidateEmptyStrings,
+						},
+						"service_account_email": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: ValidateServiceAccountEmail,
+						},
+						"identity_token": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: ValidateJWT,
+						},
+					},
+				},
 			},
 
 			"impersonate_service_account": {
@@ -945,19 +971,27 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		config.RequestReason = v.(string)
 	}
 
-	// Check for primary credentials in config. Note that if neither is set, ADCs
+	// Check for primary credentials in config. Note that if none of these values are set, ADCs
 	// will be used if available.
-	if v, ok := d.GetOk("access_token"); ok {
-		config.AccessToken = v.(string)
+	if v, ok := d.GetOk("external_credentials"); ok {
+		external, err := transport_tpg.ExpandExternalCredentialsConfig(v)
+		if err != nil {
+			return nil, diag.FromErr(err)
+		}
+		config.ExternalCredentials = external
+	} else {
+		if v, ok := d.GetOk("access_token"); ok {
+			config.AccessToken = v.(string)
+		}
+
+		if v, ok := d.GetOk("credentials"); ok {
+			config.Credentials = v.(string)
+		}
 	}
 
-	if v, ok := d.GetOk("credentials"); ok {
-		config.Credentials = v.(string)
-	}
-
-	// only check environment variables if neither value was set in config- this
+	// only check environment variables if none of these values are set in config- this
 	// means config beats env var in all cases.
-	if config.AccessToken == "" && config.Credentials == "" {
+	if config.ExternalCredentials == nil && config.AccessToken == "" && config.Credentials == "" {
 		config.Credentials = transport_tpg.MultiEnvSearch([]string{
 			"GOOGLE_CREDENTIALS",
 			"GOOGLE_CLOUD_KEYFILE_JSON",

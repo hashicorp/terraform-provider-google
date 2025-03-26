@@ -87,6 +87,71 @@ func TestProvider_ValidateCredentials(t *testing.T) {
 	}
 }
 
+func TestProvider_ValidateJWT(t *testing.T) {
+	cases := map[string]struct {
+		ConfigValue      interface{}
+		ValueNotProvided bool
+		ExpectedWarnings []string
+		ExpectedErrors   []error
+	}{
+		"a valid JWT is accepted": {
+			ConfigValue: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+		},
+		"an empty JWT is rejected": {
+			ConfigValue: "",
+			ExpectedErrors: []error{
+				errors.New("\"\" cannot be empty"),
+			},
+		},
+		"a JWT with invalid base64 parts is rejected": {
+			ConfigValue: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.invalid-signature",
+			ExpectedErrors: []error{
+				errors.New("part 3 of JWT is not valid base64: illegal base64 data at input byte 16"),
+			},
+		},
+		"a JWT with incorrect format (not 3 parts) is rejected": {
+			ConfigValue: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ",
+			ExpectedErrors: []error{
+				errors.New("\"\" is not a valid JWT format"),
+			},
+		},
+		"unconfigured value is not valid": {
+			ValueNotProvided: true,
+			ExpectedErrors: []error{
+				errors.New("\"\" cannot be empty"),
+			},
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			var configValue interface{}
+			if !tc.ValueNotProvided {
+				configValue = tc.ConfigValue
+			}
+
+			// Act
+			ws, es := provider.ValidateJWT(configValue, "")
+
+			// Assert
+			if len(ws) != len(tc.ExpectedWarnings) {
+				t.Fatalf("Expected %d warnings, got %d: %v", len(tc.ExpectedWarnings), len(ws), ws)
+			}
+			if len(es) != len(tc.ExpectedErrors) {
+				t.Fatalf("Expected %d errors, got %d: %v", len(tc.ExpectedErrors), len(es), es)
+			}
+
+			for i := 0; i < len(tc.ExpectedErrors) && i < len(es); i++ {
+				if es[i].Error() != tc.ExpectedErrors[i].Error() {
+					t.Fatalf("Expected error %d to be \"%s\", got \"%s\"", i+1, tc.ExpectedErrors[i], es[i])
+				}
+			}
+		})
+	}
+}
+
 func TestProvider_ValidateEmptyStrings(t *testing.T) {
 	cases := map[string]struct {
 		ConfigValue      interface{}
