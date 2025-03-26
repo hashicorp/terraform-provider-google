@@ -1,0 +1,9 @@
+```release-note:new-datasource
+`google_storage_control_project_intelligence_config`
+```
+```release-note:new-datasource
+`google_storage_control_folder_intelligence_config`
+```
+```release-note:new-datasource
+`google_storage_control_organization_intelligence_config`
+```
