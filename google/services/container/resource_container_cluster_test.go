@@ -549,6 +549,50 @@ func TestAccContainerCluster_withILBSubsetting(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_disableL4LbFirewallReconciliation(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	npName := fmt.Sprintf("tf-test-cluster-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_disableL4LbFirewallReconciliation(clusterName, npName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.confidential_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_enableL4LbFirewallReconciliation(clusterName, npName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.confidential_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_disableL4LbFirewallReconciliation(clusterName, npName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.confidential_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withMultiNetworking(t *testing.T) {
 	t.Parallel()
 
@@ -6534,6 +6578,62 @@ resource "google_container_cluster" "confidential_nodes" {
   }
 
   enable_l4_ilb_subsetting = false
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, clusterName, npName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_disableL4LbFirewallReconciliation(clusterName, npName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "confidential_nodes" {
+  name     = "%s"
+  location = "us-central1-a"
+  release_channel {
+    channel = "RAPID"
+  }
+
+  node_pool {
+    name               = "%s"
+    initial_node_count = 1
+    node_config {
+      machine_type = "e2-medium"
+    }
+  }
+
+  enable_l4_ilb_subsetting = true
+  disable_l4_lb_firewall_reconciliation = true
+
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, clusterName, npName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_enableL4LbFirewallReconciliation(clusterName, npName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "confidential_nodes" {
+  name     = "%s"
+  location = "us-central1-a"
+  release_channel {
+    channel = "RAPID"
+  }
+
+  node_pool {
+    name               = "%s"
+    initial_node_count = 1
+    node_config {
+      machine_type = "e2-medium"
+    }
+  }
+
+  enable_l4_ilb_subsetting = true
+  disable_l4_lb_firewall_reconciliation = false
+
   network    = "%s"
   subnetwork = "%s"
 
