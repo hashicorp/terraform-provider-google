@@ -13,7 +13,8 @@ import (
 
 func DataSourceGoogleContainerRepo() *schema.Resource {
 	return &schema.Resource{
-		Read: containerRegistryRepoRead,
+		DeprecationMessage: "Container Registry is deprecated. Effective March 18, 2025, Container Registry is shut down and writing images to Container Registry is unavailable. Resource will be removed in future major release.",
+		Read:               containerRegistryRepoRead,
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
