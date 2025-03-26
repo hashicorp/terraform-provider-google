@@ -334,6 +334,75 @@ func TestAccMemorystoreInstance_updatePersistence(t *testing.T) {
 	})
 }
 
+// Validate that instance endpoints are updated for the cluster
+func TestAccMemorystoreInstance_updateInstanceEndpoints(t *testing.T) {
+	t.Parallel()
+
+	name := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMemorystoreInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// create cluster with no user created connections
+				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: true, zoneDistributionMode: "MULTI_ZONE", userEndpointCount: 0}),
+			},
+			{
+				ResourceName:            "google_memorystore_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"psc_configs"},
+			},
+			{
+				// create cluster with one user created connection
+				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: true, zoneDistributionMode: "MULTI_ZONE", userEndpointCount: 1}),
+			},
+			{
+				ResourceName:            "google_memorystore_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"psc_configs"},
+			},
+			{
+				// update cluster with 2 endpoints
+				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: true, zoneDistributionMode: "MULTI_ZONE", userEndpointCount: 2}),
+			},
+			{
+				ResourceName:            "google_memorystore_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"psc_configs"},
+			},
+			{
+				// update cluster with 1 endpoint
+				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: true, zoneDistributionMode: "MULTI_ZONE", userEndpointCount: 1}),
+			},
+			{
+				ResourceName:            "google_memorystore_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"psc_configs"},
+			},
+			{
+				// update cluster with 0 endpoints
+				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: true, zoneDistributionMode: "MULTI_ZONE", userEndpointCount: 0}),
+			},
+			{
+				ResourceName:            "google_memorystore_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"psc_configs"},
+			},
+			{
+				// clean up the resource
+				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: false, zoneDistributionMode: "MULTI_ZONE", userEndpointCount: 0}),
+			},
+		},
+	})
+}
+
 type InstanceParams struct {
 	name                      string
 	replicaCount              int
@@ -351,6 +420,212 @@ type InstanceParams struct {
 	maintenanceSeconds        int
 	maintenanceNanos          int
 	engineVersion             string
+	userEndpointCount         int
+}
+
+func createMemorystoreInstanceEndpointsWithOneUserCreatedConnections(params *InstanceParams) string {
+	return fmt.Sprintf(`
+		resource "google_memorystore_instance_desired_user_created_endpoints" "default" {
+
+		name                           = "%s"
+		region                         = "europe-west1"
+		desired_user_created_endpoints {
+			connections {
+				psc_connection {
+					psc_connection_id  = google_compute_forwarding_rule.forwarding_rule1_network1.psc_connection_id
+					ip_address         = google_compute_address.ip1_network1.address
+					forwarding_rule    = google_compute_forwarding_rule.forwarding_rule1_network1.id
+					network            = google_compute_network.network1.id
+					project_id         = data.google_project.project.project_id
+					service_attachment = google_memorystore_instance.test.psc_attachment_details[0].service_attachment
+				}
+			}
+		desired_user_created_endpoints {
+				psc_connection {
+					psc_connection_id  = google_compute_forwarding_rule.forwarding_rule2_network1.psc_connection_id
+					ip_address         = google_compute_address.ip2_network1.address
+					forwarding_rule    = google_compute_forwarding_rule.forwarding_rule2_network1.id
+					network            = google_compute_network.network1.id
+					service_attachment = google_memorystore_instance.test.psc_attachment_details[1].service_attachment
+				}
+			}
+		}
+		}
+		%s
+		`,
+		params.name,
+		createMemorystoreUserCreatedConnection1(params),
+	)
+
+}
+
+func createMemorystoreInstanceEndpointsWithTwoUserCreatedConnections(params *InstanceParams) string {
+	return fmt.Sprintf(`
+		resource "google_memorystore_instance_desired_user_created_endpoints" "default" {
+		name                           = "%s"
+		region                         = "europe-west1"
+		desired_user_created_endpoints {
+			connections {
+				psc_connection {
+					psc_connection_id  = google_compute_forwarding_rule.forwarding_rule1_network1.psc_connection_id
+					ip_address         = google_compute_address.ip1_network1.address
+					forwarding_rule    = google_compute_forwarding_rule.forwarding_rule1_network1.id
+					network            = google_compute_network.network1.id
+					project_id         = data.google_project.project.project_id
+					service_attachment = google_memorystore_instance.test.psc_attachment_details[0].service_attachment
+				}
+			}
+			connections {
+				psc_connection {
+					psc_connection_id  = google_compute_forwarding_rule.forwarding_rule2_network1.psc_connection_id
+					ip_address         = google_compute_address.ip2_network1.address
+					forwarding_rule    = google_compute_forwarding_rule.forwarding_rule2_network1.id
+					network            = google_compute_network.network1.id
+					service_attachment = google_memorystore_instance.test.psc_attachment_details[1].service_attachment
+				}
+			}
+		}
+		desired_user_created_endpoints {
+			connections {
+				psc_connection {
+					psc_connection_id  = google_compute_forwarding_rule.forwarding_rule1_network2.psc_connection_id
+					ip_address         = google_compute_address.ip1_network2.address
+					forwarding_rule    = google_compute_forwarding_rule.forwarding_rule1_network2.id
+					network            = google_compute_network.network2.id
+					service_attachment = google_memorystore_instance.test.psc_attachment_details[0].service_attachment
+				}
+			}
+			connections {
+				psc_connection {
+					psc_connection_id  = google_compute_forwarding_rule.forwarding_rule2_network2.psc_connection_id
+					ip_address         = google_compute_address.ip2_network2.address
+					forwarding_rule    = google_compute_forwarding_rule.forwarding_rule2_network2.id
+					network            = google_compute_network.network2.id
+					service_attachment = google_memorystore_instance.test.psc_attachment_details[1].service_attachment
+				}
+			}
+		}
+		}
+		%s
+		%s
+		`,
+		params.name,
+		createMemorystoreUserCreatedConnection1(params),
+		createMemorystoreUserCreatedConnection2(params),
+	)
+}
+func createMemorystoreUserCreatedConnection1(params *InstanceParams) string {
+	return fmt.Sprintf(`
+		resource "google_compute_forwarding_rule" "forwarding_rule1_network1" {
+		name                          = "%s"
+		region                        = "europe-west1"
+		ip_address                    = google_compute_address.ip1_network1.id
+		load_balancing_scheme         = ""
+		network                       = google_compute_network.network1.id
+		target                        = google_memorystore_instance.test.psc_attachment_details[0].service_attachment
+		} 
+
+		resource "google_compute_forwarding_rule" "forwarding_rule2_network1" {
+		name                          = "%s"
+		region                        = "europe-west1"
+		ip_address                    = google_compute_address.ip2_network1.id
+		load_balancing_scheme         = ""
+		network                       = google_compute_network.network1.id
+		target                        = google_memorystore_instance.test.psc_attachment_details[1].service_attachment
+		}
+
+		resource "google_compute_address" "ip1_network1" {
+		name                          = "%s"
+		region                        = "europe-west1"
+		subnetwork                    = google_compute_subnetwork.subnet_network1.id
+		address_type                  = "INTERNAL"
+		purpose                       = "GCE_ENDPOINT"
+		}
+
+		resource "google_compute_address" "ip2_network1" {
+		name                         = "%s"
+		region                       = "europe-west1"
+		subnetwork                   = google_compute_subnetwork.subnet_network1.id
+		address_type                 = "INTERNAL"
+		purpose                      = "GCE_ENDPOINT"
+		}
+
+		resource "google_compute_subnetwork" "subnet_network1" {
+		name                         = "%s"
+		ip_cidr_range                = "10.0.0.248/29"
+		region                       = "europe-west1"
+		network                      = google_compute_network.network1.id
+		}
+
+		resource "google_compute_network" "network1" {
+		name                         = "%s"
+		auto_create_subnetworks      = false
+		}
+		`,
+		params.name+"-11", // fwd-rule1-net1
+		params.name+"-12", // fwd-rule2-net1
+		params.name+"-11", // ip1-net1
+		params.name+"-12", // ip2-net1
+		params.name+"-1",  // subnet-net1
+		params.name+"-1",  // net1
+	)
+}
+
+func createMemorystoreUserCreatedConnection2(params *InstanceParams) string {
+	return fmt.Sprintf(`
+		resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
+		name                         = "%s"
+		region                       = "europe-west1"
+		ip_address                   = google_compute_address.ip1_network2.id
+		load_balancing_scheme        = ""
+		network                      = google_compute_network.network2.id
+		target                       = google_memorystore_instance.test.psc_attachment_details[0].service_attachment
+		}
+
+		resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
+		name                         = "%s"
+		region                       = "europe-west1"
+		ip_address                   = google_compute_address.ip2_network2.id
+		load_balancing_scheme        = ""
+		network                      = google_compute_network.network2.id
+		target                       = google_memorystore_instance.test.psc_attachment_details[1].service_attachment
+		}
+
+		resource "google_compute_address" "ip1_network2" {
+		name                         = "%s"
+		region                       = "europe-west1"
+		subnetwork                   = google_compute_subnetwork.subnet_network2.id
+		address_type                 = "INTERNAL"     
+		purpose                      = "GCE_ENDPOINT"
+		}
+
+		resource "google_compute_address" "ip2_network2" {
+		name                         = "%s"
+		region                       = "europe-west1"
+		subnetwork                   = google_compute_subnetwork.subnet_network2.id
+		address_type                 = "INTERNAL"
+		purpose                      = "GCE_ENDPOINT"
+		}
+
+		resource "google_compute_subnetwork" "subnet_network2" {
+		name                         = "%s"
+		ip_cidr_range                = "10.0.0.248/29"
+		region                       = "europe-west1"
+		network                      = google_compute_network.network2.id
+		}
+
+		resource "google_compute_network" "network2" {
+		name                         = "%s"
+		auto_create_subnetworks      = false
+		}
+		`,
+		params.name+"-21", // fwd-rule1-net2
+		params.name+"-22", // fwd-rule2-net2
+		params.name+"-21", // ip1-net2
+		params.name+"-22", // ip2-net2
+		params.name+"-2",  // subnet-net2
+		params.name+"-2",  // net2
+	)
 }
 
 func createOrUpdateMemorystoreInstance(params *InstanceParams) string {
@@ -399,6 +674,13 @@ func createOrUpdateMemorystoreInstance(params *InstanceParams) string {
 		}
 		`, params.persistenceMode)
 	}
+
+	if params.userEndpointCount == 2 {
+		createMemorystoreInstanceEndpointsWithTwoUserCreatedConnections(params)
+	} else if params.userEndpointCount == 1 {
+		createMemorystoreInstanceEndpointsWithOneUserCreatedConnections(params)
+	}
+
 	return fmt.Sprintf(`
 resource "google_memorystore_instance" "test" {
     instance_id  = "%s"
