@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_memorystore_instance_desired_user_created_connections`
+```
+```release-note:enhancement
+memorystore: added `psc_attachment_details` field to `google_memorystore_instance` resource, to enable use of the fine-grained resource `google_memorystore_instance_desired_user_created_connections
+```

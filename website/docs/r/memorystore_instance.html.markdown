@@ -24,6 +24,11 @@ description: |-
 A Google Cloud Memorystore instance.
 
 
+To get more information about Instance, see:
+
+* [API documentation](https://cloud.google.com/memorystore/docs/valkey/reference/rest/v1/projects.locations.instances)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/memorystore/docs/valkey/create-instances)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=memorystore_instance_basic&open_in_editor=main.tf" target="_blank">
@@ -333,7 +338,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-* `desired_psc_auto_connections` - (Optional) Required. Immutable. User inputs for the auto-created PSC connections. 
+* `desired_psc_auto_connections` - (Optional) Immutable. User inputs for the auto-created PSC connections. 
 
 <a name="nested_persistence_config"></a>The `persistence_config` block supports:
 
@@ -517,6 +522,10 @@ In addition to the arguments listed above, the following computed attributes are
   Endpoints for the instance.
   Structure is [documented below](#nested_endpoints).
 
+* `psc_attachment_details` -
+  Configuration of a service attachment of the cluster, for creating PSC connections.
+  Structure is [documented below](#nested_psc_attachment_details).
+
 * `psc_auto_connections` -
   Output only. User inputs and resource details of the auto-created PSC connections.
   Structure is [documented below](#nested_psc_auto_connections).
@@ -546,6 +555,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `target_replica_count` -
   (Output)
   Output only. Target number of replica nodes per shard for the instance.
+
+* `target_engine_version` -
+  (Output)
+  Output only. Target engine version for the instance.
+
+* `target_node_type` -
+  (Output)
+  Output only. Target node type for the instance.
 
 <a name="nested_discovery_endpoints"></a>The `discovery_endpoints` block contains:
 
@@ -647,6 +664,16 @@ In addition to the arguments listed above, the following computed attributes are
 * `port` -
   (Output)
   Output only. Ports of the exposed endpoint.
+
+<a name="nested_psc_attachment_details"></a>The `psc_attachment_details` block contains:
+
+* `service_attachment` -
+  (Output)
+  Service attachment URI which your self-created PscConnection should use as target.
+
+* `connection_type` -
+  (Output)
+  Service attachment URI which your self-created PscConnection should use as target.
 
 <a name="nested_psc_auto_connections"></a>The `psc_auto_connections` block contains:
 
