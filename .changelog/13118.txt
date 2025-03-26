@@ -1,0 +1,6 @@
+```release-note:enhancement
+container: added `disable_l4_lb_firewall_reconciliation` field to `google_container_cluster` resource
+```
+```release-note:note
+Upgrade dependency google.golang.org/api to v0.221.0
+```

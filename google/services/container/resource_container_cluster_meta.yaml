@@ -117,6 +117,8 @@ fields:
   - field: 'enable_kubernetes_alpha'
   - field: 'enable_l4_ilb_subsetting'
     api_field: 'network_config.enable_l4ilb_subsetting'
+  - field: 'disable_l4_lb_firewall_reconciliation'
+    api_field: 'network_config.disable_l4_lb_firewall_reconciliation'
   - field: 'enable_legacy_abac'
     api_field: 'legacy_abac.enabled'
   - field: 'enable_multi_networking'
