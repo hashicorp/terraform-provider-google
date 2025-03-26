@@ -1245,6 +1245,10 @@ The following arguments are supported:
   Secret volumes configuration.
   Structure is [documented below](#nested_service_config_secret_volumes).
 
+* `binary_authorization_policy` -
+  (Optional)
+  The binary authorization policy to be checked when deploying the Cloud Run service.
+
 
 <a name="nested_service_config_secret_environment_variables"></a>The `secret_environment_variables` block supports:
 
