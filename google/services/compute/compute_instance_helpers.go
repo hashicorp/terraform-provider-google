@@ -890,3 +890,61 @@ func flattenNetworkPerformanceConfig(c *compute.NetworkPerformanceConfig) []map[
 		},
 	}
 }
+
+func expandComputeInstanceEncryptionKey(d tpgresource.TerraformResourceData) *compute.CustomerEncryptionKey {
+	iek, ok := d.GetOk("instance_encryption_key")
+	if !ok {
+		return nil
+	}
+
+	iekRes := iek.([]interface{})[0].(map[string]interface{})
+	return &compute.CustomerEncryptionKey{
+		KmsKeyName:           iekRes["kms_key_self_link"].(string),
+		Sha256:               iekRes["sha256"].(string),
+		KmsKeyServiceAccount: iekRes["kms_key_service_account"].(string),
+	}
+}
+
+func flattenComputeInstanceEncryptionKey(v *compute.CustomerEncryptionKey) []map[string]interface{} {
+	if v == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"kms_key_self_link":       v.KmsKeyName,
+			"sha256":                  v.Sha256,
+			"kms_key_service_account": v.KmsKeyServiceAccount,
+		},
+	}
+}
+
+func expandComputeInstanceSourceEncryptionKey(d tpgresource.TerraformResourceData, field string) *compute.CustomerEncryptionKey {
+	cek, ok := d.GetOk(field)
+	if !ok {
+		return nil
+	}
+
+	cekRes := cek.([]interface{})[0].(map[string]interface{})
+	return &compute.CustomerEncryptionKey{
+		RsaEncryptedKey:      cekRes["rsa_encrypted_key"].(string),
+		RawKey:               cekRes["raw_key"].(string),
+		KmsKeyName:           cekRes["kms_key_self_link"].(string),
+		Sha256:               cekRes["sha256"].(string),
+		KmsKeyServiceAccount: cekRes["kms_key_service_account"].(string),
+	}
+}
+
+func flattenComputeInstanceSourceEncryptionKey(v *compute.CustomerEncryptionKey) []map[string]interface{} {
+	if v == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"rsa_encrypted_key":       v.RsaEncryptedKey,
+			"raw_key":                 v.RawKey,
+			"kms_key_self_link":       v.KmsKeyName,
+			"sha256":                  v.Sha256,
+			"kms_key_service_account": v.KmsKeyServiceAccount,
+		},
+	}
+}
