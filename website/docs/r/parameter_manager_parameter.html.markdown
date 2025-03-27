@@ -23,8 +23,6 @@ description: |-
 
 A Parameter resource is a logical parameter.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Parameter, see:
 
@@ -40,7 +38,6 @@ To get more information about Parameter, see:
 
 ```hcl
 resource "google_parameter_manager_parameter" "parameter-basic" {
-  provider = google-beta
   parameter_id = "parameter"
 }
 ```
@@ -54,7 +51,6 @@ resource "google_parameter_manager_parameter" "parameter-basic" {
 
 ```hcl
 resource "google_parameter_manager_parameter" "parameter-with-format" {
-  provider = google-beta
   parameter_id = "parameter"
   format = "JSON"
 }
@@ -69,7 +65,6 @@ resource "google_parameter_manager_parameter" "parameter-with-format" {
 
 ```hcl
 resource "google_parameter_manager_parameter" "parameter-with-labels" {
-  provider = google-beta
   parameter_id = "parameter"
 
   labels = {
@@ -90,14 +85,10 @@ resource "google_parameter_manager_parameter" "parameter-with-labels" {
 
 
 ```hcl
-data "google_project" "project" {
-  provider = google-beta
-}
+data "google_project" "project" {}
 
 resource "google_parameter_manager_parameter" "parameter-with-kms-key" {
-  provider  = google-beta
   parameter_id = "parameter"
-
   kms_key = "kms-key"
 }
 ```

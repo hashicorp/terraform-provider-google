@@ -110,6 +110,8 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/osconfigv2"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/oslogin"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/parallelstore"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/parametermanager"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/parametermanagerregional"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/privateca"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/privilegedaccessmanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/publicca"

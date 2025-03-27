@@ -1,0 +1,22 @@
+resource: 'google_parameter_manager_regional_parameter'
+generation_type: 'mmv1'
+source_file: 'products/parametermanagerregional/RegionalParameter.yaml'
+api_service_name: 'parametermanager.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Parameter'
+fields:
+  - field: 'create_time'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'format'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'parameter_id'
+    provider_only: true
+  - field: 'policy_member.iam_policy_name_principal'
+  - field: 'policy_member.iam_policy_uid_principal'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

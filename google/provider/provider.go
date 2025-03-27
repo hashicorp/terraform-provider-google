@@ -709,6 +709,16 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"parameter_manager_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
+			"parameter_manager_regional_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"privateca_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1180,6 +1190,8 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.OSConfigV2BasePath = d.Get("os_config_v2_custom_endpoint").(string)
 	config.OSLoginBasePath = d.Get("os_login_custom_endpoint").(string)
 	config.ParallelstoreBasePath = d.Get("parallelstore_custom_endpoint").(string)
+	config.ParameterManagerBasePath = d.Get("parameter_manager_custom_endpoint").(string)
+	config.ParameterManagerRegionalBasePath = d.Get("parameter_manager_regional_custom_endpoint").(string)
 	config.PrivatecaBasePath = d.Get("privateca_custom_endpoint").(string)
 	config.PrivilegedAccessManagerBasePath = d.Get("privileged_access_manager_custom_endpoint").(string)
 	config.PublicCABasePath = d.Get("public_ca_custom_endpoint").(string)

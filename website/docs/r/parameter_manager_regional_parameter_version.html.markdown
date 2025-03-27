@@ -23,8 +23,6 @@ description: |-
 
 A Regional Parameter Version resource that stores the actual value of the regional parameter.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about RegionalParameterVersion, see:
 
@@ -44,13 +42,11 @@ values will be stored in the raw state as plain text: `payload.parameter_data`.
 
 ```hcl
 resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
-  provider = google-beta
   parameter_id = "regional_parameter"
   location = "us-central1"
 }
 
 resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-basic" {
-  provider = google-beta
   parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
   parameter_version_id = "regional_parameter_version"
   parameter_data = "regional-parameter-version-data"
@@ -66,14 +62,12 @@ resource "google_parameter_manager_regional_parameter_version" "regional-paramet
 
 ```hcl
 resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
-  provider = google-beta
   parameter_id = "regional_parameter"
   format = "JSON"
   location = "us-central1"
 }
 
 resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-with-json-format" {
-  provider = google-beta
   parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
   parameter_version_id = "regional_parameter_version"
   parameter_data = jsonencode({
@@ -92,14 +86,12 @@ resource "google_parameter_manager_regional_parameter_version" "regional-paramet
 
 ```hcl
 resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
-  provider = google-beta
   parameter_id = "regional_parameter"
   format = "YAML"
   location = "us-central1"
 }
 
 resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-with-yaml-format" {
-  provider = google-beta
   parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
   parameter_version_id = "regional_parameter_version"
   parameter_data = yamlencode({

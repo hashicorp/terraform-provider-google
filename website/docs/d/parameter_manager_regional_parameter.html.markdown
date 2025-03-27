@@ -8,9 +8,6 @@ description: |-
 
 Use this data source to get information about a Parameter Manager Regional Parameter.
 
-~> **Warning:** This datasource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta datasources.
-
 ## Example Usage 
 
 ```hcl

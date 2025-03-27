@@ -145,6 +145,8 @@ type ProviderModel struct {
 	OSConfigV2CustomEndpoint               types.String `tfsdk:"os_config_v2_custom_endpoint"`
 	OSLoginCustomEndpoint                  types.String `tfsdk:"os_login_custom_endpoint"`
 	ParallelstoreCustomEndpoint            types.String `tfsdk:"parallelstore_custom_endpoint"`
+	ParameterManagerCustomEndpoint         types.String `tfsdk:"parameter_manager_custom_endpoint"`
+	ParameterManagerRegionalCustomEndpoint types.String `tfsdk:"parameter_manager_regional_custom_endpoint"`
 	PrivatecaCustomEndpoint                types.String `tfsdk:"privateca_custom_endpoint"`
 	PrivilegedAccessManagerCustomEndpoint  types.String `tfsdk:"privileged_access_manager_custom_endpoint"`
 	PublicCACustomEndpoint                 types.String `tfsdk:"public_ca_custom_endpoint"`
