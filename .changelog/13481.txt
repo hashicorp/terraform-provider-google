@@ -1,0 +1,3 @@
+```release-note:note
+Promote google_chronicle_rule_deployment resource of chronicle to GA
+```

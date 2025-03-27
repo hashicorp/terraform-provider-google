@@ -1,0 +1,24 @@
+resource: 'google_chronicle_rule_deployment'
+generation_type: 'mmv1'
+source_file: 'products/chronicle/RuleDeployment.yaml'
+api_service_name: 'chronicle.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'RuleDeployment'
+autogen_status: true
+fields:
+  - field: 'alerting'
+  - field: 'archive_time'
+  - field: 'archived'
+  - field: 'consumer_rules'
+  - field: 'enabled'
+  - field: 'execution_state'
+  - field: 'instance'
+    provider_only: true
+  - field: 'last_alert_status_change_time'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'producer_rules'
+  - field: 'rule'
+    provider_only: true
+  - field: 'run_frequency'
