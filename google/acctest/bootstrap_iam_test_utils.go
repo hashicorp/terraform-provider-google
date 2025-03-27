@@ -63,9 +63,9 @@ func BootstrapIamMembers(t *testing.T, members []IamMember) {
 
 	if len(orgMembers) > 0 {
 		// Get the organization ID from environment if any
-		orgId := envvar.GetTestOrgFromEnv(t)
+		orgId := envvar.GetTestOrgTargetFromEnv(t)
 		if orgId == "" {
-			t.Fatal("Error: Org-level IAM was requested, but no organization ID was set in the environment.")
+			t.Fatal("Error: Org-level IAM was requested, but no target organization ID was set in the environment.")
 		}
 
 		var orgBindings []*cloudresourcemanager.Binding
