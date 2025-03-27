@@ -196,6 +196,27 @@ The default is 20.`,
 				Description: `Indicates if a router is dedicated for use with encrypted VLAN
 attachments (interconnectAttachments).`,
 			},
+			"md5_authentication_keys": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Keys used for MD5 authentication.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Value of the key used for MD5 authentication.`,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `Name used to identify the key. Must be unique within a router.
+Must be referenced by exactly one bgpPeer. Must comply with RFC1035.`,
+						},
+					},
+				},
+			},
 			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -261,6 +282,12 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("encrypted_interconnect_router"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptedInterconnectRouterProp)) && (ok || !reflect.DeepEqual(v, encryptedInterconnectRouterProp)) {
 		obj["encryptedInterconnectRouter"] = encryptedInterconnectRouterProp
+	}
+	md5AuthenticationKeysProp, err := expandComputeRouterMd5AuthenticationKeys(d.Get("md5_authentication_keys"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("md5_authentication_keys"); !tpgresource.IsEmptyValue(reflect.ValueOf(md5AuthenticationKeysProp)) && (ok || !reflect.DeepEqual(v, md5AuthenticationKeysProp)) {
+		obj["md5AuthenticationKeys"] = md5AuthenticationKeysProp
 	}
 	regionProp, err := expandComputeRouterRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -429,6 +456,12 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("bgp"); ok || !reflect.DeepEqual(v, bgpProp) {
 		obj["bgp"] = bgpProp
+	}
+	md5AuthenticationKeysProp, err := expandComputeRouterMd5AuthenticationKeys(d.Get("md5_authentication_keys"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("md5_authentication_keys"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, md5AuthenticationKeysProp)) {
+		obj["md5AuthenticationKeys"] = md5AuthenticationKeysProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "router/{{region}}/{{name}}")
@@ -821,6 +854,40 @@ func expandComputeRouterBgpIdentifierRange(v interface{}, d tpgresource.Terrafor
 }
 
 func expandComputeRouterEncryptedInterconnectRouter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRouterMd5AuthenticationKeys(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandComputeRouterMd5AuthenticationKeysName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedKey, err := expandComputeRouterMd5AuthenticationKeysKey(original["key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["key"] = transformedKey
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRouterMd5AuthenticationKeysName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRouterMd5AuthenticationKeysKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

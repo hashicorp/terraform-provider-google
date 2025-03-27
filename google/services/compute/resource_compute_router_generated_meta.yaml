@@ -15,6 +15,8 @@ fields:
   - field: 'creation_timestamp'
   - field: 'description'
   - field: 'encrypted_interconnect_router'
+  - field: 'md5_authentication_keys.key'
+  - field: 'md5_authentication_keys.name'
   - field: 'name'
   - field: 'network'
   - field: 'region'
