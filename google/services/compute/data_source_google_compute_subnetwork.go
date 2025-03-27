@@ -37,12 +37,24 @@ func DataSourceGoogleComputeSubnetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"external_ipv6_prefix": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"internal_ipv6_prefix": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"private_ip_google_access": {
 				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"stack_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"ipv6_access_type": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"secondary_ip_range": {
@@ -109,6 +121,9 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 	if err := d.Set("ip_cidr_range", subnetwork.IpCidrRange); err != nil {
 		return fmt.Errorf("Error setting ip_cidr_range: %s", err)
 	}
+	if err := d.Set("external_ipv6_prefix", subnetwork.ExternalIpv6Prefix); err != nil {
+		return fmt.Errorf("Error setting external_ipv6_prefix: %s", err)
+	}
 	if err := d.Set("internal_ipv6_prefix", subnetwork.InternalIpv6Prefix); err != nil {
 		return fmt.Errorf("Error setting internal_ipv6_prefix: %s", err)
 	}
@@ -134,6 +149,12 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error setting region: %s", err)
 	}
 	if err := d.Set("name", name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("stack_type", subnetwork.StackType); err != nil {
+		return fmt.Errorf("Error setting stack_type: %s", err)
+	}
+	if err := d.Set("ipv6_access_type", subnetwork.Ipv6AccessType); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
 	if err := d.Set("secondary_ip_range", flattenSecondaryRanges(subnetwork.SecondaryIpRanges)); err != nil {
