@@ -239,6 +239,147 @@ resource "google_compute_network" "producer_net" {
 data "google_project" "project" {
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=memorystore_instance_secondary_instance&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Memorystore Instance Secondary Instance
+
+
+```hcl
+// Primary instance
+resource "google_memorystore_instance" "primary_instance" {
+  instance_id                    = "primary-instance"
+  shard_count                    = 1
+  desired_psc_auto_connections {
+    network                      = google_compute_network.primary_producer_net.id
+    project_id                   = data.google_project.project.project_id
+  }
+  location                       = "asia-east1"
+  replica_count                  = 1
+  node_type                      = "SHARED_CORE_NANO"
+  transit_encryption_mode        = "TRANSIT_ENCRYPTION_DISABLED"
+  authorization_mode             = "AUTH_DISABLED"
+  engine_configs = {
+    maxmemory-policy             = "volatile-ttl"
+  }
+  zone_distribution_config {
+    mode                         = "SINGLE_ZONE"
+    zone                         = "asia-east1-c"
+  }
+  deletion_protection_enabled    = true
+  persistence_config {
+    mode                         = "RDB"
+    rdb_config {
+      rdb_snapshot_period        = "ONE_HOUR"
+      rdb_snapshot_start_time    = "2024-10-02T15:01:23Z"
+    }
+  }
+  labels = {
+    "abc" : "xyz"
+  }
+  depends_on                     = [google_network_connectivity_service_connection_policy.primary_policy]
+
+  lifecycle {
+    prevent_destroy              =  true
+  }
+}
+
+resource "google_network_connectivity_service_connection_policy" "primary_policy" {
+  name                           = "my-policy-primary-instance"
+  location                       = "asia-east1"
+  service_class                  = "gcp-memorystore"
+  description                    = "my basic service connection policy"
+  network                        = google_compute_network.primary_producer_net.id
+  psc_config {                 
+    subnetworks                  = [google_compute_subnetwork.primary_producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "primary_producer_subnet" {
+  name                           = "my-subnet-primary-instance"
+  ip_cidr_range                  = "10.0.1.0/29"
+  region                         = "asia-east1"
+  network                        = google_compute_network.primary_producer_net.id
+}
+
+resource "google_compute_network" "primary_producer_net" {
+  name                           = "my-network-primary-instance"
+  auto_create_subnetworks        = false
+}
+
+// Secondary instance
+resource "google_memorystore_instance" "secondary_instance" {
+  instance_id                    = "secondary-instance"
+  shard_count                    = 1
+  desired_psc_auto_connections {
+    network                      = google_compute_network.secondary_producer_net.id
+    project_id                   = data.google_project.project.project_id
+  }
+  location                       = "europe-north1"
+  replica_count                  = 1
+  node_type                      = "SHARED_CORE_NANO"
+  transit_encryption_mode        = "TRANSIT_ENCRYPTION_DISABLED"
+  authorization_mode             = "AUTH_DISABLED"
+  engine_configs = {
+    maxmemory-policy             = "volatile-ttl"
+  }
+  zone_distribution_config {
+    mode                         = "SINGLE_ZONE"
+    zone                         = "europe-north1-c"
+  }
+  deletion_protection_enabled    = true
+  // Cross instance replication config
+  cross_instance_replication_config {
+    instance_role                 = "SECONDARY"
+    primary_instance {
+      instance                    = google_memorystore_instance.primary_instance.id
+    }
+  }
+  persistence_config {
+    mode                         = "RDB"
+    rdb_config {
+      rdb_snapshot_period        = "ONE_HOUR"
+      rdb_snapshot_start_time    = "2024-10-02T15:01:23Z"
+    }
+  }
+  labels = {
+    "abc" : "xyz"
+  }
+  depends_on                     = [google_network_connectivity_service_connection_policy.secondary_policy]
+
+  lifecycle {
+    prevent_destroy              = true
+  }
+}
+
+resource "google_network_connectivity_service_connection_policy" "secondary_policy" {
+  name                           = "my-policy-secondary-instance"
+  location                       = "europe-north1"
+  service_class                  = "gcp-memorystore"
+  description                    = "my basic service connection policy"
+  network                        = google_compute_network.secondary_producer_net.id
+  psc_config {                 
+    subnetworks                  = [google_compute_subnetwork.secondary_producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "secondary_producer_subnet" {
+  name                           = "my-subnet-secondary-instance"
+  ip_cidr_range                  = "10.0.2.0/29"
+  region                         = "europe-north1"
+  network                        = google_compute_network.secondary_producer_net.id
+}
+
+resource "google_compute_network" "secondary_producer_net" {
+  name                           =  "my-network-secondary-instance"
+  auto_create_subnetworks        = false
+}
+
+data "google_project" "project" {
+}
+```
 
 ## Argument Reference
 
@@ -326,6 +467,11 @@ The following arguments are supported:
 * `deletion_protection_enabled` -
   (Optional)
   Optional. If set to true deletion of the instance will fail.
+
+* `cross_instance_replication_config` -
+  (Optional)
+  Cross instance replication config
+  Structure is [documented below](#nested_cross_instance_replication_config).
 
 * `mode` -
   (Optional)
@@ -473,6 +619,90 @@ The following arguments are supported:
    MULTI_ZONE
   SINGLE_ZONE
   Possible values are: `MULTI_ZONE`, `SINGLE_ZONE`.
+
+<a name="nested_cross_instance_replication_config"></a>The `cross_instance_replication_config` block supports:
+
+* `instance_role` -
+  (Optional)
+  The instance role supports the following values:
+  1. `INSTANCE_ROLE_UNSPECIFIED`: This is an independent instance that has never participated in cross instance replication. It allows both reads and writes.
+  2. `NONE`: This is an independent instance that previously participated in cross instance replication(either as a `PRIMARY` or `SECONDARY` cluster). It allows both reads and writes.
+  3. `PRIMARY`: This instance serves as the replication source for secondary instance that are replicating from it. Any data written to it is automatically replicated to its secondary clusters. It allows both reads and writes.
+  4. `SECONDARY`: This instance replicates data from the primary instance. It allows only reads.
+  Possible values are: `INSTANCE_ROLE_UNSPECIFIED`, `NONE`, `PRIMARY`, `SECONDARY`.
+
+* `primary_instance` -
+  (Optional)
+  This field is only set for a secondary instance. Details of the primary instance that is used as the replication source for this secondary instance. This is allowed to be set only for clusters whose cluster role is of type `SECONDARY`.
+  Structure is [documented below](#nested_cross_instance_replication_config_primary_instance).
+
+* `secondary_instances` -
+  (Optional)
+  List of secondary instances that are replicating from this primary cluster. This is allowed to be set only for instances whose cluster role is of type `PRIMARY`.
+  Structure is [documented below](#nested_cross_instance_replication_config_secondary_instances).
+
+* `membership` -
+  (Output)
+  An output only view of all the member instance participating in cross instance replication. This field is populated for all the member clusters irrespective of their cluster role.
+  Structure is [documented below](#nested_cross_instance_replication_config_membership).
+
+* `update_time` -
+  (Output)
+  The last time cross instance replication config was updated.
+
+
+<a name="nested_cross_instance_replication_config_primary_instance"></a>The `primary_instance` block supports:
+
+* `instance` -
+  (Optional)
+  The full resource path of the primary instance in the format: projects/{project}/locations/{region}/instances/{instance-id}
+
+* `uid` -
+  (Output)
+  The unique id of the primary instance.
+
+<a name="nested_cross_instance_replication_config_secondary_instances"></a>The `secondary_instances` block supports:
+
+* `instance` -
+  (Optional)
+  The full resource path of the Nth instance in the format: projects/{project}/locations/{region}/instance/{instance-id}
+
+* `uid` -
+  (Output)
+  The unique id of the Nth instance.
+
+<a name="nested_cross_instance_replication_config_membership"></a>The `membership` block contains:
+
+* `primary_instance` -
+  (Output)
+  Details of the primary instance that is used as the replication source for all the secondary instances.
+  Structure is [documented below](#nested_cross_instance_replication_config_membership_primary_instance).
+
+* `secondary_instance` -
+  (Output)
+  List of secondary instances that are replicating from the primary instance.
+  Structure is [documented below](#nested_cross_instance_replication_config_membership_secondary_instance).
+
+
+<a name="nested_cross_instance_replication_config_membership_primary_instance"></a>The `primary_instance` block contains:
+
+* `instance` -
+  (Output)
+  The full resource path of the primary instance in the format: projects/{project}/locations/{region}/instance/{instance-id}
+
+* `uid` -
+  (Output)
+  The unique id of the primary instance.
+
+<a name="nested_cross_instance_replication_config_membership_secondary_instance"></a>The `secondary_instance` block contains:
+
+* `instance` -
+  (Output)
+  The full resource path of the secondary instance in the format: projects/{project}/locations/{region}/instance/{instance-id}
+
+* `uid` -
+  (Output)
+  The unique id of the secondary instance.
 
 ## Attributes Reference
 

@@ -302,6 +302,171 @@ data "google_project" "project" {
 `, context)
 }
 
+func TestAccMemorystoreInstance_memorystoreInstanceSecondaryInstanceExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"primary_instance_deletion_protection_enabled":   false,
+		"primary_instance_prevent_destroy":               false,
+		"secondary_instance_deletion_protection_enabled": false,
+		"secondary_instance_prevent_destroy":             false,
+		"random_suffix":                                  acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMemorystoreInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMemorystoreInstance_memorystoreInstanceSecondaryInstanceExample(context),
+			},
+			{
+				ResourceName:            "google_memorystore_instance.secondary_instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccMemorystoreInstance_memorystoreInstanceSecondaryInstanceExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+// Primary instance
+resource "google_memorystore_instance" "primary_instance" {
+  instance_id                    = "tf-test-primary-instance%{random_suffix}"
+  shard_count                    = 1
+  desired_psc_auto_connections {
+    network                      = google_compute_network.primary_producer_net.id
+    project_id                   = data.google_project.project.project_id
+  }
+  location                       = "asia-east1"
+  replica_count                  = 1
+  node_type                      = "SHARED_CORE_NANO"
+  transit_encryption_mode        = "TRANSIT_ENCRYPTION_DISABLED"
+  authorization_mode             = "AUTH_DISABLED"
+  engine_configs = {
+    maxmemory-policy             = "volatile-ttl"
+  }
+  zone_distribution_config {
+    mode                         = "SINGLE_ZONE"
+    zone                         = "asia-east1-c"
+  }
+  deletion_protection_enabled    = %{primary_instance_deletion_protection_enabled}
+  persistence_config {
+    mode                         = "RDB"
+    rdb_config {
+      rdb_snapshot_period        = "ONE_HOUR"
+      rdb_snapshot_start_time    = "2024-10-02T15:01:23Z"
+    }
+  }
+  labels = {
+    "abc" : "xyz"
+  }
+  depends_on                     = [google_network_connectivity_service_connection_policy.primary_policy]
+
+  lifecycle {
+    prevent_destroy              =  %{primary_instance_prevent_destroy}
+  }
+}
+
+resource "google_network_connectivity_service_connection_policy" "primary_policy" {
+  name                           = "tf-test-my-policy-primary-instance%{random_suffix}"
+  location                       = "asia-east1"
+  service_class                  = "gcp-memorystore"
+  description                    = "my basic service connection policy"
+  network                        = google_compute_network.primary_producer_net.id
+  psc_config {                 
+    subnetworks                  = [google_compute_subnetwork.primary_producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "primary_producer_subnet" {
+  name                           = "tf-test-my-subnet-primary-instance%{random_suffix}"
+  ip_cidr_range                  = "10.0.1.0/29"
+  region                         = "asia-east1"
+  network                        = google_compute_network.primary_producer_net.id
+}
+
+resource "google_compute_network" "primary_producer_net" {
+  name                           = "tf-test-my-network-primary-instance%{random_suffix}"
+  auto_create_subnetworks        = false
+}
+
+// Secondary instance
+resource "google_memorystore_instance" "secondary_instance" {
+  instance_id                    = "tf-test-secondary-instance%{random_suffix}"
+  shard_count                    = 1
+  desired_psc_auto_connections {
+    network                      = google_compute_network.secondary_producer_net.id
+    project_id                   = data.google_project.project.project_id
+  }
+  location                       = "europe-north1"
+  replica_count                  = 1
+  node_type                      = "SHARED_CORE_NANO"
+  transit_encryption_mode        = "TRANSIT_ENCRYPTION_DISABLED"
+  authorization_mode             = "AUTH_DISABLED"
+  engine_configs = {
+    maxmemory-policy             = "volatile-ttl"
+  }
+  zone_distribution_config {
+    mode                         = "SINGLE_ZONE"
+    zone                         = "europe-north1-c"
+  }
+  deletion_protection_enabled    = %{secondary_instance_deletion_protection_enabled}
+  // Cross instance replication config
+  cross_instance_replication_config {
+    instance_role                 = "SECONDARY"
+    primary_instance {
+      instance                    = google_memorystore_instance.primary_instance.id
+    }
+  }
+  persistence_config {
+    mode                         = "RDB"
+    rdb_config {
+      rdb_snapshot_period        = "ONE_HOUR"
+      rdb_snapshot_start_time    = "2024-10-02T15:01:23Z"
+    }
+  }
+  labels = {
+    "abc" : "xyz"
+  }
+  depends_on                     = [google_network_connectivity_service_connection_policy.secondary_policy]
+
+  lifecycle {
+    prevent_destroy              = %{secondary_instance_prevent_destroy}
+  }
+}
+
+resource "google_network_connectivity_service_connection_policy" "secondary_policy" {
+  name                           = "tf-test-my-policy-secondary-instance%{random_suffix}"
+  location                       = "europe-north1"
+  service_class                  = "gcp-memorystore"
+  description                    = "my basic service connection policy"
+  network                        = google_compute_network.secondary_producer_net.id
+  psc_config {                 
+    subnetworks                  = [google_compute_subnetwork.secondary_producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "secondary_producer_subnet" {
+  name                           = "tf-test-my-subnet-secondary-instance%{random_suffix}"
+  ip_cidr_range                  = "10.0.2.0/29"
+  region                         = "europe-north1"
+  network                        = google_compute_network.secondary_producer_net.id
+}
+
+resource "google_compute_network" "secondary_producer_net" {
+  name                           =  "tf-test-my-network-secondary-instance%{random_suffix}"
+  auto_create_subnetworks        = false
+}
+
+data "google_project" "project" {
+}
+`, context)
+}
+
 func testAccCheckMemorystoreInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
