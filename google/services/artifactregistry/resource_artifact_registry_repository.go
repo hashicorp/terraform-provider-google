@@ -118,8 +118,15 @@ func durationDiffSuppress(k, oldr, newr string, d *schema.ResourceData) bool {
 }
 
 func mapHashID(v any) int {
-	obj := v.(map[string]any)
-	return schema.HashString(obj["id"])
+	obj, ok := v.(map[string]any)
+	if !ok {
+		return 0
+	}
+	s, ok := obj["id"].(string)
+	if !ok {
+		return 0
+	}
+	return schema.HashString(s)
 }
 
 func isDefaultEnum(val any) bool {
