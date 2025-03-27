@@ -1,0 +1,3 @@
+```release-note:none
+Update Chronicle resources documentation to point to v1 rest documentation
+```
