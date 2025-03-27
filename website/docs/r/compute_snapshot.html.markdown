@@ -42,7 +42,7 @@ To get more information about Snapshot, see:
     * [Official Documentation](https://cloud.google.com/compute/docs/disks/create-snapshots)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `snapshot_encryption_key.raw_key`, `source_disk_encryption_key.raw_key`.
+values will be stored in the raw state as plain text: `snapshot_encryption_key.raw_key`, `snapshot_encryption_key.rsa_encrypted_key`, `source_disk_encryption_key.raw_key`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -191,6 +191,12 @@ The following arguments are supported:
 * `raw_key` -
   (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
+  RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `rsa_encrypted_key` -
+  (Optional)
+  Specifies an encryption key stored in Google Cloud KMS, encoded in
   RFC 4648 base64 to either encrypt or decrypt this resource.
   **Note**: This property is sensitive and will not be displayed in the plan.
 

@@ -67,6 +67,8 @@ var (
 		"boot_disk.0.device_name",
 		"boot_disk.0.disk_encryption_key_raw",
 		"boot_disk.0.kms_key_self_link",
+		"boot_disk.0.disk_encryption_key_rsa",
+		"boot_disk.0.disk_encryption_service_account",
 		"boot_disk.0.initialize_params",
 		"boot_disk.0.mode",
 		"boot_disk.0.source",
@@ -81,6 +83,9 @@ var (
 		"boot_disk.0.initialize_params.0.provisioned_iops",
 		"boot_disk.0.initialize_params.0.provisioned_throughput",
 		"boot_disk.0.initialize_params.0.enable_confidential_compute",
+		"boot_disk.0.initialize_params.0.source_image_encryption_key",
+		"boot_disk.0.initialize_params.0.snapshot",
+		"boot_disk.0.initialize_params.0.source_snapshot_encryption_key",
 		"boot_disk.0.initialize_params.0.storage_pool",
 		"boot_disk.0.initialize_params.0.resource_policies",
 		"boot_disk.0.initialize_params.0.architecture",
@@ -233,15 +238,33 @@ func ResourceComputeInstance() *schema.Resource {
 							Optional:      true,
 							AtLeastOneOf:  bootDiskKeys,
 							ForceNew:      true,
-							ConflictsWith: []string{"boot_disk.0.kms_key_self_link"},
+							ConflictsWith: []string{"boot_disk.0.kms_key_self_link", "boot_disk.0.disk_encryption_key_rsa"},
 							Sensitive:     true,
-							Description:   `A 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to encrypt this disk. Only one of kms_key_self_link and disk_encryption_key_raw may be set.`,
+							Description:   `A 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to encrypt this disk. Only one of kms_key_self_link, disk_encryption_key_raw and disk_encryption_key_rsa may be set.`,
+						},
+
+						"disk_encryption_key_rsa": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							AtLeastOneOf:  bootDiskKeys,
+							ForceNew:      true,
+							ConflictsWith: []string{"boot_disk.0.kms_key_self_link", "boot_disk.0.disk_encryption_key_raw"},
+							Sensitive:     true,
+							Description:   `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit customer-supplied encryption key to either encrypt or decrypt this resource. Only one of kms_key_self_link, disk_encryption_key_raw and disk_encryption_key_rsa may be set.`,
 						},
 
 						"disk_encryption_key_sha256": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption key that protects this resource.`,
+						},
+
+						"disk_encryption_service_account": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: bootDiskKeys,
+							ForceNew:     true,
+							Description:  `The service account being used for the encryption request for the given KMS key. If absent, the Compute Engine default service account is used`,
 						},
 
 						"interface": {
@@ -256,10 +279,10 @@ func ResourceComputeInstance() *schema.Resource {
 							Optional:         true,
 							AtLeastOneOf:     bootDiskKeys,
 							ForceNew:         true,
-							ConflictsWith:    []string{"boot_disk.0.disk_encryption_key_raw"},
+							ConflictsWith:    []string{"boot_disk.0.disk_encryption_key_raw", "boot_disk.0.disk_encryption_key_rsa"},
 							DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 							Computed:         true,
-							Description:      `The self_link of the encryption key that is stored in Google Cloud KMS to encrypt this disk. Only one of kms_key_self_link and disk_encryption_key_raw may be set.`,
+							Description:      `The self_link of the encryption key that is stored in Google Cloud KMS to encrypt this disk. Only one of kms_key_self_link, disk_encryption_key_raw and disk_encryption_key_rsa may be set.`,
 						},
 
 						"guest_os_features": {
@@ -311,6 +334,114 @@ func ResourceComputeInstance() *schema.Resource {
 										ForceNew:         true,
 										DiffSuppressFunc: DiskImageDiffSuppress,
 										Description:      `The image from which this disk was initialised.`,
+									},
+
+									"source_image_encryption_key": {
+										Type:         schema.TypeList,
+										Optional:     true,
+										AtLeastOneOf: initializeParamsKeys,
+										MaxItems:     1,
+										Description:  `The encryption key used to decrypt the source image.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"raw_key": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													ForceNew:    true,
+													Sensitive:   true,
+													Description: `Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+												},
+
+												"rsa_encrypted_key": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													ForceNew:    true,
+													Sensitive:   true,
+													Description: `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit customer-supplied encryption key to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+												},
+
+												"kms_key_self_link": {
+													Type:             schema.TypeString,
+													Optional:         true,
+													ForceNew:         true,
+													Computed:         true,
+													DiffSuppressFunc: tpgresource.CompareCryptoKeyVersions,
+													Description:      `The self link of the encryption key that is stored in Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+												},
+
+												"kms_key_service_account": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													ForceNew:    true,
+													Description: `The service account being used for the encryption request for the given KMS key. If absent, the Compute Engine default service account is used.`,
+												},
+
+												"sha256": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The SHA256 hash of the encryption key used to encrypt this disk.`,
+												},
+											},
+										},
+									},
+
+									"snapshot": {
+										Type:             schema.TypeString,
+										Optional:         true,
+										AtLeastOneOf:     initializeParamsKeys,
+										Computed:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+										Description:      `The snapshot from which this disk was initialised.`,
+									},
+
+									"source_snapshot_encryption_key": {
+										Type:         schema.TypeList,
+										Optional:     true,
+										AtLeastOneOf: initializeParamsKeys,
+										MaxItems:     1,
+										Description:  `The encryption key used to decrypt the source snapshot.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"raw_key": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													ForceNew:    true,
+													Sensitive:   true,
+													Description: `Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+												},
+
+												"rsa_encrypted_key": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													ForceNew:    true,
+													Sensitive:   true,
+													Description: `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit customer-supplied encryption key to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+												},
+
+												"kms_key_self_link": {
+													Type:             schema.TypeString,
+													Optional:         true,
+													ForceNew:         true,
+													Computed:         true,
+													DiffSuppressFunc: tpgresource.CompareCryptoKeyVersions,
+													Description:      `The self link of the encryption key that is stored in Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+												},
+
+												"kms_key_service_account": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													ForceNew:    true,
+													Description: `The service account being used for the encryption request for the given KMS key. If absent, the Compute Engine default service account is used.`,
+												},
+
+												"sha256": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The SHA256 hash of the encryption key used to encrypt this disk.`,
+												},
+											},
+										},
 									},
 
 									"labels": {
@@ -673,7 +804,14 @@ func ResourceComputeInstance() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Sensitive:   true,
-							Description: `A 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to encrypt this disk. Only one of kms_key_self_link and disk_encryption_key_raw may be set.`,
+							Description: `A 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to encrypt this disk. Only one of kms_key_self_link, disk_encryption_key_rsa and disk_encryption_key_raw may be set.`,
+						},
+
+						"disk_encryption_key_rsa": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Sensitive:   true,
+							Description: `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit customer-supplied encryption key to either encrypt or decrypt this resource. Only one of kms_key_self_link, disk_encryption_key_rsa and disk_encryption_key_raw may be set.`,
 						},
 
 						"kms_key_self_link": {
@@ -681,7 +819,13 @@ func ResourceComputeInstance() *schema.Resource {
 							Optional:         true,
 							DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 							Computed:         true,
-							Description:      `The self_link of the encryption key that is stored in Google Cloud KMS to encrypt this disk. Only one of kms_key_self_link and disk_encryption_key_raw may be set.`,
+							Description:      `The self_link of the encryption key that is stored in Google Cloud KMS to encrypt this disk. Only one of kms_key_self_link, disk_encryption_key_rsa and disk_encryption_key_raw may be set.`,
+						},
+
+						"disk_encryption_service_account": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The service account being used for the encryption request for the given KMS key. If absent, the Compute Engine default service account is used`,
 						},
 
 						"disk_encryption_key_sha256": {
@@ -1292,6 +1436,39 @@ be from 0 to 999,999,999 inclusive.`,
 				ValidateFunc: validation.StringInSlice([]string{"STOP", "NONE", ""}, false),
 				Description:  `Action to be taken when a customer's encryption key is revoked. Supports "STOP" and "NONE", with "NONE" being the default.`,
 			},
+
+			"instance_encryption_key": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Encryption key used to provide data encryption on the given instance.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_self_link": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: tpgresource.CompareCryptoKeyVersions,
+							Computed:         true,
+							Description:      `The self link of the encryption key that is stored in Google Cloud KMS.`,
+						},
+
+						"kms_key_service_account": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The service account being used for the encryption request for the given KMS key. If absent, the Compute Engine default service account is used.`,
+						},
+
+						"sha256": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The SHA256 hash of the customer's encryption key.`,
+						},
+					},
+				},
+			},
 		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
@@ -1456,6 +1633,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		ResourcePolicies:           tpgresource.ConvertStringArr(d.Get("resource_policies").([]interface{})),
 		ReservationAffinity:        reservationAffinity,
 		KeyRevocationActionType:    d.Get("key_revocation_action_type").(string),
+		InstanceEncryptionKey:      expandComputeInstanceEncryptionKey(d),
 	}, nil
 }
 
@@ -1753,9 +1931,16 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			}
 			if key := disk.DiskEncryptionKey; key != nil {
 				if inConfig {
+					rsaKey := d.Get(fmt.Sprintf("attached_disk.%d.disk_encryption_key_rsa", adIndex))
+					if rsaKey != "" {
+						di["disk_encryption_key_rsa"] = rsaKey
+					}
 					rawKey := d.Get(fmt.Sprintf("attached_disk.%d.disk_encryption_key_raw", adIndex))
 					if rawKey != "" {
 						di["disk_encryption_key_raw"] = rawKey
+					}
+					if serviceAccount := d.Get(fmt.Sprintf("attached_disk.%d.disk_encryption_service_account", adIndex)); serviceAccount != "" {
+						di["disk_encryption_service_account"] = serviceAccount
 					}
 				}
 				if key.KmsKeyName != "" {
@@ -1868,6 +2053,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 	if err := d.Set("key_revocation_action_type", instance.KeyRevocationActionType); err != nil {
 		return fmt.Errorf("Error setting key_revocation_action_type: %s", err)
+	}
+	if err := d.Set("instance_encryption_key", flattenComputeInstanceEncryptionKey(instance.InstanceEncryptionKey)); err != nil {
+		return fmt.Errorf("Error setting instance_encryption_key: %s", err)
 	}
 
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instance.Name))
@@ -2788,6 +2976,15 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 		}
 	}
 
+	keyValue, keyOk = diskConfig["disk_encryption_key_rsa"]
+	if keyOk {
+		if keyValue != "" {
+			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
+				RsaEncryptedKey: keyValue.(string),
+			}
+		}
+	}
+
 	kmsValue, kmsOk := diskConfig["kms_key_self_link"]
 	if kmsOk {
 		if keyOk && keyValue != "" && kmsValue != "" {
@@ -2797,6 +2994,18 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
 				KmsKeyName: kmsValue.(string),
 			}
+		}
+	}
+
+	kmsServiceAccount, kmsServiceAccountOk := diskConfig["disk_encryption_service_account"]
+	if kmsServiceAccountOk {
+		if kmsServiceAccount != "" {
+			if disk.DiskEncryptionKey == nil {
+				disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
+					KmsKeyServiceAccount: kmsServiceAccount.(string),
+				}
+			}
+			disk.DiskEncryptionKey.KmsKeyServiceAccount = kmsServiceAccount.(string)
 		}
 	}
 	return disk, nil
@@ -3022,11 +3231,25 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 		}
 	}
 
+	if v, ok := d.GetOk("boot_disk.0.disk_encryption_key_rsa"); ok {
+		if v != "" {
+			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
+				RsaEncryptedKey: v.(string),
+			}
+		}
+	}
+
 	if v, ok := d.GetOk("boot_disk.0.kms_key_self_link"); ok {
 		if v != "" {
 			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
 				KmsKeyName: v.(string),
 			}
+		}
+	}
+
+	if v, ok := d.GetOk("boot_disk.0.disk_encryption_service_account"); ok {
+		if v != "" {
+			disk.DiskEncryptionKey.KmsKeyServiceAccount = v.(string)
 		}
 	}
 
@@ -3084,6 +3307,23 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 			disk.InitializeParams.SourceImage = imageUrl
 		}
 
+		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.source_image_encryption_key"); ok {
+			disk.InitializeParams.SourceImageEncryptionKey = expandComputeInstanceSourceEncryptionKey(d, "boot_disk.0.initialize_params.0.source_image_encryption_key")
+		}
+
+		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.snapshot"); ok {
+			snapshotName := v.(string)
+			snapshotUrl, err := tpgresource.ParseSnapshotFieldValue(snapshotName, d, config)
+			if err != nil {
+				return nil, fmt.Errorf("Error resolving snapshot name '%s': %s", snapshotName, err)
+			}
+			disk.InitializeParams.SourceSnapshot = snapshotUrl.RelativeLink()
+		}
+
+		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.source_snapshot_encryption_key"); ok {
+			disk.InitializeParams.SourceSnapshotEncryptionKey = expandComputeInstanceSourceEncryptionKey(d, "boot_disk.0.initialize_params.0.source_snapshot_encryption_key")
+		}
+
 		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.labels"); ok {
 			disk.InitializeParams.Labels = tpgresource.ExpandStringMap(d, "boot_disk.0.initialize_params.0.labels")
 		}
@@ -3126,6 +3366,7 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config 
 		// disk_encryption_key_raw is not returned from the API, so copy it from what the user
 		// originally specified to avoid diffs.
 		"disk_encryption_key_raw": d.Get("boot_disk.0.disk_encryption_key_raw"),
+		"disk_encryption_key_rsa": d.Get("boot_disk.0.disk_encryption_key_rsa"),
 	}
 	if _, ok := d.GetOk("boot_disk.0.interface"); ok {
 		result["interface"] = disk.Interface
@@ -3153,16 +3394,19 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config 
 			"type": tpgresource.GetResourceNameFromSelfLink(diskDetails.Type),
 			// If the config specifies a family name that doesn't match the image name, then
 			// the diff won't be properly suppressed. See DiffSuppressFunc for this field.
-			"image":                       diskDetails.SourceImage,
-			"architecture":                diskDetails.Architecture,
-			"size":                        diskDetails.SizeGb,
-			"labels":                      diskDetails.Labels,
-			"resource_manager_tags":       d.Get("boot_disk.0.initialize_params.0.resource_manager_tags"),
-			"resource_policies":           diskDetails.ResourcePolicies,
-			"provisioned_iops":            diskDetails.ProvisionedIops,
-			"provisioned_throughput":      diskDetails.ProvisionedThroughput,
-			"enable_confidential_compute": diskDetails.EnableConfidentialCompute,
-			"storage_pool":                tpgresource.GetResourceNameFromSelfLink(diskDetails.StoragePool),
+			"image":                          diskDetails.SourceImage,
+			"source_image_encryption_key":    d.Get("boot_disk.0.initialize_params.0.source_image_encryption_key"),
+			"snapshot":                       d.Get("boot_disk.0.initialize_params.0.snapshot"),
+			"source_snapshot_encryption_key": d.Get("boot_disk.0.initialize_params.0.source_snapshot_encryption_key"),
+			"architecture":                   diskDetails.Architecture,
+			"size":                           diskDetails.SizeGb,
+			"labels":                         diskDetails.Labels,
+			"resource_manager_tags":          d.Get("boot_disk.0.initialize_params.0.resource_manager_tags"),
+			"resource_policies":              diskDetails.ResourcePolicies,
+			"provisioned_iops":               diskDetails.ProvisionedIops,
+			"provisioned_throughput":         diskDetails.ProvisionedThroughput,
+			"enable_confidential_compute":    diskDetails.EnableConfidentialCompute,
+			"storage_pool":                   tpgresource.GetResourceNameFromSelfLink(diskDetails.StoragePool),
 		}}
 	}
 
@@ -3174,6 +3418,9 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config 
 			// The response for crypto keys often includes the version of the key which needs to be removed
 			// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
 			result["kms_key_self_link"] = strings.Split(disk.DiskEncryptionKey.KmsKeyName, "/cryptoKeyVersions")[0]
+		}
+		if v, ok := d.GetOk("boot_disk.0.disk_encryption_service_account"); ok {
+			result["disk_encryption_service_account"] = v.(string)
 		}
 	}
 
