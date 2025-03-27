@@ -23,12 +23,10 @@ description: |-
 
 The Rule resource represents a user-created rule.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Rule, see:
 
-* [API documentation](https://cloud.google.com/chronicle/docs/reference/rest/v1alpha/projects.locations.instances.rules)
+* [API documentation](https://cloud.google.com/chronicle/docs/reference/rest/v1/projects.locations.instances.rules)
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
@@ -37,7 +35,6 @@ To get more information about Rule, see:
 
 ```hcl
 resource "google_chronicle_rule" "example" {
- provider = "google-beta"
  location = "us"
  instance = "00000000-0000-0000-0000-000000000000"
  deletion_policy = "DEFAULT"
@@ -51,7 +48,6 @@ resource "google_chronicle_rule" "example" {
 
 ```hcl
 resource "google_chronicle_rule" "example" {
- provider = "google-beta"
  location = "us"
  instance = "00000000-0000-0000-0000-000000000000"
  deletion_policy = "FORCE"
@@ -65,7 +61,6 @@ resource "google_chronicle_rule" "example" {
 
 ```hcl
 resource "google_chronicle_data_access_scope" "data_access_scope_test" {
- provider = "google-beta"
  location = "us"
  instance = "00000000-0000-0000-0000-000000000000"
  data_access_scope_id = "scope-name"
@@ -76,7 +71,6 @@ resource "google_chronicle_data_access_scope" "data_access_scope_test" {
 }
 
 resource "google_chronicle_rule" "example" {
- provider = "google-beta"
  location = "us"
  instance = "00000000-0000-0000-0000-000000000000"
  scope = resource.google_chronicle_data_access_scope.data_access_scope_test.name
