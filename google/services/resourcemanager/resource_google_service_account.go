@@ -40,14 +40,14 @@ func ResourceGoogleServiceAccount() *schema.Resource {
 			Version: 1,
 			Schema: map[string]*schema.Schema{
 				"project": {
-					Type:        schema.TypeString,
+					Type:              schema.TypeString,
 					RequiredForImport: true,
-					Description: `The project that the service account belongs to.`,
+					Description:       `The project that the service account belongs to.`,
 				},
 				"account_id": {
-					Type:        schema.TypeString,
+					Type:              schema.TypeString,
 					RequiredForImport: true,
-					Description: `The e-mail address of the service account. This value should be referenced from any google_iam_policy data sources that would grant the service account privileges.`,
+					Description:       `The e-mail address of the service account. This value should be referenced from any google_iam_policy data sources that would grant the service account privileges.`,
 				},
 			},
 		},

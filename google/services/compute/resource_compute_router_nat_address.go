@@ -738,8 +738,8 @@ func resourceComputeRouterNatAddressPatchUpdateEncoder(d *schema.ResourceData, m
 	// Merge any fields in item that aren't managed by this resource into obj
 	// This is necessary because item might be managed by multiple resources.
 	settableFields := map[string]struct{}{
-		"natIps":      struct{}{},
-		"drainNatIps": struct{}{},
+		"natIps":      {},
+		"drainNatIps": {},
 	}
 	for k, v := range item {
 		if _, ok := settableFields[k]; !ok {
