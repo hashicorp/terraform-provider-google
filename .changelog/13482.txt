@@ -1,0 +1,3 @@
+```release-note:note
+`google_chronicle_retrohunt` GA promotion
+```
