@@ -23,8 +23,6 @@ description: |-
 
 A Parameter Version resource that stores the actual value of the parameter.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about ParameterVersion, see:
 
@@ -44,12 +42,10 @@ values will be stored in the raw state as plain text: `payload.parameter_data`.
 
 ```hcl
 resource "google_parameter_manager_parameter" "parameter-basic" {
-  provider = google-beta
   parameter_id = "parameter"
 }
 
 resource "google_parameter_manager_parameter_version" "parameter-version-basic" {
-  provider = google-beta
   parameter = google_parameter_manager_parameter.parameter-basic.id
   parameter_version_id = "parameter_version"
   parameter_data = "app-parameter-version-data"
@@ -65,13 +61,11 @@ resource "google_parameter_manager_parameter_version" "parameter-version-basic" 
 
 ```hcl
 resource "google_parameter_manager_parameter" "parameter-basic" {
-  provider = google-beta
   parameter_id = "parameter"
   format = "JSON"
 }
 
 resource "google_parameter_manager_parameter_version" "parameter-version-with-json-format" {
-  provider = google-beta
   parameter = google_parameter_manager_parameter.parameter-basic.id
   parameter_version_id = "parameter_version"
   parameter_data = jsonencode({
@@ -89,19 +83,14 @@ resource "google_parameter_manager_parameter_version" "parameter-version-with-js
 
 
 ```hcl
-data "google_project" "project" {
-  provider = google-beta
-}
+data "google_project" "project" {}
 
 resource "google_parameter_manager_parameter" "parameter-basic" {
-  provider  = google-beta
   parameter_id = "parameter"
-
   kms_key = "kms-key"
 }
 
 resource "google_parameter_manager_parameter_version" "parameter-version-with-kms-key" {
-  provider = google-beta
   parameter = google_parameter_manager_parameter.parameter-basic.id
   parameter_version_id = "parameter_version"
   parameter_data = "app-parameter-version-data"
@@ -117,13 +106,11 @@ resource "google_parameter_manager_parameter_version" "parameter-version-with-km
 
 ```hcl
 resource "google_parameter_manager_parameter" "parameter-basic" {
-  provider = google-beta
   parameter_id = "parameter"
   format = "YAML"
 }
 
 resource "google_parameter_manager_parameter_version" "parameter-version-with-yaml-format" {
-  provider = google-beta
   parameter = google_parameter_manager_parameter.parameter-basic.id
   parameter_version_id = "parameter_version"
   parameter_data = yamlencode({

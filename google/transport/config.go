@@ -348,6 +348,8 @@ type Config struct {
 	OSConfigV2BasePath               string
 	OSLoginBasePath                  string
 	ParallelstoreBasePath            string
+	ParameterManagerBasePath         string
+	ParameterManagerRegionalBasePath string
 	PrivatecaBasePath                string
 	PrivilegedAccessManagerBasePath  string
 	PublicCABasePath                 string
@@ -507,6 +509,8 @@ const OSConfigBasePathKey = "OSConfig"
 const OSConfigV2BasePathKey = "OSConfigV2"
 const OSLoginBasePathKey = "OSLogin"
 const ParallelstoreBasePathKey = "Parallelstore"
+const ParameterManagerBasePathKey = "ParameterManager"
+const ParameterManagerRegionalBasePathKey = "ParameterManagerRegional"
 const PrivatecaBasePathKey = "Privateca"
 const PrivilegedAccessManagerBasePathKey = "PrivilegedAccessManager"
 const PublicCABasePathKey = "PublicCA"
@@ -660,6 +664,8 @@ var DefaultBasePaths = map[string]string{
 	OSConfigV2BasePathKey:               "https://osconfig.googleapis.com/v2/",
 	OSLoginBasePathKey:                  "https://oslogin.googleapis.com/v1/",
 	ParallelstoreBasePathKey:            "https://parallelstore.googleapis.com/v1/",
+	ParameterManagerBasePathKey:         "https://parametermanager.googleapis.com/v1/",
+	ParameterManagerRegionalBasePathKey: "https://parametermanager.{{location}}.rep.googleapis.com/v1/",
 	PrivatecaBasePathKey:                "https://privateca.googleapis.com/v1/",
 	PrivilegedAccessManagerBasePathKey:  "https://privilegedaccessmanager.googleapis.com/v1/",
 	PublicCABasePathKey:                 "https://publicca.googleapis.com/v1/",
@@ -1311,6 +1317,16 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("parallelstore_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_PARALLELSTORE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[ParallelstoreBasePathKey]))
+	}
+	if d.Get("parameter_manager_custom_endpoint") == "" {
+		d.Set("parameter_manager_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_PARAMETER_MANAGER_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[ParameterManagerBasePathKey]))
+	}
+	if d.Get("parameter_manager_regional_custom_endpoint") == "" {
+		d.Set("parameter_manager_regional_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_PARAMETER_MANAGER_REGIONAL_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[ParameterManagerRegionalBasePathKey]))
 	}
 	if d.Get("privateca_custom_endpoint") == "" {
 		d.Set("privateca_custom_endpoint", MultiEnvDefault([]string{
@@ -2532,6 +2548,8 @@ func ConfigureBasePaths(c *Config) {
 	c.OSConfigV2BasePath = DefaultBasePaths[OSConfigV2BasePathKey]
 	c.OSLoginBasePath = DefaultBasePaths[OSLoginBasePathKey]
 	c.ParallelstoreBasePath = DefaultBasePaths[ParallelstoreBasePathKey]
+	c.ParameterManagerBasePath = DefaultBasePaths[ParameterManagerBasePathKey]
+	c.ParameterManagerRegionalBasePath = DefaultBasePaths[ParameterManagerRegionalBasePathKey]
 	c.PrivatecaBasePath = DefaultBasePaths[PrivatecaBasePathKey]
 	c.PrivilegedAccessManagerBasePath = DefaultBasePaths[PrivilegedAccessManagerBasePathKey]
 	c.PublicCABasePath = DefaultBasePaths[PublicCABasePathKey]

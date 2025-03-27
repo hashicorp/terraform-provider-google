@@ -23,8 +23,6 @@ description: |-
 
 A Regional Parameter is a logical regional parameter.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about RegionalParameter, see:
 
@@ -40,7 +38,6 @@ To get more information about RegionalParameter, see:
 
 ```hcl
 resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
-  provider = google-beta
   parameter_id = "regional_parameter"
   location = "us-central1"
 }
@@ -55,7 +52,6 @@ resource "google_parameter_manager_regional_parameter" "regional-parameter-basic
 
 ```hcl
 resource "google_parameter_manager_regional_parameter" "regional-parameter-with-format" {
-  provider = google-beta
   parameter_id = "regional_parameter"
   location = "us-central1"
   format = "JSON"
@@ -71,7 +67,6 @@ resource "google_parameter_manager_regional_parameter" "regional-parameter-with-
 
 ```hcl
 resource "google_parameter_manager_regional_parameter" "regional-parameter-with-labels" {
-  provider = google-beta
   parameter_id = "regional_parameter"
   location = "us-central1"
 

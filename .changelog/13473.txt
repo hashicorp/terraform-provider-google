@@ -1,0 +1,36 @@
+```release-note:new-datasource
+`google_parameter_manager_parameter` (ga)
+```
+```release-note:new-datasource
+`google_parameter_manager_parameters` (ga)
+```
+```release-note:new-datasource
+`google_parameter_manager_parameter_version` (ga)
+```
+```release-note:new-datasource
+`google_parameter_manager_parameter_version_render` (ga)
+```
+```release-note:new-datasource
+`google_parameter_manager_regional_parameter` (ga)
+```
+```release-note:new-datasource
+`google_parameter_manager_regional_parameters` (ga)
+```
+```release-note:new-datasource
+`google_parameter_manager_regional_parameter_version` (ga)
+```
+```release-note:new-datasource
+`google_parameter_manager_regional_parameter_version_render` (ga)
+```
+```release-note:new-resource
+`google_parameter_manager_parameter` (ga)
+```
+```release-note:new-resource
+`google_parameter_manager_parameter_version` (ga)
+```
+```release-note:new-resource
+`google_parameter_manager_regional_parameter` (ga)
+```
+```release-note:new-resource
+`google_parameter_manager_regional_parameter_version` (ga)
+```

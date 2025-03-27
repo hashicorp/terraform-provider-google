@@ -1,0 +1,19 @@
+resource: 'google_parameter_manager_regional_parameter_version'
+generation_type: 'mmv1'
+source_file: 'products/parametermanagerregional/RegionalParameterVersion.yaml'
+api_service_name: 'parametermanager.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'ParameterVersion'
+fields:
+  - field: 'create_time'
+  - field: 'disabled'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'parameter'
+    provider_only: true
+  - field: 'parameter_version_id'
+    provider_only: true
+  - field: 'payload.parameter_data'
+    api_field: 'payload.data'
+  - field: 'update_time'
