@@ -23,12 +23,10 @@ description: |-
 
 Reference lists are user-defined lists of values which users can use in multiple Rules.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about ReferenceList, see:
 
-* [API documentation](https://cloud.google.com/chronicle/docs/reference/rest/v1alpha/projects.locations.instances.referenceLists)
+* [API documentation](https://cloud.google.com/chronicle/docs/reference/rest/v1/projects.locations.instances.referenceLists)
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
@@ -37,7 +35,6 @@ To get more information about ReferenceList, see:
 
 ```hcl
 resource "google_chronicle_reference_list" "example" {
- provider = "google-beta"
  location = "us"
  instance = "00000000-0000-0000-0000-000000000000"
  reference_list_id = "reference_list_id"
