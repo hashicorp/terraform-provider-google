@@ -120,6 +120,11 @@ The following arguments are supported:
   Indicates if a router is dedicated for use with encrypted VLAN
   attachments (interconnectAttachments).
 
+* `md5_authentication_keys` -
+  (Optional)
+  Keys used for MD5 authentication.
+  Structure is [documented below](#nested_md5_authentication_keys).
+
 * `region` -
   (Optional)
   Region where the router resides.
@@ -192,6 +197,17 @@ The following arguments are supported:
 * `description` -
   (Optional)
   User-specified description for the IP range.
+
+<a name="nested_md5_authentication_keys"></a>The `md5_authentication_keys` block supports:
+
+* `name` -
+  (Required)
+  Name used to identify the key. Must be unique within a router.
+  Must be referenced by exactly one bgpPeer. Must comply with RFC1035.
+
+* `key` -
+  (Required)
+  Value of the key used for MD5 authentication.
 
 ## Attributes Reference
 

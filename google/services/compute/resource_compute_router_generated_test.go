@@ -49,7 +49,7 @@ func TestAccComputeRouter_routerBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_router.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "network", "region"},
+				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "network", "region"},
 			},
 		},
 	})
@@ -99,7 +99,7 @@ func TestAccComputeRouter_computeRouterEncryptedInterconnectExample(t *testing.T
 				ResourceName:            "google_compute_router.encrypted-interconnect-router",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "network", "region"},
+				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "network", "region"},
 			},
 		},
 	})
@@ -117,6 +117,60 @@ resource "google_compute_router" "encrypted-interconnect-router" {
 }
 
 resource "google_compute_network" "network" {
+  name                    = "tf-test-test-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
+func TestAccComputeRouter_computeRouterMd5encryptedExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouter_computeRouterMd5encryptedExample(context),
+			},
+			{
+				ResourceName:            "google_compute_router.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "network", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRouter_computeRouterMd5encryptedExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_router" "foobar" {
+  name    = "tf-test-test-router%{random_suffix}"
+  network = google_compute_network.foobar.name
+  bgp {
+    asn               = 64514
+    advertise_mode    = "CUSTOM"
+    advertised_groups = ["ALL_SUBNETS"]
+    advertised_ip_ranges {
+      range = "1.2.3.4"
+    }
+    advertised_ip_ranges {
+      range = "6.7.0.0/16"
+    }
+  }
+  md5_authentication_keys {
+    name = "test"
+    key = "test"
+  }
+}
+
+resource "google_compute_network" "foobar" {
   name                    = "tf-test-test-network%{random_suffix}"
   auto_create_subnetworks = false
 }
