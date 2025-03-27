@@ -36,6 +36,21 @@ func ResourceGoogleServiceAccount() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 			resourceServiceAccountCustomDiff,
 		),
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			Schema: map[string]*schema.Schema{
+				"project": {
+					Type:        schema.TypeString,
+					RequiredForImport: true,
+					Description: `The project that the service account belongs to.`,
+				},
+				"account_id": {
+					Type:        schema.TypeString,
+					RequiredForImport: true,
+					Description: `The e-mail address of the service account. This value should be referenced from any google_iam_policy data sources that would grant the service account privileges.`,
+				},
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"email": {
 				Type:        schema.TypeString,
@@ -230,6 +245,21 @@ func resourceGoogleServiceAccountRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("member", "serviceAccount:"+sa.Email); err != nil {
 		return fmt.Errorf("Error setting member: %s", err)
 	}
+
+	// identity schema implementation
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	err = identity.Set("account_id", strings.Split(sa.Email, "@")[0])
+	if err != nil {
+		return fmt.Errorf("Error setting account_id: %s", err)
+	}
+	err = identity.Set("project", sa.ProjectId)
+	if err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+
 	return nil
 }
 
