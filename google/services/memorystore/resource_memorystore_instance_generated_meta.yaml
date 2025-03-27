@@ -8,6 +8,16 @@ autogen_status: true
 fields:
   - field: 'authorization_mode'
   - field: 'create_time'
+  - field: 'cross_instance_replication_config.instance_role'
+  - field: 'cross_instance_replication_config.membership.primary_instance.instance'
+  - field: 'cross_instance_replication_config.membership.primary_instance.uid'
+  - field: 'cross_instance_replication_config.membership.secondary_instance.instance'
+  - field: 'cross_instance_replication_config.membership.secondary_instance.uid'
+  - field: 'cross_instance_replication_config.primary_instance.instance'
+  - field: 'cross_instance_replication_config.primary_instance.uid'
+  - field: 'cross_instance_replication_config.secondary_instances.instance'
+  - field: 'cross_instance_replication_config.secondary_instances.uid'
+  - field: 'cross_instance_replication_config.update_time'
   - field: 'deletion_protection_enabled'
   - field: 'desired_psc_auto_connections.network'
     provider_only: true
