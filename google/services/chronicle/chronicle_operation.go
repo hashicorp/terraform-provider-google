@@ -26,7 +26,7 @@ func (w *ChronicleOperationWaiter) QueryOp() (interface{}, error) {
 	region := tpgresource.GetRegionFromRegionalSelfLink(w.CommonOperationWaiter.Op.Name)
 
 	// Returns the proper get.
-	url := fmt.Sprintf("https://%s-chronicle.googleapis.com/v1beta/%s", region, w.CommonOperationWaiter.Op.Name)
+	url := fmt.Sprintf("https://%s-chronicle.googleapis.com/v1/%s", region, w.CommonOperationWaiter.Op.Name)
 
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    w.Config,

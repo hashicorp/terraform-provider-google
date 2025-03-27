@@ -1,0 +1,22 @@
+resource: 'google_chronicle_retrohunt'
+generation_type: 'mmv1'
+source_file: 'products/chronicle/Retrohunt.yaml'
+api_service_name: 'chronicle.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Retrohunt'
+autogen_status: true
+fields:
+  - field: 'execution_interval.end_time'
+  - field: 'execution_interval.start_time'
+  - field: 'instance'
+    provider_only: true
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'process_interval.end_time'
+  - field: 'process_interval.start_time'
+  - field: 'progress_percentage'
+  - field: 'retrohunt'
+  - field: 'rule'
+    provider_only: true
+  - field: 'state'

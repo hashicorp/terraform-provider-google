@@ -23,12 +23,10 @@ description: |-
 
 Retrohunt is an execution of a Rule over a time range in the past.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Retrohunt, see:
 
-* [API documentation](https://cloud.google.com/chronicle/docs/reference/rest/v1alpha/projects.locations.instances.rules.retrohunts)
+* [API documentation](https://cloud.google.com/chronicle/docs/reference/rest/v1/projects.locations.instances.rules.retrohunts)
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
@@ -37,7 +35,6 @@ To get more information about Retrohunt, see:
 
 ```hcl
 resource "google_chronicle_rule" "my-rule" {
- provider = "google-beta"
  location = "us"
  instance = "00000000-0000-0000-0000-000000000000"
  deletion_policy = "FORCE"
@@ -47,7 +44,6 @@ resource "google_chronicle_rule" "my-rule" {
 }
 
 resource "google_chronicle_retrohunt" "example" {
- provider = "google-beta"
  location = "us"
  instance = "00000000-0000-0000-0000-000000000000"
  rule = element(split("/", resource.google_chronicle_rule.my-rule.name), length(split("/", resource.google_chronicle_rule.my-rule.name)) - 1)
