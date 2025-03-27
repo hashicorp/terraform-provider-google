@@ -16,6 +16,7 @@ fields:
   - field: 'egress_to.operations.method_selectors.permission'
   - field: 'egress_to.operations.service_name'
   - field: 'egress_to.resources'
+  - field: 'egress_to.roles'
   - field: 'etag'
   - field: 'perimeter'
     provider_only: true

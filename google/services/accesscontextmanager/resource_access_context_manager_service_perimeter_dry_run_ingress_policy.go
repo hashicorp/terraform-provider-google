@@ -290,6 +290,17 @@ also matches the 'operations' field.`,
 								Type: schema.TypeString,
 							},
 						},
+						"roles": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Description: `A list of IAM roles that represent the set of operations that the sources
+specified in the corresponding 'IngressFrom'
+are allowed to perform.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 					},
 				},
 			},
@@ -691,6 +702,8 @@ func flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngress
 	transformed := make(map[string]interface{})
 	transformed["resources"] =
 		flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressToResources(original["resources"], d, config)
+	transformed["roles"] =
+		flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressToRoles(original["roles"], d, config)
 	transformed["operations"] =
 		flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressToOperations(original["operations"], d, config)
 	return []interface{}{transformed}
@@ -720,6 +733,10 @@ func flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngress
 	}
 
 	return apiValue
+}
+
+func flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressToRoles(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressToOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -874,6 +891,13 @@ func expandNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressT
 		transformed["resources"] = transformedResources
 	}
 
+	transformedRoles, err := expandNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressToRoles(original["roles"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRoles); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["roles"] = transformedRoles
+	}
+
 	transformedOperations, err := expandNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressToOperations(original["operations"], d, config)
 	if err != nil {
 		return nil, err
@@ -885,6 +909,10 @@ func expandNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressT
 }
 
 func expandNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressToResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressToRoles(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

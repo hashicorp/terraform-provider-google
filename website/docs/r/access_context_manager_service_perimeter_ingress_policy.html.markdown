@@ -90,6 +90,48 @@ resource "google_access_context_manager_access_policy" "access-policy" {
   title  = "Storage Policy"
 }
 ```
+## Example Usage - Access Context Manager Service Perimeter Ingress Policy Granular Controls
+
+
+```hcl
+resource "google_access_context_manager_service_perimeter" "storage-perimeter" {
+  parent = "accesspolicies/${google_access_context_manager_access_policy.access-policy.name}"
+  name   = "accesspolicies/${google_access_context_manager_access_policy.access-policy.name}/serviceperimeters/storage-perimeter"
+  title  = "Storage Perimeter"
+  status {
+    restricted_services = ["storage.googleapis.com"]
+  }
+  lifecycle {
+    ignore_changes = [status[0].ingress_policies] # Allows ingress policies to be managed by google_access_context_manager_service_perimeter_ingress_policy resources
+  }
+}
+
+resource "google_access_context_manager_service_perimeter_ingress_policy" "ingress_policy" {
+  perimeter = "${google_access_context_manager_service_perimeter.storage-perimeter.name}"
+  title = "ingress policy title"
+  ingress_from {
+    sources {
+      resource = "projects/1234" 
+    }
+    identities = ["group:database-admins@google.com"]
+    identities = ["principal://iam.googleapis.com/locations/global/workforcePools/1234/subject/janedoe"]
+    identities = ["principalSet://iam.googleapis.com/locations/global/workforcePools/1234/*"]
+  }
+  ingress_to {
+    resources = [ "*" ]
+    roles = ["roles/bigquery.admin", "organizations/1234/roles/bigquery_custom_role"]
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+
+resource "google_access_context_manager_access_policy" "access-policy" {
+  parent = "organizations/123456789"
+  title  = "Storage Policy"
+}
+```
 
 ## Argument Reference
 
@@ -181,6 +223,12 @@ The following arguments are supported:
   then this `IngressTo` rule will authorize access to all
   resources inside the perimeter, provided that the request
   also matches the `operations` field.
+
+* `roles` -
+  (Optional)
+  A list of IAM roles that represent the set of operations that the sources
+  specified in the corresponding `IngressFrom`
+  are allowed to perform.
 
 * `operations` -
   (Optional)

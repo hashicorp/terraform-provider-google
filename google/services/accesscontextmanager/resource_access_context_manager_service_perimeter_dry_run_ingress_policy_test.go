@@ -129,6 +129,10 @@ resource "google_access_context_manager_service_perimeter_dry_run_ingress_policy
 			access_level = google_access_context_manager_access_level.test-access.name
 		}
 	}
+	ingress_to {
+		resources = ["*"]
+		roles = ["roles/bigquery.admin"]
+	}
   depends_on = [google_access_context_manager_service_perimeter_dry_run_ingress_policy.test-access1]
 }
 

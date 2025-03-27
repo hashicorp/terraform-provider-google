@@ -15,6 +15,7 @@ fields:
   - field: 'ingress_to.operations.method_selectors.permission'
   - field: 'ingress_to.operations.service_name'
   - field: 'ingress_to.resources'
+  - field: 'ingress_to.roles'
   - field: 'perimeter'
     provider_only: true
   - field: 'title'
