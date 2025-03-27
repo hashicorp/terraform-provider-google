@@ -86,6 +86,45 @@ resource "google_access_context_manager_access_policy" "access-policy" {
   title  = "Storage Policy"
 }
 ```
+## Example Usage - Access Context Manager Service Perimeter Egress Policy Granular Controls
+
+
+```hcl
+resource "google_access_context_manager_service_perimeter" "storage-perimeter" {
+  parent = "accesspolicies/${google_access_context_manager_access_policy.access-policy.name}"
+  name   = "accesspolicies/${google_access_context_manager_access_policy.access-policy.name}/serviceperimeters/storage-perimeter"
+  title  = "Storage Perimeter"
+  status {
+    restricted_services = ["storage.googleapis.com"]
+  }
+  lifecycle {
+    ignore_changes = [status[0].egress_policies] # Allows ingress policies to be managed by google_access_context_manager_service_perimeter_egress_policy resources
+  }
+}
+
+resource "google_access_context_manager_service_perimeter_egress_policy" "egress_policy" {
+  perimeter = "${google_access_context_manager_service_perimeter.storage-perimeter.name}"
+  title = "granular controls egress policy title"
+  egress_from {
+    identities = ["group:database-admins@google.com"]
+    identities = ["principal://iam.googleapis.com/locations/global/workforcePools/1234/subject/janedoe"]
+    identities = ["principalSet://iam.googleapis.com/locations/global/workforcePools/1234/*"]
+  }
+  egress_to {
+    resources = [ "*" ]
+    roles = ["roles/bigquery.admin", "organizations/1234/roles/bigquery_custom_role"]
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+
+resource "google_access_context_manager_access_policy" "access-policy" {
+  parent = "organizations/123456789"
+  title  = "Storage Policy"
+}
+```
 
 ## Argument Reference
 
@@ -174,6 +213,12 @@ The following arguments are supported:
   A list of external resources that are allowed to be accessed. A request
   matches if it contains an external resource in this list (Example:
   s3://bucket/path). Currently '*' is not allowed.
+
+* `roles` -
+  (Optional)
+  A list of IAM roles that represent the set of operations that the sources
+  specified in the corresponding `EgressFrom`
+  are allowed to perform.
 
 * `operations` -
   (Optional)

@@ -226,6 +226,57 @@ resource "google_access_context_manager_access_policy" "access-policy" {
   title  = "my policy"
 }
 ```
+## Example Usage - Access Context Manager Service Perimeter Granular Controls
+
+
+```hcl
+resource "google_access_context_manager_access_policy" "access-policy" {
+  parent = "organizations/123456789"
+  title  = "Policy with Granular Controls Support"
+}
+
+resource "google_access_context_manager_service_perimeter" "granular-controls-perimeter" {
+  parent         = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}"
+  name           = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/servicePerimeters/%s"
+  title          = "%s"
+  perimeter_type = "PERIMETER_TYPE_REGULAR"
+  status {
+      restricted_services = ["bigquery.googleapis.com"]
+
+      vpc_accessible_services {
+          enable_restriction = true
+          allowed_services   = ["bigquery.googleapis.com"]
+      }
+
+      ingress_policies {
+          ingress_from {
+              sources {
+                 resource = "projects/1234" 
+              }
+              identities = ["group:database-admins@google.com"]
+              identities = ["principal://iam.googleapis.com/locations/global/workforcePools/1234/subject/janedoe"]
+              identities = ["principalSet://iam.googleapis.com/locations/global/workforcePools/1234/*"]
+          }
+          ingress_to {
+              resources = [ "*" ]
+              roles = ["roles/bigquery.admin", "organizations/1234/roles/bigquery_custom_role"]
+          }
+      }
+
+      egress_policies {
+          egress_from {
+              identities = ["group:database-admins@google.com"]
+              identities = ["principal://iam.googleapis.com/locations/global/workforcePools/1234/subject/janedoe"]
+              identities = ["principalSet://iam.googleapis.com/locations/global/workforcePools/1234/*"]
+          }
+          egress_to {
+              resources = [ "*" ]
+              roles = ["roles/bigquery.admin", "organizations/1234/roles/bigquery_custom_role"]
+          }
+      }
+   }
+}
+```
 
 ## Argument Reference
 
@@ -446,6 +497,12 @@ The following arguments are supported:
   resources inside the perimeter, provided that the request
   also matches the `operations` field.
 
+* `roles` -
+  (Optional)
+  A list of IAM roles that represent the set of operations that the sources
+  specified in the corresponding `IngressFrom`
+  are allowed to perform.
+
 * `operations` -
   (Optional)
   A list of `ApiOperations` the sources specified in corresponding `IngressFrom`
@@ -559,6 +616,12 @@ The following arguments are supported:
   A list of external resources that are allowed to be accessed. A request
   matches if it contains an external resource in this list (Example:
   s3://bucket/path). Currently '*' is not allowed.
+
+* `roles` -
+  (Optional)
+  A list of IAM roles that represent the set of operations that the sources
+  specified in the corresponding `EgressFrom`
+  are allowed to perform.
 
 * `operations` -
   (Optional)
@@ -735,6 +798,12 @@ The following arguments are supported:
   resources inside the perimeter, provided that the request
   also matches the `operations` field.
 
+* `roles` -
+  (Optional)
+  A list of IAM roles that represent the set of operations that the sources
+  specified in the corresponding `IngressFrom`
+  are allowed to perform.
+
 * `operations` -
   (Optional)
   A list of `ApiOperations` the sources specified in corresponding `IngressFrom`
@@ -846,6 +915,12 @@ The following arguments are supported:
   A list of external resources that are allowed to be accessed. A request
   matches if it contains an external resource in this list (Example:
   s3://bucket/path). Currently '*' is not allowed.
+
+* `roles` -
+  (Optional)
+  A list of IAM roles that represent the set of operations that the sources
+  specified in the corresponding `EgressFrom`
+  are allowed to perform.
 
 * `operations` -
   (Optional)

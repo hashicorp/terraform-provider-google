@@ -130,6 +130,10 @@ resource "google_access_context_manager_service_perimeter_ingress_policy" "test-
 	ingress_from {
 		identity_type = "ANY_IDENTITY"
 	}
+	ingress_to {
+		resources = ["*"]
+		roles = ["roles/bigquery.admin"]
+	}
 }
 
 `, testAccAccessContextManagerServicePerimeterIngressPolicy_destroy(org, policyTitle, perimeterTitleName))

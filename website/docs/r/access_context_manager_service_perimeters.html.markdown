@@ -314,6 +314,12 @@ The following arguments are supported:
   resources inside the perimeter, provided that the request
   also matches the `operations` field.
 
+* `roles` -
+  (Optional)
+  A list of IAM roles that represent the set of operations that the sources
+  specified in the corresponding `IngressFrom`
+  are allowed to perform.
+
 * `operations` -
   (Optional)
   A list of `ApiOperations` the sources specified in corresponding `IngressFrom`
@@ -425,6 +431,12 @@ The following arguments are supported:
   A list of external resources that are allowed to be accessed. A request
   matches if it contains an external resource in this list (Example:
   s3://bucket/path). Currently '*' is not allowed.
+
+* `roles` -
+  (Optional)
+  A list of IAM roles that represent the set of operations that the sources
+  specified in the corresponding `EgressFrom`
+  are allowed to perform.
 
 * `operations` -
   (Optional)
@@ -601,6 +613,12 @@ The following arguments are supported:
   resources inside the perimeter, provided that the request
   also matches the `operations` field.
 
+* `roles` -
+  (Optional)
+  A list of IAM roles that represent the set of operations that the sources
+  specified in the corresponding `IngressFrom`
+  are allowed to perform.
+
 * `operations` -
   (Optional)
   A list of `ApiOperations` the sources specified in corresponding `IngressFrom`
@@ -714,6 +732,12 @@ The following arguments are supported:
   A list of external resources that are allowed to be accessed. A request
   matches if it contains an external resource in this list (Example:
   s3://bucket/path). Currently '*' is not allowed.
+
+* `roles` -
+  (Optional)
+  A list of IAM roles that represent the set of operations that the sources
+  specified in the corresponding `EgressFrom`
+  are allowed to perform.
 
 * `operations` -
   (Optional)

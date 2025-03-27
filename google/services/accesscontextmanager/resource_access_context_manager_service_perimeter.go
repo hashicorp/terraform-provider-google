@@ -367,6 +367,16 @@ the perimeter.`,
 													},
 													Set: schema.HashString,
 												},
+												"roles": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `A list of IAM roles that represent the set of operations that the sources
+specified in the corresponding 'EgressFrom'
+are allowed to perform.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
 											},
 										},
 									},
@@ -514,6 +524,16 @@ also matches the 'operations' field.`,
 														Type: schema.TypeString,
 													},
 													Set: schema.HashString,
+												},
+												"roles": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `A list of IAM roles that represent the set of operations that the sources
+specified in the corresponding 'IngressFrom'
+are allowed to perform.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
 												},
 											},
 										},
@@ -755,6 +775,16 @@ the perimeter.`,
 													},
 													Set: schema.HashString,
 												},
+												"roles": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `A list of IAM roles that represent the set of operations that the sources
+specified in the corresponding 'EgressFrom'
+are allowed to perform.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
 											},
 										},
 									},
@@ -907,6 +937,16 @@ also matches the 'operations' field.`,
 														Type: schema.TypeString,
 													},
 													Set: schema.HashString,
+												},
+												"roles": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `A list of IAM roles that represent the set of operations that the sources
+specified in the corresponding 'IngressFrom'
+are allowed to perform.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
 												},
 											},
 										},
@@ -1577,6 +1617,8 @@ func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressTo(v
 	transformed := make(map[string]interface{})
 	transformed["resources"] =
 		flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToResources(original["resources"], d, config)
+	transformed["roles"] =
+		flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToRoles(original["roles"], d, config)
 	transformed["operations"] =
 		flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperations(original["operations"], d, config)
 	return []interface{}{transformed}
@@ -1586,6 +1628,10 @@ func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToRe
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToRoles(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1736,6 +1782,8 @@ func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressTo(v i
 		flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToResources(original["resources"], d, config)
 	transformed["external_resources"] =
 		flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToExternalResources(original["externalResources"], d, config)
+	transformed["roles"] =
+		flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToRoles(original["roles"], d, config)
 	transformed["operations"] =
 		flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperations(original["operations"], d, config)
 	return []interface{}{transformed}
@@ -1752,6 +1800,10 @@ func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToExte
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToRoles(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1964,6 +2016,8 @@ func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressTo(v i
 	transformed := make(map[string]interface{})
 	transformed["resources"] =
 		flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToResources(original["resources"], d, config)
+	transformed["roles"] =
+		flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToRoles(original["roles"], d, config)
 	transformed["operations"] =
 		flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperations(original["operations"], d, config)
 	return []interface{}{transformed}
@@ -1973,6 +2027,10 @@ func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToReso
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToRoles(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2123,6 +2181,8 @@ func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressTo(v int
 		flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToResources(original["resources"], d, config)
 	transformed["external_resources"] =
 		flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToExternalResources(original["externalResources"], d, config)
+	transformed["roles"] =
+		flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToRoles(original["roles"], d, config)
 	transformed["operations"] =
 		flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperations(original["operations"], d, config)
 	return []interface{}{transformed}
@@ -2139,6 +2199,10 @@ func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToExtern
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToRoles(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2450,6 +2514,13 @@ func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressTo(v 
 		transformed["resources"] = transformedResources
 	}
 
+	transformedRoles, err := expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToRoles(original["roles"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRoles); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["roles"] = transformedRoles
+	}
+
 	transformedOperations, err := expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperations(original["operations"], d, config)
 	if err != nil {
 		return nil, err
@@ -2462,6 +2533,10 @@ func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressTo(v 
 
 func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToRoles(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2688,6 +2763,13 @@ func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressTo(v in
 		transformed["externalResources"] = transformedExternalResources
 	}
 
+	transformedRoles, err := expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToRoles(original["roles"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRoles); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["roles"] = transformedRoles
+	}
+
 	transformedOperations, err := expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperations(original["operations"], d, config)
 	if err != nil {
 		return nil, err
@@ -2705,6 +2787,10 @@ func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToResou
 
 func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToExternalResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToRoles(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3017,6 +3103,13 @@ func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressTo(v in
 		transformed["resources"] = transformedResources
 	}
 
+	transformedRoles, err := expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToRoles(original["roles"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRoles); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["roles"] = transformedRoles
+	}
+
 	transformedOperations, err := expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperations(original["operations"], d, config)
 	if err != nil {
 		return nil, err
@@ -3029,6 +3122,10 @@ func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressTo(v in
 
 func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToRoles(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3255,6 +3352,13 @@ func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressTo(v inte
 		transformed["externalResources"] = transformedExternalResources
 	}
 
+	transformedRoles, err := expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToRoles(original["roles"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRoles); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["roles"] = transformedRoles
+	}
+
 	transformedOperations, err := expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperations(original["operations"], d, config)
 	if err != nil {
 		return nil, err
@@ -3272,6 +3376,10 @@ func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToResourc
 
 func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToExternalResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToRoles(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
