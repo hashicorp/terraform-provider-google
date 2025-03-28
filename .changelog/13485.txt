@@ -1,0 +1,6 @@
+```release-note:deprecation
+compute: deprecated `enable_flow_logs` in favor of `log_config`.  If `log_config` is present, flow logs are enabled and `enable_flow_logs` can be safely removed.
+```
+```release-note:bug
+compute: fixed a regression in `google_compute_subnetwork` where setting `log_config` would not enable flow logs without `enable_flow_logs` also being set to true. To enable or disable flow logs, please use `log_config`. `enable_flow_logs` is now deprecated and will be removed in the next major release.
+```
