@@ -65,6 +65,8 @@ func TestAccProject_create(t *testing.T) {
 				Config: testAccProject(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
+					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
+						testAccProject(pid, org)),
 				),
 			},
 		},
@@ -157,6 +159,14 @@ func TestAccProject_labels(t *testing.T) {
 					testAccCheckGoogleProjectHasNoLabels(t, "google_project.acceptance", pid),
 				),
 			},
+			{
+				Config: testAccProject_labels(pid, org, map[string]string{"label": "label-value"}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleProjectHasLabels(t, "google_project.acceptance", pid, map[string]string{"label": "label-value"}),
+					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
+						testAccProject_labels(pid, org, map[string]string{"test": "that"})),
+				),
+			},
 		},
 	})
 }
@@ -190,6 +200,10 @@ func TestAccProject_parentFolder(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProject_parentFolder(pid, folderDisplayName, org),
+				Check: resource.ComposeTestCheckFunc(
+					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
+						testAccProject_parentFolder(pid, folderDisplayName, org)),
+				),
 			},
 		},
 	})
@@ -613,7 +627,8 @@ resource "google_project" "acceptance" {
 }
 
 func testAccProject_tagsAllowDestroy(pid, org string, tags map[string]string) string {
-	r := fmt.Sprintf(`resource "google_project" "acceptance" {
+	r := fmt.Sprintf(
+		`resource "google_project" "acceptance" {
 	 project_id = "%s"
   name       = "%s"
   org_id     = "%s"
