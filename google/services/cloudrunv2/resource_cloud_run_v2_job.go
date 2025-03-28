@@ -785,6 +785,7 @@ func cloudrunv2JobTemplateTemplateContainersContainersEnvSchema() *schema.Resour
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Literal value of the environment variable. Defaults to "" and the maximum allowed length is 32768 characters. Variable references are not supported in Cloud Run.`,
+				Default:     "",
 			},
 			"value_source": {
 				Type:        schema.TypeList,

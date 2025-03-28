@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrunv2: fixed the diffs for unchanged `template.template.containers.env` in `google_cloud_run_v2_job` resource
+```
