@@ -1,0 +1,3 @@
+```release-note:enhancement
+redis: added `automated_backup_config` field to `google_redis_cluster`
+```
