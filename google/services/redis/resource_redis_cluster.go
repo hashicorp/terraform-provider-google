@@ -80,6 +80,50 @@ projects/{projectId}/locations/{locationId}/clusters/{clusterId}`,
 				Description:  `Optional. The authorization mode of the Redis cluster. If not provided, auth feature is disabled for the cluster. Default value: "AUTH_MODE_DISABLED" Possible values: ["AUTH_MODE_UNSPECIFIED", "AUTH_MODE_IAM_AUTH", "AUTH_MODE_DISABLED"]`,
 				Default:      "AUTH_MODE_DISABLED",
 			},
+			"automated_backup_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The automated backup config for a instance.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"fixed_frequency_schedule": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `Trigger automated backups at a fixed frequency.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"start_time": {
+										Type:     schema.TypeList,
+										Required: true,
+										Description: `The start time of every automated backup in UTC.
+It must be set to the start of an hour. This field is required.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"hours": {
+													Type:     schema.TypeInt,
+													Required: true,
+													Description: `Hours of a day in 24 hour format. Must be greater than or equal to 0 and typically must be less than or equal to 23.
+An API may choose to allow the value "24:00:00" for scenarios like business closing time.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"retention": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `How long to keep automated backups before the backups are deleted.
+The value should be between 1 day and 365 days. If not specified, the default value is 35 days.
+A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".`,
+						},
+					},
+				},
+			},
 			"cross_cluster_replication_config": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -656,6 +700,12 @@ func resourceRedisClusterCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	obj := make(map[string]interface{})
+	automatedBackupConfigProp, err := expandRedisClusterAutomatedBackupConfig(d.Get("automated_backup_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("automated_backup_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(automatedBackupConfigProp)) && (ok || !reflect.DeepEqual(v, automatedBackupConfigProp)) {
+		obj["automatedBackupConfig"] = automatedBackupConfigProp
+	}
 	authorizationModeProp, err := expandRedisClusterAuthorizationMode(d.Get("authorization_mode"), d, config)
 	if err != nil {
 		return err
@@ -733,6 +783,11 @@ func resourceRedisClusterCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
 		obj["kmsKey"] = kmsKeyProp
+	}
+
+	obj, err = resourceRedisClusterEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/clusters?clusterId={{name}}")
@@ -850,6 +905,9 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("uid", flattenRedisClusterUid(res["uid"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("automated_backup_config", flattenRedisClusterAutomatedBackupConfig(res["automatedBackupConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("authorization_mode", flattenRedisClusterAuthorizationMode(res["authorizationMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -927,6 +985,12 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	automatedBackupConfigProp, err := expandRedisClusterAutomatedBackupConfig(d.Get("automated_backup_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("automated_backup_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, automatedBackupConfigProp)) {
+		obj["automatedBackupConfig"] = automatedBackupConfigProp
+	}
 	nodeTypeProp, err := expandRedisClusterNodeType(d.Get("node_type"), d, config)
 	if err != nil {
 		return err
@@ -988,6 +1052,11 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 		obj["kmsKey"] = kmsKeyProp
 	}
 
+	obj, err = resourceRedisClusterEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/clusters/{{name}}")
 	if err != nil {
 		return err
@@ -996,6 +1065,10 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Updating Cluster %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 	updateMask := []string{}
+
+	if d.HasChange("automated_backup_config") {
+		updateMask = append(updateMask, "automatedBackupConfig")
+	}
 
 	if d.HasChange("node_type") {
 		updateMask = append(updateMask, "nodeType")
@@ -1165,6 +1238,72 @@ func flattenRedisClusterState(v interface{}, d *schema.ResourceData, config *tra
 }
 
 func flattenRedisClusterUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenRedisClusterAutomatedBackupConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	// if automated_backup_config is not defined
+	if original["automatedBackupMode"] == "DISABLED" {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["fixed_frequency_schedule"] =
+		flattenRedisClusterAutomatedBackupConfigFixedFrequencySchedule(original["fixedFrequencySchedule"], d, config)
+	transformed["retention"] =
+		flattenRedisClusterAutomatedBackupConfigRetention(original["retention"], d, config)
+	return []interface{}{transformed}
+}
+func flattenRedisClusterAutomatedBackupConfigFixedFrequencySchedule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["start_time"] =
+		flattenRedisClusterAutomatedBackupConfigFixedFrequencyScheduleStartTime(original["startTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenRedisClusterAutomatedBackupConfigFixedFrequencyScheduleStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["hours"] =
+		flattenRedisClusterAutomatedBackupConfigFixedFrequencyScheduleStartTimeHours(original["hours"], d, config)
+	return []interface{}{transformed}
+}
+func flattenRedisClusterAutomatedBackupConfigFixedFrequencyScheduleStartTimeHours(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenRedisClusterAutomatedBackupConfigRetention(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1830,6 +1969,85 @@ func flattenRedisClusterKmsKey(v interface{}, d *schema.ResourceData, config *tr
 	return v
 }
 
+func expandRedisClusterAutomatedBackupConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	// The automated_backup_config block is not specified, so automatedBackupMode should be DISABLED
+	transformed := make(map[string]interface{})
+	if len(d.Get("automated_backup_config").([]interface{})) < 1 {
+		transformed["automatedBackupMode"] = "DISABLED"
+		return transformed, nil
+	}
+
+	// The automated_backup_config block is specified, so automatedBackupMode should be ENALBED
+	transformed["automatedBackupMode"] = "ENABLED"
+	transformedFixedFrequencySchedule, err := expandRedisClusterAutomatedBackupConfigFixedFrequencySchedule(original["fixed_frequency_schedule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFixedFrequencySchedule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fixedFrequencySchedule"] = transformedFixedFrequencySchedule
+	}
+
+	transformedRetention, err := expandRedisClusterAutomatedBackupConfigRetention(original["retention"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRetention); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["retention"] = transformedRetention
+	}
+
+	return transformed, nil
+}
+
+func expandRedisClusterAutomatedBackupConfigFixedFrequencySchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStartTime, err := expandRedisClusterAutomatedBackupConfigFixedFrequencyScheduleStartTime(original["start_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["startTime"] = transformedStartTime
+	}
+
+	return transformed, nil
+}
+
+func expandRedisClusterAutomatedBackupConfigFixedFrequencyScheduleStartTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHours, err := expandRedisClusterAutomatedBackupConfigFixedFrequencyScheduleStartTimeHours(original["hours"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHours); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["hours"] = transformedHours
+	}
+
+	return transformed, nil
+}
+
+func expandRedisClusterAutomatedBackupConfigFixedFrequencyScheduleStartTimeHours(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisClusterAutomatedBackupConfigRetention(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandRedisClusterAuthorizationMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -2390,4 +2608,16 @@ func expandRedisClusterCrossClusterReplicationConfigUpdateTime(v interface{}, d 
 
 func expandRedisClusterKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceRedisClusterEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+
+	// if the automated_backup_config is not defined, automatedBackupMode needs to be passed and set to DISABLED in the expand
+	if obj["automatedBackupConfig"] == nil {
+		config := meta.(*transport_tpg.Config)
+		automatedBackupConfigProp, _ := expandRedisClusterAutomatedBackupConfig(d.Get("automated_backup_config"), d, config)
+		obj["automatedBackupConfig"] = automatedBackupConfigProp
+	}
+
+	return obj, nil
 }

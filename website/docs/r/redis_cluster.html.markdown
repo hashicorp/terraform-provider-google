@@ -612,6 +612,11 @@ The following arguments are supported:
 - - -
 
 
+* `automated_backup_config` -
+  (Optional)
+  The automated backup config for a instance.
+  Structure is [documented below](#nested_automated_backup_config).
+
 * `authorization_mode` -
   (Optional)
   Optional. The authorization mode of the Redis cluster. If not provided, auth feature is disabled for the cluster.
@@ -685,6 +690,36 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_automated_backup_config"></a>The `automated_backup_config` block supports:
+
+* `fixed_frequency_schedule` -
+  (Required)
+  Trigger automated backups at a fixed frequency.
+  Structure is [documented below](#nested_automated_backup_config_fixed_frequency_schedule).
+
+* `retention` -
+  (Required)
+  How long to keep automated backups before the backups are deleted.
+  The value should be between 1 day and 365 days. If not specified, the default value is 35 days.
+  A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
+
+
+<a name="nested_automated_backup_config_fixed_frequency_schedule"></a>The `fixed_frequency_schedule` block supports:
+
+* `start_time` -
+  (Required)
+  The start time of every automated backup in UTC.
+  It must be set to the start of an hour. This field is required.
+  Structure is [documented below](#nested_automated_backup_config_fixed_frequency_schedule_start_time).
+
+
+<a name="nested_automated_backup_config_fixed_frequency_schedule_start_time"></a>The `start_time` block supports:
+
+* `hours` -
+  (Required)
+  Hours of a day in 24 hour format. Must be greater than or equal to 0 and typically must be less than or equal to 23.
+  An API may choose to allow the value "24:00:00" for scenarios like business closing time.
 
 <a name="nested_zone_distribution_config"></a>The `zone_distribution_config` block supports:
 

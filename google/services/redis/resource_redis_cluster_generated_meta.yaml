@@ -6,6 +6,8 @@ api_version: 'v1'
 api_resource_type_kind: 'Cluster'
 fields:
   - field: 'authorization_mode'
+  - field: 'automated_backup_config.fixed_frequency_schedule.start_time.hours'
+  - field: 'automated_backup_config.retention'
   - field: 'create_time'
   - field: 'cross_cluster_replication_config.cluster_role'
   - field: 'cross_cluster_replication_config.membership.primary_cluster.cluster'
