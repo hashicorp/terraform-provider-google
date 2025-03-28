@@ -39,6 +39,10 @@ func init() {
 		ListAndAction:  listAndActionComputeNetwork,
 		DeleteFunction: testSweepComputeNetwork,
 	}
+	// Add dependencies
+	s.Dependencies = []string{
+		"google_network_security_firewall_endpoint_association",
+	}
 
 	// Register the sweeper
 	sweeper.AddTestSweepers(s)
@@ -197,23 +201,23 @@ func deleteResourceComputeNetwork(config *transport_tpg.Config, d *tpgresource.R
 
 	deleteTemplate := "https://compute.googleapis.com/compute/v1/projects/{{project}}/global/networks/{{name}}"
 
-	deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
+	url, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 		deletionerror = err
 	}
-	deleteUrl = deleteUrl + name
+	url = url + name
 
 	// Don't wait on operations as we may have a lot to delete
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",
 		Project:   config.Project,
-		RawURL:    deleteUrl,
+		RawURL:    url,
 		UserAgent: config.UserAgent,
 	})
 	if err != nil {
-		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
+		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", url, err)
 		deletionerror = err
 	} else {
 		log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)

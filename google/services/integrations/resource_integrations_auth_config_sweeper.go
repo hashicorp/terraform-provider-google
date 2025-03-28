@@ -58,27 +58,13 @@ func listAndActionIntegrationsAuthConfig(action sweeper.ResourceAction) error {
 	t := &testing.T{}
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	// Build URL substitution maps individually to ensure proper formatting
-	intermediateValues := make([]map[string]string, 10)
+	intermediateValues := make([]map[string]string, 3)
 	intermediateValues[0] = map[string]string{}
-	intermediateValues[0]["region"] = "asia-east1"
+	intermediateValues[0]["region"] = "us-east4"
 	intermediateValues[1] = map[string]string{}
 	intermediateValues[1]["region"] = "southamerica-west1"
 	intermediateValues[2] = map[string]string{}
 	intermediateValues[2]["region"] = "asia-east2"
-	intermediateValues[3] = map[string]string{}
-	intermediateValues[3]["region"] = "us-south1"
-	intermediateValues[4] = map[string]string{}
-	intermediateValues[4]["region"] = "northamerica-northeast2"
-	intermediateValues[5] = map[string]string{}
-	intermediateValues[5]["region"] = "us-west4"
-	intermediateValues[6] = map[string]string{}
-	intermediateValues[6]["region"] = "us-west2"
-	intermediateValues[7] = map[string]string{}
-	intermediateValues[7]["region"] = "us-west3"
-	intermediateValues[8] = map[string]string{}
-	intermediateValues[8]["region"] = "southamerica-east1"
-	intermediateValues[9] = map[string]string{}
-	intermediateValues[9]["region"] = "northamerica-northeast1"
 
 	// Create configs from intermediate values
 	for _, values := range intermediateValues {
@@ -213,23 +199,23 @@ func deleteResourceIntegrationsAuthConfig(config *transport_tpg.Config, d *tpgre
 
 	deleteTemplate := "https://integrations.googleapis.com/v1/{{name}}"
 
-	deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
+	url, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 		deletionerror = err
 	}
-	deleteUrl = deleteUrl + name
+	url = url + name
 
 	// Don't wait on operations as we may have a lot to delete
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",
 		Project:   config.Project,
-		RawURL:    deleteUrl,
+		RawURL:    url,
 		UserAgent: config.UserAgent,
 	})
 	if err != nil {
-		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
+		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", url, err)
 		deletionerror = err
 	} else {
 		log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)
