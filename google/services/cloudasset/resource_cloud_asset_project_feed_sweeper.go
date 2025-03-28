@@ -197,23 +197,23 @@ func deleteResourceCloudAssetProjectFeed(config *transport_tpg.Config, d *tpgres
 
 	deleteTemplate := "https://cloudasset.googleapis.com/v1/{{name}}"
 
-	deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
+	url, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 		deletionerror = err
 	}
-	deleteUrl = deleteUrl + name
+	url = url + name
 
 	// Don't wait on operations as we may have a lot to delete
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",
 		Project:   config.Project,
-		RawURL:    deleteUrl,
+		RawURL:    url,
 		UserAgent: config.UserAgent,
 	})
 	if err != nil {
-		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
+		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", url, err)
 		deletionerror = err
 	} else {
 		log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)

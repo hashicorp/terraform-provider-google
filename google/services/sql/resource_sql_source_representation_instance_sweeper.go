@@ -23,8 +23,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
@@ -197,23 +200,170 @@ func deleteResourceSQLSourceRepresentationInstance(config *transport_tpg.Config,
 
 	deleteTemplate := "https://sqladmin.googleapis.com/sql/v1beta4/projects/{{project}}/instances/{{name}}"
 
-	deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
+	url, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 		deletionerror = err
 	}
-	deleteUrl = deleteUrl + name
+	// Ensure required field value before deletion
+	targetValueStr := "false"
+
+	// Convert target value to the appropriate type for comparison
+	var targetValue interface{} = targetValueStr
+	if targetValueStr == "true" {
+		targetValue = true
+	} else if targetValueStr == "false" {
+		targetValue = false
+	} else if intVal, err := strconv.Atoi(targetValueStr); err == nil {
+		targetValue = intVal
+	}
+
+	// Parse the field path to handle nested fields
+	fieldPath := strings.Split("settings.deletionProtectionEnabled", ".")
+	fieldName := fieldPath[0]
+
+	// By default, assume we don't need to update
+	needsUpdate := false
+	fieldExists := false
+
+	// Check if the field exists and if its value needs updating
+	if len(fieldPath) == 1 {
+		// Simple field at the top level
+		if currentValue, hasValue := obj[fieldName]; hasValue {
+			fieldExists = true
+			// Only update if the value doesn't match
+			if !reflect.DeepEqual(currentValue, targetValue) {
+				needsUpdate = true
+			}
+		}
+	} else {
+		// Nested field
+		if currentObj, hasTopLevel := obj[fieldName]; hasTopLevel {
+			if nestedObj, ok := currentObj.(map[string]interface{}); ok {
+				// Try to navigate through the nested structure
+				current := nestedObj
+				pathExists := true
+
+				// Navigate through intermediate levels
+				for i := 1; i < len(fieldPath)-1; i++ {
+					if nextObj, hasNext := current[fieldPath[i]]; hasNext {
+						if nextLevel, ok := nextObj.(map[string]interface{}); ok {
+							current = nextLevel
+						} else {
+							// Not a map, can't continue navigation
+							pathExists = false
+							break
+						}
+					} else {
+						// Field doesn't exist, can't continue navigation
+						pathExists = false
+						break
+					}
+				}
+
+				// If we successfully navigated the path, check the final field
+				if pathExists {
+					finalFieldName := fieldPath[len(fieldPath)-1]
+					if currentValue, exists := current[finalFieldName]; exists {
+						fieldExists = true
+						// Update only if the value doesn't match
+						if !reflect.DeepEqual(currentValue, targetValue) {
+							needsUpdate = true
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Only proceed with update if the field exists and needs updating
+	if fieldExists && needsUpdate {
+		log.Printf("[INFO][SWEEPER_LOG] Ensuring %s is set to %v for %s resource: %s",
+			"settings.deletionProtectionEnabled", targetValue, resourceName, name)
+
+		// Build URL for the update
+		updateURL, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
+		if err != nil {
+			log.Printf("[INFO][SWEEPER_LOG] error preparing update url: %s", err)
+			return err
+		}
+		updateURL = updateURL + name
+
+		// Create update object based on configuration
+		var updateObj map[string]interface{}
+		// Use the full resource object and update just the field
+		updateObj = obj
+
+		// Set the nested field value
+		if len(fieldPath) == 1 {
+			// Simple field
+			updateObj[fieldName] = targetValue
+		} else {
+			// Nested field - assume parent objects exist since we verified the path
+			currentObj := updateObj[fieldName].(map[string]interface{})
+
+			// Navigate to the right nesting level
+			for i := 1; i < len(fieldPath)-1; i++ {
+				currentObj = currentObj[fieldPath[i]].(map[string]interface{})
+			}
+
+			// Set the final field
+			currentObj[fieldPath[len(fieldPath)-1]] = targetValue
+		}
+
+		// Add update mask parameter
+		updateURL, err = transport_tpg.AddQueryParams(updateURL, map[string]string{"updateMask": "settings.deletionProtectionEnabled"})
+		if err != nil {
+			log.Printf("[INFO][SWEEPER_LOG] error adding query parameters: %s", err)
+			return err
+		}
+
+		// Send the update request using the resource's update verb
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PUT",
+			Project:   config.Project,
+			RawURL:    updateURL,
+			UserAgent: config.UserAgent,
+			Body:      updateObj,
+		})
+
+		if err != nil {
+			log.Printf("[INFO][SWEEPER_LOG] Error ensuring field value: %s", err)
+			return err
+		}
+
+		// Wait for the operation to complete using the resource's operation wait function
+		err = SqlAdminOperationWaitTime(
+			config, res, config.Project, fmt.Sprintf("Ensuring %s value", "settings.deletionProtectionEnabled"),
+			config.UserAgent, time.Minute*5)
+
+		if err != nil {
+			log.Printf("[INFO][SWEEPER_LOG] Error waiting for operation to complete: %s", err)
+			return err
+		}
+
+		log.Printf("[INFO][SWEEPER_LOG] Successfully updated %s for %s resource: %s",
+			"settings.deletionProtectionEnabled", resourceName, name)
+	} else if !fieldExists {
+		log.Printf("[INFO][SWEEPER_LOG] Field %s not found in resource, skipping update",
+			"settings.deletionProtectionEnabled")
+	} else {
+		log.Printf("[INFO][SWEEPER_LOG] Field %s already set to desired value, no update needed",
+			"settings.deletionProtectionEnabled")
+	}
+	url = url + name
 
 	// Don't wait on operations as we may have a lot to delete
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",
 		Project:   config.Project,
-		RawURL:    deleteUrl,
+		RawURL:    url,
 		UserAgent: config.UserAgent,
 	})
 	if err != nil {
-		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
+		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", url, err)
 		deletionerror = err
 	} else {
 		log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)

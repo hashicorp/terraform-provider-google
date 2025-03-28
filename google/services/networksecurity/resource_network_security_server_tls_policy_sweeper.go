@@ -58,11 +58,13 @@ func listAndActionNetworkSecurityServerTlsPolicy(action sweeper.ResourceAction) 
 	t := &testing.T{}
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	// Build URL substitution maps individually to ensure proper formatting
-	intermediateValues := make([]map[string]string, 2)
+	intermediateValues := make([]map[string]string, 3)
 	intermediateValues[0] = map[string]string{}
 	intermediateValues[0]["region"] = "us-central1"
 	intermediateValues[1] = map[string]string{}
 	intermediateValues[1]["region"] = "global"
+	intermediateValues[2] = map[string]string{}
+	intermediateValues[2]["region"] = "us-east1"
 
 	// Create configs from intermediate values
 	for _, values := range intermediateValues {
@@ -197,23 +199,23 @@ func deleteResourceNetworkSecurityServerTlsPolicy(config *transport_tpg.Config, 
 
 	deleteTemplate := "https://networksecurity.googleapis.com/v1/projects/{{project}}/locations/{{location}}/serverTlsPolicies/{{name}}"
 
-	deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
+	url, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 		deletionerror = err
 	}
-	deleteUrl = deleteUrl + name
+	url = url + name
 
 	// Don't wait on operations as we may have a lot to delete
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",
 		Project:   config.Project,
-		RawURL:    deleteUrl,
+		RawURL:    url,
 		UserAgent: config.UserAgent,
 	})
 	if err != nil {
-		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
+		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", url, err)
 		deletionerror = err
 	} else {
 		log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)

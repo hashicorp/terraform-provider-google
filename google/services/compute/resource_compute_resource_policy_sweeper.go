@@ -58,13 +58,15 @@ func listAndActionComputeResourcePolicy(action sweeper.ResourceAction) error {
 	t := &testing.T{}
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	// Build URL substitution maps individually to ensure proper formatting
-	intermediateValues := make([]map[string]string, 3)
+	intermediateValues := make([]map[string]string, 4)
 	intermediateValues[0] = map[string]string{}
-	intermediateValues[0]["region"] = "us-east4"
+	intermediateValues[0]["region"] = "us-central1"
 	intermediateValues[1] = map[string]string{}
-	intermediateValues[1]["region"] = "us-central1"
+	intermediateValues[1]["region"] = "europe-west1"
 	intermediateValues[2] = map[string]string{}
-	intermediateValues[2]["region"] = "europe-west1"
+	intermediateValues[2]["region"] = "us-east4"
+	intermediateValues[3] = map[string]string{}
+	intermediateValues[3]["region"] = "europe-west9"
 
 	// Create configs from intermediate values
 	for _, values := range intermediateValues {
@@ -199,23 +201,23 @@ func deleteResourceComputeResourcePolicy(config *transport_tpg.Config, d *tpgres
 
 	deleteTemplate := "https://compute.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}"
 
-	deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
+	url, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 		deletionerror = err
 	}
-	deleteUrl = deleteUrl + name
+	url = url + name
 
 	// Don't wait on operations as we may have a lot to delete
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",
 		Project:   config.Project,
-		RawURL:    deleteUrl,
+		RawURL:    url,
 		UserAgent: config.UserAgent,
 	})
 	if err != nil {
-		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
+		log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", url, err)
 		deletionerror = err
 	} else {
 		log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)
