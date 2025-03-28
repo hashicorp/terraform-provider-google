@@ -1094,6 +1094,137 @@ resource "google_datastream_stream" "default" {
     }
 }
 ```
+## Example Usage - Datastream Stream Bigquery Blmt
+
+
+```hcl
+data "google_project" "project" {
+}
+
+resource "google_sql_database_instance" "instance" {
+    name             = "blmt-instance"
+    database_version = "MYSQL_8_0"
+    region           = "us-central1"
+    settings {
+        tier = "db-f1-micro"
+        ip_configuration {
+
+            // Datastream IPs will vary by region.
+            authorized_networks {
+                value = "34.71.242.81"
+            }
+
+            authorized_networks {
+                value = "34.72.28.29"
+            }
+
+            authorized_networks {
+                value = "34.67.6.157"
+            }
+
+            authorized_networks {
+                value = "34.67.234.134"
+            }
+
+            authorized_networks {
+                value = "34.72.239.218"
+            }
+        }
+    }
+    deletion_protection = true
+}
+
+resource "google_sql_database" "db" {
+    instance = google_sql_database_instance.instance.name
+    name     = "db"
+}
+
+resource "random_password" "pwd" {
+    length = 16
+    special = false
+}
+
+resource "google_sql_user" "user" {
+    name     = "user"
+    instance = google_sql_database_instance.instance.name
+    host     = "%"
+    password = random_password.pwd.result
+}
+
+resource "google_storage_bucket" "blmt_bucket" {
+  # Use variable from Stream.yaml for the name
+  name          = "blmt-bucket"
+  location      = "us-central1"
+  force_destroy = true
+}
+
+resource "google_bigquery_connection" "blmt_connection" {
+  project       = data.google_project.project.project_id
+  location      = "us-central1"
+  connection_id = "blmt-connection"
+  friendly_name = "Datastream BLMT Test Connection"
+  description   = "Connection for Datastream BLMT test"
+
+  cloud_resource {}
+}
+
+resource "google_storage_bucket_iam_member" "blmt_connection_bucket_admin" {
+  bucket = google_storage_bucket.blmt_bucket.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${google_bigquery_connection.blmt_connection.cloud_resource[0].service_account_id}"
+}
+
+resource "google_datastream_connection_profile" "source_connection_profile" {
+    display_name          = "Source connection profile"
+    location              = "us-central1"
+    connection_profile_id = "blmt-source-profile"
+
+    mysql_profile {
+        hostname = google_sql_database_instance.instance.public_ip_address
+        username = google_sql_user.user.name
+        password = google_sql_user.user.password
+    }
+}
+
+resource "google_datastream_connection_profile" "destination_connection_profile" {
+    display_name          = "Connection profile"
+    location              = "us-central1"
+    connection_profile_id = "blmt-destination-profile"
+
+    bigquery_profile {}
+}
+
+resource "google_datastream_stream" "default" {
+    stream_id = "blmt-stream"
+    location = "us-central1"
+    display_name = "My BLMT stream"
+    source_config {
+        source_connection_profile = google_datastream_connection_profile.source_connection_profile.id
+        mysql_source_config {}
+    }
+    destination_config {
+        destination_connection_profile = google_datastream_connection_profile.destination_connection_profile.id
+        bigquery_destination_config {
+            source_hierarchy_datasets {
+                dataset_template {
+                    location = "us-central1"
+                }
+            }
+            blmt_config {
+                bucket          = google_storage_bucket.blmt_bucket.name
+                connection_name = "${google_bigquery_connection.blmt_connection.project}.${google_bigquery_connection.blmt_connection.location}.${google_bigquery_connection.blmt_connection.connection_id}"
+                file_format     = "PARQUET"
+                table_format    = "ICEBERG"
+                root_path       = "/"
+            }
+            append_only {}
+        }
+    }
+
+    backfill_none {
+    }
+}
+```
 
 ## Argument Reference
 
@@ -1878,6 +2009,11 @@ The following arguments are supported:
   Destination datasets are created so that hierarchy of the destination data objects matches the source hierarchy.
   Structure is [documented below](#nested_destination_config_bigquery_destination_config_source_hierarchy_datasets).
 
+* `blmt_config` -
+  (Optional)
+  BigLake Managed Tables configuration for BigQuery streams.
+  Structure is [documented below](#nested_destination_config_bigquery_destination_config_blmt_config).
+
 * `merge` -
   (Optional)
   Merge mode defines that all changes to a table will be merged at the destination Google BigQuery
@@ -1924,6 +2060,28 @@ The following arguments are supported:
   table. The BigQuery Service Account associated with your project requires access to this
   encryption key. i.e. projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{cryptoKey}.
   See https://cloud.google.com/bigquery/docs/customer-managed-encryption for more information.
+
+<a name="nested_destination_config_bigquery_destination_config_blmt_config"></a>The `blmt_config` block supports:
+
+* `bucket` -
+  (Required)
+  The Cloud Storage bucket name.
+
+* `connection_name` -
+  (Required)
+  The bigquery connection. Format: `{project}.{location}.{name}`
+
+* `file_format` -
+  (Required)
+  The file format.
+
+* `table_format` -
+  (Required)
+  The table format.
+
+* `root_path` -
+  (Optional)
+  The root path inside the Cloud Storage bucket.
 
 - - -
 

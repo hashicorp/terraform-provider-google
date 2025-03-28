@@ -52,6 +52,11 @@ fields:
   - field: 'desired_state'
     provider_only: true
   - field: 'destination_config.bigquery_destination_config.append_only'
+  - field: 'destination_config.bigquery_destination_config.blmt_config.bucket'
+  - field: 'destination_config.bigquery_destination_config.blmt_config.connection_name'
+  - field: 'destination_config.bigquery_destination_config.blmt_config.file_format'
+  - field: 'destination_config.bigquery_destination_config.blmt_config.root_path'
+  - field: 'destination_config.bigquery_destination_config.blmt_config.table_format'
   - field: 'destination_config.bigquery_destination_config.data_freshness'
   - field: 'destination_config.bigquery_destination_config.merge'
   - field: 'destination_config.bigquery_destination_config.single_target_dataset.dataset_id'
