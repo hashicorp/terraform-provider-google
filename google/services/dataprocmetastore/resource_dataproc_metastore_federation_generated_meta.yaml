@@ -8,6 +8,8 @@ fields:
   - field: 'backend_metastores.backend_metastores.metastore_type'
   - field: 'backend_metastores.backend_metastores.name'
   - field: 'create_time'
+  - field: 'deletion_protection'
+    provider_only: true
   - field: 'effective_labels'
     provider_only: true
   - field: 'endpoint_uri'
