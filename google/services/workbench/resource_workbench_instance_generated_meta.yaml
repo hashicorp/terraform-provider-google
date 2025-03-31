@@ -19,6 +19,7 @@ fields:
   - field: 'gce_setup.boot_disk.disk_size_gb'
   - field: 'gce_setup.boot_disk.disk_type'
   - field: 'gce_setup.boot_disk.kms_key'
+  - field: 'gce_setup.confidential_instance_config.confidential_instance_type'
   - field: 'gce_setup.container_image.repository'
   - field: 'gce_setup.container_image.tag'
   - field: 'gce_setup.data_disks.disk_encryption'
