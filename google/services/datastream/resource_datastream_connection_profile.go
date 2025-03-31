@@ -125,7 +125,6 @@ func ResourceDatastreamConnectionProfile() *schema.Resource {
 						"private_key": {
 							Type:          schema.TypeString,
 							Optional:      true,
-							ForceNew:      true,
 							Description:   `SSH private key.`,
 							Sensitive:     true,
 							ConflictsWith: []string{"forward_ssh_connectivity.0.password"},
