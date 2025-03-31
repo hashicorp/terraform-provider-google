@@ -229,6 +229,39 @@ resource "google_workbench_instance" "instance" {
   ]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workbench_instance_confidential_compute&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Workbench Instance Confidential Compute
+
+
+```hcl
+resource "google_workbench_instance" "instance" {
+  name = "workbench-instance"
+  location = "us-central1-a"
+
+  gce_setup {
+    machine_type = "n2d-standard-2" // cant be e2 because of accelerator
+
+    shielded_instance_config {
+      enable_secure_boot = true
+      enable_vtpm = true
+      enable_integrity_monitoring = true
+    }
+
+    metadata = {
+      terraform = "true"
+    }
+
+    confidential_instance_config {
+      confidential_instance_type = "SEV"
+    }
+
+  }
+}
+```
 
 ## Argument Reference
 
@@ -355,6 +388,11 @@ The following arguments are supported:
   (Optional)
   Optional. Flag to enable ip forwarding or not, default false/off.
   https://cloud.google.com/vpc/docs/using-routes#canipforward
+
+* `confidential_instance_config` -
+  (Optional)
+  Confidential instance configuration.
+  Structure is [documented below](#nested_gce_setup_confidential_instance_config).
 
 
 <a name="nested_gce_setup_accelerator_configs"></a>The `accelerator_configs` block supports:
@@ -512,6 +550,13 @@ The following arguments are supported:
   undefined to use an IP from a shared ephemeral IP address pool. If you
   specify a static external IP address, it must live in the same region as
   the zone of the instance.
+
+<a name="nested_gce_setup_confidential_instance_config"></a>The `confidential_instance_config` block supports:
+
+* `confidential_instance_type` -
+  (Optional)
+  Defines the type of technology used by the confidential instance.
+  Possible values are: `SEV`.
 
 ## Attributes Reference
 

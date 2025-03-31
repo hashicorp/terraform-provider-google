@@ -1,0 +1,3 @@
+```release-note:enhancement
+workbench: added `confidential_instance_config` field to `google_workbench_instance` resource
+```

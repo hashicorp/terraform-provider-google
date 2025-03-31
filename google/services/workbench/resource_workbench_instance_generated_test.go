@@ -344,6 +344,59 @@ resource "google_workbench_instance" "instance" {
 `, context)
 }
 
+func TestAccWorkbenchInstance_workbenchInstanceConfidentialComputeExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckWorkbenchInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWorkbenchInstance_workbenchInstanceConfidentialComputeExample(context),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_id", "instance_owners", "labels", "location", "name", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccWorkbenchInstance_workbenchInstanceConfidentialComputeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_workbench_instance" "instance" {
+  name = "tf-test-workbench-instance%{random_suffix}"
+  location = "us-central1-a"
+
+  gce_setup {
+    machine_type = "n2d-standard-2" // cant be e2 because of accelerator
+
+    shielded_instance_config {
+      enable_secure_boot = true
+      enable_vtpm = true
+      enable_integrity_monitoring = true
+    }
+
+    metadata = {
+      terraform = "true"
+    }
+
+    confidential_instance_config {
+      confidential_instance_type = "SEV"
+    }
+
+  }
+}
+`, context)
+}
+
 func testAccCheckWorkbenchInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
