@@ -189,7 +189,6 @@ func ResourceStorageControlOrganizationIntelligenceConfig() *schema.Resource {
 
 func resourceStorageControlOrganizationIntelligenceConfigCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -214,7 +213,7 @@ func resourceStorageControlOrganizationIntelligenceConfigCreate(d *schema.Resour
 		return err
 	}
 
-	log.Printf("[DEBUG] Patching IntelligenceConfig: %#v", obj)
+	log.Printf("[DEBUG] Creating new OrganizationIntelligenceConfig: %#v", obj)
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
@@ -234,7 +233,6 @@ func resourceStorageControlOrganizationIntelligenceConfigCreate(d *schema.Resour
 	if err != nil {
 		return err
 	}
-
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",
@@ -246,7 +244,7 @@ func resourceStorageControlOrganizationIntelligenceConfigCreate(d *schema.Resour
 		Headers:   headers,
 	})
 	if err != nil {
-		return fmt.Errorf("Error patching IntelligenceConfig: %s", err)
+		return fmt.Errorf("Error creating OrganizationIntelligenceConfig: %s", err)
 	}
 
 	// Store the ID now
@@ -256,7 +254,7 @@ func resourceStorageControlOrganizationIntelligenceConfigCreate(d *schema.Resour
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished patching intelligence config %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished creating OrganizationIntelligenceConfig %q: %#v", d.Id(), res)
 
 	return resourceStorageControlOrganizationIntelligenceConfigRead(d, meta)
 }
