@@ -153,8 +153,37 @@ resource "google_clouddeploy_automation" "f-automation" {
   rules {
     advance_rollout_rule {
       id                    = "advance-rollout"
-      source_phases         = ["deploy"]
+      source_phases         = ["canary"]
       wait                  = "200s"
+    }
+  }
+  rules {
+    repair_rollout_rule {
+      id                    = "repair-rollout"
+      phases                = ["stable"]
+      jobs                  = ["deploy"]
+      repair_phases {
+          retry  {
+                      attempts = "1"
+                      wait     = "200s"
+                      backoff_mode = "BACKOFF_MODE_LINEAR"
+                  }
+       }
+      repair_phases {
+             rollback {
+                         destination_phase = "stable"
+                         disable_rollback_if_rollout_pending = true
+                      }
+          }
+    }
+  }
+  rules {
+    timed_promote_release_rule {
+      id                    = "timed-promote-release"
+      destination_target_id   = "@next"
+      schedule              = "0 9 * * 1"
+      time_zone              = "America/New_York"
+      destination_phase      = "stable"
     }
   }
 }
