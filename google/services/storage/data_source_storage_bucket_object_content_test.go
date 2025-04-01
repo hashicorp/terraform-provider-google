@@ -52,6 +52,7 @@ func TestAccDataSourceStorageBucketObjectContent_FileContentBase64(t *testing.T)
 	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
 		t.Errorf("error writing file: %v", err)
 	}
+	defer os.Remove(testFile.Name()) // clean up
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
