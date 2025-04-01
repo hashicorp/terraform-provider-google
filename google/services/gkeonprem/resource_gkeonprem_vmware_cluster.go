@@ -263,6 +263,11 @@ full access to the cluster.`,
 				Optional:    true,
 				Description: `Disable bundled ingress.`,
 			},
+			"enable_advanced_cluster": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Enable advanced cluster. Default to false.`,
+			},
 			"enable_control_plane_v2": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -996,6 +1001,12 @@ func resourceGkeonpremVmwareClusterCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("enable_control_plane_v2"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableControlPlaneV2Prop)) && (ok || !reflect.DeepEqual(v, enableControlPlaneV2Prop)) {
 		obj["enableControlPlaneV2"] = enableControlPlaneV2Prop
 	}
+	enableAdvancedClusterProp, err := expandGkeonpremVmwareClusterEnableAdvancedCluster(d.Get("enable_advanced_cluster"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_advanced_cluster"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableAdvancedClusterProp)) && (ok || !reflect.DeepEqual(v, enableAdvancedClusterProp)) {
+		obj["enableAdvancedCluster"] = enableAdvancedClusterProp
+	}
 	disableBundledIngressProp, err := expandGkeonpremVmwareClusterDisableBundledIngress(d.Get("disable_bundled_ingress"), d, config)
 	if err != nil {
 		return err
@@ -1171,6 +1182,9 @@ func resourceGkeonpremVmwareClusterRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("enable_control_plane_v2", flattenGkeonpremVmwareClusterEnableControlPlaneV2(res["enableControlPlaneV2"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VmwareCluster: %s", err)
 	}
+	if err := d.Set("enable_advanced_cluster", flattenGkeonpremVmwareClusterEnableAdvancedCluster(res["enableAdvancedCluster"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareCluster: %s", err)
+	}
 	if err := d.Set("disable_bundled_ingress", flattenGkeonpremVmwareClusterDisableBundledIngress(res["disableBundledIngress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VmwareCluster: %s", err)
 	}
@@ -1308,6 +1322,12 @@ func resourceGkeonpremVmwareClusterUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("enable_control_plane_v2"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableControlPlaneV2Prop)) {
 		obj["enableControlPlaneV2"] = enableControlPlaneV2Prop
 	}
+	enableAdvancedClusterProp, err := expandGkeonpremVmwareClusterEnableAdvancedCluster(d.Get("enable_advanced_cluster"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_advanced_cluster"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableAdvancedClusterProp)) {
+		obj["enableAdvancedCluster"] = enableAdvancedClusterProp
+	}
 	disableBundledIngressProp, err := expandGkeonpremVmwareClusterDisableBundledIngress(d.Get("disable_bundled_ingress"), d, config)
 	if err != nil {
 		return err
@@ -1388,6 +1408,10 @@ func resourceGkeonpremVmwareClusterUpdate(d *schema.ResourceData, meta interface
 
 	if d.HasChange("enable_control_plane_v2") {
 		updateMask = append(updateMask, "enableControlPlaneV2")
+	}
+
+	if d.HasChange("enable_advanced_cluster") {
+		updateMask = append(updateMask, "enableAdvancedCluster")
 	}
 
 	if d.HasChange("disable_bundled_ingress") {
@@ -2287,6 +2311,10 @@ func flattenGkeonpremVmwareClusterValidationCheckScenario(v interface{}, d *sche
 }
 
 func flattenGkeonpremVmwareClusterEnableControlPlaneV2(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGkeonpremVmwareClusterEnableAdvancedCluster(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3371,6 +3399,10 @@ func expandGkeonpremVmwareClusterAuthorizationAdminUsersUsername(v interface{}, 
 }
 
 func expandGkeonpremVmwareClusterEnableControlPlaneV2(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGkeonpremVmwareClusterEnableAdvancedCluster(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
