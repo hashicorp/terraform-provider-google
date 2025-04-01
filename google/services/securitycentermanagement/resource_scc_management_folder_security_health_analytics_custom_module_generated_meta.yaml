@@ -4,6 +4,8 @@ source_file: 'products/securitycentermanagement/FolderSecurityHealthAnalyticsCus
 api_service_name: 'securitycentermanagement.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'SecurityHealthAnalyticsCustomModule'
+api_variant_patterns:
+  - 'folders/{folder}/locations/{location}/securityHealthAnalyticsCustomModules/{securityHealthAnalyticsCustomModule}'
 fields:
   - field: 'ancestor_module'
   - field: 'custom_config.custom_output.properties.name'

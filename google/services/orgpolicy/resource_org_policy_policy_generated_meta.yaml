@@ -4,6 +4,10 @@ source_file: 'products/orgpolicy/Policy.yaml'
 api_service_name: 'orgpolicy.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'Policy'
+api_variant_patterns:
+  - 'folders/{folder}/policies/{policy}'
+  - 'organizations/{organization}/policies/{policy}'
+  - 'projects/{project}/policies/{policy}'
 fields:
   - field: 'dry_run_spec.etag'
   - field: 'dry_run_spec.inherit_from_parent'

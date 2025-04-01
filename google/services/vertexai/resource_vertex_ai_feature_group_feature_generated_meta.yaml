@@ -4,6 +4,8 @@ source_file: 'products/vertexai/FeatureGroupFeature.yaml'
 api_service_name: 'aiplatform.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Feature'
+api_variant_patterns:
+  - 'projects/{project}/locations/{location}/featureGroups/{featureGroup}/features/{feature}'
 fields:
   - field: 'create_time'
   - field: 'description'

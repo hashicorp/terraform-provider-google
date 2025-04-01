@@ -4,6 +4,8 @@ source_file: 'products/iam3/ProjectsPolicyBinding.yaml'
 api_service_name: 'iam.googleapis.com'
 api_version: 'v3'
 api_resource_type_kind: 'PolicyBinding'
+api_variant_patterns:
+  - 'projects/{project}/locations/{location}/policyBindings/{policyBinding}'
 fields:
   - field: 'annotations'
   - field: 'condition.description'

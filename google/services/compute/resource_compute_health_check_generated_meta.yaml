@@ -4,6 +4,8 @@ source_file: 'products/compute/HealthCheck.yaml'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'HealthCheck'
+api_variant_patterns:
+  - 'projects/{project}/global/healthChecks/{healthCheck}'
 fields:
   - field: 'check_interval_sec'
   - field: 'creation_timestamp'

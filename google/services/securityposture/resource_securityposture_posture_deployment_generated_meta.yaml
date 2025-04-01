@@ -4,6 +4,10 @@ source_file: 'products/securityposture/PostureDeployment.yaml'
 api_service_name: 'securityposture.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'PostureDeployment'
+api_variant_patterns:
+  - 'folders/{folder}/locations/{location}/postureDeployments/{postureDeployment}'
+  - 'organizations/{organization}/locations/{location}/postureDeployments/{postureDeployment}'
+  - 'projects/{project}/locations/{location}/postureDeployments/{postureDeployment}'
 fields:
   - field: 'create_time'
   - field: 'description'

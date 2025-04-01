@@ -4,6 +4,10 @@ source_file: 'products/privilegedaccessmanager/Entitlement.yaml'
 api_service_name: 'privilegedaccessmanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Entitlement'
+api_variant_patterns:
+  - 'folders/{folder}/locations/{location}/entitlements/{entitlement}'
+  - 'organizations/{organization}/locations/{location}/entitlements/{entitlement}'
+  - 'projects/{project}/locations/{location}/entitlements/{entitlement}'
 fields:
   - field: 'additional_notification_targets.admin_email_recipients'
   - field: 'additional_notification_targets.requester_email_recipients'

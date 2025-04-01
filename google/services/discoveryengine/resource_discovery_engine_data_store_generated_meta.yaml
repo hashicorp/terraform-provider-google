@@ -4,6 +4,8 @@ source_file: 'products/discoveryengine/DataStore.yaml'
 api_service_name: 'discoveryengine.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'DataStore'
+api_variant_patterns:
+  - 'projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}'
 fields:
   - field: 'advanced_site_search_config.disable_automatic_refresh'
   - field: 'advanced_site_search_config.disable_initial_index'

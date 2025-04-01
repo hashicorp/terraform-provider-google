@@ -3,6 +3,8 @@ generation_type: 'handwritten'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'InstanceGroupManager'
+api_variant_patterns:
+  - 'projects/{project}/zones/{zone}/instanceGroupManagers/{instanceGroupManager}'
 fields:
   - field: 'all_instances_config.labels'
   - field: 'all_instances_config.metadata'

@@ -3,6 +3,8 @@ generation_type: 'dcl'
 api_service_name: 'assuredworkloads.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Workload'
+api_variant_patterns:
+  - 'organizations/{organization}/locations/{location}/workloads/{workload}'
 fields:
   - field: 'billing_account'
   - field: 'compliance_regime'

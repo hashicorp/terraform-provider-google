@@ -4,6 +4,11 @@ source_file: 'products/logging/LogView.yaml'
 api_service_name: 'logging.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'LogView'
+api_variant_patterns:
+  - 'billingAccounts/{billingAccount}/locations/{location}/buckets/{bucket}/views/{view}'
+  - 'folders/{folder}/locations/{location}/buckets/{bucket}/views/{view}'
+  - 'organizations/{organization}/locations/{location}/buckets/{bucket}/views/{view}'
+  - 'projects/{project}/locations/{location}/buckets/{bucket}/views/{view}'
 fields:
   - field: 'bucket'
     provider_only: true
