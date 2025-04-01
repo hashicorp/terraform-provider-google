@@ -2,7 +2,7 @@
 
 DEPRECATIONS:
 * compute: deprecated `enable_flow_logs` in favor of `log_config` on `google_compute_subnetwork` resource.  If `log_config` is present, flow logs are enabled, and `enable_flow_logs` can be safely removed. ([#22111](https://github.com/hashicorp/terraform-provider-google/pull/22111))
-* containeranalysis: Deprecated `google_container_registry` resource, and `google_container_registry_image` and `google_container_registry_repository` data sources. Use `google_artifact_registry_repository` instead. ([#22071](https://github.com/hashicorp/terraform-provider-google/pull/22071))
+* containerregistry: Deprecated `google_container_registry` resource, and `google_container_registry_image` and `google_container_registry_repository` data sources. Use `google_artifact_registry_repository` instead. ([#22071](https://github.com/hashicorp/terraform-provider-google/pull/22071))
 
 FEATURES:
 * **New Data Source:** `google_compute_region_backend_service` ([#21986](https://github.com/hashicorp/terraform-provider-google/pull/21986))
