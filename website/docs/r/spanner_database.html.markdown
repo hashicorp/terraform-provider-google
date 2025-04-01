@@ -93,10 +93,14 @@ The following arguments are supported:
 
 * `ddl` -
   (Optional)
-  An optional list of DDL statements to run inside the newly created
-  database. Statements can create tables, indexes, etc. These statements
-  execute atomically with the creation of the database: if there is an
-  error in any statement, the database is not created.
+  An optional list of DDL statements to run inside the database. Statements can create
+  tables, indexes, etc.
+  During creation these statements execute atomically with the creation of the database
+  and if there is an error in any statement, the database is not created.
+  Terraform does not perform drift detection on this field and assumes that the values
+  recorded in state are accurate. Limited updates to this field are supported, and
+  newly appended DDL statements can be executed in an update. However, modifications
+  to prior statements will create a plan that marks the resource for recreation.
 
 * `encryption_config` -
   (Optional)
