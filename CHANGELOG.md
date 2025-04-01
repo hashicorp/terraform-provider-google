@@ -56,7 +56,7 @@ IMPROVEMENTS:
 * datastream: added `blmt_config` field to `bigquery_destination_config` resource to enable support for BigLake Managed Tables streams ([#22109](https://github.com/hashicorp/terraform-provider-google/pull/22109))
 * datastream: added `secret_manager_stored_password` field to `google_datastream_connection_profile` resource ([#22046](https://github.com/hashicorp/terraform-provider-google/pull/22046))
 * identityplatform: added `disabled_user_signup` and `disabled_user_deletion` to `google_identity_platform_tenant` resource ([#21983](https://github.com/hashicorp/terraform-provider-google/pull/21983))
-* memorystore: added `psc_attachment_details` field to `google_memorystore_instance` resource, to enable use of the fine-grained resource `google_memorystore_instance_desired_user_created_connections ([#22073](https://github.com/hashicorp/terraform-provider-google/pull/22073))
+* memorystore: added `psc_attachment_details` field to `google_memorystore_instance` resource, to enable use of the fine-grained resource `google_memorystore_instance_desired_user_created_connections` ([#22073](https://github.com/hashicorp/terraform-provider-google/pull/22073))
 * memorystore: added the `cross_cluster_replication_config` field to the `google_redis_cluster` resource ([#22097](https://github.com/hashicorp/terraform-provider-google/pull/22097))
 * metastore: added `deletion_protection` field to `google_dataproc_metastore_federation` resource ([#22106](https://github.com/hashicorp/terraform-provider-google/pull/22106))
 * networksecurity: added `antivirus_overrides` field to `google_network_security_security_profile` resource ([#22060](https://github.com/hashicorp/terraform-provider-google/pull/22060))
