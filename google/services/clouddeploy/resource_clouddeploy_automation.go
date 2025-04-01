@@ -32,6 +32,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceClouddeployAutomation() *schema.Resource {
@@ -136,6 +137,129 @@ func ResourceClouddeployAutomation() *schema.Resource {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: `Optional. How long the release need to be paused until being promoted to the next target.`,
+									},
+								},
+							},
+						},
+						"repair_rollout_rule": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Optional. The RepairRolloutRule will automatically repair a failed rollout.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Required. ID of the rule. This id must be unique in the 'Automation' resource to which this rule belongs. The format is 'a-z{0,62}'.`,
+									},
+									"jobs": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. Jobs to repair. Proceeds only after job name matched any one in the list, or for all jobs if unspecified or empty. The phase that includes the job must match the phase ID specified in sourcePhase. This value must consist of lower-case letters, numbers, and hyphens, start with a letter and end with a letter or a number, and have a max length of 63 characters. In other words, it must match the following regex: ^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"phases": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. Phases within which jobs are subject to automatic repair actions on failure. Proceeds only after phase name matched any one in the list, or for all phases if unspecified. This value must consist of lower-case letters, numbers, and hyphens, start with a letter and end with a letter or a number, and have a max length of 63 characters. In other words, it must match the following regex: ^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"repair_phases": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. Proceeds only after phase name matched any one in the list. This value must consist of lower-case letters, numbers, and hyphens, start with a letter and end with a letter or a number, and have a max length of 63 characters. In other words, it must match the following regex: '^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$'.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"retry": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. Retries a failed job.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"attempts": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Required. Total number of retries. Retry is skipped if set to 0; The minimum value is 1, and the maximum value is 10.`,
+															},
+															"backoff_mode": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: verify.ValidateEnum([]string{"BACKOFF_MODE_UNSPECIFIED", "BACKOFF_MODE_LINEAR", "BACKOFF_MODE_EXPONENTIAL", ""}),
+																Description:  `Optional. The pattern of how wait time will be increased. Default is linear. Backoff mode will be ignored if wait is 0. Possible values: ["BACKOFF_MODE_UNSPECIFIED", "BACKOFF_MODE_LINEAR", "BACKOFF_MODE_EXPONENTIAL"]`,
+															},
+															"wait": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Optional. How long to wait for the first retry. Default is 0, and the maximum value is 14d. A duration in seconds with up to nine fractional digits, ending with 's'. Example: '3.5s'.`,
+															},
+														},
+													},
+												},
+												"rollback": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. Rolls back a Rollout.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"destination_phase": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Optional. The starting phase ID for the Rollout. If unspecified, the Rollout will start in the stable phase.`,
+															},
+															"disable_rollback_if_rollout_pending": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Description: `Optional. If pending rollout exists on the target, the rollback operation will be aborted.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"timed_promote_release_rule": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Optional. The 'TimedPromoteReleaseRule' will automatically promote a release from the current target(s) to the specified target(s) on a configured schedule.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Required. ID of the rule. This id must be unique in the 'Automation' resource to which this rule belongs. The format is 'a-z{0,62}'.`,
+									},
+									"schedule": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Required. Schedule in crontab format. e.g. '0 9 * * 1' for every Monday at 9am.`,
+									},
+									"time_zone": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Required. The time zone in IANA format IANA Time Zone Database (e.g. America/New_York).`,
+									},
+									"destination_phase": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Optional. The starting phase of the rollout created by this rule. Default to the first phase.`,
+									},
+									"destination_target_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Optional. The ID of the stage in the pipeline to which this Release is deploying. If unspecified, default it to the next stage in the promotion flow. The value of this field could be one of the following:
+  - The last segment of a target name
+  - "@next", the next target in the promotion sequence"`,
 									},
 								},
 							},
@@ -777,8 +901,10 @@ func flattenClouddeployAutomationRules(v interface{}, d *schema.ResourceData, co
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"promote_release_rule": flattenClouddeployAutomationRulesPromoteReleaseRule(original["promoteReleaseRule"], d, config),
-			"advance_rollout_rule": flattenClouddeployAutomationRulesAdvanceRolloutRule(original["advanceRolloutRule"], d, config),
+			"promote_release_rule":       flattenClouddeployAutomationRulesPromoteReleaseRule(original["promoteReleaseRule"], d, config),
+			"advance_rollout_rule":       flattenClouddeployAutomationRulesAdvanceRolloutRule(original["advanceRolloutRule"], d, config),
+			"repair_rollout_rule":        flattenClouddeployAutomationRulesRepairRolloutRule(original["repairRolloutRule"], d, config),
+			"timed_promote_release_rule": flattenClouddeployAutomationRulesTimedPromoteReleaseRule(original["timedPromoteReleaseRule"], d, config),
 		})
 	}
 	return transformed
@@ -844,6 +970,149 @@ func flattenClouddeployAutomationRulesAdvanceRolloutRuleWait(v interface{}, d *s
 }
 
 func flattenClouddeployAutomationRulesAdvanceRolloutRuleSourcePhases(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenClouddeployAutomationRulesRepairRolloutRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["id"] =
+		flattenClouddeployAutomationRulesRepairRolloutRuleId(original["id"], d, config)
+	transformed["phases"] =
+		flattenClouddeployAutomationRulesRepairRolloutRulePhases(original["phases"], d, config)
+	transformed["jobs"] =
+		flattenClouddeployAutomationRulesRepairRolloutRuleJobs(original["jobs"], d, config)
+	transformed["repair_phases"] =
+		flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhases(original["repairPhases"], d, config)
+	return []interface{}{transformed}
+}
+func flattenClouddeployAutomationRulesRepairRolloutRuleId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenClouddeployAutomationRulesRepairRolloutRulePhases(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenClouddeployAutomationRulesRepairRolloutRuleJobs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhases(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"retry":    flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetry(original["retry"], d, config),
+			"rollback": flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollback(original["rollback"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetry(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["attempts"] =
+		flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetryAttempts(original["attempts"], d, config)
+	transformed["wait"] =
+		flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetryWait(original["wait"], d, config)
+	transformed["backoff_mode"] =
+		flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetryBackoffMode(original["backoffMode"], d, config)
+	return []interface{}{transformed}
+}
+func flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetryAttempts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetryWait(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetryBackoffMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollback(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["destination_phase"] =
+		flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollbackDestinationPhase(original["destinationPhase"], d, config)
+	transformed["disable_rollback_if_rollout_pending"] =
+		flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollbackDisableRollbackIfRolloutPending(original["disableRollbackIfRolloutPending"], d, config)
+	return []interface{}{transformed}
+}
+func flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollbackDestinationPhase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollbackDisableRollbackIfRolloutPending(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenClouddeployAutomationRulesTimedPromoteReleaseRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["id"] =
+		flattenClouddeployAutomationRulesTimedPromoteReleaseRuleId(original["id"], d, config)
+	transformed["destination_target_id"] =
+		flattenClouddeployAutomationRulesTimedPromoteReleaseRuleDestinationTargetId(original["destinationTargetId"], d, config)
+	transformed["schedule"] =
+		flattenClouddeployAutomationRulesTimedPromoteReleaseRuleSchedule(original["schedule"], d, config)
+	transformed["time_zone"] =
+		flattenClouddeployAutomationRulesTimedPromoteReleaseRuleTimeZone(original["timeZone"], d, config)
+	transformed["destination_phase"] =
+		flattenClouddeployAutomationRulesTimedPromoteReleaseRuleDestinationPhase(original["destinationPhase"], d, config)
+	return []interface{}{transformed}
+}
+func flattenClouddeployAutomationRulesTimedPromoteReleaseRuleId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenClouddeployAutomationRulesTimedPromoteReleaseRuleDestinationTargetId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenClouddeployAutomationRulesTimedPromoteReleaseRuleSchedule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenClouddeployAutomationRulesTimedPromoteReleaseRuleTimeZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenClouddeployAutomationRulesTimedPromoteReleaseRuleDestinationPhase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -969,6 +1238,20 @@ func expandClouddeployAutomationRules(v interface{}, d tpgresource.TerraformReso
 			transformed["advanceRolloutRule"] = transformedAdvanceRolloutRule
 		}
 
+		transformedRepairRolloutRule, err := expandClouddeployAutomationRulesRepairRolloutRule(original["repair_rollout_rule"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRepairRolloutRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["repairRolloutRule"] = transformedRepairRolloutRule
+		}
+
+		transformedTimedPromoteReleaseRule, err := expandClouddeployAutomationRulesTimedPromoteReleaseRule(original["timed_promote_release_rule"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTimedPromoteReleaseRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["timedPromoteReleaseRule"] = transformedTimedPromoteReleaseRule
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1072,6 +1355,233 @@ func expandClouddeployAutomationRulesAdvanceRolloutRuleWait(v interface{}, d tpg
 }
 
 func expandClouddeployAutomationRulesAdvanceRolloutRuleSourcePhases(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandClouddeployAutomationRulesRepairRolloutRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedId, err := expandClouddeployAutomationRulesRepairRolloutRuleId(original["id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["id"] = transformedId
+	}
+
+	transformedPhases, err := expandClouddeployAutomationRulesRepairRolloutRulePhases(original["phases"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPhases); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["phases"] = transformedPhases
+	}
+
+	transformedJobs, err := expandClouddeployAutomationRulesRepairRolloutRuleJobs(original["jobs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJobs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["jobs"] = transformedJobs
+	}
+
+	transformedRepairPhases, err := expandClouddeployAutomationRulesRepairRolloutRuleRepairPhases(original["repair_phases"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRepairPhases); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["repairPhases"] = transformedRepairPhases
+	}
+
+	return transformed, nil
+}
+
+func expandClouddeployAutomationRulesRepairRolloutRuleId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandClouddeployAutomationRulesRepairRolloutRulePhases(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandClouddeployAutomationRulesRepairRolloutRuleJobs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandClouddeployAutomationRulesRepairRolloutRuleRepairPhases(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedRetry, err := expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetry(original["retry"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRetry); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["retry"] = transformedRetry
+		}
+
+		transformedRollback, err := expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollback(original["rollback"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRollback); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["rollback"] = transformedRollback
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetry(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAttempts, err := expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetryAttempts(original["attempts"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAttempts); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["attempts"] = transformedAttempts
+	}
+
+	transformedWait, err := expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetryWait(original["wait"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWait); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["wait"] = transformedWait
+	}
+
+	transformedBackoffMode, err := expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetryBackoffMode(original["backoff_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBackoffMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["backoffMode"] = transformedBackoffMode
+	}
+
+	return transformed, nil
+}
+
+func expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetryAttempts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetryWait(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetryBackoffMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollback(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDestinationPhase, err := expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollbackDestinationPhase(original["destination_phase"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDestinationPhase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["destinationPhase"] = transformedDestinationPhase
+	}
+
+	transformedDisableRollbackIfRolloutPending, err := expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollbackDisableRollbackIfRolloutPending(original["disable_rollback_if_rollout_pending"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["disableRollbackIfRolloutPending"] = transformedDisableRollbackIfRolloutPending
+	}
+
+	return transformed, nil
+}
+
+func expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollbackDestinationPhase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollbackDisableRollbackIfRolloutPending(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandClouddeployAutomationRulesTimedPromoteReleaseRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedId, err := expandClouddeployAutomationRulesTimedPromoteReleaseRuleId(original["id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["id"] = transformedId
+	}
+
+	transformedDestinationTargetId, err := expandClouddeployAutomationRulesTimedPromoteReleaseRuleDestinationTargetId(original["destination_target_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDestinationTargetId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["destinationTargetId"] = transformedDestinationTargetId
+	}
+
+	transformedSchedule, err := expandClouddeployAutomationRulesTimedPromoteReleaseRuleSchedule(original["schedule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSchedule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["schedule"] = transformedSchedule
+	}
+
+	transformedTimeZone, err := expandClouddeployAutomationRulesTimedPromoteReleaseRuleTimeZone(original["time_zone"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimeZone); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["timeZone"] = transformedTimeZone
+	}
+
+	transformedDestinationPhase, err := expandClouddeployAutomationRulesTimedPromoteReleaseRuleDestinationPhase(original["destination_phase"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDestinationPhase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["destinationPhase"] = transformedDestinationPhase
+	}
+
+	return transformed, nil
+}
+
+func expandClouddeployAutomationRulesTimedPromoteReleaseRuleId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandClouddeployAutomationRulesTimedPromoteReleaseRuleDestinationTargetId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandClouddeployAutomationRulesTimedPromoteReleaseRuleSchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandClouddeployAutomationRulesTimedPromoteReleaseRuleTimeZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandClouddeployAutomationRulesTimedPromoteReleaseRuleDestinationPhase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

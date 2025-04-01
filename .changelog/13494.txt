@@ -1,0 +1,6 @@
+```release-note:enhancement
+cloudedeploy: added `timed_promote_release_rule` and `repair_rollout_rule`  to `google_clouddeploy_automation` resource
+```
+```release-note:new-resource
+`google_clouddeploy_deploy_policy`
+```

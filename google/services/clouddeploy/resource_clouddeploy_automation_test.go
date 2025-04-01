@@ -122,6 +122,34 @@ resource "google_clouddeploy_automation" "automation" {
       destination_phase = "stable"
     }
   }
+  rules {
+    repair_rollout_rule {
+      id                    = "repair-rollout"
+      phases                = ["stable"]
+      jobs                  = ["deploy"]
+      repair_phases {
+          retry  {
+                      attempts = "1"
+                      wait     = "200s"
+                      backoff_mode = "BACKOFF_MODE_LINEAR"
+                  }
+       }
+      repair_phases {
+             rollback {
+                         destination_phase = "stable"
+                      }
+          }
+    }
+  }
+  rules {
+    timed_promote_release_rule {
+      id                    = "timed-promote-release"
+      destination_target_id   = "@next"
+      schedule              = "0 9 * * 1"
+      time_zone              = "America/New_York"
+      destination_phase      = "stable"
+    }
+  }
 }
 
 resource "google_clouddeploy_delivery_pipeline" "pipeline" {
