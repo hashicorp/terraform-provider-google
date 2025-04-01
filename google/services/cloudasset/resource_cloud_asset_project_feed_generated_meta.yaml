@@ -4,6 +4,8 @@ source_file: 'products/cloudasset/ProjectFeed.yaml'
 api_service_name: 'cloudasset.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Feed'
+api_variant_patterns:
+  - 'projects/{project}/feeds/{feed}'
 fields:
   - field: 'asset_names'
   - field: 'asset_types'

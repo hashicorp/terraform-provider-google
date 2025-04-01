@@ -4,6 +4,8 @@ source_file: 'products/compute/Autoscaler.yaml'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Autoscaler'
+api_variant_patterns:
+  - 'projects/{project}/zones/{zone}/autoscalers/{autoscaler}'
 fields:
   - field: 'autoscaling_policy.cooldown_period'
     api_field: 'autoscaling_policy.cool_down_period_sec'

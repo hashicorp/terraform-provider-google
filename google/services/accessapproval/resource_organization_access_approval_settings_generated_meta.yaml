@@ -4,6 +4,8 @@ source_file: 'products/accessapproval/OrganizationSettings.yaml'
 api_service_name: 'accessapproval.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'AccessApprovalSettings'
+api_variant_patterns:
+  - 'organizations/{organization}/accessApprovalSettings'
 fields:
   - field: 'active_key_version'
   - field: 'ancestor_has_active_key_version'

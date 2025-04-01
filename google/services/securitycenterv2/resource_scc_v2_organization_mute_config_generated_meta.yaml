@@ -4,6 +4,8 @@ source_file: 'products/securitycenterv2/OrganizationMuteConfig.yaml'
 api_service_name: 'securitycenter.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'MuteConfig'
+api_variant_patterns:
+  - 'organizations/{organization}/locations/{location}/muteConfigs/{muteConfig}'
 fields:
   - field: 'create_time'
   - field: 'description'

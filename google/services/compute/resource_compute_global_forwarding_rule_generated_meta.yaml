@@ -4,6 +4,8 @@ source_file: 'products/compute/GlobalForwardingRule.yaml'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ForwardingRule'
+api_variant_patterns:
+  - 'projects/{project}/global/forwardingRules/{forwardingRule}'
 fields:
   - field: 'base_forwarding_rule'
   - field: 'description'

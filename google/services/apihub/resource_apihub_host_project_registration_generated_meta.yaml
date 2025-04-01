@@ -4,6 +4,8 @@ source_file: 'products/apihub/HostProjectRegistration.yaml'
 api_service_name: 'apihub.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'HostProjectRegistration'
+api_variant_patterns:
+  - 'projects/{project}/locations/{location}/hostProjectRegistrations/{hostproject}'
 autogen_status: true
 fields:
   - field: 'create_time'

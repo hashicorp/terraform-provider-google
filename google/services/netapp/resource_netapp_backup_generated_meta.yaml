@@ -4,6 +4,8 @@ source_file: 'products/netapp/Backup.yaml'
 api_service_name: 'netapp.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Backup'
+api_variant_patterns:
+  - 'projects/{project}/locations/{location}/backupVaults/{backupVault}/backups/{backup}'
 fields:
   - field: 'backup_type'
   - field: 'chain_storage_bytes'

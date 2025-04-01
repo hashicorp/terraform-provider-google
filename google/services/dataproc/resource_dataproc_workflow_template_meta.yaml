@@ -3,6 +3,8 @@ generation_type: 'dcl'
 api_service_name: 'dataproc.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'WorkflowTemplate'
+api_variant_patterns:
+  - 'projects/{project}/locations/{location}/workflowTemplates/{workflowTemplate}'
 fields:
   - field: 'create_time'
   - field: 'dag_timeout'

@@ -4,6 +4,8 @@ source_file: 'products/firebaseappcheck/RecaptchaV3Config.yaml'
 api_service_name: 'firebaseappcheck.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'RecaptchaConfig'
+api_variant_patterns:
+  - 'projects/{project}/apps/{app}/recaptchaV3Config'
 fields:
   - field: 'app_id'
     provider_only: true

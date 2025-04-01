@@ -4,6 +4,10 @@ source_file: 'products/essentialcontacts/Contact.yaml'
 api_service_name: 'essentialcontacts.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Contact'
+api_variant_patterns:
+  - 'folders/{folder}/contacts/{contact}'
+  - 'organizations/{organization}/contacts/{contact}'
+  - 'projects/{project}/contacts/{contact}'
 fields:
   - field: 'email'
   - field: 'language_tag'

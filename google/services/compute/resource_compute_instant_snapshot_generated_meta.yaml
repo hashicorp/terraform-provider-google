@@ -4,6 +4,8 @@ source_file: 'products/compute/InstantSnapshot.yaml'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'InstantSnapshot'
+api_variant_patterns:
+  - 'projects/{project}/zones/{zone}/instantSnapshots/{instantSnapshot}'
 fields:
   - field: 'creation_timestamp'
   - field: 'description'

@@ -4,6 +4,8 @@ source_file: 'products/gemini/LoggingSettingBinding.yaml'
 api_service_name: 'cloudaicompanion.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'SettingBinding'
+api_variant_patterns:
+  - 'projects/{project}/locations/{location}/loggingSettings/{loggingSetting}/settingBindings/{settingBinding}'
 autogen_status: true
 fields:
   - field: 'create_time'

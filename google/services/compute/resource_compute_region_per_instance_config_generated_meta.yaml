@@ -4,6 +4,8 @@ source_file: 'products/compute/RegionPerInstanceConfig.yaml'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'InstanceGroupManager'
+api_variant_patterns:
+  - 'projects/{project}/regions/{region}/instanceGroupManagers/{instanceGroupManager}'
 fields:
   - field: 'minimal_action'
     provider_only: true

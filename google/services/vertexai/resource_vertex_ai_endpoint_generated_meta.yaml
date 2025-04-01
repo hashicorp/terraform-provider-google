@@ -4,6 +4,8 @@ source_file: 'products/vertexai/Endpoint.yaml'
 api_service_name: 'aiplatform.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Endpoint'
+api_variant_patterns:
+  - 'projects/{project}/locations/{location}/endpoints/{endpoint}'
 fields:
   - field: 'create_time'
   - field: 'dedicated_endpoint_dns'
