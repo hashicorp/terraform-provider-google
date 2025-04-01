@@ -1,0 +1,6 @@
+```release-note:enhancement
+gkeonprem: added `enable_advanced_cluster` field to `google_gkeonprem_vmware_cluster` resource
+```
+```release-note:enhancement
+gkeonprem: added `enable_advanced_cluster` field to `google_gkeonprem_vmware_admin_cluster` resource
+```

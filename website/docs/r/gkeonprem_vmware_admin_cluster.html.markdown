@@ -778,6 +778,9 @@ In addition to the arguments listed above, the following computed attributes are
   ResourceStatus representing detailed cluster state.
   Structure is [documented below](#nested_status).
 
+* `enable_advanced_cluster` -
+  If set, the advanced cluster feature is enabled.
+
 * `effective_annotations` -
   All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
 
