@@ -117,7 +117,7 @@ func listAndActionColabSchedule(action sweeper.ResourceAction) error {
 		}
 
 		// Prepare list URL
-		listTemplate := strings.Split("https://{{region}}-aiplatform.googleapis.com/v1/projects/{{project}}/locations/{{location}}/schedules", "?")[0]
+		listTemplate := strings.Split("https://{{location}}-aiplatform.googleapis.com/v1/projects/{{project}}/locations/{{location}}/schedules", "?")[0]
 		listUrl, err := tpgresource.ReplaceVars(mockConfig, config, listTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -194,7 +194,7 @@ func deleteResourceColabSchedule(config *transport_tpg.Config, d *tpgresource.Re
 		return nil
 	}
 
-	deleteTemplate := "https://{{region}}-aiplatform.googleapis.com/v1/projects/{{project}}/locations/{{location}}/schedules/{{name}}"
+	deleteTemplate := "https://{{location}}-aiplatform.googleapis.com/v1/projects/{{project}}/locations/{{location}}/schedules/{{name}}"
 
 	url, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 	if err != nil {
