@@ -1225,6 +1225,41 @@ resource "google_datastream_stream" "default" {
     }
 }
 ```
+## Example Usage - Datastream Stream Salesforce
+
+
+```hcl
+resource "google_datastream_stream" "default" {
+    display_name = "Salesforce to BigQuery"
+    location     = "us-central1"
+    stream_id    = ""
+
+    source_config {
+        source_connection_profile = "source-profile"
+        salesforce_source_config {
+            polling_interval = "600s"
+            include_objects {
+              objects {
+                  object_name = "ObjectName"
+              }
+        }
+    }
+
+    destination_config {
+        destination_connection_profile = "destination-profile"
+        bigquery_destination_config {
+            data_freshness = "900s"
+            source_hierarchy_datasets {
+                dataset_template {
+                    location = "us-central1"
+                }
+            }
+        }
+    }
+
+    backfill_none {}
+}
+```
 
 ## Argument Reference
 
@@ -1279,6 +1314,11 @@ The following arguments are supported:
   (Optional)
   SQL Server data source configuration.
   Structure is [documented below](#nested_source_config_sql_server_source_config).
+
+* `salesforce_source_config` -
+  (Optional)
+  Salesforce data source configuration.
+  Structure is [documented below](#nested_source_config_salesforce_source_config).
 
 
 <a name="nested_source_config_mysql_source_config"></a>The `mysql_source_config` block supports:
@@ -1936,6 +1976,75 @@ The following arguments are supported:
   (Output)
   The ordinal position of the column in the table.
 
+<a name="nested_source_config_salesforce_source_config"></a>The `salesforce_source_config` block supports:
+
+* `include_objects` -
+  (Optional)
+  Salesforce objects to retrieve from the source.
+  Structure is [documented below](#nested_source_config_salesforce_source_config_include_objects).
+
+* `exclude_objects` -
+  (Optional)
+  Salesforce objects to exclude from the stream.
+  Structure is [documented below](#nested_source_config_salesforce_source_config_exclude_objects).
+
+* `polling_interval` -
+  (Required)
+  Salesforce objects polling interval. The interval at which new changes will be polled for each object. The duration must be between 5 minutes and 24 hours.
+
+
+<a name="nested_source_config_salesforce_source_config_include_objects"></a>The `include_objects` block supports:
+
+* `objects` -
+  (Required)
+  Salesforce objects in Salesforce Org.
+  Structure is [documented below](#nested_source_config_salesforce_source_config_include_objects_objects).
+
+
+<a name="nested_source_config_salesforce_source_config_include_objects_objects"></a>The `objects` block supports:
+
+* `object_name` -
+  (Optional)
+  Name of object in Salesforce Org.
+
+* `fields` -
+  (Optional)
+  Fields in the Salesforce object. When unspecified as part of include/exclude objects, includes/excludes everything/nothing.
+  Structure is [documented below](#nested_source_config_salesforce_source_config_include_objects_objects_objects_fields).
+
+
+<a name="nested_source_config_salesforce_source_config_include_objects_objects_objects_fields"></a>The `fields` block supports:
+
+* `name` -
+  (Optional)
+  Field name.
+
+<a name="nested_source_config_salesforce_source_config_exclude_objects"></a>The `exclude_objects` block supports:
+
+* `objects` -
+  (Required)
+  Salesforce objects in data source.
+  Structure is [documented below](#nested_source_config_salesforce_source_config_exclude_objects_objects).
+
+
+<a name="nested_source_config_salesforce_source_config_exclude_objects_objects"></a>The `objects` block supports:
+
+* `object_name` -
+  (Optional)
+  Name of object in Salesforce Org.
+
+* `fields` -
+  (Optional)
+  Fields in the Salesforce object. When unspecified as part of include/exclude objects, includes/excludes everything/nothing.
+  Structure is [documented below](#nested_source_config_salesforce_source_config_exclude_objects_objects_objects_fields).
+
+
+<a name="nested_source_config_salesforce_source_config_exclude_objects_objects_objects_fields"></a>The `fields` block supports:
+
+* `name` -
+  (Optional)
+  Field name.
+
 <a name="nested_destination_config"></a>The `destination_config` block supports:
 
 * `destination_connection_profile` -
@@ -2140,6 +2249,11 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
   (Optional)
   SQL Server data source objects to avoid backfilling.
   Structure is [documented below](#nested_backfill_all_sql_server_excluded_objects).
+
+* `salesforce_excluded_objects` -
+  (Optional)
+  Salesforce objects to avoid backfilling.
+  Structure is [documented below](#nested_backfill_all_salesforce_excluded_objects).
 
 
 <a name="nested_backfill_all_mysql_excluded_objects"></a>The `mysql_excluded_objects` block supports:
@@ -2409,6 +2523,32 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `ordinal_position` -
   (Output)
   The ordinal position of the column in the table.
+
+<a name="nested_backfill_all_salesforce_excluded_objects"></a>The `salesforce_excluded_objects` block supports:
+
+* `objects` -
+  (Required)
+  Salesforce objects in Salesforce Org.
+  Structure is [documented below](#nested_backfill_all_salesforce_excluded_objects_objects).
+
+
+<a name="nested_backfill_all_salesforce_excluded_objects_objects"></a>The `objects` block supports:
+
+* `object_name` -
+  (Optional)
+  Name of object in Salesforce Org.
+
+* `fields` -
+  (Optional)
+  Fields in the Salesforce object. When unspecified as part of include/exclude objects, includes/excludes everything/nothing.
+  Structure is [documented below](#nested_backfill_all_salesforce_excluded_objects_objects_objects_fields).
+
+
+<a name="nested_backfill_all_salesforce_excluded_objects_objects_objects_fields"></a>The `fields` block supports:
+
+* `name` -
+  (Optional)
+  Field name.
 
 ## Attributes Reference
 
