@@ -834,7 +834,7 @@ func resourceGKEHub2FeatureRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features/{{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features/{{name}}?return_partial_success=true")
 	if err != nil {
 		return err
 	}
