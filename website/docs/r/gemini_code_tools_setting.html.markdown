@@ -23,8 +23,6 @@ description: |-
 
 The resource for managing CodeTools settings for Admin Control.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Gemini Code Tools Setting Basic
@@ -32,7 +30,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_gemini_code_tools_setting" "example" {
-    provider = google-beta
     code_tools_setting_id = "ls1-tf"
     location = "global"
     labels = {"my_key": "my_value"}
