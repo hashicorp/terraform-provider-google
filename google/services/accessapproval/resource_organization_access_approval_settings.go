@@ -217,9 +217,6 @@ func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, me
 	if err != nil {
 		return fmt.Errorf("Error creating OrganizationSettings: %s", err)
 	}
-	if err := d.Set("name", flattenAccessApprovalOrganizationSettingsName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "organizations/{{organization_id}}/accessApprovalSettings")

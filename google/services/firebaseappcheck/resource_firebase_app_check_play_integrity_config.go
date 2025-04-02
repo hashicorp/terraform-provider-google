@@ -136,9 +136,6 @@ func resourceFirebaseAppCheckPlayIntegrityConfigCreate(d *schema.ResourceData, m
 	if err != nil {
 		return fmt.Errorf("Error creating PlayIntegrityConfig: %s", err)
 	}
-	if err := d.Set("name", flattenFirebaseAppCheckPlayIntegrityConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/apps/{{app_id}}/playIntegrityConfig")

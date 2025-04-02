@@ -262,9 +262,6 @@ func resourceIAMWorkforcePoolOauthClientCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return fmt.Errorf("Error creating OauthClient: %s", err)
 	}
-	if err := d.Set("name", flattenIAMWorkforcePoolOauthClientName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/oauthClients/{{oauth_client_id}}")

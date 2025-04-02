@@ -193,9 +193,6 @@ func resourceSecurityCenterV2FolderNotificationConfigCreate(d *schema.ResourceDa
 	if err != nil {
 		return fmt.Errorf("Error creating FolderNotificationConfig: %s", err)
 	}
-	if err := d.Set("name", flattenSecurityCenterV2FolderNotificationConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "folders/{{folder}}/locations/{{location}}/notificationConfigs/{{config_id}}")

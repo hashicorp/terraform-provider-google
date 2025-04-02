@@ -140,6 +140,9 @@ func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return fmt.Errorf("Error creating SSHPublicKey: %s", err)
 	}
+	if err := d.Set("fingerprint", flattenOSLoginSSHPublicKeyFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "fingerprint": %s`, err)
+	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "users/{{user}}/sshPublicKeys/{{fingerprint}}")

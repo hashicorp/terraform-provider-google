@@ -187,9 +187,6 @@ func resourceSecurityCenterV2ProjectMuteConfigCreate(d *schema.ResourceData, met
 	if err != nil {
 		return fmt.Errorf("Error creating ProjectMuteConfig: %s", err)
 	}
-	if err := d.Set("name", flattenSecurityCenterV2ProjectMuteConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/muteConfigs/{{mute_config_id}}")

@@ -200,9 +200,6 @@ func resourceMonitoringGenericServiceCreate(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return fmt.Errorf("Error creating GenericService: %s", err)
 	}
-	if err := d.Set("name", flattenMonitoringGenericServiceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/services/{{service_id}}")
