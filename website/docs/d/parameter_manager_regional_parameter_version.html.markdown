@@ -46,4 +46,6 @@ The following attributes are exported:
 
 * `update_time` - The time at which the Regional Parameter Version was last updated.
 
-* `disabled` -  The current state of the Regional Parameter Version. 
+* `disabled` -  The current state of the Regional Parameter Version.
+
+* `kms_key_version` - The resource name of the Cloud KMS CryptoKeyVersion used to decrypt regional parameter version payload. Format `projects/{{project}}/locations/{{location}}/keyRings/{{key_ring}}/cryptoKeys/{{crypto_key}}/cryptoKeyVersions/{{crypto_key_version}}`

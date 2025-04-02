@@ -157,6 +157,7 @@ func flattenParameterManagerRegionalRegionalParameterParameters(v interface{}, d
 			"update_time":      flattenParameterManagerRegionalRegionalParameterUpdateTime(original["updateTime"], d, config),
 			"policy_member":    flattenParameterManagerRegionalRegionalParameterPolicyMember(original["policyMember"], d, config),
 			"name":             flattenParameterManagerRegionalRegionalParameterName(original["name"], d, config),
+			"kms_key":          flattenParameterManagerRegionalRegionalParameterKmsKey(original["kmskey"], d, config),
 			"project":          getDataFromName(original["name"], 1),
 			"location":         getDataFromName(original["name"], 3),
 			"parameter_id":     getDataFromName(original["name"], 5),

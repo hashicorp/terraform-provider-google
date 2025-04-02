@@ -100,6 +100,30 @@ resource "google_parameter_manager_regional_parameter_version" "regional-paramet
   })
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=regional_parameter_version_with_kms_key&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Regional Parameter Version With Kms Key
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
+  parameter_id = "regional_parameter"
+  location = "us-central1"
+
+  kms_key = "kms-key"
+}
+
+resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-with-kms-key" {
+  parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
+  parameter_version_id = "regional_parameter_version"
+  parameter_data = "regional-parameter-version-data"
+}
+```
 
 ## Argument Reference
 
@@ -143,6 +167,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `update_time` -
   The time at which the Regional Parameter Version was updated.
+
+* `kms_key_version` -
+  The resource name of the Cloud KMS CryptoKeyVersion used to decrypt regional parameter version payload. Format
+  `projects/{{project}}/locations/{{location}}/keyRings/{{key_ring}}/cryptoKeys/{{crypto_key}}/cryptoKeyVersions/{{crypto_key_version}}`
 
 * `location` -
   Location of Parameter Manager Regional parameter resource.

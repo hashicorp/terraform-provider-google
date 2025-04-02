@@ -53,6 +53,10 @@ func DataSourceParameterManagerRegionalRegionalParameterVersion() *schema.Resour
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"kms_key_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"location": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -150,6 +154,12 @@ func dataSourceParameterManagerRegionalRegionalParameterVersionRead(d *schema.Re
 
 	if err := d.Set("name", nameValue.(string)); err != nil {
 		return fmt.Errorf("error reading regional parameterVersion: %s", err)
+	}
+
+	if parameterVersion["kmsKeyVersion"] != nil {
+		if err := d.Set("kms_key_version", parameterVersion["kmsKeyVersion"].(string)); err != nil {
+			return fmt.Errorf("error setting kms_key_version: %s", err)
+		}
 	}
 
 	if err := d.Set("disabled", false); err != nil {

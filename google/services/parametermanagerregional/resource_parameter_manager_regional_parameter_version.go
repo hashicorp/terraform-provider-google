@@ -86,6 +86,12 @@ func ResourceParameterManagerRegionalRegionalParameterVersion() *schema.Resource
 				Computed:    true,
 				Description: `The time at which the Regional Parameter Version was created.`,
 			},
+			"kms_key_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The resource name of the Cloud KMS CryptoKeyVersion used to decrypt regional parameter version payload. Format
+'projects/{{project}}/locations/{{location}}/keyRings/{{key_ring}}/cryptoKeys/{{crypto_key}}/cryptoKeyVersions/{{crypto_key_version}}'`,
+			},
 			"location": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -243,6 +249,9 @@ func resourceParameterManagerRegionalRegionalParameterVersionRead(d *schema.Reso
 				}
 			}
 		}
+	}
+	if err := d.Set("kms_key_version", flattenParameterManagerRegionalRegionalParameterVersionKmsKeyVersion(res["kmsKeyVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionalParameterVersion: %s", err)
 	}
 
 	return nil
@@ -419,6 +428,10 @@ func flattenParameterManagerRegionalRegionalParameterVersionPayload(v interface{
 	}
 	transformed["parameter_data"] = string(data)
 	return []interface{}{transformed}
+}
+
+func flattenParameterManagerRegionalRegionalParameterVersionKmsKeyVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandParameterManagerRegionalRegionalParameterVersionDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
