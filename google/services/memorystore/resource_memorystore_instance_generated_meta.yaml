@@ -7,6 +7,8 @@ api_resource_type_kind: 'Instance'
 autogen_status: true
 fields:
   - field: 'authorization_mode'
+  - field: 'automated_backup_config.fixed_frequency_schedule.start_time.hours'
+  - field: 'automated_backup_config.retention'
   - field: 'create_time'
   - field: 'cross_instance_replication_config.instance_role'
   - field: 'cross_instance_replication_config.membership.primary_instance.instance'

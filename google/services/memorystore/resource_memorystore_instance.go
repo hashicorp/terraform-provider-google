@@ -94,6 +94,50 @@ This value is subject to the following restrictions:
  AUTH_DISABLED
 IAM_AUTH`,
 			},
+			"automated_backup_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The automated backup config for a instance.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"fixed_frequency_schedule": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `Trigger automated backups at a fixed frequency.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"start_time": {
+										Type:     schema.TypeList,
+										Required: true,
+										Description: `The start time of every automated backup in UTC.
+It must be set to the start of an hour. This field is required.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"hours": {
+													Type:     schema.TypeInt,
+													Required: true,
+													Description: `Hours of a day in 24 hour format. Must be greater than or equal to 0 and typically must be less than or equal to 23.
+An API may choose to allow the value "24:00:00" for scenarios like business closing time.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"retention": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `How long to keep automated backups before the backups are deleted.
+The value should be between 1 day and 365 days. If not specified, the default value is 35 days.
+A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s". The default_value is "3024000s"`,
+						},
+					},
+				},
+			},
 			"cross_instance_replication_config": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -821,6 +865,12 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	obj := make(map[string]interface{})
+	automatedBackupConfigProp, err := expandMemorystoreInstanceAutomatedBackupConfig(d.Get("automated_backup_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("automated_backup_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(automatedBackupConfigProp)) && (ok || !reflect.DeepEqual(v, automatedBackupConfigProp)) {
+		obj["automatedBackupConfig"] = automatedBackupConfigProp
+	}
 	replicaCountProp, err := expandMemorystoreInstanceReplicaCount(d.Get("replica_count"), d, config)
 	if err != nil {
 		return err
@@ -1062,6 +1112,9 @@ func resourceMemorystoreInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("state_info", flattenMemorystoreInstanceStateInfo(res["stateInfo"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("automated_backup_config", flattenMemorystoreInstanceAutomatedBackupConfig(res["automatedBackupConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("uid", flattenMemorystoreInstanceUid(res["uid"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -1148,6 +1201,12 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	automatedBackupConfigProp, err := expandMemorystoreInstanceAutomatedBackupConfig(d.Get("automated_backup_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("automated_backup_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, automatedBackupConfigProp)) {
+		obj["automatedBackupConfig"] = automatedBackupConfigProp
+	}
 	replicaCountProp, err := expandMemorystoreInstanceReplicaCount(d.Get("replica_count"), d, config)
 	if err != nil {
 		return err
@@ -1222,6 +1281,10 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Updating Instance %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 	updateMask := []string{}
+
+	if d.HasChange("automated_backup_config") {
+		updateMask = append(updateMask, "automatedBackupConfig")
+	}
 
 	if d.HasChange("replica_count") {
 		updateMask = append(updateMask, "replicaCount")
@@ -1485,6 +1548,77 @@ func flattenMemorystoreInstanceStateInfoUpdateInfoTargetEngineVersion(v interfac
 }
 
 func flattenMemorystoreInstanceStateInfoUpdateInfoTargetNodeType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMemorystoreInstanceAutomatedBackupConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	// if automated_backup_config is not defined
+
+	if original["automatedBackupMode"] == "DISABLED" {
+		return nil
+	}
+
+	transformed["fixed_frequency_schedule"] =
+		flattenMemorystoreInstanceAutomatedBackupConfigFixedFrequencySchedule(original["fixedFrequencySchedule"], d, config)
+	transformed["retention"] =
+		flattenMemorystoreInstanceAutomatedBackupConfigRetention(original["retention"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMemorystoreInstanceAutomatedBackupConfigFixedFrequencySchedule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformed["start_time"] =
+		flattenMemorystoreInstanceAutomatedBackupConfigFixedFrequencyScheduleStartTime(original["startTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMemorystoreInstanceAutomatedBackupConfigFixedFrequencyScheduleStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformed["hours"] =
+		flattenMemorystoreInstanceAutomatedBackupConfigFixedFrequencyScheduleStartTimeHours(original["hours"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMemorystoreInstanceAutomatedBackupConfigFixedFrequencyScheduleStartTimeHours(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenMemorystoreInstanceAutomatedBackupConfigRetention(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+
 	return v
 }
 
@@ -2239,6 +2373,86 @@ func flattenMemorystoreInstanceEffectiveLabels(v interface{}, d *schema.Resource
 	return v
 }
 
+func expandMemorystoreInstanceAutomatedBackupConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+
+	// The automated_backup_config block is not specified, so automatedBackupMode should be DISABLED
+	transformed := make(map[string]interface{})
+	if len(d.Get("automated_backup_config").([]interface{})) < 1 {
+		transformed["automatedBackupMode"] = "DISABLED"
+		return transformed, nil
+	}
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+
+	// The automated_backup_config block is specified, so automatedBackupMode should be ENABLED
+	transformed["automatedBackupMode"] = "ENABLED"
+	transformedFixedFrequencySchedule, err := expandMemorystoreInstanceAutomatedBackupConfigFixedFrequencySchedule(original["fixed_frequency_schedule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFixedFrequencySchedule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fixedFrequencySchedule"] = transformedFixedFrequencySchedule
+	}
+
+	transformedRetention, err := expandMemorystoreInstanceAutomatedBackupConfigRetention(original["retention"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRetention); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["retention"] = transformedRetention
+	}
+
+	return transformed, nil
+}
+
+func expandMemorystoreInstanceAutomatedBackupConfigFixedFrequencySchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStartTime, err := expandMemorystoreInstanceAutomatedBackupConfigFixedFrequencyScheduleStartTime(original["start_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["startTime"] = transformedStartTime
+	}
+
+	return transformed, nil
+}
+
+func expandMemorystoreInstanceAutomatedBackupConfigFixedFrequencyScheduleStartTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHours, err := expandMemorystoreInstanceAutomatedBackupConfigFixedFrequencyScheduleStartTimeHours(original["hours"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHours); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["hours"] = transformedHours
+	}
+
+	return transformed, nil
+}
+
+func expandMemorystoreInstanceAutomatedBackupConfigFixedFrequencyScheduleStartTimeHours(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMemorystoreInstanceAutomatedBackupConfigRetention(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandMemorystoreInstanceReplicaCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -2816,7 +3030,14 @@ func resourceMemorystoreInstanceEncoder(d *schema.ResourceData, meta interface{}
 
 		req = append(req, connectionReq)
 	}
+
 	obj["pscAutoConnections"] = req
+	// if the automated_backup_config is not defined, automatedBackupMode needs to be passed and set to DISABLED in the expand
+	if obj["automatedBackupConfig"] == nil {
+		config := meta.(*transport_tpg.Config)
+		automatedBackupConfigProp, _ := expandMemorystoreInstanceAutomatedBackupConfig(d.Get("automated_backup_config"), d, config)
+		obj["automatedBackupConfig"] = automatedBackupConfigProp
+	}
 	return obj, nil
 }
 
