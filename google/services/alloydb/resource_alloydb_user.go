@@ -150,9 +150,6 @@ func resourceAlloydbUserCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error creating User: %s", err)
 	}
-	if err := d.Set("name", flattenAlloydbUserName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "{{cluster}}/users/{{user_id}}")

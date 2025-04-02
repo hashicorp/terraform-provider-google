@@ -247,9 +247,6 @@ func resourceDataprocGdcApplicationEnvironmentCreate(d *schema.ResourceData, met
 	if err != nil {
 		return fmt.Errorf("Error creating ApplicationEnvironment: %s", err)
 	}
-	if err := d.Set("name", flattenDataprocGdcApplicationEnvironmentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/serviceInstances/{{serviceinstance}}/applicationEnvironments/{{application_environment_id}}")

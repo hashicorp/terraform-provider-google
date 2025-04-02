@@ -215,9 +215,6 @@ func resourceSecurityCenterV2ProjectSccBigQueryExportCreate(d *schema.ResourceDa
 	if err != nil {
 		return fmt.Errorf("Error creating ProjectSccBigQueryExport: %s", err)
 	}
-	if err := d.Set("name", flattenSecurityCenterV2ProjectSccBigQueryExportName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}")

@@ -155,6 +155,9 @@ func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("Error creating HmacKey: %s", err)
 	}
+	if err := d.Set("access_id", flattenStorageHmacKeyAccessId(res["accessId"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "access_id": %s`, err)
+	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/hmacKeys/{{access_id}}")

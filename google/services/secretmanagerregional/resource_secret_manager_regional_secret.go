@@ -350,9 +350,6 @@ func resourceSecretManagerRegionalRegionalSecretCreate(d *schema.ResourceData, m
 	if err != nil {
 		return fmt.Errorf("Error creating RegionalSecret: %s", err)
 	}
-	if err := d.Set("name", flattenSecretManagerRegionalRegionalSecretName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/secrets/{{secret_id}}")

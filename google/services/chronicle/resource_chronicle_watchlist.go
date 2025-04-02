@@ -263,8 +263,15 @@ func resourceChronicleWatchlistCreate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return fmt.Errorf("Error creating Watchlist: %s", err)
 	}
+	// Setting `name` field so that `id_from_name` flattener will work properly.
 	if err := d.Set("name", flattenChronicleWatchlistName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	// watchlist_id is set by API when unset
+	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("watchlist_id"))) {
+		if err := d.Set("watchlist_id", flattenChronicleWatchlistWatchlistId(res["watchlistId"], d, config)); err != nil {
+			return fmt.Errorf(`Error setting computed identity field "watchlist_id": %s`, err)
+		}
 	}
 
 	// Store the ID now

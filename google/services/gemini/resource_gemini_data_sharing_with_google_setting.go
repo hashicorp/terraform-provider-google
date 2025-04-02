@@ -184,9 +184,6 @@ func resourceGeminiDataSharingWithGoogleSettingCreate(d *schema.ResourceData, me
 	if err != nil {
 		return fmt.Errorf("Error creating DataSharingWithGoogleSetting: %s", err)
 	}
-	if err := d.Set("name", flattenGeminiDataSharingWithGoogleSettingName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/dataSharingWithGoogleSettings/{{data_sharing_with_google_setting_id}}")

@@ -459,8 +459,15 @@ func resourceBigqueryConnectionConnectionCreate(d *schema.ResourceData, meta int
 	if err != nil {
 		return fmt.Errorf("Error creating Connection: %s", err)
 	}
+	// Setting `name` field so that `id_from_name` flattener will work properly.
 	if err := d.Set("name", flattenBigqueryConnectionConnectionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	// connection_id is set by API when unset
+	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("connection_id"))) {
+		if err := d.Set("connection_id", flattenBigqueryConnectionConnectionConnectionId(res["connection_id"], d, config)); err != nil {
+			return fmt.Errorf(`Error setting computed identity field "connection_id": %s`, err)
+		}
 	}
 
 	// Store the ID now

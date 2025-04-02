@@ -149,9 +149,6 @@ func resourceFirebaseAppCheckRecaptchaEnterpriseConfigCreate(d *schema.ResourceD
 	if err != nil {
 		return fmt.Errorf("Error creating RecaptchaEnterpriseConfig: %s", err)
 	}
-	if err := d.Set("name", flattenFirebaseAppCheckRecaptchaEnterpriseConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/apps/{{app_id}}/recaptchaEnterpriseConfig")

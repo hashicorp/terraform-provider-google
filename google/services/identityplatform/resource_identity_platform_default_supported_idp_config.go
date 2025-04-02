@@ -173,9 +173,6 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigCreate(d *schema.ResourceD
 	if err != nil {
 		return fmt.Errorf("Error creating DefaultSupportedIdpConfig: %s", err)
 	}
-	if err := d.Set("name", flattenIdentityPlatformDefaultSupportedIdpConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/defaultSupportedIdpConfigs/{{idp_id}}")

@@ -184,9 +184,6 @@ func resourceGeminiGeminiGcpEnablementSettingCreate(d *schema.ResourceData, meta
 	if err != nil {
 		return fmt.Errorf("Error creating GeminiGcpEnablementSetting: %s", err)
 	}
-	if err := d.Set("name", flattenGeminiGeminiGcpEnablementSettingName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/geminiGcpEnablementSettings/{{gemini_gcp_enablement_setting_id}}")

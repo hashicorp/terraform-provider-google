@@ -1598,6 +1598,9 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("Error creating Trigger: %s", err)
 	}
+	if err := d.Set("trigger_id", flattenCloudBuildTriggerTriggerId(res["id"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "trigger_id": %s`, err)
+	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
