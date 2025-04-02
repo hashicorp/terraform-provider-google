@@ -48,7 +48,137 @@ func TestAccMemorystoreInstance_updateReplicaCount(t *testing.T) {
 	})
 }
 
-// Validate that shard count is updated for the instance
+func TestAccMemorystoreInstance_automatedBackupConfig(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMemorystoreInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMemorystoreInstance_automatedBackupConfig(context),
+			},
+			{
+				ResourceName:      "google_memorystore_instance.test_abc",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccMemorystoreInstance_automatedBackupConfigWithout(context),
+			},
+			{
+				ResourceName:      "google_memorystore_instance.test_abc",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccMemorystoreInstance_automatedBackupConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+// Primary instance
+resource "google_memorystore_instance" "test_abc" {
+  instance_id                    = "tf-test-instance-abc-%{random_suffix}"
+  shard_count                    = 1
+  location                       = "us-central1"
+  replica_count                  = 0
+  node_type                      = "SHARED_CORE_NANO"
+  deletion_protection_enabled    = false
+  desired_psc_auto_connections {
+    network                      = google_compute_network.primary_producer_net.id
+    project_id                   = data.google_project.project.project_id
+  }
+  automated_backup_config {
+   retention                     = "259200s"
+   fixed_frequency_schedule {
+    start_time {
+      hours                      = 20
+    }
+   }
+  }
+  depends_on  					 = [ google_network_connectivity_service_connection_policy.primary_policy ]
+}
+
+resource "google_network_connectivity_service_connection_policy" "primary_policy" {
+  name                           = "tf-test-abc-policy-%{random_suffix}"
+  location                       = "us-central1"
+  service_class                  = "gcp-memorystore"
+  description                    = "my basic service connection policy"
+  network                        = google_compute_network.primary_producer_net.id
+  psc_config {                 
+    subnetworks                  = [google_compute_subnetwork.primary_producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "primary_producer_subnet" {
+  name                           = "tf-test-abc-%{random_suffix}"
+  ip_cidr_range                  = "10.0.4.0/29"
+  region                         = "us-central1"
+  network                        = google_compute_network.primary_producer_net.id
+}
+
+resource "google_compute_network" "primary_producer_net" {
+  name                           = "tf-test-abc-net-%{random_suffix}"
+  auto_create_subnetworks        = false
+}
+
+data "google_project" "project" {
+}
+`, context)
+}
+
+func testAccMemorystoreInstance_automatedBackupConfigWithout(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+// Primary instance
+resource "google_memorystore_instance" "test_abc" {
+  instance_id                    = "tf-test-instance-abc-%{random_suffix}"
+  shard_count                    = 1
+  location                       = "us-central1"
+  replica_count                  = 0
+  node_type                      = "SHARED_CORE_NANO"
+  deletion_protection_enabled    = false
+  desired_psc_auto_connections {
+    network                      = google_compute_network.primary_producer_net.id
+    project_id                   = data.google_project.project.project_id
+  }
+  depends_on  					 = [ google_network_connectivity_service_connection_policy.primary_policy ]
+}
+
+resource "google_network_connectivity_service_connection_policy" "primary_policy" {
+  name                           = "tf-test-abc-policy-%{random_suffix}"
+  location                       = "us-central1"
+  service_class                  = "gcp-memorystore"
+  description                    = "my basic service connection policy"
+  network                        = google_compute_network.primary_producer_net.id
+  psc_config {                 
+    subnetworks                  = [google_compute_subnetwork.primary_producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "primary_producer_subnet" {
+  name                           = "tf-test-abc-%{random_suffix}"
+  ip_cidr_range                  = "10.0.4.0/29"
+  region                         = "us-central1"
+  network                        = google_compute_network.primary_producer_net.id
+}
+
+resource "google_compute_network" "primary_producer_net" {
+  name                           = "tf-test-abc-net-%{random_suffix}"
+  auto_create_subnetworks        = false
+}
+
+data "google_project" "project" {
+}
+`, context)
+}
+
+// Validate that shard count is updated for the cluster
 func TestAccMemorystoreInstance_updateShardCount(t *testing.T) {
 	t.Parallel()
 

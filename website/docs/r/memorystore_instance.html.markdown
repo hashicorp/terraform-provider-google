@@ -415,6 +415,11 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `automated_backup_config` -
+  (Optional)
+  The automated backup config for a instance.
+  Structure is [documented below](#nested_automated_backup_config).
+
 * `replica_count` -
   (Optional)
   Optional. Number of replica nodes per shard. If omitted the default is 0 replicas.
@@ -485,6 +490,36 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `desired_psc_auto_connections` - (Optional) Immutable. User inputs for the auto-created PSC connections. 
+
+<a name="nested_automated_backup_config"></a>The `automated_backup_config` block supports:
+
+* `fixed_frequency_schedule` -
+  (Required)
+  Trigger automated backups at a fixed frequency.
+  Structure is [documented below](#nested_automated_backup_config_fixed_frequency_schedule).
+
+* `retention` -
+  (Required)
+  How long to keep automated backups before the backups are deleted.
+  The value should be between 1 day and 365 days. If not specified, the default value is 35 days.
+  A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s". The default_value is "3024000s"
+
+
+<a name="nested_automated_backup_config_fixed_frequency_schedule"></a>The `fixed_frequency_schedule` block supports:
+
+* `start_time` -
+  (Required)
+  The start time of every automated backup in UTC.
+  It must be set to the start of an hour. This field is required.
+  Structure is [documented below](#nested_automated_backup_config_fixed_frequency_schedule_start_time).
+
+
+<a name="nested_automated_backup_config_fixed_frequency_schedule_start_time"></a>The `start_time` block supports:
+
+* `hours` -
+  (Required)
+  Hours of a day in 24 hour format. Must be greater than or equal to 0 and typically must be less than or equal to 23.
+  An API may choose to allow the value "24:00:00" for scenarios like business closing time.
 
 <a name="nested_persistence_config"></a>The `persistence_config` block supports:
 
