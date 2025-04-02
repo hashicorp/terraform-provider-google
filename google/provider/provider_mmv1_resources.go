@@ -511,9 +511,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 576
+// Generated resources: 577
 // Generated IAM resources: 282
-// Total generated resources: 858
+// Total generated resources: 859
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -545,6 +545,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_alloydb_user":                                                        alloydb.ResourceAlloydbUser(),
 	"google_apigee_addons_config":                                                apigee.ResourceApigeeAddonsConfig(),
 	"google_apigee_app_group":                                                    apigee.ResourceApigeeAppGroup(),
+	"google_apigee_control_plane_access":                                         apigee.ResourceApigeeControlPlaneAccess(),
 	"google_apigee_developer":                                                    apigee.ResourceApigeeDeveloper(),
 	"google_apigee_dns_zone":                                                     apigee.ResourceApigeeDnsZone(),
 	"google_apigee_endpoint_attachment":                                          apigee.ResourceApigeeEndpointAttachment(),
