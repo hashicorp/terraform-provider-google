@@ -1,0 +1,3 @@
+```release-note:bug
+colab: fixed an issue where `google_colab_*` resources incorrectly required a provider-level region matching the resource location
+```

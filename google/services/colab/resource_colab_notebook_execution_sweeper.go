@@ -117,7 +117,7 @@ func listAndActionColabNotebookExecution(action sweeper.ResourceAction) error {
 		}
 
 		// Prepare list URL
-		listTemplate := strings.Split("https://{{region}}-aiplatform.googleapis.com/v1/projects/{{project}}/locations/{{location}}/notebookExecutionJobs", "?")[0]
+		listTemplate := strings.Split("https://{{location}}-aiplatform.googleapis.com/v1/projects/{{project}}/locations/{{location}}/notebookExecutionJobs", "?")[0]
 		listUrl, err := tpgresource.ReplaceVars(mockConfig, config, listTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -198,7 +198,7 @@ func deleteResourceColabNotebookExecution(config *transport_tpg.Config, d *tpgre
 		return nil
 	}
 
-	deleteTemplate := "https://{{region}}-aiplatform.googleapis.com/v1/projects/{{project}}/locations/{{location}}/notebookExecutionJobs/{{notebook_execution_job_id}}"
+	deleteTemplate := "https://{{location}}-aiplatform.googleapis.com/v1/projects/{{project}}/locations/{{location}}/notebookExecutionJobs/{{notebook_execution_job_id}}"
 
 	url, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 	if err != nil {
