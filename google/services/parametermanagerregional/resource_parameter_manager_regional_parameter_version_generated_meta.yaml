@@ -7,6 +7,7 @@ api_resource_type_kind: 'ParameterVersion'
 fields:
   - field: 'create_time'
   - field: 'disabled'
+  - field: 'kms_key_version'
   - field: 'location'
     provider_only: true
   - field: 'name'

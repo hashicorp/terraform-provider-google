@@ -141,6 +141,51 @@ resource "google_parameter_manager_regional_parameter" "regional-parameter-with-
 `, context)
 }
 
+func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithKmsKeyExample(t *testing.T) {
+	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pm.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
+
+	context := map[string]interface{}{
+		"kms_key":       acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckParameterManagerRegionalRegionalParameterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccParameterManagerRegionalRegionalParameter_regionalParameterWithKmsKeyExample(context),
+			},
+			{
+				ResourceName:            "google_parameter_manager_regional_parameter.regional-parameter-with-kms-key",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccParameterManagerRegionalRegionalParameter_regionalParameterWithKmsKeyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_parameter_manager_regional_parameter" "regional-parameter-with-kms-key" {
+  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  location = "us-central1"
+
+  kms_key = "%{kms_key}"
+}
+`, context)
+}
+
 func testAccCheckParameterManagerRegionalRegionalParameterDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

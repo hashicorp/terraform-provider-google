@@ -195,6 +195,63 @@ data "google_parameter_manager_regional_parameter_version" "regional-parameter-v
 `, context)
 }
 
+func TestAccDataSourceParameterManagerRegionalRegionalParameterVersion_withKmsKey(t *testing.T) {
+	t.Parallel()
+
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pm.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
+
+	context := map[string]interface{}{
+		"kms_key":       acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-parameter-manager-managed-central-key1").CryptoKey.Name,
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckParameterManagerRegionalRegionalParameterVersionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccParameterManagerRegionalRegionalParameterVersion_withKmsKey(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckParameterManagerRegionalRegionalParameterDataDataSourceMatchesResource("data.google_parameter_manager_regional_parameter_version.regional-parameter-version-with-kms-key", "google_parameter_manager_regional_parameter_version.regional-parameter-version-with-kms-key"),
+				),
+			},
+		},
+	})
+
+}
+
+func testAccParameterManagerRegionalRegionalParameterVersion_withKmsKey(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
+  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  format = "YAML"
+  location = "us-central1"
+}
+
+resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-with-kms-key" {
+  parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
+  parameter_version_id = "tf_test_regional_parameter_version%{random_suffix}"
+  parameter_data = yamlencode({
+	"key1": "val1",
+	"key2": "val2"
+  })
+}
+
+data "google_parameter_manager_regional_parameter_version" "regional-parameter-version-with-kms-key" {
+  parameter = google_parameter_manager_regional_parameter_version.regional-parameter-version-with-kms-key.parameter
+  parameter_version_id = google_parameter_manager_regional_parameter_version.regional-parameter-version-with-kms-key.parameter_version_id
+}
+`, context)
+}
+
 func testAccCheckParameterManagerRegionalRegionalParameterDataDataSourceMatchesResource(dataSource, resource string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resource]

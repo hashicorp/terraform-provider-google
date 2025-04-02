@@ -78,6 +78,12 @@ func ResourceParameterManagerRegionalRegionalParameter() *schema.Resource {
 				Description:  `The format type of the regional parameter. Default value: "UNFORMATTED" Possible values: ["UNFORMATTED", "YAML", "JSON"]`,
 				Default:      "UNFORMATTED",
 			},
+			"kms_key": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The resource name of the Cloud KMS CryptoKey used to encrypt regional parameter version payload. Format
+'projects/{{project}}/locations/{{location}}/keyRings/{{key_ring}}/cryptoKeys/{{crypto_key}}'`,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -176,6 +182,12 @@ func resourceParameterManagerRegionalRegionalParameterCreate(d *schema.ResourceD
 		return err
 	} else if v, ok := d.GetOkExists("format"); !tpgresource.IsEmptyValue(reflect.ValueOf(formatProp)) && (ok || !reflect.DeepEqual(v, formatProp)) {
 		obj["format"] = formatProp
+	}
+	kmsKeyProp, err := expandParameterManagerRegionalRegionalParameterKmsKey(d.Get("kms_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
+		obj["kmsKey"] = kmsKeyProp
 	}
 	labelsProp, err := expandParameterManagerRegionalRegionalParameterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -290,6 +302,9 @@ func resourceParameterManagerRegionalRegionalParameterRead(d *schema.ResourceDat
 	if err := d.Set("format", flattenParameterManagerRegionalRegionalParameterFormat(res["format"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionalParameter: %s", err)
 	}
+	if err := d.Set("kms_key", flattenParameterManagerRegionalRegionalParameterKmsKey(res["kmsKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionalParameter: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenParameterManagerRegionalRegionalParameterTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionalParameter: %s", err)
 	}
@@ -316,6 +331,12 @@ func resourceParameterManagerRegionalRegionalParameterUpdate(d *schema.ResourceD
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	kmsKeyProp, err := expandParameterManagerRegionalRegionalParameterKmsKey(d.Get("kms_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
+		obj["kmsKey"] = kmsKeyProp
+	}
 	labelsProp, err := expandParameterManagerRegionalRegionalParameterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -331,6 +352,10 @@ func resourceParameterManagerRegionalRegionalParameterUpdate(d *schema.ResourceD
 	log.Printf("[DEBUG] Updating RegionalParameter %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 	updateMask := []string{}
+
+	if d.HasChange("kms_key") {
+		updateMask = append(updateMask, "kmsKey")
+	}
 
 	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")
@@ -493,6 +518,10 @@ func flattenParameterManagerRegionalRegionalParameterFormat(v interface{}, d *sc
 	return v
 }
 
+func flattenParameterManagerRegionalRegionalParameterKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenParameterManagerRegionalRegionalParameterTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -513,6 +542,10 @@ func flattenParameterManagerRegionalRegionalParameterEffectiveLabels(v interface
 }
 
 func expandParameterManagerRegionalRegionalParameterFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandParameterManagerRegionalRegionalParameterKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

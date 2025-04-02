@@ -158,6 +158,57 @@ resource "google_parameter_manager_regional_parameter_version" "regional-paramet
 `, context)
 }
 
+func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithKmsKeyExample(t *testing.T) {
+	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pm.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
+
+	context := map[string]interface{}{
+		"kms_key":       acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckParameterManagerRegionalRegionalParameterVersionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithKmsKeyExample(context),
+			},
+			{
+				ResourceName:            "google_parameter_manager_regional_parameter_version.regional-parameter-version-with-kms-key",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "parameter", "parameter_version_id"},
+			},
+		},
+	})
+}
+
+func testAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithKmsKeyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
+  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  location = "us-central1"
+
+  kms_key = "%{kms_key}"
+}
+
+resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-with-kms-key" {
+  parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
+  parameter_version_id = "tf_test_regional_parameter_version%{random_suffix}"
+  parameter_data = "regional-parameter-version-data"
+}
+`, context)
+}
+
 func testAccCheckParameterManagerRegionalRegionalParameterVersionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

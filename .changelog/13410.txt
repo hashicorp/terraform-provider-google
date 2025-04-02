@@ -1,0 +1,6 @@
+```release-note:enhancement
+parametermanagerregional: added `kms_key` field to `google_parameter_manager_regional_parameter` resource and `google_parameter_manager_regional_parameters` datasource
+```
+```release-note:enhancement
+parametermanagerregional: added `kms_key_version` field to `google_parameter_manager_regional_parameter_version` resource and datasource
+```
