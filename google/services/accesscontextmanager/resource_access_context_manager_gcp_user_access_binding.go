@@ -31,6 +31,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
@@ -51,16 +52,6 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"access_levels": {
-				Type:        schema.TypeList,
-				Required:    true,
-				Description: `Required. Access level that a user must have to be granted access. Only one access level is supported, not multiple. This repeated field must have exactly one element. Example: "accessPolicies/9522/accessLevels/device_trusted"`,
-				MinItems:    1,
-				MaxItems:    1,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
 			"group_key": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -72,6 +63,52 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Required. ID of the parent organization.`,
+			},
+			"access_levels": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Optional. Access level that a user must have to be granted access. Only one access level is supported, not multiple. This repeated field must have exactly one element. Example: "accessPolicies/9522/accessLevels/device_trusted"`,
+				MinItems:    1,
+				MaxItems:    1,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"session_settings": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Optional. The Google Cloud session length (GCSL) policy for the group key.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_inactivity": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Optional. How long a user is allowed to take between actions before a new access token must be issued. Only set for Google Cloud apps.`,
+						},
+						"session_length": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Optional. The session length. Setting this field to zero is equal to disabling session. Also can set infinite session by flipping the enabled bit to false below. If useOidcMaxAge is true, for OIDC apps, the session length will be the minimum of this field and OIDC max_age param.`,
+						},
+						"session_length_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Optional. This field enables or disables Google Cloud session length. When false, all fields set above will be disregarded and the session length is basically infinite.`,
+						},
+						"session_reauth_method": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"LOGIN", "SECURITY_KEY", "PASSWORD", ""}),
+							Description:  `Optional. The session challenges proposed to users when the Google Cloud session length is up. Possible values: ["LOGIN", "SECURITY_KEY", "PASSWORD"]`,
+						},
+						"use_oidc_max_age": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Optional. Only useful for OIDC apps. When false, the OIDC max_age param, if passed in the authentication request will be ignored. When true, the re-auth period will be the minimum of the sessionLength field and the max_age OIDC param.`,
+						},
+					},
+				},
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -102,6 +139,12 @@ func resourceAccessContextManagerGcpUserAccessBindingCreate(d *schema.ResourceDa
 		return err
 	} else if v, ok := d.GetOkExists("access_levels"); !tpgresource.IsEmptyValue(reflect.ValueOf(accessLevelsProp)) && (ok || !reflect.DeepEqual(v, accessLevelsProp)) {
 		obj["accessLevels"] = accessLevelsProp
+	}
+	sessionSettingsProp, err := expandAccessContextManagerGcpUserAccessBindingSessionSettings(d.Get("session_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("session_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(sessionSettingsProp)) && (ok || !reflect.DeepEqual(v, sessionSettingsProp)) {
+		obj["sessionSettings"] = sessionSettingsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}organizations/{{organization_id}}/gcpUserAccessBindings")
@@ -209,6 +252,9 @@ func resourceAccessContextManagerGcpUserAccessBindingRead(d *schema.ResourceData
 	if err := d.Set("access_levels", flattenAccessContextManagerGcpUserAccessBindingAccessLevels(res["accessLevels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
 	}
+	if err := d.Set("session_settings", flattenAccessContextManagerGcpUserAccessBindingSessionSettings(res["sessionSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
+	}
 
 	return nil
 }
@@ -229,6 +275,12 @@ func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceDa
 	} else if v, ok := d.GetOkExists("access_levels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessLevelsProp)) {
 		obj["accessLevels"] = accessLevelsProp
 	}
+	sessionSettingsProp, err := expandAccessContextManagerGcpUserAccessBindingSessionSettings(d.Get("session_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("session_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sessionSettingsProp)) {
+		obj["sessionSettings"] = sessionSettingsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
@@ -241,6 +293,10 @@ func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceDa
 
 	if d.HasChange("access_levels") {
 		updateMask = append(updateMask, "accessLevels")
+	}
+
+	if d.HasChange("session_settings") {
+		updateMask = append(updateMask, "sessionSettings")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -364,10 +420,118 @@ func flattenAccessContextManagerGcpUserAccessBindingAccessLevels(v interface{}, 
 	return v
 }
 
+func flattenAccessContextManagerGcpUserAccessBindingSessionSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["session_reauth_method"] =
+		flattenAccessContextManagerGcpUserAccessBindingSessionSettingsSessionReauthMethod(original["sessionReauthMethod"], d, config)
+	transformed["session_length"] =
+		flattenAccessContextManagerGcpUserAccessBindingSessionSettingsSessionLength(original["sessionLength"], d, config)
+	transformed["max_inactivity"] =
+		flattenAccessContextManagerGcpUserAccessBindingSessionSettingsMaxInactivity(original["maxInactivity"], d, config)
+	transformed["use_oidc_max_age"] =
+		flattenAccessContextManagerGcpUserAccessBindingSessionSettingsUseOidcMaxAge(original["useOidcMaxAge"], d, config)
+	transformed["session_length_enabled"] =
+		flattenAccessContextManagerGcpUserAccessBindingSessionSettingsSessionLengthEnabled(original["sessionLengthEnabled"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerGcpUserAccessBindingSessionSettingsSessionReauthMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingSessionSettingsSessionLength(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingSessionSettingsMaxInactivity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingSessionSettingsUseOidcMaxAge(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingSessionSettingsSessionLengthEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandAccessContextManagerGcpUserAccessBindingGroupKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func expandAccessContextManagerGcpUserAccessBindingAccessLevels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingSessionSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSessionReauthMethod, err := expandAccessContextManagerGcpUserAccessBindingSessionSettingsSessionReauthMethod(original["session_reauth_method"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSessionReauthMethod); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sessionReauthMethod"] = transformedSessionReauthMethod
+	}
+
+	transformedSessionLength, err := expandAccessContextManagerGcpUserAccessBindingSessionSettingsSessionLength(original["session_length"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSessionLength); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sessionLength"] = transformedSessionLength
+	}
+
+	transformedMaxInactivity, err := expandAccessContextManagerGcpUserAccessBindingSessionSettingsMaxInactivity(original["max_inactivity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxInactivity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxInactivity"] = transformedMaxInactivity
+	}
+
+	transformedUseOidcMaxAge, err := expandAccessContextManagerGcpUserAccessBindingSessionSettingsUseOidcMaxAge(original["use_oidc_max_age"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseOidcMaxAge); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useOidcMaxAge"] = transformedUseOidcMaxAge
+	}
+
+	transformedSessionLengthEnabled, err := expandAccessContextManagerGcpUserAccessBindingSessionSettingsSessionLengthEnabled(original["session_length_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSessionLengthEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sessionLengthEnabled"] = transformedSessionLengthEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingSessionSettingsSessionReauthMethod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingSessionSettingsSessionLength(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingSessionSettingsMaxInactivity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingSessionSettingsUseOidcMaxAge(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingSessionSettingsSessionLengthEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

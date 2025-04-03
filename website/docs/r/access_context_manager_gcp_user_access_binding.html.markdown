@@ -90,10 +90,6 @@ The following arguments are supported:
   (Required)
   Required. Immutable. Google Group id whose members are subject to this binding's restrictions. See "id" in the G Suite Directory API's Groups resource. If a group's email address/alias is changed, this resource will continue to point at the changed group. This field does not accept group email addresses or aliases. Example: "01d520gv4vjcrht"
 
-* `access_levels` -
-  (Required)
-  Required. Access level that a user must have to be granted access. Only one access level is supported, not multiple. This repeated field must have exactly one element. Example: "accessPolicies/9522/accessLevels/device_trusted"
-
 * `organization_id` -
   (Required)
   Required. ID of the parent organization.
@@ -102,6 +98,38 @@ The following arguments are supported:
 - - -
 
 
+* `access_levels` -
+  (Optional)
+  Optional. Access level that a user must have to be granted access. Only one access level is supported, not multiple. This repeated field must have exactly one element. Example: "accessPolicies/9522/accessLevels/device_trusted"
+
+* `session_settings` -
+  (Optional)
+  Optional. The Google Cloud session length (GCSL) policy for the group key.
+  Structure is [documented below](#nested_session_settings).
+
+
+<a name="nested_session_settings"></a>The `session_settings` block supports:
+
+* `session_reauth_method` -
+  (Optional)
+  Optional. The session challenges proposed to users when the Google Cloud session length is up.
+  Possible values are: `LOGIN`, `SECURITY_KEY`, `PASSWORD`.
+
+* `session_length` -
+  (Optional)
+  Optional. The session length. Setting this field to zero is equal to disabling session. Also can set infinite session by flipping the enabled bit to false below. If useOidcMaxAge is true, for OIDC apps, the session length will be the minimum of this field and OIDC max_age param.
+
+* `max_inactivity` -
+  (Optional)
+  Optional. How long a user is allowed to take between actions before a new access token must be issued. Only set for Google Cloud apps.
+
+* `use_oidc_max_age` -
+  (Optional)
+  Optional. Only useful for OIDC apps. When false, the OIDC max_age param, if passed in the authentication request will be ignored. When true, the re-auth period will be the minimum of the sessionLength field and the max_age OIDC param.
+
+* `session_length_enabled` -
+  (Optional)
+  Optional. This field enables or disables Google Cloud session length. When false, all fields set above will be disregarded and the session length is basically infinite.
 
 ## Attributes Reference
 
