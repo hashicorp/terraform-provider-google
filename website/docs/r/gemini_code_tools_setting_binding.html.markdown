@@ -23,8 +23,6 @@ description: |-
 
 The resource for managing CodeTools setting bindings for Admin Control.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about CodeToolsSettingBinding, see:
 * How-to Guides
@@ -35,7 +33,6 @@ To get more information about CodeToolsSettingBinding, see:
 
 ```hcl
 resource "google_gemini_code_tools_setting" "example" {
-    provider = google-beta
     code_tools_setting_id = "ls-tf1"
     location = "global"
     labels = {"my_key": "my_value"}
@@ -52,7 +49,6 @@ resource "google_gemini_code_tools_setting" "example" {
 }
 
 resource "google_gemini_code_tools_setting_binding" "example" {
-    provider = google-beta
     code_tools_setting_id = google_gemini_code_tools_setting.basic.code_tools_setting_id
     setting_binding_id = "ls-tf1b1"
     location = "global"
