@@ -360,7 +360,7 @@ Possible values: DEFAULT, FORCE.
 
 * `cooling_threshold_days` -
   (Optional)
-  Optional. Time in days to mark the volume's data block as cold and make it eligible for tiering, can be range from 7-183.
+  Optional. Time in days to mark the volume's data block as cold and make it eligible for tiering, can be range from 2-183.
   Default is 31.
 
 * `tier_action` -
