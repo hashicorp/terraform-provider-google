@@ -477,21 +477,6 @@ func resourceBigqueryConnectionConnectionCreate(d *schema.ResourceData, meta int
 	}
 	d.SetId(id)
 
-	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("connection_id"))) {
-		// connection id is set by API when unset and required to GET the connection
-		// it is set by reading the "name" field rather than a field in the response
-		if err := d.Set("connection_id", flattenBigqueryConnectionConnectionConnectionId("", d, config)); err != nil {
-			return fmt.Errorf("Error reading Connection: %s", err)
-		}
-	}
-
-	// Reset id to make sure connection_id is not empty
-	id2, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/connections/{{connection_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id2)
-
 	log.Printf("[DEBUG] Finished creating Connection %q: %#v", d.Id(), res)
 
 	return resourceBigqueryConnectionConnectionRead(d, meta)
