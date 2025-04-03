@@ -10,3 +10,8 @@ fields:
   - field: 'name'
   - field: 'organization_id'
     provider_only: true
+  - field: 'session_settings.max_inactivity'
+  - field: 'session_settings.session_length'
+  - field: 'session_settings.session_length_enabled'
+  - field: 'session_settings.session_reauth_method'
+  - field: 'session_settings.use_oidc_max_age'
