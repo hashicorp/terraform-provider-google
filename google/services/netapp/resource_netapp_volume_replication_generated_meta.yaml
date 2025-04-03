@@ -13,6 +13,8 @@ fields:
   - field: 'destination_volume_parameters.description'
   - field: 'destination_volume_parameters.share_name'
   - field: 'destination_volume_parameters.storage_pool'
+  - field: 'destination_volume_parameters.tiering_policy.cooling_threshold_days'
+  - field: 'destination_volume_parameters.tiering_policy.tier_action'
   - field: 'destination_volume_parameters.volume_id'
   - field: 'effective_labels'
     provider_only: true

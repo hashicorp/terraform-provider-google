@@ -437,7 +437,7 @@ To disable automatic snapshot creation you have to remove the whole snapshot_pol
 						"cooling_threshold_days": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Description: `Optional. Time in days to mark the volume's data block as cold and make it eligible for tiering, can be range from 7-183.
+							Description: `Optional. Time in days to mark the volume's data block as cold and make it eligible for tiering, can be range from 2-183.
 Default is 31.`,
 						},
 						"tier_action": {

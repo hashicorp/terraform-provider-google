@@ -70,6 +70,7 @@ resource "google_netapp_storage_pool" "destination_pool" {
   service_level = "PREMIUM"
   capacity_gib  = 2048
   network       = data.google_compute_network.default.id
+  allow_auto_tiering = true
 }
 
 resource "google_netapp_volume" "source_volume" {
@@ -98,6 +99,10 @@ resource "google_netapp_volume_replication" "test_replication" {
     # simplifies implementing client failover concepts
     share_name  = "source-volume"
     description = "This is a replicated volume"
+    tiering_policy {
+        cooling_threshold_days = 20
+        tier_action = "ENABLED"
+    }
   }
   # WARNING: Setting delete_destination_volume to true, will delete the
   # CURRENT destination volume if the replication is deleted. Omit the field 
@@ -192,6 +197,25 @@ create/stop/resume operations, set this parameter to true. Default is false.
 * `description` -
   (Optional)
   Description for the destination volume.
+
+* `tiering_policy` -
+  (Optional)
+  Tiering policy for the volume.
+  Structure is [documented below](#nested_destination_volume_parameters_tiering_policy).
+
+
+<a name="nested_destination_volume_parameters_tiering_policy"></a>The `tiering_policy` block supports:
+
+* `cooling_threshold_days` -
+  (Optional)
+  Optional. Time in days to mark the volume's data block as cold and make it eligible for tiering, can be range from 2-183.
+  Default is 31.
+
+* `tier_action` -
+  (Optional)
+  Optional. Flag indicating if the volume has tiering policy enable/pause. Default is PAUSED.
+  Default value is `PAUSED`.
+  Possible values are: `ENABLED`, `PAUSED`.
 
 ## Attributes Reference
 

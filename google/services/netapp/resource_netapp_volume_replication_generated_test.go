@@ -77,6 +77,7 @@ resource "google_netapp_storage_pool" "destination_pool" {
   service_level = "PREMIUM"
   capacity_gib  = 2048
   network       = data.google_compute_network.default.id
+  allow_auto_tiering = true
 }
 
 resource "google_netapp_volume" "source_volume" {
@@ -105,6 +106,10 @@ resource "google_netapp_volume_replication" "test_replication" {
     # simplifies implementing client failover concepts
     share_name  = "tf-test-source-volume%{random_suffix}"
     description = "This is a replicated volume"
+    tiering_policy {
+        cooling_threshold_days = 20
+        tier_action = "ENABLED"
+    }
   }
   # WARNING: Setting delete_destination_volume to true, will delete the
   # CURRENT destination volume if the replication is deleted. Omit the field 
