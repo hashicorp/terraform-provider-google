@@ -186,18 +186,6 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	// The operation for this resource contains the generated name that we need
-	// in order to perform a READ. We need to access the object inside of it as
-	// a map[string]interface, so let's do that.
-
-	resp := res["response"].(map[string]interface{})
-	name := tpgresource.GetResourceNameFromSelfLink(resp["name"].(string))
-	log.Printf("[DEBUG] Setting AccessPolicy name, id to %s", name)
-	if err := d.Set("name", name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
-	d.SetId(name)
-
 	log.Printf("[DEBUG] Finished creating AccessPolicy %q: %#v", d.Id(), res)
 
 	return resourceAccessContextManagerAccessPolicyRead(d, meta)
