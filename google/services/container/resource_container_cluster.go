@@ -121,9 +121,19 @@ var (
 	})
 
 	suppressDiffForPreRegisteredFleet = schema.SchemaDiffSuppressFunc(func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+		// Suppress if the cluster has been pre registered to fleet.
 		if v, _ := d.Get("fleet.0.pre_registered").(bool); v {
 			log.Printf("[DEBUG] fleet suppress pre_registered: %v\n", v)
 			return true
+		}
+		// Suppress the addition of a fleet block (count changes 0 -> 1) if the "project" field being added is null or empty.
+		if k == "fleet.#" && oldValue == "0" && newValue == "1" {
+			// When transitioning from 0->1 blocks, d.Get/d.GetOk effectively reads the 'new' config value.
+			projectVal, projectIsSet := d.GetOk("fleet.0.project")
+			if !projectIsSet || projectVal.(string) == "" {
+				log.Printf("[DEBUG] Suppressing diff for 'fleet.#' (0 -> 1) because fleet.0.project is null or empty in config.\n")
+				return true
+			}
 		}
 		return false
 	})
