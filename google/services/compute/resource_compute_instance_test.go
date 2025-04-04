@@ -1679,6 +1679,8 @@ func TestAccComputeInstance_scheduling(t *testing.T) {
 }
 
 func TestAccComputeInstance_schedulingTerminationTime(t *testing.T) {
+	// Uses time.Now
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	var instance compute.Instance

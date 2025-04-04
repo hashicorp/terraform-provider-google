@@ -277,6 +277,8 @@ func TestAccComputeInstanceFromTemplate_overrideScheduling(t *testing.T) {
 }
 
 func TestAccComputeInstanceFromTemplate_TerminationTime(t *testing.T) {
+	// Uses time.Now
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	var instance compute.Instance
