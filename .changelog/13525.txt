@@ -1,0 +1,10 @@
+```release-note:enhancement
+storagecontrol: added  to `trial_config` field to `google_storage_control_project_intelligence_config` resource
+```
+
+```release-note:enhancement
+storagecontrol: added  to `trial_config` field to `google_storage_control_folder_intelligence_config` resource
+```
+```release-note:enhancement
+storagecontrol: added  to `trial_config` field to `google_storage_control_organization_intelligence_config` resource
+```

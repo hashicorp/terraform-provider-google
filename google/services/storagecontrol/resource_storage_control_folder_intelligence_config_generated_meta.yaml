@@ -14,4 +14,5 @@ fields:
   - field: 'filter.included_cloud_storage_locations.locations'
   - field: 'name'
     provider_only: true
+  - field: 'trial_config.expire_time'
   - field: 'update_time'
