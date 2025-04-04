@@ -47,7 +47,10 @@ func TestAccStorageObject_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleStorageBucketsObjectBasic(bucketName, testFile.Name()),
-				Check:  testAccCheckGoogleStorageObject(t, bucketName, objectName, dataMd5),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_storage_bucket_object.object", "md5hexhash"),
+					testAccCheckGoogleStorageObject(t, bucketName, objectName, dataMd5),
+				),
 			},
 		},
 	})
