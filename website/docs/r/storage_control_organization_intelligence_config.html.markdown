@@ -131,6 +131,10 @@ In addition to the arguments listed above, the following computed attributes are
   The Intelligence config that is effective for the resource.
   Structure is [documented below](#nested_effective_intelligence_config).
 
+* `trial_config` -
+  The trial configuration of the Storage Intelligence resource.
+  Structure is [documented below](#nested_trial_config).
+
 
 <a name="nested_effective_intelligence_config"></a>The `effective_intelligence_config` block contains:
 
@@ -141,6 +145,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_edition` -
   (Output)
   The `StorageIntelligence` edition that is applicable for the resource.
+
+<a name="nested_trial_config"></a>The `trial_config` block contains:
+
+* `expire_time` -
+  (Output)
+  The time at which the trial expires.
 
 ## Timeouts
 

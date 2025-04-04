@@ -177,6 +177,20 @@ func ResourceStorageControlOrganizationIntelligenceConfig() *schema.Resource {
 					},
 				},
 			},
+			"trial_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The trial configuration of the Storage Intelligence resource.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"expire_time": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The time at which the trial expires.`,
+						},
+					},
+				},
+			},
 			"update_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -301,6 +315,9 @@ func resourceStorageControlOrganizationIntelligenceConfigRead(d *schema.Resource
 		return fmt.Errorf("Error reading OrganizationIntelligenceConfig: %s", err)
 	}
 	if err := d.Set("effective_intelligence_config", flattenStorageControlOrganizationIntelligenceConfigEffectiveIntelligenceConfig(res["effectiveIntelligenceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationIntelligenceConfig: %s", err)
+	}
+	if err := d.Set("trial_config", flattenStorageControlOrganizationIntelligenceConfigTrialConfig(res["trialConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationIntelligenceConfig: %s", err)
 	}
 
@@ -525,6 +542,23 @@ func flattenStorageControlOrganizationIntelligenceConfigEffectiveIntelligenceCon
 }
 
 func flattenStorageControlOrganizationIntelligenceConfigEffectiveIntelligenceConfigEffectiveEdition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenStorageControlOrganizationIntelligenceConfigTrialConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["expire_time"] =
+		flattenStorageControlOrganizationIntelligenceConfigTrialConfigExpireTime(original["expireTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenStorageControlOrganizationIntelligenceConfigTrialConfigExpireTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
