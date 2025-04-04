@@ -316,6 +316,72 @@ func TestAccComputeImage_imageEncryptionKey(t *testing.T) {
 	})
 }
 
+func TestAccComputeImage_sourceImageEncryptionKey(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":     acctest.RandString(t, 10),
+		"kms_key_self_link": acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"raw_key":           "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+		"rsa_encrypted_key": "fB6BS8tJGhGVDZDjGt1pwUo2wyNbkzNxgH1avfOtiwB9X6oPG94gWgenygitnsYJyKjdOJ7DyXLmxwQOSmnCYCUBWdKCSssyLV5907HL2mb5TfqmgHk5JcArI/t6QADZWiuGtR+XVXqiLa5B9usxFT2BTmbHvSKfkpJ7McCNc/3U0PQR8euFRZ9i75o/w+pLHFMJ05IX3JB0zHbXMV173PjObiV3ItSJm2j3mp5XKabRGSA5rmfMnHIAMz6stGhcuom6+bMri2u/axmPsdxmC6MeWkCkCmPjaKsVz1+uQUNCJkAnzesluhoD+R6VjFDm4WI7yYabu4MOOAOTaQXdEg==",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeImage_sourceImageEncryptionKey(context),
+			},
+		},
+	})
+}
+
+func TestAccComputeImage_sourceSnapshotEncryptionKey(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":     acctest.RandString(t, 10),
+		"kms_key_self_link": acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"raw_key":           "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+		"rsa_encrypted_key": "fB6BS8tJGhGVDZDjGt1pwUo2wyNbkzNxgH1avfOtiwB9X6oPG94gWgenygitnsYJyKjdOJ7DyXLmxwQOSmnCYCUBWdKCSssyLV5907HL2mb5TfqmgHk5JcArI/t6QADZWiuGtR+XVXqiLa5B9usxFT2BTmbHvSKfkpJ7McCNc/3U0PQR8euFRZ9i75o/w+pLHFMJ05IX3JB0zHbXMV173PjObiV3ItSJm2j3mp5XKabRGSA5rmfMnHIAMz6stGhcuom6+bMri2u/axmPsdxmC6MeWkCkCmPjaKsVz1+uQUNCJkAnzesluhoD+R6VjFDm4WI7yYabu4MOOAOTaQXdEg==",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeImage_sourceSnapshotEncryptionKey(context),
+			},
+		},
+	})
+}
+
+func TestAccComputeImage_sourceDiskEncryptionKey(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":     acctest.RandString(t, 10),
+		"kms_key_self_link": acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"raw_key":           "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+		"rsa_encrypted_key": "fB6BS8tJGhGVDZDjGt1pwUo2wyNbkzNxgH1avfOtiwB9X6oPG94gWgenygitnsYJyKjdOJ7DyXLmxwQOSmnCYCUBWdKCSssyLV5907HL2mb5TfqmgHk5JcArI/t6QADZWiuGtR+XVXqiLa5B9usxFT2BTmbHvSKfkpJ7McCNc/3U0PQR8euFRZ9i75o/w+pLHFMJ05IX3JB0zHbXMV173PjObiV3ItSJm2j3mp5XKabRGSA5rmfMnHIAMz6stGhcuom6+bMri2u/axmPsdxmC6MeWkCkCmPjaKsVz1+uQUNCJkAnzesluhoD+R6VjFDm4WI7yYabu4MOOAOTaQXdEg==",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeImage_sourceDiskEncryptionKey(context),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeImageResolution(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -717,6 +783,263 @@ resource "google_compute_image" "foobar" {
   source_snapshot = google_compute_snapshot.foobar.self_link
 }
 `, diskName, snapshotName, imageName)
+}
+
+func testAccComputeImage_sourceDiskEncryptionKey(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "src-disk-kms" {
+  name  = "tf-test-src-disk-kms-%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+
+  disk_encryption_key {
+	kms_key_self_link = "%{kms_key_self_link}"
+  }
+}
+
+resource "google_compute_disk" "src-disk-raw" {
+  name  = "tf-test-src-disk-raw-%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+
+  disk_encryption_key {
+	raw_key = "%{raw_key}"
+  }
+}
+
+resource "google_compute_disk" "src-disk-rsa" {
+  name  = "tf-test-src-disk-rsa-%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+
+  disk_encryption_key {
+	rsa_encrypted_key = "%{rsa_encrypted_key}"
+  }
+}
+
+resource "google_compute_image" "foobar-kms" {
+	name         = "tf-test-image-kms-%{random_suffix}"
+	source_disk = google_compute_disk.src-disk-kms.self_link
+	source_disk_encryption_key {
+		kms_key_self_link = "%{kms_key_self_link}"
+	}
+}
+
+resource "google_compute_image" "foobar-raw" {
+	name         = "tf-test-image-raw-%{random_suffix}"
+	source_disk = google_compute_disk.src-disk-raw.self_link
+	source_disk_encryption_key {
+		raw_key = "%{raw_key}"
+	}
+}
+
+resource "google_compute_image" "foobar-rsa" {
+	name         = "tf-test-image-rsa-%{random_suffix}"
+	source_disk = google_compute_disk.src-disk-rsa.self_link
+	source_disk_encryption_key {
+		rsa_encrypted_key = "%{rsa_encrypted_key}"
+		kms_key_service_account = data.google_compute_default_service_account.default.email
+	}
+}
+
+data "google_compute_default_service_account" "default" {
+}
+`, context)
+}
+
+func testAccComputeImage_sourceImageEncryptionKey(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "src_disk" {
+  name  = "tf-test-src-disk-%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+
+  disk_encryption_key {
+	kms_key_self_link = "%{kms_key_self_link}"
+  }
+}
+
+resource "google_compute_image" "src-image-kms" {
+  name         = "tf-test-src-kms-%{random_suffix}"
+  source_disk  = google_compute_disk.src_disk.self_link
+  image_encryption_key {
+	kms_key_self_link = "%{kms_key_self_link}"
+  }
+}
+
+resource "google_compute_image" "src-image-raw" {
+  name         = "tf-test-src-raw-%{random_suffix}"
+  source_disk  = google_compute_disk.src_disk.self_link
+  image_encryption_key {
+	raw_key = "%{raw_key}"
+  }
+}
+
+resource "google_compute_image" "src-image-rsa" {
+  name         = "tf-test-src-rsa-%{random_suffix}"
+  source_disk  = google_compute_disk.src_disk.self_link
+  image_encryption_key {
+	rsa_encrypted_key = "%{rsa_encrypted_key}"
+  }
+}
+
+resource "google_compute_image" "foobar-kms" {
+	name         = "tf-test-image-kms-%{random_suffix}"
+	source_image = google_compute_image.src-image-kms.self_link
+	source_image_encryption_key {
+		kms_key_self_link = "%{kms_key_self_link}"
+	}
+}
+
+resource "google_compute_image" "foobar-raw" {
+	name         = "tf-test-image-raw-%{random_suffix}"
+	source_image = google_compute_image.src-image-raw.self_link
+	source_image_encryption_key {
+		raw_key = "%{raw_key}"
+	}
+}
+
+resource "google_compute_image" "foobar-rsa" {
+	name         = "tf-test-image-rsa-%{random_suffix}"
+	source_image = google_compute_image.src-image-rsa.self_link
+	source_image_encryption_key {
+		rsa_encrypted_key = "%{rsa_encrypted_key}"
+		kms_key_service_account = data.google_compute_default_service_account.default.email
+	}
+}
+
+data "google_compute_default_service_account" "default" {
+}
+`, context)
+}
+
+func testAccComputeImage_sourceSnapshotEncryptionKey(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "debian" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "src_disk-kms" {
+  name  = "tf-test-src-disk-kms-%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+
+  disk_encryption_key {
+	kms_key_self_link = "%{kms_key_self_link}"
+  }
+}
+
+resource "google_compute_disk" "src_disk-raw" {
+  name  = "tf-test-src-disk-raw-%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+
+  disk_encryption_key {
+	raw_key = "%{raw_key}"
+  }
+}
+
+resource "google_compute_disk" "src_disk-rsa" {
+  name  = "tf-test-src-disk-rsa-%{random_suffix}"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+
+  disk_encryption_key {
+	rsa_encrypted_key = "%{rsa_encrypted_key}"
+  }
+}
+
+resource "google_compute_snapshot" "src-snapshot-kms" {
+  name  = "tf-test-src-snapshot-kms-%{random_suffix}"
+  source_disk  = google_compute_disk.src_disk-kms.self_link
+  zone  = "us-central1-a"
+
+  snapshot_encryption_key {
+	kms_key_self_link = "%{kms_key_self_link}"
+  }
+}
+
+resource "google_compute_snapshot" "src-snapshot-raw" {
+  name  = "tf-test-src-snapshot-raw-%{random_suffix}"
+  source_disk  = google_compute_disk.src_disk-raw.self_link
+  zone  = "us-central1-a"
+
+  snapshot_encryption_key {
+	raw_key = "%{raw_key}"
+  }
+
+  source_disk_encryption_key {
+	raw_key = "%{raw_key}"
+  }
+}
+
+resource "google_compute_snapshot" "src-snapshot-rsa" {
+  name  = "tf-test-src-snapshot-rsa-%{random_suffix}"
+  source_disk  = google_compute_disk.src_disk-rsa.self_link
+  zone  = "us-central1-a"
+
+  snapshot_encryption_key {
+	rsa_encrypted_key = "%{rsa_encrypted_key}"
+  }
+
+  source_disk_encryption_key {
+	rsa_encrypted_key = "%{rsa_encrypted_key}"
+  }
+}
+
+resource "google_compute_image" "foobar-kms" {
+	name         = "tf-test-image-kms-%{random_suffix}"
+	source_snapshot = google_compute_snapshot.src-snapshot-kms.self_link
+	source_snapshot_encryption_key {
+		kms_key_self_link = "%{kms_key_self_link}"
+	}
+}
+
+resource "google_compute_image" "foobar-raw" {
+	name         = "tf-test-image-raw-%{random_suffix}"
+	source_snapshot = google_compute_snapshot.src-snapshot-raw.self_link
+	source_snapshot_encryption_key {
+		raw_key = "%{raw_key}"
+	}
+}
+
+resource "google_compute_image" "foobar-rsa" {
+	name         = "tf-test-image-rsa-%{random_suffix}"
+	source_snapshot = google_compute_snapshot.src-snapshot-rsa.self_link
+	source_snapshot_encryption_key {
+		rsa_encrypted_key = "%{rsa_encrypted_key}"
+		kms_key_service_account = data.google_compute_default_service_account.default.email
+	}
+}
+
+data "google_compute_default_service_account" "default" {
+}
+`, context)
 }
 
 func testAccComputeImage_imageEncryptionKey(kmsRingName, kmsKeyName, suffix string) string {

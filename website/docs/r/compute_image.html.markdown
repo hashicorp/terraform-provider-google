@@ -46,7 +46,7 @@ To get more information about Image, see:
     * [Official Documentation](https://cloud.google.com/compute/docs/images)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `image_encryption_key.raw_key`, `image_encryption_key.rsa_encrypted_key`.
+values will be stored in the raw state as plain text: `image_encryption_key.raw_key`, `image_encryption_key.rsa_encrypted_key`, `source_disk_encryption_key.raw_key`, `source_disk_encryption_key.rsa_encrypted_key`, `source_image_encryption_key.raw_key`, `source_image_encryption_key.rsa_encrypted_key`, `source_snapshot_encryption_key.raw_key`, `source_snapshot_encryption_key.rsa_encrypted_key`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -232,6 +232,12 @@ The following arguments are supported:
   You must provide either this property or the
   rawDisk.source property but not both to create an image.
 
+* `source_disk_encryption_key` -
+  (Optional)
+  The customer-supplied encryption key of the source disk. Required if
+  the source disk is protected by a customer-supplied encryption key.
+  Structure is [documented below](#nested_source_disk_encryption_key).
+
 * `source_image` -
   (Optional)
   URL of the source image used to create this image. In order to create an image, you must provide the full or partial
@@ -240,6 +246,12 @@ The following arguments are supported:
   * This property
   * The rawDisk.source URL
   * The sourceDisk URL
+
+* `source_image_encryption_key` -
+  (Optional)
+  The customer-supplied encryption key of the source image. Required if
+  the source image is protected by a customer-supplied encryption key.
+  Structure is [documented below](#nested_source_image_encryption_key).
 
 * `source_snapshot` -
   (Optional)
@@ -255,6 +267,12 @@ The following arguments are supported:
   (Optional)
   Set the secure boot keys of shielded instance.
   Structure is [documented below](#nested_shielded_instance_initial_state).
+
+* `source_snapshot_encryption_key` -
+  (Optional)
+  The customer-supplied encryption key of the source snapshot. Required if
+  the source snapshot is protected by a customer-supplied encryption key.
+  Structure is [documented below](#nested_source_snapshot_encryption_key).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -313,6 +331,64 @@ The following arguments are supported:
   The full Google Cloud Storage URL where disk storage is stored
   You must provide either this property or the sourceDisk property
   but not both.
+
+<a name="nested_source_disk_encryption_key"></a>The `source_disk_encryption_key` block supports:
+
+* `raw_key` -
+  (Optional)
+  Specifies a 256-bit customer-supplied encryption key, encoded in
+  RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `rsa_encrypted_key` -
+  (Optional)
+  Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit
+  customer-supplied encryption key to either encrypt or decrypt
+  this resource. You can provide either the rawKey or the rsaEncryptedKey.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `kms_key_self_link` -
+  (Optional)
+  The self link of the encryption key used to decrypt this resource. Also called KmsKeyName
+  in the cloud console. Your project's Compute Engine System service account
+  (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`) must have
+  `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+  See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+
+* `kms_key_service_account` -
+  (Optional)
+  The service account being used for the encryption request for the
+  given KMS key. If absent, the Compute Engine default service
+  account is used.
+
+<a name="nested_source_image_encryption_key"></a>The `source_image_encryption_key` block supports:
+
+* `raw_key` -
+  (Optional)
+  Specifies a 256-bit customer-supplied encryption key, encoded in
+  RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `rsa_encrypted_key` -
+  (Optional)
+  Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit
+  customer-supplied encryption key to either encrypt or decrypt
+  this resource. You can provide either the rawKey or the rsaEncryptedKey.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `kms_key_self_link` -
+  (Optional)
+  The self link of the encryption key used to decrypt this resource. Also called KmsKeyName
+  in the cloud console. Your project's Compute Engine System service account
+  (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`) must have
+  `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+  See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+
+* `kms_key_service_account` -
+  (Optional)
+  The service account being used for the encryption request for the
+  given KMS key. If absent, the Compute Engine default service
+  account is used.
 
 <a name="nested_shielded_instance_initial_state"></a>The `shielded_instance_initial_state` block supports:
 
@@ -380,6 +456,35 @@ The following arguments are supported:
 * `file_type` -
   (Optional)
   The file type of source file.
+
+<a name="nested_source_snapshot_encryption_key"></a>The `source_snapshot_encryption_key` block supports:
+
+* `raw_key` -
+  (Optional)
+  Specifies a 256-bit customer-supplied encryption key, encoded in
+  RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `rsa_encrypted_key` -
+  (Optional)
+  Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit
+  customer-supplied encryption key to either encrypt or decrypt
+  this resource. You can provide either the rawKey or the rsaEncryptedKey.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `kms_key_self_link` -
+  (Optional)
+  The self link of the encryption key used to decrypt this resource. Also called KmsKeyName
+  in the cloud console. Your project's Compute Engine System service account
+  (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`) must have
+  `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+  See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+
+* `kms_key_service_account` -
+  (Optional)
+  The service account being used for the encryption request for the
+  given KMS key. If absent, the Compute Engine default service
+  account is used.
 
 ## Attributes Reference
 
