@@ -19,13 +19,14 @@ import (
 // We make sure not to run tests in parallel, since only one MessageBus per project is supported.
 func TestAccEventarcMessageBus(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"basic":            testAccEventarcMessageBus_basic,
-		"cryptoKey":        testAccEventarcMessageBus_cryptoKey,
-		"update":           testAccEventarcMessageBus_update,
-		"googleApiSource":  testAccEventarcMessageBus_googleApiSource,
-		"pipeline":         testAccEventarcMessageBus_pipeline,
-		"enrollment":       testAccEventarcMessageBus_enrollment,
-		"updateEnrollment": testAccEventarcMessageBus_updateEnrollment,
+		"basic":                 testAccEventarcMessageBus_basic,
+		"cryptoKey":             testAccEventarcMessageBus_cryptoKey,
+		"update":                testAccEventarcMessageBus_update,
+		"googleApiSource":       testAccEventarcMessageBus_googleApiSource,
+		"updateGoogleApiSource": testAccEventarcMessageBus_updateGoogleApiSource,
+		"pipeline":              testAccEventarcMessageBus_pipeline,
+		"enrollment":            testAccEventarcMessageBus_enrollment,
+		"updateEnrollment":      testAccEventarcMessageBus_updateEnrollment,
 	}
 
 	for name, tc := range testCases {
@@ -289,6 +290,120 @@ resource "google_eventarc_google_api_source" "primary" {
     log_severity = "DEBUG"
   }
 }
+resource "google_eventarc_message_bus" "message_bus" {
+  location       = "%{region}"
+  message_bus_id = "tf-test-messagebus%{random_suffix}"
+}
+`, context)
+}
+
+// Although this test is defined in resource_eventarc_message_bus_test, it is primarily
+// concerned with testing the GoogleApiSource resource, which depends on a singleton MessageBus.
+//
+// The update test in resource_eventarc_google_api_source_test.go.tmpl depends on
+// beta-only resources (google_project_service_identity) to test all modifiable
+// fields in GoogleApiSource. In GA, it's not possible for us to test updating
+// the message_bus field, so we have the simpler test definition below with a
+// singleton MessageBus.
+func testAccEventarcMessageBus_updateGoogleApiSource(t *testing.T) {
+	region := envvar.GetTestRegionFromEnv()
+	context := map[string]interface{}{
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"key1":           acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-googleapisource-key1").CryptoKey.Name,
+		"key2":           acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-googleapisource-key2").CryptoKey.Name,
+		"region":         region,
+		"random_suffix":  acctest.RandString(t, 10),
+	}
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-eventarc.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckEventarcMessageBusDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEventarcMessageBus_googleApiSourceCfg(context),
+			},
+			{
+				ResourceName:            "google_eventarc_google_api_source.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "annotations"},
+			},
+			{
+				Config: testAccEventarcMessageBus_updateGoogleApiSourceCfg(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_eventarc_google_api_source.primary", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_eventarc_google_api_source.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "annotations"},
+			},
+			{
+				Config: testAccEventarcMessageBus_unsetGoogleApiSourceCfg(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_eventarc_google_api_source.primary", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_eventarc_google_api_source.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "annotations"},
+			},
+		},
+	})
+}
+
+func testAccEventarcMessageBus_updateGoogleApiSourceCfg(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_eventarc_google_api_source" "primary" {
+  location             = "%{region}"
+  google_api_source_id = "tf-test-googleapisource%{random_suffix}"
+  display_name         = "updated google api source"
+  destination          = google_eventarc_message_bus.message_bus.id
+  crypto_key_name      = "%{key2}"
+  labels = {
+    updated_label = "updated-test-eventarc-label"
+  }
+  annotations = {
+    updated_test_annotation = "updated-test-eventarc-annotation"
+  }
+  logging_config {
+    log_severity = "ALERT"
+  }
+}
+
+resource "google_eventarc_message_bus" "message_bus" {
+  location       = "%{region}"
+  message_bus_id = "tf-test-messagebus%{random_suffix}"
+}
+`, context)
+}
+
+func testAccEventarcMessageBus_unsetGoogleApiSourceCfg(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_eventarc_google_api_source" "primary" {
+  location             = "%{region}"
+  google_api_source_id = "tf-test-googleapisource%{random_suffix}"
+  destination          = google_eventarc_message_bus.message_bus.id
+  logging_config {
+    log_severity = "NONE"
+  }
+}
+
 resource "google_eventarc_message_bus" "message_bus" {
   location       = "%{region}"
   message_bus_id = "tf-test-messagebus%{random_suffix}"
