@@ -43,6 +43,38 @@ func TestAccMonitoringUptimeCheckConfig_update(t *testing.T) {
 	})
 }
 
+func TestAccMonitoringUptimeCheckConfig_update_wo(t *testing.T) {
+	t.Parallel()
+	project := envvar.GetTestProjectFromEnv()
+	host := "192.168.1.1"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringUptimeCheckConfig_update_wo(acctest.RandString(t, 4), "60s", "mypath", "password1", "1", project, host),
+			},
+			{
+				ResourceName:            "google_monitoring_uptime_check_config.http",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password"},
+			},
+			{
+				Config: testAccMonitoringUptimeCheckConfig_update_wo(acctest.RandString(t, 4), "60s", "", "password2", "2", project, host),
+			},
+			{
+				ResourceName:            "google_monitoring_uptime_check_config.http",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password"},
+			},
+		},
+	})
+}
+
 func TestAccMonitoringUptimeCheckConfig_noProjectId(t *testing.T) {
 	t.Parallel()
 	host := "192.168.1.1"
@@ -175,6 +207,41 @@ resource "google_monitoring_uptime_check_config" "http" {
   }
 }
 `, suffix, period, path, pwd, project, host,
+	)
+}
+
+func testAccMonitoringUptimeCheckConfig_update_wo(suffix, period, path, pwd_wo, pwd_wo_version, project, host string) string {
+	return fmt.Sprintf(`
+resource "google_monitoring_uptime_check_config" "http" {
+  display_name = "http-uptime-check-%s"
+  timeout      = "60s"
+  period       = "%s"
+
+  http_check {
+    path = "/%s"
+    port = "8010"
+    request_method = "GET"
+    auth_info {
+      username = "name"
+      password_wo = "%s"
+	  password_wo_version = "%s"
+    }
+  }
+
+  monitored_resource {
+    type = "uptime_url"
+    labels = {
+      project_id = "%s"
+      host       = "%s"
+    }
+  }
+
+  content_matchers {
+    content = "example"
+    matcher = "CONTAINS_STRING"
+  }
+}
+`, suffix, period, path, pwd_wo, pwd_wo_version, project, host,
 	)
 }
 
