@@ -5079,6 +5079,15 @@ func TestAccContainerCluster_withFleetConfig(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
+			{
+				Config: testAccContainerCluster_WithEmptyFleetProject(clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
 		},
 	})
 }
@@ -5109,6 +5118,24 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   initial_node_count = 1
 
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, resource_name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_WithEmptyFleetProject(resource_name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  fleet {
+    project = ""
+  }
   network    = "%s"
   subnetwork = "%s"
 
