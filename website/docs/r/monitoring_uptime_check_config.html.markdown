@@ -34,6 +34,9 @@ To get more information about UptimeCheckConfig, see:
 values will be stored in the raw state as plain text: `http_check.auth_info.password`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
+~> **Note:**  All arguments marked as write-only values will not be stored in the state: `http_check.auth_info.password_wo`.
+[Read more about Write-only Attributes](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
+
 ## Example Usage - Uptime Check Config Http
 
 
@@ -54,6 +57,54 @@ resource "google_monitoring_uptime_check_config" "http" {
     body = "Zm9vJTI1M0RiYXI="
     ping_config {
       pings_count = 1
+    }
+  }
+
+  monitored_resource {
+    type = "uptime_url"
+    labels = {
+      project_id = "my-project-name"
+      host       = "192.168.1.1"
+    }
+  }
+
+  content_matchers {
+    content = "\"example\""
+    matcher = "MATCHES_JSON_PATH"
+    json_path_matcher {
+      json_path = "$.path"
+      json_matcher = "EXACT_MATCH"
+    }
+  }
+
+  checker_type = "STATIC_IP_CHECKERS"
+}
+```
+## Example Usage - Uptime Check Config Http Password Wo
+
+
+```hcl
+resource "google_monitoring_uptime_check_config" "http" {
+  display_name = "http-uptime-check"
+  timeout      = "60s"
+  user_labels  = {
+    example-key = "example-value"
+  }
+
+  http_check {
+    path = "some-path"
+    port = "8010"
+    request_method = "POST"
+    content_type = "USER_PROVIDED"
+    custom_content_type = "application/json"
+    body = "Zm9vJTI1M0RiYXI="
+    ping_config {
+      pings_count = 1
+    }
+    auth_info {
+      username = "name"
+      password_wo = "password1"
+      password_wo_version = "1"
     }
   }
 
@@ -414,17 +465,6 @@ The following arguments are supported:
   Structure is [documented below](#nested_http_check_ping_config).
 
 
-<a name="nested_http_check_auth_info"></a>The `auth_info` block supports:
-
-* `password` -
-  (Required)
-  The password to authenticate.
-  **Note**: This property is sensitive and will not be displayed in the plan.
-
-* `username` -
-  (Required)
-  The username to authenticate.
-
 <a name="nested_http_check_service_agent_authentication"></a>The `service_agent_authentication` block supports:
 
 * `type` -
@@ -501,6 +541,11 @@ The following arguments are supported:
 * `name` -
   (Required)
   The fully qualified name of the cloud function resource.
+
+## Ephemeral Attributes Reference
+
+The following write-only attributes are supported:
+
 
 ## Attributes Reference
 

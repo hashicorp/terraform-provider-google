@@ -166,16 +166,32 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"password": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `The password to authenticate.`,
-										Sensitive:   true,
-									},
 									"username": {
 										Type:        schema.TypeString,
 										Required:    true,
 										Description: `The username to authenticate.`,
+									},
+									"password": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `The password to authenticate.`,
+										Sensitive:    true,
+										ExactlyOneOf: []string{},
+									},
+									"password_wo": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `The password to authenticate.`,
+										WriteOnly:    true,
+										ExactlyOneOf: []string{},
+										RequiredWith: []string{"http_check.0.auth_info.0.password_wo_version"},
+									},
+									"password_wo_version": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ForceNew:     true,
+										Description:  `The password write-only version.`,
+										RequiredWith: []string{"http_check.0.auth_info.0.password_wo"},
 									},
 								},
 							},
@@ -525,6 +541,11 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 		obj["syntheticMonitor"] = syntheticMonitorProp
 	}
 
+	obj, err = resourceMonitoringUptimeCheckConfigEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	lockName, err := tpgresource.ReplaceVars(d, config, "stackdriver/groups/{{project}}")
 	if err != nil {
 		return err
@@ -752,6 +773,11 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("tcp_check"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpCheckProp)) {
 		obj["tcpCheck"] = tcpCheckProp
+	}
+
+	obj, err = resourceMonitoringUptimeCheckConfigEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "stackdriver/groups/{{project}}")
@@ -1054,12 +1080,18 @@ func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d *schem
 	transformed := make(map[string]interface{})
 	transformed["password"] =
 		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(original["password"], d, config)
+	transformed["password_wo_version"] =
+		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoPasswordWoVersion(original["passwordWoVersion"], d, config)
 	transformed["username"] =
 		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(original["username"], d, config)
 	return []interface{}{transformed}
 }
 func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("http_check.0.auth_info.0.password")
+}
+
+func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoPasswordWoVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("http_check.0.auth_info.0.password_wo_version")
 }
 
 func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1580,6 +1612,20 @@ func expandMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d tpgreso
 		transformed["password"] = transformedPassword
 	}
 
+	transformedPasswordWo, err := expandMonitoringUptimeCheckConfigHttpCheckAuthInfoPasswordWo(original["password_wo"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPasswordWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["passwordWo"] = transformedPasswordWo
+	}
+
+	transformedPasswordWoVersion, err := expandMonitoringUptimeCheckConfigHttpCheckAuthInfoPasswordWoVersion(original["password_wo_version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPasswordWoVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["passwordWoVersion"] = transformedPasswordWoVersion
+	}
+
 	transformedUsername, err := expandMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(original["username"], d, config)
 	if err != nil {
 		return nil, err
@@ -1591,6 +1637,14 @@ func expandMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d tpgreso
 }
 
 func expandMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckAuthInfoPasswordWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckAuthInfoPasswordWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1884,4 +1938,22 @@ func expandMonitoringUptimeCheckConfigSyntheticMonitorCloudFunctionV2(v interfac
 
 func expandMonitoringUptimeCheckConfigSyntheticMonitorCloudFunctionV2Name(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceMonitoringUptimeCheckConfigEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// remove passwordWoVersion from the request body
+	if v, ok := obj["httpCheck"]; ok {
+		httpCheck := v.(map[string]interface{})
+		if authInfo, ok := httpCheck["authInfo"].(map[string]interface{}); ok {
+			delete(authInfo, "passwordWoVersion")
+			if len(authInfo) > 0 {
+				httpCheck["authInfo"] = authInfo
+			} else {
+				delete(httpCheck, "authInfo")
+			}
+			obj["httpCheck"] = httpCheck
+		}
+	}
+
+	return obj, nil
 }

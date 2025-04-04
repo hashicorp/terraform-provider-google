@@ -14,6 +14,8 @@ fields:
   - field: 'http_check.accepted_response_status_codes.status_class'
   - field: 'http_check.accepted_response_status_codes.status_value'
   - field: 'http_check.auth_info.password'
+  - field: 'http_check.auth_info.password_wo'
+  - field: 'http_check.auth_info.password_wo_version'
   - field: 'http_check.auth_info.username'
   - field: 'http_check.body'
   - field: 'http_check.content_type'
