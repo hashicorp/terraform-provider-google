@@ -1,0 +1,7 @@
+```release-note:enhancement
+compute: added `source_disk_encryption_key`, `source_image_encryption_key` and `source_snapshot_encryption_key` to `google_compute_image`
+```
+
+```release-note:enhancement
+compute: added `source_disk_encryption_key.kms_key_self_link` and `source_disk_encryption_key.rsa_encrypted_key` to `google_compute_snapshot`
+```
