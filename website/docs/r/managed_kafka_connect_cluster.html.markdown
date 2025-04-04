@@ -27,35 +27,54 @@ A Managed Service for Kafka Connect cluster.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=managedkafka_connect_cluster_basic&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Managedkafka Connect Cluster Basic
 
 
 ```hcl
-resource "google_compute_network" "mkc_network" {
-  name                    = "my-network"
-  auto_create_subnetworks = false
+resource "google_project" "project" {
+  project_id      = "tf-test%{random_suffix}"
+  name            = "tf-test%{random_suffix}"
+  org_id          = "123456789"
+  billing_account = "000000-0000000-0000000-000000"
+  deletion_policy = "DELETE"
+
+  provider = google-beta
 }
 
-resource "google_compute_subnetwork" "mkc_subnet" {
-  name          = "my-subnetwork"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.mkc_network.id
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_project.project]
 }
 
-resource "google_compute_subnetwork" "mkc_additional_subnet" {
-  name          = "my-additional-subnetwork-0"
+resource "google_project_service" "compute" {
+  project = google_project.project.project_id
+  service = "compute.googleapis.com"
+  depends_on = [time_sleep.wait_60_seconds]
+
+  provider = google-beta
+}
+
+resource "google_project_service" "managedkafka" {
+  project = google_project.project.project_id
+  service = "managedkafka.googleapis.com"
+  depends_on = [time_sleep.wait_60_seconds]
+
+  provider = google-beta
+}
+
+resource "google_compute_subnetwork" "mkc_secondary_subnet" {
+  project       = google_project.project.project_id
+  name          = "my-secondary-subnetwork"
   ip_cidr_range = "10.3.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.mkc_network.id
+  network       = "default"
+  depends_on = [google_project_service.compute]
+
+  provider = google-beta
 }
 
 resource "google_managed_kafka_cluster" "gmk_cluster" {
+  project = google_project.project.project_id
   cluster_id = "my-cluster"
   location = "us-central1"
   capacity_config {
@@ -65,15 +84,19 @@ resource "google_managed_kafka_cluster" "gmk_cluster" {
   gcp_config {
     access_config {
       network_configs {
-        subnet = "projects/${data.google_project.project.project_id}/regions/us-central1/subnetworks/${google_compute_subnetwork.mkc_subnet.id}"
+        subnet = "projects/${google_project.project.project_id}/regions/us-central1/subnetworks/default"
       }
     }
   }
+  depends_on = [google_project_service.managedkafka]
+
+  provider = google-beta
 }
 
 resource "google_managed_kafka_connect_cluster" "example" {
+  project = google_project.project.project_id
   connect_cluster_id = "my-connect-cluster"
-  kafka_cluster = "projects/${data.google_project.project.project_id}/locations/us-central1/clusters/${google_managed_kafka_cluster.gmk_cluster.cluster_id}"
+  kafka_cluster = "projects/${google_project.project.project_id}/locations/us-central1/clusters/${google_managed_kafka_cluster.gmk_cluster.cluster_id}"
   location = "us-central1"
   capacity_config {
     vcpu_count = 12
@@ -82,18 +105,18 @@ resource "google_managed_kafka_connect_cluster" "example" {
   gcp_config {
     access_config {
       network_configs {
-        primary_subnet = "projects/${data.google_project.project.project_id}/regions/us-central1/subnetworks/${google_compute_subnetwork.mkc_subnet.id}"
-        additional_subnets = ["${google_compute_subnetwork.mkc_additional_subnet.id}"]
-        dns_domain_names = ["${google_managed_kafka_cluster.gmk_cluster.cluster_id}.us-central1.managedkafka-staging.${data.google_project.project.project_id}.cloud-staging.goog"]
+        primary_subnet = "projects/${google_project.project.project_id}/regions/us-central1/subnetworks/default"
+        additional_subnets = ["${google_compute_subnetwork.mkc_secondary_subnet.id}"]
+        dns_domain_names = ["${google_managed_kafka_cluster.gmk_cluster.cluster_id}.us-central1.managedkafka.${google_project.project.project_id}.cloud.goog"]
       }
     }
   }
   labels = {
     key = "value"
   }
-}
+  depends_on = [google_project_service.managedkafka]
 
-data "google_project" "project" {
+  provider = google-beta
 }
 ```
 
