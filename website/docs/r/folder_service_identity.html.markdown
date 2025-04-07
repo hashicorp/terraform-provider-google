@@ -8,6 +8,9 @@ description: |-
 
 Generate folder service identity for a service.
 
+~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
+
 ~> **Note:** Once created, this resource cannot be updated or destroyed. These
 actions are a no-op.
 
@@ -28,6 +31,7 @@ resource "google_folder" "my_folder" {
 }
 
 resource "google_folder_service_identity" "osconfig_sa" {
+  provider = google-beta
   folder = google_folder.my_folder.folder_id
   service = "osconfig.googleapis.com"
 }
