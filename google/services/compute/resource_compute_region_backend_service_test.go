@@ -351,6 +351,145 @@ func TestAccComputeRegionBackendService_withLogConfig(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionBackendService_withDynamicBackendCount(t *testing.T) {
+	t.Parallel()
+
+	randString := acctest.RandString(t, 10)
+
+	serviceName := fmt.Sprintf("tf-test-%s", randString)
+	checkName := fmt.Sprintf("tf-test-%s", randString)
+	netName := fmt.Sprintf("tf-test-%s", randString)
+	igName := fmt.Sprintf("tf-test-%s", randString)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_withDynamicBackendCount(serviceName, netName, checkName, igName),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionBackendService_withDynamicBackendCountUpdate(serviceName, netName, checkName, igName),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionBackendService_withDynamicBackendCount(serviceName, netName, checkName, igName),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionBackendService_withDynamicBackendCount(serviceName, netName, hcName, igName string) string {
+	return fmt.Sprintf(`
+locals {
+  zones           = ["europe-west1-b", "europe-west1-c", "europe-west1-d"]
+  s1_count        = 3
+}
+
+resource "google_compute_network" "network" {
+  name    = "%s"
+}
+
+resource "google_compute_region_backend_service" "foobar" {
+  name = "%s"
+  region = "europe-west1"
+
+  dynamic "backend" {
+    for_each = google_compute_instance_group.s1
+    content {
+      balancing_mode = "CONNECTION"
+      group = backend.value.self_link
+    }
+  }
+
+  health_checks = [
+    google_compute_health_check.default.self_link,
+  ]
+}
+
+resource "google_compute_health_check" "default" {
+  name = "%s"
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_instance_group" "s1" {
+  count   = local.s1_count
+  name    = "%s-${count.index}"
+  zone    = element(local.zones, count.index)
+  network = google_compute_network.network.self_link
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+`, netName, serviceName, hcName, igName)
+}
+
+func testAccComputeRegionBackendService_withDynamicBackendCountUpdate(serviceName, netName, hcName, igName string) string {
+	return fmt.Sprintf(`
+locals {
+  zones           = ["europe-west1-b", "europe-west1-c", "europe-west1-d"]
+  s1_count        = 1
+}
+
+resource "google_compute_network" "network" {
+  name    = "%s"
+}
+
+resource "google_compute_region_backend_service" "foobar" {
+  name = "%s"
+  region = "europe-west1"
+
+  dynamic "backend" {
+    for_each = google_compute_instance_group.s1
+    content {
+      balancing_mode = "CONNECTION"
+      group = backend.value.self_link
+    }
+  }
+
+  health_checks = [
+    google_compute_health_check.default.self_link,
+  ]
+}
+
+resource "google_compute_health_check" "default" {
+  name = "%s"
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_instance_group" "s1" {
+  count   = local.s1_count
+  name    = "%s-${count.index}"
+  zone    = element(local.zones, count.index)
+  network = google_compute_network.network.self_link
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+`, netName, serviceName, hcName, igName)
+}
+
 func testAccComputeRegionBackendService_ilbBasic_withUnspecifiedProtocol(serviceName, checkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_backend_service" "foobar" {
