@@ -65,7 +65,8 @@ func ResourceVertexAIFeatureOnlineStoreFeatureview() *schema.Resource {
 			},
 			"region": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Computed:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: `The region for the resource. It should be the same as the featureonlinestore region.`,
 			},
