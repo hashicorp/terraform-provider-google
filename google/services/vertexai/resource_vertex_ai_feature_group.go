@@ -112,6 +112,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			},
 			"region": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `The region of feature group. eg us-central1`,
