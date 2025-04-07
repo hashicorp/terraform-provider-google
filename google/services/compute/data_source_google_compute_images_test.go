@@ -59,6 +59,10 @@ resource "google_compute_image" "bar" {
 }
 
 data "google_compute_images" "all" {
+  depends_on = [
+    google_compute_image.foo,
+    google_compute_image.bar,
+  ]
 }
 `, context)
 }
