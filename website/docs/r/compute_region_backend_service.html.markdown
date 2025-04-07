@@ -25,6 +25,9 @@ description: |-
 A Region Backend Service defines a regionally-scoped group of virtual
 machines that will serve traffic for load balancing.
 
+~> **Note:** Recreating a `google_compute_region_backend_service` that references other dependent resources like `google_compute_instance_group` will give a `resourceInUseByAnotherResource` error, when decreasing the number of other dependent resources.
+Use `lifecycle.create_before_destroy` on the dependent resources to avoid this type of error as shown in the Dynamic Backend Count example.
+
 
 To get more information about RegionBackendService, see:
 
@@ -481,6 +484,54 @@ resource "google_compute_health_check" "health_check" {
   name               = "rbs-health-check"
   http_health_check {
     port = 80
+  }
+}
+```
+## Example Usage - Region Backend Service Dynamic Backend Count
+
+
+```hcl
+locals {
+  zones           = ["europe-west1-b", "europe-west1-c", "europe-west1-d"]
+  s1_count        = 3
+}
+
+resource "google_compute_network" "network" {
+  name    = "network"
+}
+
+resource "google_compute_region_backend_service" "default" {
+  name = "region-service"
+  region = "europe-west1"
+
+  dynamic "backend" {
+    for_each = google_compute_instance_group.s1
+    content {
+      balancing_mode = "CONNECTION"
+      group = backend.value.self_link
+    }
+  }
+
+  health_checks = [
+    google_compute_health_check.default.self_link,
+  ]
+}
+
+resource "google_compute_health_check" "default" {
+  name = "health-check"
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_instance_group" "s1" {
+  count   = local.s1_count
+  name    = "instance_group-${count.index}"
+  zone    = element(local.zones, count.index)
+  network = google_compute_network.network.self_link
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 ```
