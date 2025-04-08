@@ -248,6 +248,27 @@ If the value if set to true, any delete cluster operation will fail.
 Default value is true.`,
 				Default: true,
 			},
+			"gcs_source": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Backups stored in Cloud Storage buckets. The Cloud Storage buckets need to be the same region as the clusters.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"uris": {
+							Type:        schema.TypeList,
+							Required:    true,
+							ForceNew:    true,
+							Description: `URIs of the GCS objects to import. Example: gs://bucket1/object1, gs://bucket2/folder2/object2`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+				ConflictsWith: []string{"managed_backup_source"},
+			},
 			"kms_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -346,6 +367,25 @@ resolution and up to nine fractional digits.`,
 						},
 					},
 				},
+			},
+			"managed_backup_source": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Backups that generated and managed by memorystore.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"backup": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `Example: //redis.googleapis.com/projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup} A shorter version (without the prefix) of the backup name is also supported,
+like projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backupId}. In this case, it assumes the backup is under redis.googleapis.com.`,
+						},
+					},
+				},
+				ConflictsWith: []string{"gcs_source"},
 			},
 			"node_type": {
 				Type:         schema.TypeString,
@@ -501,6 +541,12 @@ If not provided, MULTI_ZONE will be used as default Possible values: ["MULTI_ZON
 						},
 					},
 				},
+			},
+			"backup_collection": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The backup collection full resource name.
+Example: projects/{project}/locations/{location}/backupCollections/{collection}`,
 			},
 			"create_time": {
 				Type:     schema.TypeString,
@@ -700,6 +746,18 @@ func resourceRedisClusterCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	obj := make(map[string]interface{})
+	gcsSourceProp, err := expandRedisClusterGcsSource(d.Get("gcs_source"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("gcs_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(gcsSourceProp)) && (ok || !reflect.DeepEqual(v, gcsSourceProp)) {
+		obj["gcsSource"] = gcsSourceProp
+	}
+	managedBackupSourceProp, err := expandRedisClusterManagedBackupSource(d.Get("managed_backup_source"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("managed_backup_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(managedBackupSourceProp)) && (ok || !reflect.DeepEqual(v, managedBackupSourceProp)) {
+		obj["managedBackupSource"] = managedBackupSourceProp
+	}
 	automatedBackupConfigProp, err := expandRedisClusterAutomatedBackupConfig(d.Get("automated_backup_config"), d, config)
 	if err != nil {
 		return err
@@ -903,6 +961,15 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("uid", flattenRedisClusterUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("gcs_source", flattenRedisClusterGcsSource(res["gcsSource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("managed_backup_source", flattenRedisClusterManagedBackupSource(res["managedBackupSource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("backup_collection", flattenRedisClusterBackupCollection(res["backupCollection"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("automated_backup_config", flattenRedisClusterAutomatedBackupConfig(res["automatedBackupConfig"], d, config)); err != nil {
@@ -1238,6 +1305,30 @@ func flattenRedisClusterState(v interface{}, d *schema.ResourceData, config *tra
 }
 
 func flattenRedisClusterUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenRedisClusterGcsSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if len(d.Get("gcs_source").([]interface{})) > 0 {
+		transformed := make(map[string]interface{})
+		transformed["uris"] = d.Get("gcs_source.0.uris")
+		return []interface{}{transformed}
+	}
+	return nil
+}
+
+func flattenRedisClusterManagedBackupSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+
+	if len(d.Get("managed_backup_source").([]interface{})) > 0 {
+		transformed := make(map[string]interface{})
+		transformed["backup"] = d.Get("managed_backup_source.0.backup")
+		return []interface{}{transformed}
+	}
+
+	return nil
+}
+
+func flattenRedisClusterBackupCollection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1967,6 +2058,52 @@ func flattenRedisClusterPscServiceAttachmentsConnectionType(v interface{}, d *sc
 
 func flattenRedisClusterKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func expandRedisClusterGcsSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedUris, err := expandRedisClusterGcsSourceUris(original["uris"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUris); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["uris"] = transformedUris
+	}
+
+	return transformed, nil
+}
+
+func expandRedisClusterGcsSourceUris(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisClusterManagedBackupSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBackup, err := expandRedisClusterManagedBackupSourceBackup(original["backup"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBackup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["backup"] = transformedBackup
+	}
+
+	return transformed, nil
+}
+
+func expandRedisClusterManagedBackupSourceBackup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandRedisClusterAutomatedBackupConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
