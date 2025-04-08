@@ -100,14 +100,14 @@ func ResourceManagedKafkaCluster() *schema.Resource {
 									"network_configs": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: `Virtual Private Cloud (VPC) subnets where IP addresses for the Kafka cluster are allocated. To make the cluster available in a VPC, you must specify at least one subnet per network. You must specify between 1 and 10 subnets. Additional subnets may be specified with additional 'network_configs' blocks.`,
+										Description: `Virtual Private Cloud (VPC) subnets where IP addresses for the Kafka cluster are allocated. To make the cluster available in a VPC, you must specify at least one 'network_configs' block. Max of 10 subnets per cluster. Additional subnets may be specified with additional 'network_configs' blocks.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"subnet": {
 													Type:             schema.TypeString,
 													Required:         true,
 													DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
-													Description:      `Name of the VPC subnet from which the cluster is accessible. Both broker and bootstrap server IP addresses and DNS entries are automatically created in the subnet. The subnet must be located in the same region as the cluster. The project may differ. The name of the subnet must be in the format 'projects/PROJECT_ID/regions/REGION/subnetworks/SUBNET'.`,
+													Description:      `Name of the VPC subnet from which the cluster is accessible. Both broker and bootstrap server IP addresses and DNS entries are automatically created in the subnet. There can only be one subnet per network, and the subnet must be located in the same region as the cluster. The project may differ. The name of the subnet must be in the format 'projects/PROJECT_ID/regions/REGION/subnetworks/SUBNET'.`,
 												},
 											},
 										},
