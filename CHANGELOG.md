@@ -10,8 +10,8 @@ FEATURES:
 IMPROVEMENTS:
 * accesscontextmanager: added `session_settings` field to `gcp_user_access_binding` resource ([#22227](https://github.com/hashicorp/terraform-provider-google/pull/22227))
 * cloudedeploy: added `timed_promote_release_rule` and `repair_rollout_rule` fields to `google_clouddeploy_automation` resource ([#22190](https://github.com/hashicorp/terraform-provider-google/pull/22190))
-* compute: added `group_placement_policy.0.tpu_topology` field to `google_compute_resource_policy` resource. ([#22201](https://github.com/hashicorp/terraform-provider-google/pull/22201))
-* datastream: added support for creating streams for Salesforce source in `google_datastream_stream`. (beta) ([#22205](https://github.com/hashicorp/terraform-provider-google/pull/22205))
+* compute: added `group_placement_policy.0.tpu_topology` field to `google_compute_resource_policy` resource ([#22201](https://github.com/hashicorp/terraform-provider-google/pull/22201))
+* datastream: added support for creating streams for Salesforce source in `google_datastream_stream` ([#22205](https://github.com/hashicorp/terraform-provider-google/pull/22205))
 * gkehub: enabled partial results to be returned when a cloud region is unreachable in `google_gke_hub_feature ` ([#22218](https://github.com/hashicorp/terraform-provider-google/pull/22218))
 * gkeonprem: added `enable_advanced_cluster` field to `google_gkeonprem_vmware_admin_cluster` resource ([#22188](https://github.com/hashicorp/terraform-provider-google/pull/22188))
 * gkeonprem: added `enable_advanced_cluster` field to `google_gkeonprem_vmware_cluster` resource ([#22188](https://github.com/hashicorp/terraform-provider-google/pull/22188))
