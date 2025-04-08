@@ -89,6 +89,7 @@ resource "google_database_migration_service_connection_profile" "cloudsqlprofile
       client_key         = google_sql_ssl_cert.sql_client_cert.private_key
       client_certificate = google_sql_ssl_cert.sql_client_cert.cert
       ca_certificate     = google_sql_ssl_cert.sql_client_cert.server_ca_cert
+      type = "SERVER_CLIENT"
     }
     cloud_sql_id = "my-database"
   }
@@ -179,6 +180,115 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
       client_key = google_sql_ssl_cert.sql_client_cert.private_key
       client_certificate = google_sql_ssl_cert.sql_client_cert.cert
       ca_certificate = google_sql_ssl_cert.sql_client_cert.server_ca_cert
+      type = "SERVER_CLIENT"
+    }
+    cloud_sql_id = "my-database"
+  }
+  depends_on = [google_sql_user.sqldb_user]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=database_migration_service_connection_profile_postgres_no_ssl&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Database Migration Service Connection Profile Postgres No Ssl
+
+
+```hcl
+resource "google_sql_database_instance" "postgresqldb" {
+  name             = "my-database"
+  database_version = "POSTGRES_12"
+  settings {
+    tier = "db-custom-2-13312"
+  }
+  deletion_protection = false
+}
+
+resource "google_sql_ssl_cert" "sql_client_cert" {
+  common_name = "my-cert"
+  instance    = google_sql_database_instance.postgresqldb.name
+
+  depends_on = [google_sql_database_instance.postgresqldb]
+}
+
+resource "google_sql_user" "sqldb_user" {
+  name     = "my-username"
+  instance = google_sql_database_instance.postgresqldb.name
+  password = "my-password"
+
+
+  depends_on = [google_sql_ssl_cert.sql_client_cert]
+}
+
+resource "google_database_migration_service_connection_profile" "postgresprofile" {
+  location = "us-central1"
+  connection_profile_id = "my-profileid"
+  display_name = "my-profileid_display"
+  labels = { 
+    foo = "bar" 
+  }
+  postgresql {
+    host = google_sql_database_instance.postgresqldb.ip_address.0.ip_address
+    port = 5432
+    username = google_sql_user.sqldb_user.name
+    password = google_sql_user.sqldb_user.password
+    ssl {
+      type = "NONE"
+    }
+    cloud_sql_id = "my-database"
+  }
+  depends_on = [google_sql_user.sqldb_user]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=database_migration_service_connection_profile_postgres_required_ssl&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Database Migration Service Connection Profile Postgres Required Ssl
+
+
+```hcl
+resource "google_sql_database_instance" "postgresqldb" {
+  name             = "my-database"
+  database_version = "POSTGRES_12"
+  settings {
+    tier = "db-custom-2-13312"
+  }
+  deletion_protection = false
+}
+
+resource "google_sql_ssl_cert" "sql_client_cert" {
+  common_name = "my-cert"
+  instance    = google_sql_database_instance.postgresqldb.name
+
+  depends_on = [google_sql_database_instance.postgresqldb]
+}
+
+resource "google_sql_user" "sqldb_user" {
+  name     = "my-username"
+  instance = google_sql_database_instance.postgresqldb.name
+  password = "my-password"
+
+
+  depends_on = [google_sql_ssl_cert.sql_client_cert]
+}
+
+resource "google_database_migration_service_connection_profile" "postgresprofile" {
+  location = "us-central1"
+  connection_profile_id = "my-profileid"
+  display_name = "my-profileid_display"
+  labels = { 
+    foo = "bar" 
+  }
+  postgresql {
+    host = google_sql_database_instance.postgresqldb.ip_address.0.ip_address
+    port = 5432
+    username = google_sql_user.sqldb_user.name
+    password = google_sql_user.sqldb_user.password
+    ssl {
+      type = "REQUIRED"
     }
     cloud_sql_id = "my-database"
   }
@@ -497,8 +607,9 @@ The following arguments are supported:
 <a name="nested_mysql_ssl"></a>The `ssl` block supports:
 
 * `type` -
-  (Output)
+  (Optional)
   The current connection profile state.
+  Possible values are: `SERVER_ONLY`, `SERVER_CLIENT`, `REQUIRED`, `NONE`.
 
 * `client_key` -
   (Optional)
@@ -513,8 +624,8 @@ The following arguments are supported:
   **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `ca_certificate` -
-  (Required)
-  Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
+  (Optional)
+  Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
   The replica will use this certificate to verify it's connecting to the right host.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
@@ -563,8 +674,9 @@ The following arguments are supported:
 <a name="nested_postgresql_ssl"></a>The `ssl` block supports:
 
 * `type` -
-  (Output)
+  (Optional)
   The current connection profile state.
+  Possible values are: `SERVER_ONLY`, `SERVER_CLIENT`, `REQUIRED`, `NONE`.
 
 * `client_key` -
   (Optional)
@@ -579,8 +691,8 @@ The following arguments are supported:
   **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `ca_certificate` -
-  (Required)
-  Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
+  (Optional)
+  Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
   The replica will use this certificate to verify it's connecting to the right host.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
@@ -652,8 +764,8 @@ The following arguments are supported:
   **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `ca_certificate` -
-  (Required)
-  Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
+  (Optional)
+  Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
   The replica will use this certificate to verify it's connecting to the right host.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
