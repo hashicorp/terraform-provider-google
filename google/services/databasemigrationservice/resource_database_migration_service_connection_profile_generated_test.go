@@ -103,6 +103,7 @@ resource "google_database_migration_service_connection_profile" "cloudsqlprofile
       client_key         = google_sql_ssl_cert.sql_client_cert.private_key
       client_certificate = google_sql_ssl_cert.sql_client_cert.cert
       ca_certificate     = google_sql_ssl_cert.sql_client_cert.server_ca_cert
+      type = "SERVER_CLIENT"
     }
     cloud_sql_id = "tf-test-my-database%{random_suffix}"
   }
@@ -213,6 +214,155 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
       client_key = google_sql_ssl_cert.sql_client_cert.private_key
       client_certificate = google_sql_ssl_cert.sql_client_cert.cert
       ca_certificate = google_sql_ssl_cert.sql_client_cert.server_ca_cert
+      type = "SERVER_CLIENT"
+    }
+    cloud_sql_id = "tf-test-my-database%{random_suffix}"
+  }
+  depends_on = [google_sql_user.sqldb_user]
+}
+`, context)
+}
+
+func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfilePostgresNoSslExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDatabaseMigrationServiceConnectionProfileDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfilePostgresNoSslExample(context),
+			},
+			{
+				ResourceName:            "google_database_migration_service_connection_profile.postgresprofile",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"connection_profile_id", "labels", "location", "postgresql.0.password", "postgresql.0.ssl.0.ca_certificate", "postgresql.0.ssl.0.client_certificate", "postgresql.0.ssl.0.client_key", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfilePostgresNoSslExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_sql_database_instance" "postgresqldb" {
+  name             = "tf-test-my-database%{random_suffix}"
+  database_version = "POSTGRES_12"
+  settings {
+    tier = "db-custom-2-13312"
+  }
+  deletion_protection = false
+}
+
+resource "google_sql_ssl_cert" "sql_client_cert" {
+  common_name = "tf-test-my-cert%{random_suffix}"
+  instance    = google_sql_database_instance.postgresqldb.name
+
+  depends_on = [google_sql_database_instance.postgresqldb]
+}
+
+resource "google_sql_user" "sqldb_user" {
+  name     = "tf-test-my-username%{random_suffix}"
+  instance = google_sql_database_instance.postgresqldb.name
+  password = "tf-test-my-password%{random_suffix}"
+
+
+  depends_on = [google_sql_ssl_cert.sql_client_cert]
+}
+
+resource "google_database_migration_service_connection_profile" "postgresprofile" {
+  location = "us-central1"
+  connection_profile_id = "tf-test-my-profileid%{random_suffix}"
+  display_name = "tf-test-my-profileid%{random_suffix}_display"
+  labels = { 
+    foo = "bar" 
+  }
+  postgresql {
+    host = google_sql_database_instance.postgresqldb.ip_address.0.ip_address
+    port = 5432
+    username = google_sql_user.sqldb_user.name
+    password = google_sql_user.sqldb_user.password
+    ssl {
+      type = "NONE"
+    }
+    cloud_sql_id = "tf-test-my-database%{random_suffix}"
+  }
+  depends_on = [google_sql_user.sqldb_user]
+}
+`, context)
+}
+
+func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfilePostgresRequiredSslExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDatabaseMigrationServiceConnectionProfileDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfilePostgresRequiredSslExample(context),
+			},
+			{
+				ResourceName:            "google_database_migration_service_connection_profile.postgresprofile",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"connection_profile_id", "labels", "location", "postgresql.0.password", "postgresql.0.ssl.0.ca_certificate", "postgresql.0.ssl.0.client_certificate", "postgresql.0.ssl.0.client_key", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfilePostgresRequiredSslExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_sql_database_instance" "postgresqldb" {
+  name             = "tf-test-my-database%{random_suffix}"
+  database_version = "POSTGRES_12"
+  settings {
+    tier = "db-custom-2-13312"
+  }
+  deletion_protection = false
+}
+
+resource "google_sql_ssl_cert" "sql_client_cert" {
+  common_name = "tf-test-my-cert%{random_suffix}"
+  instance    = google_sql_database_instance.postgresqldb.name
+
+  depends_on = [google_sql_database_instance.postgresqldb]
+}
+
+resource "google_sql_user" "sqldb_user" {
+  name     = "tf-test-my-username%{random_suffix}"
+  instance = google_sql_database_instance.postgresqldb.name
+  password = "tf-test-my-password%{random_suffix}"
+
+
+  depends_on = [google_sql_ssl_cert.sql_client_cert]
+}
+
+resource "google_database_migration_service_connection_profile" "postgresprofile" {
+  location = "us-central1"
+  connection_profile_id = "tf-test-my-profileid%{random_suffix}"
+  display_name = "tf-test-my-profileid%{random_suffix}_display"
+  labels = { 
+    foo = "bar" 
+  }
+  postgresql {
+    host = google_sql_database_instance.postgresqldb.ip_address.0.ip_address
+    port = 5432
+    username = google_sql_user.sqldb_user.name
+    password = google_sql_user.sqldb_user.password
+    ssl {
+      type = "REQUIRED"
     }
     cloud_sql_id = "tf-test-my-database%{random_suffix}"
   }

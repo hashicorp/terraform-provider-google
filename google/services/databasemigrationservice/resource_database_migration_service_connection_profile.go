@@ -424,9 +424,9 @@ This field is not returned on request, and the value is encrypted when stored in
 								Schema: map[string]*schema.Schema{
 									"ca_certificate": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 										ForceNew: true,
-										Description: `Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
+										Description: `Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
 The replica will use this certificate to verify it's connecting to the right host.`,
 										Sensitive: true,
 									},
@@ -447,9 +447,10 @@ If this field is used then the 'clientCertificate' field is mandatory.`,
 										Sensitive: true,
 									},
 									"type": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `The current connection profile state.`,
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"SERVER_ONLY", "SERVER_CLIENT", "REQUIRED", "NONE", ""}),
+										Description:  `The current connection profile state. Possible values: ["SERVER_ONLY", "SERVER_CLIENT", "REQUIRED", "NONE"]`,
 									},
 								},
 							},
@@ -571,9 +572,9 @@ This field is not returned on request, and the value is encrypted when stored in
 								Schema: map[string]*schema.Schema{
 									"ca_certificate": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 										ForceNew: true,
-										Description: `Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
+										Description: `Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
 The replica will use this certificate to verify it's connecting to the right host.`,
 										Sensitive: true,
 									},
@@ -671,9 +672,9 @@ This field is not returned on request, and the value is encrypted when stored in
 								Schema: map[string]*schema.Schema{
 									"ca_certificate": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 										ForceNew: true,
-										Description: `Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
+										Description: `Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
 The replica will use this certificate to verify it's connecting to the right host.`,
 										Sensitive: true,
 									},
@@ -696,9 +697,10 @@ If this field is used then the 'clientCertificate' field is mandatory.`,
 										RequiredWith: []string{},
 									},
 									"type": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `The current connection profile state.`,
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"SERVER_ONLY", "SERVER_CLIENT", "REQUIRED", "NONE", ""}),
+										Description:  `The current connection profile state. Possible values: ["SERVER_ONLY", "SERVER_CLIENT", "REQUIRED", "NONE"]`,
 									},
 								},
 							},
