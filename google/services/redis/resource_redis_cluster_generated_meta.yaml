@@ -8,6 +8,7 @@ fields:
   - field: 'authorization_mode'
   - field: 'automated_backup_config.fixed_frequency_schedule.start_time.hours'
   - field: 'automated_backup_config.retention'
+  - field: 'backup_collection'
   - field: 'create_time'
   - field: 'cross_cluster_replication_config.cluster_role'
   - field: 'cross_cluster_replication_config.membership.primary_cluster.cluster'
@@ -23,6 +24,7 @@ fields:
   - field: 'discovery_endpoints.address'
   - field: 'discovery_endpoints.port'
   - field: 'discovery_endpoints.psc_config.network'
+  - field: 'gcs_source.uris'
   - field: 'kms_key'
   - field: 'maintenance_policy.create_time'
   - field: 'maintenance_policy.update_time'
@@ -35,6 +37,7 @@ fields:
   - field: 'maintenance_schedule.end_time'
   - field: 'maintenance_schedule.schedule_deadline_time'
   - field: 'maintenance_schedule.start_time'
+  - field: 'managed_backup_source.backup'
   - field: 'name'
     provider_only: true
   - field: 'node_type'
