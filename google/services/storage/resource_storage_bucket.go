@@ -103,7 +103,7 @@ func ResourceStorageBucket() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				Description: `When deleting a bucket, this boolean option will delete all contained objects. If you try to delete a bucket that contains objects, Terraform will fail that run.`,
+				Description: `When deleting a bucket, this boolean option will delete all contained objects, or anywhereCaches (if any). If you try to delete a bucket that contains objects or anywhereCaches, Terraform will fail that run, deleting anywhereCaches may take 80 minutes to complete.`,
 			},
 
 			"labels": {
@@ -592,6 +592,98 @@ func labelKeyValidator(val interface{}, key string) (warns []string, errs []erro
 	return
 }
 
+func getAnywhereCacheListResult(config *transport_tpg.Config, bucket string) ([]interface{}, error) {
+	// Define the cache list URL
+	cacheListUrl := fmt.Sprintf("https://storage.googleapis.com/storage/v1/b/%s/anywhereCaches/", bucket)
+
+	// Send request to get resource list
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    cacheListUrl,
+		UserAgent: config.UserAgent,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	resourceList, ok := res["items"]
+	if !ok {
+		return nil, nil // No cache exists, return nil list and no error
+	}
+
+	rl, ok := resourceList.([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("unexpected type for resource list: %T", resourceList)
+	}
+
+	return rl, nil
+}
+
+func deleteAnywhereCacheIfAny(config *transport_tpg.Config, bucket string) error {
+	// Get the initial list of Anywhere Caches
+	cacheList, err := getAnywhereCacheListResult(config, bucket)
+	if err != nil {
+		return err
+	}
+
+	// If no cache exists initially, return early
+	if len(cacheList) == 0 {
+		return nil
+	}
+
+	// Iterate over each object in the resource list
+	for _, item := range cacheList {
+		// Ensure the item is a map
+		obj, ok := item.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type for resource list item: %T", item)
+		}
+
+		// Check the state of the object
+		state, ok := obj["state"].(string)
+		if !ok {
+			continue // If state is not a string, skip this item
+		}
+		if !strings.EqualFold(state, "running") && !strings.EqualFold(state, "paused") {
+			continue
+		}
+
+		// Disable the cache if state is running or paused
+		anywhereCacheId, ok := obj["anywhereCacheId"].(string)
+		if !ok {
+			return fmt.Errorf("missing or invalid anywhereCacheId: %v", obj)
+		}
+		disableUrl := fmt.Sprintf("https://storage.googleapis.com/storage/v1/b/%s/anywhereCaches/%s/disable", bucket, anywhereCacheId)
+		_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   config.Project,
+			RawURL:    disableUrl,
+			UserAgent: config.UserAgent,
+		})
+		if err != nil {
+			return err
+		}
+	}
+	time.Sleep(80 * time.Minute) // It takes around 70 minutes of time for cache to finally delete post it disable time.
+
+	// Post this time, we check again!
+	// Get the list of Anywhere Caches after the sleep
+	cacheList, err = getAnywhereCacheListResult(config, bucket)
+	if err != nil {
+		return err
+	}
+
+	// Check if the cache list is now empty
+	if len(cacheList) == 0 {
+		return nil
+	}
+
+	return fmt.Errorf("Error while deleting the cache: caches still exists post 80mins of their disable time")
+}
+
 func resourceDataplexLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	if strings.HasPrefix(k, resourceDataplexGoogleProvidedLabelPrefix) && new == "" {
 		return true
@@ -994,8 +1086,13 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 			break
 		}
 
-		if len(res.Items) == 0 {
-			break // 0 items, bucket empty
+		cacheList, cacheListErr := getAnywhereCacheListResult(config, bucket)
+		if cacheListErr != nil {
+			return cacheListErr
+		}
+
+		if len(res.Items) == 0 && len(cacheList) == 0 {
+			break // 0 items and no caches, bucket empty
 		}
 
 		if d.Get("retention_policy.0.is_locked").(bool) {
@@ -1013,10 +1110,11 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		}
 
 		if !d.Get("force_destroy").(bool) {
-			deleteErr := fmt.Errorf("Error trying to delete bucket %s containing objects without `force_destroy` set to true", bucket)
+			deleteErr := fmt.Errorf("Error trying to delete bucket %s without `force_destroy` set to true", bucket)
 			log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
 			return deleteErr
 		}
+
 		// GCS requires that a bucket be empty (have no objects or object
 		// versions) before it can be deleted.
 		log.Printf("[DEBUG] GCS Bucket attempting to forceDestroy\n\n")
@@ -1032,6 +1130,13 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		// Terraform's top-level -parallelism flag, but that's not plumbed nor
 		// is it scheduled to be plumbed to individual providers.
 		wp := workerpool.New(runtime.NumCPU() - 1)
+
+		wp.Submit(func() {
+			err = deleteAnywhereCacheIfAny(config, bucket)
+			if err != nil {
+				deleteObjectError = fmt.Errorf("error deleting the caches on the bucket %s : %w", bucket, err)
+			}
+		})
 
 		for _, object := range res.Items {
 			log.Printf("[DEBUG] Found %s", object.Name)

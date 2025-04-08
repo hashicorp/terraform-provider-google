@@ -55,20 +55,15 @@ func TestAccStorageAnywhereCache_update(t *testing.T) {
 func testAccStorageAnywhereCache_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name                        = "tf-test-bucket-name%{random_suffix}"
-  location                    = "US"
-}
-
-resource "time_sleep" "destroy_wait_5000_seconds" {
-  depends_on = [google_storage_bucket.bucket]
-  destroy_duration = "5000s"
+  name = "tf-test-bucket-name%{random_suffix}"
+  location = "US"
+  force_destroy = "true"
 }
 
 resource "google_storage_anywhere_cache" "cache" {
   bucket = google_storage_bucket.bucket.name
   zone = "us-central1-f"
   ttl = "3601s"
-  depends_on = [time_sleep.destroy_wait_5000_seconds]
 }
 `, context)
 }
@@ -76,13 +71,9 @@ resource "google_storage_anywhere_cache" "cache" {
 func testAccStorageAnywhereCache_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name                        = "tf-test-bucket-name%{random_suffix}"
-  location                    = "US"
-}
-
-resource "time_sleep" "destroy_wait_5000_seconds" {
-  depends_on = [google_storage_bucket.bucket]
-  destroy_duration = "5000s"
+  name = "tf-test-bucket-name%{random_suffix}"
+  location = "US"
+  force_destroy = "true"
 }
 
 resource "google_storage_anywhere_cache" "cache" {
@@ -90,7 +81,6 @@ resource "google_storage_anywhere_cache" "cache" {
   zone = "us-central1-f"
   admission_policy = "admit-on-second-miss"
   ttl = "3620s"
-  depends_on = [time_sleep.destroy_wait_5000_seconds]
 }
 `, context)
 }
