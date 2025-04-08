@@ -19,10 +19,18 @@ import (
 // back to the provider's value if not given. If the provider's value is not
 // given, an error is returned.
 func GetProjectFramework(rVal, pVal types.String, diags *diag.Diagnostics) types.String {
-	return getProjectFromFrameworkSchema("project", rVal, pVal, diags)
+	return getProviderDefaultFromFrameworkSchema("project", rVal, pVal, diags)
 }
 
-func getProjectFromFrameworkSchema(projectSchemaField string, rVal, pVal types.String, diags *diag.Diagnostics) types.String {
+func GetRegionFramework(rVal, pVal types.String, diags *diag.Diagnostics) types.String {
+	return getProviderDefaultFromFrameworkSchema("region", rVal, pVal, diags)
+}
+
+func GetZoneFramework(rVal, pVal types.String, diags *diag.Diagnostics) types.String {
+	return getProviderDefaultFromFrameworkSchema("zone", rVal, pVal, diags)
+}
+
+func getProviderDefaultFromFrameworkSchema(schemaField string, rVal, pVal types.String, diags *diag.Diagnostics) types.String {
 	if !rVal.IsNull() && rVal.ValueString() != "" {
 		return rVal
 	}
@@ -31,7 +39,7 @@ func getProjectFromFrameworkSchema(projectSchemaField string, rVal, pVal types.S
 		return pVal
 	}
 
-	diags.AddError("required field is not set", fmt.Sprintf("%s is not set", projectSchemaField))
+	diags.AddError("required field is not set", fmt.Sprintf("%s is not set", schemaField))
 	return types.String{}
 }
 
@@ -56,7 +64,7 @@ func ParseProjectFieldValueFramework(resourceType, fieldValue, projectSchemaFiel
 		}
 	}
 
-	project := getProjectFromFrameworkSchema(projectSchemaField, rVal, pVal, diags)
+	project := getProviderDefaultFromFrameworkSchema(projectSchemaField, rVal, pVal, diags)
 	if diags.HasError() {
 		return nil
 	}
