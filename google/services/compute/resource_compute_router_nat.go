@@ -123,6 +123,10 @@ func computeRouterNatIPsHash(v interface{}) int {
 	return schema.HashString(tpgresource.GetResourceNameFromSelfLink(val))
 }
 
+func computeRouterNatRulesSubnetHash(v interface{}) int {
+	return computeRouterNatIPsHash(v)
+}
+
 func computeRouterNatRulesHash(v interface{}) int {
 	obj := v.(map[string]interface{})
 	ruleNumber := obj["rule_number"].(int)
@@ -137,6 +141,8 @@ func computeRouterNatRulesHash(v interface{}) int {
 
 	sourceNatActiveIpHash := 0
 	sourceNatDrainIpHash := 0
+	sourceNatActiveRangeHash := 0
+	sourceNatDrainRangeHash := 0
 	routerNatRulesHash := 0
 
 	if obj["action"] != nil {
@@ -162,10 +168,27 @@ func computeRouterNatRulesHash(v interface{}) int {
 				}
 			}
 
+			sourceNatActiveRanges := action["source_nat_active_ranges"]
+			if sourceNatActiveRanges != nil {
+				sourceNatActiveRangesSet := sourceNatActiveRanges.(*schema.Set)
+				for _, sourceNatActiveRange := range sourceNatActiveRangesSet.List() {
+					sourceNatActiveRangeStr := fmt.Sprintf("source_nat_active_ranges-%d", computeRouterNatRulesSubnetHash(sourceNatActiveRange.(string)))
+					sourceNatActiveRangeHash += schema.HashString(sourceNatActiveRangeStr)
+				}
+			}
+
+			sourceNatDrainRanges := action["source_nat_drain_ranges"]
+			if sourceNatDrainRanges != nil {
+				sourceNatDrainRangesSet := sourceNatDrainRanges.(*schema.Set)
+				for _, sourceNatDrainRange := range sourceNatDrainRangesSet.List() {
+					sourceNatDrainRangeStr := fmt.Sprintf("source_nat_drain_ranges-%d", computeRouterNatRulesSubnetHash(sourceNatDrainRange.(string)))
+					sourceNatDrainRangeHash += schema.HashString(sourceNatDrainRangeStr)
+				}
+			}
 		}
 	}
 
-	routerNatRulesHash = ruleNumber + descriptionHash + schema.HashString(match) + sourceNatActiveIpHash + sourceNatDrainIpHash
+	routerNatRulesHash = ruleNumber + descriptionHash + schema.HashString(match) + sourceNatActiveIpHash + sourceNatDrainIpHash + sourceNatActiveRangeHash + sourceNatDrainRangeHash
 	return routerNatRulesHash
 }
 
@@ -395,6 +418,17 @@ Defaults to 120s if not set.`,
 Defaults to 30s if not set.`,
 				Default: 30,
 			},
+			"type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"PUBLIC", "PRIVATE", ""}),
+				Description: `Indicates whether this NAT is used for public or private IP translation.
+If unspecified, it defaults to PUBLIC.
+If 'PUBLIC' NAT used for public IP translation.
+If 'PRIVATE' NAT used for private IP translation. Default value: "PUBLIC" Possible values: ["PUBLIC", "PRIVATE"]`,
+				Default: "PUBLIC",
+			},
 			"udp_idle_timeout_sec": {
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -496,6 +530,18 @@ This field is used for public NAT.`,
 							},
 							Set: computeRouterNatIPsHash,
 						},
+						"source_nat_active_ranges": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Description: `A list of URLs of the subnetworks used as source ranges for this NAT Rule.
+These subnetworks must have purpose set to PRIVATE_NAT.
+This field is used for private NAT.`,
+							Elem: &schema.Schema{
+								Type:             schema.TypeString,
+								DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+							},
+							Set: computeRouterNatRulesSubnetHash,
+						},
 						"source_nat_drain_ips": {
 							Type:     schema.TypeSet,
 							Optional: true,
@@ -508,6 +554,18 @@ This field is used for public NAT.`,
 								DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 							},
 							Set: computeRouterNatIPsHash,
+						},
+						"source_nat_drain_ranges": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Description: `A list of URLs of subnetworks representing source ranges to be drained.
+This is only supported on patch/update, and these subnetworks must have previously been used as active ranges in this NAT Rule.
+This field is used for private NAT.`,
+							Elem: &schema.Schema{
+								Type:             schema.TypeString,
+								DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+							},
+							Set: computeRouterNatRulesSubnetHash,
 						},
 					},
 				},
@@ -643,6 +701,12 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("enable_endpoint_independent_mapping"); ok || !reflect.DeepEqual(v, enableEndpointIndependentMappingProp) {
 		obj["enableEndpointIndependentMapping"] = enableEndpointIndependentMappingProp
 	}
+	typeProp, err := expandNestedComputeRouterNatType(d.Get("type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+		obj["type"] = typeProp
+	}
 	autoNetworkTierProp, err := expandNestedComputeRouterNatAutoNetworkTier(d.Get("auto_network_tier"), d, config)
 	if err != nil {
 		return err
@@ -687,7 +751,32 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	headers := make(http.Header)
+	natType := d.Get("type").(string)
+	if natType == "PRIVATE" {
+		rules := d.Get("rules").(*schema.Set)
+		for _, rule := range rules.List() {
+			objRule := rule.(map[string]interface{})
+			actions := objRule["action"].([]interface{})
 
+			containAction := len(actions) != 0 && actions[0] != nil
+			containActiveRange := true
+
+			if containAction {
+				action := actions[0].(map[string]interface{})
+				sourceNatActiveRanges := action["source_nat_active_ranges"]
+				if sourceNatActiveRanges != nil {
+					sourceNatActiveRangesSet := sourceNatActiveRanges.(*schema.Set)
+					if len(sourceNatActiveRangesSet.List()) == 0 {
+						containActiveRange = false
+					}
+				}
+			}
+
+			if !containAction || !containActiveRange {
+				return fmt.Errorf("The rule for PRIVATE nat type must contain an action with source_nat_active_ranges set")
+			}
+		}
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",
@@ -830,6 +919,9 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
 	if err := d.Set("enable_endpoint_independent_mapping", flattenNestedComputeRouterNatEnableEndpointIndependentMapping(res["enableEndpointIndependentMapping"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterNat: %s", err)
+	}
+	if err := d.Set("type", flattenNestedComputeRouterNatType(res["type"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
 	if err := d.Set("auto_network_tier", flattenNestedComputeRouterNatAutoNetworkTier(res["autoNetworkTier"], d, config)); err != nil {
@@ -977,6 +1069,32 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 
 	log.Printf("[DEBUG] Updating RouterNat %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+	natType := d.Get("type").(string)
+	if natType == "PRIVATE" {
+		rules := d.Get("rules").(*schema.Set)
+		for _, rule := range rules.List() {
+			objRule := rule.(map[string]interface{})
+			actions := objRule["action"].([]interface{})
+
+			containAction := len(actions) != 0 && actions[0] != nil
+			containActiveRange := true
+
+			if containAction {
+				action := actions[0].(map[string]interface{})
+				sourceNatActiveRanges := action["source_nat_active_ranges"]
+				if sourceNatActiveRanges != nil {
+					sourceNatActiveRangesSet := sourceNatActiveRanges.(*schema.Set)
+					if len(sourceNatActiveRangesSet.List()) == 0 {
+						containActiveRange = false
+					}
+				}
+			}
+
+			if !containAction || !containActiveRange {
+				return fmt.Errorf("The rule for PRIVATE nat type must contain an action with source_nat_active_ranges set")
+			}
+		}
+	}
 
 	obj, err = resourceComputeRouterNatPatchUpdateEncoder(d, meta, obj)
 	if err != nil {
@@ -1366,6 +1484,10 @@ func flattenNestedComputeRouterNatRulesAction(v interface{}, d *schema.ResourceD
 		flattenNestedComputeRouterNatRulesActionSourceNatActiveIps(original["sourceNatActiveIps"], d, config)
 	transformed["source_nat_drain_ips"] =
 		flattenNestedComputeRouterNatRulesActionSourceNatDrainIps(original["sourceNatDrainIps"], d, config)
+	transformed["source_nat_active_ranges"] =
+		flattenNestedComputeRouterNatRulesActionSourceNatActiveRanges(original["sourceNatActiveRanges"], d, config)
+	transformed["source_nat_drain_ranges"] =
+		flattenNestedComputeRouterNatRulesActionSourceNatDrainRanges(original["sourceNatDrainRanges"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNestedComputeRouterNatRulesActionSourceNatActiveIps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1382,7 +1504,25 @@ func flattenNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d 
 	return schema.NewSet(computeRouterNatIPsHash, tpgresource.ConvertStringArrToInterface(tpgresource.ConvertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)))
 }
 
+func flattenNestedComputeRouterNatRulesActionSourceNatActiveRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(computeRouterNatRulesSubnetHash, tpgresource.ConvertStringArrToInterface(tpgresource.ConvertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)))
+}
+
+func flattenNestedComputeRouterNatRulesActionSourceNatDrainRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(computeRouterNatRulesSubnetHash, tpgresource.ConvertStringArrToInterface(tpgresource.ConvertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)))
+}
+
 func flattenNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedComputeRouterNatType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1657,6 +1797,20 @@ func expandNestedComputeRouterNatRulesAction(v interface{}, d tpgresource.Terraf
 		transformed["sourceNatDrainIps"] = transformedSourceNatDrainIps
 	}
 
+	transformedSourceNatActiveRanges, err := expandNestedComputeRouterNatRulesActionSourceNatActiveRanges(original["source_nat_active_ranges"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceNatActiveRanges); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sourceNatActiveRanges"] = transformedSourceNatActiveRanges
+	}
+
+	transformedSourceNatDrainRanges, err := expandNestedComputeRouterNatRulesActionSourceNatDrainRanges(original["source_nat_drain_ranges"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceNatDrainRanges); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sourceNatDrainRanges"] = transformedSourceNatDrainRanges
+	}
+
 	return transformed, nil
 }
 
@@ -1694,7 +1848,45 @@ func expandNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d t
 	return req, nil
 }
 
+func expandNestedComputeRouterNatRulesActionSourceNatActiveRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			return nil, fmt.Errorf("Invalid value for source_nat_active_ranges: nil")
+		}
+		f, err := tpgresource.ParseRegionalFieldValue("subnetworks", raw.(string), "project", "region", "zone", d, config, true)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid value for source_nat_active_ranges: %s", err)
+		}
+		req = append(req, f.RelativeLink())
+	}
+	return req, nil
+}
+
+func expandNestedComputeRouterNatRulesActionSourceNatDrainRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			return nil, fmt.Errorf("Invalid value for source_nat_drain_ranges: nil")
+		}
+		f, err := tpgresource.ParseRegionalFieldValue("subnetworks", raw.(string), "project", "region", "zone", d, config, true)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid value for source_nat_drain_ranges: %s", err)
+		}
+		req = append(req, f.RelativeLink())
+	}
+	return req, nil
+}
+
 func expandNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterNatType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1820,6 +2012,7 @@ func resourceComputeRouterNatPatchUpdateEncoder(d *schema.ResourceData, meta int
 	obj["name"] = item["name"]
 	obj["initialNatIps"] = item["initialNatIps"]
 	obj["endpointTypes"] = item["endpointTypes"]
+	obj["type"] = item["type"]
 	// Merge any fields in item that aren't managed by this resource into obj
 	// This is necessary because item might be managed by multiple resources.
 	settableFields := map[string]struct{}{
