@@ -65,6 +65,8 @@ func ResourceMLEngineModel() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		DeprecationMessage: "This resource is deprecated at the API level and will be removed in a future version of Terraform.",
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,

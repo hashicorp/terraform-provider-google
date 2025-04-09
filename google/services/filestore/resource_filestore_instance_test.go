@@ -187,7 +187,7 @@ resource "google_filestore_instance" "instance" {
   networks {
     network           = "default"
     modes             = ["MODE_IPV4"]
-    reserved_ip_range = "172.19.31.8/29"
+    reserved_ip_range = "172.30.250.0/29"
   }
 }
 `, name)
