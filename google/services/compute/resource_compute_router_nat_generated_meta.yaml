@@ -24,7 +24,9 @@ fields:
   - field: 'router'
     provider_only: true
   - field: 'rules.action.source_nat_active_ips'
+  - field: 'rules.action.source_nat_active_ranges'
   - field: 'rules.action.source_nat_drain_ips'
+  - field: 'rules.action.source_nat_drain_ranges'
   - field: 'rules.description'
   - field: 'rules.match'
   - field: 'rules.rule_number'
@@ -38,4 +40,5 @@ fields:
   - field: 'tcp_established_idle_timeout_sec'
   - field: 'tcp_time_wait_timeout_sec'
   - field: 'tcp_transitory_idle_timeout_sec'
+  - field: 'type'
   - field: 'udp_idle_timeout_sec'

@@ -185,14 +185,10 @@ resource "google_compute_router_nat" "nat_rules" {
 
 ```hcl
 resource "google_compute_network" "net" {
-  provider = google-beta
-
   name     = "my-network"
 }
 
 resource "google_compute_subnetwork" "subnet" {
-  provider      = google-beta
-
   name          = "my-subnetwork"
   network       = google_compute_network.net.id
   ip_cidr_range = "10.0.0.0/16"
@@ -201,23 +197,17 @@ resource "google_compute_subnetwork" "subnet" {
 }
 
 resource "google_compute_router" "router" {
-  provider = google-beta
-
   name     = "my-router"
   region   = google_compute_subnetwork.subnet.region
   network  = google_compute_network.net.id
 }
 
 resource "google_network_connectivity_hub" "hub" {
-  provider    = google-beta
-
   name        = "my-hub"
   description = "vpc hub for inter vpc nat"
 }
 
 resource "google_network_connectivity_spoke" "spoke" {
-  provider    = google-beta
-
   name        = "my-spoke"
   location    = "global"
   description = "vpc spoke for inter vpc nat"
@@ -232,8 +222,6 @@ resource "google_network_connectivity_spoke" "spoke" {
 }
 
 resource "google_compute_router_nat" "nat_type" {
-  provider                            = google-beta
-
   name                                = "my-router-nat"
   router                              = google_compute_router.router.name
   region                              = google_compute_router.router.region
@@ -386,7 +374,7 @@ The following arguments are supported:
   For more information see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).
 
 * `type` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Indicates whether this NAT is used for public or private IP translation.
   If unspecified, it defaults to PUBLIC.
   If `PUBLIC` NAT used for public IP translation.
@@ -483,13 +471,13 @@ The following arguments are supported:
   This field is used for public NAT.
 
 * `source_nat_active_ranges` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A list of URLs of the subnetworks used as source ranges for this NAT Rule.
   These subnetworks must have purpose set to PRIVATE_NAT.
   This field is used for private NAT.
 
 * `source_nat_drain_ranges` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A list of URLs of subnetworks representing source ranges to be drained.
   This is only supported on patch/update, and these subnetworks must have previously been used as active ranges in this NAT Rule.
   This field is used for private NAT.
