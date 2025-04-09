@@ -214,13 +214,14 @@ resource "google_data_fusion_instance" "basic_instance" {
 
 func TestAccDatafusionInstance_tags(t *testing.T) {
 	t.Parallel()
-	org := envvar.GetTestOrgFromEnv(t)
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"version":       "6.9.1",
-	}
+
 	tagKey := acctest.BootstrapSharedTestTagKey(t, "datafusion-instances-tagkey")
-	tagValue := acctest.BootstrapSharedTestTagValue(t, "datafusion-instances-tagvalue", tagKey)
+	context := map[string]interface{}{
+		"org":           envvar.GetTestOrgFromEnv(t),
+		"tagKey":        tagKey,
+		"tagValue":      acctest.BootstrapSharedTestTagValue(t, "datafusion-instances-tagvalue", tagKey),
+		"random_suffix": acctest.RandString(t, 10),
+	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -228,7 +229,7 @@ func TestAccDatafusionInstance_tags(t *testing.T) {
 		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatafusionInstanceTags(context, map[string]string{org + "/" + tagKey: tagValue}),
+				Config: testAccDatafusionInstanceTags(context),
 			},
 			{
 				ResourceName:            "google_data_fusion_instance.instance",
@@ -240,20 +241,15 @@ func TestAccDatafusionInstance_tags(t *testing.T) {
 	})
 }
 
-func testAccDatafusionInstanceTags(context map[string]interface{}, tags map[string]string) string {
-
-	r := acctest.Nprintf(`
-	resource "google_data_fusion_instance" "instance" {
-        name   = "my-instance"
-        region = "us-central1"
-        type   = "BASIC"
-	  tags = {`, context)
-
-	l := ""
-	for key, value := range tags {
-		l += fmt.Sprintf("%q = %q\n", key, value)
-	}
-
-	l += fmt.Sprintf("}\n}")
-	return r + l
+func testAccDatafusionInstanceTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_fusion_instance" "instance" {
+  name   = "tf-test-my-instance-%{random_suffix}"
+  region = "us-central1"
+  type   = "BASIC"
+  tags = {
+	"%{org}/%{tagKey}" = "%{tagValue}"
+  }
+}
+`, context)
 }

@@ -120,11 +120,13 @@ resource "google_filestore_backup" "backup" {
 func TestAccFilestoreBackup_tags(t *testing.T) {
 	t.Parallel()
 
-	org := envvar.GetTestOrgFromEnv(t)
-	instanceName := fmt.Sprintf("tf-test-fs-inst-%d", acctest.RandInt(t))
-	backupName := fmt.Sprintf("tf-test-fs-bkup-%d", acctest.RandInt(t))
 	tagKey := acctest.BootstrapSharedTestTagKey(t, "filestore-backups-tagkey")
-	tagValue := acctest.BootstrapSharedTestTagValue(t, "filestore-backups-tagvalue", tagKey)
+	context := map[string]interface{}{
+		"org":           envvar.GetTestOrgFromEnv(t),
+		"tagKey":        tagKey,
+		"tagValue":      acctest.BootstrapSharedTestTagValue(t, "filestore-backups-tagvalue", tagKey),
+		"random_suffix": acctest.RandString(t, 10),
+	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -132,7 +134,7 @@ func TestAccFilestoreBackup_tags(t *testing.T) {
 		CheckDestroy:             testAccCheckFilestoreBackupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFilestoreBackupTags(instanceName, backupName, map[string]string{org + "/" + tagKey: tagValue}),
+				Config: testAccFilestoreBackupTags(context),
 			},
 			{
 				ResourceName:            "google_filestore_backup.backup",
@@ -144,44 +146,39 @@ func TestAccFilestoreBackup_tags(t *testing.T) {
 	})
 }
 
-func testAccFilestoreBackupTags(instanceName string, backupName string, tags map[string]string) string {
+func testAccFilestoreBackupTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_filestore_instance" "instance" {
+  name     = "tf-test-fs-inst-%{random_suffix}"
+  location = "us-central1-b"
+  tier     = "BASIC_HDD"
 
-	r := fmt.Sprintf(`
-	resource "google_filestore_instance" "instance" {
-          name     = "%s"
-          location = "us-central1-b"
-          tier     = "BASIC_HDD"
+  file_shares {
+    capacity_gb = 1024
+    name        = "share1"
+  }
 
-            file_shares {
-              capacity_gb = 1024
-              name        = "share1"
-            }
+  networks {
+    network      = "default"
+    modes        = ["MODE_IPV4"]
+    connect_mode = "DIRECT_PEERING"
+  }
+}
 
-            networks {
-              network      = "default"
-              modes        = ["MODE_IPV4"]
-              connect_mode = "DIRECT_PEERING"
-            }
-        }
+resource "google_filestore_backup" "backup" {
+  name              = "tf-test-fs-bkup-%{random_suffix}"
+  location          = "us-central1"
+  description       = "This is a filestore backup for the test instance"
+  source_instance   = google_filestore_instance.instance.id
+  source_file_share = "share1"
 
-        resource "google_filestore_backup" "backup" {
-          name              = "%s"
-          location          = "us-central1"
-          description       = "This is a filestore backup for the test instance"
-          source_instance   = google_filestore_instance.instance.id
-          source_file_share = "share1"
-
-          labels = {
-            "files":"label1",
-            "other-label": "label2"
-          }
-	  tags = {`, instanceName, backupName)
-
-	l := ""
-	for key, value := range tags {
-		l += fmt.Sprintf("%q = %q\n", key, value)
-	}
-
-	l += fmt.Sprintf("}\n}")
-	return r + l
+  labels = {
+    "files":"label1",
+    "other-label": "label2"
+  }
+  tags = {
+    "%{org}/%{tagKey}" = "%{tagValue}"
+  }
+}
+`, context)
 }
