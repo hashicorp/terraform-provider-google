@@ -245,7 +245,7 @@ Only the volume with largeCapacity will be allowed to have multiple endpoints.`,
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							Description: `Full name of the snapshot to use for creating this volume.
+							Description: `Full name of the backup to use for creating this volume.
 'source_snapshot' and 'source_backup' cannot be used simultaneously.
 Format: 'projects/{{project}}/locations/{{location}}/backupVaults/{{backupVaultId}}/backups/{{backup}}'.`,
 							ExactlyOneOf: []string{"restore_parameters.0.source_backup", "restore_parameters.0.source_snapshot"},
