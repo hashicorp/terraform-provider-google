@@ -414,10 +414,14 @@ resource "google_filestore_instance" "instance" {
 
 func TestAccFilestoreInstance_tags(t *testing.T) {
 	t.Parallel()
-	name := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
-	org := envvar.GetTestOrgFromEnv(t)
+
 	tagKey := acctest.BootstrapSharedTestTagKey(t, "filestore-instances-tagkey")
-	tagValue := acctest.BootstrapSharedTestTagValue(t, "filestore-instances-tagvalue", tagKey)
+	context := map[string]interface{}{
+		"org":           envvar.GetTestOrgFromEnv(t),
+		"tagKey":        tagKey,
+		"tagValue":      acctest.BootstrapSharedTestTagValue(t, "filestore-instances-tagvalue", tagKey),
+		"random_suffix": acctest.RandString(t, 10),
+	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -425,7 +429,7 @@ func TestAccFilestoreInstance_tags(t *testing.T) {
 		CheckDestroy:             testAccCheckFilestoreInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFileInstanceTags(name, map[string]string{org + "/" + tagKey: tagValue}),
+				Config: testAccFileInstanceTags(context),
 			},
 			{
 				ResourceName:            "google_filestore_instance.instance",
@@ -437,10 +441,10 @@ func TestAccFilestoreInstance_tags(t *testing.T) {
 	})
 }
 
-func testAccFileInstanceTags(name string, tags map[string]string) string {
-	r := fmt.Sprintf(`
+func testAccFileInstanceTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
 resource "google_filestore_instance" "instance" {
-  name = "tf-test-instance-%s"
+  name = "tf-test-instance-%{random_suffix}"
   zone = "us-central1-b"
   tier = "BASIC_HDD"
   file_shares {
@@ -452,15 +456,11 @@ resource "google_filestore_instance" "instance" {
     modes             = ["MODE_IPV4"]
     reserved_ip_range = "172.19.31.8/29"
   }
-tags = {`, name)
-
-	l := ""
-	for key, value := range tags {
-		l += fmt.Sprintf("%q = %q\n", key, value)
-	}
-
-	l += fmt.Sprintf("}\n}")
-	return r + l
+  tags = {
+    "%{org}/%{tagKey}" = "%{tagValue}"
+  }
+}
+`, context)
 }
 
 func TestAccFilestoreInstance_replication(t *testing.T) {
