@@ -375,12 +375,6 @@ func resourceChronicleRuleCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
-	// Rule id is set by API and required to GET the connection
-	// it is set by reading the "name" field rather than a field in the response
-	if err := d.Set("rule_id", flattenChronicleRuleRuleId("", d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule ID: %s", err)
-	}
-
 	log.Printf("[DEBUG] Finished creating Rule %q: %#v", d.Id(), res)
 
 	return resourceChronicleRuleRead(d, meta)
