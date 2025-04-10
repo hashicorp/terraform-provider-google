@@ -257,13 +257,14 @@ Default value is true.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"uris": {
-							Type:        schema.TypeList,
+							Type:        schema.TypeSet,
 							Required:    true,
 							ForceNew:    true,
 							Description: `URIs of the GCS objects to import. Example: gs://bucket1/object1, gs://bucket2/folder2/object2`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Set: schema.HashString,
 						},
 					},
 				},
@@ -963,12 +964,6 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("uid", flattenRedisClusterUid(res["uid"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
-	if err := d.Set("gcs_source", flattenRedisClusterGcsSource(res["gcsSource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("managed_backup_source", flattenRedisClusterManagedBackupSource(res["managedBackupSource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
 	if err := d.Set("backup_collection", flattenRedisClusterBackupCollection(res["backupCollection"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -1306,26 +1301,6 @@ func flattenRedisClusterState(v interface{}, d *schema.ResourceData, config *tra
 
 func flattenRedisClusterUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
-}
-
-func flattenRedisClusterGcsSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if len(d.Get("gcs_source").([]interface{})) > 0 {
-		transformed := make(map[string]interface{})
-		transformed["uris"] = d.Get("gcs_source.0.uris")
-		return []interface{}{transformed}
-	}
-	return nil
-}
-
-func flattenRedisClusterManagedBackupSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-
-	if len(d.Get("managed_backup_source").([]interface{})) > 0 {
-		transformed := make(map[string]interface{})
-		transformed["backup"] = d.Get("managed_backup_source.0.backup")
-		return []interface{}{transformed}
-	}
-
-	return nil
 }
 
 func flattenRedisClusterBackupCollection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2080,6 +2055,7 @@ func expandRedisClusterGcsSource(v interface{}, d tpgresource.TerraformResourceD
 }
 
 func expandRedisClusterGcsSourceUris(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	return v, nil
 }
 

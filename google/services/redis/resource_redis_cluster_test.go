@@ -108,6 +108,11 @@ func TestAccRedisCluster_managedBackupSource(t *testing.T) {
 			{
 				Config: testAccRedisCluster_managedBackupSourceImport(context),
 			},
+			{
+				ResourceName:      "google_redis_cluster.cluster_mbs_main",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -233,6 +238,11 @@ func TestAccRedisCluster_gcsSource(t *testing.T) {
 			},
 			{
 				Config: testAccRedisCluster_gcsSource(context),
+			},
+			{
+				ResourceName:      "google_redis_cluster.cluster_gbs_main",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
