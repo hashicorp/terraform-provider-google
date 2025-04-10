@@ -263,6 +263,45 @@ resource "google_kms_crypto_key_iam_binding" "firestore_cmek_keyuser" {
 `, context)
 }
 
+func TestAccFirestoreDatabase_firestoreDatabaseEnterpriseExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirestoreDatabaseDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFirestoreDatabase_firestoreDatabaseEnterpriseExample(context),
+			},
+			{
+				ResourceName:            "google_firestore_database.enterprise-db",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project"},
+			},
+		},
+	})
+}
+
+func testAccFirestoreDatabase_firestoreDatabaseEnterpriseExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_firestore_database" "enterprise-db" {
+	project                  = "%{project_id}"
+	name                     = "tf-test-database-id%{random_suffix}"
+	location_id              = "nam5"
+	type                     = "FIRESTORE_NATIVE"
+	database_edition         = "ENTERPRISE"
+	deletion_policy          = "DELETE"
+}
+`, context)
+}
+
 func testAccCheckFirestoreDatabaseDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

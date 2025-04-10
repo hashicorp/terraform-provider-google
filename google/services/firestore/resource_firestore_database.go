@@ -141,6 +141,14 @@ The expected format is
 				ValidateFunc: verify.ValidateEnum([]string{"OPTIMISTIC", "PESSIMISTIC", "OPTIMISTIC_WITH_ENTITY_GROUPS", ""}),
 				Description:  `The concurrency control mode to use for this database. Possible values: ["OPTIMISTIC", "PESSIMISTIC", "OPTIMISTIC_WITH_ENTITY_GROUPS"]`,
 			},
+			"database_edition": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"STANDARD", "ENTERPRISE", ""}),
+				Description:  `The database edition. Possible values: ["STANDARD", "ENTERPRISE"]`,
+			},
 			"delete_protection_state": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -253,6 +261,12 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
+	}
+	databaseEditionProp, err := expandFirestoreDatabaseDatabaseEdition(d.Get("database_edition"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("database_edition"); !tpgresource.IsEmptyValue(reflect.ValueOf(databaseEditionProp)) && (ok || !reflect.DeepEqual(v, databaseEditionProp)) {
+		obj["databaseEdition"] = databaseEditionProp
 	}
 	concurrencyModeProp, err := expandFirestoreDatabaseConcurrencyMode(d.Get("concurrency_mode"), d, config)
 	if err != nil {
@@ -416,6 +430,9 @@ func resourceFirestoreDatabaseRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("type", flattenFirestoreDatabaseType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err := d.Set("database_edition", flattenFirestoreDatabaseDatabaseEdition(res["databaseEdition"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("concurrency_mode", flattenFirestoreDatabaseConcurrencyMode(res["concurrencyMode"], d, config)); err != nil {
@@ -681,6 +698,10 @@ func flattenFirestoreDatabaseType(v interface{}, d *schema.ResourceData, config 
 	return v
 }
 
+func flattenFirestoreDatabaseDatabaseEdition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenFirestoreDatabaseConcurrencyMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -757,6 +778,10 @@ func expandFirestoreDatabaseLocationId(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandFirestoreDatabaseType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirestoreDatabaseDatabaseEdition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
