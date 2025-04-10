@@ -283,6 +283,22 @@ func resourceBigqueryAnalyticsHubListingSubscriptionCreate(d *schema.ResourceDat
 	if err != nil {
 		return fmt.Errorf("Error creating ListingSubscription: %s", err)
 	}
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	res, err = resourceBigqueryAnalyticsHubListingSubscriptionDecoder(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("decoding response: %w", err)
+	}
+	if res == nil {
+		return fmt.Errorf("decoding response, could not find object")
+	}
+	// Setting `name` field so that `id_from_name` flattener will work properly.
+	if err := d.Set("name", flattenBigqueryAnalyticsHubListingSubscriptionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	if err := d.Set("subscription_id", flattenBigqueryAnalyticsHubListingSubscriptionSubscriptionId(res["subscriptionId"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "subscription_id": %s`, err)
+	}
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/subscriptions/{{subscription_id}}")
@@ -290,17 +306,6 @@ func resourceBigqueryAnalyticsHubListingSubscriptionCreate(d *schema.ResourceDat
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-
-	subscription, ok := res["subscription"]
-	if ok {
-		name, nok := subscription.(map[string]interface{})["name"]
-		if nok {
-			parts := strings.Split(name.(string), "/")
-			d.SetId(name.(string))
-			d.Set("name", name.(string))
-			d.Set("subscription_id", parts[5])
-		}
-	}
 
 	log.Printf("[DEBUG] Finished creating ListingSubscription %q: %#v", d.Id(), res)
 
@@ -360,11 +365,26 @@ func resourceBigqueryAnalyticsHubListingSubscriptionRead(d *schema.ResourceData,
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigqueryAnalyticsHubListingSubscription %q", d.Id()))
 	}
 
+	res, err = resourceBigqueryAnalyticsHubListingSubscriptionDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing BigqueryAnalyticsHubListingSubscription because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ListingSubscription: %s", err)
 	}
 
 	if err := d.Set("name", flattenBigqueryAnalyticsHubListingSubscriptionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ListingSubscription: %s", err)
+	}
+	if err := d.Set("subscription_id", flattenBigqueryAnalyticsHubListingSubscriptionSubscriptionId(res["subscriptionId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ListingSubscription: %s", err)
 	}
 	if err := d.Set("creation_time", flattenBigqueryAnalyticsHubListingSubscriptionCreationTime(res["creationTime"], d, config)); err != nil {
@@ -505,6 +525,11 @@ func resourceBigqueryAnalyticsHubListingSubscriptionImport(d *schema.ResourceDat
 
 func flattenBigqueryAnalyticsHubListingSubscriptionName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenBigqueryAnalyticsHubListingSubscriptionSubscriptionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	parts := strings.Split(d.Get("name").(string), "/")
+	return parts[len(parts)-1]
 }
 
 func flattenBigqueryAnalyticsHubListingSubscriptionCreationTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -688,4 +713,12 @@ func expandBigqueryAnalyticsHubListingSubscriptionDestinationDatasetLabels(v int
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceBigqueryAnalyticsHubListingSubscriptionDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	// The response from Create nests the resource inside a "subscription" key.
+	if s, ok := res["subscription"]; ok {
+		return s.(map[string]interface{}), nil
+	}
+	return res, nil
 }

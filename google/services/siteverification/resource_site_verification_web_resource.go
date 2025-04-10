@@ -149,6 +149,8 @@ func resourceSiteVerificationWebResourceCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return fmt.Errorf("Error creating WebResource: %s", err)
 	}
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
 	if err := d.Set("web_resource_id", flattenSiteVerificationWebResourceWebResourceId(res["id"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "web_resource_id": %s`, err)
 	}

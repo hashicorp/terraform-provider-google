@@ -155,6 +155,8 @@ func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("Error creating HmacKey: %s", err)
 	}
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
 	if err := d.Set("access_id", flattenStorageHmacKeyAccessId(res["accessId"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "access_id": %s`, err)
 	}

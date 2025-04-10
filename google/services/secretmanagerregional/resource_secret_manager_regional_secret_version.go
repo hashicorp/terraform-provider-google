@@ -204,6 +204,15 @@ func resourceSecretManagerRegionalRegionalSecretVersionCreate(d *schema.Resource
 	if err != nil {
 		return fmt.Errorf("Error creating RegionalSecretVersion: %s", err)
 	}
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	res, err = resourceSecretManagerRegionalRegionalSecretVersionDecoder(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("decoding response: %w", err)
+	}
+	if res == nil {
+		return fmt.Errorf("decoding response, could not find object")
+	}
 	if err := d.Set("name", flattenSecretManagerRegionalRegionalSecretVersionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}

@@ -135,6 +135,8 @@ func resourceSecurityCenterV2OrganizationSourceCreate(d *schema.ResourceData, me
 	if err != nil {
 		return fmt.Errorf("Error creating OrganizationSource: %s", err)
 	}
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
 	if err := d.Set("name", flattenSecurityCenterV2OrganizationSourceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
