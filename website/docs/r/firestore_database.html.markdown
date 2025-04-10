@@ -182,6 +182,19 @@ resource "google_kms_crypto_key_iam_binding" "firestore_cmek_keyuser" {
   ]
 }
 ```
+## Example Usage - Firestore Database Enterprise
+
+
+```hcl
+resource "google_firestore_database" "enterprise-db" {
+	project                  = "my-project-name"
+	name                     = "database-id"
+	location_id              = "nam5"
+	type                     = "FIRESTORE_NATIVE"
+	database_edition         = "ENTERPRISE"
+	deletion_policy          = "DELETE"
+}
+```
 
 ## Argument Reference
 
@@ -212,6 +225,11 @@ The following arguments are supported:
 
 - - -
 
+
+* `database_edition` -
+  (Optional)
+  The database edition.
+  Possible values are: `STANDARD`, `ENTERPRISE`.
 
 * `concurrency_mode` -
   (Optional)

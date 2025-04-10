@@ -1,0 +1,9 @@
+```release-note:enhancement
+firestore: added `density` and `multikey` fields to `google_firestore_index` resource
+```
+```release-note:enhancement
+firestore: added `MONGODB_COMPATIBLE_API` enum option to `apiScope` field of `google_firestore_index` resource
+```
+```release-note:enhancement
+firestore: added `databaseEdition` field to `google_firestore_database` resource
+```

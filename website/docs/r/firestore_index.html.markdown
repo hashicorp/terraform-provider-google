@@ -85,12 +85,13 @@ resource "google_firestore_database" "database" {
 }
 
 resource "google_firestore_index" "my-index" {
-  project     = "my-project-name"
+  project    = "my-project-name"
   database   = google_firestore_database.database.name
   collection = "atestcollection"
 
   query_scope = "COLLECTION_RECURSIVE"
-  api_scope = "DATASTORE_MODE_API"
+  api_scope   = "DATASTORE_MODE_API"
+  density     = "SPARSE_ALL"
 
   fields {
     field_path = "name"
@@ -164,6 +165,78 @@ resource "google_firestore_index" "my-index" {
     field_path = "__name__"
     order      = "DESCENDING"
   }
+}
+```
+## Example Usage - Firestore Index Mongodb Compatible Scope
+
+
+```hcl
+resource "google_firestore_database" "database" {
+	project                  = "my-project-name"
+	name                     = "database-id-mongodb-compatible"
+	location_id              = "nam5"
+	type                     = "FIRESTORE_NATIVE"
+	database_edition         = "ENTERPRISE"
+
+	delete_protection_state = "DELETE_PROTECTION_DISABLED"
+	deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_index" "my-index" {
+	project     = "my-project-name"
+	database   = google_firestore_database.database.name
+	collection = "atestcollection"
+
+	api_scope   = "MONGODB_COMPATIBLE_API"
+	query_scope = "COLLECTION_GROUP"
+	multikey    = true
+	density     = "DENSE"
+
+	fields {
+		field_path = "name"
+		order      = "ASCENDING"
+	}
+
+	fields {
+		field_path = "description"
+		order      = "DESCENDING"
+	}
+}
+```
+## Example Usage - Firestore Index Sparse Any
+
+
+```hcl
+resource "google_firestore_database" "database" {
+	project                  = "my-project-name"
+	name                     = "database-id-sparse-any"
+	location_id              = "nam5"
+	type                     = "FIRESTORE_NATIVE"
+	database_edition         = "ENTERPRISE"
+
+	delete_protection_state = "DELETE_PROTECTION_DISABLED"
+	deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_index" "my-index" {
+	project     = "my-project-name"
+	database   = google_firestore_database.database.name
+	collection = "atestcollection"
+
+	api_scope   = "MONGODB_COMPATIBLE_API"
+	query_scope = "COLLECTION_GROUP"
+	multikey    = true
+	density     = "SPARSE_ANY"
+
+	fields {
+		field_path = "name"
+		order      = "ASCENDING"
+	}
+
+	fields {
+		field_path = "description"
+		order      = "DESCENDING"
+	}
 }
 ```
 
@@ -240,7 +313,16 @@ The following arguments are supported:
   (Optional)
   The API scope at which a query is run.
   Default value is `ANY_API`.
-  Possible values are: `ANY_API`, `DATASTORE_MODE_API`.
+  Possible values are: `ANY_API`, `DATASTORE_MODE_API`, `MONGODB_COMPATIBLE_API`.
+
+* `density` -
+  (Optional)
+  The density configuration for this index.
+  Possible values are: `SPARSE_ALL`, `SPARSE_ANY`, `DENSE`.
+
+* `multikey` -
+  (Optional)
+  Optional. Whether the index is multikey. By default, the index is not multikey. For non-multikey indexes, none of the paths in the index definition reach or traverse an array, except via an explicit array index. For multikey indexes, at most one of the paths in the index definition reach or traverse an array, except via an explicit array index. Violations will result in errors. Note this field only applies to indexes with MONGODB_COMPATIBLE_API ApiScope.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
