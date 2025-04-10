@@ -662,6 +662,31 @@ resource "google_project_iam_member" "logs_writer" {
   member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_service_iap&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Service Iap
+
+
+```hcl
+resource "google_cloud_run_v2_service" "default" {
+  provider = google-beta
+  name     = "cloudrun-iap-service"
+  location = "us-central1"
+  deletion_protection = false
+  ingress = "INGRESS_TRAFFIC_ALL"
+  launch_stage = "BETA"
+  iap_enabled = true
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -1317,6 +1342,10 @@ The following arguments are supported:
   (Optional)
   Configuration for building a Cloud Run function.
   Structure is [documented below](#nested_build_config).
+
+* `iap_enabled` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Used to enable/disable IAP for the service.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
