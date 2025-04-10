@@ -274,6 +274,31 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
+## Example Usage - Cloud Run Service Iap
+
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  provider = google-beta
+  name     = "cloudrun-srv"
+  location = "us-central1"
+
+  metadata {
+    annotations = {
+      "run.googleapis.com/launch-stage" = "BETA"
+      "run.googleapis.com/iap-enabled": true
+    }
+  }
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
