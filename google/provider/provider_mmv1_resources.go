@@ -108,6 +108,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/oracledatabase"
 	"github.com/hashicorp/terraform-provider-google/google/services/orgpolicy"
 	"github.com/hashicorp/terraform-provider-google/google/services/osconfig"
+	"github.com/hashicorp/terraform-provider-google/google/services/osconfigv2"
 	"github.com/hashicorp/terraform-provider-google/google/services/oslogin"
 	"github.com/hashicorp/terraform-provider-google/google/services/parallelstore"
 	"github.com/hashicorp/terraform-provider-google/google/services/parametermanager"
@@ -511,9 +512,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 580
+// Generated resources: 582
 // Generated IAM resources: 291
-// Total generated resources: 871
+// Total generated resources: 873
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1200,6 +1201,8 @@ var generatedResources = map[string]*schema.Resource{
 	"google_org_policy_custom_constraint":                                        orgpolicy.ResourceOrgPolicyCustomConstraint(),
 	"google_org_policy_policy":                                                   orgpolicy.ResourceOrgPolicyPolicy(),
 	"google_os_config_patch_deployment":                                          osconfig.ResourceOSConfigPatchDeployment(),
+	"google_os_config_v2_policy_orchestrator":                                    osconfigv2.ResourceOSConfigV2PolicyOrchestrator(),
+	"google_os_config_v2_policy_orchestrator_for_organization":                   osconfigv2.ResourceOSConfigV2PolicyOrchestratorForOrganization(),
 	"google_os_login_ssh_public_key":                                             oslogin.ResourceOSLoginSSHPublicKey(),
 	"google_parallelstore_instance":                                              parallelstore.ResourceParallelstoreInstance(),
 	"google_parameter_manager_parameter":                                         parametermanager.ResourceParameterManagerParameter(),

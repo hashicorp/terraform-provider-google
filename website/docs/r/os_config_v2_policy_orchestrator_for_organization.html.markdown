@@ -25,8 +25,6 @@ PolicyOrchestrator helps managing project+zone level policy resources (e.g.
 OS Policy Assignments), by providing tools to create, update and delete them
 across projects and locations, at scale.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Osconfigv2 Policy Orchestrator For Organization Basic
@@ -34,7 +32,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_os_config_v2_policy_orchestrator_for_organization" "policy_orchestrator_for_organization" {
-    provider = google-beta
     policy_orchestrator_id = "po-org"
     organization_id = "123456789"
     
