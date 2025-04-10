@@ -257,6 +257,8 @@ func resourceCloudQuotasQuotaPreferenceCreate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return fmt.Errorf("Error creating QuotaPreference: %s", err)
 	}
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
 	// name is set by API when unset
 	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("name"))) {
 		if err := d.Set("name", flattenCloudQuotasQuotaPreferenceName(res["name"], d, config)); err != nil {

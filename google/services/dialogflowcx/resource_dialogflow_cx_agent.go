@@ -469,6 +469,8 @@ func resourceDialogflowCXAgentCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("Error creating Agent: %s", err)
 	}
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
 	if err := d.Set("name", flattenDialogflowCXAgentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}

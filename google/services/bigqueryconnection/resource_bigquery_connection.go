@@ -459,6 +459,8 @@ func resourceBigqueryConnectionConnectionCreate(d *schema.ResourceData, meta int
 	if err != nil {
 		return fmt.Errorf("Error creating Connection: %s", err)
 	}
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
 	// Setting `name` field so that `id_from_name` flattener will work properly.
 	if err := d.Set("name", flattenBigqueryConnectionConnectionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)

@@ -1598,6 +1598,8 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("Error creating Trigger: %s", err)
 	}
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
 	if err := d.Set("trigger_id", flattenCloudBuildTriggerTriggerId(res["id"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "trigger_id": %s`, err)
 	}

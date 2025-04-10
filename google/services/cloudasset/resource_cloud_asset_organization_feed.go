@@ -253,6 +253,8 @@ func resourceCloudAssetOrganizationFeedCreate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return fmt.Errorf("Error creating OrganizationFeed: %s", err)
 	}
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
 	if err := d.Set("name", flattenCloudAssetOrganizationFeedName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}

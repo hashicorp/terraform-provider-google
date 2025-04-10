@@ -154,6 +154,8 @@ func resourceFirebaseAppCheckDebugTokenCreate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return fmt.Errorf("Error creating DebugToken: %s", err)
 	}
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
 	if err := d.Set("debug_token_id", flattenFirebaseAppCheckDebugTokenDebugTokenId(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "debug_token_id": %s`, err)
 	}
