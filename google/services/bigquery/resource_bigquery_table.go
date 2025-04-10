@@ -97,6 +97,13 @@ func jsonCompareWithMapKeyOverride(key string, a, b interface{}, compareMapKeyVa
 		for subKey := range objectB {
 			unionOfKeys[subKey] = true
 		}
+
+		// Disregard "type" and "fields" if "foreignTypeDefinition" is present since they may have been modified by the server.
+		if _, ok := unionOfKeys["foreignTypeDefinition"]; ok {
+			delete(unionOfKeys, "type")
+			delete(unionOfKeys, "fields")
+		}
+
 		for subKey := range unionOfKeys {
 			eq := compareMapKeyVal(subKey, objectA, objectB)
 			if !eq {
@@ -324,6 +331,13 @@ func resourceBigQueryTableSchemaIsChangeable(old, new interface{}, isExternalTab
 		for key := range objectNew {
 			unionOfKeys[key] = true
 		}
+
+		// Disregard "type" and "fields" if "foreignTypeDefinition" is present since they may have been modified by the server.
+		if _, ok := unionOfKeys["foreignTypeDefinition"]; ok {
+			delete(unionOfKeys, "type")
+			delete(unionOfKeys, "fields")
+		}
+
 		for key := range unionOfKeys {
 			valOld := objectOld[key]
 			valNew := objectNew[key]
@@ -994,6 +1008,24 @@ func ResourceBigQueryTable() *schema.Resource {
 				DiffSuppressFunc: bigQueryTableSchemaDiffSuppress,
 				Description:      `A JSON schema for the table.`,
 			},
+			// SchemaForeignTypeInfo: [Optional] Specifies metadata of the foreign data type definition in field schema.
+			"schema_foreign_type_info": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Description: "Specifies metadata of the foreign data type definition in field schema.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// TypeSystem: [Required] Specifies the system which defines the foreign data type.
+						"type_system": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Specifies the system which defines the foreign data type.`,
+						},
+					},
+				},
+			},
 			// View: [Optional] If specified, configures this table as a view.
 			"view": {
 				Type:        schema.TypeList,
@@ -1459,6 +1491,90 @@ func ResourceBigQueryTable() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `The tags attached to this table. Tag keys are globally unique. Tag key is expected to be in the namespaced format, for example "123456789012/environment" where 123456789012 is the ID of the parent organization or project resource for this tag key. Tag value is expected to be the short name, for example "Production".`,
 			},
+			// ExternalCatalogTableOptions: [Optional] Options defining open source compatible table.
+			"external_catalog_table_options": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `Options defining open source compatible table.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// Parameters: [Optional] The parameters of the table.
+						"parameters": {
+							Type:        schema.TypeMap,
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `A map of key value pairs defining the parameters and properties of the open source table. Corresponds with hive meta store table parameters. Maximum size of 4Mib.`,
+						},
+						// StorageDescriptor: [Optional] A storage descriptor containing information about the physical storage of this table.
+						"storage_descriptor": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: `A storage descriptor containing information about the physical storage of this table.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									// LocationUri: [Optional] The physical location of the table (e.g. 'gs://spark-dataproc-data/pangea-data/case_sensitive/' or 'gs://spark-dataproc-data/pangea-data/*'). The maximum length is 2056 bytes.
+									"location_uri": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The physical location of the table (e.g. 'gs://spark-dataproc-data/pangea-data/case_sensitive/' or 'gs://spark-dataproc-data/pangea-data/*'). The maximum length is 2056 bytes.`,
+									},
+									// InputFormat: [Optional] Specifies the fully qualified class name of the InputFormat (e.g. "org.apache.hadoop.hive.ql.io.orc.OrcInputFormat"). The maximum length is 128 characters.
+									"input_format": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Specifies the fully qualified class name of the InputFormat (e.g. "org.apache.hadoop.hive.ql.io.orc.OrcInputFormat"). The maximum length is 128 characters.`,
+									},
+									// OutputFormat: [Optional] Specifies the fully qualified class name of the OutputFormat (e.g. "org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat"). The maximum length is 128 characters.
+									"output_format": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Specifies the fully qualified class name of the OutputFormat (e.g. "org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat"). The maximum length is 128 characters.`,
+									},
+									// SerdeInfo: [Optional] Serializer and deserializer information.
+									"serde_info": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										MaxItems:    1,
+										Description: `Serializer and deserializer information.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												// Name: [Optional] Name of the SerDe. The maximum length is 256 characters.
+												"name": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Name of the SerDe. The maximum length is 256 characters.`,
+												},
+												// SerializationLibrary: [Required] Specifies a fully-qualified class name of the serialization library that is responsible for the translation of data between table representation and the underlying low-level input and output format structures. The maximum length is 256 characters.
+												"serialization_library": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Specifies a fully-qualified class name of the serialization library that is responsible for the translation of data between table representation and the underlying low-level input and output format structures. The maximum length is 256 characters.`,
+												},
+												// Parameters: [Optional] Key-value pairs that define the initialization parameters for the serialization library. Maximum size 10 Kib.
+												"parameters": {
+													Type:        schema.TypeMap,
+													Optional:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
+													Description: `Key-value pairs that define the initialization parameters for the serialization library. Maximum size 10 Kib.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						// ConnectionId: [Optional] The connection specifying the credentials to be used to read external storage, such as Azure Blob, Cloud Storage, or S3. The connection is needed to read the open source table from BigQuery Engine. The connection_id can have the form `<project_id>.<location_id>.<connection_id>` or `projects/<project_id>/locations/<location_id>/connections/<connection_id>`.
+						"connection_id": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: bigQueryTableConnectionIdSuppress,
+							Description:      `The connection specifying the credentials to be used to read external storage, such as Azure Blob, Cloud Storage, or S3. The connection is needed to read the open source table from BigQuery Engine. The connection_id can have the form <project_id>.<location_id>.<connection_id> or projects/<project_id>/locations/<location_id>/connections/<connection_id>.`,
+						},
+					},
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -1547,6 +1663,13 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 		}
 		table.Schema = schema
 	}
+
+	if v, ok := d.GetOk("schema_foreign_type_info"); ok {
+		if table.Schema != nil {
+			table.Schema.ForeignTypeInfo = expandForeignTypeInfo(v)
+		}
+	}
+
 	if v, ok := d.GetOk("time_partitioning"); ok {
 		table.TimePartitioning = expandTimePartitioning(v)
 	}
@@ -1581,6 +1704,11 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 	}
 
 	table.ResourceTags = tpgresource.ExpandStringMap(d, "resource_tags")
+
+	if v, ok := d.GetOk("external_catalog_table_options"); ok {
+		table.ExternalCatalogTableOptions = expandExternalCatalogTableOptions(v)
+	}
+
 	return table, nil
 }
 
@@ -1848,6 +1976,12 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 		if err := d.Set("schema", schema); err != nil {
 			return fmt.Errorf("Error setting schema: %s", err)
 		}
+		if res.Schema.ForeignTypeInfo != nil {
+			foreignTypeInfo := flattenForeignTypeInfo(res.Schema.ForeignTypeInfo)
+			if err := d.Set("schema_foreign_type_info", foreignTypeInfo); err != nil {
+				return fmt.Errorf("Error setting schema_foreign_type_info: %s", err)
+			}
+		}
 	}
 
 	if res.View != nil {
@@ -1902,6 +2036,15 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("Error setting table replication info: %s", err)
 		}
 	}
+
+	if res.ExternalCatalogTableOptions != nil {
+		externalCatalogTableOptions := flattenExternalCatalogTableOptions(res.ExternalCatalogTableOptions)
+
+		if err := d.Set("external_catalog_table_options", externalCatalogTableOptions); err != nil {
+			return fmt.Errorf("Error setting external_catalog_table_options: %s", err)
+		}
+	}
+
 	return nil
 }
 
@@ -2648,6 +2791,31 @@ func schemaHasRequiredFields(schema *bigquery.TableSchema) bool {
 	}
 	return false
 }
+
+func expandForeignTypeInfo(configured interface{}) *bigquery.ForeignTypeInfo {
+	if len(configured.([]interface{})) == 0 {
+		return nil
+	}
+
+	raw := configured.([]interface{})[0].(map[string]interface{})
+	fti := &bigquery.ForeignTypeInfo{}
+
+	if v, ok := raw["type_system"]; ok {
+		fti.TypeSystem = v.(string)
+	}
+
+	return fti
+}
+
+func flattenForeignTypeInfo(fti *bigquery.ForeignTypeInfo) []map[string]interface{} {
+	if fti == nil {
+		return nil
+	}
+
+	result := map[string]interface{}{"type_system": fti.TypeSystem}
+	return []map[string]interface{}{result}
+}
+
 func expandTimePartitioning(configured interface{}) *bigquery.TimePartitioning {
 	raw := configured.([]interface{})[0].(map[string]interface{})
 	tp := &bigquery.TimePartitioning{Type: raw["type"].(string)}
@@ -3053,6 +3221,154 @@ func flattenTableReplicationInfo(tableReplicationInfo map[string]interface{}) []
 
 	return []map[string]interface{}{result}
 }
+
+func expandExternalCatalogTableOptions(configured interface{}) *bigquery.ExternalCatalogTableOptions {
+	if len(configured.([]interface{})) == 0 {
+		return nil
+	}
+
+	raw := configured.([]interface{})[0].(map[string]interface{})
+	ecto := &bigquery.ExternalCatalogTableOptions{}
+
+	if v, ok := raw["parameters"]; ok {
+		parameters := map[string]string{}
+
+		for k, v := range v.(map[string]interface{}) {
+			parameters[k] = v.(string)
+		}
+
+		ecto.Parameters = parameters
+	}
+
+	if v, ok := raw["storage_descriptor"]; ok {
+		ecto.StorageDescriptor = expandStorageDescriptor(v)
+	}
+
+	if v, ok := raw["connection_id"]; ok {
+		ecto.ConnectionId = v.(string)
+	}
+
+	return ecto
+}
+
+func flattenExternalCatalogTableOptions(ecto *bigquery.ExternalCatalogTableOptions) []map[string]interface{} {
+	if ecto == nil {
+		return nil
+	}
+
+	result := map[string]interface{}{}
+
+	if ecto.Parameters != nil {
+		result["parameters"] = ecto.Parameters
+	}
+
+	if ecto.StorageDescriptor != nil {
+		result["storage_descriptor"] = flattenStorageDescriptor(ecto.StorageDescriptor)
+	}
+
+	if ecto.ConnectionId != "" {
+		result["connection_id"] = ecto.ConnectionId
+	}
+
+	return []map[string]interface{}{result}
+}
+
+func expandStorageDescriptor(configured interface{}) *bigquery.StorageDescriptor {
+	if len(configured.([]interface{})) == 0 {
+		return nil
+	}
+
+	raw := configured.([]interface{})[0].(map[string]interface{})
+	sd := &bigquery.StorageDescriptor{}
+
+	if v, ok := raw["location_uri"]; ok {
+		sd.LocationUri = v.(string)
+	}
+
+	if v, ok := raw["input_format"]; ok {
+		sd.InputFormat = v.(string)
+	}
+
+	if v, ok := raw["output_format"]; ok {
+		sd.OutputFormat = v.(string)
+	}
+
+	if v, ok := raw["serde_info"]; ok {
+		sd.SerdeInfo = expandSerDeInfo(v)
+	}
+
+	return sd
+}
+
+func flattenStorageDescriptor(sd *bigquery.StorageDescriptor) []map[string]interface{} {
+	if sd == nil {
+		return nil
+	}
+
+	result := map[string]interface{}{}
+
+	if sd.LocationUri != "" {
+		result["location_uri"] = sd.LocationUri
+	}
+
+	if sd.InputFormat != "" {
+		result["input_format"] = sd.InputFormat
+	}
+
+	if sd.OutputFormat != "" {
+		result["output_format"] = sd.OutputFormat
+	}
+
+	if sd.SerdeInfo != nil {
+		result["serde_info"] = flattenSerDeInfo(sd.SerdeInfo)
+	}
+
+	return []map[string]interface{}{result}
+}
+
+func expandSerDeInfo(configured interface{}) *bigquery.SerDeInfo {
+	if len(configured.([]interface{})) == 0 {
+		return nil
+	}
+
+	raw := configured.([]interface{})[0].(map[string]interface{})
+	si := &bigquery.SerDeInfo{SerializationLibrary: raw["serialization_library"].(string)}
+
+	if v, ok := raw["name"]; ok {
+		si.Name = v.(string)
+	}
+
+	if v, ok := raw["parameters"]; ok {
+		parameters := map[string]string{}
+
+		for k, v := range v.(map[string]interface{}) {
+			parameters[k] = v.(string)
+		}
+
+		si.Parameters = parameters
+	}
+
+	return si
+}
+
+func flattenSerDeInfo(si *bigquery.SerDeInfo) []map[string]interface{} {
+	if si == nil {
+		return nil
+	}
+
+	result := map[string]interface{}{"serialization_library": si.SerializationLibrary}
+
+	if si.Name != "" {
+		result["name"] = si.Name
+	}
+
+	if si.Parameters != nil {
+		result["parameters"] = si.Parameters
+	}
+
+	return []map[string]interface{}{result}
+}
+
 func resourceBigQueryTableImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{

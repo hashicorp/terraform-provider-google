@@ -1848,6 +1848,71 @@ func TestAccBigQueryTable_ResourceTags(t *testing.T) {
 		},
 	})
 }
+
+func TestAccBigQueryTable_externalCatalogTableOptions(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"dataset_id":    fmt.Sprintf("tf_test_dataset_%s", acctest.RandString(t, 10)),
+		"table_id":      fmt.Sprintf("tf_test_table_%s", acctest.RandString(t, 10)),
+		"connection_id": fmt.Sprintf("tf_test_connection_%s", acctest.RandString(t, 10)),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTable_externalCatalogTableOptions_basic(context),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccBigQueryTable_externalCatalogTableOptions_update(context),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccBigQueryTable_foreignTypeInfo(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id": envvar.GetTestProjectFromEnv(),
+		"dataset_id": fmt.Sprintf("tf_test_dataset_%s", acctest.RandString(t, 10)),
+		"table_id":   fmt.Sprintf("tf_test_table_%s", acctest.RandString(t, 10)),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTable_foreignTypeInfo_basic(context),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func testAccCheckBigQueryExtData(t *testing.T, expectedQuoteChar string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, rs := range s.RootModule().Resources {
@@ -4569,6 +4634,130 @@ resource "google_bigquery_table" "test" {
   dataset_id = "${google_bigquery_dataset.test.dataset_id}"
   table_id   = "%{table_id}"
   resource_tags = {}
+}
+`, context)
+}
+
+func testAccBigQueryTable_externalCatalogTableOptions_basic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%{dataset_id}"
+  location = "EU"
+}
+
+resource "google_bigquery_connection" "test" {
+  connection_id = "%{connection_id}"
+  location = "EU"
+  cloud_resource {}
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  dataset_id = "${google_bigquery_dataset.test.dataset_id}"
+  table_id   = "%{table_id}"
+
+  schema = <<EOF
+[
+  {
+    "name": "id",
+    "type": "INTEGER"
+  }
+]
+EOF
+
+  external_catalog_table_options {
+    parameters = {
+      owner = "hashicorp-terraform"
+    }
+    storage_descriptor {
+      location_uri = "gs://bucket/data"
+      input_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
+      output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
+      serde_info {
+        name = "serde_name"
+        serialization_library = "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
+        parameters = {
+          "parquet.ignore.statistics" = "true"
+        }
+      }
+    }
+    connection_id = "${google_bigquery_connection.test.name}"
+  }
+}
+`, context)
+}
+
+func testAccBigQueryTable_externalCatalogTableOptions_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%{dataset_id}"
+  location = "EU"
+}
+
+resource "google_bigquery_connection" "test" {
+  connection_id = "%{connection_id}"
+  location = "EU"
+  cloud_resource {}
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  dataset_id = "${google_bigquery_dataset.test.dataset_id}"
+  table_id   = "%{table_id}"
+
+  schema = <<EOF
+[
+  {
+    "name": "id",
+    "type": "INTEGER"
+  }
+]
+EOF
+
+  external_catalog_table_options {
+    parameters = {
+      owner = "hashicorp-terraform-updated"
+    }
+    storage_descriptor {
+      location_uri = "gs://bucket/updated"
+      input_format = "org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat"
+      output_format = "org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat"
+      serde_info {
+        name = "serde_name_updated"
+        serialization_library = "org.apache.hadoop.hive.serde2.avro.AvroSerDe"
+      }
+    }
+    connection_id = "${google_bigquery_connection.test.name}"
+  }
+}
+`, context)
+}
+
+func testAccBigQueryTable_foreignTypeInfo_basic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%{dataset_id}"
+  location = "EU"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  dataset_id = "${google_bigquery_dataset.test.dataset_id}"
+  table_id   = "%{table_id}"
+
+  schema = <<EOF
+[
+  {
+    "name": "struct_",
+    "type": "FOREIGN",
+    "foreignTypeDefinition": "STRUCT<id:STRING, name:STRING>"
+  }
+]
+EOF
+
+  schema_foreign_type_info {
+    type_system = "HIVE"
+  }
 }
 `, context)
 }
