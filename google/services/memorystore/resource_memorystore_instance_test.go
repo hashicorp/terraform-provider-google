@@ -4,11 +4,16 @@ package memorystore_test
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/memorystore"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Validate that replica count is updated for the instance
@@ -248,7 +253,7 @@ func TestAccMemorystoreInstance_updateRedisConfigs(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				// add a new redis config key-value pair and update existing redis config
+				// add a new memorystore config key-value pair and update existing memorystore config
 				Config: createOrUpdateMemorystoreInstance(&InstanceParams{
 					name:                 name,
 					shardCount:           3,
@@ -270,7 +275,7 @@ func TestAccMemorystoreInstance_updateRedisConfigs(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				// remove all redis configs
+				// remove all memorystore configs
 				Config: createOrUpdateMemorystoreInstance(&InstanceParams{
 					name:                 name,
 					shardCount:           3,
@@ -526,7 +531,7 @@ func TestAccMemorystoreInstance_switchoverAndDetachSecondary(t *testing.T) {
 	})
 }
 
-// Validate that instance endpoints are updated for the cluster
+// Validate that instance endpoints are updated for the instance
 func TestAccMemorystoreInstance_updateInstanceEndpoints(t *testing.T) {
 	t.Parallel()
 
@@ -538,7 +543,7 @@ func TestAccMemorystoreInstance_updateInstanceEndpoints(t *testing.T) {
 		CheckDestroy:             testAccCheckMemorystoreInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				// create cluster with no user created connections
+				// create instance with no user created connections
 				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: true, zoneDistributionMode: "MULTI_ZONE", userEndpointCount: 0}),
 			},
 			{
@@ -548,7 +553,7 @@ func TestAccMemorystoreInstance_updateInstanceEndpoints(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"psc_configs"},
 			},
 			{
-				// create cluster with one user created connection
+				// create instance with one user created connection
 				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: true, zoneDistributionMode: "MULTI_ZONE", userEndpointCount: 1}),
 			},
 			{
@@ -558,7 +563,7 @@ func TestAccMemorystoreInstance_updateInstanceEndpoints(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"psc_configs"},
 			},
 			{
-				// update cluster with 2 endpoints
+				// update instance with 2 endpoints
 				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: true, zoneDistributionMode: "MULTI_ZONE", userEndpointCount: 2}),
 			},
 			{
@@ -568,7 +573,7 @@ func TestAccMemorystoreInstance_updateInstanceEndpoints(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"psc_configs"},
 			},
 			{
-				// update cluster with 1 endpoint
+				// update instance with 1 endpoint
 				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: true, zoneDistributionMode: "MULTI_ZONE", userEndpointCount: 1}),
 			},
 			{
@@ -578,7 +583,7 @@ func TestAccMemorystoreInstance_updateInstanceEndpoints(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"psc_configs"},
 			},
 			{
-				// update cluster with 0 endpoints
+				// update instance with 0 endpoints
 				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: true, zoneDistributionMode: "MULTI_ZONE", userEndpointCount: 0}),
 			},
 			{
@@ -593,6 +598,382 @@ func TestAccMemorystoreInstance_updateInstanceEndpoints(t *testing.T) {
 			},
 		},
 	})
+}
+
+// Validate that Import managedBackupSource can be used to create the instance
+func TestAccMemorystoreInstance_managedBackupSource(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"back_up":       "back_me_up",
+	}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMemorystoreInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMemorystoreInstance_managedBackupSourceSetup(context),
+				Check: resource.ComposeTestCheckFunc(
+					// Create an on-demand backup
+					testAccCheckMemorystoreInstanceOnDemandBackup(t, "google_memorystore_instance.instance_mbs_main", context["back_up"].(string)),
+				),
+			},
+			{
+				ResourceName:      "google_memorystore_instance.instance_mbs_main",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccMemorystoreInstance_managedBackupSourceImport(context),
+			},
+			{
+				ResourceName:      "google_memorystore_instance.instance_mbs_main",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccMemorystoreInstance_managedBackupSourceSetup(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_memorystore_instance" "instance_mbs_main" {
+  instance_id                    = "tf-test-mbs-main-%{random_suffix}"
+  shard_count                    = 1
+  location                       = "us-central1"
+  deletion_protection_enabled    = false
+}
+`, context)
+}
+
+func testAccMemorystoreInstance_managedBackupSourceImport(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_memorystore_instance" "instance_mbs_main" {
+  instance_id                    = "tf-test-mbs-main-%{random_suffix}"
+  shard_count                    = 1
+  location                       = "us-central1"
+  deletion_protection_enabled    = false
+}
+
+resource "google_memorystore_instance" "instance_mb_copy" {
+  instance_id                    = "tf-test-mbs-copy-%{random_suffix}"
+  shard_count                    = 1
+  location                       = "us-central1"
+  deletion_protection_enabled    = false
+   managed_backup_source {
+    backup                       = join("", [google_memorystore_instance.instance_mbs_main.backup_collection , "/backups/%{back_up}"])
+  }
+
+}   
+`, context)
+}
+
+// testAccCheckmemorystoreInstanceOnDemandBackup creates an on-demand backup for a memorystore Instance
+// and verifies that the backup operation was successful.
+func testAccCheckMemorystoreInstanceOnDemandBackup(t *testing.T, resourceName string, backupId string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Resource not found: %s", resourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set for Memorystore instance")
+		}
+
+		config := acctest.GoogleProviderConfig(t)
+
+		// Extract the instance name, project, and region from the resource
+		project, err := acctest.GetTestProject(rs.Primary, config)
+		if err != nil {
+			return err
+		}
+
+		location := rs.Primary.Attributes["location"]
+		instance_id := rs.Primary.Attributes["instance_id"]
+
+		// Construct the backup request
+		backupRequest := map[string]interface{}{
+			"backupId": backupId,
+		}
+
+		// Make the API call to create an on-demand backup
+		url := fmt.Sprintf("https://memorystore.googleapis.com/v1/projects/%s/locations/%s/instances/%s:backup", project, location, instance_id)
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+			Body:      backupRequest,
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error creating on-demand backup for Memorystore instance %s: %s", instance_id, err)
+		}
+
+		// Wait for the operation to complete
+		err = memorystore.MemorystoreOperationWaitTime(
+			config, res, project, "Creating Memorystore instance Backup", config.UserAgent,
+			time.Minute*20)
+
+		// Check if the operation was successful
+		if res == nil {
+			return fmt.Errorf("Empty response when creating on-demand backup for Memorystore instance %s", instance_id)
+		}
+
+		return nil
+	}
+}
+
+// Validate that Import gcsSource can be used to create the instance
+func TestAccMemorystoreInstance_gcsSource(t *testing.T) {
+	t.Parallel()
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"random_suffix": randomSuffix,
+		"back_up":       "back_me_up",
+		"gcs_bucket":    fmt.Sprintf("tf-test-memorystore-backup-%s", randomSuffix),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMemorystoreInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMemorystoreInstance_gcsSourceSetup(context),
+				Check: resource.ComposeTestCheckFunc(
+					// Create an on-demand backup
+					testAccCheckMemorystoreInstanceOnDemandBackup(t, "google_memorystore_instance.instance_gbs_main", context["back_up"].(string)),
+					// Export the backup to GCS and extract the actual backup file name
+					testAccCheckMemorystoreInstanceExportBackup(t, "google_memorystore_instance.instance_gbs_main", context["back_up"].(string), context["gcs_bucket"].(string)),
+				),
+			},
+			{
+				ResourceName:      "google_memorystore_instance.instance_gbs_main",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccMemorystoreInstance_gcsSource(context),
+			},
+			{
+				ResourceName:      "google_memorystore_instance.instance_gbs_main",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+
+}
+
+func testAccMemorystoreInstance_gcsSourceSetup(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_memorystore_instance" "instance_gbs_main" {
+  instance_id                    =  "tf-test-gbs-main-%{random_suffix}"
+  shard_count                    = 1
+  location                       = "us-central1"
+  deletion_protection_enabled    = false
+}
+
+# Create a GCS bucket for exporting Memorystore backups
+resource "google_storage_bucket" "memorystore_backup_bucket" {
+  name                           = "%{gcs_bucket}"
+  location                       = "us-central1"
+  uniform_bucket_level_access    = true
+  force_destroy                  = true
+}
+
+# Grant the Memorystore service account permission to access the bucket
+# The Memorystore service account has the format:
+# service-{project_number}@gcp-sa-memorystore.iam.gserviceaccount.com
+data "google_project" "project" {}
+
+resource "google_storage_bucket_iam_member" "memorystore_backup_writer" {
+  bucket 					     = google_storage_bucket.memorystore_backup_bucket.name
+  role    					     = "roles/storage.admin"
+  member  					     = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-memorystore.iam.gserviceaccount.com"
+}
+`, context)
+}
+
+func testAccMemorystoreInstance_gcsSource(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_memorystore_instance" "instance_gbs_main" {
+  instance_id                    = "tf-test-gbs-main-%{random_suffix}"
+  shard_count                    = 1
+  location                       = "us-central1"
+  deletion_protection_enabled    = false
+}
+
+# Reference the bucket created in the setup
+resource "google_storage_bucket" "memorystore_backup_bucket" {
+  name                           = "tf-test-memorystore-backup-%{random_suffix}"
+  location                       = "us-central1"
+  uniform_bucket_level_access    = true
+  force_destroy                  = true
+}
+
+# Grant the Memorystore service account permission to access the bucket
+data "google_project" "project" {}
+
+data "google_storage_bucket_objects" "backup" {
+  bucket                         = "%{gcs_bucket}"
+}
+
+# Grant the Memorystore service account permission to access the bucket
+# The Memorystore service account has the format:
+# service-{project_number}@gcp-sa-memorystore.iam.gserviceaccount.com
+resource "google_storage_bucket_iam_member" "memorystore_backup_writer" {
+  bucket                         = google_storage_bucket.memorystore_backup_bucket.name
+  role                           = "roles/storage.admin"
+  member                         = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-memorystore.iam.gserviceaccount.com"
+}
+
+resource "google_memorystore_instance" "instance_gbs_copy" {
+  instance_id                    = "tf-test-gbs-copy-%{random_suffix}"
+  shard_count                    = 1
+  location                       = "us-central1"
+  deletion_protection_enabled    = false
+  gcs_source {
+    uris                         = [join("", ["gs://%{gcs_bucket}/" , data.google_storage_bucket_objects.backup.bucket_objects[0]["name"]])]
+  }
+
+  depends_on                     = [google_storage_bucket_iam_member.memorystore_backup_writer]
+}
+`, context)
+}
+
+// Verifies that the export operation was successful
+func testAccCheckMemorystoreInstanceExportBackup(t *testing.T, resourceName string, backupId string, gcsDestination string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		log.Printf("[DEBUG] Starting Memorystore Instance backup export for resource %s, backup %s to %s", resourceName, backupId, gcsDestination)
+
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Resource not found: %s", resourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set for Memorystore instance")
+		}
+
+		log.Printf("[DEBUG] Resource state: %#v", rs.Primary)
+
+		config := acctest.GoogleProviderConfig(t)
+
+		// Extract the instance name, project, and region from the resource
+		project, err := acctest.GetTestProject(rs.Primary, config)
+		if err != nil {
+			return err
+		}
+
+		location := rs.Primary.Attributes["location"]
+		instance_id := rs.Primary.Attributes["instance_id"]
+
+		log.Printf("[DEBUG] Exporting backup for instance: project=%s, region=%s, name=%s", project, location, instance_id)
+
+		// First, list all backup collections in this region
+		listCollectionsUrl := fmt.Sprintf("https://memorystore.googleapis.com/v1/projects/%s/locations/%s/backupCollections",
+			project, location)
+
+		log.Printf("[DEBUG] Listing backup collections URL: %s", listCollectionsUrl)
+
+		collectionsRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    listCollectionsUrl,
+			UserAgent: config.UserAgent,
+		})
+
+		if err != nil {
+			log.Printf("[ERROR] Error listing backup collections: %s", err)
+			return fmt.Errorf("Error listing backup collections: %s", err)
+		}
+
+		log.Printf("[DEBUG] Backup collections response: %#v", collectionsRes)
+
+		// Find the backup collection that belongs to our instance
+		backupCollectionId := ""
+		if collections, ok := collectionsRes["backupCollections"].([]interface{}); ok {
+			log.Printf("[DEBUG] Found %d backup collections", len(collections))
+			for i, collection := range collections {
+				if collectionMap, ok := collection.(map[string]interface{}); ok {
+					// The backup collection name format is projects/{project}/locations/{location}/backupCollections/{backupCollection}
+					instance := collectionMap["instance"].(string)
+					log.Printf("[DEBUG] CLuster %d Long name: %s", i, instance)
+
+					parts := strings.Split(instance, "/")
+					instance_name := parts[len(parts)-1]
+
+					log.Printf("[DEBUG] CLuster %d name: %s", i, instance_name)
+					log.Printf("[DEBUG] Provided Instance Name  name: %s", instance_id)
+
+					if strings.Contains(instance_name, instance_id) {
+						collection_id_long := collectionMap["name"].(string)
+						parts := strings.Split(collection_id_long, "/")
+						backupCollectionId = parts[len(parts)-1]
+						log.Printf("[DEBUG] Found collection ID: %s for instance %s ", backupCollectionId, instance_name)
+						break
+					}
+
+				}
+			}
+
+		} else {
+			log.Printf("[DEBUG] No 'backupCollections' field found in response or it's not a slice")
+		}
+
+		if backupCollectionId == "" {
+			return fmt.Errorf("Could not find backup collection for instance %s", instance_id)
+		}
+		// Build export request
+		exportRequest := map[string]interface{}{
+			"gcsBucket": gcsDestination,
+		}
+
+		log.Printf("[DEBUG] Export request: %#v", exportRequest)
+
+		exportUrl := fmt.Sprintf("https://memorystore.googleapis.com/v1/projects/%s/locations/%s/backupCollections/%s/backups/%s:export",
+			project, location, backupCollectionId, backupId)
+
+		log.Printf("[DEBUG] Export URL: %s", exportUrl)
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    exportUrl,
+			UserAgent: config.UserAgent,
+			Body:      exportRequest,
+		})
+
+		if err != nil {
+			log.Printf("[ERROR] Error initiating backup export: %s", err)
+			return fmt.Errorf("Error initiating backup export: %s", err)
+		}
+
+		log.Printf("[DEBUG] Export response: %#v", res)
+
+		// Wait for the export operation to complete
+		log.Printf("[DEBUG] Waiting for export operation to complete")
+		err = memorystore.MemorystoreOperationWaitTime(
+			config, res, project, "Exporting Memorystore Instance Backup", config.UserAgent,
+			time.Minute*20)
+
+		if err != nil {
+			log.Printf("[ERROR] Error during backup export operation: %s", err)
+			return fmt.Errorf("Error during backup export operation: %s", err)
+		}
+
+		return nil
+	}
 }
 
 type InstanceParams struct {
