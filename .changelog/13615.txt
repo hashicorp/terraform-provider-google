@@ -1,0 +1,2 @@
+```release-note:enhancement
+memorystore:  fixing adding import to tests and   ignore_read: true for gcs_source and managed_backup_source, to remove custom flatten```

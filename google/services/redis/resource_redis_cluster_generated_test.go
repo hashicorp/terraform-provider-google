@@ -50,7 +50,7 @@ func TestAccRedisCluster_redisClusterHaExample(t *testing.T) {
 				ResourceName:            "google_redis_cluster.cluster-ha",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "psc_configs", "region"},
+				ImportStateVerifyIgnore: []string{"gcs_source", "managed_backup_source", "name", "psc_configs", "region"},
 			},
 		},
 	})
@@ -138,7 +138,7 @@ func TestAccRedisCluster_redisClusterHaSingleZoneExample(t *testing.T) {
 				ResourceName:            "google_redis_cluster.cluster-ha-single-zone",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "psc_configs", "region"},
+				ImportStateVerifyIgnore: []string{"gcs_source", "managed_backup_source", "name", "psc_configs", "region"},
 			},
 		},
 	})
@@ -221,7 +221,7 @@ func TestAccRedisCluster_redisClusterSecondaryExample(t *testing.T) {
 				ResourceName:            "google_redis_cluster.secondary_cluster",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "psc_configs", "region"},
+				ImportStateVerifyIgnore: []string{"gcs_source", "managed_backup_source", "name", "psc_configs", "region"},
 			},
 		},
 	})
@@ -403,7 +403,7 @@ func TestAccRedisCluster_redisClusterRdbExample(t *testing.T) {
 				ResourceName:            "google_redis_cluster.cluster-rdb",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "psc_configs", "region"},
+				ImportStateVerifyIgnore: []string{"gcs_source", "managed_backup_source", "name", "psc_configs", "region"},
 			},
 		},
 	})
@@ -498,7 +498,7 @@ func TestAccRedisCluster_redisClusterAofExample(t *testing.T) {
 				ResourceName:            "google_redis_cluster.cluster-aof",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "psc_configs", "region"},
+				ImportStateVerifyIgnore: []string{"gcs_source", "managed_backup_source", "name", "psc_configs", "region"},
 			},
 		},
 	})
@@ -599,7 +599,7 @@ func TestAccRedisCluster_redisClusterCmekExample(t *testing.T) {
 				ResourceName:            "google_redis_cluster.cluster-cmek",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "psc_configs", "region"},
+				ImportStateVerifyIgnore: []string{"gcs_source", "managed_backup_source", "name", "psc_configs", "region"},
 			},
 		},
 	})
