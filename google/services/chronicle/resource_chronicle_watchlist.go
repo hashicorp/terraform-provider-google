@@ -283,14 +283,6 @@ func resourceChronicleWatchlistCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
-	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("watchlist_id"))) {
-		// watchlist id is set by API when unset and required to GET the connection
-		// it is set by reading the "name" field rather than a field in the response
-		if err := d.Set("watchlist_id", flattenChronicleWatchlistWatchlistId("", d, config)); err != nil {
-			return fmt.Errorf("Error reading Watchlist ID: %s", err)
-		}
-	}
-
 	log.Printf("[DEBUG] Finished creating Watchlist %q: %#v", d.Id(), res)
 
 	return resourceChronicleWatchlistRead(d, meta)
