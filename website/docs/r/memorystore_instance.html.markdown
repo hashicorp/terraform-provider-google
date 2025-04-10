@@ -486,6 +486,16 @@ The following arguments are supported:
    CLUSTER_DISABLED
   Possible values are: `CLUSTER`, `CLUSTER_DISABLED`.
 
+* `gcs_source` -
+  (Optional)
+  GCS source for the instance.
+  Structure is [documented below](#nested_gcs_source).
+
+* `managed_backup_source` -
+  (Optional)
+  Managed backup source for the instance.
+  Structure is [documented below](#nested_managed_backup_source).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -739,6 +749,19 @@ The following arguments are supported:
   (Output)
   The unique id of the secondary instance.
 
+<a name="nested_gcs_source"></a>The `gcs_source` block supports:
+
+* `uris` -
+  (Required)
+  URIs of the GCS objects to import.
+  Example: gs://bucket1/object1, gs//bucket2/folder2/object2
+
+<a name="nested_managed_backup_source"></a>The `managed_backup_source` block supports:
+
+* `backup` -
+  (Required)
+  Example: //memorystore.googleapis.com/projects/{project}/locations/{location}/backups/{backupId}. In this case, it assumes the backup is under memorystore.googleapis.com.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -794,6 +817,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `psc_auto_connections` -
   Output only. User inputs and resource details of the auto-created PSC connections.
   Structure is [documented below](#nested_psc_auto_connections).
+
+* `backup_collection` -
+  The backup collection full resource name.
+  Example: projects/{project}/locations/{location}/backupCollections/{collection}
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

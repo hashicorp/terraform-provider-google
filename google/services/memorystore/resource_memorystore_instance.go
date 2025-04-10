@@ -268,6 +268,29 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 				Optional:    true,
 				Description: `Optional. Engine version of the instance.`,
 			},
+			"gcs_source": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `GCS source for the instance.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"uris": {
+							Type:     schema.TypeSet,
+							Required: true,
+							ForceNew: true,
+							Description: `URIs of the GCS objects to import.
+Example: gs://bucket1/object1, gs//bucket2/folder2/object2`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Set: schema.HashString,
+						},
+					},
+				},
+				ConflictsWith: []string{"managed_backup_source"},
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -370,6 +393,24 @@ resolution and up to nine fractional digits.`,
 						},
 					},
 				},
+			},
+			"managed_backup_source": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Managed backup source for the instance.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"backup": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Example: //memorystore.googleapis.com/projects/{project}/locations/{location}/backups/{backupId}. In this case, it assumes the backup is under memorystore.googleapis.com.`,
+						},
+					},
+				},
+				ConflictsWith: []string{"gcs_source"},
 			},
 			"mode": {
 				Type:         schema.TypeString,
@@ -510,6 +551,12 @@ Ignored for MULTI_ZONE mode.`,
 						},
 					},
 				},
+			},
+			"backup_collection": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The backup collection full resource name.
+Example: projects/{project}/locations/{location}/backupCollections/{collection}`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -949,6 +996,18 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(modeProp)) && (ok || !reflect.DeepEqual(v, modeProp)) {
 		obj["mode"] = modeProp
 	}
+	gcsSourceProp, err := expandMemorystoreInstanceGcsSource(d.Get("gcs_source"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("gcs_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(gcsSourceProp)) && (ok || !reflect.DeepEqual(v, gcsSourceProp)) {
+		obj["gcsSource"] = gcsSourceProp
+	}
+	managedBackupSourceProp, err := expandMemorystoreInstanceManagedBackupSource(d.Get("managed_backup_source"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("managed_backup_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(managedBackupSourceProp)) && (ok || !reflect.DeepEqual(v, managedBackupSourceProp)) {
+		obj["managedBackupSource"] = managedBackupSourceProp
+	}
 	labelsProp, err := expandMemorystoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1173,6 +1232,9 @@ func resourceMemorystoreInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("psc_auto_connections", flattenMemorystoreInstancePscAutoConnections(res["pscAutoConnections"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("backup_collection", flattenMemorystoreInstanceBackupCollection(res["backupCollection"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenMemorystoreInstanceTerraformLabels(res["labels"], d, config)); err != nil {
@@ -2354,6 +2416,10 @@ func flattenMemorystoreInstancePscAutoConnectionsPort(v interface{}, d *schema.R
 	return v // let terraform core handle it otherwise
 }
 
+func flattenMemorystoreInstanceBackupCollection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenMemorystoreInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2990,6 +3056,53 @@ func expandMemorystoreInstanceCrossInstanceReplicationConfigUpdateTime(v interfa
 }
 
 func expandMemorystoreInstanceMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMemorystoreInstanceGcsSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedUris, err := expandMemorystoreInstanceGcsSourceUris(original["uris"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUris); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["uris"] = transformedUris
+	}
+
+	return transformed, nil
+}
+
+func expandMemorystoreInstanceGcsSourceUris(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandMemorystoreInstanceManagedBackupSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBackup, err := expandMemorystoreInstanceManagedBackupSourceBackup(original["backup"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBackup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["backup"] = transformedBackup
+	}
+
+	return transformed, nil
+}
+
+func expandMemorystoreInstanceManagedBackupSourceBackup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
