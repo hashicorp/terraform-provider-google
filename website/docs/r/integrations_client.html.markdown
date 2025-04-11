@@ -70,15 +70,9 @@ data "google_kms_crypto_key_version" "test_key" {
   crypto_key = data.google_kms_crypto_key.cryptokey.id
 }
 
-resource "google_service_account" "service_account" {
-  account_id   = "service-acc"
-  display_name = "Service Account"
-}
-
 resource "google_integrations_client" "example" {
   location = "us-east1"
   create_sample_integrations = true
-  run_as_service_account = google_service_account.service_account.email
   cloud_kms_config {
     kms_location = "us-east1"
     kms_ring = basename(data.google_kms_key_ring.keyring.id)
@@ -112,8 +106,10 @@ The following arguments are supported:
   Indicates if sample integrations should be created along with provisioning.
 
 * `run_as_service_account` -
-  (Optional)
+  (Optional, Deprecated)
   User input run-as service account, if empty, will bring up a new default service account.
+
+  ~> **Warning:** `run_as_service_account` is deprecated and will be removed in a future major release.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
