@@ -66,6 +66,12 @@ resource "google_integrations_client" "example" {
 func TestAccIntegrationsClient_integrationsClientFullExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-integrations.iam.gserviceaccount.com",
+			Role:   "roles/cloudkmskacls.serviceAgent",
+		},
+	})
 
 	context := map[string]interface{}{
 		"crypto_key_name": "tftest-shared-key-1",
@@ -111,15 +117,9 @@ data "google_kms_crypto_key_version" "test_key" {
   crypto_key = data.google_kms_crypto_key.cryptokey.id
 }
 
-resource "google_service_account" "service_account" {
-  account_id   = "tf-test-service-acc%{random_suffix}"
-  display_name = "Service Account"
-}
-
 resource "google_integrations_client" "example" {
   location = "us-east1"
   create_sample_integrations = true
-  run_as_service_account = google_service_account.service_account.email
   cloud_kms_config {
     kms_location = "us-east1"
     kms_ring = basename(data.google_kms_key_ring.keyring.id)
@@ -127,6 +127,48 @@ resource "google_integrations_client" "example" {
     key_version = basename(data.google_kms_crypto_key_version.test_key.id)
     kms_project_id = data.google_project.default.project_id
   }
+}
+`, context)
+}
+
+func TestAccIntegrationsClient_integrationsClientServiceAccountExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIntegrationsClientDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIntegrationsClient_integrationsClientServiceAccountExample(context),
+			},
+			{
+				ResourceName:            "google_integrations_client.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_integrations", "location", "run_as_service_account"},
+			},
+		},
+	})
+}
+
+func testAccIntegrationsClient_integrationsClientServiceAccountExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "default" {
+}
+
+resource "google_service_account" "service_account" {
+  account_id   = "tf-test-service-acc%{random_suffix}"
+  display_name = "Service Account"
+}
+
+resource "google_integrations_client" "example" {
+  location = "asia-east1"
+  run_as_service_account = google_service_account.service_account.email
 }
 `, context)
 }

@@ -1,0 +1,3 @@
+```release-note:deprecation
+integrations: deprecated `run_as_service_account` field in `google_integrations_client` resource
+```
