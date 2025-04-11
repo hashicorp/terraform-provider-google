@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed the issue of shortened version of failover_dr_replica_name causes unnecessary diff 
+```

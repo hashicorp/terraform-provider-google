@@ -935,9 +935,10 @@ is set to true. Defaults to ZONAL.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"failover_dr_replica_name": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: fmt.Sprintf(`If the instance is a primary instance, then this field identifies the disaster recovery (DR) replica. The standard format of this field is "your-project:your-instance". You can also set this field to "your-instance", but cloud SQL backend will convert it to the aforementioned standard format.`),
+							Type:             schema.TypeString,
+							Optional:         true,
+							Description:      fmt.Sprintf(`If the instance is a primary instance, then this field identifies the disaster recovery (DR) replica. The standard format of this field is "your-project:your-instance". You can also set this field to "your-instance", but cloud SQL backend will convert it to the aforementioned standard format.`),
+							DiffSuppressFunc: areDRReplicaNamesEqual,
 						},
 						"dr_replica": {
 							Type:        schema.TypeBool,
@@ -2786,4 +2787,22 @@ func validatePromoteConfigurations(masterInstanceName cty.Value, replicaConfigur
 		return fmt.Errorf("Replica promote configuration check failed. Please remove replica_configuration and try again.")
 	}
 	return nil
+}
+
+// areDRReplicaNamesEqual compares 2 DR replica names.
+func areDRReplicaNamesEqual(_, oldValue, newValue string, d *schema.ResourceData) bool {
+	project := d.Get("project").(string)
+	// When we can't find project, just fallback to naive comparison.
+	if project == "" {
+		return oldValue == newValue
+	}
+	return normalizeDRReplicaName(oldValue, project) == normalizeDRReplicaName(newValue, project)
+}
+
+// normalizeDRReplicaName normalizes DR replica name by prefixing project name when it's missing.
+func normalizeDRReplicaName(drReplicaName, project string) string {
+	if strings.Contains(drReplicaName, ":") {
+		return drReplicaName
+	}
+	return fmt.Sprintf("%s:%s", project, drReplicaName)
 }
