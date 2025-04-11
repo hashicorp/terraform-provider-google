@@ -947,7 +947,7 @@ The following arguments are supported:
 * `repository_base` -
   (Required)
   A common public repository base for Apt, e.g. `"debian/dists/buster"`
-  Possible values are: `DEBIAN`, `UBUNTU`.
+  Possible values are: `DEBIAN`, `UBUNTU`, `DEBIAN_SNAPSHOT`.
 
 * `repository_path` -
   (Required)
