@@ -107,6 +107,11 @@ The following arguments are supported:
   Optional. The Google Cloud session length (GCSL) policy for the group key.
   Structure is [documented below](#nested_session_settings).
 
+* `scoped_access_settings` -
+  (Optional)
+  Optional. A list of scoped access settings that set this binding's restrictions on a subset of applications.
+  Structure is [documented below](#nested_scoped_access_settings).
+
 
 <a name="nested_session_settings"></a>The `session_settings` block supports:
 
@@ -130,6 +135,87 @@ The following arguments are supported:
 * `session_length_enabled` -
   (Optional)
   Optional. This field enables or disables Google Cloud session length. When false, all fields set above will be disregarded and the session length is basically infinite.
+
+<a name="nested_scoped_access_settings"></a>The `scoped_access_settings` block supports:
+
+* `scope` -
+  (Optional)
+  Optional. Application, etc. to which the access settings will be applied to. Implicitly, this is the scoped access settings key; as such, it must be unique and non-empty.
+  Structure is [documented below](#nested_scoped_access_settings_scoped_access_settings_scope).
+
+* `active_settings` -
+  (Optional)
+  Optional. Access settings for this scoped access settings. This field may be empty if dryRunSettings is set.
+  Structure is [documented below](#nested_scoped_access_settings_scoped_access_settings_active_settings).
+
+* `dry_run_settings` -
+  (Optional)
+  Optional. Dry-run access settings for this scoped access settings. This field may be empty if activeSettings is set. Cannot contain session settings.
+  Structure is [documented below](#nested_scoped_access_settings_scoped_access_settings_dry_run_settings).
+
+
+<a name="nested_scoped_access_settings_scoped_access_settings_scope"></a>The `scope` block supports:
+
+* `client_scope` -
+  (Optional)
+  Optional. Client scope for this access scope.
+  Structure is [documented below](#nested_scoped_access_settings_scoped_access_settings_scope_client_scope).
+
+
+<a name="nested_scoped_access_settings_scoped_access_settings_scope_client_scope"></a>The `client_scope` block supports:
+
+* `restricted_client_application` -
+  (Optional)
+  Optional. The application that is subject to this binding's scope.
+  Structure is [documented below](#nested_scoped_access_settings_scoped_access_settings_scope_client_scope_restricted_client_application).
+
+
+<a name="nested_scoped_access_settings_scoped_access_settings_scope_client_scope_restricted_client_application"></a>The `restricted_client_application` block supports:
+
+* `client_id` -
+  (Optional)
+  The OAuth client ID of the application.
+
+<a name="nested_scoped_access_settings_scoped_access_settings_active_settings"></a>The `active_settings` block supports:
+
+* `access_levels` -
+  (Optional)
+  Optional. Access level that a user must have to be granted access. Only one access level is supported, not multiple. This repeated field must have exactly one element. Example: "accessPolicies/9522/accessLevels/device_trusted"
+
+* `session_settings` -
+  (Optional)
+  Optional. Session settings applied to user access on a given AccessScope.
+  Structure is [documented below](#nested_scoped_access_settings_scoped_access_settings_active_settings_session_settings).
+
+
+<a name="nested_scoped_access_settings_scoped_access_settings_active_settings_session_settings"></a>The `session_settings` block supports:
+
+* `session_reauth_method` -
+  (Optional)
+  Optional. The session challenges proposed to users when the Google Cloud session length is up.
+  Possible values are: `LOGIN`, `SECURITY_KEY`, `PASSWORD`.
+
+* `session_length` -
+  (Optional)
+  Optional. The session length. Setting this field to zero is equal to disabling session. Also can set infinite session by flipping the enabled bit to false below. If useOidcMaxAge is true, for OIDC apps, the session length will be the minimum of this field and OIDC max_age param.
+
+* `max_inactivity` -
+  (Optional)
+  Optional. How long a user is allowed to take between actions before a new access token must be issued. Only set for Google Cloud apps.
+
+* `use_oidc_max_age` -
+  (Optional)
+  Optional. Only useful for OIDC apps. When false, the OIDC max_age param, if passed in the authentication request will be ignored. When true, the re-auth period will be the minimum of the sessionLength field and the max_age OIDC param.
+
+* `session_length_enabled` -
+  (Optional)
+  Optional. This field enables or disables Google Cloud session length. When false, all fields set above will be disregarded and the session length is basically infinite.
+
+<a name="nested_scoped_access_settings_scoped_access_settings_dry_run_settings"></a>The `dry_run_settings` block supports:
+
+* `access_levels` -
+  (Optional)
+  Optional. Access level that a user must have to be granted access. Only one access level is supported, not multiple. This repeated field must have exactly one element. Example: "accessPolicies/9522/accessLevels/device_trusted"
 
 ## Attributes Reference
 
