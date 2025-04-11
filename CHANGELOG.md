@@ -1,5 +1,34 @@
 ## 6.30.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_developer_connect_account_connector` ([#22270](https://github.com/hashicorp/terraform-provider-google/pull/22270))
+* **New Resource:** `google_vertex_ai_feature_group_iam_*` ([#22260](https://github.com/hashicorp/terraform-provider-google/pull/22260))
+* **New Resource:** `google_vertex_ai_feature_online_store_iam_*` ([#22260](https://github.com/hashicorp/terraform-provider-google/pull/22260))
+* **New Resource:** `google_vertex_ai_feature_online_store_featureview_iam_*` ([#22260](https://github.com/hashicorp/terraform-provider-google/pull/22260))
+
+IMPROVEMENTS:
+* bigquery: added `external_catalog_table_options` and `schema_foreign_type_info` fields to  `google_bigquery_table` resource ([#22302](https://github.com/hashicorp/terraform-provider-google/pull/22302))
+* cloudrunv2: added `iap_enabled` field to `google_cloud_run_v2_service` resource ([#22301](https://github.com/hashicorp/terraform-provider-google/pull/22301))
+* compute: added `source_disk_encryption_key.kms_key_self_link` and `source_disk_encryption_key.rsa_encrypted_key` fields to `google_compute_snapshot` resource ([#22247](https://github.com/hashicorp/terraform-provider-google/pull/22247))
+* compute: added `source_disk_encryption_key`, `source_image_encryption_key` and `source_snapshot_encryption_key` fields to `google_compute_image` resource ([#22247](https://github.com/hashicorp/terraform-provider-google/pull/22247))
+* compute: added `type`, `source_nat_active_ranges` and `source_nat_drain_ranges` fields to `google_compute_router_nat` resource ([#22282](https://github.com/hashicorp/terraform-provider-google/pull/22282))
+* databasemigrationservice: allowed setting `ssl.type` in `google_database_migration_service_connection_profile` resource ([#22268](https://github.com/hashicorp/terraform-provider-google/pull/22268))
+* firestore: added `MONGODB_COMPATIBLE_API` enum option to `api_scope` field in `google_firestore_index` resource ([#22287](https://github.com/hashicorp/terraform-provider-google/pull/22287))
+* firestore: added `database_edition` field to `google_firestore_database` resource ([#22287](https://github.com/hashicorp/terraform-provider-google/pull/22287))
+* firestore: added `density` and `multikey` fields to `google_firestore_index` resource ([#22287](https://github.com/hashicorp/terraform-provider-google/pull/22287))
+* memorystore: added `managed_backup_source` and `gcs_source` fields to `google_memorystore_instance` resource ([#22295](https://github.com/hashicorp/terraform-provider-google/pull/22295))
+* monitoring: added `password_wo` write-only field and `password_wo_version` field to `google_monitoring_uptime_check_config` resource ([#22242](https://github.com/hashicorp/terraform-provider-google/pull/22242))
+* redis: added `managed_backup_source` and `gcs_source` fields to `google_redis_cluster` resource ([#22277](https://github.com/hashicorp/terraform-provider-google/pull/22277))
+* storage: added support for deleting pending caches present on bucket when setting `force_destory` to true in `google_storage_bucket` resource ([#22262](https://github.com/hashicorp/terraform-provider-google/pull/22262))
+* storage: added `md5hexhash` field to `google_storage_bucket_object` resource ([#22229](https://github.com/hashicorp/terraform-provider-google/pull/22229))
+* storagecontrol: added `trial_config` field to `google_storage_control_folder_intelligence_config` resource ([#22236](https://github.com/hashicorp/terraform-provider-google/pull/22236))
+* storagecontrol: added `trial_config` field to `google_storage_control_organization_intelligence_config` resource ([#22236](https://github.com/hashicorp/terraform-provider-google/pull/22236))
+* storagecontrol: added `trial_config` field to `google_storage_control_project_intelligence_config` resource ([#22236](https://github.com/hashicorp/terraform-provider-google/pull/22236))
+
+BUG FIXES:
+* container: fixed perma-diff in `fleet` field when the `fleet.project` field being added is null or empty in `google_container_cluster` resource ([#22240](https://github.com/hashicorp/terraform-provider-google/pull/22240))
+* pubsub: fixed perma-diff by changing `allowed_persistence_regions` field to set in `google_pubsub_topic` resource ([#22273](https://github.com/hashicorp/terraform-provider-google/pull/22273))
+
 ## 6.29.0 (Apr 8, 2025)
 
 FEATURES:
