@@ -74,6 +74,124 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"scoped_access_settings": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Optional. A list of scoped access settings that set this binding's restrictions on a subset of applications.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"active_settings": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Optional. Access settings for this scoped access settings. This field may be empty if dryRunSettings is set.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"access_levels": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. Access level that a user must have to be granted access. Only one access level is supported, not multiple. This repeated field must have exactly one element. Example: "accessPolicies/9522/accessLevels/device_trusted"`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"session_settings": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. Session settings applied to user access on a given AccessScope.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"max_inactivity": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Optional. How long a user is allowed to take between actions before a new access token must be issued. Only set for Google Cloud apps.`,
+												},
+												"session_length": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Optional. The session length. Setting this field to zero is equal to disabling session. Also can set infinite session by flipping the enabled bit to false below. If useOidcMaxAge is true, for OIDC apps, the session length will be the minimum of this field and OIDC max_age param.`,
+												},
+												"session_length_enabled": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Optional. This field enables or disables Google Cloud session length. When false, all fields set above will be disregarded and the session length is basically infinite.`,
+												},
+												"session_reauth_method": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: verify.ValidateEnum([]string{"LOGIN", "SECURITY_KEY", "PASSWORD", ""}),
+													Description:  `Optional. The session challenges proposed to users when the Google Cloud session length is up. Possible values: ["LOGIN", "SECURITY_KEY", "PASSWORD"]`,
+												},
+												"use_oidc_max_age": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Optional. Only useful for OIDC apps. When false, the OIDC max_age param, if passed in the authentication request will be ignored. When true, the re-auth period will be the minimum of the sessionLength field and the max_age OIDC param.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"dry_run_settings": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Optional. Dry-run access settings for this scoped access settings. This field may be empty if activeSettings is set. Cannot contain session settings.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"access_levels": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. Access level that a user must have to be granted access. Only one access level is supported, not multiple. This repeated field must have exactly one element. Example: "accessPolicies/9522/accessLevels/device_trusted"`,
+										MinItems:    1,
+										MaxItems:    1,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"scope": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Optional. Application, etc. to which the access settings will be applied to. Implicitly, this is the scoped access settings key; as such, it must be unique and non-empty.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"client_scope": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. Client scope for this access scope.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"restricted_client_application": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. The application that is subject to this binding's scope.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"client_id": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The OAuth client ID of the application.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"session_settings": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -145,6 +263,12 @@ func resourceAccessContextManagerGcpUserAccessBindingCreate(d *schema.ResourceDa
 		return err
 	} else if v, ok := d.GetOkExists("session_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(sessionSettingsProp)) && (ok || !reflect.DeepEqual(v, sessionSettingsProp)) {
 		obj["sessionSettings"] = sessionSettingsProp
+	}
+	scopedAccessSettingsProp, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettings(d.Get("scoped_access_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scoped_access_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(scopedAccessSettingsProp)) && (ok || !reflect.DeepEqual(v, scopedAccessSettingsProp)) {
+		obj["scopedAccessSettings"] = scopedAccessSettingsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}organizations/{{organization_id}}/gcpUserAccessBindings")
@@ -255,6 +379,9 @@ func resourceAccessContextManagerGcpUserAccessBindingRead(d *schema.ResourceData
 	if err := d.Set("session_settings", flattenAccessContextManagerGcpUserAccessBindingSessionSettings(res["sessionSettings"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
 	}
+	if err := d.Set("scoped_access_settings", flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettings(res["scopedAccessSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
+	}
 
 	return nil
 }
@@ -281,6 +408,12 @@ func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceDa
 	} else if v, ok := d.GetOkExists("session_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sessionSettingsProp)) {
 		obj["sessionSettings"] = sessionSettingsProp
 	}
+	scopedAccessSettingsProp, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettings(d.Get("scoped_access_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scoped_access_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scopedAccessSettingsProp)) {
+		obj["scopedAccessSettings"] = scopedAccessSettingsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
@@ -297,6 +430,10 @@ func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceDa
 
 	if d.HasChange("session_settings") {
 		updateMask = append(updateMask, "sessionSettings")
+	}
+
+	if d.HasChange("scoped_access_settings") {
+		updateMask = append(updateMask, "scopedAccessSettings")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -461,6 +598,146 @@ func flattenAccessContextManagerGcpUserAccessBindingSessionSettingsSessionLength
 	return v
 }
 
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"scope":            flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScope(original["scope"], d, config),
+			"active_settings":  flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettings(original["activeSettings"], d, config),
+			"dry_run_settings": flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsDryRunSettings(original["dryRunSettings"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScope(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["client_scope"] =
+		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScope(original["clientScope"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScope(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["restricted_client_application"] =
+		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplication(original["restrictedClientApplication"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplication(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["client_id"] =
+		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplicationClientId(original["clientId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplicationClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["access_levels"] =
+		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsAccessLevels(original["accessLevels"], d, config)
+	transformed["session_settings"] =
+		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettings(original["sessionSettings"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsAccessLevels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["session_reauth_method"] =
+		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsSessionReauthMethod(original["sessionReauthMethod"], d, config)
+	transformed["session_length"] =
+		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsSessionLength(original["sessionLength"], d, config)
+	transformed["max_inactivity"] =
+		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsMaxInactivity(original["maxInactivity"], d, config)
+	transformed["use_oidc_max_age"] =
+		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsUseOidcMaxAge(original["useOidcMaxAge"], d, config)
+	transformed["session_length_enabled"] =
+		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsSessionLengthEnabled(original["sessionLengthEnabled"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsSessionReauthMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsSessionLength(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsMaxInactivity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsUseOidcMaxAge(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsSessionLengthEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsDryRunSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["access_levels"] =
+		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsDryRunSettingsAccessLevels(original["accessLevels"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsDryRunSettingsAccessLevels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandAccessContextManagerGcpUserAccessBindingGroupKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -533,5 +810,222 @@ func expandAccessContextManagerGcpUserAccessBindingSessionSettingsUseOidcMaxAge(
 }
 
 func expandAccessContextManagerGcpUserAccessBindingSessionSettingsSessionLengthEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedScope, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScope(original["scope"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedScope); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["scope"] = transformedScope
+		}
+
+		transformedActiveSettings, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettings(original["active_settings"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedActiveSettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["activeSettings"] = transformedActiveSettings
+		}
+
+		transformedDryRunSettings, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsDryRunSettings(original["dry_run_settings"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDryRunSettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["dryRunSettings"] = transformedDryRunSettings
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScope(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedClientScope, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScope(original["client_scope"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientScope); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["clientScope"] = transformedClientScope
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScope(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRestrictedClientApplication, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplication(original["restricted_client_application"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRestrictedClientApplication); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["restrictedClientApplication"] = transformedRestrictedClientApplication
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplication(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedClientId, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplicationClientId(original["client_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["clientId"] = transformedClientId
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplicationClientId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAccessLevels, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsAccessLevels(original["access_levels"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAccessLevels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["accessLevels"] = transformedAccessLevels
+	}
+
+	transformedSessionSettings, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettings(original["session_settings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSessionSettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sessionSettings"] = transformedSessionSettings
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsAccessLevels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSessionReauthMethod, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsSessionReauthMethod(original["session_reauth_method"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSessionReauthMethod); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sessionReauthMethod"] = transformedSessionReauthMethod
+	}
+
+	transformedSessionLength, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsSessionLength(original["session_length"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSessionLength); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sessionLength"] = transformedSessionLength
+	}
+
+	transformedMaxInactivity, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsMaxInactivity(original["max_inactivity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxInactivity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxInactivity"] = transformedMaxInactivity
+	}
+
+	transformedUseOidcMaxAge, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsUseOidcMaxAge(original["use_oidc_max_age"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseOidcMaxAge); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useOidcMaxAge"] = transformedUseOidcMaxAge
+	}
+
+	transformedSessionLengthEnabled, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsSessionLengthEnabled(original["session_length_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSessionLengthEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sessionLengthEnabled"] = transformedSessionLengthEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsSessionReauthMethod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsSessionLength(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsMaxInactivity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsUseOidcMaxAge(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsActiveSettingsSessionSettingsSessionLengthEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsDryRunSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAccessLevels, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsDryRunSettingsAccessLevels(original["access_levels"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAccessLevels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["accessLevels"] = transformedAccessLevels
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsDryRunSettingsAccessLevels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
