@@ -372,6 +372,7 @@ type Config struct {
 	SpannerBasePath                  string
 	SQLBasePath                      string
 	StorageBasePath                  string
+	StorageBatchOperationsBasePath   string
 	StorageControlBasePath           string
 	StorageInsightsBasePath          string
 	StorageTransferBasePath          string
@@ -533,6 +534,7 @@ const SourceRepoBasePathKey = "SourceRepo"
 const SpannerBasePathKey = "Spanner"
 const SQLBasePathKey = "SQL"
 const StorageBasePathKey = "Storage"
+const StorageBatchOperationsBasePathKey = "StorageBatchOperations"
 const StorageControlBasePathKey = "StorageControl"
 const StorageInsightsBasePathKey = "StorageInsights"
 const StorageTransferBasePathKey = "StorageTransfer"
@@ -688,6 +690,7 @@ var DefaultBasePaths = map[string]string{
 	SpannerBasePathKey:                  "https://spanner.googleapis.com/v1/",
 	SQLBasePathKey:                      "https://sqladmin.googleapis.com/sql/v1beta4/",
 	StorageBasePathKey:                  "https://storage.googleapis.com/storage/v1/",
+	StorageBatchOperationsBasePathKey:   "https://storagebatchoperations.googleapis.com/v1/",
 	StorageControlBasePathKey:           "https://storage.googleapis.com/v2/",
 	StorageInsightsBasePathKey:          "https://storageinsights.googleapis.com/v1/",
 	StorageTransferBasePathKey:          "https://storagetransfer.googleapis.com/v1/",
@@ -1437,6 +1440,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("storage_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_STORAGE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[StorageBasePathKey]))
+	}
+	if d.Get("storage_batch_operations_custom_endpoint") == "" {
+		d.Set("storage_batch_operations_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_STORAGE_BATCH_OPERATIONS_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[StorageBatchOperationsBasePathKey]))
 	}
 	if d.Get("storage_control_custom_endpoint") == "" {
 		d.Set("storage_control_custom_endpoint", MultiEnvDefault([]string{
@@ -2572,6 +2580,7 @@ func ConfigureBasePaths(c *Config) {
 	c.SpannerBasePath = DefaultBasePaths[SpannerBasePathKey]
 	c.SQLBasePath = DefaultBasePaths[SQLBasePathKey]
 	c.StorageBasePath = DefaultBasePaths[StorageBasePathKey]
+	c.StorageBatchOperationsBasePath = DefaultBasePaths[StorageBatchOperationsBasePathKey]
 	c.StorageControlBasePath = DefaultBasePaths[StorageControlBasePathKey]
 	c.StorageInsightsBasePath = DefaultBasePaths[StorageInsightsBasePathKey]
 	c.StorageTransferBasePath = DefaultBasePaths[StorageTransferBasePathKey]
