@@ -56,6 +56,7 @@ fields:
   - field: 'server_ca_certs.expire_time'
   - field: 'server_ca_certs.serial_number'
   - field: 'server_ca_certs.sha1_fingerprint'
+  - field: 'tags'
   - field: 'terraform_labels'
     provider_only: true
   - field: 'tier'
