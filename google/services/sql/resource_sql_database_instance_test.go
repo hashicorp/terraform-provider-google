@@ -1386,6 +1386,38 @@ func TestAccSqlDatabaseInstance_BackupRetention(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_RetainBackupOnDelete(t *testing.T) {
+	t.Parallel()
+
+	masterID := acctest.RandInt(t)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_RetainBackupOnDelete(masterID, true),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_RetainBackupOnDelete(masterID, false),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_PointInTimeRecoveryEnabled(t *testing.T) {
 	t.Parallel()
 
@@ -5417,6 +5449,30 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, masterID)
+}
+
+func testGoogleSqlDatabaseInstance_RetainBackupOnDelete(masterID int, retainBackupOnDelete bool) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "tf-test-%d"
+  region              = "us-central1"
+  database_version    = "MYSQL_8_0"
+  deletion_protection = false
+  settings {
+    tier = "db-g1-small"
+    backup_configuration {
+      enabled                        = true
+      start_time                     = "00:00"
+      binary_log_enabled             = true
+	  transaction_log_retention_days = 2
+	  backup_retention_settings {
+	    retained_backups = 4
+	  }
+    }
+    retain_backups_on_delete = %v
+  }
+}
+`, masterID, retainBackupOnDelete)
 }
 
 func testAccSqlDatabaseInstance_beforeBackup(context map[string]interface{}) string {

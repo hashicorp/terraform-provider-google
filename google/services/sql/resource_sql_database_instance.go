@@ -708,6 +708,11 @@ is set to true. Defaults to ZONAL.`,
 							Optional:    true,
 							Description: `Configuration to protect against accidental instance deletion.`,
 						},
+						"retain_backups_on_delete": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `When this parameter is set to true, Cloud SQL retains backups of the instance even after the instance is deleted. The ON_DEMAND backup will be retained until customer deletes the backup or the project. The AUTOMATED backup will be retained based on the backups retention setting.`,
+						},
 					},
 				},
 				Description: `The settings to use for the database. The configuration is detailed below.`,
@@ -1352,7 +1357,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		Tier:                      _settings["tier"].(string),
 		Edition:                   _settings["edition"].(string),
 		AdvancedMachineFeatures:   expandSqlServerAdvancedMachineFeatures(_settings["advanced_machine_features"].([]interface{})),
-		ForceSendFields:           []string{"StorageAutoResize", "EnableGoogleMlIntegration", "EnableDataplexIntegration"},
+		ForceSendFields:           []string{"StorageAutoResize", "EnableGoogleMlIntegration", "EnableDataplexIntegration", "RetainBackupsOnDelete"},
 		ActivationPolicy:          _settings["activation_policy"].(string),
 		ActiveDirectoryConfig:     expandActiveDirectoryConfig(_settings["active_directory_config"].([]interface{})),
 		DenyMaintenancePeriods:    expandDenyMaintenancePeriod(_settings["deny_maintenance_period"].([]interface{})),
@@ -1367,6 +1372,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		DeletionProtectionEnabled: _settings["deletion_protection_enabled"].(bool),
 		EnableGoogleMlIntegration: _settings["enable_google_ml_integration"].(bool),
 		EnableDataplexIntegration: _settings["enable_dataplex_integration"].(bool),
+		RetainBackupsOnDelete:     _settings["retain_backups_on_delete"].(bool),
 		UserLabels:                tpgresource.ConvertStringMap(_settings["user_labels"].(map[string]interface{})),
 		BackupConfiguration:       expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
 		DatabaseFlags:             expandDatabaseFlags(_settings["database_flags"].(*schema.Set).List()),
@@ -2237,6 +2243,7 @@ func flattenSettings(settings *sqladmin.Settings, d *schema.ResourceData) []map[
 		"password_validation_policy":  settings.PasswordValidationPolicy,
 		"time_zone":                   settings.TimeZone,
 		"deletion_protection_enabled": settings.DeletionProtectionEnabled,
+		"retain_backups_on_delete":    settings.RetainBackupsOnDelete,
 	}
 
 	if settings.ActiveDirectoryConfig != nil {
