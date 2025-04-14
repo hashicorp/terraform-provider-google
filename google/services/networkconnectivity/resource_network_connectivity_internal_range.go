@@ -87,6 +87,15 @@ func ResourceNetworkConnectivityInternalRange() *schema.Resource {
 				Optional:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"exclude_cidr_ranges": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Optional. List of IP CIDR ranges to be excluded. Resulting reserved Internal Range will not overlap with any CIDR blocks mentioned in this list.
+Only IPv4 CIDR ranges are supported.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"ip_cidr_range": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -238,6 +247,12 @@ func resourceNetworkConnectivityInternalRangeCreate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("target_cidr_range"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetCidrRangeProp)) && (ok || !reflect.DeepEqual(v, targetCidrRangeProp)) {
 		obj["targetCidrRange"] = targetCidrRangeProp
 	}
+	excludeCidrRangesProp, err := expandNetworkConnectivityInternalRangeExcludeCidrRanges(d.Get("exclude_cidr_ranges"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("exclude_cidr_ranges"); !tpgresource.IsEmptyValue(reflect.ValueOf(excludeCidrRangesProp)) && (ok || !reflect.DeepEqual(v, excludeCidrRangesProp)) {
+		obj["excludeCidrRanges"] = excludeCidrRangesProp
+	}
 	overlapsProp, err := expandNetworkConnectivityInternalRangeOverlaps(d.Get("overlaps"), d, config)
 	if err != nil {
 		return err
@@ -379,6 +394,9 @@ func resourceNetworkConnectivityInternalRangeRead(d *schema.ResourceData, meta i
 	if err := d.Set("target_cidr_range", flattenNetworkConnectivityInternalRangeTargetCidrRange(res["targetCidrRange"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
+	if err := d.Set("exclude_cidr_ranges", flattenNetworkConnectivityInternalRangeExcludeCidrRanges(res["excludeCidrRanges"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
 	if err := d.Set("users", flattenNetworkConnectivityInternalRangeUsers(res["users"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
@@ -456,6 +474,12 @@ func resourceNetworkConnectivityInternalRangeUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("target_cidr_range"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetCidrRangeProp)) {
 		obj["targetCidrRange"] = targetCidrRangeProp
 	}
+	excludeCidrRangesProp, err := expandNetworkConnectivityInternalRangeExcludeCidrRanges(d.Get("exclude_cidr_ranges"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("exclude_cidr_ranges"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, excludeCidrRangesProp)) {
+		obj["excludeCidrRanges"] = excludeCidrRangesProp
+	}
 	overlapsProp, err := expandNetworkConnectivityInternalRangeOverlaps(d.Get("overlaps"), d, config)
 	if err != nil {
 		return err
@@ -504,6 +528,10 @@ func resourceNetworkConnectivityInternalRangeUpdate(d *schema.ResourceData, meta
 
 	if d.HasChange("target_cidr_range") {
 		updateMask = append(updateMask, "targetCidrRange")
+	}
+
+	if d.HasChange("exclude_cidr_ranges") {
+		updateMask = append(updateMask, "excludeCidrRanges")
 	}
 
 	if d.HasChange("overlaps") {
@@ -691,6 +719,10 @@ func flattenNetworkConnectivityInternalRangeTargetCidrRange(v interface{}, d *sc
 	return v
 }
 
+func flattenNetworkConnectivityInternalRangeExcludeCidrRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkConnectivityInternalRangeUsers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -766,6 +798,10 @@ func expandNetworkConnectivityInternalRangePrefixLength(v interface{}, d tpgreso
 }
 
 func expandNetworkConnectivityInternalRangeTargetCidrRange(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivityInternalRangeExcludeCidrRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
