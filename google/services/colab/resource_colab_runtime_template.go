@@ -120,6 +120,7 @@ func ResourceColabRuntimeTemplate() *schema.Resource {
 			},
 			"euc_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `EUC configuration of the NotebookRuntimeTemplate.`,
@@ -128,6 +129,7 @@ func ResourceColabRuntimeTemplate() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"euc_disabled": {
 							Type:        schema.TypeBool,
+							Computed:    true,
 							Optional:    true,
 							ForceNew:    true,
 							Description: `Disable end user credential access for the runtime.`,
@@ -156,6 +158,7 @@ func ResourceColabRuntimeTemplate() *schema.Resource {
 			},
 			"labels": {
 				Type:     schema.TypeMap,
+				Computed: true,
 				Optional: true,
 				Description: `Labels to identify and group the runtime template.
 
@@ -246,6 +249,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			},
 			"shielded_vm_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Runtime Shielded VM spec.`,
@@ -254,6 +258,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 					Schema: map[string]*schema.Schema{
 						"enable_secure_boot": {
 							Type:        schema.TypeBool,
+							Computed:    true,
 							Optional:    true,
 							ForceNew:    true,
 							Description: `Enables secure boot for the runtime.`,

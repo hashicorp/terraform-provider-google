@@ -1,0 +1,3 @@
+```release-note:bug
+colab: fixed perma-diff in `google_colab_runtime_template` caused by not returning default values.
+```
