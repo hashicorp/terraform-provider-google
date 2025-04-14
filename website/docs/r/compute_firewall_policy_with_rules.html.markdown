@@ -48,7 +48,7 @@ resource "google_compute_firewall_policy_with_rules" "primary" {
     enable_logging   = true
     action           = "allow"
     direction        = "EGRESS"
-    target_resources = ["https://www.googleapis.com/compute/beta/projects/${data.google_project.project.name}/global/networks/default"]
+    target_resources = ["https://www.googleapis.com/compute/beta/projects/${data.google_project.project.project_id}/global/networks/default"]
 
     match {
       dest_ip_ranges            = ["11.100.0.1/32"]
