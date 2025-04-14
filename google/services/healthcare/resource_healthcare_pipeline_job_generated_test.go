@@ -143,7 +143,7 @@ resource "google_healthcare_pipeline_job" "example-pipeline" {
   location = "us-central1"
   dataset = google_healthcare_dataset.dataset.id
   backfill_pipeline_job {
-    mapping_pipeline_job = "${google_healthcare_dataset.dataset.id}/pipelinejobs/tf_test_example_mapping_pipeline%{random_suffix}"
+    mapping_pipeline_job = "${google_healthcare_dataset.dataset.id}/pipelineJobs/tf_test_example_mapping_pipeline_job%{random_suffix}"
   }      
 }
 
