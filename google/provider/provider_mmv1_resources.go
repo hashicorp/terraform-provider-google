@@ -134,6 +134,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/spanner"
 	"github.com/hashicorp/terraform-provider-google/google/services/sql"
 	"github.com/hashicorp/terraform-provider-google/google/services/storage"
+	"github.com/hashicorp/terraform-provider-google/google/services/storagebatchoperations"
 	"github.com/hashicorp/terraform-provider-google/google/services/storagecontrol"
 	"github.com/hashicorp/terraform-provider-google/google/services/storageinsights"
 	"github.com/hashicorp/terraform-provider-google/google/services/storagetransfer"
@@ -512,9 +513,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 582
+// Generated resources: 583
 // Generated IAM resources: 291
-// Total generated resources: 873
+// Total generated resources: 874
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1317,6 +1318,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_storage_hmac_key":                                                    storage.ResourceStorageHmacKey(),
 	"google_storage_managed_folder":                                              storage.ResourceStorageManagedFolder(),
 	"google_storage_object_access_control":                                       storage.ResourceStorageObjectAccessControl(),
+	"google_storage_batch_operations_job":                                        storagebatchoperations.ResourceStorageBatchOperationsJob(),
 	"google_storage_control_folder_intelligence_config":                          storagecontrol.ResourceStorageControlFolderIntelligenceConfig(),
 	"google_storage_control_organization_intelligence_config":                    storagecontrol.ResourceStorageControlOrganizationIntelligenceConfig(),
 	"google_storage_control_project_intelligence_config":                         storagecontrol.ResourceStorageControlProjectIntelligenceConfig(),
