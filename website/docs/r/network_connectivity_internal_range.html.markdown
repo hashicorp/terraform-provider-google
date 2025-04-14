@@ -236,6 +236,11 @@ The following arguments are supported:
   Optional. Can be set to narrow down or pick a different address space while searching for a free range.
   If not set, defaults to the "10.0.0.0/8" address space. This can be used to search in other rfc-1918 address spaces like "172.16.0.0/12" and "192.168.0.0/16" or non-rfc-1918 address spaces used in the VPC.
 
+* `exclude_cidr_ranges` -
+  (Optional)
+  Optional. List of IP CIDR ranges to be excluded. Resulting reserved Internal Range will not overlap with any CIDR blocks mentioned in this list.
+  Only IPv4 CIDR ranges are supported.
+
 * `overlaps` -
   (Optional)
   Optional. Types of resources that are allowed to overlap with the current internal range.

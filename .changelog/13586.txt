@@ -1,0 +1,3 @@
+```release-note:enhancement
+networkconnectivity: added `excludeCidrRanges` field to `google_network_connectivity_internal_range` resource
+```
