@@ -124,7 +124,7 @@ func TestAccDiscoveryEngineChatEngine_discoveryengineChatEngineExistingDialogflo
 func testAccDiscoveryEngineChatEngine_discoveryengineChatEngineExistingDialogflowAgentExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "test_data_store" {
-  location                    = "global"
+  location                    = "eu"
   data_store_id               = "tf-test-data-store%{random_suffix}"
   display_name                = "Structured datastore"
   industry_vertical           = "GENERIC"
@@ -134,7 +134,7 @@ resource "google_discovery_engine_data_store" "test_data_store" {
 
 resource "google_dialogflow_cx_agent" "agent" {
   display_name = "dialogflowcx-agent"
-  location = "global"
+  location = "europe-west3"
   default_language_code = "en"
   time_zone = "America/Los_Angeles"
 }
@@ -151,6 +151,7 @@ resource "google_discovery_engine_chat_engine" "primary" {
   }
   chat_engine_config {
     dialogflow_agent_to_link = google_dialogflow_cx_agent.agent.id
+    allow_cross_region = true
   }
 }
 `, context)
