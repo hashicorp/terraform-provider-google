@@ -29,6 +29,7 @@ fields:
   - field: 'http_check.service_agent_authentication.type'
   - field: 'http_check.use_ssl'
   - field: 'http_check.validate_ssl'
+  - field: 'log_check_failures'
   - field: 'monitored_resource.labels'
   - field: 'monitored_resource.type'
   - field: 'name'
