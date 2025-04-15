@@ -206,7 +206,7 @@ If omitted, a port number will be chosen and passed to the container through the
 									"max_retries": {
 										Type:        schema.TypeInt,
 										Optional:    true,
-										Description: `Number of retries allowed per Task, before marking this Task failed.`,
+										Description: `Number of retries allowed per Task, before marking this Task failed. Defaults to 3. Minimum value is 0.`,
 										Default:     3,
 									},
 									"service_account": {
