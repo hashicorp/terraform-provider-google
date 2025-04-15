@@ -1056,15 +1056,9 @@ func resourceOSConfigPatchDeploymentCreate(d *schema.ResourceData, meta interfac
 	}
 	// Set computed resource properties from create API response so that they're available on the subsequent Read
 	// call.
-	res, err = resourceOSConfigPatchDeploymentDecoder(d, meta, res)
+	err = resourceOSConfigPatchDeploymentPostCreateSetComputedFields(d, meta, res)
 	if err != nil {
-		return fmt.Errorf("decoding response: %w", err)
-	}
-	if res == nil {
-		return fmt.Errorf("decoding response, could not find object")
-	}
-	if err := d.Set("name", flattenOSConfigPatchDeploymentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -3391,4 +3385,18 @@ func resourceOSConfigPatchDeploymentDecoder(d *schema.ResourceData, meta interfa
 	}
 
 	return res, nil
+}
+func resourceOSConfigPatchDeploymentPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	res, err := resourceOSConfigPatchDeploymentDecoder(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("decoding response: %w", err)
+	}
+	if res == nil {
+		return fmt.Errorf("decoding response, could not find object")
+	}
+	if err := d.Set("name", flattenOSConfigPatchDeploymentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

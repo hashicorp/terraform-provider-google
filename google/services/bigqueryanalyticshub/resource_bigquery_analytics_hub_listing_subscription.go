@@ -285,19 +285,9 @@ func resourceBigqueryAnalyticsHubListingSubscriptionCreate(d *schema.ResourceDat
 	}
 	// Set computed resource properties from create API response so that they're available on the subsequent Read
 	// call.
-	res, err = resourceBigqueryAnalyticsHubListingSubscriptionDecoder(d, meta, res)
+	err = resourceBigqueryAnalyticsHubListingSubscriptionPostCreateSetComputedFields(d, meta, res)
 	if err != nil {
-		return fmt.Errorf("decoding response: %w", err)
-	}
-	if res == nil {
-		return fmt.Errorf("decoding response, could not find object")
-	}
-	// Setting `name` field so that `id_from_name` flattener will work properly.
-	if err := d.Set("name", flattenBigqueryAnalyticsHubListingSubscriptionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
-	if err := d.Set("subscription_id", flattenBigqueryAnalyticsHubListingSubscriptionSubscriptionId(res["subscriptionId"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "subscription_id": %s`, err)
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -721,4 +711,22 @@ func resourceBigqueryAnalyticsHubListingSubscriptionDecoder(d *schema.ResourceDa
 		return s.(map[string]interface{}), nil
 	}
 	return res, nil
+}
+func resourceBigqueryAnalyticsHubListingSubscriptionPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	res, err := resourceBigqueryAnalyticsHubListingSubscriptionDecoder(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("decoding response: %w", err)
+	}
+	if res == nil {
+		return fmt.Errorf("decoding response, could not find object")
+	}
+	// Setting `name` field so that `id_from_name` flattener will work properly.
+	if err := d.Set("name", flattenBigqueryAnalyticsHubListingSubscriptionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	if err := d.Set("subscription_id", flattenBigqueryAnalyticsHubListingSubscriptionSubscriptionId(res["subscriptionId"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "subscription_id": %s`, err)
+	}
+	return nil
 }

@@ -156,8 +156,9 @@ func resourceFirebaseAppCheckDebugTokenCreate(d *schema.ResourceData, meta inter
 	}
 	// Set computed resource properties from create API response so that they're available on the subsequent Read
 	// call.
-	if err := d.Set("debug_token_id", flattenFirebaseAppCheckDebugTokenDebugTokenId(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "debug_token_id": %s`, err)
+	err = resourceFirebaseAppCheckDebugTokenPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -380,4 +381,12 @@ func expandFirebaseAppCheckDebugTokenDisplayName(v interface{}, d tpgresource.Te
 
 func expandFirebaseAppCheckDebugTokenToken(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceFirebaseAppCheckDebugTokenPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("debug_token_id", flattenFirebaseAppCheckDebugTokenDebugTokenId(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "debug_token_id": %s`, err)
+	}
+	return nil
 }

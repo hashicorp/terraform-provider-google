@@ -484,8 +484,9 @@ func resourceDocumentAIWarehouseDocumentSchemaCreate(d *schema.ResourceData, met
 	}
 	// Set computed resource properties from create API response so that they're available on the subsequent Read
 	// call.
-	if err := d.Set("name", flattenDocumentAIWarehouseDocumentSchemaName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	err = resourceDocumentAIWarehouseDocumentSchemaPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -1634,4 +1635,12 @@ func expandDocumentAIWarehouseDocumentSchemaPropertyDefinitionsTimestampTypeOpti
 	transformed := make(map[string]interface{})
 
 	return transformed, nil
+}
+
+func resourceDocumentAIWarehouseDocumentSchemaPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("name", flattenDocumentAIWarehouseDocumentSchemaName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }
