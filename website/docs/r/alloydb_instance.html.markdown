@@ -318,6 +318,10 @@ The following arguments are supported:
   (Optional)
   Track actively running queries. If not set, default value is "off".
 
+* `assistive_experiences_enabled` -
+  (Optional)
+  Whether assistive experiences are enabled for this AlloyDB instance.
+
 <a name="nested_read_pool_config"></a>The `read_pool_config` block supports:
 
 * `node_count` -

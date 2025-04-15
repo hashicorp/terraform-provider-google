@@ -1,0 +1,3 @@
+```release-note:enhancement
+alloydb: added `assistiveExperiencesEnabled` field to `observabilityConfig` in `google_alloydb_instance` resource (beta)
+```
