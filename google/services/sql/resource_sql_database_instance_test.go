@@ -2903,6 +2903,41 @@ func TestAccSqlDatabaseInstance_useCasBasedServerCa(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_useCustomSubjectAlternateName(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "google_sql_database_instance.instance"
+
+	context := map[string]interface{}{
+		"projectID":       envvar.GetTestProjectFromEnv(),
+		"databaseName":    "tf-test-" + acctest.RandString(t, 10),
+		"casRandomSuffix": acctest.RandString(t, 10),
+		"customSan":       "test.example.com",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_setCustomSubjectAlternateName(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "settings.0.ip_configuration.0.server_ca_mode", "CUSTOMER_MANAGED_CAS_CA"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "settings.0.ip_configuration.0.custom_subject_alternative_names.*", "test.example.com"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_useCustomerManagedServerCa(t *testing.T) {
 	t.Parallel()
 
@@ -2934,6 +2969,90 @@ func TestAccSqlDatabaseInstance_useCustomerManagedServerCa(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testGoogleSqlDatabaseInstance_setCustomSubjectAlternateName(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+  project_id = "%{projectID}"
+}
+
+resource "google_privateca_ca_pool" "customer_ca_pool" {
+  name     = "tf-test-cap-%{casRandomSuffix}"
+  location = "us-central1"
+  tier     = "DEVOPS"
+
+  publishing_options {
+    publish_ca_cert = false
+    publish_crl     = false
+  }
+}
+
+resource "google_privateca_certificate_authority" "customer_ca" {
+  pool                                   = google_privateca_ca_pool.customer_ca_pool.name
+  certificate_authority_id               = "tf-test-ca-%{casRandomSuffix}"
+  location                               = "us-central1"
+  lifetime                               = "86400s"
+  type                                   = "SELF_SIGNED"
+  deletion_protection                    = false
+  skip_grace_period                      = true
+  ignore_active_certificates_on_deletion = true
+
+  config {
+    subject_config {
+      subject {
+        organization = "Test LLC"
+        common_name  = "my-ca"
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign  = true
+        }
+        extended_key_usage {
+          server_auth = false
+        }
+      }
+    }
+  }
+
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+}
+
+resource "google_privateca_ca_pool_iam_member" "granting" {
+  ca_pool  = google_privateca_ca_pool.customer_ca_pool.id
+  role     = "roles/privateca.certificateRequester"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloud-sql.iam.gserviceaccount.com"
+}
+
+resource "google_sql_database_instance" "instance" {
+  name                = "%{databaseName}"
+  region              = "us-central1"
+  database_version    = "POSTGRES_15"
+  deletion_protection = false
+  settings {
+	tier = "db-f1-micro"
+	ip_configuration {
+		ipv4_enabled    = "true"
+		server_ca_mode  = "CUSTOMER_MANAGED_CAS_CA"
+		server_ca_pool  = google_privateca_ca_pool.customer_ca_pool.id
+		custom_subject_alternative_names = ["%{customSan}"]
+	}
+  }
+
+  depends_on = [
+      google_privateca_certificate_authority.customer_ca,
+      google_privateca_ca_pool_iam_member.granting
+  ]
+}
+`, context)
 }
 
 func testGoogleSqlDatabaseInstance_setCustomerManagedServerCa(context map[string]interface{}) string {

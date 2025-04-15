@@ -85,6 +85,7 @@ var (
 		"settings.0.ip_configuration.0.ssl_mode",
 		"settings.0.ip_configuration.0.server_ca_mode",
 		"settings.0.ip_configuration.0.server_ca_pool",
+		"settings.0.ip_configuration.0.custom_subject_alternative_names",
 	}
 
 	maintenanceWindowKeys = []string{
@@ -535,6 +536,16 @@ is set to true. Defaults to ZONAL.`,
 										Type:         schema.TypeString,
 										Optional:     true,
 										Description:  `The resource name of the server CA pool for an instance with "CUSTOMER_MANAGED_CAS_CA" as the "server_ca_mode".`,
+										AtLeastOneOf: ipConfigurationKeys,
+									},
+									"custom_subject_alternative_names": {
+										Type:     schema.TypeSet,
+										Optional: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set:          schema.HashString,
+										Description:  `The custom subject alternative names for an instance with "CUSTOMER_MANAGED_CAS_CA" as the "server_ca_mode".`,
 										AtLeastOneOf: ipConfigurationKeys,
 									},
 								},
@@ -1493,6 +1504,7 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 		SslMode:                                 _ipConfiguration["ssl_mode"].(string),
 		ServerCaMode:                            _ipConfiguration["server_ca_mode"].(string),
 		ServerCaPool:                            _ipConfiguration["server_ca_pool"].(string),
+		CustomSubjectAlternativeNames:           tpgresource.ConvertStringArr(_ipConfiguration["custom_subject_alternative_names"].(*schema.Set).List()),
 	}
 }
 
@@ -2456,9 +2468,10 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema
 		"private_network":    ipConfiguration.PrivateNetwork,
 		"allocated_ip_range": ipConfiguration.AllocatedIpRange,
 		"enable_private_path_for_google_cloud_services": ipConfiguration.EnablePrivatePathForGoogleCloudServices,
-		"ssl_mode":       ipConfiguration.SslMode,
-		"server_ca_mode": ipConfiguration.ServerCaMode,
-		"server_ca_pool": ipConfiguration.ServerCaPool,
+		"ssl_mode":                         ipConfiguration.SslMode,
+		"server_ca_mode":                   ipConfiguration.ServerCaMode,
+		"server_ca_pool":                   ipConfiguration.ServerCaPool,
+		"custom_subject_alternative_names": ipConfiguration.CustomSubjectAlternativeNames,
 	}
 
 	if ipConfiguration.AuthorizedNetworks != nil {
