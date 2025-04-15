@@ -198,3 +198,11 @@ func flattenPublicCAExternalAccountKeyB64urlMacKey(v interface{}, d *schema.Reso
 
 	return base64.URLEncoding.EncodeToString(dec)
 }
+
+func resourcePublicCAExternalAccountKeyPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("name", flattenPublicCAExternalAccountKeyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
+}

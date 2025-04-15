@@ -336,8 +336,9 @@ func resourceColabScheduleCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	// Set computed resource properties from create API response so that they're available on the subsequent Read
 	// call.
-	if err := d.Set("name", flattenColabScheduleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	err = resourceColabSchedulePostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -1078,4 +1079,12 @@ func resourceColabScheduleEncoder(d *schema.ResourceData, meta interface{}, obj 
 	jobRequest["parent"] = fmt.Sprintf("projects/%s/locations/%s", project, location)
 
 	return obj, nil
+}
+
+func resourceColabSchedulePostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("name", flattenColabScheduleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

@@ -259,11 +259,9 @@ func resourceCloudQuotasQuotaPreferenceCreate(d *schema.ResourceData, meta inter
 	}
 	// Set computed resource properties from create API response so that they're available on the subsequent Read
 	// call.
-	// name is set by API when unset
-	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("name"))) {
-		if err := d.Set("name", flattenCloudQuotasQuotaPreferenceName(res["name"], d, config)); err != nil {
-			return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-		}
+	err = resourceCloudQuotasQuotaPreferencePostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -690,4 +688,15 @@ func expandCloudQuotasQuotaPreferenceJustification(v interface{}, d tpgresource.
 
 func expandCloudQuotasQuotaPreferenceContactEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceCloudQuotasQuotaPreferencePostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	// name is set by API when unset
+	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("name"))) {
+		if err := d.Set("name", flattenCloudQuotasQuotaPreferenceName(res["name"], d, config)); err != nil {
+			return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+		}
+	}
+	return nil
 }

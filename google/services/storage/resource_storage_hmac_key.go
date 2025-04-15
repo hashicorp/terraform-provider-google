@@ -157,8 +157,9 @@ func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	// Set computed resource properties from create API response so that they're available on the subsequent Read
 	// call.
-	if err := d.Set("access_id", flattenStorageHmacKeyAccessId(res["accessId"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "access_id": %s`, err)
+	err = resourceStorageHmacKeyPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -555,4 +556,11 @@ func resourceStorageHmacKeyDecoder(d *schema.ResourceData, meta interface{}, res
 	}
 
 	return res, nil
+}
+func resourceStorageHmacKeyPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("access_id", flattenStorageHmacKeyAccessId(res["accessId"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "access_id": %s`, err)
+	}
+	return nil
 }

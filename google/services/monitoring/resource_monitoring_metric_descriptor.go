@@ -298,8 +298,9 @@ func resourceMonitoringMetricDescriptorCreate(d *schema.ResourceData, meta inter
 	}
 	// Set computed resource properties from create API response so that they're available on the subsequent Read
 	// call.
-	if err := d.Set("name", flattenMonitoringMetricDescriptorName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	err = resourceMonitoringMetricDescriptorPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -792,4 +793,12 @@ func expandMonitoringMetricDescriptorMetadataIngestDelay(v interface{}, d tpgres
 
 func expandMonitoringMetricDescriptorLaunchStage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceMonitoringMetricDescriptorPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("name", flattenMonitoringMetricDescriptorName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

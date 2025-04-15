@@ -461,15 +461,9 @@ func resourceBigqueryConnectionConnectionCreate(d *schema.ResourceData, meta int
 	}
 	// Set computed resource properties from create API response so that they're available on the subsequent Read
 	// call.
-	// Setting `name` field so that `id_from_name` flattener will work properly.
-	if err := d.Set("name", flattenBigqueryConnectionConnectionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
-	// connection_id is set by API when unset
-	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("connection_id"))) {
-		if err := d.Set("connection_id", flattenBigqueryConnectionConnectionConnectionId(res["connection_id"], d, config)); err != nil {
-			return fmt.Errorf(`Error setting computed identity field "connection_id": %s`, err)
-		}
+	err = resourceBigqueryConnectionConnectionPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -1526,4 +1520,19 @@ func resourceBigqueryConnectionConnectionEncoder(d *schema.ResourceData, meta in
 	// connection_id is needed to qualify the URL but cannot be sent in the body
 	delete(obj, "connection_id")
 	return obj, nil
+}
+
+func resourceBigqueryConnectionConnectionPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	// Setting `name` field so that `id_from_name` flattener will work properly.
+	if err := d.Set("name", flattenBigqueryConnectionConnectionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	// connection_id is set by API when unset
+	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("connection_id"))) {
+		if err := d.Set("connection_id", flattenBigqueryConnectionConnectionConnectionId(res["connection_id"], d, config)); err != nil {
+			return fmt.Errorf(`Error setting computed identity field "connection_id": %s`, err)
+		}
+	}
+	return nil
 }
