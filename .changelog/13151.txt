@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added `databaseVersionDiffSuppress` to `google_sql_database_instance`. This change will suppress diff for database_version for MySQL 8.0 when the version is updated by auto version upgrade.
+```
