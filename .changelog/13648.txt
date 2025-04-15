@@ -1,0 +1,3 @@
+```release-note:bug
+discoveryengine: fix `google_discovery_engine_target_site` operations to allow for enough time to index before timing out
+```
