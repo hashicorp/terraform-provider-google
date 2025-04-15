@@ -3980,7 +3980,7 @@ func TestAccContainerNodePool_withConfidentialNodes(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_withConfidentialNodes(clusterName, np, networkName, subnetworkName),
+				Config: testAccContainerNodePool_withConfidentialNodes(clusterName, np, networkName, subnetworkName, true),
 			},
 			{
 				ResourceName:      "google_container_node_pool.np",
@@ -3988,7 +3988,7 @@ func TestAccContainerNodePool_withConfidentialNodes(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccContainerNodePool_disableConfidentialNodes(clusterName, np, networkName, subnetworkName),
+				Config: testAccContainerNodePool_withConfidentialNodes(clusterName, np, networkName, subnetworkName, false),
 			},
 			{
 				ResourceName:      "google_container_node_pool.np",
@@ -3996,7 +3996,7 @@ func TestAccContainerNodePool_withConfidentialNodes(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccContainerNodePool_withConfidentialNodes(clusterName, np, networkName, subnetworkName),
+				Config: testAccContainerNodePool_withConfidentialNodes(clusterName, np, networkName, subnetworkName, true),
 			},
 			{
 				ResourceName:      "google_container_node_pool.np",
@@ -4007,7 +4007,7 @@ func TestAccContainerNodePool_withConfidentialNodes(t *testing.T) {
 	})
 }
 
-func testAccContainerNodePool_withConfidentialNodes(clusterName, np, networkName, subnetworkName string) string {
+func testAccContainerNodePool_withConfidentialNodes(clusterName, np, networkName, subnetworkName string, confidential bool) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
   name               = "%s"
@@ -4021,7 +4021,7 @@ resource "google_container_cluster" "cluster" {
   }
   deletion_protection = false
   network    = "%s"
-  subnetwork    = "%s"
+  subnetwork = "%s"
 }
 
 resource "google_container_node_pool" "np" {
@@ -4032,43 +4032,11 @@ resource "google_container_node_pool" "np" {
   node_config {
     machine_type = "n2d-standard-2" // can't be e2 because Confidential Nodes require AMD CPUs
     confidential_nodes {
-      enabled = true
+      enabled = "%t"
     }
   }
 }
-`, clusterName, networkName, subnetworkName, np)
-}
-
-func testAccContainerNodePool_disableConfidentialNodes(clusterName, np, networkName, subnetworkName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "cluster" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 1
-  node_config {
-    confidential_nodes {
-      enabled = false
-    }
-    machine_type = "n2-standard-2"
-  }
-  deletion_protection = false
-  network    = "%s"
-  subnetwork    = "%s"
-}
-
-resource "google_container_node_pool" "np" {
-  name               = "%s"
-  location           = "us-central1-a"
-  cluster            = google_container_cluster.cluster.name
-  initial_node_count = 1
-  node_config {
-    machine_type = "n2d-standard-2" // can't be e2 because Confidential Nodes require AMD CPUs
-    confidential_nodes {
-      enabled = false
-    }
-  }
-}
-`, clusterName, networkName, subnetworkName, np)
+`, clusterName, networkName, subnetworkName, np, confidential)
 }
 
 func TestAccContainerNodePool_withLocalSsdEncryptionMode(t *testing.T) {

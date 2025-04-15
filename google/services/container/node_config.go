@@ -774,15 +774,13 @@ func schemaNodeConfig() *schema.Schema {
 					Type:        schema.TypeList,
 					Optional:    true,
 					Computed:    true,
-					ForceNew:    true,
 					MaxItems:    1,
-					Description: `Configuration for the confidential nodes feature, which makes nodes run on confidential VMs. Warning: This configuration can't be changed (or added/removed) after pool creation without deleting and recreating the entire pool.`,
+					Description: `Configuration for the confidential nodes feature, which makes nodes run on confidential VMs.`,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"enabled": {
 								Type:        schema.TypeBool,
 								Required:    true,
-								ForceNew:    true,
 								Description: `Whether Confidential Nodes feature is enabled for all nodes in this pool.`,
 							},
 						},
@@ -2077,6 +2075,42 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 				}
 
 				log.Printf("[INFO] Updated containerd_config for node pool %s", name)
+			}
+		}
+
+		if d.HasChange(prefix + "node_config.0.confidential_nodes") {
+			if _, ok := d.GetOk(prefix + "node_config.0.confidential_nodes"); ok {
+				req := &container.UpdateNodePoolRequest{
+					Name:              name,
+					ConfidentialNodes: expandConfidentialNodes(d.Get(prefix + "node_config.0.confidential_nodes")),
+				}
+				if req.ConfidentialNodes == nil {
+					req.ConfidentialNodes = &container.ConfidentialNodes{}
+					req.ForceSendFields = []string{"ConfidentialNodes"}
+				}
+				updateF := func() error {
+					clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+					if config.UserProjectOverride {
+						clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+					}
+					op, err := clusterNodePoolsUpdateCall.Do()
+					if err != nil {
+						return err
+					}
+
+					// Wait until it's updated
+					return ContainerOperationWait(config, op,
+						nodePoolInfo.project,
+						nodePoolInfo.location,
+						"updating GKE node pool confidential_nodes", userAgent,
+						timeout)
+				}
+
+				if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+					return err
+				}
+
+				log.Printf("[INFO] Updated confidential_nodes for node pool %s", name)
 			}
 		}
 
