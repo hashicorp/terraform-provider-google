@@ -295,6 +295,11 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 					},
 				},
 			},
+			"log_check_failures": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Specifies whether to log the results of failed probes to Cloud Logging.`,
+			},
 			"monitored_resource": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -498,6 +503,12 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("selected_regions"); !tpgresource.IsEmptyValue(reflect.ValueOf(selectedRegionsProp)) && (ok || !reflect.DeepEqual(v, selectedRegionsProp)) {
 		obj["selectedRegions"] = selectedRegionsProp
 	}
+	logCheckFailuresProp, err := expandMonitoringUptimeCheckConfigLogCheckFailures(d.Get("log_check_failures"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_check_failures"); !tpgresource.IsEmptyValue(reflect.ValueOf(logCheckFailuresProp)) && (ok || !reflect.DeepEqual(v, logCheckFailuresProp)) {
+		obj["logCheckFailures"] = logCheckFailuresProp
+	}
 	checkerTypeProp, err := expandMonitoringUptimeCheckConfigCheckerType(d.Get("checker_type"), d, config)
 	if err != nil {
 		return err
@@ -669,6 +680,9 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 	if err := d.Set("selected_regions", flattenMonitoringUptimeCheckConfigSelectedRegions(res["selectedRegions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
+	if err := d.Set("log_check_failures", flattenMonitoringUptimeCheckConfigLogCheckFailures(res["logCheckFailures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
+	}
 	if err := d.Set("checker_type", flattenMonitoringUptimeCheckConfigCheckerType(res["checkerType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
@@ -740,6 +754,12 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("selected_regions"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, selectedRegionsProp)) {
 		obj["selectedRegions"] = selectedRegionsProp
 	}
+	logCheckFailuresProp, err := expandMonitoringUptimeCheckConfigLogCheckFailures(d.Get("log_check_failures"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_check_failures"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logCheckFailuresProp)) {
+		obj["logCheckFailures"] = logCheckFailuresProp
+	}
 	userLabelsProp, err := expandMonitoringUptimeCheckConfigUserLabels(d.Get("user_labels"), d, config)
 	if err != nil {
 		return err
@@ -798,6 +818,10 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("selected_regions") {
 		updateMask = append(updateMask, "selectedRegions")
+	}
+
+	if d.HasChange("log_check_failures") {
+		updateMask = append(updateMask, "logCheckFailures")
 	}
 
 	if d.HasChange("user_labels") {
@@ -991,6 +1015,10 @@ func flattenMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher
 }
 
 func flattenMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigLogCheckFailures(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1440,6 +1468,10 @@ func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(
 }
 
 func expandMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigLogCheckFailures(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

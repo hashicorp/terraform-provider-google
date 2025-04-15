@@ -1,0 +1,3 @@
+```release-note:enhancement
+monitoring: added `log_check_failures` to google_monitoring_uptime_check_config`
+```
