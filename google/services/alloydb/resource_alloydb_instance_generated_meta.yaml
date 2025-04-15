@@ -25,6 +25,7 @@ fields:
   - field: 'ip_address'
   - field: 'labels'
   - field: 'machine_config.cpu_count'
+  - field: 'machine_config.machine_type'
   - field: 'name'
   - field: 'network_config.authorized_external_networks.cidr_range'
   - field: 'network_config.enable_outbound_public_ip'
