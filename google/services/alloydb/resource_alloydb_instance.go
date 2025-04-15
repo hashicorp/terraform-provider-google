@@ -180,6 +180,14 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 							Optional:    true,
 							Description: `The number of CPU's in the VM instance.`,
 						},
+						"machine_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							Description: `Machine type of the VM instance.
+E.g. "n2-highmem-4", "n2-highmem-8", "c4a-highmem-4-lssd".
+'cpu_count' must match the number of vCPUs in the machine type.`,
+						},
 					},
 				},
 			},
@@ -1094,6 +1102,8 @@ func flattenAlloydbInstanceMachineConfig(v interface{}, d *schema.ResourceData, 
 	transformed := make(map[string]interface{})
 	transformed["cpu_count"] =
 		flattenAlloydbInstanceMachineConfigCpuCount(original["cpuCount"], d, config)
+	transformed["machine_type"] =
+		flattenAlloydbInstanceMachineConfigMachineType(original["machineType"], d, config)
 	return []interface{}{transformed}
 }
 func flattenAlloydbInstanceMachineConfigCpuCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1111,6 +1121,10 @@ func flattenAlloydbInstanceMachineConfigCpuCount(v interface{}, d *schema.Resour
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenAlloydbInstanceMachineConfigMachineType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenAlloydbInstanceClientConnectionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1402,10 +1416,21 @@ func expandAlloydbInstanceMachineConfig(v interface{}, d tpgresource.TerraformRe
 		transformed["cpuCount"] = transformedCpuCount
 	}
 
+	transformedMachineType, err := expandAlloydbInstanceMachineConfigMachineType(original["machine_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMachineType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["machineType"] = transformedMachineType
+	}
+
 	return transformed, nil
 }
 
 func expandAlloydbInstanceMachineConfigCpuCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbInstanceMachineConfigMachineType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
