@@ -457,7 +457,7 @@ The following arguments are supported:
 
 * `max_retries` -
   (Optional)
-  Number of retries allowed per Task, before marking this Task failed.
+  Number of retries allowed per Task, before marking this Task failed. Defaults to 3. Minimum value is 0.
 
 
 <a name="nested_template_template_containers"></a>The `containers` block supports:
