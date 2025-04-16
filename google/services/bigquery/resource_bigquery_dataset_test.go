@@ -489,6 +489,41 @@ func TestAccBigQueryDataset_bigqueryDatasetExternalReferenceAws(t *testing.T) {
 		},
 	})
 }
+
+func TestAccBigQueryDataset_externalCatalogDatasetOptions_update(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDataset_externalCatalogDatasetOptions_basic(context),
+			},
+			{
+				ResourceName:            "google_bigquery_dataset.dataset",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccBigQueryDataset_externalCatalogDatasetOptions_update(context),
+			},
+			{
+				ResourceName:            "google_bigquery_dataset.dataset",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func testAccAddTable(t *testing.T, datasetID string, tableID string) resource.TestCheckFunc {
 	// Not actually a check, but adds a table independently of terraform
 	return func(s *terraform.State) error {
@@ -931,8 +966,6 @@ resource "google_bigquery_dataset" "dataset" {
 func testAccBigQueryDataset_externalCatalogDatasetOptions_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
-  provider = google-beta
-
   dataset_id    = "dataset%{random_suffix}"
   friendly_name = "test"
   description   = "This is a test description"
@@ -951,8 +984,6 @@ resource "google_bigquery_dataset" "dataset" {
 func testAccBigQueryDataset_externalCatalogDatasetOptions_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
-  provider = google-beta
-
   dataset_id    = "dataset%{random_suffix}"
   friendly_name = "test"
   description   = "This is a test description"
