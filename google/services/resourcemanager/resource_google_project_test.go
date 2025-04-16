@@ -65,8 +65,6 @@ func TestAccProject_create(t *testing.T) {
 				Config: testAccProject(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
-					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
-						testAccProject(pid, org)),
 				),
 			},
 		},
@@ -131,7 +129,7 @@ func TestAccProject_labels(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProject_labels(pid, org, map[string]string{"test": "that"}),
+				Config: testAccProject_labels(pid, org, "test", "that"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasLabels(t, "google_project.acceptance", pid, map[string]string{"test": "that"}),
 				),
@@ -145,7 +143,7 @@ func TestAccProject_labels(t *testing.T) {
 			},
 			// update project with labels
 			{
-				Config: testAccProject_labels(pid, org, map[string]string{"label": "label-value"}),
+				Config: testAccProject_labels(pid, org, "label", "label-value"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 					testAccCheckGoogleProjectHasLabels(t, "google_project.acceptance", pid, map[string]string{"label": "label-value"}),
@@ -160,11 +158,11 @@ func TestAccProject_labels(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccProject_labels(pid, org, map[string]string{"label": "label-value"}),
+				Config: testAccProject_labels(pid, org, "label", "label-value"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasLabels(t, "google_project.acceptance", pid, map[string]string{"label": "label-value"}),
 					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
-						testAccProject_labels(pid, org, map[string]string{"test": "that"})),
+						testAccProject_labels(pid, org, "label", "label-value")),
 				),
 			},
 		},
@@ -526,8 +524,8 @@ resource "google_project" "acceptance" {
 `, pid, pid, org, billing)
 }
 
-func testAccProject_labels(pid, org string, labels map[string]string) string {
-	r := fmt.Sprintf(`
+func testAccProject_labels(pid, org, key, value string) string {
+	return fmt.Sprintf(`
 provider "google" {
   add_terraform_attribution_label = false
 }
@@ -537,15 +535,11 @@ resource "google_project" "acceptance" {
   name       = "%s"
   org_id     = "%s"
   deletion_policy = "DELETE"
-  labels = {`, pid, pid, org)
-
-	l := ""
-	for key, value := range labels {
-		l += fmt.Sprintf("%q = %q\n", key, value)
-	}
-
-	l += fmt.Sprintf("}\n}")
-	return r + l
+  labels = {
+    "%s" = "%s"
+  }
+}
+`, pid, pid, org, key, value)
 }
 
 func testAccProject_deleteDefaultNetwork(pid, org, billing string) string {
