@@ -153,6 +153,15 @@ service-level min RSA modulus size will continue to apply.`,
 								},
 							},
 						},
+						"backdate_duration": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The duration to backdate all certificates issued from this CaPool. If not set, the
+certificates will be issued with a not_before_time of the issuance time (i.e. the current
+time). If set, the certificates will be issued with a not_before_time of the issuance
+time minus the backdate_duration. The not_after_time will be adjusted to preserve the
+requested lifetime. The backdate_duration must be less than or equal to 48 hours.`,
+						},
 						"baseline_values": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -976,6 +985,8 @@ func flattenPrivatecaCaPoolIssuancePolicy(v interface{}, d *schema.ResourceData,
 	transformed := make(map[string]interface{})
 	transformed["allowed_key_types"] =
 		flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypes(original["allowedKeyTypes"], d, config)
+	transformed["backdate_duration"] =
+		flattenPrivatecaCaPoolIssuancePolicyBackdateDuration(original["backdateDuration"], d, config)
 	transformed["maximum_lifetime"] =
 		flattenPrivatecaCaPoolIssuancePolicyMaximumLifetime(original["maximumLifetime"], d, config)
 	transformed["allowed_issuance_modes"] =
@@ -1042,6 +1053,10 @@ func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurve(v interfac
 	return []interface{}{transformed}
 }
 func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurveSignatureAlgorithm(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCaPoolIssuancePolicyBackdateDuration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1235,6 +1250,13 @@ func expandPrivatecaCaPoolIssuancePolicy(v interface{}, d tpgresource.TerraformR
 		transformed["allowedKeyTypes"] = transformedAllowedKeyTypes
 	}
 
+	transformedBackdateDuration, err := expandPrivatecaCaPoolIssuancePolicyBackdateDuration(original["backdate_duration"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBackdateDuration); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["backdateDuration"] = transformedBackdateDuration
+	}
+
 	transformedMaximumLifetime, err := expandPrivatecaCaPoolIssuancePolicyMaximumLifetime(original["maximum_lifetime"], d, config)
 	if err != nil {
 		return nil, err
@@ -1349,6 +1371,10 @@ func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurve(v interface
 }
 
 func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurveSignatureAlgorithm(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPrivatecaCaPoolIssuancePolicyBackdateDuration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

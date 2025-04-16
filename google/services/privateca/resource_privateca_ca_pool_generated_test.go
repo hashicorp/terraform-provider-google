@@ -123,6 +123,7 @@ resource "google_privateca_ca_pool" "default" {
         max_modulus_size = 10
       }
     }
+    backdate_duration = "3600s"
     maximum_lifetime = "50000s"
     allowed_issuance_modes {
       allow_csr_based_issuance = true
