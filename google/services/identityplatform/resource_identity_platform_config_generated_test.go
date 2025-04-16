@@ -257,6 +257,7 @@ resource "google_identity_platform_config" "default" {
   project = google_project.default.project_id
   autodelete_anonymous_users = false
   sign_in {
+    allow_duplicate_emails = false
    
     anonymous {
         enabled = false
@@ -266,6 +267,31 @@ resource "google_identity_platform_config" "default" {
     }
     phone_number {
         enabled = false
+    }
+  }
+  blocking_functions {
+    triggers {
+      event_type   = "beforeSignIn"
+      function_uri = "https://us-east1-tf-test-my-project-2%{random_suffix}.cloudfunctions.net/before-sign-in"
+    }
+    forward_inbound_credentials {
+      refresh_token = false
+      access_token  = false
+      id_token      = false
+    }
+  }
+  client {
+    permissions {
+      disabled_user_signup = false
+      disabled_user_deletion = false
+    }
+  }
+  multi_tenant {
+    allow_tenants = false
+  }
+  monitoring {
+    request_logging {
+      enabled = false
     }
   }
 }
