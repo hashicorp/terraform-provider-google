@@ -183,6 +183,26 @@ func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdate
 		// resource is used.
 		DeprecationMessage: settings.DeprecationMessage,
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			Schema: map[string]*schema.Schema{
+				"project": {
+					Type:              schema.TypeString,
+					RequiredForImport: true,
+					Description:       `The project that the service account belongs to.`,
+				},
+				"role": {
+					Type:              schema.TypeString,
+					RequiredForImport: true,
+					Description:       `The e-mail address of the service account. This value should be referenced from any google_iam_policy data sources that would grant the service account privileges.`,
+				},
+				"member": {
+					Type:              schema.TypeString,
+					RequiredForImport: true,
+					Description:       `The member that is associated with this binding.`,
+				},
+			},
+		},
 		Schema: tpgresource.MergeSchemas(IamMemberBaseSchema, parentSpecificSchema),
 		Importer: &schema.ResourceImporter{
 			State: iamMemberImport(newUpdaterFunc, resourceIdParser),
@@ -293,6 +313,20 @@ func resourceIamMemberRead(newUpdaterFunc NewResourceIamUpdaterFunc) schema.Read
 		if err := d.Set("condition", FlattenIamCondition(binding.Condition)); err != nil {
 			return fmt.Errorf("Error setting condition: %s", err)
 		}
+
+		identity, err := d.Identity()
+		if err != nil {
+			return fmt.Errorf("Error getting identity: %s", err)
+		}
+		err = identity.Set("role", binding.Role)
+		if err != nil {
+			return fmt.Errorf("Error setting role: %s", err)
+		}
+		err = identity.Set("member", member)
+		if err != nil {
+			return fmt.Errorf("Error setting member: %s", err)
+		}
+
 		return nil
 	}
 }
