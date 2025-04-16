@@ -82,6 +82,7 @@ resource "google_privateca_ca_pool" "default" {
         max_modulus_size = 10
       }
     }
+    backdate_duration = "3600s"
     maximum_lifetime = "50000s"
     allowed_issuance_modes {
       allow_csr_based_issuance = true
@@ -202,6 +203,14 @@ The following arguments are supported:
   If any AllowedKeyType is specified, then the certificate request's public key must match one of the key types listed here.
   Otherwise, any key may be used.
   Structure is [documented below](#nested_issuance_policy_allowed_key_types).
+
+* `backdate_duration` -
+  (Optional)
+  The duration to backdate all certificates issued from this CaPool. If not set, the
+  certificates will be issued with a not_before_time of the issuance time (i.e. the current
+  time). If set, the certificates will be issued with a not_before_time of the issuance
+  time minus the backdate_duration. The not_after_time will be adjusted to preserve the
+  requested lifetime. The backdate_duration must be less than or equal to 48 hours.
 
 * `maximum_lifetime` -
   (Optional)

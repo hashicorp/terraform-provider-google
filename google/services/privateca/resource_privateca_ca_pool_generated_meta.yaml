@@ -12,6 +12,7 @@ fields:
   - field: 'issuance_policy.allowed_key_types.elliptic_curve.signature_algorithm'
   - field: 'issuance_policy.allowed_key_types.rsa.max_modulus_size'
   - field: 'issuance_policy.allowed_key_types.rsa.min_modulus_size'
+  - field: 'issuance_policy.backdate_duration'
   - field: 'issuance_policy.baseline_values.additional_extensions.critical'
   - field: 'issuance_policy.baseline_values.additional_extensions.object_id.object_id_path'
   - field: 'issuance_policy.baseline_values.additional_extensions.value'
