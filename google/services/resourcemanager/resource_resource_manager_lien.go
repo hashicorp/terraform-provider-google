@@ -514,6 +514,16 @@ func resourceResourceManagerLienPostCreateSetComputedFields(d *schema.ResourceDa
 	if res == nil {
 		return fmt.Errorf("decoding response, could not find object")
 	}
+	if _, ok := res["liens"]; ok {
+		res, err := flattenNestedResourceManagerLien(d, meta, res)
+		if err != nil {
+			return fmt.Errorf("Error getting nested object from operation response: %s", err)
+		}
+		if res == nil {
+			// Object isn't there any more - remove it from the state.
+			return fmt.Errorf("Error decoding response from operation, could not find nested object")
+		}
+	}
 	if err := d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
