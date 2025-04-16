@@ -36,6 +36,8 @@ fields:
   - field: 'effective_labels'
     provider_only: true
   - field: 'etag'
+  - field: 'external_catalog_dataset_options.default_storage_location_uri'
+  - field: 'external_catalog_dataset_options.parameters'
   - field: 'external_dataset_reference.connection'
   - field: 'external_dataset_reference.external_source'
   - field: 'friendly_name'

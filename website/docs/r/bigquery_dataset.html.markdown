@@ -231,8 +231,6 @@ resource "google_bigquery_dataset" "dataset" {
 
 ```hcl
 resource "google_bigquery_dataset" "dataset" {
-  provider = google-beta
-
   dataset_id    = "example_dataset"
   friendly_name = "test"
   description   = "This is a test description"
@@ -374,7 +372,7 @@ The following arguments are supported:
   for more details.
 
 * `external_catalog_dataset_options` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Options defining open source compatible datasets living in the BigQuery catalog. Contains
   metadata of open source database, schema or namespace represented by the current dataset.
   Structure is [documented below](#nested_external_catalog_dataset_options).
@@ -552,12 +550,12 @@ destroying the resource will fail if tables are present.
 <a name="nested_external_catalog_dataset_options"></a>The `external_catalog_dataset_options` block supports:
 
 * `parameters` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A map of key value pairs defining the parameters and properties of the open source schema.
   Maximum size of 2Mib.
 
 * `default_storage_location_uri` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The storage location URI for all tables in the dataset. Equivalent to hive metastore's
   database locationUri. Maximum length of 1024 characters.
 
