@@ -695,6 +695,16 @@ func resourceDataCatalogTagFindNestedObjectInList(d *schema.ResourceData, meta i
 }
 func resourceDataCatalogTagPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
 	config := meta.(*transport_tpg.Config)
+	if _, ok := res["tags"]; ok {
+		res, err := flattenNestedDataCatalogTag(d, meta, res)
+		if err != nil {
+			return fmt.Errorf("Error getting nested object from operation response: %s", err)
+		}
+		if res == nil {
+			// Object isn't there any more - remove it from the state.
+			return fmt.Errorf("Error decoding response from operation, could not find nested object")
+		}
+	}
 	if err := d.Set("name", flattenNestedDataCatalogTagName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
