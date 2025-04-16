@@ -57,9 +57,14 @@ resource "google_project_service" "compute" {
 resource "google_project_service" "managedkafka" {
   project = google_project.project.project_id
   service = "managedkafka.googleapis.com"
-  depends_on = [time_sleep.wait_60_seconds]
+  depends_on = [google_project_service.compute]
 
   provider = google-beta
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.managedkafka]
 }
 
 resource "google_compute_subnetwork" "mkc_secondary_subnet" {
@@ -68,7 +73,7 @@ resource "google_compute_subnetwork" "mkc_secondary_subnet" {
   ip_cidr_range = "10.3.0.0/16"
   region        = "us-central1"
   network       = "default"
-  depends_on = [google_project_service.compute]
+  depends_on = [time_sleep.wait_120_seconds]
 
   provider = google-beta
 }
