@@ -618,12 +618,6 @@ The `config` block supports:
   (Optional)
   Optional. The initial taints assigned to nodes of this node pool.
     
-The `config_encryption` block supports:
-    
-* `kms_key_arn` -
-  (Required)
-  The ARN of the AWS KMS key used to encrypt node pool configuration.
-    
 The `max_pods_constraint` block supports:
     
 * `max_pods_per_node` -
@@ -666,6 +660,12 @@ The `autoscaling_metrics_collection` block supports:
 * `metrics` -
   (Optional)
   The metrics to enable. For a list of valid metrics, see https://docs.aws.amazon.com/autoscaling/ec2/APIReference/API_EnableMetricsCollection.html. If you specify granularity and don't specify any metrics, all metrics are enabled.
+    
+The `config_encryption` block supports:
+    
+* `kms_key_arn` -
+  (Required)
+  The ARN of the AWS KMS key used to encrypt node pool configuration.
     
 The `instance_placement` block supports:
     

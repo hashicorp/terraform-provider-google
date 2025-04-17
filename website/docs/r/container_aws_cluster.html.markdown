@@ -351,12 +351,6 @@ The `authorization` block supports:
   (Required)
   Users to perform operations as a cluster admin. A managed ClusterRoleBinding will be created to grant the `cluster-admin` ClusterRole to the users. Up to ten admin users can be provided. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
     
-The `admin_users` block supports:
-    
-* `username` -
-  (Required)
-  The name of the user, e.g. `my-gcp-id@gmail.com`.
-    
 The `control_plane` block supports:
     
 * `aws_services_authentication` -
@@ -414,28 +408,6 @@ The `control_plane` block supports:
 * `version` -
   (Required)
   The Kubernetes version to run on control plane replicas (e.g. `1.19.10-gke.1000`). You can list all supported versions on a given Google Cloud region by calling .
-    
-The `aws_services_authentication` block supports:
-    
-* `role_arn` -
-  (Required)
-  The Amazon Resource Name (ARN) of the role that the Anthos Multi-Cloud API will assume when managing AWS resources on your account.
-    
-* `role_session_name` -
-  (Optional)
-  Optional. An identifier for the assumed role session. When unspecified, it defaults to `multicloud-service-agent`.
-    
-The `config_encryption` block supports:
-    
-* `kms_key_arn` -
-  (Required)
-  The ARN of the AWS KMS key used to encrypt cluster configuration.
-    
-The `database_encryption` block supports:
-    
-* `kms_key_arn` -
-  (Required)
-  The ARN of the AWS KMS key used to encrypt cluster secrets.
     
 The `fleet` block supports:
     
@@ -497,11 +469,39 @@ The `admin_groups` block supports:
   (Required)
   The name of the group, e.g. `my-group@domain.com`.
     
+The `admin_users` block supports:
+    
+* `username` -
+  (Required)
+  The name of the user, e.g. `my-gcp-id@gmail.com`.
+    
 The `binary_authorization` block supports:
     
 * `evaluation_mode` -
   (Optional)
   Mode of operation for Binary Authorization policy evaluation. Possible values: DISABLED, PROJECT_SINGLETON_POLICY_ENFORCE
+    
+The `aws_services_authentication` block supports:
+    
+* `role_arn` -
+  (Required)
+  The Amazon Resource Name (ARN) of the role that the Anthos Multi-Cloud API will assume when managing AWS resources on your account.
+    
+* `role_session_name` -
+  (Optional)
+  Optional. An identifier for the assumed role session. When unspecified, it defaults to `multicloud-service-agent`.
+    
+The `config_encryption` block supports:
+    
+* `kms_key_arn` -
+  (Required)
+  The ARN of the AWS KMS key used to encrypt cluster configuration.
+    
+The `database_encryption` block supports:
+    
+* `kms_key_arn` -
+  (Required)
+  The ARN of the AWS KMS key used to encrypt cluster secrets.
     
 The `instance_placement` block supports:
     
