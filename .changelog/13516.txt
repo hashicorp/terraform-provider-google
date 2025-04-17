@@ -1,0 +1,7 @@
+```release-note:new-resource
+`google_gke_backup_backup_channel` (beta)
+```
+
+```release-note:new-resource
+`google_gke_backup_restore_channel` (beta)
+```

@@ -1,0 +1,20 @@
+resource: 'google_gke_backup_restore_channel'
+generation_type: 'mmv1'
+source_file: 'products/gkebackup/RestoreChannel.yaml'
+api_service_name: 'gkebackup.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'RestoreChannel'
+fields:
+  - field: 'description'
+  - field: 'destination_project'
+  - field: 'destination_project_id'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'etag'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
