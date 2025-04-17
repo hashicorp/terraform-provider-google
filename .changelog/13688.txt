@@ -1,0 +1,12 @@
+```release-note:new-resource
+`google_iap_web_cloud_run_service_iam_policy`
+```
+
+```release-note:new-resource
+`google_iap_web_cloud_run_service_iam_binding`
+```
+
+
+```release-note:new-resource
+`google_iap_web_cloud_run_service_iam_member`
+```
