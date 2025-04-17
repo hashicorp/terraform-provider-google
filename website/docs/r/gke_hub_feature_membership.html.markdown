@@ -427,6 +427,10 @@ The following arguments are supported:
 * `stop_syncing` -
   (Optional)
   Set to `true` to stop syncing configurations for a single cluster. This field is only available on clusters using Config Sync [auto-upgrades](http://cloud/kubernetes-engine/enterprise/config-sync/docs/how-to/upgrade-config-sync#auto-upgrade-config) or on Config Sync version 1.20.0 or later. Defaults: `false`.
+
+* `deployment_overrides` -
+  (Optional)
+  The override configurations for the Config Sync Deployments. Structure is [documented below](#nested_deployment_overrides).
     
 <a name="nested_git"></a>The `git` block supports:
     
@@ -461,6 +465,42 @@ The following arguments are supported:
 * `sync_wait_secs` -
   (Optional)
   Period in seconds between consecutive syncs. Default: 15.
+
+<a name="nested_deployment_overrides"></a>The `deployment_overrides` block supports:
+
+* `deployment_name` -
+  (Optional)
+  The name of the Deployment.
+
+* `deployment_namespace` -
+  (Optional)
+  The namespace of the Deployment.
+
+* `containers` -
+  (Optional)
+  The override configurations for the containers in the Deployment. Structure is [documented below](#nested_deployment_overrides_containers).
+
+<a name="nested_deployment_overrides_containers"></a>The `containers` block supports:
+
+* `container_name` -
+  (Optional)
+  The name of the container.
+
+* `cpu_request` -
+  (Optional)
+  The CPU request of the container.
+
+* `memory_request` -
+  (Optional)
+  The memory request of the container.
+
+* `cpu_limit` -
+  (Optional)
+  The CPU limit of the container.
+
+* `memory_limit` -
+  (Optional)
+  The memory limit of the container.
 
 <a name="nested_oci"></a>The `oci` block supports:
     

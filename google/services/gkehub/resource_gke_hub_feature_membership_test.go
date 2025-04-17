@@ -119,6 +119,17 @@ resource "google_gke_hub_feature_membership" "feature_member_1" {
         sync_repo   = "https://github.com/GoogleCloudPlatform/magic-modules"
         secret_type = "none"
       }
+      deployment_overrides {
+        deployment_name       = "reconciler-manager"
+        deployment_namespace = "config-management-system"
+        containers {
+          container_name = "reconciler-manager"
+          cpu_request    = "1"
+          memory_request = "4Gi"
+          cpu_limit      = "2"
+          memory_limit   = "8Gi"
+        }
+      }
     }
   }
 }
@@ -169,6 +180,35 @@ resource "google_gke_hub_feature_membership" "feature_member_1" {
       git {
         sync_repo   = "https://github.com/GoogleCloudPlatform/magic-modules"
         secret_type = "none"
+      }
+      deployment_overrides {
+        deployment_name       = "reconciler-manager"
+        deployment_namespace = "config-management-system"
+        containers {
+          container_name = "reconciler-manager"
+          cpu_request    = "2"
+          memory_request = "5Gi"
+          cpu_limit      = "3"
+          memory_limit   = "9Gi"
+        }
+      }
+      deployment_overrides {
+        deployment_name = "resource-group-controller-manager"
+        deployment_namespace = "resource-group-system"
+        containers {
+          container_name = "manager"
+          cpu_request    = "1"
+          memory_request = "4Gi"
+          cpu_limit      = "2"
+          memory_limit   = "8Gi"
+        }
+        containers {
+          container_name = "otel-agent"
+          cpu_request    = "1"
+          memory_request = "4Gi"
+          cpu_limit      = "2"
+          memory_limit   = "8Gi"
+        }
       }
     }
     management = "MANAGEMENT_AUTOMATIC"
