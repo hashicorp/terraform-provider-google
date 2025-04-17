@@ -148,6 +148,67 @@ func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
 	})
 }
 
+func TestAccComputeBackendService_withBackendAndPreference(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_withBackendAndPreference(randomSuffix, "INTERNAL_MANAGED", "DEFAULT", 10),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withBackendAndPreference(randomSuffix, "INTERNAL_MANAGED", "PREFERRED", 20),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withBackendAndPreference(randomSuffix, "INTERNAL_SELF_MANAGED", "DEFAULT", 10),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withBackendAndPreference(randomSuffix, "INTERNAL_SELF_MANAGED", "PREFERRED", 20),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withBackendAndPreference(randomSuffix, "EXTERNAL_MANAGED", "DEFAULT", 10),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withBackendAndPreference(randomSuffix, "EXTERNAL_MANAGED", "PREFERRED", 20),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeBackendService_updateIAPEnabled(t *testing.T) {
 	t.Parallel()
 
@@ -336,6 +397,14 @@ func TestAccComputeBackendService_withCdnPolicy(t *testing.T) {
 			},
 			{
 				Config: testAccComputeBackendService_withCdnPolicyUseOriginHeaders(serviceName, checkName),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withCdnPolicyRequestCoalescing(serviceName, checkName),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.foobar",
@@ -722,6 +791,22 @@ func TestAccComputeBackendService_withLogConfig(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccComputeBackendService_withLogConfig3(serviceName, checkName, "INCLUDE_ALL_OPTIONAL", true),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withLogConfig3(serviceName, checkName, "EXCLUDE_ALL_OPTIONAL", true),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -884,6 +969,49 @@ func TestAccComputeBackendService_withClientTlsPolicy(t *testing.T) {
 				ResourceName:      "google_compute_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeBackendService_backendServiceMaxDuration(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	context := map[string]interface{}{
+		"random_suffix": suffix,
+		"seconds_rnd":   2000,
+		"nanos_rnd":     10000,
+	}
+
+	context2 := map[string]interface{}{
+		"random_suffix": suffix,
+		"seconds_rnd":   5000,
+		"nanos_rnd":     20000,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_backendServiceMaxDuration(context),
+			},
+			{
+				ResourceName:            "google_compute_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "security_settings.0.aws_v4_authentication.0.access_key"},
+			},
+			{
+				Config: testAccComputeBackendService_backendServiceMaxDuration(context2),
+			},
+			{
+				ResourceName:            "google_compute_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "security_settings.0.aws_v4_authentication.0.access_key"},
 			},
 		},
 	})
@@ -1466,6 +1594,32 @@ resource "google_compute_http_health_check" "zero" {
 `, serviceName, checkName)
 }
 
+func testAccComputeBackendService_withCdnPolicyRequestCoalescing(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
+
+  cdn_policy {
+    request_coalescing = true
+    cache_mode = "USE_ORIGIN_HEADERS"
+    cache_key_policy {
+      include_protocol       = true
+      include_host           = true
+      include_query_string   = true
+    }
+  }
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, checkName)
+}
+
 func testAccComputeBackendService_withSecurityPolicy(serviceName, checkName, polName, edgePolName, polLink string, edgePolLink string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
@@ -1927,6 +2081,32 @@ resource "google_compute_http_health_check" "zero" {
 `, serviceName, enabled, checkName)
 }
 
+func testAccComputeBackendService_withLogConfig3(serviceName, checkName, mode string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name          		= "%s"
+  protocol              = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  health_checks 		= [google_compute_health_check.zero.self_link]
+
+  log_config {
+	enable      	= %t
+	optional_mode 	= "%s"
+  }
+}
+
+resource "google_compute_health_check" "zero" {
+  name               = "%s"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  http_health_check {
+    port = 80
+  }
+}
+`, serviceName, enabled, mode, checkName)
+}
+
 func testAccComputeBackendService_withCompressionMode(serviceName, checkName, compressionMode string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
@@ -2232,4 +2412,82 @@ resource "google_compute_health_check" "default" {
   }
 }
 `, context)
+}
+
+func testAccComputeBackendService_backendServiceMaxDuration(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_backend_service" "default" {
+  name          		= "tf-test-backend-service%{random_suffix}"
+  health_checks 		= [google_compute_health_check.health_check.id]
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  max_stream_duration {
+    seconds = "%{seconds_rnd}"
+    nanos   = %{nanos_rnd}
+  }
+}
+
+resource "google_compute_health_check" "health_check" {
+  name = "tf-test-health-check%{random_suffix}"
+  tcp_health_check {
+    port = 22
+  }
+}
+`, context)
+}
+
+func testAccComputeBackendService_withBackendAndPreference(suffix, loadBalancingScheme, preference string, timeout int64) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_backend_service" "lipsum" {
+  name        = "test-lipsum-backend-service-%s"
+  description = "Hello World 1234"
+  protocol    = "TCP"
+  timeout_sec = %v
+  load_balancing_scheme = "%s"
+
+  backend {
+    group = google_compute_instance_group_manager.foobar.instance_group
+	preference = "%s"
+  }
+
+  health_checks = [google_compute_health_check.health_check.self_link]
+}
+
+resource "google_compute_instance_group_manager" "foobar" {
+  name = "test-foobar-instance-group-manager-%s"
+  version {
+    instance_template = google_compute_instance_template.foobar.self_link
+    name              = "primary"
+  }
+  base_instance_name = "tf-test-foobar"
+  zone               = "us-central1-f"
+  target_size        = 1
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "test-foobar-instance-template-%s"
+  machine_type = "e2-medium"
+
+  network_interface {
+    network = "default"
+  }
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+}
+
+resource "google_compute_health_check" "health_check" {
+  name = "test-health-check-%s"
+  http_health_check {
+    port = 80
+  }
+}
+`, suffix, timeout, loadBalancingScheme, preference, suffix, suffix, suffix)
 }

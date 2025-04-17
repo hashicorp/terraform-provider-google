@@ -768,6 +768,16 @@ The following arguments are supported:
   Configuration for Backend Authenticated TLS and mTLS. May only be specified when the backend protocol is SSL, HTTPS or HTTP2.
   Structure is [documented below](#nested_tls_settings).
 
+* `max_stream_duration` -
+  (Optional)
+  Specifies the default maximum duration (timeout) for streams to this service. Duration is computed from the
+  beginning of the stream until the response has been completely processed, including all retries. A stream that
+  does not complete in this duration is closed.
+  If not specified, there will be no timeout limit, i.e. the maximum duration is infinite.
+  This value can be overridden in the PathMatcher configuration of the UrlMap that references this backend service.
+  This field is only allowed when the loadBalancingScheme of the backend service is INTERNAL_SELF_MANAGED.
+  Structure is [documented below](#nested_max_stream_duration).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -793,6 +803,16 @@ The following arguments are supported:
   of its configured capacity (depending on balancingMode). A
   setting of 0 means the group is completely drained, offering
   0% of its available Capacity. Valid range is [0.0,1.0].
+
+* `preference` -
+  (Optional)
+  This field indicates whether this backend should be fully utilized before sending traffic to backends
+  with default preference. This field cannot be set when loadBalancingScheme is set to 'EXTERNAL'. The possible values are:
+    - PREFERRED: Backends with this preference level will be filled up to their capacity limits first,
+      based on RTT.
+    - DEFAULT: If preferred backends don't have enough capacity, backends in this layer would be used and
+      traffic would be assigned based on the load balancing algorithm you use. This is the default
+  Possible values are: `PREFERRED`, `DEFAULT`.
 
 * `description` -
   (Optional)
@@ -1004,6 +1024,11 @@ The following arguments are supported:
   be from 0 to 999,999,999 inclusive.
 
 <a name="nested_cdn_policy"></a>The `cdn_policy` block supports:
+
+* `request_coalescing` -
+  (Optional)
+  If true then Cloud CDN will combine multiple concurrent cache fill requests into a small number of requests
+  to the origin.
 
 * `cache_key_policy` -
   (Optional)
@@ -1411,6 +1436,18 @@ The following arguments are supported:
   where 1.0 means all logged requests are reported and 0.0 means no logged requests are reported.
   The default value is 1.0.
 
+* `optional_mode` -
+  (Optional)
+  Specifies the optional logging mode for the load balancer traffic.
+  Supported values: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+  Possible values are: `INCLUDE_ALL_OPTIONAL`, `EXCLUDE_ALL_OPTIONAL`, `CUSTOM`.
+
+* `optional_fields` -
+  (Optional)
+  This field can only be specified if logging is enabled for this backend service and "logConfig.optionalMode"
+  was set to CUSTOM. Contains a list of optional fields you want to include in the logs.
+  For example: serverInstance, serverGkeDetails.cluster, serverGkeDetails.pod.podNamespace
+
 <a name="nested_tls_settings"></a>The `tls_settings` block supports:
 
 * `sni` -
@@ -1445,6 +1482,18 @@ The following arguments are supported:
 * `uniform_resource_identifier` -
   (Optional)
   The SAN specified as a URI.
+
+<a name="nested_max_stream_duration"></a>The `max_stream_duration` block supports:
+
+* `seconds` -
+  (Required)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive. (int64 format)
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution.
+  Durations less than one second are represented with a 0 seconds field and a positive nanos field.
+  Must be from 0 to 999,999,999 inclusive.
 
 ## Attributes Reference
 
