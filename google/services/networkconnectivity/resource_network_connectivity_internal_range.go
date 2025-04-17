@@ -97,10 +97,12 @@ Only IPv4 CIDR ranges are supported.`,
 				},
 			},
 			"ip_cidr_range": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				Description: `The IP range that this internal range defines.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				Description: `The IP range that this internal range defines.
+NOTE: IPv6 ranges are limited to usage=EXTERNAL_TO_VPC and peering=FOR_SELF
+NOTE: For IPv6 Ranges this field is compulsory, i.e. the address range must be specified explicitly.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -152,7 +154,9 @@ For example /projects/{project}/regions/{region}/subnetworks/{subnet}`,
 				Type:     schema.TypeInt,
 				Optional: true,
 				Description: `An alternate to ipCidrRange. Can be set when trying to create a reservation that automatically finds a free range of the given size.
-If both ipCidrRange and prefixLength are set, there is an error if the range sizes do not match. Can also be used during updates to change the range size.`,
+If both ipCidrRange and prefixLength are set, there is an error if the range sizes do not match. Can also be used during updates to change the range size.
+NOTE: For IPv6 this field only works if ip_cidr_range is set as well, and both fields must match. In other words, with IPv6 this field only works as
+a redundant parameter.`,
 			},
 			"target_cidr_range": {
 				Type:     schema.TypeList,
