@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `log_config.optional_mode`, `log_config.optional_fields`, `backend.preference`, `max_stream_duration` and `cdn_policy.request_coalescing` fields to `google_compute_backend_service` resource
+```
