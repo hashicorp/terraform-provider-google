@@ -1,0 +1,3 @@
+```release-note:bug
+google_compute_network_firewall_policy_rule:  Adding diffsuppress  for Issue 21775
+```
