@@ -423,7 +423,7 @@ is set to true. Defaults to ZONAL.`,
 							Optional: true,
 							// Default is likely 10gb, but it is undocumented and may change.
 							Computed:    true,
-							Description: `The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. The minimum value is 10GB.`,
+							Description: `The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. The minimum value is 10GB for PD_SSD, PD_HDD and 20GB for HYPERDISK_BALANCED.`,
 						},
 						"disk_type": {
 							Type:             schema.TypeString,
@@ -431,7 +431,7 @@ is set to true. Defaults to ZONAL.`,
 							Default:          "PD_SSD",
 							ForceNew:         true,
 							DiffSuppressFunc: caseDiffDashSuppress,
-							Description:      `The type of data disk: PD_SSD or PD_HDD. Defaults to PD_SSD.`,
+							Description:      `The type of data disk: PD_SSD, PD_HDD, or HYPERDISK_BALANCED. Defaults to PD_SSD.`,
 						},
 						"ip_configuration": {
 							Type:     schema.TypeList,

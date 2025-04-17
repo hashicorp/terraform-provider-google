@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added `data_disk_provisioned_iops` and `data_disk_provisioned_throughput` fields to `google_sql_database_instance` resource
+```
