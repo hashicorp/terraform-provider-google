@@ -181,8 +181,9 @@ func TestAccComputeNetworkFirewallPolicyRule_securityProfileGroup_update(t *test
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"org_name":      fmt.Sprintf("organizations/%s", envvar.GetTestOrgFromEnv(t)),
+		"random_suffix":                 acctest.RandString(t, 10),
+		"org_name":                      fmt.Sprintf("organizations/%s", envvar.GetTestOrgFromEnv(t)),
+		"security_profile_group_prefix": "//",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -257,6 +258,33 @@ func TestAccComputeNetworkFirewallPolicyRule_secureTags(t *testing.T) {
 				ImportStateVerify: true,
 				// Referencing using ID causes import to fail
 				ImportStateVerifyIgnore: []string{"firewall_policy", "project"},
+			},
+		},
+	})
+}
+
+func TestAccComputeNetworkFirewallSecurityProfileGroupDiffsuppress(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":                 acctest.RandString(t, 10),
+		"org_name":                      fmt.Sprintf("organizations/%s", envvar.GetTestOrgFromEnv(t)),
+		"security_profile_group_prefix": "/",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetworkFirewallPolicyRule_securityProfileGroup_update(context),
+			},
+			{
+				ResourceName:      "google_compute_network_firewall_policy_rule.fw_policy_rule1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Referencing using ID causes import to fail
+				ImportStateVerifyIgnore: []string{"firewall_policy"},
 			},
 		},
 	})
@@ -493,7 +521,7 @@ resource "google_compute_network_firewall_policy_rule" "fw_policy_rule1" {
   priority               = 9000
   enable_logging         = true
   action                 = "apply_security_profile_group"
-  security_profile_group = "//networksecurity.googleapis.com/${google_network_security_security_profile_group.security_profile_group_updated.id}"
+  security_profile_group = "%{security_profile_group_prefix}networksecurity.googleapis.com/${google_network_security_security_profile_group.security_profile_group_updated.id}"
   direction              = "INGRESS"
   disabled               = false
   match {
