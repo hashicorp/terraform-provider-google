@@ -94,13 +94,6 @@ resource "google_spanner_instance" "example" {
 The following arguments are supported:
 
 
-* `name` -
-  (Required)
-  A unique identifier for the instance, which cannot be changed after
-  the instance is created. The name must be between 6 and 30 characters
-  in length.
-  If not provided, a random string starting with `tf-` will be selected.
-
 * `config` -
   (Required)
   The name of the instance's configuration (similar but not
@@ -118,6 +111,13 @@ The following arguments are supported:
 
 - - -
 
+
+* `name` -
+  (Optional)
+  A unique identifier for the instance, which cannot be changed after
+  the instance is created. The name must be between 6 and 30 characters
+  in length.
+  If not provided, a random string starting with `tf-` will be selected.
 
 * `num_nodes` -
   (Optional)

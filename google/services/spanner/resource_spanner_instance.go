@@ -135,17 +135,6 @@ In order to obtain a valid list please consult the
 				Description: `The descriptive name for this instance as it appears in UIs. Must be
 unique per project and between 4 and 30 characters in length.`,
 			},
-			"name": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: verify.ValidateRegexp(`^[a-z][-a-z0-9]*[a-z0-9]$`),
-				Description: `A unique identifier for the instance, which cannot be changed after
-the instance is created. The name must be between 6 and 30 characters
-in length.
-If not provided, a random string starting with 'tf-' will be selected.`,
-			},
 			"autoscaling_config": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -311,6 +300,17 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"name": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateRegexp(`^[a-z][-a-z0-9]*[a-z0-9]$`),
+				Description: `A unique identifier for the instance, which cannot be changed after
+the instance is created. The name must be between 6 and 30 characters
+in length.
+If not provided, a random string starting with 'tf-' will be selected.`,
 			},
 			"num_nodes": {
 				Type:     schema.TypeInt,
