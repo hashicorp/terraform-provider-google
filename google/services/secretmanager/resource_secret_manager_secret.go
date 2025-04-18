@@ -85,6 +85,22 @@ func ResourceSecretManagerSecret() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			Schema: map[string]*schema.Schema{
+				"project": {
+					Type:              schema.TypeString,
+					RequiredForImport: true,
+					Description:       `The project that the secret belongs to.`,
+				},
+				"secret_id": {
+					Type:              schema.TypeString,
+					RequiredForImport: true,
+					Description:       `The secret ID that the secret belongs to.`,
+				},
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"replication": {
 				Type:     schema.TypeList,
@@ -543,6 +559,19 @@ func resourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{}) e
 	}
 	if err := d.Set("effective_annotations", flattenSecretManagerSecretEffectiveAnnotations(res["annotations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	err = identity.Set("project", project)
+	if err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	err = identity.Set("secret_id", d.Id())
+	if err != nil {
+		return fmt.Errorf("Error setting secret_id: %s", err)
 	}
 
 	return nil
