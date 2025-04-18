@@ -369,11 +369,6 @@ This should be formatted like 'projects/{project}/global/networks/{network}' or
 func dnsManagedZoneForwardingConfigTargetNameServersSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"ipv4_address": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `IPv4 address of a target name server.`,
-			},
 			"forwarding_path": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -381,6 +376,11 @@ func dnsManagedZoneForwardingConfigTargetNameServersSchema() *schema.Resource {
 				Description: `Forwarding path for this TargetNameServer. If unset or 'default' Cloud DNS will make forwarding
 decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
 to the Internet. When set to 'private', Cloud DNS will always send queries through VPC for this target Possible values: ["default", "private"]`,
+			},
+			"ipv4_address": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `IPv4 address of a target name server.`,
 			},
 		},
 	}
