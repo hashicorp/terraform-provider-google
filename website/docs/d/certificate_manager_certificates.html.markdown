@@ -12,6 +12,10 @@ List all certificates within Google Certificate Manager for a given project, reg
 ```tf
 data "google_certificate_manager_certificates" "default" {
 }
+
+output "certificates_names" {
+  value = [for cert in data.google_certificate_manager_certificates.default.certificates : cert.name]
+}
 ```
 
 ## Example Usage - with a filter
@@ -19,6 +23,23 @@ data "google_certificate_manager_certificates" "default" {
 ```tf
 data "google_certificate_manager_certificates" "default" {
   filter = "name:projects/PROJECT_ID/locations/REGION/certificates/certificate-name-*"
+}
+
+output "certificates_names" {
+  value = [for cert in data.google_certificate_manager_certificates.default.certificates : cert.name]
+}
+```
+
+## Example Usage - regional certificates with a filter
+
+```tf
+data "google_certificate_manager_certificates" "default" {
+  region = "REGION"
+  filter = "name:projects/PROJECT_ID/locations/REGION/certificates/certificate-name-*"
+}
+
+output "certificates_names" {
+  value = [for cert in data.google_certificate_manager_certificates.default.certificates : cert.name]
 }
 ```
 
@@ -33,4 +54,6 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-See [google_certificate_manager_certificate](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/certificate_manager_certificate) resource for details of the available attributes.
+The following attributes are exported:
+
+* `certificates` - A list of all retrieved certificates. See [google_certificate_manager_certificate](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/certificate_manager_certificate) resource for details of the available attributes.
