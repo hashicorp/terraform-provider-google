@@ -660,7 +660,7 @@ func expandComputeRouterRoutePolicyTerms(v interface{}, d tpgresource.TerraformR
 		transformedPriority, err := expandComputeRouterRoutePolicyTermsPriority(original["priority"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedPriority); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedPriority); val.IsValid() {
 			transformed["priority"] = transformedPriority
 		}
 
