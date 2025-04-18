@@ -494,8 +494,12 @@ The following arguments are supported:
 <a name="nested_forwarding_config_target_name_servers"></a>The `target_name_servers` block supports:
 
 * `ipv4_address` -
-  (Required)
+  (Optional)
   IPv4 address of a target name server.
+
+* `domain_name` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Fully qualified domain name for the forwarding target.
 
 * `forwarding_path` -
   (Optional)
