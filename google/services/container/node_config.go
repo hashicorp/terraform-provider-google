@@ -321,13 +321,11 @@ func schemaNodeConfig() *schema.Schema {
 					Optional:    true,
 					MaxItems:    1,
 					Description: `Enable or disable gvnic in the node pool.`,
-					ForceNew:    true,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"enabled": {
 								Type:        schema.TypeBool,
 								Required:    true,
-								ForceNew:    true,
 								Description: `Whether or not gvnic is enabled`,
 							},
 						},
@@ -2482,6 +2480,39 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 			}
 
 			log.Printf("[INFO] Updated gcfs_config for node pool %s", name)
+		}
+
+		if d.HasChange(prefix + "node_config.0.gvnic") {
+			gvnicEnabled := bool(d.Get(prefix + "node_config.0.gvnic.0.enabled").(bool))
+			req := &container.UpdateNodePoolRequest{
+				NodePoolId: name,
+				Gvnic: &container.VirtualNIC{
+					Enabled: gvnicEnabled,
+				},
+			}
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return ContainerOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location,
+					"updating GKE node pool gvnic", userAgent,
+					timeout)
+			}
+
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] Updated gvnic for node pool %s", name)
 		}
 
 		if d.HasChange(prefix + "node_config.0.kubelet_config") {
