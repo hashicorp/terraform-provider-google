@@ -27,12 +27,11 @@ IMPROVEMENTS:
 * metastore: added `tags` field to `google_dataproc_metastore_service` resource to allow setting tags for services at creation time ([#22313](https://github.com/hashicorp/terraform-provider-google/pull/22313))
 * monitoring: added `log_check_failures` to 1google_monitoring_uptime_check_config` ([#22351](https://github.com/hashicorp/terraform-provider-google/pull/22351))
 * networkconnectivity: added IPv6 support to `google_network_connectivity_internal_range` resource ([#22401](https://github.com/hashicorp/terraform-provider-google/pull/22401))
-* networkconnectivity: added `excludeCidrRanges` field to `google_network_connectivity_internal_range` resource ([#22332](https://github.com/hashicorp/terraform-provider-google/pull/22332))
+* networkconnectivity: added `exclude_cidr_ranges` field to `google_network_connectivity_internal_range` resource ([#22332](https://github.com/hashicorp/terraform-provider-google/pull/22332))
 * privateca: added the `backdate_duration` field to the `google_privateca_ca_pool` resource to add support for backdating the `not_before_time` of certificates ([#22380](https://github.com/hashicorp/terraform-provider-google/pull/22380))
 * redis: added `tags` field to `google_redis_instance` resource to allow setting tags for instances at creation time ([#22337](https://github.com/hashicorp/terraform-provider-google/pull/22337))
 * sql: added `custom_subject_alternative_names` field to `instances` resource ([#22357](https://github.com/hashicorp/terraform-provider-google/pull/22357))
 * sql: added `data_disk_provisioned_iops` and `data_disk_provisioned_throughput` fields to `google_sql_database_instance` resource ([#22398](https://github.com/hashicorp/terraform-provider-google/pull/22398))
-* sql: added `databaseVersionDiffSuppress` to `google_sql_database_instance` ([#22356](https://github.com/hashicorp/terraform-provider-google/pull/22356))
 * sql: added `retain_backups_on_delete` field to `google_sql_database_instance` resource ([#22334](https://github.com/hashicorp/terraform-provider-google/pull/22334))
 
 BUG FIXES:
@@ -40,6 +39,7 @@ BUG FIXES:
 * discoveryengine: fixed `google_discovery_engine_target_site` operations to allow for enough time to index before timing out ([#22358](https://github.com/hashicorp/terraform-provider-google/pull/22358))
 * compute: fixed perma-diff in `google_compute_network_firewall_policy_rule` ([#22402](https://github.com/hashicorp/terraform-provider-google/pull/22402))
 * identityplatform: fixed perma-diff in `google_identity_platform_config` ([#22384](https://github.com/hashicorp/terraform-provider-google/pull/22384))
+* sql: added diff suppression for some version changes to`google_sql_database_instance`. Diffs for `database_version` for MySQL 8.0 will be suppressed when the version is updated by auto version upgrade.([#22356](https://github.com/hashicorp/terraform-provider-google/pull/22356))
 * sql: fixed the issue of shortened version of failover_dr_replica_name causes unnecessary diff ([#22319](https://github.com/hashicorp/terraform-provider-google/pull/22319))
 
 ## 6.30.0 (Apr 15, 2025)
