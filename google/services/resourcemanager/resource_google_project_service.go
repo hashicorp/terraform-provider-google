@@ -100,6 +100,22 @@ func ResourceGoogleProjectService() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			Schema: map[string]*schema.Schema{
+				"project": {
+					Type:              schema.TypeString,
+					RequiredForImport: true,
+					Description:       `The project that the service belongs to.`,
+				},
+				"service": {
+					Type:              schema.TypeString,
+					RequiredForImport: true,
+					Description:       `The service that the resource belongs to.`,
+				},
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"service": {
 				Type:         schema.TypeString,
@@ -234,6 +250,19 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 			return fmt.Errorf("Error setting service: %s", err)
 		}
 		return nil
+	}
+
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	err = identity.Set("project", project)
+	if err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	err = identity.Set("service", srv)
+	if err != nil {
+		return fmt.Errorf("Error setting service: %s", err)
 	}
 
 	log.Printf("[DEBUG] service %s not in enabled services for project %s, removing from state", srv, project)
