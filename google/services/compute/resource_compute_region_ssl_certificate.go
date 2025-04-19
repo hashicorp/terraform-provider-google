@@ -40,7 +40,8 @@ import (
 // sha256DiffSuppress
 // if old is the hex-encoded sha256 sum of new, treat them as equal
 func sha256DiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
-	return hex.EncodeToString(sha256.New().Sum([]byte(old))) == new
+	h := sha256.Sum256([]byte(old))
+	return hex.EncodeToString(h[:]) == new
 }
 
 func ResourceComputeRegionSslCertificate() *schema.Resource {
