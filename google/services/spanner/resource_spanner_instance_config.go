@@ -310,8 +310,11 @@ func resourceSpannerInstanceConfigCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error decoding response from operation, could not find object")
 	}
 
-	if err := d.Set("name", flattenSpannerInstanceConfigName(opRes["name"], d, config)); err != nil {
-		return err
+	// name is set by API when unset
+	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("name"))) {
+		if err := d.Set("name", flattenSpannerInstanceConfigName(opRes["name"], d, config)); err != nil {
+			return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+		}
 	}
 
 	// This may have caused the ID to update - update it if so.
