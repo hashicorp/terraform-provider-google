@@ -33,8 +33,8 @@ BUG FIXES:
 ## 6.29.0 (Apr 8, 2025)
 
 FEATURES:
+* **New Resource:** `google_apigee_control_plane_access` ([#22209](https://github.com/hashicorp/terraform-provider-google/pull/22209))
 * **New Resource:** `google_clouddeploy_deploy_policy` ([#22190](https://github.com/hashicorp/terraform-provider-google/pull/22190))
-* **New Resource:** `google_control_plane_access` ([#22209](https://github.com/hashicorp/terraform-provider-google/pull/22209))
 * **New Resource:** `google_gemini_code_tools_setting_binding` ([#22226](https://github.com/hashicorp/terraform-provider-google/pull/22226))
 * **New Resource:** `google_gemini_code_tools_setting` ([#22203](https://github.com/hashicorp/terraform-provider-google/pull/22203))
 * **New Resource:** `google_os_config_v2_policy_orchestrator_for_organization` ([#22192](https://github.com/hashicorp/terraform-provider-google/pull/22192))
