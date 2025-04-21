@@ -29,6 +29,9 @@ For managed internal load balancing, use a regional backend service instead.
 
 Currently self-managed internal load balancing is only available in beta.
 
+~> **Note:** Recreating a `google_compute_backend_service` that references other dependent resources like `google_compute_url_map` will give a `resourceInUseByAnotherResource` error, when modifying the number of other dependent resources.
+Use `lifecycle.create_before_destroy` on the dependent resources to avoid this type of error as shown in the Dynamic Backends example.
+
 
 To get more information about BackendService, see:
 
@@ -511,6 +514,119 @@ resource "google_network_security_backend_authentication_config" "default" {
   provider = google-beta
   name             = "authentication"
   well_known_roots = "PUBLIC_ROOTS"
+}
+```
+## Example Usage - Backend Service Dynamic Backends
+
+
+```hcl
+# This is a map which manages the number of backend and related resources.
+# You can comment any of the VMs in the list and terraform will update its configuration properly.
+
+locals {
+  instances = {
+    # name: zone
+    "a-vm" : "us-central1-b",
+    "b-vm" : "us-central1-a",
+    "c-vm" : "us-central1-c",
+    "d-vm" : "us-central1-b",
+    "e-vm" : "us-central1-a",
+  }
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "default" {
+  for_each     = local.instances
+  name         = each.key
+  machine_type = "f1-micro"
+  zone         = each.value
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network    = "default"
+    subnetwork = "default"
+  }
+  metadata_startup_script = <<EOF
+#! /bin/bash
+apt-get update
+apt-get install apache2 -y
+a2ensite default-ssl
+a2enmod ssl
+vm_hostname="$(curl -H "Metadata-Flavor:Google" \
+http://169.254.169.254/computeMetadata/v1/instance/name)"
+echo "Page served from: $vm_hostname" | \
+tee /var/www/html/index.html
+systemctl restart apache2
+EOF
+
+}
+
+resource "google_compute_instance_group" "default" {
+  for_each = local.instances
+  name     = each.key
+  zone     = each.value
+
+  instances = [google_compute_instance.default[each.key].self_link]
+
+  named_port {
+    name = "http"
+    port = "80"
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  for_each = local.instances
+  name     = each.key
+
+  backend {
+    group = google_compute_instance_group.default[each.key].self_link
+  }
+
+  health_checks = [google_compute_http_health_check.default[each.key].self_link]
+  port_name     = "http"
+}
+
+resource "google_compute_http_health_check" "default" {
+  for_each           = local.instances
+  name               = "${each.key}-hc"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+
+
+resource "google_compute_url_map" "default" {
+  name            = "url_map"
+  default_service = google_compute_backend_service.default["a-vm"].self_link
+
+  dynamic "host_rule" {
+    for_each = keys(local.instances)
+    content {
+      hosts        = ["${host_rule.value}.example.com"]
+      path_matcher = host_rule.value
+    }
+  }
+
+  dynamic "path_matcher" {
+    for_each = keys(local.instances)
+    content {
+      name            = path_matcher.value
+      default_service = google_compute_backend_service.default[path_matcher.value].self_link
+    }
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 ```
 
