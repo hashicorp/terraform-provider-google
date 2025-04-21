@@ -1,0 +1,3 @@
+```release-note:note
+compute: Added example and test for dynamic backend services for `google_compute_backend_service`
+```
