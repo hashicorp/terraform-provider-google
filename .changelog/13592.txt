@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_compute_region_security_policy` (ga)
+```
+```release-note:new-resource
+`google_compute_region_security_policy_rule` (ga)
+```
