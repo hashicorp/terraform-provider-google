@@ -304,19 +304,20 @@ func BuildReplacementFunc(ctx context.Context, re *regexp.Regexp, req interface{
 			switch req.(type) {
 			case resource.CreateRequest:
 				pReq := req.(resource.CreateRequest)
-				diagInfo = pReq.Plan.GetAttribute(ctx, path.Root("m[1:]"), &v)
+				diagInfo = pReq.Plan.GetAttribute(ctx, path.Root(m[1:]), &v)
 			case resource.UpdateRequest:
 				pReq := req.(resource.UpdateRequest)
-				diagInfo = pReq.Plan.GetAttribute(ctx, path.Root("m[1:]"), &v)
+				diagInfo = pReq.Plan.GetAttribute(ctx, path.Root(m[1:]), &v)
 			case resource.ReadRequest:
 				sReq := req.(resource.ReadRequest)
-				diagInfo = sReq.State.GetAttribute(ctx, path.Root("m[1:]"), &v)
+				diagInfo = sReq.State.GetAttribute(ctx, path.Root(m[1:]), &v)
 			case resource.DeleteRequest:
 				sReq := req.(resource.DeleteRequest)
-				diagInfo = sReq.State.GetAttribute(ctx, path.Root("m[1:]"), &v)
+				diagInfo = sReq.State.GetAttribute(ctx, path.Root(m[1:]), &v)
 			}
-			diags.Append(diagInfo...)
-			if !diags.HasError() {
+			//an error here means the attribute was not found, we want to do nothing in that case
+			if !diagInfo.HasError() {
+				diags.Append(diagInfo...)
 				if v.ValueString() != "" {
 					if shorten {
 						return tpgresource.GetResourceNameFromSelfLink(fmt.Sprintf("%v", v.ValueString()))
@@ -331,19 +332,20 @@ func BuildReplacementFunc(ctx context.Context, re *regexp.Regexp, req interface{
 			switch req.(type) {
 			case resource.CreateRequest:
 				pReq := req.(resource.CreateRequest)
-				diagInfo = pReq.Plan.GetAttribute(ctx, path.Root("m"), &v)
+				diagInfo = pReq.Plan.GetAttribute(ctx, path.Root(m), &v)
 			case resource.UpdateRequest:
 				pReq := req.(resource.UpdateRequest)
-				diagInfo = pReq.Plan.GetAttribute(ctx, path.Root("m"), &v)
+				diagInfo = pReq.Plan.GetAttribute(ctx, path.Root(m), &v)
 			case resource.ReadRequest:
 				sReq := req.(resource.ReadRequest)
-				diagInfo = sReq.State.GetAttribute(ctx, path.Root("m"), &v)
+				diagInfo = sReq.State.GetAttribute(ctx, path.Root(m), &v)
 			case resource.DeleteRequest:
 				sReq := req.(resource.DeleteRequest)
-				diagInfo = sReq.State.GetAttribute(ctx, path.Root("m"), &v)
+				diagInfo = sReq.State.GetAttribute(ctx, path.Root(m), &v)
 			}
-			diags.Append(diagInfo...)
-			if !diags.HasError() {
+			//an error here means the attribute was not found, we want to do nothing in that case
+			if !diagInfo.HasError() {
+				diags.Append(diagInfo...)
 				if v.ValueString() != "" {
 					if shorten {
 						return tpgresource.GetResourceNameFromSelfLink(fmt.Sprintf("%v", v.ValueString()))
