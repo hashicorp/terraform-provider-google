@@ -1,0 +1,3 @@
+```release-note:enhancement 
+redis: Promoting Tests from Beta to GA
+```
