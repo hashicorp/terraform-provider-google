@@ -592,9 +592,12 @@ func labelKeyValidator(val interface{}, key string) (warns []string, errs []erro
 	return
 }
 
-func getAnywhereCacheListResult(config *transport_tpg.Config, bucket string) ([]interface{}, error) {
+func getAnywhereCacheListResult(d *schema.ResourceData, config *transport_tpg.Config) ([]interface{}, error) {
 	// Define the cache list URL
-	cacheListUrl := fmt.Sprintf("https://storage.googleapis.com/storage/v1/b/%s/anywhereCaches/", bucket)
+	cacheListUrl, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}b/{{name}}/anywhereCaches/")
+	if err != nil {
+		return nil, err
+	}
 
 	// Send request to get resource list
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -621,9 +624,9 @@ func getAnywhereCacheListResult(config *transport_tpg.Config, bucket string) ([]
 	return rl, nil
 }
 
-func deleteAnywhereCacheIfAny(config *transport_tpg.Config, bucket string) error {
+func deleteAnywhereCacheIfAny(d *schema.ResourceData, config *transport_tpg.Config) error {
 	// Get the initial list of Anywhere Caches
-	cacheList, err := getAnywhereCacheListResult(config, bucket)
+	cacheList, err := getAnywhereCacheListResult(d, config)
 	if err != nil {
 		return err
 	}
@@ -655,8 +658,13 @@ func deleteAnywhereCacheIfAny(config *transport_tpg.Config, bucket string) error
 		if !ok {
 			return fmt.Errorf("missing or invalid anywhereCacheId: %v", obj)
 		}
-		disableUrl := fmt.Sprintf("https://storage.googleapis.com/storage/v1/b/%s/anywhereCaches/%s/disable", bucket, anywhereCacheId)
-		_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		anywhereCacheUrl, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}b/{{name}}/anywhereCaches/")
+		if err != nil {
+			return err
+		}
+		disableUrl := anywhereCacheUrl + fmt.Sprintf("%s/disable", anywhereCacheId)
+
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
 			Project:   config.Project,
@@ -671,7 +679,7 @@ func deleteAnywhereCacheIfAny(config *transport_tpg.Config, bucket string) error
 
 	// Post this time, we check again!
 	// Get the list of Anywhere Caches after the sleep
-	cacheList, err = getAnywhereCacheListResult(config, bucket)
+	cacheList, err = getAnywhereCacheListResult(d, config)
 	if err != nil {
 		return err
 	}
@@ -1086,7 +1094,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 			break
 		}
 
-		cacheList, cacheListErr := getAnywhereCacheListResult(config, bucket)
+		cacheList, cacheListErr := getAnywhereCacheListResult(d, config)
 		if cacheListErr != nil {
 			return cacheListErr
 		}
@@ -1132,7 +1140,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		wp := workerpool.New(runtime.NumCPU() - 1)
 
 		wp.Submit(func() {
-			err = deleteAnywhereCacheIfAny(config, bucket)
+			err = deleteAnywhereCacheIfAny(d, config)
 			if err != nil {
 				deleteObjectError = fmt.Errorf("error deleting the caches on the bucket %s : %w", bucket, err)
 			}
