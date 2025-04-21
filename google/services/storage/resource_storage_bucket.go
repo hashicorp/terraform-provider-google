@@ -1088,7 +1088,9 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 
 		cacheList, cacheListErr := getAnywhereCacheListResult(config, bucket)
 		if cacheListErr != nil {
-			return cacheListErr
+			// If we get any error, try deleting the bucket anyway in case it's empty
+			// This would help our customers to avoid requiring extra storage.anywhereCaches.list permission.
+			break
 		}
 
 		if len(res.Items) == 0 && len(cacheList) == 0 {
