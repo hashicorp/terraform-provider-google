@@ -19,7 +19,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
-func TestAccServiceAccount_identity(t *testing.T) {
+func TestAccServiceAccount_ResourceIdentity(t *testing.T) {
 	t.Parallel()
 
 	accountId := "a" + acctest.RandString(t, 10)
@@ -29,10 +29,10 @@ func TestAccServiceAccount_identity(t *testing.T) {
 		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
 			tfversion.SkipBelow(tfversion.Version1_12_0),
 		},
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-				Config:                   testAccServiceAccountBasic(accountId, "identity_test", "identity_test_desc"),
+				Config: testAccServiceAccountBasic(accountId, "identity_test", "identity_test_desc"),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectIdentity(
 						"google_service_account.identity_test",
