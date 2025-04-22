@@ -11,3 +11,5 @@ fields:
   - field: 'enabled'
   - field: 'issuer'
   - field: 'name'
+  - field: 'response_type.code'
+  - field: 'response_type.id_token'
