@@ -170,6 +170,17 @@ resource "google_dataplex_datascan" "full_quality" {
   data_quality_spec {
     sampling_percent = 5
     row_filter = "station_id > 1000"
+    post_scan_actions {
+      notification_report {
+        recipients {
+          emails = ["jane.doe@example.com"]
+        }
+        score_threshold_trigger {
+          score_threshold = 86
+        }
+      }
+    }
+    
     rules {
       column = "address"
       dimension = "VALIDITY"
@@ -382,6 +393,11 @@ The following arguments are supported:
   If set, results will be exported to the provided BigQuery table.
   Structure is [documented below](#nested_data_quality_spec_post_scan_actions_bigquery_export).
 
+* `notification_report` -
+  (Optional)
+  The configuration of notification report post scan action.
+  Structure is [documented below](#nested_data_quality_spec_post_scan_actions_notification_report).
+
 
 <a name="nested_data_quality_spec_post_scan_actions_bigquery_export"></a>The `bigquery_export` block supports:
 
@@ -389,6 +405,39 @@ The following arguments are supported:
   (Optional)
   The BigQuery table to export DataQualityScan results to.
   Format://bigquery.googleapis.com/projects/PROJECT_ID/datasets/DATASET_ID/tables/TABLE_ID
+
+<a name="nested_data_quality_spec_post_scan_actions_notification_report"></a>The `notification_report` block supports:
+
+* `recipients` -
+  (Required)
+  The individuals or groups who are designated to receive notifications upon triggers.
+  Structure is [documented below](#nested_data_quality_spec_post_scan_actions_notification_report_recipients).
+
+* `score_threshold_trigger` -
+  (Optional)
+  This trigger is triggered when the DQ score in the job result is less than a specified input score.
+  Structure is [documented below](#nested_data_quality_spec_post_scan_actions_notification_report_score_threshold_trigger).
+
+* `job_failure_trigger` -
+  (Optional)
+  This trigger is triggered when the scan job itself fails, regardless of the result.
+
+* `job_end_trigger` -
+  (Optional)
+  This trigger is triggered whenever a scan job run ends, regardless of the result.
+
+
+<a name="nested_data_quality_spec_post_scan_actions_notification_report_recipients"></a>The `recipients` block supports:
+
+* `emails` -
+  (Optional)
+  The email recipients who will receive the DataQualityScan results report.
+
+<a name="nested_data_quality_spec_post_scan_actions_notification_report_score_threshold_trigger"></a>The `score_threshold_trigger` block supports:
+
+* `score_threshold` -
+  (Optional)
+  The score range is in [0,100].
 
 <a name="nested_data_quality_spec_rules"></a>The `rules` block supports:
 
