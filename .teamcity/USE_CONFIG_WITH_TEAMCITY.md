@@ -51,7 +51,7 @@ The next step is provide some input values that the configuration needs to fully
 * Click on the `Context Parameters` tab at the top of the page
     * On this page you can add key:value pairs, which are used as input to the configuration in `.teamcity/settings.kts`
 * First, we need to enter credentials information in a special way that keeps the values secure. Here is the process for the credentials to the GA nightly test project:
-    * Find the credentials JSON file for that project, ensure that the value has no newlines
+    * Find the credentials JSON file for that project, ensure that the value has no newlines (Running `cat CREDENTIALS.json | tr -s '\n' ' '` will remove newline characters from your JSON key file)
     * Click the dropdown menu next to `Actions` in the top right and click `Generate token for a secure value...`
     * Paste the credentials JSON string into the `Secure value` field nd click `Generate Token`.
     * Copy the value shown below the field, which should look like `credentialsJSON:<uuid>`
