@@ -119,7 +119,9 @@ GITHUB
 GITLAB
 GOOGLE
 SENTRY
-ROVO`,
+ROVO
+NEW_RELIC
+DATASTAX`,
 						},
 					},
 				},
