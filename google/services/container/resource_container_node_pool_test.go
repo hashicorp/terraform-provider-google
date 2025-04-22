@@ -1535,6 +1535,124 @@ resource "google_container_node_pool" "np" {
 `, cluster, networkName, subnetworkName, np)
 }
 
+func TestAccContainerNodePool_ephemeralStorageLocalSsdConfigWithDataCacheCount(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_ephemeralStorageLocalSsdConfigWithDataCacheCount(cluster, np, networkName, subnetworkName),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_ephemeralStorageLocalSsdConfigWithDataCacheCount(cluster, np, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+	location       = "us-central1-a"
+	version_prefix = "1.32"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  initial_node_count = 1
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+
+  node_config {
+    machine_type = "n2-standard-2"
+    ephemeral_storage_local_ssd_config {
+	  local_ssd_count = 1
+      data_cache_count = 1
+    }
+  }
+}
+`, cluster, networkName, subnetworkName, np)
+}
+
+func TestAccContainerNodePool_ephemeralStorageLocalSsdConfigOnlyDataCacheCount(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_ephemeralStorageLocalSsdConfigOnlyDataCacheCount(cluster, np, networkName, subnetworkName),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_ephemeralStorageLocalSsdConfigOnlyDataCacheCount(cluster, np, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+	location       = "us-central1-a"
+	version_prefix = "1.32"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  initial_node_count = 1
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+
+  node_config {
+    machine_type = "n2-standard-2"
+    ephemeral_storage_local_ssd_config {
+	  local_ssd_count = 0
+      data_cache_count = 1
+    }
+  }
+}
+`, cluster, networkName, subnetworkName, np)
+}
+
 func TestAccContainerNodePool_localNvmeSsdBlockConfig(t *testing.T) {
 	t.Parallel()
 
