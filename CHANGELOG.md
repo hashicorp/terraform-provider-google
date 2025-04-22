@@ -1,5 +1,47 @@
 ## 6.31.0 (Unreleased)
 
+DEPRECATIONS:
+* integrations: deprecated `run_as_service_account` field in `google_integrations_client` resource ([#22312](https://github.com/hashicorp/terraform-provider-google/pull/22312))
+
+FEATURES:
+* **New Resource:** `google_compute_resource_policy_attachment` ([#22400](https://github.com/hashicorp/terraform-provider-google/pull/22400))
+* **New Resource:** `google_compute_storage_pool` ([#22343](https://github.com/hashicorp/terraform-provider-google/pull/22343))
+* **New Resource:** `google_gke_backup_backup_channel` ([#22393](https://github.com/hashicorp/terraform-provider-google/pull/22393))
+* **New Resource:** `google_gke_backup_restore_channel` ([#22393](https://github.com/hashicorp/terraform-provider-google/pull/22393))
+* **New Resource:** `google_iap_web_cloud_run_service_iam_binding` ([#22399](https://github.com/hashicorp/terraform-provider-google/pull/22399))
+* **New Resource:** `google_iap_web_cloud_run_service_iam_member` ([#22399](https://github.com/hashicorp/terraform-provider-google/pull/22399))
+* **New Resource:** `google_iap_web_cloud_run_service_iam_policy` ([#22399](https://github.com/hashicorp/terraform-provider-google/pull/22399))
+* **New Resource:** `google_storage_batch_operations_job` ([#22333](https://github.com/hashicorp/terraform-provider-google/pull/22333))
+
+IMPROVEMENTS:
+* accesscontextmanager: added `scoped_access_settings` field to `gcp_user_access_binding` resource ([#22308](https://github.com/hashicorp/terraform-provider-google/pull/22308))
+* alloydb: added `machine_type` field to `google_alloydb_instance` resource ([#22352](https://github.com/hashicorp/terraform-provider-google/pull/22352))
+* artifactregistry: added `DEBIAN_SNAPSHOT` enum value to `repository_base` in `google_artifact_registry_repository` ([#22315](https://github.com/hashicorp/terraform-provider-google/pull/22315))
+* bigquery: added `external_catalog_dataset_options` fields to `google_bigquery_dataset` resource ([#22377](https://github.com/hashicorp/terraform-provider-google/pull/22377))
+* compute: added `log_config.optional_mode`, `log_config.optional_fields`, `backend.preference`, `max_stream_duration` and `cdn_policy.request_coalescing` fields to `google_compute_backend_service` resource ([#22391](https://github.com/hashicorp/terraform-provider-google/pull/22391))
+* container: added support for updating the `confidential_nodes` field in `google_container_node_pool` ([#22363](https://github.com/hashicorp/terraform-provider-google/pull/22363))
+* discoveryengine: added `allow_cross_region` field to `google_discovery_engine_chat_engine` resource ([#22336](https://github.com/hashicorp/terraform-provider-google/pull/22336))
+* gkehub: added `configmanagement.config_sync.deployment_overrides` field to `google_gke_hub_feature_membership` resource ([#22403](https://github.com/hashicorp/terraform-provider-google/pull/22403))
+* kms: added new enum values for `import_method` field in  `google_kms_key_ring_import_job` resource ([#22314](https://github.com/hashicorp/terraform-provider-google/pull/22314))
+* metastore: added `tags` field to `google_dataproc_metastore_service` resource to allow setting tags for services at creation time ([#22313](https://github.com/hashicorp/terraform-provider-google/pull/22313))
+* monitoring: added `log_check_failures` to `google_monitoring_uptime_check_config` ([#22351](https://github.com/hashicorp/terraform-provider-google/pull/22351))
+* networkconnectivity: added IPv6 support to `google_network_connectivity_internal_range` resource ([#22401](https://github.com/hashicorp/terraform-provider-google/pull/22401))
+* networkconnectivity: added `exclude_cidr_ranges` field to `google_network_connectivity_internal_range` resource ([#22332](https://github.com/hashicorp/terraform-provider-google/pull/22332))
+* privateca: added `backdate_duration` field to the `google_privateca_ca_pool` resource to add support for backdating the `not_before_time` of certificates ([#22380](https://github.com/hashicorp/terraform-provider-google/pull/22380))
+* redis: added `tags` field to `google_redis_instance` ([#22337](https://github.com/hashicorp/terraform-provider-google/pull/22337))
+* sql: added `custom_subject_alternative_names` field to `instances` resource ([#22357](https://github.com/hashicorp/terraform-provider-google/pull/22357))
+* sql: added `data_disk_provisioned_iops` and `data_disk_provisioned_throughput` fields to `google_sql_database_instance` resource ([#22398](https://github.com/hashicorp/terraform-provider-google/pull/22398))
+* sql: added `retain_backups_on_delete` field to `google_sql_database_instance` resource ([#22334](https://github.com/hashicorp/terraform-provider-google/pull/22334))
+
+BUG FIXES:
+* colab: fixed perma-diff in `google_colab_runtime_template` caused by not returning default values. ([#22338](https://github.com/hashicorp/terraform-provider-google/pull/22338))
+* discoveryengine: fixed `google_discovery_engine_target_site` operations to allow for enough time to index before timing out ([#22358](https://github.com/hashicorp/terraform-provider-google/pull/22358))
+* compute: fixed perma-diff in `google_compute_network_firewall_policy_rule` when `security_profile_group` starts with `//` ([#22402](https://github.com/hashicorp/terraform-provider-google/pull/22402))
+* healthcare: made `google_healthcare_pipeline_job` wait for creation and update operation to complete ([#22339](https://github.com/hashicorp/terraform-provider-google/pull/22339))
+* identityplatform: fixed perma-diff in `google_identity_platform_config` when fields in `blocking_functions.forward_inbound_credentials` are set to `false` ([#22384](https://github.com/hashicorp/terraform-provider-google/pull/22384))
+* sql: added diff suppression for some version changes to`google_sql_database_instance`. Diffs for `database_version` for MySQL 8.0 will be suppressed when the version is updated by auto version upgrade.([#22356](https://github.com/hashicorp/terraform-provider-google/pull/22356))
+* sql: fixed the issue of shortened version of failover_dr_replica_name causes unnecessary diff in `google_sql_database_instance` ([#22319](https://github.com/hashicorp/terraform-provider-google/pull/22319))
+
 ## 6.30.0 (Apr 15, 2025)
 
 FEATURES:
