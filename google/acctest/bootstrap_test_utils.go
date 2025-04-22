@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	tpgservicenetworking "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	"github.com/hashicorp/terraform-provider-google/google/services/sql"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -1767,7 +1768,7 @@ func BootstrapSharedTestTagKey(t *testing.T, testId string) string {
 			"description": "Bootstrapped tag key for Terraform Acceptance testing",
 		}
 
-		_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
 			Project:   config.Project,
@@ -1781,6 +1782,15 @@ func BootstrapSharedTestTagKey(t *testing.T, testId string) string {
 		}
 
 		log.Printf("[DEBUG] Waiting for shared tag key creation to finish")
+
+		err = tags.TagsOperationWaitTime(
+			config, res, "Creating TagKey", config.UserAgent,
+			20*time.Minute)
+
+		if err != nil {
+			// The resource didn't actually create
+			t.Fatalf("Error waiting to create TagKey: %s", err)
+		}
 	}
 
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -1843,7 +1853,7 @@ func BootstrapSharedTestTagValue(t *testing.T, testId string, tagKey string) str
 			"description": "Bootstrapped tag value for Terraform Acceptance testing",
 		}
 
-		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
 			Project:   config.Project,
@@ -1852,11 +1862,21 @@ func BootstrapSharedTestTagValue(t *testing.T, testId string, tagKey string) str
 			Body:      tagKeyObj,
 			Timeout:   10 * time.Minute,
 		})
+
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared tag value %q: %s", sharedTagValue, err)
 		}
 
 		log.Printf("[DEBUG] Waiting for shared tag value creation to finish")
+
+		err = tags.TagsOperationWaitTime(
+			config, res, "Creating TagValue", config.UserAgent,
+			20*time.Minute)
+
+		if err != nil {
+			// The resource didn't actually create
+			t.Fatalf("Error waiting to create TagValue: %s", err)
+		}
 	}
 
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
