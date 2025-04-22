@@ -29,6 +29,7 @@ To get more information about Organization, see:
 * [API documentation](https://cloud.google.com/apigee/docs/reference/apis/apigee/rest/v1/organizations)
 * How-to Guides
     * [Creating an API organization](https://cloud.google.com/apigee/docs/api-platform/get-started/create-org)
+    * [Setting a custom endpoint (required for data residency)](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#advanced-settings-configuration)
 
 ## Example Usage - Apigee Organization Cloud Basic
 
@@ -70,6 +71,22 @@ data "google_client_config" "current" {}
 resource "google_apigee_organization" "org" {
   description         = "Terraform-provisioned basic Apigee Org without VPC Peering."
   analytics_region    = "us-central1"
+  project_id          = data.google_client_config.current.project
+  disable_vpc_peering = true
+}
+```
+## Example Usage - Apigee Organization Cloud Basic Data Residency
+
+
+```hcl
+provider "google" {
+  apigee_custom_endpoint = "https://eu-apigee.googleapis.com/v1/"
+}
+
+data "google_client_config" "current" {}
+
+resource "google_apigee_organization" "org" {
+  description         = "Terraform-provisioned basic Apigee Org under European Union hosting jurisdiction."
   project_id          = data.google_client_config.current.project
   disable_vpc_peering = true
 }
