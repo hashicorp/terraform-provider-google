@@ -146,6 +146,58 @@ resource "google_gke_hub_feature_membership" "feature_member" {
 }
 ```
 
+
+## Example Usage - Config Management with Deployment Override
+
+```hcl
+resource "google_container_cluster" "cluster" {
+  name               = "my-cluster"
+  location           = "us-central1-a"
+  initial_node_count = 1
+}
+
+resource "google_gke_hub_membership" "membership" {
+  membership_id = "my-membership"
+  endpoint {
+    gke_cluster {
+      resource_link = "//container.googleapis.com/${google_container_cluster.cluster.id}"
+    }
+  }
+}
+
+resource "google_gke_hub_feature" "feature" {
+  name = "configmanagement"
+  location = "global"
+
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_gke_hub_feature_membership" "feature_member" {
+  location = "global"
+  feature = google_gke_hub_feature.feature.name
+  membership = google_gke_hub_membership.membership.membership_id
+  configmanagement {
+    version = "1.20.1"
+    config_sync {
+      enabled = true
+      deployment_overrides {
+        deployment_name       = "reconciler-manager"
+        deployment_namespace = "config-management-system"
+        containers {
+          container_name = "reconciler-manager"
+          cpu_request    = "100m"
+          memory_request = "64Mi"
+          cpu_limit      = "250m"
+          memory_limit   = "128Mi"
+        }
+      }
+    }
+  }
+}
+```
+
 ## Example Usage - Config Management with Regional Membership
 
 ```hcl
@@ -430,7 +482,7 @@ The following arguments are supported:
 
 * `deployment_overrides` -
   (Optional)
-  The override configurations for the Config Sync Deployments. Structure is [documented below](#nested_deployment_overrides).
+  The override configurations for the Config Sync Deployments. Structure is [documented below](#nested_deployment_overrides). The field is only available on Config Sync version 1.20.1 or later.
     
 <a name="nested_git"></a>The `git` block supports:
     
