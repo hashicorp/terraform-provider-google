@@ -43,6 +43,11 @@ func TestAccServiceAccount_identity(t *testing.T) {
 					),
 				},
 			},
+			{
+				ResourceName:    "google_service_account.identity_test",
+				ImportState:     true,
+				ImportStateKind: resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 

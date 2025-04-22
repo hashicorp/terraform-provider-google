@@ -185,22 +185,24 @@ func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdate
 
 		Identity: &schema.ResourceIdentity{
 			Version: 1,
-			Schema: map[string]*schema.Schema{
-				"project": {
-					Type:              schema.TypeString,
-					RequiredForImport: true,
-					Description:       `The project that the service account belongs to.`,
-				},
-				"role": {
-					Type:              schema.TypeString,
-					RequiredForImport: true,
-					Description:       `The e-mail address of the service account. This value should be referenced from any google_iam_policy data sources that would grant the service account privileges.`,
-				},
-				"member": {
-					Type:              schema.TypeString,
-					RequiredForImport: true,
-					Description:       `The member that is associated with this binding.`,
-				},
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"project": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       `The project that the service account belongs to.`,
+					},
+					"role": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       `The e-mail address of the service account. This value should be referenced from any google_iam_policy data sources that would grant the service account privileges.`,
+					},
+					"member": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       `The member that is associated with this binding.`,
+					},
+				}
 			},
 		},
 		Schema: tpgresource.MergeSchemas(IamMemberBaseSchema, parentSpecificSchema),

@@ -87,17 +87,19 @@ func ResourceSecretManagerSecret() *schema.Resource {
 
 		Identity: &schema.ResourceIdentity{
 			Version: 1,
-			Schema: map[string]*schema.Schema{
-				"project": {
-					Type:              schema.TypeString,
-					RequiredForImport: true,
-					Description:       `The project that the secret belongs to.`,
-				},
-				"secret_id": {
-					Type:              schema.TypeString,
-					RequiredForImport: true,
-					Description:       `The secret ID that the secret belongs to.`,
-				},
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"project": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       `The project that the secret belongs to.`,
+					},
+					"secret_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       `The secret ID that the secret belongs to.`,
+					},
+				}
 			},
 		},
 
