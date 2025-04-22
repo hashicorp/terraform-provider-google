@@ -1,0 +1,3 @@
+```release-note:enhancement
+secretmanager: added `tags` field to `google_secret_manager_secret` to allow setting tags for secrets at creation time
+```
