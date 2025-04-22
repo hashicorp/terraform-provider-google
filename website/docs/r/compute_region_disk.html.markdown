@@ -364,6 +364,9 @@ In addition to the arguments listed above, the following computed attributes are
   Links to the users of the disk (attached instances) in form:
   project/zones/zone/instances/instance
 
+* `disk_id` -
+  The unique identifier for the resource. This identifier is defined by the server.
+
 * `source_disk_id` -
   The ID value of the disk used to create this image. This value may
   be used to determine whether the image was taken from the current
