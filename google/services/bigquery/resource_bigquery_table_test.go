@@ -3049,9 +3049,9 @@ resource "google_storage_bucket" "test" {
 
 // Upload Metadata File.
 resource "google_storage_bucket_object" "metadata" {
-	name    = "_delta_log/00000000000000000000.json"
-	source = "./test-fixtures/simple/metadata/00000000000000000000.json"
-	bucket = google_storage_bucket.test.name
+  name    = "testdir/_delta_log/00000000000000000000.json"
+  source = "./test-fixtures/simple/metadata/00000000000000000000.json"
+  bucket = google_storage_bucket.test.name
 }
 
 resource "google_bigquery_table" "test" {
@@ -3061,10 +3061,10 @@ resource "google_bigquery_table" "test" {
   external_data_configuration {
     autodetect    = true
     source_format = "DELTA_LAKE"
-	reference_file_schema_uri = "gs://${google_storage_bucket.test.name}/${google_storage_bucket_object.metadata.name}"
+    reference_file_schema_uri = "gs://${google_storage_bucket.test.name}/${google_storage_bucket_object.metadata.name}"
 
     source_uris = [
-      "gs://${google_storage_bucket.test.name}/*",
+      "gs://${google_storage_bucket.test.name}/testdir",
     ]
   }
 }
