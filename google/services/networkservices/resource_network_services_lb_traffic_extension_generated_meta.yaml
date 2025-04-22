@@ -11,6 +11,7 @@ fields:
   - field: 'extension_chains.extensions.authority'
   - field: 'extension_chains.extensions.fail_open'
   - field: 'extension_chains.extensions.forward_headers'
+  - field: 'extension_chains.extensions.metadata'
   - field: 'extension_chains.extensions.name'
   - field: 'extension_chains.extensions.service'
   - field: 'extension_chains.extensions.supported_events'

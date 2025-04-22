@@ -64,7 +64,8 @@ func ResourceNetworkServicesLbTrafficExtension() *schema.Resource {
 				Description: `A set of ordered extension chains that contain the match conditions and extensions to execute.
 Match conditions for each extension chain are evaluated in sequence for a given request.
 The first extension chain that has a condition that matches the request is executed.
-Any subsequent extension chains do not execute. Limited to 5 extension chains per resource.`,
+Any subsequent extension chains do not execute. Limited to 5 extension chains per resource.
+Further information can be found at https://cloud.google.com/service-extensions/docs/reference/rest/v1/ExtensionChain`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"extensions": {
@@ -72,7 +73,8 @@ Any subsequent extension chains do not execute. Limited to 5 extension chains pe
 							Required: true,
 							Description: `A set of extensions to execute for the matching request.
 At least one extension is required. Up to 3 extensions can be defined for each extension chain for
-LbTrafficExtension resource. LbRouteExtension chains are limited to 1 extension per extension chain.`,
+LbTrafficExtension resource. LbRouteExtension chains are limited to 1 extension per extension chain.
+Further documentation to be found at https://cloud.google.com/service-extensions/docs/reference/rest/v1/ExtensionChain#Extension`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
@@ -112,6 +114,14 @@ If omitted, all headers are sent. Each element is a string indicating the header
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
+									},
+									"metadata": {
+										Type:     schema.TypeMap,
+										Optional: true,
+										Description: `Metadata associated with the extension. This field is used to pass metadata to the extension service.
+You can set up key value pairs for metadata as you like and need.
+f.e. {"key": "value", "key2": "value2"}.`,
+										Elem: &schema.Schema{Type: schema.TypeString},
 									},
 									"supported_events": {
 										Type:     schema.TypeList,
@@ -660,6 +670,7 @@ func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensions(v interfa
 			"fail_open":        flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsFailOpen(original["failOpen"], d, config),
 			"forward_headers":  flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsForwardHeaders(original["forwardHeaders"], d, config),
 			"supported_events": flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsSupportedEvents(original["supportedEvents"], d, config),
+			"metadata":         flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsMetadata(original["metadata"], d, config),
 		})
 	}
 	return transformed
@@ -689,6 +700,10 @@ func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsForwardHea
 }
 
 func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsSupportedEvents(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -845,6 +860,13 @@ func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensions(v interfac
 			transformed["supportedEvents"] = transformedSupportedEvents
 		}
 
+		transformedMetadata, err := expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsMetadata(original["metadata"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMetadata); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["metadata"] = transformedMetadata
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -876,6 +898,17 @@ func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsForwardHead
 
 func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsSupportedEvents(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandNetworkServicesLbTrafficExtensionLoadBalancingScheme(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
