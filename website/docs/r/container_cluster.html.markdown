@@ -1065,6 +1065,8 @@ sole_tenant_config {
 
 * `local_ssd_count` (Required) - Number of local SSDs to use to back ephemeral storage. Uses NVMe interfaces. Each local SSD is 375 GB in size. If zero, it means to disable using local SSDs as ephemeral storage.
 
+* `data_cache_count` (Optional) - Number of raw-block local NVMe SSD disks to be attached to the node utilized for GKE Data Cache. If zero, then GKE Data Cache will not be enabled in the nodes.
+
 <a name="nasted_fast_socket"></a>The `fast_socket` block supports:
 
 * `enabled` (Required) - Whether or not the NCCL Fast Socket is enabled
