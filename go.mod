@@ -3,7 +3,7 @@ module github.com/hashicorp/terraform-provider-google
 go 1.23.0
 
 require (
-	cloud.google.com/go/bigtable v1.33.0
+	cloud.google.com/go/bigtable v1.37.0
 	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.79.0
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/davecgh/go-spew v1.1.1
@@ -40,21 +40,21 @@ require (
 
 require (
 	bitbucket.org/creachadair/stringset v0.0.8 // indirect
-	cel.dev/expr v0.19.1 // indirect
-	cloud.google.com/go v0.116.0 // indirect
+	cel.dev/expr v0.19.2 // indirect
+	cloud.google.com/go v0.120.0 // indirect
 	cloud.google.com/go/auth v0.16.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
-	cloud.google.com/go/iam v1.2.2 // indirect
-	cloud.google.com/go/longrunning v0.6.2 // indirect
-	cloud.google.com/go/monitoring v1.21.2 // indirect
+	cloud.google.com/go/iam v1.5.0 // indirect
+	cloud.google.com/go/longrunning v0.6.6 // indirect
+	cloud.google.com/go/monitoring v1.24.1 // indirect
 	github.com/ProtonMail/go-crypto v1.1.3 // indirect
 	github.com/agext/levenshtein v1.2.2 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
-	github.com/cncf/xds/go v0.0.0-20241223141626-cff3c89139a3 // indirect
+	github.com/cncf/xds/go v0.0.0-20250121191232-2f005788dc42 // indirect
 	github.com/envoyproxy/go-control-plane/envoy v1.32.4 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.2.1 // indirect
 	github.com/fatih/color v1.16.0 // indirect
@@ -114,8 +114,8 @@ require (
 	golang.org/x/time v0.11.0 // indirect
 	golang.org/x/tools v0.22.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/genproto v0.0.0-20241104194629-dd2ea8efbc28 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250106144421-5f5ef82da422 // indirect
+	google.golang.org/genproto v0.0.0-20250303144028-a0af3efb3deb // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250414145226-207652e42e2e // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
