@@ -1,0 +1,3 @@
+```release-note:bug
+sql: the Terraform-based default value for `settings.disk_type` in `google_sql_database_instance` has been replaced with server-assigned default, allowing for compatibility with machine types that require `HyperDisk_Balanced`
+```
