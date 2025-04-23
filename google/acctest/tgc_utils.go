@@ -43,7 +43,6 @@ func GetTestMetadataForTgc(service, address, rawConfig string) resource.TestChec
 		if apiServiceName, ok := ApiServiceNames[resourceType]; !ok {
 			return fmt.Errorf("The Cai product backend name for resource %s doesn't exist.", resourceType)
 		} else {
-			var assetNames string
 			var rName string
 			switch resourceType {
 			case "google_project":
@@ -52,17 +51,7 @@ func GetTestMetadataForTgc(service, address, rawConfig string) resource.TestChec
 				rName = rState.Primary.ID
 			}
 			caiAssetName := fmt.Sprintf("//%s/%s", apiServiceName, rName)
-
-			switch resourceType {
-			case "google_compute_instance":
-				// The disk asset name is to get the boot disk details,
-				// which are converted to boot_disk.initialize_params in google_compute_instance
-				diskAssetName := strings.Replace(caiAssetName, "/instances/", "/disks/", 1)
-				assetNames = fmt.Sprintf("%s\n%s", caiAssetName, diskAssetName)
-			default:
-				assetNames = caiAssetName
-			}
-			log.Printf("[DEBUG]TGC CAI asset names\n%s\nEnd of TGC CAI asset names", assetNames)
+			log.Printf("[DEBUG]TGC CAI asset names start\n%s\nEnd of TGC CAI asset names", caiAssetName)
 		}
 
 		// The acceptance tests names will be also used for the tgc tests.
