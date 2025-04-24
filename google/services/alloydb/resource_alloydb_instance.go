@@ -193,6 +193,7 @@ E.g. "n2-highmem-4", "n2-highmem-8", "c4a-highmem-4-lssd".
 			},
 			"network_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Instance level network configuration.`,
 				MaxItems:    1,

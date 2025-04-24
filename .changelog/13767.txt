@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: stopped diffs when `google_alloydb_instance.network_config` is not specified as the API newly returns a value. Removing the field from config will no longer create a diff and will preserve the current value
+```
