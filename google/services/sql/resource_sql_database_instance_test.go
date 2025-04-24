@@ -2891,6 +2891,9 @@ func TestAccSqlDatabaseInstance_useCasBasedServerCa(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "settings.0.ip_configuration.0.server_ca_mode", "GOOGLE_MANAGED_CAS_CA"),
 					resource.TestCheckResourceAttr(resourceName, "settings.0.ip_configuration.0.server_ca_pool", ""),
+					resource.TestCheckResourceAttr(resourceName, "dns_names.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "dns_names.0.connection_type", "PUBLIC"),
+					resource.TestCheckResourceAttr(resourceName, "dns_names.0.dns_scope", "INSTANCE"),
 				),
 			},
 			{

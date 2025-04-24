@@ -583,6 +583,16 @@ connection strings. For example, when connecting with [Cloud SQL Proxy](https://
 
 * `dns_name` - The DNS name of the instance. See [Connect to an instance using Private Service Connect](https://cloud.google.com/sql/docs/mysql/configure-private-service-connect#view-summary-information-cloud-sql-instances-psc-enabled) for more details.
 
+* `dns_names` - The list of DNS names used by this instance. Different connection types for an instance may have different DNS names. DNS names can apply to an individual instance or a cluster of instances. 
+
+* `dns_names.0.name` - The DNS name.
+
+* `dns_names.0.connection_type` - The connection type of the DNS name. Can be either `PUBLIC`, `PRIVATE_SERVICES_ACCESS`, or `PRIVATE_SERVICE_CONNECT`.
+
+* `dns_names.0.dns_scope` - The scope that the DNS name applies to.
+
+  * An `INSTANCE` DNS name applies to an individual Cloud SQL instance.
+
 * `service_account_email_address` - The service account email address assigned to the
 instance.
 

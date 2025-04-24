@@ -14,6 +14,7 @@ fields:
   - field: 'database_version'
   - field: 'deletion_protection'
   - field: 'dns_name'
+  - field: 'dns_names'
   - field: 'encryption_key_name'
   - field: 'first_ip_address'
   - field: 'instance_type'

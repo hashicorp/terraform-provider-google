@@ -1019,7 +1019,28 @@ is set to true. Defaults to ZONAL.`,
 			"dns_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The dns name of the instance.`,
+				Description: `The instance-level dns name of the instance for PSC instances or public IP CAS instances.`,
+			},
+			"dns_names": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"connection_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"dns_scope": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+				Description: `The list of DNS names used by this instance. Different connection types for an instance may have different DNS names. DNS names can apply to an individual instance or a cluster of instances.`,
 			},
 			"restore_backup_context": {
 				Type:     schema.TypeList,
@@ -1817,6 +1838,9 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("dns_name", instance.DnsName); err != nil {
 		return fmt.Errorf("Error setting dns_name: %s", err)
 	}
+	if err := d.Set("dns_names", flattenDnsNames(instance.DnsNames)); err != nil {
+		return fmt.Errorf("Error setting dns_names: %s", err)
+	}
 	d.SetId(instance.Name)
 
 	return nil
@@ -2589,6 +2613,22 @@ func flattenIpAddresses(ipAddresses []*sqladmin.IpMapping) []map[string]interfac
 	}
 
 	return ips
+}
+
+func flattenDnsNames(dnsNames []*sqladmin.DnsNameMapping) []map[string]interface{} {
+	var dns []map[string]interface{}
+
+	for _, mapping := range dnsNames {
+		data := map[string]interface{}{
+			"name":            mapping.Name,
+			"connection_type": mapping.ConnectionType,
+			"dns_scope":       mapping.DnsScope,
+		}
+
+		dns = append(dns, data)
+	}
+
+	return dns
 }
 
 func flattenServerCaCerts(caCerts []*sqladmin.SslCert) []map[string]interface{} {
