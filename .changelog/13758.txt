@@ -1,0 +1,3 @@
+```release-note:bug
+clouddeploy: allowed sending empty block for `rollback` field  in  `google_clouddeploy_automation` resource.
+```
