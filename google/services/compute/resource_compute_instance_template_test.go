@@ -4560,7 +4560,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_image" "image" {
-  name         = "debian-image"
+  name         = "tf-test-debian-image-%{random_suffix}"
   source_image = data.google_compute_image.debian.self_link
   image_encryption_key {
     kms_key_self_link       = data.google_kms_crypto_key.key.id
