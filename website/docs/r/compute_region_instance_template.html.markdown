@@ -480,23 +480,49 @@ The following arguments are supported:
 
 <a name="nested_source_image_encryption_key"></a>The `source_image_encryption_key` block supports:
 
+* `raw_key` - (Optional)  A 256-bit [customer-supplied encryption key]
+    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
+    encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
+    to decrypt the given image. Only one of `kms_key_self_link`, `rsa_encrypted_key` and `raw_key`
+    may be set.
+
+* `rsa_encrypted_key` - (Optional) Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit [customer-supplied encryption key]
+    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption) to decrypt the given image. Only one of `kms_key_self_link`, `rsa_encrypted_key` and `raw_key`
+    may be set.
+
 * `kms_key_service_account` - (Optional) The service account being used for the
     encryption request for the given KMS key. If absent, the Compute Engine
     default service account is used.
 
 * `kms_key_self_link` - (Required) The self link of the encryption key that is
-    stored in Google Cloud KMS.
+    stored in Google Cloud KMS. Only one of `kms_key_self_link`, `rsa_encrypted_key` and `raw_key`
+    may be set.
 
 <a name="nested_source_snapshot_encryption_key"></a>The `source_snapshot_encryption_key` block supports:
 
+* `raw_key` - (Optional) A 256-bit [customer-supplied encryption key]
+    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
+    encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
+    to decrypt this snapshot. Only one of `kms_key_self_link`, `rsa_encrypted_key` and `raw_key`
+    may be set.
+
+* `rsa_encrypted_key` - (Optional) Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit [customer-supplied encryption key]
+    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption) to decrypt this snapshot. Only one of `kms_key_self_link`, `rsa_encrypted_key` and `raw_key`
+    may be set.
+
 * `kms_key_service_account` - (Optional) The service account being used for the
     encryption request for the given KMS key. If absent, the Compute Engine
     default service account is used.
 
 * `kms_key_self_link` - (Required) The self link of the encryption key that is
-    stored in Google Cloud KMS.
+    stored in Google Cloud KMS. Only one of `kms_key_self_link`, `rsa_encrypted_key` and `raw_key`
+    may be set.
 
 <a name="nested_disk_encryption_key"></a>The `disk_encryption_key` block supports:
+
+* `kms_key_service_account` - (Optional) The service account being used for the
+    encryption request for the given KMS key. If absent, the Compute Engine
+    default service account is used.
 
 * `kms_key_self_link` - (Required) The self link of the encryption key that is stored in Google Cloud KMS
 

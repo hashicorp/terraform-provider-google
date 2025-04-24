@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: Added fields like `raw_key`, `rsa_encrypted_key`, `kms_key_service_account` to all relevant resources on `google_compute_instance_template` and `google_compute_region_instance_template`
+```

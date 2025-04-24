@@ -194,6 +194,20 @@ images are encrypted with your own keys.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"raw_key": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to either encrypt or decrypt this resource.  Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+										Sensitive:   true,
+									},
+									"rsa_encrypted_key": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit customer-supplied encryption key to either encrypt or decrypt this resource.  Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+										Sensitive:   true,
+									},
 									"kms_key_service_account": {
 										Type:     schema.TypeString,
 										Optional: true,
@@ -204,10 +218,10 @@ Engine default service account is used.`,
 									},
 									"kms_key_self_link": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 										ForceNew: true,
 										Description: `The self link of the encryption key that is stored in
-Google Cloud KMS.`,
+Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
 									},
 								},
 							},
@@ -229,6 +243,20 @@ required except for local SSD.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"raw_key": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+										Sensitive:   true,
+									},
+									"rsa_encrypted_key": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit customer-supplied encryption key to either encrypt or decrypt this resource.  Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+										Sensitive:   true,
+									},
 									"kms_key_service_account": {
 										Type:     schema.TypeString,
 										Optional: true,
@@ -239,10 +267,10 @@ Engine default service account is used.`,
 									},
 									"kms_key_self_link": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 										ForceNew: true,
 										Description: `The self link of the encryption key that is stored in
-Google Cloud KMS.`,
+Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
 									},
 								},
 							},
@@ -287,9 +315,15 @@ Google Cloud KMS.`,
 							Description: `Encrypts or decrypts a disk using a customer-supplied encryption key.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"kms_key_service_account": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The service account being used for the encryption request for the given KMS key. If absent, the Compute Engine default service account is used.`,
+									},
 									"kms_key_self_link": {
 										Type:             schema.TypeString,
-										Required:         true,
+										Optional:         true,
 										ForceNew:         true,
 										DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 										Description:      `The self link of the encryption key that is stored in Google Cloud KMS.`,
