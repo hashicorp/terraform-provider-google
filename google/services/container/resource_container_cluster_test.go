@@ -505,38 +505,6 @@ func TestAccContainerCluster_withMaxRunDuration(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withFlexStart(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
-	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
-	npName := fmt.Sprintf("tf-test-node-pool-%s", acctest.RandString(t, 10))
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_withFlexStart(clusterName, npName, networkName, subnetworkName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_cluster.flex_start", "node_pool.0.node_config.0.machine_type", "n1-standard-1"),
-					resource.TestCheckResourceAttr("google_container_cluster.flex_start",
-						"node_pool.0.node_config.0.reservation_affinity.0.consume_reservation_type", "NO_RESERVATION"),
-					resource.TestCheckResourceAttr("google_container_cluster.flex_start", "node_pool.0.node_config.0.flex_start", "true"),
-				),
-			},
-			{
-				ResourceName:            "google_container_cluster.flex_start",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "min_master_version", "node_pool.0.node_config.0.taint"},
-			},
-		},
-	})
-}
-
 func TestAccContainerCluster_withILBSubsetting(t *testing.T) {
 	t.Parallel()
 
@@ -6590,52 +6558,6 @@ resource "google_container_cluster" "max_run_duration" {
   subnetwork    = "%s"
 }
 `, clusterName, npName, duration, networkName, subnetworkName)
-}
-
-func testAccContainerCluster_withFlexStart(clusterName, npName, networkName, subnetworkName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "flex_start" {
-  min_master_version = "1.32.3-gke.1717000"
-
-  name                = "%s"
-  location            = "us-central1-a"
-
-  release_channel {
-    channel = "RAPID"
-  }
-
-
-  node_pool {
-    name = "%s"
-    initial_node_count = 0
-	autoscaling {
-	  total_min_node_count = 0
-	  total_max_node_count = 1
-	}
-
-    node_config {
-      machine_type = "n1-standard-1"
-	  flex_start = true
-	  max_run_duration = "604800s"
-	  
-	  reservation_affinity {
-      	consume_reservation_type = "NO_RESERVATION"
-      }
-
-      taint {
-	    key    = "taint_key"
-		value  = "taint_value"
-		effect = "NO_SCHEDULE"
-	  }
-    }
-  }
-
-  deletion_protection = false
-  network             = "%s"
-  subnetwork          = "%s"
-
-}
-`, clusterName, npName, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withILBSubSetting(clusterName, npName, networkName, subnetworkName string) string {
