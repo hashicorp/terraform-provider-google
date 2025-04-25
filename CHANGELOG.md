@@ -30,7 +30,7 @@ BUG FIXES:
 * clouddeploy: allowed sending empty block for `rollback` field  in  `google_clouddeploy_automation` resource. ([#22501](https://github.com/hashicorp/terraform-provider-google/pull/22501))
 * compute: fixed an issue preventing `terms.priority` from being set to priority value 0 in `google_compute_router_route_policy` resource ([#22417](https://github.com/hashicorp/terraform-provider-google/pull/22417))
 * securesourcemanager: increased default timeouts on `google_secure_source_manager_instance` operations to 120m from 60m. Operations could take longer than an hour. ([#22483](https://github.com/hashicorp/terraform-provider-google/pull/22483))
-* sql: the Terraform-based default value for `settings.disk_type` in `google_sql_database_instance` has been replaced with server-assigned default, allowing for compatibility with machine types that require `HyperDisk_Balanced` ([#22485](https://github.com/hashicorp/terraform-provider-google/pull/22485))
+* sql: replaced the Terraform-based default value for `settings.disk_type` in `google_sql_database_instance` with a server-assigned default, allowing for compatibility with machine types that require `HyperDisk_Balanced` ([#22485](https://github.com/hashicorp/terraform-provider-google/pull/22485))
 * storage: removed extra permission (storage.anywhereCaches.list) required for doing a destroy in `resource_storage_bucket` ([#22442](https://github.com/hashicorp/terraform-provider-google/pull/22442))
 * workstations: increased default timeouts on `google_workstations_workstation_cluster` operations to 120m from 60m. Operations could take longer than an hour. ([#22482](https://github.com/hashicorp/terraform-provider-google/pull/22482))
 
