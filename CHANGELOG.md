@@ -1,7 +1,6 @@
 ## 6.32.0 (Unreleased)
 
-IMPROVEMENTS:
-* container: added `flex_start` to `node_config` in `google_container_cluster` and `google_container_node_pool` ([#22508](https://github.com/hashicorp/terraform-provider-google/pull/22508))
+* `6.32.0` contains no changes from `6.32.0`. This release is being made to ensure that the version numbers of the `google` and `google-beta` provider releases remain aligned, as [`google-beta`'s `6.32.0` release](https://github.com/hashicorp/terraform-provider-google-beta/releases/tag/v6.32.0) contains a beta-only change.
 
 ## 6.31.1 (Apr 25, 2025)
 
