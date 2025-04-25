@@ -73,6 +73,59 @@ resource "google_beyondcorp_application" "example" {
 `, context)
 }
 
+func TestAccBeyondcorpApplication_beyondcorpSecurityGatewayApplicationVpcExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBeyondcorpApplicationDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBeyondcorpApplication_beyondcorpSecurityGatewayApplicationVpcExample(context),
+			},
+			{
+				ResourceName:            "google_beyondcorp_application.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"application_id", "security_gateways_id"},
+			},
+		},
+	})
+}
+
+func testAccBeyondcorpApplication_beyondcorpSecurityGatewayApplicationVpcExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_beyondcorp_security_gateway" "default" {
+  security_gateway_id = "default%{random_suffix}"
+  display_name = "My Security Gateway resource"
+  hubs { region = "us-central1" }
+}
+
+resource "google_beyondcorp_application" "example" {
+  security_gateways_id = google_beyondcorp_security_gateway.default.security_gateway_id
+  application_id = "tf-test-my-vm-service%{random_suffix}"
+  endpoint_matchers {
+    hostname = "my-vm-service.com"
+  }
+  upstreams {
+    egress_policy {
+      regions = ["us-central1"]
+    }
+    network {
+        name = "projects/${data.google_project.project.project_id}/global/networks/default"
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckBeyondcorpApplicationDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
