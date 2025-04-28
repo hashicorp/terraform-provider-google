@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed TestAccContainerNodePool_withNodeConfigScopeAlias, TestAccContainerNodePool_withNodeConfig, TestAccContainerNodePool_withManagement using an invalid disk size
+```
