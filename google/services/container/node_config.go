@@ -830,12 +830,6 @@ func schemaNodeConfig() *schema.Schema {
 					ForceNew:    true,
 					Description: `The runtime of each node in the node pool in seconds, terminated by 's'. Example: "3600s".`,
 				},
-				"flex_start": {
-					Type:        schema.TypeBool,
-					Optional:    true,
-					ForceNew:    true,
-					Description: `Enables Flex Start provisioning model for the node pool`,
-				},
 			},
 		},
 	}
@@ -1213,10 +1207,6 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 
 	if v, ok := nodeConfig["max_run_duration"]; ok {
 		nc.MaxRunDuration = v.(string)
-	}
-
-	if v, ok := nodeConfig["flex_start"]; ok {
-		nc.FlexStart = v.(bool)
 	}
 
 	if v, ok := nodeConfig["confidential_nodes"]; ok {
@@ -1618,7 +1608,6 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 		"node_group":                         c.NodeGroup,
 		"advanced_machine_features":          flattenAdvancedMachineFeaturesConfig(c.AdvancedMachineFeatures),
 		"max_run_duration":                   c.MaxRunDuration,
-		"flex_start":                         c.FlexStart,
 		"sole_tenant_config":                 flattenSoleTenantConfig(c.SoleTenantConfig),
 		"fast_socket":                        flattenFastSocket(c.FastSocket),
 		"resource_manager_tags":              flattenResourceManagerTags(c.ResourceManagerTags),
