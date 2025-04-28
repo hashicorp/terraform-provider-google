@@ -18,9 +18,7 @@ IMPROVEMENTS:
 * dataplex: added `notification_report` field to `google_dataplex_datascan` resource ([#22464](https://github.com/hashicorp/terraform-provider-google/pull/22464))
 * gkehub: added `configmanagement.config_sync.deployment_overrides` field to `google_gke_hub_feature_membership` resource ([#22403](https://github.com/hashicorp/terraform-provider-google/pull/22403))
 * identityplatform: added `response_type` field to `google_identity_platform_oauth_idp_config` ([#22463](https://github.com/hashicorp/terraform-provider-google/pull/22463))
-* netapp: added `custom_performance_enabled`, `total_throughput_mibps`, and `total_iops` fields to `google_netapp_storage_pool` resource (beta) ([#22487](https://github.com/hashicorp/terraform-provider-google/pull/22487))
 * networkservices: added `metadata` field to `google_networkservices_lbtrafficextension` resource ([#22454](https://github.com/hashicorp/terraform-provider-google/pull/22454))
-* secretmanager: added `tags` field to `google_secret_manager_secret` to allow setting tags for secrets at creation time ([#22455](https://github.com/hashicorp/terraform-provider-google/pull/22455))
 * sql: added output-only field `dns_names` to `google_sql_database_instance` resource ([#22502](https://github.com/hashicorp/terraform-provider-google/pull/22502))
 * storage: added new fields `time_created` and `updated` in `google_storage_bucket` ([#22500](https://github.com/hashicorp/terraform-provider-google/pull/22500))
 * storagetransfer: added `transfer_spec.aws_s3_data_source.managed_private_network` field to `google_storage_transfer_job` resource ([#22509](https://github.com/hashicorp/terraform-provider-google/pull/22509))
@@ -31,7 +29,6 @@ BUG FIXES:
 * compute: fixed an issue preventing `terms.priority` from being set to priority value 0 in `google_compute_router_route_policy` resource ([#22417](https://github.com/hashicorp/terraform-provider-google/pull/22417))
 * securesourcemanager: increased default timeouts on `google_secure_source_manager_instance` operations to 120m from 60m. Operations could take longer than an hour. ([#22483](https://github.com/hashicorp/terraform-provider-google/pull/22483))
 * sql: replaced the Terraform-based default value for `settings.disk_type` in `google_sql_database_instance` with a server-assigned default, allowing for compatibility with machine types that require `HyperDisk_Balanced` ([#22485](https://github.com/hashicorp/terraform-provider-google/pull/22485))
-* storage: removed extra permission (storage.anywhereCaches.list) required for doing a destroy in `resource_storage_bucket` ([#22442](https://github.com/hashicorp/terraform-provider-google/pull/22442))
 * workstations: increased default timeouts on `google_workstations_workstation_cluster` operations to 120m from 60m. Operations could take longer than an hour. ([#22482](https://github.com/hashicorp/terraform-provider-google/pull/22482))
 
 ## 6.32.0 (Unreleased)
