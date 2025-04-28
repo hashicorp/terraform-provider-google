@@ -31,7 +31,16 @@ BUG FIXES:
 * sql: replaced the Terraform-based default value for `settings.disk_type` in `google_sql_database_instance` with a server-assigned default, allowing for compatibility with machine types that require `HyperDisk_Balanced` ([#22485](https://github.com/hashicorp/terraform-provider-google/pull/22485))
 * workstations: increased default timeouts on `google_workstations_workstation_cluster` operations to 120m from 60m. Operations could take longer than an hour. ([#22482](https://github.com/hashicorp/terraform-provider-google/pull/22482))
 
-## 6.32.0 (Unreleased)
+## 6.32.0 (Apr 25, 2025)
+
+NOTES:
+* `6.32.0` contains no changes from `6.32.0`. This release is being made to ensure that the version numbers of the `google` and `google-beta` provider releases remain aligned, as [`google-beta`'s `6.32.0` release](https://github.com/hashicorp/terraform-provider-google-beta/releases/tag/v6.32.0) contains a beta-only change.
+
+
+## 6.31.1 (Apr 25, 2025)
+
+BUG FIXES:
+* storage: removed extra permission (storage.anywhereCaches.list) required for destroying a `resource_storage_bucket` ([#22442](https://github.com/hashicorp/terraform-provider-google/pull/22442))
 
 ## 6.31.0 (Apr 22, 2025)
 
