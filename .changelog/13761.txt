@@ -1,0 +1,3 @@
+```release-note:note
+cloudrun: Updated document of `annotations` field of `google_cloud_run_service ` resource to include manual scaling and service min instances feature settings.
+```
