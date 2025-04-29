@@ -1,0 +1,3 @@
+```release-note:deprecation
+tpu: deprecated `google_tpu_node` resource. `google_tpu_node` is deprecated and will be removed in a future major release. Use `google_tpu_v2_vm` instead.
+```
