@@ -34,7 +34,7 @@ BUG FIXES:
 ## 6.32.0 (Apr 25, 2025)
 
 NOTES:
-* `6.32.0` contains no changes from `6.32.0`. This release is being made to ensure that the version numbers of the `google` and `google-beta` provider releases remain aligned, as [`google-beta`'s `6.32.0` release](https://github.com/hashicorp/terraform-provider-google-beta/releases/tag/v6.32.0) contains a beta-only change.
+* `6.32.0` contains no changes from `6.31.1`. This release is being made to ensure that the version numbers of the `google` and `google-beta` provider releases remain aligned, as [`google-beta`'s `6.32.0` release](https://github.com/hashicorp/terraform-provider-google-beta/releases/tag/v6.32.0) contains a beta-only change.
 
 
 ## 6.31.1 (Apr 25, 2025)
