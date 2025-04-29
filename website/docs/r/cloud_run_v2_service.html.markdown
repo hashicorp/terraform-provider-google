@@ -1378,6 +1378,15 @@ When the field is set to false, deleting the service is allowed.
   (Optional)
   Minimum number of instances for the service, to be divided among all revisions receiving traffic.
 
+* `scaling_mode` -
+  (Optional)
+  The [scaling mode](https://cloud.google.com/run/docs/reference/rest/v2/projects.locations.services#scalingmode) for the service.
+  Possible values are: `AUTOMATIC`, `MANUAL`.
+
+* `manual_instance_count` -
+  (Optional)
+  Total instance count for the service in manual scaling mode. This number of instances is divided among all revisions with specified traffic based on the percent of traffic they are receiving.
+
 <a name="nested_traffic"></a>The `traffic` block supports:
 
 * `type` -
