@@ -5133,7 +5133,6 @@ resource "google_compute_instance" "foobar" {
   name           = "%s"
   machine_type   = "e2-medium"
   zone           = "us-central1-a"
-  can_ip_forward = false
   tags           = ["foo", "bar"]
 
   boot_disk {
@@ -5195,7 +5194,6 @@ resource "google_compute_instance" "foobar" {
   name           = "%s"
   machine_type   = "e2-medium"
   zone           = "us-central1-a"
-  can_ip_forward = false
   tags           = ["foo", "bar"]
 
   boot_disk {
@@ -5226,7 +5224,6 @@ resource "google_compute_instance" "foobar" {
   name           = "%s"
   machine_type   = "e2-medium"
   zone           = "us-central1-a"
-  can_ip_forward = false
   tags           = ["foo", "bar"]
 
   boot_disk {
@@ -5645,7 +5642,6 @@ resource "google_compute_instance" "foobar" {
   name                = "%s"
   machine_type        = "e2-medium"
   zone                = "us-central1-a"
-  can_ip_forward      = false
   tags                = ["foo", "bar"]
   deletion_protection = false
 
@@ -5673,7 +5669,6 @@ resource "google_compute_instance" "foobar" {
   name                = "%s"
   machine_type        = "e2-medium"
   zone                = "us-central1-a"
-  can_ip_forward      = false
   tags                = ["foo", "bar"]
   deletion_protection = true
 
@@ -7897,7 +7892,6 @@ resource "google_compute_instance" "foobar" {
   name           = "%s"
   machine_type   = "e2-medium"
   zone           = "us-central1-a"
-  can_ip_forward = false
   tags           = ["foo", "bar"]
 
   //deletion_protection = false is implicit in this config due to default value
@@ -8315,7 +8309,6 @@ resource "google_compute_instance" "foobar" {
   name           = "%s"
   machine_type   = "e2-medium"
   zone           = "us-central1-a"
-  can_ip_forward = false
 
   boot_disk {
     initialize_params {
@@ -8963,7 +8956,6 @@ resource "google_compute_instance" "foobar" {
   name           = "%s"
   machine_type   = "e2-medium"
   zone           = "us-central1-a"
-  can_ip_forward = false
   tags           = ["foo", "bar"]
   desired_status  = "RUNNING"
 
@@ -9000,7 +8992,6 @@ resource "google_compute_instance" "foobar" {
   name           = "%s"
   machine_type   = "e2-medium"
   zone           = "us-central1-a"
-  can_ip_forward = false
   tags           = ["foo", "bar"]
   desired_status  = "RUNNING"
 
@@ -9167,7 +9158,6 @@ resource "google_compute_instance" "foobar" {
 	name           = "%s"
 	machine_type   = "%s"
 	zone           = "us-central1-a"
-	can_ip_forward = false
 	tags           = ["foo", "bar"]
 
 	boot_disk {
@@ -9229,7 +9219,6 @@ resource "google_compute_instance" "foobar" {
 	name           = "%s"
 	machine_type   = "e2-medium"
 	zone           = "us-central1-a"
-	can_ip_forward = false
 	tags           = ["baz"]
 
 	boot_disk {
@@ -9293,7 +9282,6 @@ resource "google_compute_instance" "foobar" {
   name           = "%s"
   machine_type   = "c2-standard-4"
   zone           = "us-east4-b"
-  can_ip_forward = false
   tags           = ["foo", "bar"]
 
   //deletion_protection = false is implicit in this config due to default value
@@ -9321,7 +9309,6 @@ resource "google_compute_instance" "second" {
   name           = "%s-2"
   machine_type   = "c2-standard-4"
   zone           = "us-east4-b"
-  can_ip_forward = false
   tags           = ["foo", "bar"]
 
   //deletion_protection = false is implicit in this config due to default value
@@ -9368,7 +9355,6 @@ resource "google_compute_instance" "foobar" {
   name           = "%s"
   machine_type   = "e2-standard-4"
   zone           = "us-east4-b"
-  can_ip_forward = false
   tags           = ["foo", "bar"]
 
   //deletion_protection = false is implicit in this config due to default value
@@ -9980,7 +9966,6 @@ resource "google_compute_instance" "foobar" {
   name           = "%s"
   machine_type   = "%s"
   zone           = "us-central1-a"
-  can_ip_forward = false
   tags           = ["foo", "bar"]
 
   boot_disk {
@@ -10013,7 +9998,6 @@ resource "google_compute_instance" "foobar" {
   name           = "%s"
   machine_type   = "%s"
   zone           = "us-central1-a"
-  can_ip_forward = false
   tags           = ["foo", "bar"]
 
   boot_disk {
