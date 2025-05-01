@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_resource_manager_capability` (beta)
+```
