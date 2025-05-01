@@ -330,6 +330,12 @@ The following arguments are supported:
   Addtionally this should be specified on the replica instance only, indicating the active as the peer_instance
   Structure is [documented below](#nested_initial_replication).
 
+* `directory_services` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Directory Services configuration.
+  Should only be set if protocol is "NFS_V4_1".
+  Structure is [documented below](#nested_directory_services).
+
 * `zone` -
   (Optional, Deprecated)
   The name of the Filestore zone of the instance.
@@ -396,6 +402,41 @@ The following arguments are supported:
 * `peer_instance` -
   (Required)
   The peer instance.
+
+<a name="nested_directory_services"></a>The `directory_services` block supports:
+
+* `ldap` -
+  (Optional)
+  Configuration for LDAP servers.
+  Structure is [documented below](#nested_directory_services_ldap).
+
+
+<a name="nested_directory_services_ldap"></a>The `ldap` block supports:
+
+* `domain` -
+  (Required)
+  The LDAP domain name in the format of `my-domain.com`.
+
+* `servers` -
+  (Required)
+  The servers names are used for specifying the LDAP servers names.
+  The LDAP servers names can come with two formats:
+  1. DNS name, for example: `ldap.example1.com`, `ldap.example2.com`.
+  2. IP address, for example: `10.0.0.1`, `10.0.0.2`, `10.0.0.3`.
+  All servers names must be in the same format: either all DNS names or all
+  IP addresses.
+
+* `users_ou` -
+  (Optional)
+  The users Organizational Unit (OU) is optional. This parameter is a hint
+  to allow faster lookup in the LDAP namespace. In case that this parameter
+  is not provided, Filestore instance will query the whole LDAP namespace.
+
+* `groups_ou` -
+  (Optional)
+  The groups Organizational Unit (OU) is optional. This parameter is a hint
+  to allow faster lookup in the LDAP namespace. In case that this parameter
+  is not provided, Filestore instance will query the whole LDAP namespace.
 
 ## Attributes Reference
 
