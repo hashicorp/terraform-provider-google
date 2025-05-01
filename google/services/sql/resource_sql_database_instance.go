@@ -75,6 +75,11 @@ var (
 		"settings.0.backup_configuration.0.transaction_log_retention_days",
 	}
 
+	connectionPoolConfigKeys = []string{
+		"settings.0.connection_pool_config.0.connection_pooling_enabled",
+		"settings.0.connection_pool_config.0.flags",
+	}
+
 	ipConfigurationKeys = []string{
 		"settings.0.ip_configuration.0.authorized_networks",
 		"settings.0.ip_configuration.0.ipv4_enabled",
@@ -431,6 +436,28 @@ is set to true. Defaults to ZONAL.`,
 							ForceNew:         true,
 							DiffSuppressFunc: caseDiffDashSuppress,
 							Description:      `The type of supported data disk is tier dependent and can be PD_SSD or PD_HDD or HYPERDISK_BALANCED.`,
+						},
+						"connection_pool_config": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Computed:    true,
+							Description: `The managed connection pool setting for a Cloud SQL instance.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"connection_pooling_enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Whether Managed Connection Pool is enabled for this instance.`,
+									},
+									"flags": {
+										Type:        schema.TypeSet,
+										Optional:    true,
+										Set:         schema.HashResource(sqlDatabaseFlagSchemaElem),
+										Elem:        sqlDatabaseFlagSchemaElem,
+										Description: `List of connection pool configuration flags`,
+									},
+								},
+							},
 						},
 						"ip_configuration": {
 							Type:     schema.TypeList,
@@ -1409,6 +1436,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		UserLabels:                tpgresource.ConvertStringMap(_settings["user_labels"].(map[string]interface{})),
 		BackupConfiguration:       expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
 		DatabaseFlags:             expandDatabaseFlags(_settings["database_flags"].(*schema.Set).List()),
+		ConnectionPoolConfig:      expandConnectionPoolConfig(_settings["connection_pool_config"].(*schema.Set).List()),
 		IpConfiguration:           expandIpConfiguration(_settings["ip_configuration"].([]interface{}), databaseVersion),
 		LocationPreference:        expandLocationPreference(_settings["location_preference"].([]interface{})),
 		MaintenanceWindow:         expandMaintenanceWindow(_settings["maintenance_window"].([]interface{})),
@@ -1556,6 +1584,35 @@ func expandPscConfig(configured []interface{}) *sqladmin.PscConfig {
 	}
 
 	return nil
+}
+
+func expandFlags(configured []interface{}) []*sqladmin.ConnectionPoolFlags {
+	connectionPoolFlags := make([]*sqladmin.ConnectionPoolFlags, 0, len(configured))
+	for _, _flag := range configured {
+		if _flag == nil {
+			continue
+		}
+		_entry := _flag.(map[string]interface{})
+
+		connectionPoolFlags = append(connectionPoolFlags, &sqladmin.ConnectionPoolFlags{
+			Name:  _entry["name"].(string),
+			Value: _entry["value"].(string),
+		})
+	}
+	return connectionPoolFlags
+}
+
+func expandConnectionPoolConfig(configured []interface{}) *sqladmin.ConnectionPoolConfig {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	_connectionPoolConfig := configured[0].(map[string]interface{})
+
+	return &sqladmin.ConnectionPoolConfig{
+		ConnectionPoolingEnabled: _connectionPoolConfig["connection_pooling_enabled"].(bool),
+		Flags:                    expandFlags(_connectionPoolConfig["flags"].(*schema.Set).List()),
+	}
 }
 
 func expandAuthorizedNetworks(configured []interface{}) []*sqladmin.AclEntry {
@@ -2315,6 +2372,10 @@ func flattenSettings(settings *sqladmin.Settings, d *schema.ResourceData) []map[
 		data["database_flags"] = flattenDatabaseFlags(settings.DatabaseFlags)
 	}
 
+	if settings.ConnectionPoolConfig != nil {
+		data["connection_pool_config"] = flattenConnectionPoolConfig(settings.ConnectionPoolConfig)
+	}
+
 	if settings.IpConfiguration != nil {
 		data["ip_configuration"] = flattenIpConfiguration(settings.IpConfiguration, d)
 	}
@@ -2483,6 +2544,38 @@ func flattenReplicationCluster(replicationCluster *sqladmin.ReplicationCluster, 
 		data["dr_replica"] = replicationCluster.DrReplica
 	}
 	return []map[string]interface{}{data}
+}
+
+func flattenConnectionPoolFlags(connectionPoolFlags []*sqladmin.ConnectionPoolFlags) []interface{} {
+	if len(connectionPoolFlags) == 0 { // Handles nil or empty slice
+		return make([]interface{}, 0) // Explicitly return empty slice
+	}
+
+	mcpflags := make([]interface{}, len(connectionPoolFlags)) // Pre-allocate for efficiency
+	for i, mcpflag := range connectionPoolFlags {
+		data := map[string]interface{}{
+			"name":  mcpflag.Name,
+			"value": mcpflag.Value,
+		}
+		mcpflags[i] = data
+	}
+	return mcpflags
+}
+
+func flattenConnectionPoolConfig(connectionPoolConfig *sqladmin.ConnectionPoolConfig) []interface{} {
+	if connectionPoolConfig == nil {
+		return []interface{}{
+			map[string]interface{}{
+				"connection_pooling_enabled": false,
+				"flags":                      make([]interface{}, 0), // Default to empty flags
+			},
+		}
+	}
+	data := map[string]interface{}{
+		"connection_pooling_enabled": connectionPoolConfig.ConnectionPoolingEnabled,          // Corrected key
+		"flags":                      flattenConnectionPoolFlags(connectionPoolConfig.Flags), // Corrected key
+	}
+	return []interface{}{data}
 }
 
 func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema.ResourceData) interface{} {
