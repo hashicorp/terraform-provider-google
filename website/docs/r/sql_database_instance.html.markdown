@@ -173,6 +173,25 @@ resource "google_sql_database_instance" "main" {
 }
 ```
 
+### Cloud SQL Instance with MCP
+```hcl
+resource "google_sql_database_instance" "instance" {
+  name:            = "mcp-enabled-main-instance"
+  region           = "us-central1"
+  database_version = "POSTGRES_16"
+  settings {
+    tier = "db-perf-optimized-N-2"
+	  connection_pool_config {
+		  connection_pooling_enabled = true
+      flags {
+			  name = "max_client_connections"
+			  value = "1980"
+		  }
+	  }
+  }
+}
+```
+
 ### Cloud SQL Instance with PSC connectivity
 
 ```hcl
@@ -570,6 +589,16 @@ The optional, computed `replication_cluster` block represents a primary instance
 * `failover_dr_replica_name`: (Optional) If the instance is a primary instance, then this field identifies the disaster recovery (DR) replica. The standard format of this field is "your-project:your-instance". You can also set this field to "your-instance", but cloud SQL backend will convert it to the aforementioned standard format.
 
 * `dr_replica`: Read-only field that indicates whether the replica is a DR replica.
+
+The optional `settings.connection_pool_config` subblock supports:
+
+* `connection_pooling_enabled`: (Optional) True if the manager connection pooling configuration is enabled.
+
+The optional `settings.connection_pool_config.flags` sublist supports:
+
+* `name` - (Required) Name of the flag.
+
+* `value` - (Required) Value of the flag.
 
 ## Attributes Reference
 

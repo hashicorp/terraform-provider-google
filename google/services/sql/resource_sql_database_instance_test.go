@@ -813,6 +813,52 @@ func TestAccSqlDatabaseInstance_withPrivateNetwork_withoutAllocatedIpRange(t *te
 	})
 }
 
+func TestAccSqlDatabaseInstance_withMCPEnabled(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-" + acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_withMCPEnabled(instanceName),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_withoutMCPEnabled(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-" + acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_withoutMCPEnabled(instanceName),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_withPSCEnabled_withoutAllowedConsumerProjects(t *testing.T) {
 	t.Parallel()
 
@@ -4725,6 +4771,41 @@ func verifyPscAutoConnectionsOperation(resourceName string, isPscConfigExpected 
 
 		return nil
 	}
+}
+
+func testAccSqlDatabaseInstance_withoutMCPEnabled(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "POSTGRES_16"
+  deletion_protection = false
+  settings {
+    tier = "db-perf-optimized-N-2"
+  }
+}
+`, instanceName)
+}
+
+func testAccSqlDatabaseInstance_withMCPEnabled(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "POSTGRES_16"
+  deletion_protection = false
+  settings {
+    tier = "db-perf-optimized-N-2"
+	connection_pool_config {
+		connection_pooling_enabled = true
+		flags {
+			name = "max_client_connections"
+			value = "1980"
+		}
+	}
+  }
+}
+`, instanceName)
 }
 
 func testAccSqlDatabaseInstance_withPSCEnabled_withoutPscAutoConnections(instanceName string) string {
