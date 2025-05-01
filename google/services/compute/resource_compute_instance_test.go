@@ -2711,9 +2711,13 @@ func TestAccComputeInstance_enableDisplay(t *testing.T) {
 			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
 			{
 				Config: testAccComputeInstance_enableDisplayUpdated(instanceName),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_enableDisplay(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					acctest.GetTestMetadataForTgc("compute", "google_compute_instance.foobar",
-						testAccComputeInstance_enableDisplayUpdated(instanceName)),
+						testAccComputeInstance_enableDisplay(instanceName)),
 				),
 			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
