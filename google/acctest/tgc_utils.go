@@ -57,7 +57,6 @@ func GetTestMetadataForTgc(service, address, rawConfig string) resource.TestChec
 		// The acceptance tests names will be also used for the tgc tests.
 		// "service" is logged and will be used to put the tgc tests into specific service packages.
 		log.Printf("[DEBUG]TGC Terraform service: %s", service)
-		log.Printf("[DEBUG]TGC Terraform resource: %s", resourceType)
 
 		re := regexp.MustCompile(`\"(tf[-_]?test[-_]?.*?)([a-z0-9]+)\"`)
 		rawConfig = re.ReplaceAllString(rawConfig, `"${1}tgc"`)
@@ -66,10 +65,11 @@ func GetTestMetadataForTgc(service, address, rawConfig string) resource.TestChec
 		// which is used to get the main resource object by checking the address after parsing raw config.
 		// For example, replace `"google_compute_instance" "foobar"` with `"google_compute_instance" "tf-test-mi3fqaucf8"`
 		n := tpgresource.GetResourceNameFromSelfLink(rState.Primary.ID)
+		log.Printf("[DEBUG]TGC Terraform resource: %s.%s", resourceType, n)
+
 		old := fmt.Sprintf(`"%s" "%s"`, resourceType, resourceName)
 		new := fmt.Sprintf(`"%s" "%s"`, resourceType, n)
 		rawConfig = strings.Replace(rawConfig, old, new, 1)
-
 		log.Printf("[DEBUG]TGC raw_config starts %sEnd of TGC raw_config", rawConfig)
 		return nil
 	}
