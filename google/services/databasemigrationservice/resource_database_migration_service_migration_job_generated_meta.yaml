@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_database_migration_service_migration_job'
 generation_type: 'mmv1'
 source_file: 'products/databasemigrationservice/MigrationJob.yaml'
