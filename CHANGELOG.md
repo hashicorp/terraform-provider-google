@@ -1,4 +1,21 @@
-## 6.33.0 (Unreleased)
+## 6.34.0 (Unreleased)
+
+DEPRECATIONS:
+* tpu: deprecated `google_tpu_node` resource. `google_tpu_node` is deprecated and will be removed in a future major release. Use `google_tpu_v2_vm` instead. ([#22552](https://github.com/hashicorp/terraform-provider-google/pull/22552))
+
+FEATURES:
+* **New Resource:** `google_apigee_security_profile_v2` ([#22524](https://github.com/hashicorp/terraform-provider-google/pull/22524))
+
+IMPROVEMENTS:
+* bigtable: added `cluster.node_scaling_factor` field to `google_bigtable_instance` resource ([#22560](https://github.com/hashicorp/terraform-provider-google/pull/22560))
+* cloudrunv2: added `scaling_mode` and `manual_instance_count` fields to `google_cloud_run_v2_service` resource ([#22561](https://github.com/hashicorp/terraform-provider-google/pull/22561))
+* networkconnectivity: added `state_reason` field to `google_network_connectivity_spoke ` resource ([#22525](https://github.com/hashicorp/terraform-provider-google/pull/22525))
+* sql: added `connection_pool_config` field to the `google_sql_database_instance` resource ([#22583](https://github.com/hashicorp/terraform-provider-google/pull/22583))
+* vpcaccess: changed fields `min_instances`, `max_instances`, `machine_type` to allow update `google_vpc_access_connector` without recreation. ([#22572](https://github.com/hashicorp/terraform-provider-google/pull/22572))
+
+BUG FIXES:
+* compute: fixed the bug when validating the subnetwork project in `google_compute_instance` resource ([#22571](https://github.com/hashicorp/terraform-provider-google/pull/22571))
+* workbench: fixed a permadiff on `metadata` of `instance-region` in `google_workbench_instance` resource ([#22553](https://github.com/hashicorp/terraform-provider-google/pull/22553))
 
 ## 6.32.0 (Apr 25, 2025)
 
