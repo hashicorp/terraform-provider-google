@@ -403,6 +403,7 @@ resource "google_workbench_instance" "instance" {
       terraform = "true",
       "idle-timeout-seconds" = "10800",
       "image-url" = "fake-value",
+	  "container-custom-params" = "test-params",
     }
   }
 

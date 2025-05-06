@@ -1,0 +1,3 @@
+```release-note:bug
+workbench: fixed some metadata changes not being reflected in `google_workbench_instance`
+```
