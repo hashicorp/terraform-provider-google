@@ -655,8 +655,8 @@ resource "google_project" "acceptance" {
 }
 
 func testAccProject_tagsAllowDestroy(context map[string]interface{}) string {
-	return acctest.Nprintf(
-		`resource "google_project" "acceptance" {
+	return acctest.Nprintf(`
+resource "google_project" "acceptance" {
   project_id      = "%{pid}"
   name            = "%{pid}"
   org_id          = "%{org}"
