@@ -45,6 +45,7 @@ type TerraformResourceData interface {
 	Set(string, interface{}) error
 	SetId(string)
 	Id() string
+	Identity() (*schema.IdentityData, error)
 	GetProviderMeta(interface{}) error
 	Timeout(key string) time.Duration
 }

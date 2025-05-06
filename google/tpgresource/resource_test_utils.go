@@ -19,6 +19,7 @@ type ResourceDataMock struct {
 	FieldsInSchema      map[string]interface{}
 	FieldsWithHasChange []string
 	id                  string
+	identity            *schema.IdentityData
 }
 
 func (d *ResourceDataMock) HasChange(key string) bool {
@@ -67,6 +68,10 @@ func (d *ResourceDataMock) SetId(v string) {
 
 func (d *ResourceDataMock) Id() string {
 	return d.id
+}
+
+func (d *ResourceDataMock) Identity() (*schema.IdentityData, error) {
+	return d.identity, nil
 }
 
 func (d *ResourceDataMock) GetProviderMeta(dst interface{}) error {
