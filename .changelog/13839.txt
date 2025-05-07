@@ -1,0 +1,6 @@
+```release-note:enhancement
+netapp: added `volume_region` and `backup_region` fields to `google_netapp_backup`
+```
+```release-note:enhancement
+netapp: added `backup_vault_type`, `backup_region`, `source_region`, `source_backup_vault`, and `destination_backup_vault` fields to `google_netapp_backup_vault`
+```

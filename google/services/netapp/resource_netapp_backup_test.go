@@ -235,7 +235,7 @@ resource "google_netapp_volume_snapshot" "default" {
 
 resource "google_netapp_backup" "test_backup" {
   name = "tf-test-test-backup%{random_suffix}"
-  description = "This is a test backup"
+  description = "This is a flex test backup"
   source_volume = google_netapp_volume.default.id
   location = google_netapp_backup_vault.default.location
   vault_name = google_netapp_backup_vault.default.name
@@ -243,6 +243,86 @@ resource "google_netapp_backup" "test_backup" {
   labels = {
     key= "test"
     value= "backup"
+  }
+}
+`, context)
+}
+
+func TestAccNetappBackup_NetappIntegratedBackup(t *testing.T) {
+	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-1", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetappBackupDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetappBackup_IntegratedBackup(context),
+			},
+			{
+				ResourceName:            "google_netapp_backup.test_backup",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels", "vault_name"},
+			},
+		},
+	})
+}
+
+func testAccNetappBackup_IntegratedBackup(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_network" "default" {
+  name = "%{network_name}"
+}
+resource "google_netapp_storage_pool" "default" {
+  name = "tf-test-backup-pool%{random_suffix}"
+  location = "us-east4"
+  service_level = "PREMIUM"
+  capacity_gib = "2048"
+  network = data.google_compute_network.default.id
+}
+resource "google_netapp_volume" "default" {
+  name = "tf-test-backup-volume%{random_suffix}"
+  location = google_netapp_storage_pool.default.location
+  capacity_gib = "100"
+  share_name = "tf-test-backup-volume%{random_suffix}"
+  storage_pool = google_netapp_storage_pool.default.name
+  protocols = ["NFSV3"]
+  deletion_policy = "FORCE"
+  backup_config {
+    backup_vault = google_netapp_backup_vault.default.id
+  }
+}
+resource "google_netapp_backup_vault" "default" {
+  name = "tf-test-backup-vault%{random_suffix}"
+  location = google_netapp_storage_pool.default.location
+  backup_vault_type = "CROSS_REGION"
+  backup_region = "us-west4"
+}
+resource "google_netapp_volume_snapshot" "default" {
+  depends_on = [google_netapp_volume.default]
+  location = google_netapp_volume.default.location
+  volume_name = google_netapp_volume.default.name
+  description = "This is a test description"
+  name = "testvolumesnap%{random_suffix}"
+  labels = {
+    key= "test"
+    value= "snapshot"
+  }
+  }
+resource "google_netapp_backup" "test_backup" {
+  name = "tf-test-test-backup%{random_suffix}"
+  description = "This is a test integrated backup"
+  source_volume = google_netapp_volume.default.id
+  location = google_netapp_backup_vault.default.location
+  vault_name = google_netapp_backup_vault.default.name
+  source_snapshot = google_netapp_volume_snapshot.default.id
+  labels = {
+  key= "test"
+  value= "backup"
   }
 }
 `, context)
