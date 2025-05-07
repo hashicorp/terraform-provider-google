@@ -1,0 +1,3 @@
+```release-note:note
+cloudfunctions2: replaced 'abiu' in Cloud Functions V2 examples with a more meaningful name
+```
