@@ -383,6 +383,11 @@ The following arguments are supported:
   which are used for outbound connectivity. Currently, AlloyDB supports only 0 or 1 PSC interface.
   Structure is [documented below](#nested_psc_instance_config_psc_interface_configs).
 
+* `psc_auto_connections` -
+  (Optional)
+  Configurations for setting up PSC service automation.
+  Structure is [documented below](#nested_psc_instance_config_psc_auto_connections).
+
 
 <a name="nested_psc_instance_config_psc_interface_configs"></a>The `psc_interface_configs` block supports:
 
@@ -391,6 +396,34 @@ The following arguments are supported:
   The network attachment resource created in the consumer project to which the PSC interface will be linked.
   This is of the format: "projects/${CONSUMER_PROJECT}/regions/${REGION}/networkAttachments/${NETWORK_ATTACHMENT_NAME}".
   The network attachment must be in the same region as the instance.
+
+<a name="nested_psc_instance_config_psc_auto_connections"></a>The `psc_auto_connections` block supports:
+
+* `consumer_project` -
+  (Optional)
+  The consumer project to which the PSC service automation endpoint will
+  be created. The API expects the consumer project to be the project ID(
+  and not the project number).
+
+* `consumer_network` -
+  (Optional)
+  The consumer network for the PSC service automation, example:
+  "projects/vpc-host-project/global/networks/default".
+  The consumer network might be hosted a different project than the
+  consumer project. The API expects the consumer project specified to be
+  the project ID (and not the project number)
+
+* `ip_address` -
+  (Output)
+  The IP address of the PSC service automation endpoint.
+
+* `status` -
+  (Output)
+  The status of the PSC service automation connection.
+
+* `consumer_network_status` -
+  (Output)
+  The status of the service connection policy.
 
 <a name="nested_network_config"></a>The `network_config` block supports:
 
