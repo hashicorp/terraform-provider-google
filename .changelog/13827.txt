@@ -1,0 +1,3 @@
+```release-note:note
+privateca: removed requirement to specify `organization` when creating a Certificate Authority
+```
