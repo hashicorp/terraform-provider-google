@@ -32,6 +32,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceNetappBackupVault() *schema.Resource {
@@ -69,6 +70,18 @@ func ResourceNetappBackupVault() *schema.Resource {
 				ForceNew:    true,
 				Description: `The resource name of the backup vault. Needs to be unique per location.`,
 			},
+			"backup_region": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Region in which backup is stored.`,
+			},
+			"backup_vault_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"BACKUP_VAULT_TYPE_UNSPECIFIED", "IN_REGION", "CROSS_REGION", ""}),
+				Description:  `Type of the backup vault to be created. Default is IN_REGION. Possible values: ["BACKUP_VAULT_TYPE_UNSPECIFIED", "IN_REGION", "CROSS_REGION"]`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -89,11 +102,26 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Computed:    true,
 				Description: `Create time of the backup vault. A timestamp in RFC3339 UTC "Zulu" format. Examples: "2023-06-22T09:13:01.617Z".`,
 			},
+			"destination_backup_vault": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Name of the Backup vault created in backup region.`,
+			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"source_backup_vault": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Name of the Backup vault created in source region.`,
+			},
+			"source_region": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Region in which the backup vault is created.`,
 			},
 			"state": {
 				Type:        schema.TypeString,
@@ -131,6 +159,18 @@ func resourceNetappBackupVaultCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	backupVaultTypeProp, err := expandNetappBackupVaultBackupVaultType(d.Get("backup_vault_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("backup_vault_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(backupVaultTypeProp)) && (ok || !reflect.DeepEqual(v, backupVaultTypeProp)) {
+		obj["backupVaultType"] = backupVaultTypeProp
+	}
+	backupRegionProp, err := expandNetappBackupVaultBackupRegion(d.Get("backup_region"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("backup_region"); !tpgresource.IsEmptyValue(reflect.ValueOf(backupRegionProp)) && (ok || !reflect.DeepEqual(v, backupRegionProp)) {
+		obj["backupRegion"] = backupRegionProp
 	}
 	labelsProp, err := expandNetappBackupVaultEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -249,6 +289,21 @@ func resourceNetappBackupVaultRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("labels", flattenNetappBackupVaultLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupVault: %s", err)
 	}
+	if err := d.Set("backup_vault_type", flattenNetappBackupVaultBackupVaultType(res["backupVaultType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err := d.Set("backup_region", flattenNetappBackupVaultBackupRegion(res["backupRegion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err := d.Set("source_region", flattenNetappBackupVaultSourceRegion(res["sourceRegion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err := d.Set("source_backup_vault", flattenNetappBackupVaultSourceBackupVault(res["sourceBackupVault"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
+	if err := d.Set("destination_backup_vault", flattenNetappBackupVaultDestinationBackupVault(res["destinationBackupVault"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetappBackupVaultTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupVault: %s", err)
 	}
@@ -281,6 +336,18 @@ func resourceNetappBackupVaultUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	backupVaultTypeProp, err := expandNetappBackupVaultBackupVaultType(d.Get("backup_vault_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("backup_vault_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backupVaultTypeProp)) {
+		obj["backupVaultType"] = backupVaultTypeProp
+	}
+	backupRegionProp, err := expandNetappBackupVaultBackupRegion(d.Get("backup_region"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("backup_region"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backupRegionProp)) {
+		obj["backupRegion"] = backupRegionProp
+	}
 	labelsProp, err := expandNetappBackupVaultEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -299,6 +366,14 @@ func resourceNetappBackupVaultUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("backup_vault_type") {
+		updateMask = append(updateMask, "backupVaultType")
+	}
+
+	if d.HasChange("backup_region") {
+		updateMask = append(updateMask, "backupRegion")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -450,6 +525,26 @@ func flattenNetappBackupVaultLabels(v interface{}, d *schema.ResourceData, confi
 	return transformed
 }
 
+func flattenNetappBackupVaultBackupVaultType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappBackupVaultBackupRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappBackupVaultSourceRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappBackupVaultSourceBackupVault(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappBackupVaultDestinationBackupVault(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetappBackupVaultTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -470,6 +565,14 @@ func flattenNetappBackupVaultEffectiveLabels(v interface{}, d *schema.ResourceDa
 }
 
 func expandNetappBackupVaultDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappBackupVaultBackupVaultType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappBackupVaultBackupRegion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

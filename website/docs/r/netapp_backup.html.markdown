@@ -159,6 +159,12 @@ In addition to the arguments listed above, the following computed attributes are
   Backups of a volume build incrementally on top of each other. They form a "backup chain".
   Total size of all backups in a chain in bytes = baseline backup size + sum(incremental backup size)
 
+* `volume_region` -
+  Region of the volume from which the backup was created.
+
+* `backup_region` -
+  Region in which backup is stored.
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
