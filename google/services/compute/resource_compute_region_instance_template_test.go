@@ -1481,6 +1481,36 @@ func TestAccComputeRegionInstanceTemplate_keyRevocationActionType(t *testing.T) 
 	})
 }
 
+func TestAccComputeRegionInstanceTemplate_GuestOsFeatures(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	context := map[string]interface{}{
+		"template_name":     fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"guest_os_features": `["UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "GVNIC", "IDPF"]`,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_GuestOsFeatures(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "disk.0.guest_os_features.#", "4"),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "disk.0.guest_os_features.0", "UEFI_COMPATIBLE"),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "disk.0.guest_os_features.1", "VIRTIO_SCSI_MULTIQUEUE"),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "disk.0.guest_os_features.2", "GVNIC"),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "disk.0.guest_os_features.3", "IDPF"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeRegionInstanceTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -4257,6 +4287,34 @@ resource "google_compute_region_instance_template" "foobar" {
 }
 
 data "google_compute_default_service_account" "default" {
+}
+`, context)
+}
+
+func testAccComputeRegionInstanceTemplate_GuestOsFeatures(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name         = "%{template_name}"
+  machine_type = "e2-medium"
+  region       = "us-central1"
+
+  disk {
+	source_image = data.google_compute_image.my_image.self_link
+	auto_delete  = true
+	disk_size_gb = 10
+	boot         = true
+	architecture = "X86_64"
+	guest_os_features = %{guest_os_features}
+  }
+
+  network_interface {
+	network = "default"
+  }
 }
 `, context)
 }

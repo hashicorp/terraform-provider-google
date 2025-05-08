@@ -121,6 +121,14 @@ func ResourceComputeRegionInstanceTemplate() *schema.Resource {
 							Description: `Name of the disk. When not provided, this defaults to the name of the instance.`,
 						},
 
+						"architecture": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `The architecture of the image. Allowed values are ARM64 or X86_64.`,
+						},
+
 						"disk_size_gb": {
 							Type:        schema.TypeInt,
 							Optional:    true,
@@ -170,6 +178,16 @@ func ResourceComputeRegionInstanceTemplate() *schema.Resource {
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Set:         schema.HashString,
 							Description: `A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored (both PUT & PATCH) when empty.`,
+						},
+
+						"guest_os_features": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `A list of features to enable on the guest operating system. Applicable only for bootable images.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 						},
 
 						"source_image": {

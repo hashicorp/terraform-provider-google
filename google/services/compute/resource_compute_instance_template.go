@@ -142,6 +142,14 @@ func ResourceComputeInstanceTemplate() *schema.Resource {
 							Description: `Name of the disk. When not provided, this defaults to the name of the instance.`,
 						},
 
+						"architecture": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `The architecture of the image. Allowed values are ARM64 or X86_64.`,
+						},
+
 						"disk_size_gb": {
 							Type:        schema.TypeInt,
 							Optional:    true,
@@ -191,6 +199,16 @@ func ResourceComputeInstanceTemplate() *schema.Resource {
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Set:         schema.HashString,
 							Description: `A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored (both PUT & PATCH) when empty.`,
+						},
+
+						"guest_os_features": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `A list of features to enable on the guest operating system. Applicable only for bootable images.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 						},
 
 						"source_image": {
@@ -1375,6 +1393,14 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 			disk.Type = v.(string)
 		}
 
+		if v, ok := d.GetOk(prefix + ".guest_os_features"); ok {
+			disk.GuestOsFeatures = expandComputeInstanceGuestOsFeatures(v.([]interface{}))
+		}
+
+		if v, ok := d.GetOk(prefix + ".architecture"); ok {
+			disk.Architecture = v.(string)
+		}
+
 		disks = append(disks, &disk)
 	}
 
@@ -1639,6 +1665,8 @@ func flattenDisk(disk *compute.AttachedDisk, configDisk map[string]any, defaultP
 	diskMap["source"] = tpgresource.ConvertSelfLinkToV1(disk.Source)
 	diskMap["mode"] = disk.Mode
 	diskMap["type"] = disk.Type
+	diskMap["guest_os_features"] = flattenComputeInstanceGuestOsFeatures(disk.GuestOsFeatures)
+	diskMap["architecture"] = configDisk["architecture"]
 
 	return diskMap, nil
 }
