@@ -1,0 +1,3 @@
+```release-note:bug
+redis: remove non-functioning `tags` field from `google_redis_instance `. It was introduced in v6.31.0 but the feature was not yet GA.
+```
