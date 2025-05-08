@@ -27,7 +27,7 @@ func ResourceGoogleServiceAccount() *schema.Resource {
 		Delete: resourceGoogleServiceAccountDelete,
 		Update: resourceGoogleServiceAccountUpdate,
 		Importer: &schema.ResourceImporter{
-			State: resourceGoogleServiceAccountImport,
+			StateContext: resourceGoogleServiceAccountImport,
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
@@ -42,10 +42,10 @@ func ResourceGoogleServiceAccount() *schema.Resource {
 				return map[string]*schema.Schema{
 					"project": {
 						Type:              schema.TypeString,
-						RequiredForImport: true,
+						OptionalForImport: true,
 						Description:       `The project that the service account belongs to.`,
 					},
-					"account_id": {
+					"email": {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
 						Description:       `The e-mail address of the service account. This value should be referenced from any google_iam_policy data sources that would grant the service account privileges.`,
@@ -191,9 +191,9 @@ func resourceGoogleServiceAccountCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return fmt.Errorf("Error getting identity: %s", err)
 	}
-	err = identity.Set("account_id", aid)
+	err = identity.Set("email", sa.Email)
 	if err != nil {
-		return fmt.Errorf("Error setting account_id: %s", err)
+		return fmt.Errorf("Error setting email: %s", err)
 	}
 	err = identity.Set("project", project)
 	if err != nil {
@@ -267,9 +267,9 @@ func resourceGoogleServiceAccountRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return fmt.Errorf("Error getting identity: %s", err)
 	}
-	err = identity.Set("account_id", strings.Split(sa.Email, "@")[0])
+	err = identity.Set("email", sa.Email)
 	if err != nil {
-		return fmt.Errorf("Error setting account_id: %s", err)
+		return fmt.Errorf("Error setting email: %s", err)
 	}
 	err = identity.Set("project", sa.ProjectId)
 	if err != nil {
@@ -355,7 +355,7 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceGoogleServiceAccountImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceGoogleServiceAccountImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/serviceAccounts/(?P<email>[^/]+)",

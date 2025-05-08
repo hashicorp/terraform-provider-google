@@ -27,26 +27,6 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 			return fmt.Errorf("Import is not supported. Invalid regex formats.")
 		}
 
-		identity, err := d.Identity()
-		// use Identity over ID
-		if err == nil {
-			log.Printf("[DEBUG] Using IdentitySchema to set project for resource %s", d.Get("name"))
-			namedGroups, err := GetNamedCaptureGroups(idFormat)
-			if err != nil {
-				return fmt.Errorf("error getting named capture groups: %w", err)
-			}
-			identityMap := make(map[string]interface{})
-			for _, group := range namedGroups {
-				identity.Set(group, d.Get(group))
-				identityMap[group] = identity.Get(group)
-			}
-			constructedID, err := CreateIDFromFormat(idFormat, identityMap)
-			if err != nil {
-				return fmt.Errorf("error creating ID from format using IdentityData: %w", err)
-			}
-			d.SetId(constructedID)
-		}
-
 		if fieldValues := re.FindStringSubmatch(d.Id()); fieldValues != nil {
 			log.Printf("[DEBUG] matching ID %s to regex %s.", d.Id(), idFormat)
 			// Starting at index 1, the first match is the full string.
@@ -92,75 +72,33 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 
 			return nil
 		}
+
+		if err := identityImport(re, idFormat, d); err == nil {
+			return nil
+		}
+
+		log.Print("[DEBUG] Identity import failed")
 	}
 	return fmt.Errorf("Import id %q doesn't match any of the accepted formats: %v", d.Id(), idRegexes)
 }
 
-func GetNamedCaptureGroups(regexString string) ([]string, error) {
-	re, err := regexp.Compile(regexString)
+func identityImport(re *regexp.Regexp, idFormat string, d TerraformResourceData) error {
+	log.Print("[DEBUG] Using IdentitySchema to import resource")
+	namedGroups := re.SubexpNames()
+	identity, err := d.Identity()
 	if err != nil {
-		return nil, fmt.Errorf("error compiling regex '%s': %w", regexString, err)
+		return err
 	}
 
-	var namedGroups []string
-	// SubexpNames returns a slice where the first element is for the full match (often empty string if unnamed),
-	// and subsequent elements are names of capture groups.
-	// Unnamed capture groups will have an empty string as their name.
-	for _, name := range re.SubexpNames() {
-		if name != "" { // Filter out unnamed groups and the full match's potential empty name
-			namedGroups = append(namedGroups, name)
+	for _, group := range namedGroups {
+		if identityValue, identityExists := identity.GetOk(group); identityExists {
+			d.Set(group, identityValue)
+		} else {
+			return fmt.Errorf("No value was found for %s during import", group)
 		}
 	}
-	return namedGroups, nil
-}
 
-func CreateIDFromFormat(idFormat string, valuesMap map[string]interface{}) (string, error) {
-	// Regex to find named groups like (?P<name>...) and capture 'name' in its first submatch.
-	// Example: It matches "(?P<project>[^/]+)" and captures "project".
-	idPlaceholderRegex, err := regexp.Compile(`\(\?P<([a-zA-Z0-9_]+)>[^)]*\)`)
-	if err != nil {
-		// This compilation should not fail for a static pattern.
-		return "", fmt.Errorf("internal error compiling placeholder regex: %w", err)
-	}
-
-	var firstError error
-
-	// ReplaceAllStringFunc iterates over all matches of idPlaceholderRegex in idFormat.
-	// For each match, it calls the provided function to get the replacement string.
-	constructedID := idPlaceholderRegex.ReplaceAllStringFunc(idFormat, func(placeholderSubstring string) string {
-		// placeholderSubstring is the full matched placeholder, e.g., "(?P<project>[^/]+)"
-
-		// Extract the actual group name (e.g., "project") from the placeholderSubstring.
-		subMatches := idPlaceholderRegex.FindStringSubmatch(placeholderSubstring)
-		if len(subMatches) < 2 {
-			// Should not happen if idPlaceholderRegex matched and is defined correctly.
-			if firstError == nil { // Record only the first error encountered.
-				firstError = fmt.Errorf("could not extract group name from placeholder '%s'", placeholderSubstring)
-			}
-			return placeholderSubstring // Return original placeholder on error to avoid data loss.
-		}
-		groupName := subMatches[1] // This is the captured name, e.g., "project".
-
-		// Look up the value for this groupName in the provided map.
-		value, ok := valuesMap[groupName]
-		if !ok {
-			// No value was provided for this group name.
-			if firstError == nil {
-				firstError = fmt.Errorf("no value found for placeholder group '%s' in idFormat string", groupName)
-			}
-			return placeholderSubstring // Return original placeholder if value is missing.
-		}
-
-		// Convert the value to a string for substitution.
-		return fmt.Sprintf("%v", value)
-	})
-
-	if firstError != nil {
-		// If any error occurred during the replacement process, return it.
-		return "", firstError
-	}
-
-	return constructedID, nil
+	return nil
 }
 
 func setDefaultValues(idRegex string, d TerraformResourceData, config *transport_tpg.Config) error {

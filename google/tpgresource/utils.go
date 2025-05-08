@@ -42,6 +42,7 @@ type TerraformResourceData interface {
 	GetOkExists(string) (interface{}, bool)
 	GetOk(string) (interface{}, bool)
 	Get(string) interface{}
+	GetRawConfig() cty.Value
 	Set(string, interface{}) error
 	SetId(string)
 	Id() string
