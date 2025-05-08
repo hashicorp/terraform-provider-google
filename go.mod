@@ -44,6 +44,8 @@ replace github.com/hashicorp/terraform-plugin-go => github.com/hashicorp/terrafo
 
 replace github.com/hashicorp/terraform-plugin-mux => github.com/hashicorp/terraform-plugin-mux v0.19.0-alpha.1
 
+replace github.com/hashicorp/terraform-plugin-framework => github.com/hashicorp/terraform-plugin-framework v1.15.0-beta.1
+
 replace github.com/hashicorp/terraform-plugin-testing => github.com/hashicorp/terraform-plugin-testing v1.13.0-beta.1
 
 require (
