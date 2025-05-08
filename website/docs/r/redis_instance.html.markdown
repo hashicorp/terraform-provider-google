@@ -419,12 +419,6 @@ The following arguments are supported:
   Optional. The KMS key reference that you want to use to encrypt the data at rest for this Redis
   instance. If this is provided, CMEK is enabled.
 
-* `tags` -
-  (Optional)
-  A map of resource manager tags.
-  Resource manager tag keys and values have the same definition as resource manager tags.
-  Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/{tag_key_value}.
-
 * `region` -
   (Optional)
   The name of the Redis region of the instance.
