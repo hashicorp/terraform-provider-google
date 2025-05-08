@@ -14,6 +14,7 @@ func TestAccNetappStoragePool_storagePoolCreateExample_update(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-1", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -46,24 +47,8 @@ func TestAccNetappStoragePool_storagePoolCreateExample_update(t *testing.T) {
 func testAccNetappStoragePool_storagePoolCreateExample_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 
-resource "google_compute_network" "peering_network" {
-  name = "tf-test-network%{random_suffix}"
-}
-
-# Create an IP address
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "tf-test-address%{random_suffix}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.peering_network.id
-}
-
-# Create a private connection
-resource "google_service_networking_connection" "default" {
-  network                 = google_compute_network.peering_network.id
-  service                 = "netapp.servicenetworking.goog"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+data "google_compute_network" "default" {
+    name = "%{network_name}"
 }
 
 resource "google_netapp_storage_pool" "test_pool" {
@@ -71,7 +56,7 @@ resource "google_netapp_storage_pool" "test_pool" {
   location = "us-central1"
   service_level = "PREMIUM"
   capacity_gib = "2048"
-  network = google_compute_network.peering_network.id
+  network = data.google_compute_network.default.id
   active_directory      = ""
   description           = "this is a test description"
   kms_config            = ""
@@ -88,24 +73,8 @@ resource "google_netapp_storage_pool" "test_pool" {
 func testAccNetappStoragePool_storagePoolCreateExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 
-resource "google_compute_network" "peering_network" {
-  name = "tf-test-network%{random_suffix}"
-}
-
-# Create an IP address
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "tf-test-address%{random_suffix}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.peering_network.id
-}
-
-# Create a private connection
-resource "google_service_networking_connection" "default" {
-  network                 = google_compute_network.peering_network.id
-  service                 = "netapp.servicenetworking.goog"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+data "google_compute_network" "default" {
+    name = "%{network_name}"
 }
 
 resource "google_netapp_storage_pool" "test_pool" {
@@ -113,7 +82,7 @@ resource "google_netapp_storage_pool" "test_pool" {
   location = "us-central1"
   service_level = "PREMIUM"
   capacity_gib = "4096"
-  network = google_compute_network.peering_network.id
+  network = data.google_compute_network.default.id
   active_directory      = ""
   description           = "this is test"
   kms_config            = ""
@@ -156,24 +125,8 @@ func TestAccNetappStoragePool_autoTieredStoragePoolCreateExample_update(t *testi
 
 func testAccNetappStoragePool_autoTieredStoragePoolCreateExample_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_network" "peering_network" {
-  name = "tf-test-network%{random_suffix}"
-}
-
-# Create an IP address
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "tf-test-address%{random_suffix}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.peering_network.id
-}
-
-# Create a private connection
-resource "google_service_networking_connection" "default" {
-  network                 = google_compute_network.peering_network.id
-  service                 = "netapp.servicenetworking.goog"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+data "google_compute_network" "default" {
+    name = "%{network_name}"
 }
 
 resource "google_netapp_storage_pool" "test_pool" {
@@ -181,7 +134,7 @@ resource "google_netapp_storage_pool" "test_pool" {
   location = "us-east4"
   service_level = "PREMIUM"
   capacity_gib = "2048"
-  network = google_compute_network.peering_network.id
+  network = data.google_compute_network.default.id
   active_directory      = ""
   description           = "this is a test description"
   kms_config            = ""
