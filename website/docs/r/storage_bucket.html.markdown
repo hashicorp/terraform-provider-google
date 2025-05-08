@@ -94,7 +94,7 @@ resource "google_storage_bucket" "no-age-enabled" {
 ## Example Usage - Enabling public access prevention
 
 ```hcl
-resource "google_storage_bucket" "auto-expire" {
+resource "google_storage_bucket" "no-public-access" {
   name          = "no-public-access-bucket"
   location      = "US"
   force_destroy = true
@@ -106,7 +106,7 @@ resource "google_storage_bucket" "auto-expire" {
 ## Example Usage - Enabling hierarchical namespace
 
 ```hcl
-resource "google_storage_bucket" "auto-expire" {
+resource "google_storage_bucket" "hns-enabled" {
   name          = "hns-enabled-bucket"
   location      = "US"
   force_destroy = true
