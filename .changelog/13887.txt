@@ -1,0 +1,3 @@
+```release-note:bug
+gemini: fixed bug on `google_gemini_code_repository_index` where `force_destroy` field did nothing.
+```
