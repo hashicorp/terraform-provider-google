@@ -6,7 +6,6 @@ BREAKING CHANGES:
 
 FEATURES:
 * **New Resource:** `google_compute_cross_site_network` ([#22632](https://github.com/hashicorp/terraform-provider-google/pull/22632))
-* **New Resource:** `google_dataplex_entry` ([#22627](https://github.com/hashicorp/terraform-provider-google/pull/22627))
 
 IMPROVEMENTS:
 * alloydb: added `psc_auto_connections` field to `google_alloydb_instance` resource ([#22630](https://github.com/hashicorp/terraform-provider-google/pull/22630))
