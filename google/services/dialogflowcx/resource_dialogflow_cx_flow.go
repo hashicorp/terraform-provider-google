@@ -239,6 +239,13 @@ See [Case](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/Fulfill
 											},
 										},
 									},
+									"enable_generative_fallback": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `If the flag is true, the agent will utilize LLM to generate a text response.
+If LLM generation fails, the defined responses in the fulfillment will be respected.
+This flag is only useful for fulfillments associated with no-match event handlers.`,
+									},
 									"messages": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -2093,6 +2100,8 @@ func flattenDialogflowCXFlowEventHandlersTriggerFulfillment(v interface{}, d *sc
 		flattenDialogflowCXFlowEventHandlersTriggerFulfillmentSetParameterActions(original["setParameterActions"], d, config)
 	transformed["conditional_cases"] =
 		flattenDialogflowCXFlowEventHandlersTriggerFulfillmentConditionalCases(original["conditionalCases"], d, config)
+	transformed["enable_generative_fallback"] =
+		flattenDialogflowCXFlowEventHandlersTriggerFulfillmentEnableGenerativeFallback(original["enableGenerativeFallback"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDialogflowCXFlowEventHandlersTriggerFulfillmentMessages(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2353,6 +2362,10 @@ func flattenDialogflowCXFlowEventHandlersTriggerFulfillmentConditionalCasesCases
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
+}
+
+func flattenDialogflowCXFlowEventHandlersTriggerFulfillmentEnableGenerativeFallback(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenDialogflowCXFlowEventHandlersTargetPage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3719,6 +3732,13 @@ func expandDialogflowCXFlowEventHandlersTriggerFulfillment(v interface{}, d tpgr
 		transformed["conditionalCases"] = transformedConditionalCases
 	}
 
+	transformedEnableGenerativeFallback, err := expandDialogflowCXFlowEventHandlersTriggerFulfillmentEnableGenerativeFallback(original["enable_generative_fallback"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableGenerativeFallback); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableGenerativeFallback"] = transformedEnableGenerativeFallback
+	}
+
 	return transformed, nil
 }
 
@@ -4096,6 +4116,10 @@ func expandDialogflowCXFlowEventHandlersTriggerFulfillmentConditionalCasesCases(
 		return nil, err
 	}
 	return j, nil
+}
+
+func expandDialogflowCXFlowEventHandlersTriggerFulfillmentEnableGenerativeFallback(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandDialogflowCXFlowEventHandlersTargetPage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
