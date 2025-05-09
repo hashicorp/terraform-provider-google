@@ -7114,7 +7114,7 @@ func TestAccContainerCluster_withCidrBlockWithoutPrivateEndpointSubnetwork(t *te
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withCidrBlockWithoutPrivateEndpointSubnetwork(containerNetName, clusterName, "us-central1-a"),
+				Config: testAccContainerCluster_withCidrBlockWithoutPrivateEndpointSubnetwork(containerNetName, clusterName),
 			},
 			{
 				ResourceName:            "google_container_cluster.with_private_flexible_cluster",
@@ -7126,8 +7126,12 @@ func TestAccContainerCluster_withCidrBlockWithoutPrivateEndpointSubnetwork(t *te
 	})
 }
 
-func testAccContainerCluster_withCidrBlockWithoutPrivateEndpointSubnetwork(containerNetName, clusterName, location string) string {
+func testAccContainerCluster_withCidrBlockWithoutPrivateEndpointSubnetwork(containerNetName, clusterName string) string {
 	return fmt.Sprintf(`
+data "google_container_engine_versions" "uscentral1a" {
+  location = "us-central1-a"
+}
+
 resource "google_compute_network" "container_network" {
   name                    = "%s"
   auto_create_subnetworks = false
@@ -7141,8 +7145,8 @@ resource "google_compute_subnetwork" "container_subnetwork" {
 
 resource "google_container_cluster" "with_private_flexible_cluster" {
   name               = "%s"
-  location           = "%s"
-  min_master_version = "1.29"
+  location           = "us-central1-a"
+  min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
   initial_node_count = 1
 
   networking_mode = "VPC_NATIVE"
@@ -7155,7 +7159,7 @@ resource "google_container_cluster" "with_private_flexible_cluster" {
   }
   deletion_protection = false
 }
-`, containerNetName, clusterName, location)
+`, containerNetName, clusterName)
 }
 
 func TestAccContainerCluster_withEnablePrivateEndpointToggle(t *testing.T) {
