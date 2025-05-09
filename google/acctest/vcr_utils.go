@@ -27,6 +27,7 @@ import (
 	tpgprovider "github.com/hashicorp/terraform-provider-google/google/provider"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/pubsublite"
+	"github.com/hashicorp/terraform-provider-google/google/services/sql"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -34,9 +35,10 @@ import (
 	"github.com/dnaeon/go-vcr/recorder"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	fwResource "github.com/hashicorp/terraform-plugin-framework/resource"
+
 	fwDiags "github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
-	fwResource "github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -413,7 +415,7 @@ func (p *frameworkTestProvider) DataSources(ctx context.Context) []func() dataso
 
 func (p *frameworkTestProvider) Resources(ctx context.Context) []func() fwResource.Resource {
 	r := p.FrameworkProvider.Resources(ctx)
-	r = append(r, pubsublite.NewGooglePubsubLiteReservationFWResource) // google_fwprovider_pubsub_lite_reservation
+	r = append(r, pubsublite.NewGooglePubsubLiteReservationFWResource, sql.NewSQLUserFWResource) // google_fwprovider_pubsub_lite_reservation
 	return r
 }
 
