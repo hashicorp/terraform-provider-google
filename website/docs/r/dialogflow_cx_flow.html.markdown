@@ -277,6 +277,8 @@ resource "google_dialogflow_cx_flow" "basic_flow" {
           },
         ])
       }
+
+      enable_generative_fallback = true
     }
   }
 
@@ -853,6 +855,12 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Optional)
   Conditional cases for this fulfillment.
   Structure is [documented below](#nested_event_handlers_event_handlers_trigger_fulfillment_conditional_cases).
+
+* `enable_generative_fallback` -
+  (Optional)
+  If the flag is true, the agent will utilize LLM to generate a text response.
+  If LLM generation fails, the defined responses in the fulfillment will be respected.
+  This flag is only useful for fulfillments associated with no-match event handlers.
 
 
 <a name="nested_event_handlers_event_handlers_trigger_fulfillment_messages"></a>The `messages` block supports:

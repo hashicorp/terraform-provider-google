@@ -23,6 +23,7 @@ fields:
   - field: 'event_handlers.target_flow'
   - field: 'event_handlers.target_page'
   - field: 'event_handlers.trigger_fulfillment.conditional_cases.cases'
+  - field: 'event_handlers.trigger_fulfillment.enable_generative_fallback'
   - field: 'event_handlers.trigger_fulfillment.messages.channel'
   - field: 'event_handlers.trigger_fulfillment.messages.conversation_success.metadata'
   - field: 'event_handlers.trigger_fulfillment.messages.live_agent_handoff.metadata'
