@@ -1,5 +1,33 @@
 ## 6.35.0 (Unreleased)
 
+BREAKING CHANGES:
+* metastore: remove non-functioning `tags` field from `google_dataproc_metastore_service`. It was introduced in v6.31.0 but the feature was not yet GA. ([#22636](https://github.com/hashicorp/terraform-provider-google/pull/22636))
+* redis: remove non-functioning `tags` field from `google_redis_instance `. It was introduced in v6.31.0 but the feature was not yet GA. ([#22637](https://github.com/hashicorp/terraform-provider-google/pull/22637))
+
+FEATURES:
+* **New Resource:** `google_compute_cross_site_network` ([#22632](https://github.com/hashicorp/terraform-provider-google/pull/22632))
+* **New Resource:** `google_dataplex_entry` ([#22627](https://github.com/hashicorp/terraform-provider-google/pull/22627))
+
+IMPROVEMENTS:
+* alloydb: added `psc_auto_connections` field to `google_alloydb_instance` resource ([#22630](https://github.com/hashicorp/terraform-provider-google/pull/22630))
+* apigee: added `s_sl_info.enforce` field in `google_apigee_target_server` resource ([#22594](https://github.com/hashicorp/terraform-provider-google/pull/22594))
+* bigquery: added `security_mode` option for `google_bigquery_routine` resource ([#22643](https://github.com/hashicorp/terraform-provider-google/pull/22643))
+* bigtable: add support for explicit disable automated backup on create for `google_bigtable_table` ([#22635](https://github.com/hashicorp/terraform-provider-google/pull/22635))
+* compute: add `guest_os_features` and `architecture` to `google_compute_instance_template` and `google_compute_region_instance_template` ([#22644](https://github.com/hashicorp/terraform-provider-google/pull/22644))
+* compute: allow in-place updates for `subnetworks`, `description`, `producer_accept_lists`, and `producer_reject_lists` on `google_compute_network_attachment` ([#22611](https://github.com/hashicorp/terraform-provider-google/pull/22611))
+* dialogflowcx: added `knowledge_connector_settings` field to `google_dialogflow_cx_flow` and `google_dialogflow_cx_page` resources ([#22631](https://github.com/hashicorp/terraform-provider-google/pull/22631))
+* netapp: added `backup_vault_type`, `backup_region`, `source_region`, `source_backup_vault`, and `destination_backup_vault` fields to `google_netapp_backup_vault` ([#22625](https://github.com/hashicorp/terraform-provider-google/pull/22625))
+* netapp: added `volume_region` and `backup_region` fields to `google_netapp_backup` ([#22625](https://github.com/hashicorp/terraform-provider-google/pull/22625))
+* networkconnectivity: added `immutability` field to `google_network_connectivity_internal_range` resource ([#22623](https://github.com/hashicorp/terraform-provider-google/pull/22623))
+* networkservices: added `flex_shielding` field to `google_network_services_edge_cache_origin` resource ([#22645](https://github.com/hashicorp/terraform-provider-google/pull/22645))
+* spanner: added field `default_time_zone` to `google_spanner_database` resource ([#22628](https://github.com/hashicorp/terraform-provider-google/pull/22628))
+* storage: added new field `content_hexsha512` and `content_base64sha512` in data source `google_storage_bucket_object_content` ([#22592](https://github.com/hashicorp/terraform-provider-google/pull/22592))
+
+BUG FIXES:
+* gemini: fixed bug on `google_gemini_code_repository_index` where `force_destroy` field did nothing ([#22648](https://github.com/hashicorp/terraform-provider-google/pull/22648))
+* privateca: removed requirement to specify `organization` when creating a Certificate Authority ([#22634](https://github.com/hashicorp/terraform-provider-google/pull/22634))
+* workbench: fixed some metadata changes not being reflected in `google_workbench_instance` ([#22612](https://github.com/hashicorp/terraform-provider-google/pull/22612))
+
 ## 6.34.0 (May 6, 2025)
 
 DEPRECATIONS:
