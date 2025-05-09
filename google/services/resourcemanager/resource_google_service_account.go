@@ -27,7 +27,7 @@ func ResourceGoogleServiceAccount() *schema.Resource {
 		Delete: resourceGoogleServiceAccountDelete,
 		Update: resourceGoogleServiceAccountUpdate,
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceGoogleServiceAccountImport,
+			State: resourceGoogleServiceAccountImport,
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
@@ -355,7 +355,7 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceGoogleServiceAccountImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceGoogleServiceAccountImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/serviceAccounts/(?P<email>[^/]+)",
@@ -370,7 +370,7 @@ func resourceGoogleServiceAccountImport(ctx context.Context, d *schema.ResourceD
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-
+	log.Printf("[DEBUG] id set to %s", id)
 	return []*schema.ResourceData{d}, nil
 }
 
