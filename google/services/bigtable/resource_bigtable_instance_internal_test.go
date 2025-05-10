@@ -169,8 +169,8 @@ func TestUnitBigtable_flattenBigtableCluster(t *testing.T) {
 						"storage_target": 60,
 					},
 				},
-				// unspecified node scaling factor in input will lead to an empty string here
-				"node_scaling_factor": "",
+				// unspecified node scaling factor in input will default to 1X
+				"node_scaling_factor": "NodeScalingFactor1X",
 			},
 		},
 		"HDD manual scaling": {
