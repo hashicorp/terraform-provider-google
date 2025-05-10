@@ -537,6 +537,8 @@ func flattenBigtableCluster(c *bigtable.ClusterInfo) map[string]interface{} {
 		nodeScalingFactor = "NodeScalingFactor1X"
 	case bigtable.NodeScalingFactor2X:
 		nodeScalingFactor = "NodeScalingFactor2X"
+	default:
+		nodeScalingFactor = "NodeScalingFactor1X"
 	}
 
 	cluster := map[string]interface{}{
