@@ -1,0 +1,3 @@
+```release-note:bug
+compute: Support retries when the API returns resourceNotReady for Networks
+```
