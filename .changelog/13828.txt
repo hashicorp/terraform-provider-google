@@ -1,0 +1,11 @@
+```release-note:new-resource
+`google_firebase_app_hosting_default_domain`
+```
+
+```release-note:new-resource
+`google_firebase_app_hosting_domain`
+```
+
+```release-note:new-resource
+`google_firebase_app_hosting_traffic`
+```
