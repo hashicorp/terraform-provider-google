@@ -1,0 +1,3 @@
+```release-note:deprecation
+beyonndcorp: deprecated `google_beyondcorp_application`. Use `google_beyondcorp_security_gateway_application` instead.
+```
