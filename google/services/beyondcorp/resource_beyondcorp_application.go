@@ -55,6 +55,8 @@ func ResourceBeyondcorpApplication() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		DeprecationMessage: "`google_beyondcorp_application` is deprecated. Use `google_beyondcorp_security_gateway_application` instead.",
+
 		Schema: map[string]*schema.Schema{
 			"application_id": {
 				Type:     schema.TypeString,
