@@ -27,6 +27,11 @@ BUG FIXES:
 * privateca: removed requirement to specify `organization` when creating a Certificate Authority ([#22634](https://github.com/hashicorp/terraform-provider-google/pull/22634))
 * workbench: fixed some metadata changes not being reflected in `google_workbench_instance` ([#22612](https://github.com/hashicorp/terraform-provider-google/pull/22612))
 
+## 6.34.1 (May 12, 2025)
+
+BUG FIXES:
+* bigtable: fixed forced instance recreation due to addition of `cluster.node_scaling_factor` for `google_bigtable_instance` ([#22674]([https://github.com/hashicorp/terraform-provider-google-beta/pull/9961](https://github.com/hashicorp/terraform-provider-google/pull/22674)))
+
 ## 6.34.0 (May 6, 2025)
 
 DEPRECATIONS:
