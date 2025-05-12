@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigtable: added `deletion_protection` field to `google_bigtable_logical_view` resource
+```
