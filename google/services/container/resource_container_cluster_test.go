@@ -12209,6 +12209,18 @@ func TestAccContainerCluster_storagePoolsWithNodeConfig(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
+			{
+				Config: testAccContainerCluster_storagePoolsWithNodeConfigUpdate(cluster, location, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.storage_pools_with_node_config", "node_config.0.storage_pools.#", "0"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.storage_pools_with_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
 		},
 	})
 }
@@ -12233,6 +12245,27 @@ resource "google_container_cluster" "storage_pools_with_node_config" {
   deletion_protection = false
 }
 `, cluster, location, storagePoolResourceName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_storagePoolsWithNodeConfigUpdate(cluster, location, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "storage_pools_with_node_config" {
+  name     = "%s"
+  location = "%s"
+
+  initial_node_count = 1
+  node_config {
+    machine_type = "c3-standard-4"
+    image_type   = "COS_CONTAINERD"
+    disk_type    = "hyperdisk-balanced"
+  }
+
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, cluster, location, networkName, subnetworkName)
 }
 
 func TestAccContainerCluster_withAutopilotGcpFilestoreCsiDriver(t *testing.T) {

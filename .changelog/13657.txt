@@ -1,0 +1,7 @@
+```release-note:enhancement
+container: allowed in-place update for `node_config.storage_pools` field in `google_container_node_pool` resource
+```
+
+```release-note:enhancement
+container: allowed in-place update for `node_config.storage_pools` field in `google_container_cluster` resource
+```
