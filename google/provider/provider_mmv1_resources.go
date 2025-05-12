@@ -517,9 +517,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 593
+// Generated resources: 596
 // Generated IAM resources: 297
-// Total generated resources: 890
+// Total generated resources: 893
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -992,6 +992,9 @@ var generatedResources = map[string]*schema.Resource{
 	"google_firebase_app_check_service_config":                                   firebaseappcheck.ResourceFirebaseAppCheckServiceConfig(),
 	"google_firebase_app_hosting_backend":                                        firebaseapphosting.ResourceFirebaseAppHostingBackend(),
 	"google_firebase_app_hosting_build":                                          firebaseapphosting.ResourceFirebaseAppHostingBuild(),
+	"google_firebase_app_hosting_default_domain":                                 firebaseapphosting.ResourceFirebaseAppHostingDefaultDomain(),
+	"google_firebase_app_hosting_domain":                                         firebaseapphosting.ResourceFirebaseAppHostingDomain(),
+	"google_firebase_app_hosting_traffic":                                        firebaseapphosting.ResourceFirebaseAppHostingTraffic(),
 	"google_firebase_data_connect_service":                                       firebasedataconnect.ResourceFirebaseDataConnectService(),
 	"google_firestore_backup_schedule":                                           firestore.ResourceFirestoreBackupSchedule(),
 	"google_firestore_database":                                                  firestore.ResourceFirestoreDatabase(),
