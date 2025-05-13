@@ -295,6 +295,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_logging_project_cmek_settings":                       logging.DataSourceGoogleLoggingProjectCmekSettings(),
 	"google_logging_project_settings":                            logging.DataSourceGoogleLoggingProjectSettings(),
 	"google_logging_sink":                                        logging.DataSourceGoogleLoggingSink(),
+	"google_lustre_instance":                                     lustre.DataSourceLustreInstance(),
 	"google_monitoring_notification_channel":                     monitoring.DataSourceMonitoringNotificationChannel(),
 	"google_monitoring_cluster_istio_service":                    monitoring.DataSourceMonitoringServiceClusterIstio(),
 	"google_monitoring_istio_canonical_service":                  monitoring.DataSourceMonitoringIstioCanonicalService(),
