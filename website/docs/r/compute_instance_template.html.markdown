@@ -799,6 +799,8 @@ exported:
 
 * `creation_timestamp` - Creation timestamp in RFC3339 text format.
 
+* `numeric_id` - numeric identifier of the resource.
+
 * `metadata_fingerprint` - The unique fingerprint of the metadata.
 
 * `self_link` - The URI of the created resource.
