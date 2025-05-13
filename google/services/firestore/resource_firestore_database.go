@@ -216,8 +216,9 @@ If the PITR feature is enabled, the retention period is 7 days. Otherwise, the r
 A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".`,
 			},
 			"deletion_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				Deprecated: "`deletion_policy` is deprecated and will be removed in a future major release. Use `delete_protection_state` instead.",
 				Description: `Deletion behavior for this database.
 If the deletion policy is 'ABANDON', the database will be removed from Terraform state but not deleted from Google Cloud upon destruction.
 If the deletion policy is 'DELETE', the database will both be removed from Terraform state and deleted from Google Cloud upon destruction.

@@ -1,0 +1,3 @@
+```release-note:deprecation
+firestore: deprecated `deletion_policy` field of `google_firestore_database` resource
+```
