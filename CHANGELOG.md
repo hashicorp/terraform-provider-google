@@ -1,8 +1,8 @@
 ## 6.35.0 (Unreleased)
 
 BREAKING CHANGES:
-* metastore: remove non-functioning `tags` field from `google_dataproc_metastore_service`. It was introduced in v6.31.0 but the feature was not yet GA. ([#22636](https://github.com/hashicorp/terraform-provider-google/pull/22636))
-* redis: remove non-functioning `tags` field from `google_redis_instance `. It was introduced in v6.31.0 but the feature was not yet GA. ([#22637](https://github.com/hashicorp/terraform-provider-google/pull/22637))
+* metastore: removed non-functioning `tags` field from `google_dataproc_metastore_service`. It was introduced in v6.31.0 but the feature was not yet GA. ([#22636](https://github.com/hashicorp/terraform-provider-google/pull/22636))
+* redis: removed non-functioning `tags` field from `google_redis_instance `. It was introduced in v6.31.0 but the feature was not yet GA. ([#22637](https://github.com/hashicorp/terraform-provider-google/pull/22637))
 
 FEATURES:
 * **New Resource:** `google_compute_cross_site_network` ([#22632](https://github.com/hashicorp/terraform-provider-google/pull/22632))
