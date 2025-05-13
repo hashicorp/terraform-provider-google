@@ -59,7 +59,7 @@ provider "kubernetes" {
   )
 }
 ```
-Although the above can result in authentication errors, over time, as the token recorded in the google_client_cofig data resource is short lived (thus it expires) and it's stored in state.  Fortunately, the [kubernetes provider can accept valid credentials from an exec-based plugin](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs#exec-plugins) to fetch a new token before each Terraform operation (so long as you have the [gke-cloud-auth-plugin for kubectl installed](https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke)), like so:
+Although the above can result in authentication errors, over time, as the token recorded in the google_client_config data resource is short lived (thus it expires) and it's stored in state.  Fortunately, the [kubernetes provider can accept valid credentials from an exec-based plugin](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs#exec-plugins) to fetch a new token before each Terraform operation (so long as you have the [gke-cloud-auth-plugin for kubectl installed](https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke)), like so:
  
 ```hcl
 # Retrieve an access token as the Terraform runner
