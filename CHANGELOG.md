@@ -11,9 +11,9 @@ IMPROVEMENTS:
 * alloydb: added `psc_auto_connections` field to `google_alloydb_instance` resource ([#22630](https://github.com/hashicorp/terraform-provider-google/pull/22630))
 * apigee: added `s_sl_info.enforce` field in `google_apigee_target_server` resource ([#22594](https://github.com/hashicorp/terraform-provider-google/pull/22594))
 * bigquery: added `security_mode` option for `google_bigquery_routine` resource ([#22643](https://github.com/hashicorp/terraform-provider-google/pull/22643))
-* bigtable: add support for explicit disable automated backup on create for `google_bigtable_table` ([#22635](https://github.com/hashicorp/terraform-provider-google/pull/22635))
-* compute: add `guest_os_features` and `architecture` to `google_compute_instance_template` and `google_compute_region_instance_template` ([#22644](https://github.com/hashicorp/terraform-provider-google/pull/22644))
-* compute: allow in-place updates for `subnetworks`, `description`, `producer_accept_lists`, and `producer_reject_lists` on `google_compute_network_attachment` ([#22611](https://github.com/hashicorp/terraform-provider-google/pull/22611))
+* bigtable: added support for explicit disable automated backup on create for `google_bigtable_table` ([#22635](https://github.com/hashicorp/terraform-provider-google/pull/22635))
+* compute: added `guest_os_features` and `architecture` to `google_compute_instance_template` and `google_compute_region_instance_template` ([#22644](https://github.com/hashicorp/terraform-provider-google/pull/22644))
+* compute: allowed in-place updates for `subnetworks`, `description`, `producer_accept_lists`, and `producer_reject_lists` on `google_compute_network_attachment` ([#22611](https://github.com/hashicorp/terraform-provider-google/pull/22611))
 * dialogflowcx: added `knowledge_connector_settings` field to `google_dialogflow_cx_flow` and `google_dialogflow_cx_page` resources ([#22631](https://github.com/hashicorp/terraform-provider-google/pull/22631))
 * netapp: added `backup_vault_type`, `backup_region`, `source_region`, `source_backup_vault`, and `destination_backup_vault` fields to `google_netapp_backup_vault` ([#22625](https://github.com/hashicorp/terraform-provider-google/pull/22625))
 * netapp: added `volume_region` and `backup_region` fields to `google_netapp_backup` ([#22625](https://github.com/hashicorp/terraform-provider-google/pull/22625))
@@ -24,13 +24,13 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * gemini: fixed bug on `google_gemini_code_repository_index` where `force_destroy` field did nothing ([#22648](https://github.com/hashicorp/terraform-provider-google/pull/22648))
-* privateca: removed requirement to specify `organization` when creating a Certificate Authority ([#22634](https://github.com/hashicorp/terraform-provider-google/pull/22634))
+* privateca: removed requirement to specify `organization` for `google_privateca_certificate_authority` resource ([#22634](https://github.com/hashicorp/terraform-provider-google/pull/22634))
 * workbench: fixed some metadata changes not being reflected in `google_workbench_instance` ([#22612](https://github.com/hashicorp/terraform-provider-google/pull/22612))
 
 ## 6.34.1 (May 12, 2025)
 
 BUG FIXES:
-* bigtable: fixed forced instance recreation due to addition of `cluster.node_scaling_factor` for `google_bigtable_instance` ([#22674]([https://github.com/hashicorp/terraform-provider-google-beta/pull/9961](https://github.com/hashicorp/terraform-provider-google/pull/22674)))
+* bigtable: fixed forced instance recreation due to addition of `cluster.node_scaling_factor` for `google_bigtable_instance` ([#22674](https://github.com/hashicorp/terraform-provider-google/pull/22674))
 
 ## 6.34.0 (May 6, 2025)
 
