@@ -31,6 +31,7 @@ import (
 )
 
 func TestAccDataprocGdcServiceInstance_dataprocgdcServiceinstanceExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/21173")
 	t.Parallel()
 
 	context := map[string]interface{}{
