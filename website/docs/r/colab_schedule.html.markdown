@@ -221,6 +221,7 @@ resource "google_colab_schedule" "schedule" {
 
 ```hcl
 resource "google_colab_runtime_template" "my_runtime_template" {
+  provider = google-beta
   name = "runtime-template"
   display_name = "Runtime template"
   location = "us-central1"
@@ -235,6 +236,7 @@ resource "google_colab_runtime_template" "my_runtime_template" {
 }
 
 resource "google_storage_bucket" "output_bucket" {
+  provider = google-beta
   name          = "my_bucket"
   location      = "US"
   force_destroy = true
@@ -242,6 +244,7 @@ resource "google_storage_bucket" "output_bucket" {
 }
 
 resource "google_secret_manager_secret" "secret" {
+  provider = google-beta
   secret_id = "secret"
   replication {
     auto {}
@@ -249,11 +252,13 @@ resource "google_secret_manager_secret" "secret" {
 }
 
 resource "google_secret_manager_secret_version" "secret_version" {
+  provider = google-beta
   secret = google_secret_manager_secret.secret.id
   secret_data = "secret-data"
 }
 
 resource "google_dataform_repository" "dataform_repository" {
+  provider = google-beta
   name = "dataform-repository"
   display_name = "dataform_repository"
   npmrc_environment_variables_secret_version = google_secret_manager_secret_version.secret_version.id
@@ -278,6 +283,7 @@ resource "google_dataform_repository" "dataform_repository" {
 }
 
 resource "google_colab_schedule" "schedule" {
+  provider = google-beta
   display_name = "full-schedule"
   location = "us-west1"
   allow_queueing = true
