@@ -616,6 +616,45 @@ func TestAccContainerCluster_withMultiNetworking(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_inTransitEncryptionConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_inTransitEncryptionConfig(clusterName, networkName, subnetworkName, "IN_TRANSIT_ENCRYPTION_INTER_NODE_TRANSPARENT"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "in_transit_encryption_config", "IN_TRANSIT_ENCRYPTION_INTER_NODE_TRANSPARENT"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_inTransitEncryptionConfig(clusterName, networkName, subnetworkName, "IN_TRANSIT_ENCRYPTION_DISABLED"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "in_transit_encryption_config", "IN_TRANSIT_ENCRYPTION_DISABLED"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withFQDNNetworkPolicy(t *testing.T) {
 	t.Parallel()
 
@@ -12625,4 +12664,19 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_inTransitEncryptionConfig(name, networkName, subnetworkName, config string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name                         = "%s"
+  location                     = "us-central1-a"
+  initial_node_count           = 1
+  network                      = "%s"
+  subnetwork                   = "%s"
+  datapath_provider            = "ADVANCED_DATAPATH"
+  deletion_protection          = false
+  in_transit_encryption_config = "%s"
+}
+`, name, networkName, subnetworkName, config)
 }
