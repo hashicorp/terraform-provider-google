@@ -384,6 +384,7 @@ resource "google_compute_backend_service" "default" {
   name          = "tf-test-backend-service%{random_suffix}"
   health_checks = [google_compute_health_check.default.id]
   load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol              = "H2C"
 }
 
 resource "google_compute_health_check" "default" {

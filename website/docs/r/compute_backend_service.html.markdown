@@ -391,6 +391,7 @@ resource "google_compute_backend_service" "default" {
   name          = "backend-service"
   health_checks = [google_compute_health_check.default.id]
   load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol              = "H2C"
 }
 
 resource "google_compute_health_check" "default" {
@@ -808,7 +809,7 @@ The following arguments are supported:
                             to use for computing the weights are specified via the
                             backends[].customMetrics fields.
   locality_lb_policy is applicable to either:
-  * A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
+  * A regional backend service with the service_protocol set to HTTP, HTTPS, HTTP2 or H2C,
     and loadBalancingScheme set to INTERNAL_MANAGED.
   * A global backend service with the load_balancing_scheme set to INTERNAL_SELF_MANAGED.
   * A regional backend service with loadBalancingScheme set to EXTERNAL (External Network
@@ -852,11 +853,11 @@ The following arguments are supported:
 * `protocol` -
   (Optional)
   The protocol this BackendService uses to communicate with backends.
-  The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
-  types and may result in errors if used with the GA API. **NOTE**: With protocol “UNSPECIFIED”,
-  the backend service can be used by Layer 4 Internal Load Balancing or Network Load Balancing
-  with TCP/UDP/L3_DEFAULT Forwarding Rule protocol.
-  Possible values are: `HTTP`, `HTTPS`, `HTTP2`, `TCP`, `SSL`, `GRPC`, `UNSPECIFIED`.
+  The default is HTTP. Possible values are HTTP, HTTPS, HTTP2, H2C, TCP, SSL, UDP
+  or GRPC. Refer to the documentation for the load balancers or for Traffic Director
+  for more information. Must be set to GRPC when the backend service is referenced
+  by a URL map that is bound to target gRPC proxy.
+  Possible values are: `HTTP`, `HTTPS`, `HTTP2`, `TCP`, `SSL`, `UDP`, `GRPC`, `UNSPECIFIED`, `H2C`.
 
 * `security_policy` -
   (Optional)
@@ -869,7 +870,7 @@ The following arguments are supported:
 * `security_settings` -
   (Optional)
   The security settings that apply to this backend service. This field is applicable to either
-  a regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2, and
+  a regional backend service with the service_protocol set to HTTP, HTTPS, HTTP2 or H2C, and
   load_balancing_scheme set to INTERNAL_MANAGED; or a global backend service with the
   load_balancing_scheme set to INTERNAL_SELF_MANAGED.
   Structure is [documented below](#nested_security_settings).

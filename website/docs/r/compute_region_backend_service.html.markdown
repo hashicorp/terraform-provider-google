@@ -306,7 +306,7 @@ resource "google_compute_region_backend_service" "default" {
 
   region      = "us-central1"
   name        = "region-service"
-  protocol    = "HTTP"
+  protocol    = "H2C"
   timeout_sec = 10
 
   health_checks = [google_compute_region_health_check.default.id]
@@ -572,7 +572,7 @@ The following arguments are supported:
   (Optional)
   Settings controlling the volume of connections to a backend service. This field
   is applicable only when the `load_balancing_scheme` is set to INTERNAL_MANAGED
-  and the `protocol` is set to HTTP, HTTPS, or HTTP2.
+  and the `protocol` is set to HTTP, HTTPS, HTTP2 or H2C.
   Structure is [documented below](#nested_circuit_breakers).
 
 * `consistent_hash` -
@@ -585,7 +585,7 @@ The following arguments are supported:
   hashing.
   This field only applies when all of the following are true -
     * `load_balancing_scheme` is set to INTERNAL_MANAGED
-    * `protocol` is set to HTTP, HTTPS, or HTTP2
+    * `protocol` is set to HTTP, HTTPS, HTTP2 or H2C
     * `locality_lb_policy` is set to MAGLEV or RING_HASH
   Structure is [documented below](#nested_consistent_hash).
 
@@ -682,7 +682,7 @@ The following arguments are supported:
                             to use for computing the weights are specified via the
                             backends[].customMetrics fields.
   locality_lb_policy is applicable to either:
-  * A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
+  * A regional backend service with the service_protocol set to HTTP, HTTPS, HTTP2 or H2C,
     and loadBalancingScheme set to INTERNAL_MANAGED.
   * A global backend service with the load_balancing_scheme set to INTERNAL_SELF_MANAGED.
   * A regional backend service with loadBalancingScheme set to EXTERNAL (External Network
@@ -704,7 +704,7 @@ The following arguments are supported:
   (Optional)
   Settings controlling eviction of unhealthy hosts from the load balancing pool.
   This field is applicable only when the `load_balancing_scheme` is set
-  to INTERNAL_MANAGED and the `protocol` is set to HTTP, HTTPS, or HTTP2.
+  to INTERNAL_MANAGED and the `protocol` is set to HTTP, HTTPS, HTTP2 or H2C.
   Structure is [documented below](#nested_outlier_detection).
 
 * `port_name` -
@@ -719,10 +719,11 @@ The following arguments are supported:
 
 * `protocol` -
   (Optional)
-  The protocol this RegionBackendService uses to communicate with backends.
-  The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
-  types and may result in errors if used with the GA API.
-  Possible values are: `HTTP`, `HTTPS`, `HTTP2`, `SSL`, `TCP`, `UDP`, `GRPC`, `UNSPECIFIED`.
+  The protocol this BackendService uses to communicate with backends.
+  The default is HTTP. Possible values are HTTP, HTTPS, HTTP2, H2C, TCP, SSL, UDP
+  or GRPC. Refer to the documentation for the load balancers or for Traffic Director
+  for more information.
+  Possible values are: `HTTP`, `HTTPS`, `HTTP2`, `TCP`, `SSL`, `UDP`, `GRPC`, `UNSPECIFIED`, `H2C`.
 
 * `security_policy` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
