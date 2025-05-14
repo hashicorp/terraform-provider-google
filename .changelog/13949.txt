@@ -1,0 +1,3 @@
+```release-note:enhancement
+netapp: promoted `custom_performance_enabled`, `total_throughput_mibps`, and `total_iops` fields of `google_netapp_storage_pool` resource to GA
+```

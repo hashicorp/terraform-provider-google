@@ -102,6 +102,12 @@ The policy needs to be in the same location as the storage pool.`,
 				Description: `Optional. True if the storage pool supports Auto Tiering enabled volumes. Default is false.
 Auto-tiering can be enabled after storage pool creation but it can't be disabled once enabled.`,
 			},
+			"custom_performance_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Optional. True if using Independent Scaling of capacity and performance (Hyperdisk). Default is false.`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -136,6 +142,16 @@ using security identifiers for NFSv4.1 or principal names for kerberized NFSv4.1
 				Optional: true,
 				Description: `Specifies the replica zone for regional Flex pools. 'zone' and 'replica_zone' values can be swapped to initiate a
 [zone switch](https://cloud.google.com/netapp/volumes/docs/configure-and-use/storage-pools/edit-or-delete-storage-pool#switch_active_and_replica_zones).`,
+			},
+			"total_iops": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Optional. Custom Performance Total IOPS of the pool If not provided, it will be calculated based on the totalThroughputMibps`,
+			},
+			"total_throughput_mibps": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Optional. Custom Performance Total Throughput of the pool (in MiB/s).`,
 			},
 			"zone": {
 				Type:     schema.TypeString,
@@ -251,6 +267,24 @@ func resourceNetappStoragePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("allow_auto_tiering"); !tpgresource.IsEmptyValue(reflect.ValueOf(allowAutoTieringProp)) && (ok || !reflect.DeepEqual(v, allowAutoTieringProp)) {
 		obj["allowAutoTiering"] = allowAutoTieringProp
+	}
+	customPerformanceEnabledProp, err := expandNetappStoragePoolCustomPerformanceEnabled(d.Get("custom_performance_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_performance_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(customPerformanceEnabledProp)) && (ok || !reflect.DeepEqual(v, customPerformanceEnabledProp)) {
+		obj["customPerformanceEnabled"] = customPerformanceEnabledProp
+	}
+	totalThroughputMibpsProp, err := expandNetappStoragePoolTotalThroughputMibps(d.Get("total_throughput_mibps"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("total_throughput_mibps"); !tpgresource.IsEmptyValue(reflect.ValueOf(totalThroughputMibpsProp)) && (ok || !reflect.DeepEqual(v, totalThroughputMibpsProp)) {
+		obj["totalThroughputMibps"] = totalThroughputMibpsProp
+	}
+	totalIopsProp, err := expandNetappStoragePoolTotalIops(d.Get("total_iops"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("total_iops"); !tpgresource.IsEmptyValue(reflect.ValueOf(totalIopsProp)) && (ok || !reflect.DeepEqual(v, totalIopsProp)) {
+		obj["totalIops"] = totalIopsProp
 	}
 	labelsProp, err := expandNetappStoragePoolEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -399,6 +433,15 @@ func resourceNetappStoragePoolRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("allow_auto_tiering", flattenNetappStoragePoolAllowAutoTiering(res["allowAutoTiering"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StoragePool: %s", err)
 	}
+	if err := d.Set("custom_performance_enabled", flattenNetappStoragePoolCustomPerformanceEnabled(res["customPerformanceEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err := d.Set("total_throughput_mibps", flattenNetappStoragePoolTotalThroughputMibps(res["totalThroughputMibps"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err := d.Set("total_iops", flattenNetappStoragePoolTotalIops(res["totalIops"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetappStoragePoolTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StoragePool: %s", err)
 	}
@@ -455,6 +498,18 @@ func resourceNetappStoragePoolUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("replica_zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, replicaZoneProp)) {
 		obj["replicaZone"] = replicaZoneProp
 	}
+	totalThroughputMibpsProp, err := expandNetappStoragePoolTotalThroughputMibps(d.Get("total_throughput_mibps"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("total_throughput_mibps"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, totalThroughputMibpsProp)) {
+		obj["totalThroughputMibps"] = totalThroughputMibpsProp
+	}
+	totalIopsProp, err := expandNetappStoragePoolTotalIops(d.Get("total_iops"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("total_iops"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, totalIopsProp)) {
+		obj["totalIops"] = totalIopsProp
+	}
 	labelsProp, err := expandNetappStoragePoolEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -489,6 +544,14 @@ func resourceNetappStoragePoolUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("replica_zone") {
 		updateMask = append(updateMask, "replicaZone")
+	}
+
+	if d.HasChange("total_throughput_mibps") {
+		updateMask = append(updateMask, "totalThroughputMibps")
+	}
+
+	if d.HasChange("total_iops") {
+		updateMask = append(updateMask, "totalIops")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -758,6 +821,18 @@ func flattenNetappStoragePoolAllowAutoTiering(v interface{}, d *schema.ResourceD
 	return v
 }
 
+func flattenNetappStoragePoolCustomPerformanceEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappStoragePoolTotalThroughputMibps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappStoragePoolTotalIops(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetappStoragePoolTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -814,6 +889,18 @@ func expandNetappStoragePoolReplicaZone(v interface{}, d tpgresource.TerraformRe
 }
 
 func expandNetappStoragePoolAllowAutoTiering(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappStoragePoolCustomPerformanceEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappStoragePoolTotalThroughputMibps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappStoragePoolTotalIops(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
