@@ -51,7 +51,7 @@ resource "google_service_account" "service_account" {
   project = "my-project-name"
 
   # Must be firebase-app-hosting-compute
-  account_id                   = ""
+  account_id                   = "service-account"
   display_name                 = "Firebase App Hosting compute service account"
 
   # Do not throw if already exists
@@ -86,7 +86,7 @@ resource "google_service_account" "service_account" {
   project = "my-project-name"
 
   # Must be firebase-app-hosting-compute
-  account_id                   = ""
+  account_id                   = "service-account"
   display_name                 = "Firebase App Hosting compute service account"
 
   # Do not throw if already exists
@@ -121,7 +121,7 @@ resource "google_service_account" "service_account" {
   project = "my-project-name"
 
   # Must be firebase-app-hosting-compute
-  account_id                   = ""
+  account_id                   = "service-account"
   display_name                 = "Firebase App Hosting compute service account"
 
   # Do not throw if already exists

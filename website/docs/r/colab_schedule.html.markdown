@@ -262,7 +262,7 @@ resource "google_dataform_repository" "dataform_repository" {
   name = "dataform-repository"
   display_name = "dataform_repository"
   npmrc_environment_variables_secret_version = google_secret_manager_secret_version.secret_version.id
-  kms_key_name = ""
+  kms_key_name = "my-key"
 
   labels = {
     label_foo1 = "label-bar1"

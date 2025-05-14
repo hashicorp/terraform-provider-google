@@ -54,7 +54,7 @@ To get more information about Backup, see:
 
 ```hcl
 data "google_compute_network" "default" {
-  name = ""
+  name = "network"
 }
 
 resource "google_netapp_storage_pool" "default" {
