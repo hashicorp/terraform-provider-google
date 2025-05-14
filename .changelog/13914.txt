@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added the numeric id as `generated_id` attribute to the `google_compute_network_endpoint_group`
+```
