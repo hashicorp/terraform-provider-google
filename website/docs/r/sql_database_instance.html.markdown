@@ -173,6 +173,25 @@ resource "google_sql_database_instance" "main" {
 }
 ```
 
+### Cloud SQL Instance with MCP
+```hcl
+resource "google_sql_database_instance" "instance" {
+  name:            = "mcp-enabled-main-instance"
+  region           = "us-central1"
+  database_version = "POSTGRES_16"
+  settings {
+    tier = "db-perf-optimized-N-2"
+	  connection_pool_config {
+		  connection_pooling_enabled = true
+      flags {
+			  name = "max_client_connections"
+			  value = "1980"
+		  }
+	  }
+  }
+}
+```
+
 ### Cloud SQL Instance with PSC connectivity
 
 ```hcl
@@ -571,6 +590,16 @@ The optional, computed `replication_cluster` block represents a primary instance
 
 * `dr_replica`: Read-only field that indicates whether the replica is a DR replica.
 
+The optional `settings.connection_pool_config` subblock supports:
+
+* `connection_pooling_enabled`: (Optional) True if the manager connection pooling configuration is enabled.
+
+The optional `settings.connection_pool_config.flags` sublist supports:
+
+* `name` - (Required) Name of the flag.
+
+* `value` - (Required) Value of the flag.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -582,6 +611,16 @@ exported:
 connection strings. For example, when connecting with [Cloud SQL Proxy](https://cloud.google.com/sql/docs/mysql/connect-admin-proxy).
 
 * `dns_name` - The DNS name of the instance. See [Connect to an instance using Private Service Connect](https://cloud.google.com/sql/docs/mysql/configure-private-service-connect#view-summary-information-cloud-sql-instances-psc-enabled) for more details.
+
+* `dns_names` - The list of DNS names used by this instance. Different connection types for an instance may have different DNS names. DNS names can apply to an individual instance or a cluster of instances. 
+
+* `dns_names.0.name` - The DNS name.
+
+* `dns_names.0.connection_type` - The connection type of the DNS name. Can be either `PUBLIC`, `PRIVATE_SERVICES_ACCESS`, or `PRIVATE_SERVICE_CONNECT`.
+
+* `dns_names.0.dns_scope` - The scope that the DNS name applies to.
+
+  * An `INSTANCE` DNS name applies to an individual Cloud SQL instance.
 
 * `service_account_email_address` - The service account email address assigned to the
 instance.

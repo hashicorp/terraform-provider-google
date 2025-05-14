@@ -255,6 +255,10 @@ The following arguments are supported:
   Specification for migration with source and target resource names.
   Structure is [documented below](#nested_migration).
 
+* `immutable` -
+  (Optional)
+  Immutable ranges cannot have their fields modified, except for labels and description.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

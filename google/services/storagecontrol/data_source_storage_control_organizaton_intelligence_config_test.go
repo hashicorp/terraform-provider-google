@@ -17,7 +17,7 @@ func TestAccDataSourceGoogleStorageControlOrganizationIntelligenceConfig_basic(t
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

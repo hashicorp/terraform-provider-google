@@ -113,12 +113,6 @@ func ResourcePrivatecaCertificateAuthority() *schema.Resource {
 													ForceNew:    true,
 													Description: `The common name of the distinguished name.`,
 												},
-												"organization": {
-													Type:        schema.TypeString,
-													Required:    true,
-													ForceNew:    true,
-													Description: `The organization of the subject.`,
-												},
 												"country_code": {
 													Type:        schema.TypeString,
 													Optional:    true,
@@ -130,6 +124,12 @@ func ResourcePrivatecaCertificateAuthority() *schema.Resource {
 													Optional:    true,
 													ForceNew:    true,
 													Description: `The locality or city of the subject.`,
+												},
+												"organization": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													ForceNew:    true,
+													Description: `The organization of the subject.`,
 												},
 												"organizational_unit": {
 													Type:        schema.TypeString,

@@ -20,17 +20,18 @@ description: |-
 ---
 
 # google_beyondcorp_application
+~> **Warning:** `google_beyondcorp_application` is deprecated. Use `google_beyondcorp_security_gateway_application` instead.
 
 Specifies application endpoint(s) to protect behind a Security Gateway.
 
 
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=beyondcorp_security_gateway_application_basic&open_in_editor=main.tf" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=beyondcorp_application_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Beyondcorp Security Gateway Application Basic
+## Example Usage - Beyondcorp Application Basic
 
 
 ```hcl
@@ -45,6 +46,39 @@ resource "google_beyondcorp_application" "example" {
   application_id = "google"
   endpoint_matchers {
     hostname = "google.com"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=beyondcorp_application_vpc&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Beyondcorp Application Vpc
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_beyondcorp_security_gateway" "default" {
+  security_gateway_id = "default"
+  display_name = "My Security Gateway resource"
+  hubs { region = "us-central1" }
+}
+
+resource "google_beyondcorp_application" "example" {
+  security_gateways_id = google_beyondcorp_security_gateway.default.security_gateway_id
+  application_id = "my-vm-service"
+  endpoint_matchers {
+    hostname = "my-vm-service.com"
+  }
+  upstreams {
+    egress_policy {
+      regions = ["us-central1"]
+    }
+    network {
+        name = "projects/${data.google_project.project.project_id}/global/networks/default"
+    }
   }
 }
 ```
@@ -99,9 +133,40 @@ The following arguments are supported:
   Optional. An arbitrary user-provided name for the Application resource.
   Cannot exceed 64 characters.
 
+* `upstreams` -
+  (Optional)
+  Optional. List of which upstream resource(s) to forward traffic to.
+  Structure is [documented below](#nested_upstreams).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_upstreams"></a>The `upstreams` block supports:
+
+* `egress_policy` -
+  (Optional)
+  Optional. Routing policy information.
+  Structure is [documented below](#nested_upstreams_upstreams_egress_policy).
+
+* `network` -
+  (Optional)
+  Network to forward traffic to.
+  Structure is [documented below](#nested_upstreams_upstreams_network).
+
+
+<a name="nested_upstreams_upstreams_egress_policy"></a>The `egress_policy` block supports:
+
+* `regions` -
+  (Required)
+  Required. List of regions where the application sends traffic to.
+
+<a name="nested_upstreams_upstreams_network"></a>The `network` block supports:
+
+* `name` -
+  (Required)
+  Required. Network name is of the format:
+  `projects/{project}/global/networks/{network}`
 
 ## Attributes Reference
 

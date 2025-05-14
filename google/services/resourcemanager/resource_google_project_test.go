@@ -65,6 +65,8 @@ func TestAccProject_create(t *testing.T) {
 				Config: testAccProject(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
+					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
+						testAccProject(pid, org)),
 				),
 			},
 		},
@@ -112,6 +114,8 @@ func TestAccProject_billing(t *testing.T) {
 				Config: testAccProject(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount(t, "google_project.acceptance", pid, ""),
+					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
+						testAccProject(pid, org)),
 				),
 			},
 		},
@@ -181,6 +185,10 @@ func TestAccProject_deleteDefaultNetwork(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProject_deleteDefaultNetwork(pid, org, billingId),
+				Check: resource.ComposeTestCheckFunc(
+					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
+						testAccProject_deleteDefaultNetwork(pid, org, billingId)),
+				),
 			},
 		},
 	})
@@ -237,6 +245,10 @@ func TestAccProject_migrateParent(t *testing.T) {
 			},
 			{
 				Config: testAccProject_migrateParentFolder(pid, folderDisplayName, org),
+				Check: resource.ComposeTestCheckFunc(
+					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
+						testAccProject_migrateParentFolder(pid, folderDisplayName, org)),
+				),
 			},
 			{
 				ResourceName:            "google_project.acceptance",
@@ -288,6 +300,10 @@ func TestAccProject_tags(t *testing.T) {
 			},
 			{
 				Config: testAccProject_tagsAllowDestroy(context),
+				Check: resource.ComposeTestCheckFunc(
+					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
+						testAccProject_tagsAllowDestroy(context)),
+				),
 			},
 		},
 	})
@@ -435,6 +451,10 @@ func TestAccProject_noAllowDestroy(t *testing.T) {
 			},
 			{
 				Config: testAccProject(pid, org),
+				Check: resource.ComposeTestCheckFunc(
+					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
+						testAccProject(pid, org)),
+				),
 			},
 		},
 	})
@@ -463,6 +483,8 @@ func TestAccProject_abandon(t *testing.T) {
 				Destroy: true,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
+					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
+						testAccProject_abandon(pid, org)),
 				),
 			},
 		},
@@ -633,8 +655,8 @@ resource "google_project" "acceptance" {
 }
 
 func testAccProject_tagsAllowDestroy(context map[string]interface{}) string {
-	return acctest.Nprintf(
-		`resource "google_project" "acceptance" {
+	return acctest.Nprintf(`
+resource "google_project" "acceptance" {
   project_id      = "%{pid}"
   name            = "%{pid}"
   org_id          = "%{org}"

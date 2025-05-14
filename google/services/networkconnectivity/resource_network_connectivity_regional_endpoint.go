@@ -80,7 +80,7 @@ func ResourceNetworkConnectivityRegionalEndpoint() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The service endpoint this private regional endpoint connects to. Format: '{apiname}.{region}.p.rep.googleapis.com' Example: \"cloudkms.us-central1.p.rep.googleapis.com\".`,
+				Description: `The service endpoint this private regional endpoint connects to. Format: '{apiname}.{region}.rep.googleapis.com' Example: \"cloudkms.us-central1.rep.googleapis.com\".`,
 			},
 			"address": {
 				Type:     schema.TypeString,

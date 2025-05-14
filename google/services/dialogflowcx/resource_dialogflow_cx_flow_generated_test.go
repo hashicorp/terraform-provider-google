@@ -49,7 +49,7 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowBasicExample(t *testing.T) {
 				ResourceName:            "google_dialogflow_cx_flow.basic_flow",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "advanced_settings.0.logging_settings", "parent"},
+				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "advanced_settings.0.logging_settings", "knowledge_connector_settings.0.trigger_fulfillment.0.advanced_settings.0.logging_settings", "parent"},
 			},
 		},
 	})
@@ -141,7 +141,7 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowFullExample(t *testing.T) {
 				ResourceName:            "google_dialogflow_cx_flow.basic_flow",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "parent"},
+				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "knowledge_connector_settings.0.trigger_fulfillment.0.advanced_settings.0.logging_settings", "parent"},
 			},
 		},
 	})
@@ -315,6 +315,8 @@ resource "google_dialogflow_cx_flow" "basic_flow" {
           },
         ])
       }
+
+      enable_generative_fallback = true
     }
   }
 
@@ -445,7 +447,137 @@ resource "google_dialogflow_cx_flow" "basic_flow" {
       enable_consent_based_redaction = true
     }
   }
-} 
+
+  knowledge_connector_settings {
+    enabled = true
+    trigger_fulfillment {
+      messages {
+        channel = "some-channel"
+        text {
+          text = ["information completed, navigating to page 2"]
+        }
+      }
+      messages {
+        payload = <<EOF
+          {"some-key": "some-value", "other-key": ["other-value"]}
+        EOF
+      }
+      messages {
+        conversation_success {
+          metadata = <<EOF
+            {"some-metadata-key": "some-value", "other-metadata-key": 1234}
+          EOF
+        }
+      }
+      messages {
+        output_audio_text {
+          text = "some output text"
+        }
+      }
+      messages {
+        output_audio_text {
+          ssml = <<EOF
+            <speak>Some example <say-as interpret-as="characters">SSML XML</say-as></speak>
+          EOF
+        }
+      }
+      messages {
+        live_agent_handoff {
+          metadata = <<EOF
+            {"some-metadata-key": "some-value", "other-metadata-key": 1234}
+          EOF
+        }
+      }
+      messages {
+        play_audio {
+          audio_uri = "http://example.com/some-audio-file.mp3"
+        }
+      }
+      messages {
+        telephony_transfer_call {
+          phone_number = "1-234-567-8902"
+        }
+      }
+      webhook = google_dialogflow_cx_webhook.my_webhook.id
+      return_partial_responses = true
+      tag = "some-tag"
+      set_parameter_actions {
+        parameter = "some-param"
+        value     = "123.45"
+      }
+      conditional_cases {
+        cases = jsonencode([
+          {
+            condition = "$sys.func.RAND() < 0.5",
+            caseContent = [
+              {
+                message = { text = { text = ["First case"] } }
+              }
+            ]
+          },
+          {
+            caseContent = [
+              {
+                message = { text = { text = ["Final case"] } }
+              }
+            ]
+          },
+        ])
+      }
+      advanced_settings {
+        speech_settings {
+          endpointer_sensitivity        = 30
+          no_speech_timeout             = "3.500s"
+          use_timeout_based_endpointing = true
+          models = {
+            name : "wrench"
+            mass : "1.3kg"
+            count : "3"
+          }
+        }
+        dtmf_settings {
+          enabled      = true
+          max_digits   = 1
+          finish_digit = "#"
+          interdigit_timeout_duration = "3.500s"
+          endpointing_timeout_duration = "3.500s"
+        }
+        logging_settings {
+          enable_stackdriver_logging     = true
+          enable_interaction_logging     = true
+          enable_consent_based_redaction = true
+        }
+      }
+      enable_generative_fallback = true
+    }
+    data_store_connections {
+      data_store_type = "UNSTRUCTURED"
+      data_store = "projects/${data.google_project.project.number}/locations/${google_dialogflow_cx_agent.agent.location}/collections/default_collection/dataStores/${google_discovery_engine_data_store.my_datastore.data_store_id}"
+      document_processing_mode = "DOCUMENTS"
+    }
+    target_flow = google_dialogflow_cx_agent.agent.start_flow
+  }
+}
+
+resource "google_discovery_engine_data_store" "my_datastore" {
+  location          = "global"
+  data_store_id     = "datastore-flow-full"
+  display_name      = "datastore-flow-full"
+  industry_vertical = "GENERIC"
+  content_config    = "NO_CONTENT"
+  solution_types    = ["SOLUTION_TYPE_CHAT"]
+}
+
+resource "google_dialogflow_cx_webhook" "my_webhook" {
+  parent       = google_dialogflow_cx_agent.agent.id
+  display_name = "MyWebhook"
+  generic_web_service {
+    uri = "https://example.com"
+  }
+}
+
+data "google_project" "project" {
+}
 `, context)
 }
 
@@ -468,7 +600,7 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowDefaultStartFlowExample(t *testing.
 				ResourceName:            "google_dialogflow_cx_flow.default_start_flow",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "parent"},
+				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "knowledge_connector_settings.0.trigger_fulfillment.0.advanced_settings.0.logging_settings", "parent"},
 			},
 		},
 	})
