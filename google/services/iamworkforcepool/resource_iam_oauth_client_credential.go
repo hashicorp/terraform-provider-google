@@ -99,6 +99,7 @@ The client secret must be stored securely. If the client secret is
 leaked, you must delete and re-create the client credential. To learn
 more, see [OAuth client and credential security risks and
 mitigations](https://cloud.google.com/iam/docs/workforce-oauth-app#security)`,
+				Sensitive: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
