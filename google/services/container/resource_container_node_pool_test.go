@@ -645,6 +645,11 @@ func TestAccContainerNodePool_withWindowsNodeConfig(t *testing.T) {
 			// Perform an update.
 			{
 				Config: testAccContainerNodePool_withWindowsNodeConfig(cluster, np, "OS_VERSION_LTSC2022"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_node_pool.with_windows_node_config", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_container_node_pool.with_windows_node_config",

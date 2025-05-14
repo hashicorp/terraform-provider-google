@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: allow updaing `windows_node_config` in place
+```
