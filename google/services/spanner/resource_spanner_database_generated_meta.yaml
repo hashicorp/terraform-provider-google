@@ -8,6 +8,8 @@ fields:
   - field: 'database_dialect'
   - field: 'ddl'
     api_field: 'extra_statements'
+  - field: 'default_time_zone'
+    provider_only: true
   - field: 'deletion_protection'
     provider_only: true
   - field: 'enable_drop_protection'

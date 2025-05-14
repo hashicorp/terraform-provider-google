@@ -616,6 +616,45 @@ func TestAccContainerCluster_withMultiNetworking(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_inTransitEncryptionConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_inTransitEncryptionConfig(clusterName, networkName, subnetworkName, "IN_TRANSIT_ENCRYPTION_INTER_NODE_TRANSPARENT"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "in_transit_encryption_config", "IN_TRANSIT_ENCRYPTION_INTER_NODE_TRANSPARENT"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_inTransitEncryptionConfig(clusterName, networkName, subnetworkName, "IN_TRANSIT_ENCRYPTION_DISABLED"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "in_transit_encryption_config", "IN_TRANSIT_ENCRYPTION_DISABLED"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withFQDNNetworkPolicy(t *testing.T) {
 	t.Parallel()
 
@@ -7114,7 +7153,7 @@ func TestAccContainerCluster_withCidrBlockWithoutPrivateEndpointSubnetwork(t *te
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withCidrBlockWithoutPrivateEndpointSubnetwork(containerNetName, clusterName, "us-central1-a"),
+				Config: testAccContainerCluster_withCidrBlockWithoutPrivateEndpointSubnetwork(containerNetName, clusterName),
 			},
 			{
 				ResourceName:            "google_container_cluster.with_private_flexible_cluster",
@@ -7126,8 +7165,12 @@ func TestAccContainerCluster_withCidrBlockWithoutPrivateEndpointSubnetwork(t *te
 	})
 }
 
-func testAccContainerCluster_withCidrBlockWithoutPrivateEndpointSubnetwork(containerNetName, clusterName, location string) string {
+func testAccContainerCluster_withCidrBlockWithoutPrivateEndpointSubnetwork(containerNetName, clusterName string) string {
 	return fmt.Sprintf(`
+data "google_container_engine_versions" "uscentral1a" {
+  location = "us-central1-a"
+}
+
 resource "google_compute_network" "container_network" {
   name                    = "%s"
   auto_create_subnetworks = false
@@ -7141,8 +7184,8 @@ resource "google_compute_subnetwork" "container_subnetwork" {
 
 resource "google_container_cluster" "with_private_flexible_cluster" {
   name               = "%s"
-  location           = "%s"
-  min_master_version = "1.29"
+  location           = "us-central1-a"
+  min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
   initial_node_count = 1
 
   networking_mode = "VPC_NATIVE"
@@ -7155,7 +7198,7 @@ resource "google_container_cluster" "with_private_flexible_cluster" {
   }
   deletion_protection = false
 }
-`, containerNetName, clusterName, location)
+`, containerNetName, clusterName)
 }
 
 func TestAccContainerCluster_withEnablePrivateEndpointToggle(t *testing.T) {
@@ -12205,6 +12248,18 @@ func TestAccContainerCluster_storagePoolsWithNodeConfig(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
+			{
+				Config: testAccContainerCluster_storagePoolsWithNodeConfigUpdate(cluster, location, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.storage_pools_with_node_config", "node_config.0.storage_pools.#", "0"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.storage_pools_with_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
 		},
 	})
 }
@@ -12229,6 +12284,27 @@ resource "google_container_cluster" "storage_pools_with_node_config" {
   deletion_protection = false
 }
 `, cluster, location, storagePoolResourceName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_storagePoolsWithNodeConfigUpdate(cluster, location, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "storage_pools_with_node_config" {
+  name     = "%s"
+  location = "%s"
+
+  initial_node_count = 1
+  node_config {
+    machine_type = "c3-standard-4"
+    image_type   = "COS_CONTAINERD"
+    disk_type    = "hyperdisk-balanced"
+  }
+
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, cluster, location, networkName, subnetworkName)
 }
 
 func TestAccContainerCluster_withAutopilotGcpFilestoreCsiDriver(t *testing.T) {
@@ -12588,4 +12664,19 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_inTransitEncryptionConfig(name, networkName, subnetworkName, config string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name                         = "%s"
+  location                     = "us-central1-a"
+  initial_node_count           = 1
+  network                      = "%s"
+  subnetwork                   = "%s"
+  datapath_provider            = "ADVANCED_DATAPATH"
+  deletion_protection          = false
+  in_transit_encryption_config = "%s"
+}
+`, name, networkName, subnetworkName, config)
 }

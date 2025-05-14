@@ -88,6 +88,7 @@ var WorkbenchInstanceProvidedMetadata = []string{
 	"install-monitoring-agent",
 	"install-nvidia-driver",
 	"installed-extensions",
+	"instance-region",
 	"last_updated_diagnostics",
 	"notebooks-api",
 	"notebooks-api-version",
@@ -121,9 +122,12 @@ var WorkbenchInstanceProvidedMetadata = []string{
 }
 
 func WorkbenchInstanceMetadataDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	// Suppress diffs for the Metadata
+	// Extract the actual metadata key from the full key path
+	parts := strings.Split(k, ".")
+	key := parts[len(parts)-1]
+
 	for _, metadata := range WorkbenchInstanceProvidedMetadata {
-		if strings.Contains(k, metadata) {
+		if key == metadata {
 			return true
 		}
 	}

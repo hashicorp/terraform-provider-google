@@ -568,6 +568,16 @@ func ResourceStorageBucket() *schema.Resource {
 					},
 				},
 			},
+			"time_created": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the bucket in RFC 3339 format.`,
+			},
+			"updated": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The time at which the bucket's metadata or IAM policy was last updated, in RFC 3339 format.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -1308,6 +1318,14 @@ func flattenBucketCustomPlacementConfig(cfc *storage.BucketCustomPlacementConfig
 	return customPlacementConfig
 }
 
+func flattenTimeCreated(v interface{}) interface{} {
+	return v
+}
+
+func flattenUpdated(v interface{}) interface{} {
+	return v
+}
+
 func expandBucketDataLocations(configured interface{}) []string {
 	l := configured.(*schema.Set).List()
 
@@ -2033,6 +2051,12 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 	}
 	if err := d.Set("custom_placement_config", flattenBucketCustomPlacementConfig(res.CustomPlacementConfig)); err != nil {
 		return fmt.Errorf("Error setting custom_placement_config: %s", err)
+	}
+	if err := d.Set("time_created", flattenTimeCreated(res.TimeCreated)); err != nil {
+		return fmt.Errorf("Error setting time_created: %s", err)
+	}
+	if err := d.Set("updated", flattenUpdated(res.Updated)); err != nil {
+		return fmt.Errorf("Error setting updated: %s", err)
 	}
 	// Needs to hide rpo field for single-region buckets.
 	// Check the Rpo field from API response to determine whether bucket is in single region config or not.

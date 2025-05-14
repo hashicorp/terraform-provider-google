@@ -42,6 +42,7 @@ and `replica_zone` values to reflect the current state, or Terraform will initia
 the next apply. You can trigger a manual
 [zone switch](https://cloud.google.com/netapp/volumes/docs/configure-and-use/storage-pools/edit-or-delete-storage-pool#switch_active_and_replica_zones)
 via Terraform by swapping the value of the `zone` and `replica_zone` parameters in your HCL code.
+Note: Custom Performance FLEX storage pools are supported in beta provider currently.
 
 
 To get more information about StoragePool, see:
@@ -51,12 +52,7 @@ To get more information about StoragePool, see:
     * [Quickstart documentation](https://cloud.google.com/netapp/volumes/docs/get-started/quickstarts/create-storage-pool)
     * [Regional Flex zone switch](https://cloud.google.com/netapp/volumes/docs/configure-and-use/storage-pools/edit-or-delete-storage-pool#switch_active_and_replica_zones)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=Storage_pool_create&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Storage Pool Create
+## Example Usage - Storage Pool Create Doc
 
 
 ```hcl
@@ -176,6 +172,18 @@ The following arguments are supported:
   (Optional)
   Optional. True if the storage pool supports Auto Tiering enabled volumes. Default is false.
   Auto-tiering can be enabled after storage pool creation but it can't be disabled once enabled.
+
+* `custom_performance_enabled` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Optional. True if using Independent Scaling of capacity and performance (Hyperdisk). Default is false.
+
+* `total_throughput_mibps` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Optional. Custom Performance Total Throughput of the pool (in MiB/s).
+
+* `total_iops` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Optional. Custom Performance Total IOPS of the pool If not provided, it will be calculated based on the totalThroughputMibps
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

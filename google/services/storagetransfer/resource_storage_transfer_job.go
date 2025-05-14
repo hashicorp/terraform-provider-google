@@ -741,6 +741,11 @@ func awsS3DataSchema() *schema.Resource {
 				ExactlyOneOf: awsS3AuthKeys,
 				Description:  `The Amazon Resource Name (ARN) of the role to support temporary credentials via 'AssumeRoleWithWebIdentity'. For more information about ARNs, see [IAM ARNs](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html#identifiers-arns). When a role ARN is provided, Transfer Service fetches temporary credentials for the session using a 'AssumeRoleWithWebIdentity' call for the provided role using the [GoogleServiceAccount][] for this project.`,
 			},
+			"managed_private_network": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Egress bytes over a Google-managed private network. This network is shared between other users of Storage Transfer Service.`,
+			},
 		},
 	}
 }
@@ -1298,12 +1303,18 @@ func expandAwsS3Data(awsS3Datas []interface{}) *storagetransfer.AwsS3Data {
 	}
 
 	awsS3Data := awsS3Datas[0].(map[string]interface{})
-	return &storagetransfer.AwsS3Data{
+	result := &storagetransfer.AwsS3Data{
 		BucketName:   awsS3Data["bucket_name"].(string),
 		AwsAccessKey: expandAwsAccessKeys(awsS3Data["aws_access_key"].([]interface{})),
 		RoleArn:      awsS3Data["role_arn"].(string),
 		Path:         awsS3Data["path"].(string),
 	}
+
+	if v, ok := awsS3Data["managed_private_network"]; ok {
+		result.ManagedPrivateNetwork = v.(bool)
+	}
+
+	return result
 }
 
 func flattenAwsS3Data(awsS3Data *storagetransfer.AwsS3Data, d *schema.ResourceData) []map[string]interface{} {
@@ -1315,6 +1326,11 @@ func flattenAwsS3Data(awsS3Data *storagetransfer.AwsS3Data, d *schema.ResourceDa
 	if _, exist := d.GetOk("transfer_spec.0.aws_s3_data_source.0.aws_access_key"); exist {
 		data["aws_access_key"] = flattenAwsAccessKeys(d)
 	}
+
+	if awsS3Data.ManagedPrivateNetwork {
+		data["managed_private_network"] = awsS3Data.ManagedPrivateNetwork
+	}
+
 	return []map[string]interface{}{data}
 }
 

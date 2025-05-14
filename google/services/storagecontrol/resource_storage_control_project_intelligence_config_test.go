@@ -16,7 +16,7 @@ func TestAccStorageControlProjectIntelligenceConfig_update(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
+		"project":       acctest.BootstrapProject(t, "tf-boot-stor-int-", envvar.GetTestBillingAccountFromEnv(t), []string{"storage.googleapis.com"}).ProjectId,
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

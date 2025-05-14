@@ -912,3 +912,82 @@ func TestAccAlloydbInstance_updateInstanceWithPscInterfaceConfigs(t *testing.T) 
 		},
 	})
 }
+
+func TestAccAlloydbInstance_updatePscAutoConnections(t *testing.T) {
+	t.Parallel()
+
+	networkName := acctest.BootstrapSharedTestNetwork(t, "tf-test-alloydb-network-psc")
+	random_suffix := acctest.RandString(t, 10)
+	context := map[string]interface{}{
+		"network_name":  networkName,
+		"random_suffix": random_suffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbInstance_pscAutoConnections(context),
+			},
+			{
+				Config: testAccAlloydbInstance_updatePscAutoConnections(context),
+			},
+		},
+	})
+}
+
+func testAccAlloydbInstance_pscAutoConnections(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+  machine_config {
+    cpu_count = 2
+  }
+  psc_instance_config {
+	psc_auto_connections {
+		consumer_project = "${data.google_project.project.project_id}"
+		consumer_network = "projects/${data.google_project.project.project_id}/global/networks/%{network_name}"
+	}
+  }
+}
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  psc_config {
+	psc_enabled = true
+  }
+  initial_user {
+    password = "tf-test-alloydb-cluster%{random_suffix}"
+  }
+}
+data "google_project" "project" {}
+`, context)
+}
+
+func testAccAlloydbInstance_updatePscAutoConnections(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+  machine_config {
+    cpu_count = 2
+  }
+}
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  psc_config {
+	psc_enabled = true
+  }
+  initial_user {
+    password = "tf-test-alloydb-cluster%{random_suffix}"
+  }
+}
+data "google_project" "project" {}
+`, context)
+}
