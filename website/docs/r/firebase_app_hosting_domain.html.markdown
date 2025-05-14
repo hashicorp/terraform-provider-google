@@ -33,7 +33,7 @@ resource "google_firebase_app_hosting_domain" "example" {
   project          = google_firebase_app_hosting_backend.example.project
   location         = google_firebase_app_hosting_backend.example.location
   backend          = google_firebase_app_hosting_backend.example.backend_id
-  domain_id        = ""
+  domain_id        = "example.com"
 }
 
 resource "google_firebase_app_hosting_backend" "example" {
@@ -51,7 +51,7 @@ resource "google_service_account" "service_account" {
   project = "my-project-name"
 
   # Must be firebase-app-hosting-compute
-  account_id                   = ""
+  account_id                   = "sa-id"
   display_name                 = "Firebase App Hosting compute service account"
 
   # Do not throw if already exists
@@ -66,7 +66,7 @@ resource "google_firebase_app_hosting_domain" "example" {
   project          = google_firebase_app_hosting_backend.example.project
   location         = google_firebase_app_hosting_backend.example.location
   backend          = google_firebase_app_hosting_backend.example.backend_id
-  domain_id        = ""
+  domain_id        = "example.com"
 
   serve {
     redirect {
@@ -91,7 +91,7 @@ resource "google_service_account" "service_account" {
   project = "my-project-name"
 
   # Must be firebase-app-hosting-compute
-  account_id                   = ""
+  account_id                   = "sa-id"
   display_name                 = "Firebase App Hosting compute service account"
 
   # Do not throw if already exists

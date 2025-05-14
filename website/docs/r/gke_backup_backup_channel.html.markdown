@@ -40,7 +40,7 @@ To get more information about BackupChannel, see:
 resource "google_gke_backup_backup_channel" "basic" {
   name = "basic-channel"
   location = "us-central1"
-  description = ""
+  description = "Description"
   destination_project = "projects/24240755850"
   labels = { "key": "some-value" }
 }
