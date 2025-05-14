@@ -687,6 +687,83 @@ resource "google_dialogflow_cx_flow" "default_start_flow" {
 `, context)
 }
 
+func TestAccDialogflowCXFlow_dialogflowcxFlowCustomEndpointExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDialogflowCXFlowDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowCXFlow_dialogflowcxFlowCustomEndpointExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_cx_flow.custom_endpoint_flow",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "knowledge_connector_settings.0.trigger_fulfillment.0.advanced_settings.0.logging_settings", "parent"},
+			},
+		},
+	})
+}
+
+func testAccDialogflowCXFlow_dialogflowcxFlowCustomEndpointExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+provider "google" {
+  dialogflow_cx_custom_endpoint = "https://us-central1-dialogflow.googleapis.com/v3/"
+}
+
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name               = "tf-test-dialogflowcx-agent%{random_suffix}"
+  location                   = "us-central1"
+  default_language_code      = "en"
+  time_zone                  = "America/New_York"
+  description                = "Example description."
+}
+
+
+resource "google_dialogflow_cx_flow" "custom_endpoint_flow" {
+  parent       = google_dialogflow_cx_agent.agent.id
+  display_name = "MyFlow"
+  description  = "Test Flow"
+
+  nlu_settings {
+    classification_threshold = 0.3
+    model_type               = "MODEL_TYPE_STANDARD"
+  }
+
+  event_handlers {
+    event = "sys.no-match-default"
+    trigger_fulfillment {
+      return_partial_responses = false
+      messages {
+        text {
+          text = ["Sorry, could you say that again?"]
+        }
+      }
+    }
+  }
+
+  event_handlers {
+    event = "sys.no-input-default"
+    trigger_fulfillment {
+      return_partial_responses = false
+      messages {
+        text {
+          text = ["One more time?"]
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckDialogflowCXFlowDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
