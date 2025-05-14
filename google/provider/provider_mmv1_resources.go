@@ -441,6 +441,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_dataplex_datascan_iam_policy":                    tpgiamresource.DataSourceIamPolicy(dataplex.DataplexDatascanIamSchema, dataplex.DataplexDatascanIamUpdaterProducer),
 	"google_dataplex_entry_group_iam_policy":                 tpgiamresource.DataSourceIamPolicy(dataplex.DataplexEntryGroupIamSchema, dataplex.DataplexEntryGroupIamUpdaterProducer),
 	"google_dataplex_entry_type_iam_policy":                  tpgiamresource.DataSourceIamPolicy(dataplex.DataplexEntryTypeIamSchema, dataplex.DataplexEntryTypeIamUpdaterProducer),
+	"google_dataplex_glossary_iam_policy":                    tpgiamresource.DataSourceIamPolicy(dataplex.DataplexGlossaryIamSchema, dataplex.DataplexGlossaryIamUpdaterProducer),
 	"google_dataplex_lake_iam_policy":                        tpgiamresource.DataSourceIamPolicy(dataplex.DataplexLakeIamSchema, dataplex.DataplexLakeIamUpdaterProducer),
 	"google_dataplex_task_iam_policy":                        tpgiamresource.DataSourceIamPolicy(dataplex.DataplexTaskIamSchema, dataplex.DataplexTaskIamUpdaterProducer),
 	"google_dataplex_zone_iam_policy":                        tpgiamresource.DataSourceIamPolicy(dataplex.DataplexZoneIamSchema, dataplex.DataplexZoneIamUpdaterProducer),
@@ -519,9 +520,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 600
-// Generated IAM resources: 300
-// Total generated resources: 900
+// Generated resources: 601
+// Generated IAM resources: 303
+// Total generated resources: 904
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -898,6 +899,10 @@ var generatedResources = map[string]*schema.Resource{
 	"google_dataplex_entry_type_iam_binding":                                     tpgiamresource.ResourceIamBinding(dataplex.DataplexEntryTypeIamSchema, dataplex.DataplexEntryTypeIamUpdaterProducer, dataplex.DataplexEntryTypeIdParseFunc),
 	"google_dataplex_entry_type_iam_member":                                      tpgiamresource.ResourceIamMember(dataplex.DataplexEntryTypeIamSchema, dataplex.DataplexEntryTypeIamUpdaterProducer, dataplex.DataplexEntryTypeIdParseFunc),
 	"google_dataplex_entry_type_iam_policy":                                      tpgiamresource.ResourceIamPolicy(dataplex.DataplexEntryTypeIamSchema, dataplex.DataplexEntryTypeIamUpdaterProducer, dataplex.DataplexEntryTypeIdParseFunc),
+	"google_dataplex_glossary":                                                   dataplex.ResourceDataplexGlossary(),
+	"google_dataplex_glossary_iam_binding":                                       tpgiamresource.ResourceIamBinding(dataplex.DataplexGlossaryIamSchema, dataplex.DataplexGlossaryIamUpdaterProducer, dataplex.DataplexGlossaryIdParseFunc),
+	"google_dataplex_glossary_iam_member":                                        tpgiamresource.ResourceIamMember(dataplex.DataplexGlossaryIamSchema, dataplex.DataplexGlossaryIamUpdaterProducer, dataplex.DataplexGlossaryIdParseFunc),
+	"google_dataplex_glossary_iam_policy":                                        tpgiamresource.ResourceIamPolicy(dataplex.DataplexGlossaryIamSchema, dataplex.DataplexGlossaryIamUpdaterProducer, dataplex.DataplexGlossaryIdParseFunc),
 	"google_dataplex_lake_iam_binding":                                           tpgiamresource.ResourceIamBinding(dataplex.DataplexLakeIamSchema, dataplex.DataplexLakeIamUpdaterProducer, dataplex.DataplexLakeIdParseFunc),
 	"google_dataplex_lake_iam_member":                                            tpgiamresource.ResourceIamMember(dataplex.DataplexLakeIamSchema, dataplex.DataplexLakeIamUpdaterProducer, dataplex.DataplexLakeIdParseFunc),
 	"google_dataplex_lake_iam_policy":                                            tpgiamresource.ResourceIamPolicy(dataplex.DataplexLakeIamSchema, dataplex.DataplexLakeIamUpdaterProducer, dataplex.DataplexLakeIdParseFunc),
