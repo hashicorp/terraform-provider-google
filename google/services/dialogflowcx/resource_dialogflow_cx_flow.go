@@ -1323,7 +1323,10 @@ func resourceDialogflowCXFlowCreate(d *schema.ResourceData, meta interface{}) er
 		)
 	}
 
-	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	}
 
 	// if it's a default object Dialogflow creates for you, "Update" instead of "Create"
 	// Note: below we try to access fields that aren't present in the resource, because this custom code is reused across multiple Dialogflow resources that contain different fields. When the field isn't present, we deliberately ignore the error and the boolean is false.
@@ -1417,7 +1420,10 @@ func resourceDialogflowCXFlowRead(d *schema.ResourceData, meta interface{}) erro
 		)
 	}
 
-	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -1584,7 +1590,10 @@ func resourceDialogflowCXFlowUpdate(d *schema.ResourceData, meta interface{}) er
 		)
 	}
 
-	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {

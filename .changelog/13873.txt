@@ -1,0 +1,3 @@
+```release-note:bug
+dialogflowcx: fixed using `dialogflow_cx_custom_endpoint` with `Flow` 
+```
