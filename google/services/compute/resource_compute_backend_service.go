@@ -648,6 +648,37 @@ responses.`,
 				Optional:    true,
 				Description: `If true, enable Cloud CDN for this BackendService.`,
 			},
+			"external_managed_migration_state": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"PREPARE", "TEST_BY_PERCENTAGE", "TEST_ALL_TRAFFIC", ""}),
+				Description: `Specifies the canary migration state. Possible values are PREPARE, TEST_BY_PERCENTAGE, and
+TEST_ALL_TRAFFIC.
+
+To begin the migration from EXTERNAL to EXTERNAL_MANAGED, the state must be changed to
+PREPARE. The state must be changed to TEST_ALL_TRAFFIC before the loadBalancingScheme can be
+changed to EXTERNAL_MANAGED. Optionally, the TEST_BY_PERCENTAGE state can be used to migrate
+traffic by percentage using externalManagedMigrationTestingPercentage.
+
+Rolling back a migration requires the states to be set in reverse order. So changing the
+scheme from EXTERNAL_MANAGED to EXTERNAL requires the state to be set to TEST_ALL_TRAFFIC at
+the same time. Optionally, the TEST_BY_PERCENTAGE state can be used to migrate some traffic
+back to EXTERNAL or PREPARE can be used to migrate all traffic back to EXTERNAL. Possible values: ["PREPARE", "TEST_BY_PERCENTAGE", "TEST_ALL_TRAFFIC"]`,
+			},
+			"external_managed_migration_testing_percentage": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+				Description: `Determines the fraction of requests that should be processed by the Global external
+Application Load Balancer.
+
+The value of this field must be in the range [0, 100].
+
+Session affinity options will slightly affect this routing behavior, for more details,
+see: Session Affinity.
+
+This value can only be set if the loadBalancingScheme in the backend service is set to
+EXTERNAL (when using the Classic ALB) and the migration state is TEST_BY_PERCENTAGE.`,
+			},
 			"health_checks": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -709,7 +740,6 @@ If OAuth client is not set, the Google-managed OAuth client is used.`,
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"EXTERNAL", "INTERNAL_SELF_MANAGED", "INTERNAL_MANAGED", "EXTERNAL_MANAGED", ""}),
 				Description: `Indicates whether the backend service will be used with internal or
 external load balancing. A backend service created for one type of
@@ -1570,6 +1600,18 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !tpgresource.IsEmptyValue(reflect.ValueOf(loadBalancingSchemeProp)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
 		obj["loadBalancingScheme"] = loadBalancingSchemeProp
 	}
+	externalManagedMigrationStateProp, err := expandComputeBackendServiceExternalManagedMigrationState(d.Get("external_managed_migration_state"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("external_managed_migration_state"); !tpgresource.IsEmptyValue(reflect.ValueOf(externalManagedMigrationStateProp)) && (ok || !reflect.DeepEqual(v, externalManagedMigrationStateProp)) {
+		obj["externalManagedMigrationState"] = externalManagedMigrationStateProp
+	}
+	externalManagedMigrationTestingPercentageProp, err := expandComputeBackendServiceExternalManagedMigrationTestingPercentage(d.Get("external_managed_migration_testing_percentage"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("external_managed_migration_testing_percentage"); !tpgresource.IsEmptyValue(reflect.ValueOf(externalManagedMigrationTestingPercentageProp)) && (ok || !reflect.DeepEqual(v, externalManagedMigrationTestingPercentageProp)) {
+		obj["externalManagedMigrationTestingPercentage"] = externalManagedMigrationTestingPercentageProp
+	}
 	localityLbPolicyProp, err := expandComputeBackendServiceLocalityLbPolicy(d.Get("locality_lb_policy"), d, config)
 	if err != nil {
 		return err
@@ -1887,6 +1929,12 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("load_balancing_scheme", flattenComputeBackendServiceLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
+	if err := d.Set("external_managed_migration_state", flattenComputeBackendServiceExternalManagedMigrationState(res["externalManagedMigrationState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendService: %s", err)
+	}
+	if err := d.Set("external_managed_migration_testing_percentage", flattenComputeBackendServiceExternalManagedMigrationTestingPercentage(res["externalManagedMigrationTestingPercentage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendService: %s", err)
+	}
 	if err := d.Set("locality_lb_policy", flattenComputeBackendServiceLocalityLbPolicy(res["localityLbPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
@@ -2053,6 +2101,18 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
 		obj["loadBalancingScheme"] = loadBalancingSchemeProp
+	}
+	externalManagedMigrationStateProp, err := expandComputeBackendServiceExternalManagedMigrationState(d.Get("external_managed_migration_state"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("external_managed_migration_state"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, externalManagedMigrationStateProp)) {
+		obj["externalManagedMigrationState"] = externalManagedMigrationStateProp
+	}
+	externalManagedMigrationTestingPercentageProp, err := expandComputeBackendServiceExternalManagedMigrationTestingPercentage(d.Get("external_managed_migration_testing_percentage"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("external_managed_migration_testing_percentage"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, externalManagedMigrationTestingPercentageProp)) {
+		obj["externalManagedMigrationTestingPercentage"] = externalManagedMigrationTestingPercentageProp
 	}
 	localityLbPolicyProp, err := expandComputeBackendServiceLocalityLbPolicy(d.Get("locality_lb_policy"), d, config)
 	if err != nil {
@@ -3103,6 +3163,14 @@ func flattenComputeBackendServiceIpAddressSelectionPolicy(v interface{}, d *sche
 }
 
 func flattenComputeBackendServiceLoadBalancingScheme(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendServiceExternalManagedMigrationState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendServiceExternalManagedMigrationTestingPercentage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4506,6 +4574,14 @@ func expandComputeBackendServiceIpAddressSelectionPolicy(v interface{}, d tpgres
 }
 
 func expandComputeBackendServiceLoadBalancingScheme(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceExternalManagedMigrationState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceExternalManagedMigrationTestingPercentage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

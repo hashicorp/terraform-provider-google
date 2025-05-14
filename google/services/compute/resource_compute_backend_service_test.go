@@ -4,10 +4,11 @@ package compute_test
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccComputeBackendService_basic(t *testing.T) {
@@ -148,17 +149,18 @@ func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
 	})
 }
 
-func TestAccComputeBackendService_withBackendAndPreference(t *testing.T) {
+func TestAccComputeBackendService_withBackendAndPreferenceInternalManaged(t *testing.T) {
 	t.Parallel()
 
-	randomSuffix := acctest.RandString(t, 10)
+	im_suffix := fmt.Sprintf("im-%s", acctest.RandString(t, 10))
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeBackendService_withBackendAndPreference(randomSuffix, "INTERNAL_MANAGED", "DEFAULT", 10),
+				Config: testAccComputeBackendService_withBackendAndPreference(im_suffix, "INTERNAL_MANAGED", "DEFAULT", 10),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.lipsum",
@@ -166,7 +168,29 @@ func TestAccComputeBackendService_withBackendAndPreference(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeBackendService_withBackendAndPreference(randomSuffix, "INTERNAL_MANAGED", "PREFERRED", 20),
+				Config: testAccComputeBackendService_withBackendAndPreference(im_suffix, "INTERNAL_MANAGED", "PREFERRED", 20),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeBackendService_withBackendAndPreferenceInternalSelfManaged(t *testing.T) {
+	t.Parallel()
+
+	ism_suffix := fmt.Sprintf("ism-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_withBackendAndPreference(ism_suffix, "INTERNAL_SELF_MANAGED", "DEFAULT", 10),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.lipsum",
@@ -174,7 +198,28 @@ func TestAccComputeBackendService_withBackendAndPreference(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeBackendService_withBackendAndPreference(randomSuffix, "INTERNAL_SELF_MANAGED", "DEFAULT", 10),
+				Config: testAccComputeBackendService_withBackendAndPreference(ism_suffix, "INTERNAL_SELF_MANAGED", "PREFERRED", 20),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeBackendService_withBackendAndPreferenceExternalManaged(t *testing.T) {
+	t.Parallel()
+	em_suffix := fmt.Sprintf("em-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_withBackendAndPreference(em_suffix, "EXTERNAL_MANAGED", "DEFAULT", 10),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.lipsum",
@@ -182,23 +227,7 @@ func TestAccComputeBackendService_withBackendAndPreference(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeBackendService_withBackendAndPreference(randomSuffix, "INTERNAL_SELF_MANAGED", "PREFERRED", 20),
-			},
-			{
-				ResourceName:      "google_compute_backend_service.lipsum",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccComputeBackendService_withBackendAndPreference(randomSuffix, "EXTERNAL_MANAGED", "DEFAULT", 10),
-			},
-			{
-				ResourceName:      "google_compute_backend_service.lipsum",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccComputeBackendService_withBackendAndPreference(randomSuffix, "EXTERNAL_MANAGED", "PREFERRED", 20),
+				Config: testAccComputeBackendService_withBackendAndPreference(em_suffix, "EXTERNAL_MANAGED", "PREFERRED", 20),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.lipsum",
@@ -791,8 +820,23 @@ func TestAccComputeBackendService_withLogConfig(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+		},
+	})
+}
+
+func TestAccComputeBackendService_withLogConfigMode(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-lc-%s", acctest.RandString(t, 10))
+	checkName := fmt.Sprintf("tf-test-lc-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeBackendService_withLogConfig3(serviceName, checkName, "INCLUDE_ALL_OPTIONAL", true),
+				Config: testAccComputeBackendService_withLogConfigMode(serviceName, checkName, "INCLUDE_ALL_OPTIONAL", true),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.foobar",
@@ -800,7 +844,7 @@ func TestAccComputeBackendService_withLogConfig(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeBackendService_withLogConfig3(serviceName, checkName, "EXCLUDE_ALL_OPTIONAL", true),
+				Config: testAccComputeBackendService_withLogConfigMode(serviceName, checkName, "EXCLUDE_ALL_OPTIONAL", true),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.foobar",
@@ -2081,7 +2125,7 @@ resource "google_compute_http_health_check" "zero" {
 `, serviceName, enabled, checkName)
 }
 
-func testAccComputeBackendService_withLogConfig3(serviceName, checkName, mode string, enabled bool) string {
+func testAccComputeBackendService_withLogConfigMode(serviceName, checkName, mode string, enabled bool) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
   name          		= "%s"
@@ -2490,4 +2534,141 @@ resource "google_compute_health_check" "health_check" {
   }
 }
 `, suffix, timeout, loadBalancingScheme, preference, suffix, suffix, suffix)
+}
+
+func TestAccComputeBackendService_updateCanaryMigration(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_basic(serviceName, checkName),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withCanaryMigration(
+					serviceName, checkName, "updated-to-prepare", "PREPARE"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_backend_service.foobar", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withCanaryMigrationPercentage(
+					serviceName, checkName, "updated-to-percentage", 50),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_backend_service.foobar", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withCanaryMigration(
+					serviceName, checkName, "update-to-all", "TEST_ALL_TRAFFIC"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_backend_service.foobar", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendService_withCanaryMigration(serviceName, checkName, description, migrationState string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name             = "%s"
+  description      = "%s"
+  health_checks    = [google_compute_http_health_check.zero.self_link]
+  external_managed_migration_state = "%s"
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, description, migrationState, checkName)
+}
+
+func testAccComputeBackendService_withCanaryMigrationWithWait(serviceName, checkName, description, migrationState string) string {
+	return fmt.Sprintf(`
+resource "time_sleep" "six_minutes_delay" {
+  create_duration = "370s" # litte more than 6 minutes (360 seconds = 6 minutes)
+}
+
+resource "google_compute_backend_service" "foobar" {
+  name             = "%s"
+  description      = "%s"
+  health_checks    = [google_compute_http_health_check.zero.self_link]
+  external_managed_migration_state = "%s"
+	depends_on = [
+		time_sleep.six_minutes_delay
+	]
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, description, migrationState, checkName)
+}
+
+func testAccComputeBackendService_withCanaryMigrationPercentage(serviceName, checkName, description string, percentage int64) string {
+	return fmt.Sprintf(`
+resource "time_sleep" "six_minutes_delay" {
+  create_duration = "370s" # litte more than 6 minutes (360 seconds = 6 minutes)
+}
+
+resource "google_compute_backend_service" "foobar" {
+  name             = "%s"
+  description      = "%s"
+  health_checks    = [google_compute_http_health_check.zero.self_link]
+  external_managed_migration_state = "TEST_BY_PERCENTAGE"
+	external_managed_migration_testing_percentage = %d
+	depends_on = [
+		time_sleep.six_minutes_delay
+	]
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, description, percentage, checkName)
 }
