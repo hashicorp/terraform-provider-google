@@ -677,7 +677,6 @@ func schemaNodeConfig() *schema.Schema {
 							"osversion": {
 								Type:         schema.TypeString,
 								Optional:     true,
-								ForceNew:     true,
 								Default:      "OS_VERSION_UNSPECIFIED",
 								Description:  `The OS Version of the windows nodepool.Values are OS_VERSION_UNSPECIFIED,OS_VERSION_LTSC2019 and OS_VERSION_LTSC2022`,
 								ValidateFunc: validation.StringInSlice([]string{"OS_VERSION_UNSPECIFIED", "OS_VERSION_LTSC2019", "OS_VERSION_LTSC2022"}, false),
