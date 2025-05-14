@@ -1,0 +1,6 @@
+```release-note:enhancement
+iambeta: added `mode`, `inline_certificate_issuance_config`, and `inline_trust_config` fields to `google_iam_workload_identity_pool` resource
+```
+```release-note:new-resource
+`google_iam_workload_identity_pool_iam_*`
+```
