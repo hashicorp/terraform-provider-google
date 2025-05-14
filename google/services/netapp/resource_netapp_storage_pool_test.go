@@ -3,11 +3,12 @@
 package netapp_test
 
 import (
+	"testing"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"testing"
-	"time"
 )
 
 func TestAccNetappStoragePool_storagePoolCreateExample_update(t *testing.T) {
