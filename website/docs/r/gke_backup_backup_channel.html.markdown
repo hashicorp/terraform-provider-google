@@ -59,7 +59,7 @@ The following arguments are supported:
   (Required)
   The project where Backups are allowed to be stored.
   The format is `projects/{project}`.
-  {project} can only be a project number.
+  {project} can be project number or project id.
 
 * `location` -
   (Required)
