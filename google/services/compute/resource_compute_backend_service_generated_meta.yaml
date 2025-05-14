@@ -76,6 +76,8 @@ fields:
   - field: 'description'
   - field: 'edge_security_policy'
   - field: 'enable_cdn'
+  - field: 'external_managed_migration_state'
+  - field: 'external_managed_migration_testing_percentage'
   - field: 'fingerprint'
   - field: 'generated_id'
     api_field: 'id'

@@ -1,0 +1,11 @@
+```release-note:enhancement
+compute: added `external_managed_migration_state` and `external_managed_migration_testing_percentage` to `google_compute_backend_service` resource.
+```
+
+```release-note:enhancement
+compute: added `external_managed_backend_bucket_migration_state` and `external_managed_backend_bucket_migration_testing_percentage` to `google_compute_global_forwarding_rule` resource.
+```
+
+```release-note:enhancement
+compute: added update support for `load_balancing_scheme` in `google_compute_backend_service` and `google_compute_global_forwarding_rule` resources to allow migrating between classic and global external ALB
+```
