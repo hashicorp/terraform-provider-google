@@ -482,26 +482,32 @@ func resourceColabRuntimeTemplateCreate(d *schema.ResourceData, meta interface{}
 	}
 	d.SetId(id)
 
-	err = ColabOperationWaitTime(
-		config, res, project, "Creating RuntimeTemplate", userAgent,
+	// Use the resource in the operation response to populate
+	// identity fields and d.Id() before read
+	var opRes map[string]interface{}
+	err = ColabOperationWaitTimeWithResponse(
+		config, res, &opRes, project, "Creating RuntimeTemplate", userAgent,
 		d.Timeout(schema.TimeoutCreate))
-
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
+
 		return fmt.Errorf("Error waiting to create RuntimeTemplate: %s", err)
 	}
 
-	// The operation for this resource contains the generated name that we need
-	// in order to perform a READ. We need to access the object inside of it as
-	// a map[string]interface, so let's do that.
-
-	resp := res["response"].(map[string]interface{})
-	name := tpgresource.GetResourceNameFromSelfLink(resp["name"].(string))
-	log.Printf("[DEBUG] Setting resource name to %s", name)
-	if err := d.Set("name", name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
+	// name is set by API when unset
+	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("name"))) {
+		if err := d.Set("name", flattenColabRuntimeTemplateName(opRes["name"], d, config)); err != nil {
+			return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+		}
 	}
+
+	// This may have caused the ID to update - update it if so.
+	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/notebookRuntimeTemplates/{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating RuntimeTemplate %q: %#v", d.Id(), res)
 
