@@ -1,0 +1,3 @@
+```release-note:note
+Fixes a typo in the docs
+```
