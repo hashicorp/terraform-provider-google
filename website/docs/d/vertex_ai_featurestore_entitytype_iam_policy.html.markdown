@@ -41,8 +41,8 @@ data "google_vertex_ai_featurestore_entitytype_iam_policy" "policy" {
 
 The following arguments are supported:
 
-* `entitytype` - (Required) Used to find the parent resource to bind the IAM policy to
 * `featurestore` - (Required) The name of the Featurestore to use, in the format projects/{project}/locations/{location}/featurestores/{featurestore}. Used to find the parent resource to bind the IAM policy to
+* `entitytype` - (Required) Used to find the parent resource to bind the IAM policy to
 
 ## Attributes Reference
 

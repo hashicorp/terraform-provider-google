@@ -81,6 +81,7 @@ resource "google_endpoints_service_iam_member" "member" {
 
 The following arguments are supported:
 
+* `service_name` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `member/members` - (Required) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:
