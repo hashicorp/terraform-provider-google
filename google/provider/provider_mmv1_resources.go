@@ -520,9 +520,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 601
+// Generated resources: 602
 // Generated IAM resources: 303
-// Total generated resources: 904
+// Total generated resources: 905
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -616,6 +616,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_bigquery_dataset_access":                                             bigquery.ResourceBigQueryDatasetAccess(),
 	"google_bigquery_job":                                                        bigquery.ResourceBigQueryJob(),
 	"google_bigquery_routine":                                                    bigquery.ResourceBigQueryRoutine(),
+	"google_bigquery_row_access_policy":                                          bigquery.ResourceBigQueryRowAccessPolicy(),
 	"google_bigquery_table_iam_binding":                                          tpgiamresource.ResourceIamBinding(bigquery.BigQueryTableIamSchema, bigquery.BigQueryTableIamUpdaterProducer, bigquery.BigQueryTableIdParseFunc),
 	"google_bigquery_table_iam_member":                                           tpgiamresource.ResourceIamMember(bigquery.BigQueryTableIamSchema, bigquery.BigQueryTableIamUpdaterProducer, bigquery.BigQueryTableIdParseFunc),
 	"google_bigquery_table_iam_policy":                                           tpgiamresource.ResourceIamPolicy(bigquery.BigQueryTableIamSchema, bigquery.BigQueryTableIamUpdaterProducer, bigquery.BigQueryTableIdParseFunc),
