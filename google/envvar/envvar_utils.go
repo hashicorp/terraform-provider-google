@@ -88,6 +88,10 @@ var UniverseDomainEnvVars = []string{
 	"GOOGLE_UNIVERSE_DOMAIN",
 }
 
+var ProjectPrefixEnvVars = []string{
+	"GOOGLE_PROJECT_PREFIX",
+}
+
 // This is the billing account that will be charged for the infrastructure used during testing. For
 // that reason, it is also the billing account used for creating new projects.
 var BillingAccountEnvVars = []string{
@@ -146,6 +150,11 @@ func GetTestCredsFromEnv() string {
 func GetTestUniverseDomainFromEnv(t *testing.T) string {
 	SkipIfEnvNotSet(t, IdentityUserEnvVars...)
 	return transport_tpg.MultiEnvSearch(UniverseDomainEnvVars)
+}
+
+// Project Prefix of different universes
+func GetProjectPrefixFromEnv() string {
+	return transport_tpg.MultiEnvSearch(ProjectPrefixEnvVars)
 }
 
 // AccTestPreCheck ensures at least one of the region env variables is set.
