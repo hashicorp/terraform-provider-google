@@ -1,0 +1,3 @@
+```release-note:note
+firebaseapphosting: fixed typo in GitHub samples
+```
