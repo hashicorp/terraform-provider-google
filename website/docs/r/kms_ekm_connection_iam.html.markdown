@@ -149,12 +149,12 @@ resource "google_kms_ekm_connection_iam_member" "member" {
 
 The following arguments are supported:
 
-* `name` - (Required) Used to find the parent resource to bind the IAM policy to
 * `location` - (Optional) The location for the EkmConnection.
 A full list of valid locations can be found by running `gcloud kms locations list`.
  Used to find the parent resource to bind the IAM policy to. If not specified,
   the value will be parsed from the identifier of the parent resource. If no location is provided in the parent identifier and no
   location is specified, it is taken from the provider configuration.
+* `name` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

@@ -39,10 +39,10 @@ data "google_healthcare_consent_store_iam_policy" "policy" {
 
 The following arguments are supported:
 
-* `consent_store_id` - (Required) Used to find the parent resource to bind the IAM policy to
 * `dataset` - (Required) Identifies the dataset addressed by this request. Must be in the format
 'projects/{project}/locations/{location}/datasets/{dataset}'
  Used to find the parent resource to bind the IAM policy to
+* `consent_store_id` - (Required) Used to find the parent resource to bind the IAM policy to
 
 ## Attributes Reference
 
