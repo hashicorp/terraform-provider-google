@@ -1,0 +1,3 @@
+```release-note:enhancement
+beyondcorp: increased default timeouts on `google_beyondcorp_app_gateway ` operations from 20m to 40m
+```
