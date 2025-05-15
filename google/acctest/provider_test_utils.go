@@ -42,6 +42,14 @@ func GoogleProviderConfig(t *testing.T) *transport_tpg.Config {
 
 	sdkProvider := provider.Provider()
 	rc := terraform.ResourceConfig{}
+
+	// `universe_domain` must be specified through config (i.e. unlike most provider settings there's no environment variable), and we check the value matches the credentials during provider initilization
+	// In the test environment we seed the value through a test-only environment variable, and we need to pre-seed a value in ResourceConfig as if it was in config to pass the check
+	universeDomain := envvar.GetTestUniverseDomainFromEnv(t)
+	if universeDomain != "" && universeDomain != "googleapis.com" {
+		rc.Config = make(map[string]interface{})
+		rc.Config["universe_domain"] = universeDomain
+	}
 	sdkProvider.Configure(context.Background(), &rc)
 	return sdkProvider.Meta().(*transport_tpg.Config)
 }
