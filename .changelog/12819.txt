@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `force_attach` field to `boot_disk` and  `attached_disk` of  `google_compute_instance`  resource
+```

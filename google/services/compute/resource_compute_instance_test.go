@@ -93,6 +93,40 @@ func TestMinCpuPlatformDiffSuppress(t *testing.T) {
 	}
 }
 
+func TestDisksForceAttachDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"force_attach unchanged": {
+			Old:                "true",
+			New:                "true",
+			ExpectDiffSuppress: true,
+		},
+		"force_attach changed to true": {
+			Old:                "false",
+			New:                "true",
+			ExpectDiffSuppress: false,
+		},
+		"force_attach changed to false": {
+			Old:                "true",
+			New:                "false",
+			ExpectDiffSuppress: false,
+		},
+		"force_attach unchanged false": {
+			Old:                "false",
+			New:                "false",
+			ExpectDiffSuppress: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		if tpgcompute.DisksForceAttachDiffSuppress("", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Errorf("bad: %s, %q => %q expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
+
 func TestCheckForCommonAliasIp(t *testing.T) {
 	type testCase struct {
 		old, new []*compute.AliasIpRange
@@ -1194,6 +1228,52 @@ func TestAccComputeInstance_attachedDisk_modeRo(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_attachDisk_forceAttach(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	var diskName = fmt.Sprintf("tf-testd-%s", acctest.RandString(t, 10))
+	var forceAttachSetToTrue = true
+	var forceAttachSetToFalse = false
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccComputeInstance_attachedDisk_forceAttach_zonal(diskName, instanceName, forceAttachSetToTrue),
+				ExpectError: regexp.MustCompile("Force attaching zonal disks is not supported"),
+			},
+			{
+				Config: testAccComputeInstance_attachedDisk_forceAttach_zonal(diskName, instanceName, forceAttachSetToFalse),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "attached_disk.0.force_attach", fmt.Sprintf("%t", forceAttachSetToFalse)),
+				),
+			},
+			{
+				Config: testAccComputeInstance_attachedDisk_forceAttach(diskName, instanceName, forceAttachSetToTrue),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "attached_disk.0.force_attach", fmt.Sprintf("%t", forceAttachSetToTrue)),
+				),
+			},
+			{
+				Config: testAccComputeInstance_attachedDisk_forceAttach(diskName, instanceName, forceAttachSetToFalse),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "attached_disk.0.force_attach", fmt.Sprintf("%t", forceAttachSetToFalse)),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -1348,6 +1428,52 @@ func TestAccComputeInstance_bootDisk_mode(t *testing.T) {
 				),
 			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
+func TestAccComputeInstance_bootDisk_forceAttach(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	var diskName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	var forceAttachSetToTrue = true
+	var forceAttachSetToFalse = false
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccComputeInstance_bootDisk_forceAttach_zonal(diskName, instanceName, forceAttachSetToTrue),
+				ExpectError: regexp.MustCompile("Force attaching zonal disks is not supported"),
+			},
+			{
+				Config: testAccComputeInstance_bootDisk_forceAttach_zonal(diskName, instanceName, forceAttachSetToFalse),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "boot_disk.0.force_attach", fmt.Sprintf("%t", forceAttachSetToFalse)),
+				),
+			},
+			{
+				Config: testAccComputeInstance_bootDisk_forceAttach(instanceName, forceAttachSetToTrue),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "boot_disk.0.force_attach", fmt.Sprintf("%t", forceAttachSetToTrue)),
+				),
+			},
+			{
+				Config: testAccComputeInstance_bootDisk_forceAttach(instanceName, forceAttachSetToFalse),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "boot_disk.0.force_attach", fmt.Sprintf("%t", forceAttachSetToFalse)),
+				),
+			},
 		},
 	})
 }
@@ -6886,6 +7012,106 @@ resource "google_compute_instance" "foobar" {
 `, disk, instance)
 }
 
+func testAccComputeInstance_attachedDisk_forceAttach(disk, instance string, force_attach bool) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_disk" "regionaldisk" {
+  name  		= "%s-1"
+  size  		= 10
+  type  		= "pd-ssd"
+  region 		= "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-b"]
+}
+
+resource "google_compute_region_disk" "regionaldisk2" {
+  name  		= "%s-2"
+  size  		= 10
+  type  		= "pd-ssd"
+  region 		= "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-b"]
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  attached_disk {
+    source       = google_compute_region_disk.regionaldisk.self_link
+    force_attach = %t
+  }
+
+  attached_disk {
+    source       = google_compute_region_disk.regionaldisk2.self_link
+    force_attach = %t
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, disk, disk, instance, force_attach, force_attach)
+}
+
+func testAccComputeInstance_attachedDisk_forceAttach_zonal(disk, instance string, force_attach bool) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+  name = "%s-1"
+  size = 10
+  type = "pd-ssd"
+  zone = "us-central1-a"
+}
+
+resource "google_compute_disk" "foobar2" {
+  name = "%s-2"
+  size = 10
+  type = "pd-ssd"
+  zone = "us-central1-a"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  attached_disk {
+    source = google_compute_disk.foobar.name
+	force_attach = %t
+  }
+
+  attached_disk {
+    source = google_compute_disk.foobar2.name
+    force_attach = %t
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, disk, disk, instance, force_attach, force_attach)
+}
+
 func testAccComputeInstance_bootDisk_source(disk, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -6996,6 +7222,62 @@ resource "google_compute_instance" "foobar" {
   }
 }
 `, instance, diskMode)
+}
+
+func testAccComputeInstance_bootDisk_forceAttach_zonal(disk, instance string, force_attach bool) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+  name  = "%s"
+  zone  = "us-central1-a"
+  image = data.google_compute_image.my_image.self_link
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    source = google_compute_disk.foobar.name
+	force_attach = %t
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, disk, instance, force_attach)
+}
+
+func testAccComputeInstance_bootDisk_forceAttach(instance string, force_attach bool) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+	force_attach = %t
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, instance, force_attach)
 }
 
 func testAccComputeInstance_with375GbScratchDisk(instance string) string {
