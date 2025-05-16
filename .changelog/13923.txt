@@ -1,0 +1,7 @@
+```release-note:new-resource
+`google_dataplex_glossary_category`
+```
+
+```release-note:new-resource
+`google_dataplex_glossary_term`
+```
