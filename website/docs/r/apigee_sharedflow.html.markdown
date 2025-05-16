@@ -5,7 +5,7 @@ description: |-
   You can combine policies and resources into a shared flow that you can consume from multiple API proxies, and even from other shared flows.
 ---
 
-# google_apigee_shared_flow
+# google_apigee_sharedflow
 
 You can combine policies and resources into a shared flow that you can consume from multiple API proxies, and even from other shared flows. Although it's like a proxy, a shared flow has no endpoint. It can be used only from an API proxy or shared flow that's in the same organization as the shared flow itself.
 
