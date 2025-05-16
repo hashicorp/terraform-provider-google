@@ -1,0 +1,85 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+package dataplex_test
+
+import (
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+)
+
+func TestAccDataplexGlossaryTerm_update(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataplexGlossaryTerm_dataplexGlossaryTermFull(context),
+			},
+			{
+				ResourceName:            "google_dataplex_glossary_term.term_test_id_full",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"glossary_id", "labels", "location", "term_id", "terraform_labels"},
+			},
+			{
+				Config: testAccDataplexGlossaryTerm_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_dataplex_glossary_term.term_test_id_full", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_dataplex_glossary_term.term_test_id_full",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"glossary_id", "labels", "location", "term_id", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDataplexGlossaryTerm_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataplex_glossary" "term_test_id_full" {
+  glossary_id = "tf-test-glossary%{random_suffix}"
+  location = "us-central1"
+}
+resource "google_dataplex_glossary_term" "term_test_id_full" {
+  parent = "projects/${google_dataplex_glossary.term_test_id_full.project}/locations/us-central1/glossaries/${google_dataplex_glossary.term_test_id_full.glossary_id}"
+  glossary_id = google_dataplex_glossary.term_test_id_full.glossary_id 
+  location = "us-central1"
+  term_id = "tf-test-term-full%{random_suffix}"
+  display_name = "terraform term updated"
+  description = "term created by Terraform updated"
+}
+`, context)
+}
+
+func testAccDataplexGlossaryTerm_dataplexGlossaryTermFull(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataplex_glossary" "term_test_id_full" {
+  glossary_id = "tf-test-glossary%{random_suffix}"
+  location    = "us-central1"
+}
+resource "google_dataplex_glossary_term" "term_test_id_full" {
+  parent = "projects/${google_dataplex_glossary.term_test_id_full.project}/locations/us-central1/glossaries/${google_dataplex_glossary.term_test_id_full.glossary_id}"
+  glossary_id = google_dataplex_glossary.term_test_id_full.glossary_id
+  location = "us-central1"
+  term_id = "tf-test-term-full%{random_suffix}"
+  labels = { "tag": "test-tf" }
+  display_name = "terraform term"
+  description = "term created by Terraform"
+}
+`, context)
+}
