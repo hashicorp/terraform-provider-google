@@ -130,6 +130,99 @@ func TestAccAlloydbInstance_createInstanceWithMandatoryFields(t *testing.T) {
 	})
 }
 
+// This test passes if we are able to create a primary instance STOP it and then START it back again
+func TestAccAlloydbInstance_stopstart(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydbinstance-clientconnectionconfig")
+
+	context := map[string]interface{}{
+		"random_suffix": suffix,
+		"network_name":  networkName,
+	}
+
+	contextStop := map[string]interface{}{
+		"random_suffix":     suffix,
+		"network_name":      networkName,
+		"activation_policy": "NEVER",
+	}
+
+	contextStart := map[string]interface{}{
+		"random_suffix":     suffix,
+		"network_name":      networkName,
+		"activation_policy": "ALWAYS",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbInstance_createInstanceWithMandatoryFields(context),
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+			{
+				Config: testAccAlloydbInstance_updateActivationPolicy(contextStop),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "activation_policy", "NEVER"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "state", "STOPPED"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccAlloydbInstance_updateActivationPolicy(contextStart),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "activation_policy", "ALWAYS"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "state", "READY"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccAlloydbInstance_updateActivationPolicy(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+  activation_policy = "%{activation_policy}"
+}
+
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+}
+
+data "google_project" "project" {}
+
+data "google_compute_network" "default" {
+  name = "%{network_name}"
+}
+`, context)
+}
+
 func testAccAlloydbInstance_createInstanceWithMandatoryFields(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_alloydb_instance" "default" {

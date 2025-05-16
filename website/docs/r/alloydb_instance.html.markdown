@@ -230,6 +230,18 @@ The following arguments are supported:
   Possible values are: `AVAILABILITY_TYPE_UNSPECIFIED`, `ZONAL`, `REGIONAL`.'
   Possible values are: `AVAILABILITY_TYPE_UNSPECIFIED`, `ZONAL`, `REGIONAL`.
 
+* `activation_policy` -
+  (Optional)
+  'Specifies whether an instance needs to spin up. Once the instance is
+  active, the activation policy can be updated to the `NEVER` to stop the
+  instance. Likewise, the activation policy can be updated to `ALWAYS` to
+  start the instance.
+  There are restrictions around when an instance can/cannot be activated (for
+  example, a read pool instance should be stopped before stopping primary
+  etc.). Please refer to the API documentation for more details.
+  Possible values are: `ACTIVATION_POLICY_UNSPECIFIED`, `ALWAYS`, `NEVER`.'
+  Possible values are: `ACTIVATION_POLICY_UNSPECIFIED`, `ALWAYS`, `NEVER`.
+
 * `query_insights_config` -
   (Optional)
   Configuration for query insights.

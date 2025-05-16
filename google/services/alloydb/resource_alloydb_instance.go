@@ -85,6 +85,20 @@ If the instance type is SECONDARY, the terraform delete instance operation does 
 Use deletion_policy = "FORCE" in the associated secondary cluster and delete the cluster forcefully to delete the secondary cluster as well its associated secondary instance.
 Users can undo the delete secondary instance action by importing the deleted secondary instance by calling terraform import. Possible values: ["PRIMARY", "READ_POOL", "SECONDARY"]`,
 			},
+			"activation_policy": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"ACTIVATION_POLICY_UNSPECIFIED", "ALWAYS", "NEVER", ""}),
+				Description: `'Specifies whether an instance needs to spin up. Once the instance is
+active, the activation policy can be updated to the 'NEVER' to stop the
+instance. Likewise, the activation policy can be updated to 'ALWAYS' to
+start the instance.
+There are restrictions around when an instance can/cannot be activated (for
+example, a read pool instance should be stopped before stopping primary
+etc.). Please refer to the API documentation for more details.
+Possible values are: 'ACTIVATION_POLICY_UNSPECIFIED', 'ALWAYS', 'NEVER'.' Possible values: ["ACTIVATION_POLICY_UNSPECIFIED", "ALWAYS", "NEVER"]`,
+			},
 			"annotations": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -477,6 +491,12 @@ func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("availability_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(availabilityTypeProp)) && (ok || !reflect.DeepEqual(v, availabilityTypeProp)) {
 		obj["availabilityType"] = availabilityTypeProp
 	}
+	activationPolicyProp, err := expandAlloydbInstanceActivationPolicy(d.Get("activation_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("activation_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(activationPolicyProp)) && (ok || !reflect.DeepEqual(v, activationPolicyProp)) {
+		obj["activationPolicy"] = activationPolicyProp
+	}
 	instanceTypeProp, err := expandAlloydbInstanceInstanceType(d.Get("instance_type"), d, config)
 	if err != nil {
 		return err
@@ -652,6 +672,9 @@ func resourceAlloydbInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("availability_type", flattenAlloydbInstanceAvailabilityType(res["availabilityType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("activation_policy", flattenAlloydbInstanceActivationPolicy(res["activationPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("instance_type", flattenAlloydbInstanceInstanceType(res["instanceType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -730,6 +753,12 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("availability_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, availabilityTypeProp)) {
 		obj["availabilityType"] = availabilityTypeProp
 	}
+	activationPolicyProp, err := expandAlloydbInstanceActivationPolicy(d.Get("activation_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("activation_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, activationPolicyProp)) {
+		obj["activationPolicy"] = activationPolicyProp
+	}
 	queryInsightsConfigProp, err := expandAlloydbInstanceQueryInsightsConfig(d.Get("query_insights_config"), d, config)
 	if err != nil {
 		return err
@@ -802,6 +831,10 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("availability_type") {
 		updateMask = append(updateMask, "availabilityType")
+	}
+
+	if d.HasChange("activation_policy") {
+		updateMask = append(updateMask, "activationPolicy")
 	}
 
 	if d.HasChange("query_insights_config") {
@@ -1030,6 +1063,10 @@ func flattenAlloydbInstanceDatabaseFlags(v interface{}, d *schema.ResourceData, 
 }
 
 func flattenAlloydbInstanceAvailabilityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbInstanceActivationPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1399,6 +1436,10 @@ func expandAlloydbInstanceDatabaseFlags(v interface{}, d tpgresource.TerraformRe
 }
 
 func expandAlloydbInstanceAvailabilityType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbInstanceActivationPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
