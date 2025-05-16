@@ -5,6 +5,7 @@ api_service_name: 'alloydb.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Instance'
 fields:
+  - field: 'activation_policy'
   - field: 'annotations'
   - field: 'availability_type'
   - field: 'client_connection_config.require_connectors'
