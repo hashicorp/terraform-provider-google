@@ -93,9 +93,8 @@ func ResourceVPCAccessConnector() *schema.Resource {
 				Computed: true,
 				Optional: true,
 				Description: `Maximum value of instances in autoscaling group underlying the connector. Value must be between 3 and 10, inclusive. Must be
-higher than the value specified by min_instances.`,
+higher than the value specified by min_instances. Required alongside 'min_instances' if not using 'min_throughput'/'max_throughput'.`,
 				ConflictsWith: []string{"max_throughput"},
-				RequiredWith:  []string{"min_instances"},
 			},
 			"max_throughput": {
 				Type:         schema.TypeInt,
@@ -113,9 +112,8 @@ min_throughput. Only one of 'max_throughput' and 'max_instances' can be specifie
 				Computed: true,
 				Optional: true,
 				Description: `Minimum value of instances in autoscaling group underlying the connector. Value must be between 2 and 9, inclusive. Must be
-lower than the value specified by max_instances.`,
+lower than the value specified by max_instances. Required alongside 'max_instances' if not using 'min_throughput'/'max_throughput'.`,
 				ConflictsWith: []string{"min_throughput"},
-				RequiredWith:  []string{"max_instances"},
 			},
 			"min_throughput": {
 				Type:         schema.TypeInt,

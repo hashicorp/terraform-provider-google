@@ -1,0 +1,3 @@
+```release-note:bug
+vpcaccess: fixed an issue where Terraform config validation conditions could have erroneously invalidated existing `google_vpc_access_connector` resources
+```

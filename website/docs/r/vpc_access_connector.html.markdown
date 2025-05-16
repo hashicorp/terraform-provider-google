@@ -108,12 +108,12 @@ The following arguments are supported:
 * `min_instances` -
   (Optional)
   Minimum value of instances in autoscaling group underlying the connector. Value must be between 2 and 9, inclusive. Must be
-  lower than the value specified by max_instances.
+  lower than the value specified by max_instances. Required alongside `max_instances` if not using `min_throughput`/`max_throughput`.
 
 * `max_instances` -
   (Optional)
   Maximum value of instances in autoscaling group underlying the connector. Value must be between 3 and 10, inclusive. Must be
-  higher than the value specified by min_instances.
+  higher than the value specified by min_instances. Required alongside `min_instances` if not using `min_throughput`/`max_throughput`.
 
 * `max_throughput` -
   (Optional)
