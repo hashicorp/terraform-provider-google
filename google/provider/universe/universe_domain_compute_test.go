@@ -39,7 +39,7 @@ func TestAccUniverseDomainDiskImage(t *testing.T) {
 
 	universeDomain := envvar.GetTestUniverseDomainFromEnv(t)
 	zone := envvar.GetTestZoneFromEnv()
-	prefix := envvar.GetProjectPrefixFromEnv()
+	prefix := envvar.GetUniverseProjectPrefixFromEnv()
 	image_project := ""
 
 	if prefix != "" {

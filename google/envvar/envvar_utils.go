@@ -89,7 +89,7 @@ var UniverseDomainEnvVars = []string{
 }
 
 var ProjectPrefixEnvVars = []string{
-	"GOOGLE_PROJECT_PREFIX",
+	"GOOGLE_UNIVERSE_PROJECT_PREFIX",
 }
 
 // This is the billing account that will be charged for the infrastructure used during testing. For
@@ -153,7 +153,7 @@ func GetTestUniverseDomainFromEnv(t *testing.T) string {
 }
 
 // Project Prefix of different universes
-func GetProjectPrefixFromEnv() string {
+func GetUniverseProjectPrefixFromEnv() string {
 	return transport_tpg.MultiEnvSearch(ProjectPrefixEnvVars)
 }
 
