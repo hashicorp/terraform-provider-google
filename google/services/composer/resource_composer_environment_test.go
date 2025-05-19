@@ -404,6 +404,7 @@ func TestAccComposerEnvironment_ComposerV2(t *testing.T) {
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
 	subnetwork := network + "-1"
+	serviceAccount := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -411,7 +412,7 @@ func TestAccComposerEnvironment_ComposerV2(t *testing.T) {
 		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComposerEnvironment_composerV2(envName, network, subnetwork),
+				Config: testAccComposerEnvironment_composerV2(envName, network, subnetwork, serviceAccount),
 			},
 			{
 				ResourceName:      "google_composer_environment.test",
@@ -424,7 +425,7 @@ func TestAccComposerEnvironment_ComposerV2(t *testing.T) {
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
-				Config:             testAccComposerEnvironment_composerV2(envName, network, subnetwork),
+				Config:             testAccComposerEnvironment_composerV2(envName, network, subnetwork, serviceAccount),
 				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
@@ -437,6 +438,7 @@ func TestAccComposerEnvironment_UpdateComposerV2ImageVersion(t *testing.T) {
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
 	subnetwork := network + "-1"
+	serviceAccount := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -444,10 +446,10 @@ func TestAccComposerEnvironment_UpdateComposerV2ImageVersion(t *testing.T) {
 		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComposerEnvironment_composerOldVersion(envName, network, subnetwork),
+				Config: testAccComposerEnvironment_composerOldVersion(envName, network, subnetwork, serviceAccount),
 			},
 			{
-				Config: testAccComposerEnvironment_composerNewVersion(envName, network, subnetwork),
+				Config: testAccComposerEnvironment_composerNewVersion(envName, network, subnetwork, serviceAccount),
 			},
 			{
 				ResourceName:      "google_composer_environment.test",
@@ -460,7 +462,7 @@ func TestAccComposerEnvironment_UpdateComposerV2ImageVersion(t *testing.T) {
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
-				Config:             testAccComposerEnvironment_composerNewVersion(envName, network, subnetwork),
+				Config:             testAccComposerEnvironment_composerNewVersion(envName, network, subnetwork, serviceAccount),
 				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
@@ -473,6 +475,7 @@ func TestAccComposerEnvironment_UpdateComposerV2ResilienceMode(t *testing.T) {
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
 	subnetwork := network + "-1"
+	serviceAccount := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -480,10 +483,10 @@ func TestAccComposerEnvironment_UpdateComposerV2ResilienceMode(t *testing.T) {
 		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComposerEnvironment_composerV2HighResilience(envName, network, subnetwork),
+				Config: testAccComposerEnvironment_composerV2HighResilience(envName, network, subnetwork, serviceAccount),
 			},
 			{
-				Config: testAccComposerEnvironment_updateComposerV2StandardResilience(envName, network, subnetwork),
+				Config: testAccComposerEnvironment_updateComposerV2StandardResilience(envName, network, subnetwork, serviceAccount),
 			},
 			{
 				ResourceName:      "google_composer_environment.test",
@@ -496,7 +499,7 @@ func TestAccComposerEnvironment_UpdateComposerV2ResilienceMode(t *testing.T) {
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
-				Config:             testAccComposerEnvironment_updateComposerV2StandardResilience(envName, network, subnetwork),
+				Config:             testAccComposerEnvironment_updateComposerV2StandardResilience(envName, network, subnetwork, serviceAccount),
 				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
@@ -509,6 +512,7 @@ func TestAccComposerEnvironment_ComposerV2HighResilience(t *testing.T) {
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
 	subnetwork := network + "-1"
+	serviceAccount := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -516,7 +520,7 @@ func TestAccComposerEnvironment_ComposerV2HighResilience(t *testing.T) {
 		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComposerEnvironment_composerV2HighResilience(envName, network, subnetwork),
+				Config: testAccComposerEnvironment_composerV2HighResilience(envName, network, subnetwork, serviceAccount),
 			},
 			{
 				ResourceName:      "google_composer_environment.test",
@@ -529,7 +533,7 @@ func TestAccComposerEnvironment_ComposerV2HighResilience(t *testing.T) {
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
-				Config:             testAccComposerEnvironment_composerV2HighResilience(envName, network, subnetwork),
+				Config:             testAccComposerEnvironment_composerV2HighResilience(envName, network, subnetwork, serviceAccount),
 				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
@@ -542,6 +546,7 @@ func TestAccComposerEnvironment_UpdateComposerV2WithTriggerer(t *testing.T) {
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
 	subnetwork := network + "-1"
+	serviceAccount := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -549,10 +554,10 @@ func TestAccComposerEnvironment_UpdateComposerV2WithTriggerer(t *testing.T) {
 		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComposerEnvironment_composerV2(envName, network, subnetwork),
+				Config: testAccComposerEnvironment_composerV2(envName, network, subnetwork, serviceAccount),
 			},
 			{
-				Config: testAccComposerEnvironment_composerV2WithDisabledTriggerer(envName, network, subnetwork),
+				Config: testAccComposerEnvironment_composerV2WithDisabledTriggerer(envName, network, subnetwork, serviceAccount),
 			},
 			{
 				ResourceName:      "google_composer_environment.test",
@@ -565,7 +570,7 @@ func TestAccComposerEnvironment_UpdateComposerV2WithTriggerer(t *testing.T) {
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
-				Config:             testAccComposerEnvironment_composerV2WithDisabledTriggerer(envName, network, subnetwork),
+				Config:             testAccComposerEnvironment_composerV2WithDisabledTriggerer(envName, network, subnetwork, serviceAccount),
 				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
@@ -578,6 +583,7 @@ func TestAccComposerEnvironment_UpdateComposerV2(t *testing.T) {
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
 	subnetwork := network + "-1"
+	serviceAccount := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -585,10 +591,10 @@ func TestAccComposerEnvironment_UpdateComposerV2(t *testing.T) {
 		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComposerEnvironment_composerV2(envName, network, subnetwork),
+				Config: testAccComposerEnvironment_composerV2(envName, network, subnetwork, serviceAccount),
 			},
 			{
-				Config: testAccComposerEnvironment_updateComposerV2(envName, network, subnetwork),
+				Config: testAccComposerEnvironment_updateComposerV2(envName, network, subnetwork, serviceAccount),
 			},
 			{
 				ResourceName:      "google_composer_environment.test",
@@ -601,7 +607,7 @@ func TestAccComposerEnvironment_UpdateComposerV2(t *testing.T) {
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
-				Config:             testAccComposerEnvironment_updateComposerV2(envName, network, subnetwork),
+				Config:             testAccComposerEnvironment_updateComposerV2(envName, network, subnetwork, serviceAccount),
 				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
@@ -1494,8 +1500,8 @@ resource "google_composer_environment" "test" {
     }
   }
   storage_config {
-		bucket = google_storage_bucket.test.name
-	}
+    bucket = google_storage_bucket.test.name
+  }
 }
 
 // use a separate network to avoid conflicts with other tests running in parallel
@@ -1616,7 +1622,7 @@ resource "google_composer_environment" "test" {
     private_environment_config {
       enable_private_endpoint = true
       enable_privately_used_public_ips = true
-  	}
+    }
   }
 }
 
@@ -1659,7 +1665,7 @@ resource "google_composer_environment" "test" {
       connection_type = "VPC_PEERING"
       enable_private_endpoint = true
       enable_privately_used_public_ips = true
-  	}
+    }
   }
 }
 
@@ -1966,8 +1972,21 @@ resource "google_compute_subnetwork" "test" {
 `, envName, network, subnetwork)
 }
 
-func testAccComposerEnvironment_composerV2WithDisabledTriggerer(envName, network, subnetwork string) string {
+func testAccComposerEnvironment_composerV2WithDisabledTriggerer(envName, network, subnetwork, serviceAccount string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "test" {
+  account_id   = "%s"
+  display_name = "Test Service Account for Composer Environment"
+}
+
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+
 resource "google_composer_environment" "test" {
   name   = "%s"
   region = "us-east1"
@@ -1976,10 +1995,11 @@ resource "google_composer_environment" "test" {
     node_config {
       network          = google_compute_network.test.self_link
       subnetwork       = google_compute_subnetwork.test.self_link
+      service_account  = google_service_account.test.name
       ip_allocation_policy {
         cluster_ipv4_cidr_block = "10.0.0.0/16"
       }
-    }
+	  }
 
     software_config {
       image_version = "composer-2-airflow-2"
@@ -2013,7 +2033,7 @@ resource "google_composer_environment" "test" {
       cloud_sql_ipv4_cidr_block               = "10.3.224.0/20"
     }
   }
-
+  depends_on = [google_project_iam_member.composer-worker]
 }
 
 resource "google_compute_network" "test" {
@@ -2029,141 +2049,87 @@ resource "google_compute_subnetwork" "test" {
   private_ip_google_access = true
 }
 
-`, envName, network, subnetwork)
+`, serviceAccount, envName, network, subnetwork)
 }
 
-func testAccComposerEnvironment_composerV2(envName, network, subnetwork string) string {
+func testAccComposerEnvironment_composerV2(envName, network, subnetwork, serviceAccount string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "test" {
+  account_id   = "%s"
+  display_name = "Test Service Account for Composer Environment"
+}
+
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+
 resource "google_composer_environment" "test" {
   name   = "%s"
   region = "us-east1"
 
-    config {
-      node_config {
-        network          = google_compute_network.test.self_link
-        subnetwork       = google_compute_subnetwork.test.self_link
-        ip_allocation_policy {
-          cluster_ipv4_cidr_block = "10.0.0.0/16"
-        }
-      }
-
-      software_config {
-        image_version = "composer-2-airflow-2"
-        cloud_data_lineage_integration {
-          enabled = true
-        }
-      }
-
-      workloads_config {
-        scheduler {
-          cpu         = 1.25
-          memory_gb   = 2.5
-          storage_gb   = 5.4
-          count       = 2
-        }
-        web_server {
-          cpu         = 1.75
-          memory_gb   = 3.0
-          storage_gb   = 4.4
-        }
-        worker {
-          cpu         = 0.5
-          memory_gb   = 2.0
-          storage_gb   = 3.4
-          min_count   = 2
-          max_count   = 5
-        }
-		triggerer {
-		  cpu         = 0.5
-		  memory_gb   = 2.0
-		  count   		= 1
-		}
-      }
-	  database_config {
-          zone = "us-east1-c"
-      }
-      environment_size = "ENVIRONMENT_SIZE_MEDIUM"
-      data_retention_config {
-        task_logs_retention_config {
-          storage_mode = "CLOUD_LOGGING_ONLY"
-        }
-      }
-      private_environment_config {
-        enable_private_endpoint                 = true
-        cloud_composer_network_ipv4_cidr_block   = "10.3.192.0/24"
-        master_ipv4_cidr_block                   = "172.16.194.0/23"
-        cloud_sql_ipv4_cidr_block               = "10.3.224.0/20"
+  config {
+    node_config {
+      service_account  = google_service_account.test.name
+      network          = google_compute_network.test.self_link
+      subnetwork       = google_compute_subnetwork.test.self_link
+      ip_allocation_policy {
+        cluster_ipv4_cidr_block = "10.0.0.0/16"
       }
     }
 
-}
-
-resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-east1"
-   network       = google_compute_network.test.self_link
-  private_ip_google_access = true
-}
-
-`, envName, network, subnetwork)
-}
-
-func testAccComposerEnvironment_composerOldVersion(envName, network, subnetwork string) string {
-	return fmt.Sprintf(`
-resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-east1"
-
-    config {
-      node_config {
-        network          = google_compute_network.test.self_link
-        subnetwork       = google_compute_subnetwork.test.self_link
-      }
-
-      software_config {
-        image_version = "composer-2.10.0-airflow-2.10.2"
+    software_config {
+      image_version = "composer-2-airflow-2"
+      cloud_data_lineage_integration {
+        enabled = true
       }
     }
-}
 
-resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-east1"
-   network       = google_compute_network.test.self_link
-  private_ip_google_access = true
-}
-
-`, envName, network, subnetwork)
-}
-
-func testAccComposerEnvironment_composerNewVersion(envName, network, subnetwork string) string {
-	return fmt.Sprintf(`
-resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-east1"
-
-    config {
-      node_config {
-        network          = google_compute_network.test.self_link
-        subnetwork       = google_compute_subnetwork.test.self_link
+    workloads_config {
+      scheduler {
+        cpu         = 1.25
+        memory_gb   = 2.5
+        storage_gb   = 5.4
+        count       = 2
       }
-
-      software_config {
-        image_version = "composer-2.10.1-airflow-2.10.2"
+      web_server {
+        cpu         = 1.75
+        memory_gb   = 3.0
+        storage_gb   = 4.4
+      }
+      worker {
+        cpu         = 0.5
+        memory_gb   = 2.0
+        storage_gb   = 3.4
+        min_count   = 2
+        max_count   = 5
+      }
+      triggerer {
+        cpu         = 0.5
+        memory_gb   = 2.0
+        count         = 1
       }
     }
+    database_config {
+      zone = "us-east1-c"
+    }
+    environment_size = "ENVIRONMENT_SIZE_MEDIUM"
+    data_retention_config {
+      task_logs_retention_config {
+        storage_mode = "CLOUD_LOGGING_ONLY"
+      }
+    }
+    private_environment_config {
+      enable_private_endpoint                 = true
+      cloud_composer_network_ipv4_cidr_block   = "10.3.192.0/24"
+      master_ipv4_cidr_block                   = "172.16.194.0/23"
+      cloud_sql_ipv4_cidr_block               = "10.3.224.0/20"
+    }
+  }
+  depends_on = [google_project_iam_member.composer-worker]
 }
 
 resource "google_compute_network" "test" {
@@ -2179,54 +2145,40 @@ resource "google_compute_subnetwork" "test" {
   private_ip_google_access = true
 }
 
-`, envName, network, subnetwork)
+`, serviceAccount, envName, network, subnetwork)
 }
 
-func testAccComposerEnvironment_composerV2HighResilience(envName, network, subnetwork string) string {
+func testAccComposerEnvironment_composerOldVersion(envName, network, subnetwork, serviceAccount string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "test" {
+  account_id   = "%s"
+  display_name = "Test Service Account for Composer Environment"
+}
+
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+
 resource "google_composer_environment" "test" {
   name   = "%s"
   region = "us-east1"
 
-	config {
-		node_config {
-			network          = google_compute_network.test.self_link
-			subnetwork       = google_compute_subnetwork.test.self_link
-		}
+  config {
+    node_config {
+      network          = google_compute_network.test.self_link
+      subnetwork       = google_compute_subnetwork.test.self_link
+      service_account  = google_service_account.test.name
+    }
 
-		software_config {
-			image_version = "composer-2-airflow-2"
-		}
-
-		workloads_config {
-			scheduler {
-				cpu         = 1.25
-				memory_gb   = 2.5
-				storage_gb  = 5.4
-				count       = 2
-			}
-			web_server {
-				cpu         = 1.75
-				memory_gb   = 3.0
-				storage_gb  = 4.4
-			}
-			worker {
-				cpu         = 0.5
-				memory_gb   = 2.0
-				storage_gb  = 3.4
-				min_count   = 2
-				max_count   = 5
-			}
-		}
-		environment_size = "ENVIRONMENT_SIZE_MEDIUM"
-		resilience_mode = "HIGH_RESILIENCE"
-		private_environment_config {
-			enable_private_endpoint                  = true
-			cloud_composer_network_ipv4_cidr_block   = "10.3.192.0/24"
-			master_ipv4_cidr_block                   = "172.16.194.0/23"
-			cloud_sql_ipv4_cidr_block                = "10.3.224.0/20"
-		}
-	}
+    software_config {
+      image_version = "composer-2.10.0-airflow-2.10.2"
+    }
+  }
+  depends_on = [google_project_iam_member.composer-worker]
 }
 
 resource "google_compute_network" "test" {
@@ -2242,7 +2194,134 @@ resource "google_compute_subnetwork" "test" {
   private_ip_google_access = true
 }
 
-`, envName, network, subnetwork)
+`, serviceAccount, envName, network, subnetwork)
+}
+
+func testAccComposerEnvironment_composerNewVersion(envName, network, subnetwork, serviceAccount string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "test" {
+  account_id   = "%s"
+  display_name = "Test Service Account for Composer Environment"
+}
+
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+
+resource "google_composer_environment" "test" {
+  name   = "%s"
+  region = "us-east1"
+
+  config {
+    node_config {
+      network          = google_compute_network.test.self_link
+      subnetwork       = google_compute_subnetwork.test.self_link
+      service_account  = google_service_account.test.name
+    }
+
+    software_config {
+      image_version = "composer-2.10.1-airflow-2.10.2"
+    }
+  }
+  depends_on = [google_project_iam_member.composer-worker]
+}
+
+resource "google_compute_network" "test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+  name          = "%s"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-east1"
+   network       = google_compute_network.test.self_link
+  private_ip_google_access = true
+}
+
+`, serviceAccount, envName, network, subnetwork)
+}
+
+func testAccComposerEnvironment_composerV2HighResilience(envName, network, subnetwork, serviceAccount string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "test" {
+  account_id   = "%s"
+  display_name = "Test Service Account for Composer Environment"
+}
+
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+
+resource "google_composer_environment" "test" {
+  name   = "%s"
+  region = "us-east1"
+
+  config {
+    node_config {
+      network          = google_compute_network.test.self_link
+      subnetwork       = google_compute_subnetwork.test.self_link
+      service_account  = google_service_account.test.name
+    }
+
+    software_config {
+      image_version = "composer-2-airflow-2"
+    }
+
+    workloads_config {
+      scheduler {
+        cpu         = 1.25
+        memory_gb   = 2.5
+        storage_gb  = 5.4
+        count       = 2
+      }
+      web_server {
+        cpu         = 1.75
+        memory_gb   = 3.0
+        storage_gb  = 4.4
+      }
+      worker {
+        cpu         = 0.5
+        memory_gb   = 2.0
+        storage_gb  = 3.4
+        min_count   = 2
+        max_count   = 5
+      }
+    }
+    environment_size = "ENVIRONMENT_SIZE_MEDIUM"
+    resilience_mode = "HIGH_RESILIENCE"
+    private_environment_config {
+      enable_private_endpoint                  = true
+      cloud_composer_network_ipv4_cidr_block   = "10.3.192.0/24"
+      master_ipv4_cidr_block                   = "172.16.194.0/23"
+      cloud_sql_ipv4_cidr_block                = "10.3.224.0/20"
+    }
+  }
+  depends_on = [google_project_iam_member.composer-worker]
+}
+
+resource "google_compute_network" "test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+  name          = "%s"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-east1"
+   network       = google_compute_network.test.self_link
+  private_ip_google_access = true
+}
+
+`, serviceAccount, envName, network, subnetwork)
 }
 
 func testAccComposerEnvironment_composerV2PrivateServiceConnect(envName, network, subnetwork string) string {
@@ -2251,19 +2330,19 @@ resource "google_composer_environment" "test" {
   name   = "%s"
   region = "us-central1"
 
-    config {
-      node_config {
-        network          = google_compute_network.test.self_link
-        subnetwork       = google_compute_subnetwork.test.self_link
-      }
-
-      software_config {
-        image_version = "composer-2-airflow-2"
-      }
-      private_environment_config {
-        cloud_composer_connection_subnetwork    = google_compute_subnetwork.test.self_link
-      }
+  config {
+    node_config {
+      network          = google_compute_network.test.self_link
+      subnetwork       = google_compute_subnetwork.test.self_link
     }
+
+    software_config {
+      image_version = "composer-2-airflow-2"
+    }
+      private_environment_config {
+      cloud_composer_connection_subnetwork    = google_compute_subnetwork.test.self_link
+    }
+  }
 
 }
 
@@ -2327,51 +2406,66 @@ resource "google_compute_subnetwork" "test" {
 `, envName, compVersion, airflowVersion, network, subnetwork)
 }
 
-func testAccComposerEnvironment_updateComposerV2StandardResilience(envName, network, subnetwork string) string {
+func testAccComposerEnvironment_updateComposerV2StandardResilience(envName, network, subnetwork, serviceAccount string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "test" {
+  account_id   = "%s"
+  display_name = "Test Service Account for Composer Environment"
+}
+
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+
 resource "google_composer_environment" "test" {
   name   = "%s"
   region = "us-east1"
 
-    config {
-        node_config {
-            network          = google_compute_network.test.self_link
-            subnetwork       = google_compute_subnetwork.test.self_link
-        }
-
-        software_config {
-            image_version = "composer-2-airflow-2"
-        }
-
-        workloads_config {
-            scheduler {
-                cpu         = 1.25
-                memory_gb   = 2.5
-                storage_gb  = 5.4
-                count       = 2
-            }
-            web_server {
-                cpu         = 1.75
-                memory_gb   = 3.0
-                storage_gb  = 4.4
-            }
-            worker {
-                cpu         = 0.5
-                memory_gb   = 2.0
-                storage_gb  = 3.4
-                min_count   = 2
-                max_count   = 5
-            }
-        }
-        environment_size = "ENVIRONMENT_SIZE_MEDIUM"
-        resilience_mode = "STANDARD_RESILIENCE"
-        private_environment_config {
-            enable_private_endpoint                  = true
-            cloud_composer_network_ipv4_cidr_block   = "10.3.192.0/24"
-            master_ipv4_cidr_block                   = "172.16.194.0/23"
-            cloud_sql_ipv4_cidr_block                = "10.3.224.0/20"
-        }
+  config {
+    node_config {
+      network          = google_compute_network.test.self_link
+      subnetwork       = google_compute_subnetwork.test.self_link
+      service_account  = google_service_account.test.name
     }
+
+    software_config {
+      image_version = "composer-2-airflow-2"
+    }
+
+    workloads_config {
+      scheduler {
+        cpu         = 1.25
+        memory_gb   = 2.5
+        storage_gb  = 5.4
+        count       = 2
+      }
+      web_server {
+        cpu         = 1.75
+        memory_gb   = 3.0
+        storage_gb  = 4.4
+      }
+      worker {
+        cpu         = 0.5
+        memory_gb   = 2.0
+        storage_gb  = 3.4
+        min_count   = 2
+        max_count   = 5
+      }
+    }
+    environment_size = "ENVIRONMENT_SIZE_MEDIUM"
+    resilience_mode = "STANDARD_RESILIENCE"
+    private_environment_config {
+      enable_private_endpoint                  = true
+      cloud_composer_network_ipv4_cidr_block   = "10.3.192.0/24"
+      master_ipv4_cidr_block                   = "172.16.194.0/23"
+      cloud_sql_ipv4_cidr_block                = "10.3.224.0/20"
+    }
+  }
+  depends_on = [google_project_iam_member.composer-worker]
 }
 
 resource "google_compute_network" "test" {
@@ -2387,7 +2481,7 @@ resource "google_compute_subnetwork" "test" {
   private_ip_google_access = true
 }
 
-`, envName, network, subnetwork)
+`, serviceAccount, envName, network, subnetwork)
 }
 
 func testAccComposerEnvironment_MasterAuthNetworksUpdate(compVersion, airflowVersion, envName, network, subnetwork string) string {
@@ -2431,67 +2525,81 @@ resource "google_compute_subnetwork" "test" {
 `, envName, compVersion, airflowVersion, network, subnetwork)
 }
 
-func testAccComposerEnvironment_updateComposerV2(name, network, subnetwork string) string {
+func testAccComposerEnvironment_updateComposerV2(name, network, subnetwork, serviceAccount string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "test" {
+  account_id   = "%s"
+  display_name = "Test Service Account for Composer Environment"
+}
+
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+
 resource "google_composer_environment" "test" {
   name   = "%s"
   region = "us-east1"
 
-    config {
-      node_config {
-        network          = google_compute_network.test.self_link
-        subnetwork       = google_compute_subnetwork.test.self_link
-        ip_allocation_policy {
-          cluster_ipv4_cidr_block = "10.0.0.0/16"
-        }
-      }
-
-      software_config {
-        image_version = "composer-2-airflow-2"
-        cloud_data_lineage_integration {
-          enabled = false
-        }
-      }
-
-      workloads_config {
-        scheduler {
-          cpu         = 2.25
-          memory_gb   = 3.5
-          storage_gb  = 6.4
-          count       = 3
-        }
-        web_server {
-          cpu         = 2.75
-          memory_gb   = 4.0
-          storage_gb  = 5.4
-        }
-        worker {
-          cpu         = 1.5
-          memory_gb   = 3.0
-          storage_gb  = 4.4
-          min_count   = 3
-          max_count   = 6
-        }
-		triggerer {
-		  cpu         = 0.75
-		  memory_gb   = 2
-		  count   	  = 1
-		}
-      }
-      environment_size = "ENVIRONMENT_SIZE_LARGE"
-      data_retention_config {
-        task_logs_retention_config {
-          storage_mode = "CLOUD_LOGGING_AND_CLOUD_STORAGE"
-        }
-      }
-      private_environment_config {
-        enable_private_endpoint                 = true
-        cloud_composer_network_ipv4_cidr_block  = "10.3.192.0/24"
-        master_ipv4_cidr_block                  = "172.16.194.0/23"
-        cloud_sql_ipv4_cidr_block               = "10.3.224.0/20"
+  config {
+    node_config {
+      network          = google_compute_network.test.self_link
+      subnetwork       = google_compute_subnetwork.test.self_link
+      service_account  = google_service_account.test.name
+      ip_allocation_policy {
+        cluster_ipv4_cidr_block = "10.0.0.0/16"
       }
     }
 
+    software_config {
+      image_version = "composer-2-airflow-2"
+      cloud_data_lineage_integration {
+      enabled = false
+      }
+    }
+
+    workloads_config {
+      scheduler {
+        cpu         = 2.25
+        memory_gb   = 3.5
+        storage_gb  = 6.4
+        count       = 3
+      }
+      web_server {
+        cpu         = 2.75
+        memory_gb   = 4.0
+        storage_gb  = 5.4
+      }
+      worker {
+        cpu         = 1.5
+        memory_gb   = 3.0
+        storage_gb  = 4.4
+        min_count   = 3
+        max_count   = 6
+      }
+      triggerer {
+        cpu         = 0.75
+        memory_gb   = 2
+        count       = 1
+      }
+    }
+    environment_size = "ENVIRONMENT_SIZE_LARGE"
+    data_retention_config {
+      task_logs_retention_config {
+        storage_mode = "CLOUD_LOGGING_AND_CLOUD_STORAGE"
+      }
+    }
+    private_environment_config {
+      enable_private_endpoint                 = true
+      cloud_composer_network_ipv4_cidr_block  = "10.3.192.0/24"
+      master_ipv4_cidr_block                  = "172.16.194.0/23"
+      cloud_sql_ipv4_cidr_block               = "10.3.224.0/20"
+    }
+  }
+  depends_on = [google_project_iam_member.composer-worker]
 }
 
 resource "google_compute_network" "test" {
@@ -2506,7 +2614,7 @@ resource "google_compute_subnetwork" "test" {
   network       = google_compute_network.test.self_link
   private_ip_google_access = true
 }
-`, name, network, subnetwork)
+`, serviceAccount, name, network, subnetwork)
 }
 
 func testAccComposer2Environment_nodeCfg(environment, network, subnetwork, serviceAccount string) string {
