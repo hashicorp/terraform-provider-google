@@ -36,7 +36,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBas
 	context := map[string]interface{}{
 		"database_name":       fmt.Sprintf("tftestdatabase%s", acctest.RandString(t, 10)),
 		"deletion_protection": false,
-		"project":             "oci-terraform-testing",
+		"project":             "oci-terraform-testing-prod",
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
@@ -92,7 +92,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseFul
 		"database_name":       fmt.Sprintf("tftestdatabase%s", acctest.RandString(t, 10)),
 		"deletion_protection": false,
 		"endpoint_name":       fmt.Sprintf("tftestendpoint%s", acctest.RandString(t, 10)),
-		"project":             "oci-terraform-testing",
+		"project":             "oci-terraform-testing-prod",
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
