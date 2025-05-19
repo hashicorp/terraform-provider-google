@@ -781,6 +781,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `enable_advanced_cluster` -
   If set, the advanced cluster feature is enabled.
 
+* `private_registry_config` -
+  User can use this field to set customized private registry.
+
 * `effective_annotations` -
   All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
 

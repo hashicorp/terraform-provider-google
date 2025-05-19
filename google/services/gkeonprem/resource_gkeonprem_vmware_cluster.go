@@ -268,6 +268,27 @@ full access to the cluster.`,
 				Optional:    true,
 				Description: `Enable advanced cluster. Default to false.`,
 			},
+			"private_registry_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration for private registry.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ca_cert": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							Description: `Contains the CA certificate public key for private registry.`,
+						},
+						"address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							Description: `The registry address.`,
+						},
+				}
+			},
 			"enable_control_plane_v2": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -1007,6 +1028,12 @@ func resourceGkeonpremVmwareClusterCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("enable_advanced_cluster"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableAdvancedClusterProp)) && (ok || !reflect.DeepEqual(v, enableAdvancedClusterProp)) {
 		obj["enableAdvancedCluster"] = enableAdvancedClusterProp
 	}
+	privateRegistryConfigProp, err := expandGkeonpremVmwareClusterPrivateRegistry(d.Get("private_registry_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("private_registry_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(privateRegistryConfigProp)) && (ok || !reflect.DeepEqual(v, privateRegistryConfigProp)) {
+		obj["privateRegistryConfigProp"] = privateRegistryConfigProp
+	}
 	disableBundledIngressProp, err := expandGkeonpremVmwareClusterDisableBundledIngress(d.Get("disable_bundled_ingress"), d, config)
 	if err != nil {
 		return err
@@ -1185,6 +1212,9 @@ func resourceGkeonpremVmwareClusterRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("enable_advanced_cluster", flattenGkeonpremVmwareClusterEnableAdvancedCluster(res["enableAdvancedCluster"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VmwareCluster: %s", err)
 	}
+        if err := d.Set("private_registry_config", flattenGkeonpremVmwareClusterPrivateRegistryConfig(res["privateRegistryConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareCluster: %s", err)
+	}
 	if err := d.Set("disable_bundled_ingress", flattenGkeonpremVmwareClusterDisableBundledIngress(res["disableBundledIngress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VmwareCluster: %s", err)
 	}
@@ -1328,6 +1358,12 @@ func resourceGkeonpremVmwareClusterUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("enable_advanced_cluster"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableAdvancedClusterProp)) {
 		obj["enableAdvancedCluster"] = enableAdvancedClusterProp
 	}
+	privateRegistryConfig, err := expandGkeonpremVmwareClusterprivateRegistryConfig(d.Get("private_registry_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("private_registry_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, privateRegistryConfigProp)) {
+		obj["privateRegistryConfig"] = privateRegistryConfig
+	}
 	disableBundledIngressProp, err := expandGkeonpremVmwareClusterDisableBundledIngress(d.Get("disable_bundled_ingress"), d, config)
 	if err != nil {
 		return err
@@ -1412,6 +1448,10 @@ func resourceGkeonpremVmwareClusterUpdate(d *schema.ResourceData, meta interface
 
 	if d.HasChange("enable_advanced_cluster") {
 		updateMask = append(updateMask, "enableAdvancedCluster")
+	}
+
+	if d.HasChange("private_registry_config") {
+		updateMask = append(updateMask, "privateRegistryConfig")
 	}
 
 	if d.HasChange("disable_bundled_ingress") {
@@ -2315,6 +2355,10 @@ func flattenGkeonpremVmwareClusterEnableControlPlaneV2(v interface{}, d *schema.
 }
 
 func flattenGkeonpremVmwareClusterEnableAdvancedCluster(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGkeonpremVmwareClusterPrivateRegistryConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3403,6 +3447,10 @@ func expandGkeonpremVmwareClusterEnableControlPlaneV2(v interface{}, d tpgresour
 }
 
 func expandGkeonpremVmwareClusterEnableAdvancedCluster(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGkeonpremVmwareClusterPrivateRegistryConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

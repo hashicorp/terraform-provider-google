@@ -300,6 +300,10 @@ resource "google_gkeonprem_vmware_cluster" "cluster-manuallb" {
   vm_tracking_enabled = true
   enable_control_plane_v2 = true
   enable_advanced_cluster = true
+  private_registry_config = {
+    address = "test-address"
+    ca_cert = "test-ca-cert"
+  }
   upgrade_policy {
     control_plane_only = true
   }

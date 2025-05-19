@@ -374,6 +374,10 @@ func testAccGkeonpremVmwareCluster_vmwareClusterUpdateManualLbStart(context map[
     vm_tracking_enabled = true
     enable_control_plane_v2 = true
     enable_advanced_cluster = true
+    private_registry_config = {
+      address = "test-address"
+      ca_cert = "test-ca-cert"
+    }
     disable_bundled_ingress = true
     upgrade_policy {
       control_plane_only = true

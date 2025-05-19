@@ -26,6 +26,7 @@ fields:
   - field: 'effective_annotations'
     provider_only: true
   - field: 'enable_advanced_cluster'
+  - field: 'private_registry_config'
   - field: 'enable_control_plane_v2'
   - field: 'endpoint'
   - field: 'etag'
