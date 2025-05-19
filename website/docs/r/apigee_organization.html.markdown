@@ -86,9 +86,11 @@ provider "google" {
 data "google_client_config" "current" {}
 
 resource "google_apigee_organization" "org" {
-  description         = "Terraform-provisioned basic Apigee Org under European Union hosting jurisdiction."
-  project_id          = data.google_client_config.current.project
-  disable_vpc_peering = true
+  description                = "Terraform-provisioned basic Apigee Org under European Union hosting jurisdiction."
+  project_id                 = data.google_client_config.current.project
+  api_consumer_data_location = "europe-west1"
+  billing_type               = "PAYG"
+  disable_vpc_peering        = true
 }
 ```
 ## Example Usage - Apigee Organization Cloud Full
