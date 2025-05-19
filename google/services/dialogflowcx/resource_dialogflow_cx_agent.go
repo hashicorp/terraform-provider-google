@@ -233,6 +233,7 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 			},
 			"gen_app_builder_settings": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Gen App Builder-related agent-level settings.`,
 				MaxItems:    1,
