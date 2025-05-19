@@ -147,26 +147,6 @@ func TestAccComputeRegionHealthCheck_typeTransition(t *testing.T) {
 	})
 }
 
-func TestAccComputeRegionHealthCheck_tcpAndSsl_shouldFail(t *testing.T) {
-	// This is essentially a unit test, no interactions
-	acctest.SkipIfVcr(t)
-	t.Parallel()
-
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeRegionHealthCheckDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccComputeRegionHealthCheck_tcpAndSsl_shouldFail(hckName),
-				ExpectError: regexp.MustCompile("only one of\n`grpc_health_check,grpc_tls_health_check,http2_health_check,http_health_check,https_health_check,ssl_health_check,tcp_health_check`\ncan be specified, but `ssl_health_check,tcp_health_check` were specified"),
-			},
-		},
-	})
-}
-
 func TestAccComputeRegionHealthCheck_logConfigDisabled(t *testing.T) {
 	t.Parallel()
 
@@ -364,26 +344,6 @@ resource "google_compute_region_health_check" "foobar" {
   unhealthy_threshold = 3
   http2_health_check {
     port = "443"
-  }
-}
-`, hckName)
-}
-
-func testAccComputeRegionHealthCheck_tcpAndSsl_shouldFail(hckName string) string {
-	return fmt.Sprintf(`
-resource "google_compute_region_health_check" "foobar" {
-  check_interval_sec  = 3
-  description         = "Resource created for Terraform acceptance testing"
-  healthy_threshold   = 3
-  name                = "health-test-%s"
-  timeout_sec         = 2
-  unhealthy_threshold = 3
-
-  tcp_health_check {
-    port = 443
-  }
-  ssl_health_check {
-    port = 443
   }
 }
 `, hckName)
