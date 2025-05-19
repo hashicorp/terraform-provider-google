@@ -65,8 +65,6 @@ func TestAccProject_create(t *testing.T) {
 				Config: testAccProject(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
-					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
-						testAccProject(pid, org)),
 				),
 			},
 		},
@@ -114,8 +112,6 @@ func TestAccProject_billing(t *testing.T) {
 				Config: testAccProject(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount(t, "google_project.acceptance", pid, ""),
-					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
-						testAccProject(pid, org)),
 				),
 			},
 		},
@@ -165,8 +161,6 @@ func TestAccProject_labels(t *testing.T) {
 				Config: testAccProject_labels(pid, org, "label", "label-value"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasLabels(t, "google_project.acceptance", pid, map[string]string{"label": "label-value"}),
-					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
-						testAccProject_labels(pid, org, "label", "label-value")),
 				),
 			},
 		},
@@ -185,10 +179,6 @@ func TestAccProject_deleteDefaultNetwork(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProject_deleteDefaultNetwork(pid, org, billingId),
-				Check: resource.ComposeTestCheckFunc(
-					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
-						testAccProject_deleteDefaultNetwork(pid, org, billingId)),
-				),
 			},
 		},
 	})
@@ -206,10 +196,6 @@ func TestAccProject_parentFolder(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProject_parentFolder(pid, folderDisplayName, org),
-				Check: resource.ComposeTestCheckFunc(
-					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
-						testAccProject_parentFolder(pid, folderDisplayName, org)),
-				),
 			},
 		},
 	})
@@ -245,10 +231,6 @@ func TestAccProject_migrateParent(t *testing.T) {
 			},
 			{
 				Config: testAccProject_migrateParentFolder(pid, folderDisplayName, org),
-				Check: resource.ComposeTestCheckFunc(
-					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
-						testAccProject_migrateParentFolder(pid, folderDisplayName, org)),
-				),
 			},
 			{
 				ResourceName:            "google_project.acceptance",
@@ -300,10 +282,6 @@ func TestAccProject_tags(t *testing.T) {
 			},
 			{
 				Config: testAccProject_tagsAllowDestroy(context),
-				Check: resource.ComposeTestCheckFunc(
-					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
-						testAccProject_tagsAllowDestroy(context)),
-				),
 			},
 		},
 	})
@@ -451,10 +429,6 @@ func TestAccProject_noAllowDestroy(t *testing.T) {
 			},
 			{
 				Config: testAccProject(pid, org),
-				Check: resource.ComposeTestCheckFunc(
-					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
-						testAccProject(pid, org)),
-				),
 			},
 		},
 	})
@@ -482,10 +456,7 @@ func TestAccProject_abandon(t *testing.T) {
 				Config:  testAccProject_abandon(pid, org),
 				Destroy: true,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
-					acctest.GetTestMetadataForTgc("resourcemanager", "google_project.acceptance",
-						testAccProject_abandon(pid, org)),
-				),
+					testAccCheckGoogleProjectExists("google_project.acceptance", pid)),
 			},
 		},
 	})
