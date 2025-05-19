@@ -37,7 +37,7 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterBasicExampl
 		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-for-vmcluster-basic-%s", acctest.RandString(t, 10)),
 		"cloud_vm_cluster_id":             fmt.Sprintf("ofake-tf-test-vmcluster-basic-%s", acctest.RandString(t, 10)),
 		"deletion_protection":             false,
-		"project":                         "oci-terraform-testing",
+		"project":                         "oci-terraform-testing-prod",
 		"random_suffix":                   acctest.RandString(t, 10),
 	}
 
@@ -109,7 +109,7 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterFullExample
 		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-for-vmcluster-full-%s", acctest.RandString(t, 10)),
 		"cloud_vm_cluster_id":             fmt.Sprintf("ofake-tf-test-vmcluster-full-%s", acctest.RandString(t, 10)),
 		"deletion_protection":             false,
-		"project":                         "oci-terraform-testing",
+		"project":                         "oci-terraform-testing-prod",
 		"random_suffix":                   acctest.RandString(t, 10),
 	}
 

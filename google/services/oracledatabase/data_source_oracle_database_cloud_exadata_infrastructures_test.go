@@ -38,7 +38,7 @@ func testAccOracleDatabaseCloudExadataInfrastructures_basic() string {
 	return fmt.Sprintf(`
 data "google_oracle_database_cloud_exadata_infrastructures" "my_cloud_exadatas"{
   location = "us-east4"
-  project = "oci-terraform-testing"
+  project = "oci-terraform-testing-prod"
 }
 `)
 }
