@@ -211,7 +211,6 @@ resource "google_gke_hub_feature_membership" "feature_member_1" {
         }
       }
     }
-    management = "MANAGEMENT_AUTOMATIC"
   }
 }
 
