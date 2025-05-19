@@ -17,7 +17,7 @@ import (
 
 func TestAccSiteVerificationWebResource_siteVerificationDomain(t *testing.T) {
 	// This test requires manual project configuration.
-	acctest.SkipIfVcr(t)
+	t.Skip()
 
 	// This test needs to be able to create DNS records that are publicly
 	// resolvable. To run, you'll need a registered domain with a GCP managed zone
