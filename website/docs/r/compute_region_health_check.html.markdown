@@ -346,55 +346,6 @@ resource "google_compute_region_health_check" "grpc-region-health-check" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_health_check_grpc_with_tls&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Region Health Check Grpc With Tls
-
-
-```hcl
-resource "google_compute_region_health_check" "grpc-with-tls-region-health-check" {
-  provider = google-beta
-  
-  name = "grpc-with-tls-region-health-check"
-
-  timeout_sec        = 1
-  check_interval_sec = 1
-
-  grpc_tls_health_check {
-    port = "443"
-  }
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_health_check_grpc_with_tls_full&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Region Health Check Grpc With Tls Full
-
-
-```hcl
-resource "google_compute_region_health_check" "grpc-with-tls-region-health-check" {
-  provider = google-beta
-  
-  name = "grpc-with-tls-region-health-check"
-  description = "regional health check via GRPC with TLS"
-
-  timeout_sec         = 1
-  check_interval_sec  = 1
-  healthy_threshold   = 4
-  unhealthy_threshold = 5
-
-  grpc_tls_health_check {
-    port_specification = "USE_FIXED_PORT"
-    port = "443"
-    grpc_service_name  = "testservice"
-  }
-}
-```
 
 ## Argument Reference
 
@@ -470,11 +421,6 @@ The following arguments are supported:
   (Optional)
   A nested object resource.
   Structure is [documented below](#nested_grpc_health_check).
-
-* `grpc_tls_health_check` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-  A nested object resource.
-  Structure is [documented below](#nested_grpc_tls_health_check).
 
 * `log_config` -
   (Optional)
@@ -757,34 +703,6 @@ The following arguments are supported:
     checking.
   If not specified, gRPC health check follows behavior specified in `port` and
   `portName` fields.
-  Possible values are: `USE_FIXED_PORT`, `USE_NAMED_PORT`, `USE_SERVING_PORT`.
-
-* `grpc_service_name` -
-  (Optional)
-  The gRPC service name for the health check.
-  The value of grpcServiceName has the following meanings by convention:
-  * Empty serviceName means the overall status of all services at the backend.
-  * Non-empty serviceName means the health of that gRPC service, as defined by the owner of the service.
-  The grpcServiceName can only be ASCII.
-
-<a name="nested_grpc_tls_health_check"></a>The `grpc_tls_health_check` block supports:
-
-* `port` -
-  (Optional)
-  The port number for the health check request.
-  Must be specified if port_specification is USE_FIXED_PORT. Valid values are 1 through 65535.
-
-* `port_specification` -
-  (Optional)
-  Specifies how port is selected for health checking, can be one of the
-  following values:
-    * `USE_FIXED_PORT`: The port number in `port` is used for health checking.
-    * `USE_NAMED_PORT`: Not supported for GRPC with TLS health checking.
-    * `USE_SERVING_PORT`: For NetworkEndpointGroup, the port specified for each
-    network endpoint is used for health checking. For other backends, the
-    port or named port specified in the Backend Service is used for health
-    checking.
-  If not specified, gRPC health check follows behavior specified in the `port` field.
   Possible values are: `USE_FIXED_PORT`, `USE_NAMED_PORT`, `USE_SERVING_PORT`.
 
 * `grpc_service_name` -

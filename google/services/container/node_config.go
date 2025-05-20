@@ -444,6 +444,7 @@ func schemaNodeConfig() *schema.Schema {
 
 				"storage_pools": {
 					Type:        schema.TypeList,
+					ForceNew:    true,
 					Optional:    true,
 					Elem:        &schema.Schema{Type: schema.TypeString},
 					Description: `The list of Storage Pools where boot disks are provisioned.`,

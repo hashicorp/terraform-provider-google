@@ -214,18 +214,15 @@ The following arguments are supported:
 * `default_ttl` -
   (Optional)
   Specifies the default TTL for cached content served by this origin for responses
-  that do not have an existing valid TTL (max-age or s-max-age). When the `cache_mode`
-  is set to "USE_ORIGIN_HEADERS", you must omit this field.
+  that do not have an existing valid TTL (max-age or s-max-age).
 
 * `max_ttl` -
   (Optional)
-  Specifies the maximum allowed TTL for cached content served by this origin. When the
-  `cache_mode` is set to "USE_ORIGIN_HEADERS", you must omit this field.
+  Specifies the maximum allowed TTL for cached content served by this origin.
 
 * `client_ttl` -
   (Optional)
-  Specifies the maximum allowed TTL for cached content served by this origin. When the
-  `cache_mode` is set to "USE_ORIGIN_HEADERS", you must omit this field.
+  Specifies the maximum allowed TTL for cached content served by this origin.
 
 * `negative_caching` -
   (Optional)

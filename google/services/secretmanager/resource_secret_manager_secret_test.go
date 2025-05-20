@@ -466,6 +466,36 @@ func TestAccSecretManagerSecret_updateBetweenTtlAndExpireTime(t *testing.T) {
 	})
 }
 
+func TestAccSecretManagerSecret_tags(t *testing.T) {
+	t.Parallel()
+
+	tagKey := acctest.BootstrapSharedTestTagKey(t, "secret_manager_secret-tagkey")
+
+	context := map[string]interface{}{
+		"org":           envvar.GetTestOrgFromEnv(t),
+		"tagKey":        tagKey,
+		"tagValue":      acctest.BootstrapSharedTestTagValue(t, "secret_manager_secret-tagvalue", tagKey),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerSecretDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecretManagerSecret_tags(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-tags",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels", "tags"},
+			},
+		},
+	})
+}
+
 func testAccSecretManagerSecret_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
@@ -1219,6 +1249,34 @@ resource "google_secret_manager_secret" "secret-basic" {
 
   expire_time = "2122-09-26T10:55:55.163240682Z"
 
+}
+`, context)
+}
+
+func testAccSecretManagerSecret_tags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_secret" "secret-tags" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+
+  labels = {
+    label = "my-label"
+  }
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+      replicas {
+        location = "us-east1"
+      }
+    }
+  }
+
+  ttl = "3600s"
+  tags = {
+	"%{org}/%{tagKey}" = "%{tagValue}"
+  }
 }
 `, context)
 }

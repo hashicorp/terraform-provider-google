@@ -77,8 +77,7 @@ func datasourceGoogleProjectsRead(d *schema.ResourceData, meta interface{}) erro
 
 	for {
 		params["filter"] = d.Get("filter").(string)
-		domain := transport_tpg.GetUniverseDomainFromMeta(meta)
-		url := fmt.Sprintf("https://cloudresourcemanager.%s/v1/projects", domain)
+		url := "https://cloudresourcemanager.googleapis.com/v1/projects"
 
 		url, err := transport_tpg.AddQueryParams(url, params)
 		if err != nil {

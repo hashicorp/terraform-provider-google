@@ -192,10 +192,6 @@ The following arguments are supported:
   The TLS Common Name of the certificate.
   Structure is [documented below](#nested_s_sl_info_common_name).
 
-* `enforce` -
-  (Optional)
-  If true, TLS is strictly enforced.
-
 
 <a name="nested_s_sl_info_common_name"></a>The `common_name` block supports:
 

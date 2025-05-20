@@ -58,7 +58,7 @@ resource "google_compute_region_instance_template" "a3_dws" {
   }
 
   disk {
-    source_image = "cos-cloud/cos-121-lts"
+    source_image = "cos-cloud/cos-105-lts"
     auto_delete  = true
     boot         = true
     disk_type    = "pd-ssd"

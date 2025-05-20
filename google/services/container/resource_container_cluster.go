@@ -2212,12 +2212,6 @@ func ResourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
-			"in_transit_encryption_config": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Description:  `Defines the config of in-transit encryption`,
-				ValidateFunc: validation.StringInSlice([]string{"IN_TRANSIT_ENCRYPTION_CONFIG_UNSPECIFIED", "IN_TRANSIT_ENCRYPTION_DISABLED", "IN_TRANSIT_ENCRYPTION_INTER_NODE_TRANSPARENT"}, false),
-			},
 		},
 	}
 }
@@ -2369,7 +2363,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			DatapathProvider:                     d.Get("datapath_provider").(string),
 			EnableCiliumClusterwideNetworkPolicy: d.Get("enable_cilium_clusterwide_network_policy").(bool),
 			PrivateIpv6GoogleAccess:              d.Get("private_ipv6_google_access").(string),
-			InTransitEncryptionConfig:            d.Get("in_transit_encryption_config").(string),
 			EnableL4ilbSubsetting:                d.Get("enable_l4_ilb_subsetting").(bool),
 			DisableL4LbFirewallReconciliation:    d.Get("disable_l4_lb_firewall_reconciliation").(bool),
 			DnsConfig:                            expandDnsConfig(d.Get("dns_config")),
@@ -2945,9 +2938,6 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("private_ipv6_google_access", cluster.NetworkConfig.PrivateIpv6GoogleAccess); err != nil {
 		return fmt.Errorf("Error setting private_ipv6_google_access: %s", err)
 	}
-	if err := d.Set("in_transit_encryption_config", cluster.NetworkConfig.InTransitEncryptionConfig); err != nil {
-		return fmt.Errorf("Error setting in_transit_encryption_config: %s", err)
-	}
 	if err := d.Set("authenticator_groups_config", flattenAuthenticatorGroupsConfig(cluster.AuthenticatorGroupsConfig)); err != nil {
 		return err
 	}
@@ -3429,40 +3419,6 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s Disable L4 LB Firewall Reconciliation has been updated to %v", d.Id(), enabled)
-	}
-
-	if d.HasChange("in_transit_encryption_config") {
-		inTransitConfig := d.Get("in_transit_encryption_config").(string)
-		req := &container.UpdateClusterRequest{
-			Update: &container.ClusterUpdate{
-				DesiredInTransitEncryptionConfig: inTransitConfig,
-				ForceSendFields:                  []string{"DesiredInTransitEncryptionConfig"},
-			},
-		}
-		updateF := func() error {
-			log.Println("[DEBUG] updating in_transit_encryption_config")
-			name := containerClusterFullName(project, location, clusterName)
-			clusterUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Update(name, req)
-			if config.UserProjectOverride {
-				clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
-			}
-			op, err := clusterUpdateCall.Do()
-			if err != nil {
-				return err
-			}
-
-			// Wait until it's updated
-			err = ContainerOperationWait(config, op, project, location, "updating In-Transit Encryption Config", userAgent, d.Timeout(schema.TimeoutUpdate))
-			log.Println("[DEBUG] done updating in_transit_encryption_config")
-			return err
-		}
-
-		// Call update serially.
-		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
-			return err
-		}
-
-		log.Printf("[INFO] GKE cluster %s In-Transit Encryption Config has been updated to %v", d.Id(), inTransitConfig)
 	}
 
 	if d.HasChange("enable_fqdn_network_policy") {

@@ -226,12 +226,6 @@ d the order of values or replaced STRUCT field type with RECORD field type, we c
 cannot suppress the recurring diff this causes. As a workaround, we recommend using
 the schema as returned by the API.`,
 			},
-			"security_mode": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"DEFINER", "INVOKER", ""}),
-				Description:  `Optional. The security mode of the routine, if defined. If not defined, the security mode is automatically determined from the routine's configuration. Possible values: ["DEFINER", "INVOKER"]`,
-			},
 			"spark_options": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -413,12 +407,6 @@ func resourceBigQueryRoutineCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("data_governance_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(dataGovernanceTypeProp)) && (ok || !reflect.DeepEqual(v, dataGovernanceTypeProp)) {
 		obj["dataGovernanceType"] = dataGovernanceTypeProp
 	}
-	securityModeProp, err := expandBigQueryRoutineSecurityMode(d.Get("security_mode"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("security_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(securityModeProp)) && (ok || !reflect.DeepEqual(v, securityModeProp)) {
-		obj["securityMode"] = securityModeProp
-	}
 	sparkOptionsProp, err := expandBigQueryRoutineSparkOptions(d.Get("spark_options"), d, config)
 	if err != nil {
 		return err
@@ -571,9 +559,6 @@ func resourceBigQueryRoutineRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("data_governance_type", flattenBigQueryRoutineDataGovernanceType(res["dataGovernanceType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Routine: %s", err)
 	}
-	if err := d.Set("security_mode", flattenBigQueryRoutineSecurityMode(res["securityMode"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Routine: %s", err)
-	}
 	if err := d.Set("spark_options", flattenBigQueryRoutineSparkOptions(res["sparkOptions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Routine: %s", err)
 	}
@@ -665,12 +650,6 @@ func resourceBigQueryRoutineUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("data_governance_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dataGovernanceTypeProp)) {
 		obj["dataGovernanceType"] = dataGovernanceTypeProp
-	}
-	securityModeProp, err := expandBigQueryRoutineSecurityMode(d.Get("security_mode"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("security_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, securityModeProp)) {
-		obj["securityMode"] = securityModeProp
 	}
 	sparkOptionsProp, err := expandBigQueryRoutineSparkOptions(d.Get("spark_options"), d, config)
 	if err != nil {
@@ -940,10 +919,6 @@ func flattenBigQueryRoutineDataGovernanceType(v interface{}, d *schema.ResourceD
 	return v
 }
 
-func flattenBigQueryRoutineSecurityMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenBigQueryRoutineSparkOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1177,10 +1152,6 @@ func expandBigQueryRoutineDeterminismLevel(v interface{}, d tpgresource.Terrafor
 }
 
 func expandBigQueryRoutineDataGovernanceType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandBigQueryRoutineSecurityMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

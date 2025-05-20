@@ -193,7 +193,6 @@ E.g. "n2-highmem-4", "n2-highmem-8", "c4a-highmem-4-lssd".
 			},
 			"network_config": {
 				Type:        schema.TypeList,
-				Computed:    true,
 				Optional:    true,
 				Description: `Instance level network configuration.`,
 				MaxItems:    1,
@@ -247,46 +246,6 @@ These should be specified as project numbers only.`,
 							Elem: &schema.Schema{
 								Type:         schema.TypeString,
 								ValidateFunc: verify.ValidateRegexp(`^\d+$`),
-							},
-						},
-						"psc_auto_connections": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							Description: `Configurations for setting up PSC service automation.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"consumer_network": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Description: `The consumer network for the PSC service automation, example:
-"projects/vpc-host-project/global/networks/default".
-The consumer network might be hosted a different project than the
-consumer project. The API expects the consumer project specified to be
-the project ID (and not the project number)`,
-									},
-									"consumer_project": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Description: `The consumer project to which the PSC service automation endpoint will
-be created. The API expects the consumer project to be the project ID(
-and not the project number).`,
-									},
-									"consumer_network_status": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `The status of the service connection policy.`,
-									},
-									"ip_address": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `The IP address of the PSC service automation endpoint.`,
-									},
-									"status": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `The status of the PSC service automation connection.`,
-									},
-								},
 							},
 						},
 						"psc_interface_configs": {
@@ -1221,8 +1180,6 @@ func flattenAlloydbInstancePscInstanceConfig(v interface{}, d *schema.ResourceDa
 		flattenAlloydbInstancePscInstanceConfigPscDnsName(original["pscDnsName"], d, config)
 	transformed["psc_interface_configs"] =
 		flattenAlloydbInstancePscInstanceConfigPscInterfaceConfigs(original["pscInterfaceConfigs"], d, config)
-	transformed["psc_auto_connections"] =
-		flattenAlloydbInstancePscInstanceConfigPscAutoConnections(original["pscAutoConnections"], d, config)
 	return []interface{}{transformed}
 }
 func flattenAlloydbInstancePscInstanceConfigServiceAttachmentLink(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1256,48 +1213,6 @@ func flattenAlloydbInstancePscInstanceConfigPscInterfaceConfigs(v interface{}, d
 	return transformed
 }
 func flattenAlloydbInstancePscInstanceConfigPscInterfaceConfigsNetworkAttachmentResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAlloydbInstancePscInstanceConfigPscAutoConnections(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"consumer_project":        flattenAlloydbInstancePscInstanceConfigPscAutoConnectionsConsumerProject(original["consumerProject"], d, config),
-			"consumer_network":        flattenAlloydbInstancePscInstanceConfigPscAutoConnectionsConsumerNetwork(original["consumerNetwork"], d, config),
-			"ip_address":              flattenAlloydbInstancePscInstanceConfigPscAutoConnectionsIpAddress(original["ipAddress"], d, config),
-			"status":                  flattenAlloydbInstancePscInstanceConfigPscAutoConnectionsStatus(original["status"], d, config),
-			"consumer_network_status": flattenAlloydbInstancePscInstanceConfigPscAutoConnectionsConsumerNetworkStatus(original["consumerNetworkStatus"], d, config),
-		})
-	}
-	return transformed
-}
-func flattenAlloydbInstancePscInstanceConfigPscAutoConnectionsConsumerProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAlloydbInstancePscInstanceConfigPscAutoConnectionsConsumerNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAlloydbInstancePscInstanceConfigPscAutoConnectionsIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAlloydbInstancePscInstanceConfigPscAutoConnectionsStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAlloydbInstancePscInstanceConfigPscAutoConnectionsConsumerNetworkStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1609,13 +1524,6 @@ func expandAlloydbInstancePscInstanceConfig(v interface{}, d tpgresource.Terrafo
 		transformed["pscInterfaceConfigs"] = transformedPscInterfaceConfigs
 	}
 
-	transformedPscAutoConnections, err := expandAlloydbInstancePscInstanceConfigPscAutoConnections(original["psc_auto_connections"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedPscAutoConnections); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["pscAutoConnections"] = transformedPscAutoConnections
-	}
-
 	return transformed, nil
 }
 
@@ -1654,76 +1562,6 @@ func expandAlloydbInstancePscInstanceConfigPscInterfaceConfigs(v interface{}, d 
 }
 
 func expandAlloydbInstancePscInstanceConfigPscInterfaceConfigsNetworkAttachmentResource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandAlloydbInstancePscInstanceConfigPscAutoConnections(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
-
-		transformedConsumerProject, err := expandAlloydbInstancePscInstanceConfigPscAutoConnectionsConsumerProject(original["consumer_project"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedConsumerProject); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["consumerProject"] = transformedConsumerProject
-		}
-
-		transformedConsumerNetwork, err := expandAlloydbInstancePscInstanceConfigPscAutoConnectionsConsumerNetwork(original["consumer_network"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedConsumerNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["consumerNetwork"] = transformedConsumerNetwork
-		}
-
-		transformedIpAddress, err := expandAlloydbInstancePscInstanceConfigPscAutoConnectionsIpAddress(original["ip_address"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedIpAddress); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["ipAddress"] = transformedIpAddress
-		}
-
-		transformedStatus, err := expandAlloydbInstancePscInstanceConfigPscAutoConnectionsStatus(original["status"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedStatus); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["status"] = transformedStatus
-		}
-
-		transformedConsumerNetworkStatus, err := expandAlloydbInstancePscInstanceConfigPscAutoConnectionsConsumerNetworkStatus(original["consumer_network_status"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedConsumerNetworkStatus); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["consumerNetworkStatus"] = transformedConsumerNetworkStatus
-		}
-
-		req = append(req, transformed)
-	}
-	return req, nil
-}
-
-func expandAlloydbInstancePscInstanceConfigPscAutoConnectionsConsumerProject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandAlloydbInstancePscInstanceConfigPscAutoConnectionsConsumerNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandAlloydbInstancePscInstanceConfigPscAutoConnectionsIpAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandAlloydbInstancePscInstanceConfigPscAutoConnectionsStatus(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandAlloydbInstancePscInstanceConfigPscAutoConnectionsConsumerNetworkStatus(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

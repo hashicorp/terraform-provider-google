@@ -322,7 +322,7 @@ func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccDnsRecordSet_routingPolicyRegionalL7PrimaryBackup(networkName, proxySubnetName+"-reg-l7", httpHealthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName+"-reg-l7", zoneName, 300),
+				Config: testAccDnsRecordSet_routingPolicyRegionalL7PrimaryBackup(networkName, proxySubnetName, httpHealthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName, zoneName, 300),
 			},
 			{
 				ResourceName:      "google_dns_record_set.foobar",
@@ -331,7 +331,7 @@ func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccDnsRecordSet_routingPolicyRegionalL7PrimaryBackupMultipleNoLbType(networkName, proxySubnetName+"-reg-l7-nolbtype", httpHealthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName+"-reg-l7-nolbtype", zoneName, 300),
+				Config: testAccDnsRecordSet_routingPolicyRegionalL7PrimaryBackupMultipleNoLbType(networkName, proxySubnetName, httpHealthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName, zoneName, 300),
 			},
 			{
 				ResourceName:      "google_dns_record_set.foobar",
@@ -340,7 +340,7 @@ func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccDnsRecordSet_routingPolicyCrossRegionL7PrimaryBackup(networkName, backendSubnetName, proxySubnetName+"-cross-reg-l7", httpHealthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName+"-cross-reg-l7", zoneName, 300),
+				Config: testAccDnsRecordSet_routingPolicyCrossRegionL7PrimaryBackup(networkName, backendSubnetName, proxySubnetName, httpHealthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName, zoneName, 300),
 			},
 			{
 				ResourceName:      "google_dns_record_set.foobar",
@@ -349,7 +349,7 @@ func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccDnsRecordSet_routingPolicyRegionalL7XLBPrimaryBackup(networkName, proxySubnetName+"-reg-l7x", httpHealthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName+"-reg-l7x", zoneName, 300),
+				Config: testAccDnsRecordSet_routingPolicyRegionalL7XLBPrimaryBackup(networkName, proxySubnetName, httpHealthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName, zoneName, 300),
 			},
 		},
 	})

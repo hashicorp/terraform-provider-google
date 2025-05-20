@@ -52,7 +52,6 @@ resource "google_bigquery_routine" "sproc" {
   routine_id     = "%s"
   routine_type = "SCALAR_FUNCTION"
   language = "SQL"
-  security_mode = "INVOKER"
   definition_body = "1"
 }
 `, dataset, routine)
@@ -69,7 +68,6 @@ resource "google_bigquery_routine" "sproc" {
   routine_id     = "%s"
   routine_type = "SCALAR_FUNCTION"
   language = "JAVASCRIPT"
-  security_mode = "DEFINER"
   definition_body = "CREATE FUNCTION multiplyInputs return x*y;"
   arguments {
     name = "x"

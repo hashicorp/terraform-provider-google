@@ -355,7 +355,6 @@ resource "google_apigee_target_server" "apigee_target_server"{
 	 key_store                = google_apigee_env_keystore.apigee_environment_keystore.name
 	 protocols                = ["TLSv1.1"]
 	 trust_store              = google_apigee_env_keystore.apigee_environment_keystore.name
-     enforce                  = false
    common_name{
     value                   = "testCn"
     wildcard_match          = true
@@ -471,7 +470,6 @@ resource "google_apigee_target_server" "apigee_target_server"{
 	  key_store                = google_apigee_env_keystore.apigee_environment_keystore2.name
 	  protocols                = ["TLSv1.2", "TLSv1.1"]
 	  trust_store              = google_apigee_env_keystore.apigee_environment_keystore2.name
-      enforce                  = true
 	}
 	depends_on                 = [ 
     google_apigee_env_keystore.apigee_environment_keystore2,

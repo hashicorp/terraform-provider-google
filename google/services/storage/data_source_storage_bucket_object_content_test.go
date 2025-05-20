@@ -70,8 +70,6 @@ func TestAccDataSourceStorageBucketObjectContent_FileContentBase64(t *testing.T)
 				Config: testAccDataSourceStorageBucketObjectContent_FileContentBase64(bucket, folderName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.google_storage_bucket_object_content.this", "content_base64"),
-					resource.TestCheckResourceAttrSet("data.google_storage_bucket_object_content.this", "content_hexsha512"),
-					resource.TestCheckResourceAttrSet("data.google_storage_bucket_object_content.this", "content_base64sha512"),
 					verifyValidZip(),
 				),
 			},

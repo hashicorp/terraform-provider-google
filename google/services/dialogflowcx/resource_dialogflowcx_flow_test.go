@@ -236,8 +236,6 @@ func testAccDialogflowCXFlow_full(context map[string]interface{}) string {
             },
           ])
         }
-
-        enable_generative_fallback = true
       }
     }
 
@@ -367,19 +365,6 @@ func testAccDialogflowCXFlow_full(context map[string]interface{}) string {
         enable_interaction_logging     = true
         enable_consent_based_redaction = true
       }
-    }
-
-    knowledge_connector_settings {
-      enabled = true
-      trigger_fulfillment {
-        messages {
-          channel = "some-channel"
-          output_audio_text {
-            text = "some output text"
-          }
-        }
-      }
-      target_flow = google_dialogflow_cx_agent.agent_entity.start_flow
     }
   }
 `, context)
@@ -535,10 +520,6 @@ resource "google_dialogflow_cx_intent" "default_welcome_intent" {
   }
 }
 
-resource "google_dialogflow_cx_page" "my_page" {
-  parent       = google_dialogflow_cx_agent.agent.start_flow
-  display_name = "MyPage"
-}
 
 resource "google_dialogflow_cx_flow" "default_start_flow" {
   parent                = google_dialogflow_cx_agent.agent.id
@@ -584,18 +565,6 @@ resource "google_dialogflow_cx_flow" "default_start_flow" {
         }
       }
     }
-  }
-
-  knowledge_connector_settings {
-    enabled = false
-    trigger_fulfillment {
-      messages {
-        output_audio_text {
-          text = "We can update the knowledge_connector_settings in this flow!"
-        }
-      }
-    }
-    target_page = google_dialogflow_cx_page.my_page.id
   }
 }
 `, context)

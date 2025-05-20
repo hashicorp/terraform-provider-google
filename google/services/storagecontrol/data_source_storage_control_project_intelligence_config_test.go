@@ -15,7 +15,7 @@ func TestAccDataSourceGoogleStorageControlProjectIntelligenceConfig_basic(t *tes
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"project":       acctest.BootstrapProject(t, "tf-boot-stor-int-", envvar.GetTestBillingAccountFromEnv(t), []string{"storage.googleapis.com"}).ProjectId,
+		"project":       envvar.GetTestProjectFromEnv(),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

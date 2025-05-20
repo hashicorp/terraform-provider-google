@@ -50,7 +50,7 @@ func TestAccSpannerDatabase_spannerDatabaseBasicExample(t *testing.T) {
 				ResourceName:            "google_spanner_database.database",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ddl", "default_time_zone", "deletion_protection", "instance"},
+				ImportStateVerifyIgnore: []string{"ddl", "deletion_protection", "instance"},
 			},
 		},
 	})
@@ -68,7 +68,6 @@ resource "google_spanner_database" "database" {
   instance = google_spanner_instance.main.name
   name     = "tf-test-my-database%{random_suffix}"
   version_retention_period = "3d"
-  default_time_zone = "UTC"
   ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
     "CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)",

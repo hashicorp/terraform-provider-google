@@ -55,9 +55,7 @@ fields:
     provider_only: true
   - field: 'observed_generation'
   - field: 'reconciling'
-  - field: 'scaling.manual_instance_count'
   - field: 'scaling.min_instance_count'
-  - field: 'scaling.scaling_mode'
   - field: 'template.annotations'
   - field: 'template.containers.args'
   - field: 'template.containers.base_image_uri'

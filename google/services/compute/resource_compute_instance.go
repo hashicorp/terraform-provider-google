@@ -136,9 +136,8 @@ func ValidateSubnetworkProjectFunc(d tpgresource.TerraformResourceDiff) error {
 			return nil
 		}
 
-		project := tpgresource.GetProjectFromRegionalSelfLink(subnetwork.(string))
-		if project != subnetworkProject.(string) {
-			return fmt.Errorf("project %s in subnetwork's self_link %q must match subnetwork_project %q", project, subnetwork, subnetworkProject)
+		if tpgresource.GetProjectFromRegionalSelfLink(subnetwork.(string)) != subnetworkProject.(string) {
+			return fmt.Errorf("project in subnetwork's self_link %q must match subnetwork_project %q", subnetwork, subnetworkProject)
 		}
 	}
 	return nil

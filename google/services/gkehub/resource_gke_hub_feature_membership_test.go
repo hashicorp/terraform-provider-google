@@ -111,7 +111,7 @@ resource "google_gke_hub_feature_membership" "feature_member_1" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.18.2"
     config_sync {
       enabled = true
       source_format = "hierarchy"
@@ -140,7 +140,7 @@ resource "google_gke_hub_feature_membership" "feature_member_2" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_second.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.18.2"
     config_sync {
       enabled = true
       source_format = "hierarchy"
@@ -221,7 +221,7 @@ resource "google_gke_hub_feature_membership" "feature_member_2" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_second.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.18.2"
     config_sync {
       enabled = true
       source_format = "hierarchy"
@@ -254,7 +254,7 @@ resource "google_gke_hub_feature_membership" "feature_member_2" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_second.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.18.2"
     config_sync {
       enabled = true
       source_format = "unstructured"
@@ -277,7 +277,7 @@ resource "google_gke_hub_feature_membership" "feature_member_3" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_third.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.18.2"
     config_sync {
       enabled = true
       source_format = "hierarchy"
@@ -300,7 +300,7 @@ resource "google_gke_hub_feature_membership" "feature_member_4" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_fourth.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.18.2"
   }
 }
 `, context)
@@ -325,7 +325,7 @@ resource "google_gke_hub_feature_membership" "feature_member_3" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_third.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.18.2"
   }
 }
 `, context)
@@ -493,7 +493,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.18.2"
     config_sync {
       enabled = true
       git {
@@ -555,7 +555,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.18.2"
     config_sync {
       enabled = true
       git {
@@ -648,7 +648,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_acmoci.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.18.2"
     config_sync {
       enabled = true
       source_format = "unstructured"
@@ -690,7 +690,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_acmoci.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.18.2"
     config_sync {
       enabled = true
       source_format = "hierarchy"
@@ -732,7 +732,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_acmoci.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.18.2"
   }
 }
 `, context)
@@ -1089,7 +1089,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
         }
       }
     }
-    version = "1.20.0"
+    version = "1.17.0"
   }
 }
 `, context)
@@ -1139,7 +1139,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
         }
       }
     }
-    version = "1.20.0"
+    version = "1.17.0"
   }
 }
 `, context)

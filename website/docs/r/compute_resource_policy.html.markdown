@@ -267,6 +267,7 @@ resource "google_compute_resource_policy" "baz" {
   name   = "gce-policy"
   region = "europe-west9"
   group_placement_policy {
+    vm_count = 2
     collocation = "COLLOCATED"
     gpu_topology = "1x72"
   }
