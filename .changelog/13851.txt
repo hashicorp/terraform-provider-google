@@ -1,0 +1,3 @@
+```release-note:enhancement
+spanner: added field `instance_type` to the `google_spanner_instance` resource
+```
