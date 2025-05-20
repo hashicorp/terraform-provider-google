@@ -1,5 +1,46 @@
 ## 6.36.0 (Unreleased)
 
+DEPRECATIONS:
+* beyondcorp: deprecated `google_beyondcorp_application`. ([#22754](https://github.com/hashicorp/terraform-provider-google/pull/22754))
+* firestore: deprecated `deletion_policy` field of `google_firestore_database` resource ([#22764](https://github.com/hashicorp/terraform-provider-google/pull/22764))
+
+FEATURES:
+* **New Data Source:** `google_beyondcorp_security_gateway` ([#22793](https://github.com/hashicorp/terraform-provider-google/pull/22793))
+* **New Data Source:** `google_lustre_instance` ([#22766](https://github.com/hashicorp/terraform-provider-google/pull/22766))
+* **New Resource:** `google_bigquery_row_access_policy` ([#22806](https://github.com/hashicorp/terraform-provider-google/pull/22806))
+* **New Resource:** `google_dataplex_glossary` ([#22794](https://github.com/hashicorp/terraform-provider-google/pull/22794))
+* **New Resource:** `google_firebase_app_hosting_default_domain` ([#22748](https://github.com/hashicorp/terraform-provider-google/pull/22748))
+* **New Resource:** `google_firebase_app_hosting_domain` ([#22748](https://github.com/hashicorp/terraform-provider-google/pull/22748))
+* **New Resource:** `google_firebase_app_hosting_traffic` ([#22748](https://github.com/hashicorp/terraform-provider-google/pull/22748))
+* **New Resource:** `google_network_security_intercept_deployment` ([#22790](https://github.com/hashicorp/terraform-provider-google/pull/22790))
+* **New Resource:** `google_network_security_intercept_deployment_group` ([#22790](https://github.com/hashicorp/terraform-provider-google/pull/22790))
+* **New Resource:** `google_network_security_intercept_endpoint_group` ([#22790](https://github.com/hashicorp/terraform-provider-google/pull/22790))
+* **New Resource:** `google_network_security_intercept_endpoint_group_association` ([#22790](https://github.com/hashicorp/terraform-provider-google/pull/22790))
+
+IMPROVEMENTS:
+* beyondcorp: increased default timeouts on `google_beyondcorp_app_gateway ` operations from 20m to 40m ([#22805](https://github.com/hashicorp/terraform-provider-google/pull/22805))
+* bigtable: added `deletion_protection` field to `google_bigtable_logical_view` resource ([#22755](https://github.com/hashicorp/terraform-provider-google/pull/22755))
+* compute: added 'H2C' as a supported value for `protocol` in `google_compute_backend_service` and `google_compute_region_backend_service` ([#22791](https://github.com/hashicorp/terraform-provider-google/pull/22791))
+* compute: added `external_managed_backend_bucket_migration_state` and `external_managed_backend_bucket_migration_testing_percentage` to `google_compute_global_forwarding_rule` resource. ([#22781](https://github.com/hashicorp/terraform-provider-google/pull/22781))
+* compute: added `external_managed_migration_state` and `external_managed_migration_testing_percentage` to `google_compute_backend_service` resource. ([#22781](https://github.com/hashicorp/terraform-provider-google/pull/22781))
+* compute: added `force_attach` field to `boot_disk` and  `attached_disk` of  `google_compute_instance`  resource ([#22801](https://github.com/hashicorp/terraform-provider-google/pull/22801))
+* compute: added `numeric_id` to `google_compute_instance_template` resource ([#22763](https://github.com/hashicorp/terraform-provider-google/pull/22763))
+* compute: added the numeric id as `generated_id` attribute to the `google_compute_network_endpoint_group` ([#22780](https://github.com/hashicorp/terraform-provider-google/pull/22780))
+* compute: added update support for `load_balancing_scheme` in `google_compute_backend_service` and `google_compute_global_forwarding_rule` resources to allow migrating between classic and global external ALB ([#22781](https://github.com/hashicorp/terraform-provider-google/pull/22781))
+* container: added `in_transit_encryption_config` field in `google_container_cluster` resource ([#22758](https://github.com/hashicorp/terraform-provider-google/pull/22758))
+* container: allowed in-place update `node_config.windows_node_config` field in `google_container_cluster` and `google_container_node_pool` resource ([#22782](https://github.com/hashicorp/terraform-provider-google/pull/22782))
+* container: allowed in-place update for `node_config.storage_pools` field in `google_container_cluster` and `google_container_node_pool` resource ([#22753](https://github.com/hashicorp/terraform-provider-google/pull/22753))
+* dialogflowcx: added `event_handlers.trigger_fulfillment.enable_generative_fallback` field to `google_dialogflow_cx_flow` resource ([#22671](https://github.com/hashicorp/terraform-provider-google/pull/22671))
+* dialogflowcx: added `gen_app_builder_settings` field to `google_dialogflow_cx_agent` resource ([#22757](https://github.com/hashicorp/terraform-provider-google/pull/22757))
+* netapp: added `custom_performance_enabled`, `total_throughput_mibps`, and `total_iops` fields to `google_netapp_storage_pool` resource ([#22778](https://github.com/hashicorp/terraform-provider-google/pull/22778))
+* vmwareengine: increased `google_cloud_vmwareengine_private_cloud` timeout to 6 hours. ([#22762](https://github.com/hashicorp/terraform-provider-google/pull/22762))
+
+BUG FIXES:
+* compute: added global retry for "resourceNotReady for Networks" 400 errors ([#22756](https://github.com/hashicorp/terraform-provider-google/pull/22756))
+* dialogflowcx: fixed an issue where `dialogflow_cx_custom_endpoint` is not correctedly handled ([#22792](https://github.com/hashicorp/terraform-provider-google/pull/22792))
+* iamoauthclient: marked `google_iam_oauth_client_credential.client_secret` as sensitive ([#22789](https://github.com/hashicorp/terraform-provider-google/pull/22789))
+* resourcemanager: fixed an issue in `google_projects` data source where the provider `universe_domain` did not overwrite the list URL ([#22747](https://github.com/hashicorp/terraform-provider-google/pull/22747))
+
 ## 6.35.0 (May 13, 2025)
 
 BREAKING CHANGES:
