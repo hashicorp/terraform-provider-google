@@ -93,6 +93,8 @@ Template.
 
 * `additional_experiments` - (Optional) List of experiments that should be used by the job. An example value is `["enable_stackdriver_agent_metrics"]`.
 
+* `additional_pipeline_options` - (Optional) List of pipeline options that should be used by the job. An example value is `["numberOfWorkerHarnessThreads=20"]`.
+
 * `autoscaling_algorithm` - (Optional) The algorithm to use for autoscaling.
 
 * `parameters` - **Template specific** Key/Value pairs to be forwarded to the pipeline's options; keys are
