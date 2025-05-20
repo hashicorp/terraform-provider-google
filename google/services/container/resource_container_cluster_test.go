@@ -3176,9 +3176,21 @@ func TestAccContainerCluster_stackType_withDualStack(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_stackType_withDualStack(containerNetName, clusterName),
+				Config: testAccContainerCluster_stackType_withDualStack(containerNetName, clusterName, "IPV4_IPV6"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "ip_allocation_policy.0.stack_type", "IPV4_IPV6"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_stackType_withDualStack(containerNetName, clusterName, "IPV4"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "ip_allocation_policy.0.stack_type", "IPV4"),
 				),
 			},
 			{
@@ -9340,7 +9352,7 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
 `, containerNetName, clusterName)
 }
 
-func testAccContainerCluster_stackType_withDualStack(containerNetName string, clusterName string) string {
+func testAccContainerCluster_stackType_withDualStack(containerNetName, clusterName, stack string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "container_network" {
   name                    = "%s"
@@ -9370,11 +9382,11 @@ resource "google_container_cluster" "with_stack_type" {
   ip_allocation_policy {
     cluster_ipv4_cidr_block  = "10.0.0.0/16"
     services_ipv4_cidr_block = "10.1.0.0/16"
-    stack_type               = "IPV4_IPV6"
+    stack_type               = "%s"
   }
   deletion_protection = false
 }
-`, containerNetName, clusterName)
+`, containerNetName, clusterName, stack)
 }
 
 func testAccContainerCluster_stackType_withSingleStack(containerNetName string, clusterName string) string {
