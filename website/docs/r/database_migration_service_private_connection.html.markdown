@@ -52,6 +52,8 @@ resource "google_database_migration_service_private_connection" "default" {
 		vpc_name = resource.google_compute_network.default.id
 		subnet = "10.0.0.0/29"
 	}
+
+	create_without_validation = false
 }
 
 resource "google_compute_network" "default" {
@@ -103,6 +105,10 @@ The following arguments are supported:
 * `display_name` -
   (Optional)
   Display name.
+
+* `create_without_validation` -
+  (Optional)
+  If set to true, will skip validations.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
