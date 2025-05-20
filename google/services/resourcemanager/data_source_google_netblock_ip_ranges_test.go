@@ -73,26 +73,60 @@ func TestAccDataSourceGoogleNetblockIpRanges_basic(t *testing.T) {
 				Config: testAccNetblockIpRangesConfig_restricted,
 				Check: resource.ComposeTestCheckFunc(
 					// Private Google Access Restricted VIP
-					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.restricted", "cidr_blocks.#", "1"),
+					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.restricted", "cidr_blocks.#", "2"),
 					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.restricted",
 						"cidr_blocks.0", regexp.MustCompile("^(?:[0-9a-fA-F./:]{1,4}){1,2}.*/[0-9]{1,3}$")),
 					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.restricted", "cidr_blocks_ipv4.#", "1"),
 					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.restricted",
 						"cidr_blocks_ipv4.0", regexp.MustCompile("^(?:[0-9]{1,3}.){3}[0-9]{1,3}/[0-9]{1,2}$")),
-					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.restricted", "cidr_blocks_ipv6.#", "0"),
+					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.restricted", "cidr_blocks_ipv6.#", "1"),
+					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.restricted",
+						"cidr_blocks_ipv6.0", regexp.MustCompile("^(?:[0-9a-fA-F]{1,4}:){1,2}.*/[0-9]{1,3}$")),
+				),
+			},
+			{
+				Config: testAccNetblockIpRangesConfig_restricted_with_directconnectivity,
+				Check: resource.ComposeTestCheckFunc(
+					// Private Google Access Restricted VIP
+					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.restricted", "cidr_blocks.#", "4"),
+					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.restricted",
+						"cidr_blocks.0", regexp.MustCompile("^(?:[0-9a-fA-F./:]{1,4}){1,2}.*/[0-9]{1,3}$")),
+					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.restricted", "cidr_blocks_ipv4.#", "2"),
+					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.restricted",
+						"cidr_blocks_ipv4.1", regexp.MustCompile("^(?:[0-9]{1,3}.){3}[0-9]{1,3}/[0-9]{1,2}$")),
+					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.restricted", "cidr_blocks_ipv6.#", "2"),
+					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.restricted",
+						"cidr_blocks_ipv6.1", regexp.MustCompile("^(?:[0-9a-fA-F]{1,4}:){1,2}.*/[0-9]{1,3}$")),
 				),
 			},
 			{
 				Config: testAccNetblockIpRangesConfig_private,
 				Check: resource.ComposeTestCheckFunc(
 					// Private Google Access Unrestricted VIP
-					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.private", "cidr_blocks.#", "1"),
+					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.private", "cidr_blocks.#", "2"),
 					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.private",
 						"cidr_blocks.0", regexp.MustCompile("^(?:[0-9a-fA-F./:]{1,4}){1,2}.*/[0-9]{1,3}$")),
 					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.private", "cidr_blocks_ipv4.#", "1"),
 					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.private",
 						"cidr_blocks_ipv4.0", regexp.MustCompile("^(?:[0-9]{1,3}.){3}[0-9]{1,3}/[0-9]{1,2}$")),
-					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.private", "cidr_blocks_ipv6.#", "0"),
+					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.private", "cidr_blocks_ipv6.#", "1"),
+					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.private",
+						"cidr_blocks_ipv6.0", regexp.MustCompile("^(?:[0-9a-fA-F]{1,4}:){1,2}.*/[0-9]{1,3}$")),
+				),
+			},
+			{
+				Config: testAccNetblockIpRangesConfig_private_with_directconnectivity,
+				Check: resource.ComposeTestCheckFunc(
+					// Private Google Access Unrestricted VIP
+					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.private", "cidr_blocks.#", "4"),
+					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.private",
+						"cidr_blocks.0", regexp.MustCompile("^(?:[0-9a-fA-F./:]{1,4}){1,2}.*/[0-9]{1,3}$")),
+					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.private", "cidr_blocks_ipv4.#", "2"),
+					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.private",
+						"cidr_blocks_ipv4.1", regexp.MustCompile("^(?:[0-9]{1,3}.){3}[0-9]{1,3}/[0-9]{1,2}$")),
+					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.private", "cidr_blocks_ipv6.#", "2"),
+					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.private",
+						"cidr_blocks_ipv6.1", regexp.MustCompile("^(?:[0-9a-fA-F]{1,4}:){1,2}.*/[0-9]{1,3}$")),
 				),
 			},
 			{
@@ -173,9 +207,21 @@ data "google_netblock_ip_ranges" "restricted" {
 }
 `
 
+const testAccNetblockIpRangesConfig_restricted_with_directconnectivity = `
+data "google_netblock_ip_ranges" "restricted" {
+  range_type = "restricted-googleapis-with-directconnectivity"
+}
+`
+
 const testAccNetblockIpRangesConfig_private = `
 data "google_netblock_ip_ranges" "private" {
   range_type = "private-googleapis"
+}
+`
+
+const testAccNetblockIpRangesConfig_private_with_directconnectivity = `
+data "google_netblock_ip_ranges" "private" {
+  range_type = "private-googleapis-with-directconnectivity"
 }
 `
 
