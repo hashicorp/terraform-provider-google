@@ -1971,7 +1971,6 @@ func ResourceContainerCluster() *schema.Resource {
 			"enable_multi_networking": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Whether multi-networking is enabled for this cluster.`,
 				Default:     false,
 			},
@@ -3480,6 +3479,22 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s In-Transit Encryption Config has been updated to %v", d.Id(), inTransitConfig)
+	}
+	if d.HasChange("enable_multi_networking") {
+		enabled := d.Get("enable_multi_networking").(bool)
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredEnableMultiNetworking: enabled,
+				ForceSendFields:              []string{"DesiredEnableMultiNetworking"},
+			},
+		}
+		updateF := updateFunc(req, "updating multi networking")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s Multi Networking has been updated to %v", d.Id(), enabled)
 	}
 
 	if d.HasChange("enable_fqdn_network_policy") {

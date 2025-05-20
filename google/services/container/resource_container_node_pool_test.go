@@ -788,6 +788,21 @@ func TestAccContainerNodePool_withMultiNicNetworkConfig(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerNodePool_withMultiNicNetworkConfig(cluster, np, network),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.cluster", "enable_multi_networking", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.cluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network_config.0.create_pod_range", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerNodePool_withMultiNicNetworkConfigUpdate(cluster, np, network),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.cluster", "enable_multi_networking", "false"),
+				),
 			},
 			{
 				ResourceName:            "google_container_cluster.cluster",
@@ -3652,6 +3667,93 @@ resource "google_container_node_pool" "with_multi_nic" {
 }
 
 `, network, network, network, network, network, network, cluster, np)
+}
+
+func testAccContainerNodePool_withMultiNicNetworkConfigUpdate(cluster, np, network string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+  name                    = "%s-1"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network" "addn_net_1" {
+  name                    = "%s-2"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network" "addn_net_2" {
+  name                    = "%s-3"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+  name                     = "%s-subnet-1"
+  network                  = google_compute_network.container_network.name
+  ip_cidr_range            = "10.0.36.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "pod"
+    ip_cidr_range = "10.0.0.0/19"
+  }
+
+  secondary_ip_range {
+    range_name    = "svc"
+    ip_cidr_range = "10.0.32.0/22"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # The auto nodepool creates a secondary range which diffs this resource.
+      secondary_ip_range,
+    ]
+  }
+}
+
+resource "google_compute_subnetwork" "subnet1" {
+  name                     = "%s-subnet-2"
+  network                  = google_compute_network.addn_net_1.name
+  ip_cidr_range            = "10.0.37.0/24"
+  region                   = "us-central1"
+}
+
+resource "google_compute_subnetwork" "subnet2" {
+  name                     = "%s-subnet-3"
+  network                  = google_compute_network.addn_net_2.name
+  ip_cidr_range            = "10.0.38.0/24"
+  region                   = "us-central1"
+
+  secondary_ip_range {
+    range_name    = "pod"
+    ip_cidr_range = "10.0.64.0/19"
+  }
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1"
+  initial_node_count = 1
+
+  network    = google_compute_network.container_network.name
+  subnetwork = google_compute_subnetwork.container_subnetwork.name
+  ip_allocation_policy {
+    cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
+    services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
+  }
+  private_cluster_config {
+    enable_private_nodes    = true
+    master_ipv4_cidr_block  = "10.42.0.0/28"
+  }
+  release_channel {
+	channel = "RAPID"
+  }
+  enable_multi_networking = false
+  datapath_provider = "ADVANCED_DATAPATH"
+  deletion_protection = false
+}
+
+`, network, network, network, network, network, network, cluster)
 }
 
 func makeUpgradeSettings(maxSurge int, maxUnavailable int, strategy string, nodePoolSoakDuration string, batchNodeCount int, batchPercentage float64, batchSoakDuration string) string {
