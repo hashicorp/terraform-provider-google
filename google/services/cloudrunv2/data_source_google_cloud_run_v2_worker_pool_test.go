@@ -1,0 +1,67 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+package cloudrunv2_test
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
+)
+
+func TestAccDataSourceGoogleCloudRunV2WorkerPool_basic(t *testing.T) {
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+
+	name := fmt.Sprintf("tf-test-cloud-run-v2-wp-%d", acctest.RandInt(t))
+	location := "us-central1"
+	id := fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, location, name)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceGoogleCloudRunV2WorkerPool_basic(name, location),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.google_cloud_run_v2_worker_pool.hello", "id", id),
+					resource.TestCheckResourceAttr("data.google_cloud_run_v2_worker_pool.hello", "name", name),
+					resource.TestCheckResourceAttr("data.google_cloud_run_v2_worker_pool.hello", "location", location),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataSourceGoogleCloudRunV2WorkerPool_basic(name, location string) string {
+	return fmt.Sprintf(`
+resource "google_cloud_run_v2_worker_pool" "hello" {
+  name     = "%s"
+  location = "%s"
+  deletion_protection = false
+  launch_stage = "ALPHA"
+  
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/worker-pool"
+    }
+  }
+
+  labels = {
+    "key" = "value"
+  }
+
+  annotations = {
+    "key" = "value"
+  }
+}
+
+data "google_cloud_run_v2_worker_pool" "hello" {
+  name     = google_cloud_run_v2_worker_pool.hello.name
+  location = google_cloud_run_v2_worker_pool.hello.location
+}
+`, name, location)
+}

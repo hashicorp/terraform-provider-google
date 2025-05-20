@@ -203,6 +203,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_cloud_run_service":                                   cloudrun.DataSourceGoogleCloudRunService(),
 	"google_cloud_run_v2_job":                                    cloudrunv2.DataSourceGoogleCloudRunV2Job(),
 	"google_cloud_run_v2_service":                                cloudrunv2.DataSourceGoogleCloudRunV2Service(),
+	"google_cloud_run_v2_worker_pool":                            cloudrunv2.DataSourceGoogleCloudRunV2WorkerPool(),
 	"google_composer_environment":                                composer.DataSourceGoogleComposerEnvironment(),
 	"google_composer_user_workloads_config_map":                  composer.DataSourceGoogleComposerUserWorkloadsConfigMap(),
 	"google_composer_user_workloads_secret":                      composer.DataSourceGoogleComposerUserWorkloadsSecret(),
@@ -419,6 +420,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_cloud_run_service_iam_policy":                    tpgiamresource.DataSourceIamPolicy(cloudrun.CloudRunServiceIamSchema, cloudrun.CloudRunServiceIamUpdaterProducer),
 	"google_cloud_run_v2_job_iam_policy":                     tpgiamresource.DataSourceIamPolicy(cloudrunv2.CloudRunV2JobIamSchema, cloudrunv2.CloudRunV2JobIamUpdaterProducer),
 	"google_cloud_run_v2_service_iam_policy":                 tpgiamresource.DataSourceIamPolicy(cloudrunv2.CloudRunV2ServiceIamSchema, cloudrunv2.CloudRunV2ServiceIamUpdaterProducer),
+	"google_cloud_run_v2_worker_pool_iam_policy":             tpgiamresource.DataSourceIamPolicy(cloudrunv2.CloudRunV2WorkerPoolIamSchema, cloudrunv2.CloudRunV2WorkerPoolIamUpdaterProducer),
 	"google_cloud_tasks_queue_iam_policy":                    tpgiamresource.DataSourceIamPolicy(cloudtasks.CloudTasksQueueIamSchema, cloudtasks.CloudTasksQueueIamUpdaterProducer),
 	"google_colab_runtime_template_iam_policy":               tpgiamresource.DataSourceIamPolicy(colab.ColabRuntimeTemplateIamSchema, colab.ColabRuntimeTemplateIamUpdaterProducer),
 	"google_compute_disk_iam_policy":                         tpgiamresource.DataSourceIamPolicy(compute.ComputeDiskIamSchema, compute.ComputeDiskIamUpdaterProducer),
@@ -520,9 +522,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 604
-// Generated IAM resources: 303
-// Total generated resources: 907
+// Generated resources: 605
+// Generated IAM resources: 306
+// Total generated resources: 911
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -712,6 +714,10 @@ var generatedResources = map[string]*schema.Resource{
 	"google_cloud_run_v2_service_iam_binding":                                    tpgiamresource.ResourceIamBinding(cloudrunv2.CloudRunV2ServiceIamSchema, cloudrunv2.CloudRunV2ServiceIamUpdaterProducer, cloudrunv2.CloudRunV2ServiceIdParseFunc),
 	"google_cloud_run_v2_service_iam_member":                                     tpgiamresource.ResourceIamMember(cloudrunv2.CloudRunV2ServiceIamSchema, cloudrunv2.CloudRunV2ServiceIamUpdaterProducer, cloudrunv2.CloudRunV2ServiceIdParseFunc),
 	"google_cloud_run_v2_service_iam_policy":                                     tpgiamresource.ResourceIamPolicy(cloudrunv2.CloudRunV2ServiceIamSchema, cloudrunv2.CloudRunV2ServiceIamUpdaterProducer, cloudrunv2.CloudRunV2ServiceIdParseFunc),
+	"google_cloud_run_v2_worker_pool":                                            cloudrunv2.ResourceCloudRunV2WorkerPool(),
+	"google_cloud_run_v2_worker_pool_iam_binding":                                tpgiamresource.ResourceIamBinding(cloudrunv2.CloudRunV2WorkerPoolIamSchema, cloudrunv2.CloudRunV2WorkerPoolIamUpdaterProducer, cloudrunv2.CloudRunV2WorkerPoolIdParseFunc),
+	"google_cloud_run_v2_worker_pool_iam_member":                                 tpgiamresource.ResourceIamMember(cloudrunv2.CloudRunV2WorkerPoolIamSchema, cloudrunv2.CloudRunV2WorkerPoolIamUpdaterProducer, cloudrunv2.CloudRunV2WorkerPoolIdParseFunc),
+	"google_cloud_run_v2_worker_pool_iam_policy":                                 tpgiamresource.ResourceIamPolicy(cloudrunv2.CloudRunV2WorkerPoolIamSchema, cloudrunv2.CloudRunV2WorkerPoolIamUpdaterProducer, cloudrunv2.CloudRunV2WorkerPoolIdParseFunc),
 	"google_cloud_scheduler_job":                                                 cloudscheduler.ResourceCloudSchedulerJob(),
 	"google_cloud_tasks_queue":                                                   cloudtasks.ResourceCloudTasksQueue(),
 	"google_cloud_tasks_queue_iam_binding":                                       tpgiamresource.ResourceIamBinding(cloudtasks.CloudTasksQueueIamSchema, cloudtasks.CloudTasksQueueIamUpdaterProducer, cloudtasks.CloudTasksQueueIdParseFunc),
