@@ -481,7 +481,7 @@ func flattenSpannerInstancePartitionName(v interface{}, d *schema.ResourceData, 
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenSpannerInstancePartitionDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

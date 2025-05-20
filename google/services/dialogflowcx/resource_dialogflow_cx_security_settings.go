@@ -633,7 +633,7 @@ func flattenDialogflowCXSecuritySettingsName(v interface{}, d *schema.ResourceDa
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenDialogflowCXSecuritySettingsDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
