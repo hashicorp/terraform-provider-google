@@ -231,6 +231,23 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 				Deprecated:  "`enable_stackdriver_logging` is deprecated and will be removed in a future major release. Please use `advanced_settings.logging_settings.enable_stackdriver_logging`instead.",
 				Description: `Determines whether this agent should log conversation queries.`,
 			},
+			"gen_app_builder_settings": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Gen App Builder-related agent-level settings.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"engine": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The full name of the Gen App Builder engine related to this agent if there is one.
+Format: projects/{Project ID}/locations/{Location ID}/collections/{Collection ID}/engines/{Engine ID}`,
+						},
+					},
+				},
+			},
 			"git_integration_settings": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -435,6 +452,12 @@ func resourceDialogflowCXAgentCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("text_to_speech_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(textToSpeechSettingsProp)) && (ok || !reflect.DeepEqual(v, textToSpeechSettingsProp)) {
 		obj["textToSpeechSettings"] = textToSpeechSettingsProp
 	}
+	genAppBuilderSettingsProp, err := expandDialogflowCXAgentGenAppBuilderSettings(d.Get("gen_app_builder_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("gen_app_builder_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(genAppBuilderSettingsProp)) && (ok || !reflect.DeepEqual(v, genAppBuilderSettingsProp)) {
+		obj["genAppBuilderSettings"] = genAppBuilderSettingsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}projects/{{project}}/locations/{{location}}/agents")
 	if err != nil {
@@ -572,6 +595,9 @@ func resourceDialogflowCXAgentRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("text_to_speech_settings", flattenDialogflowCXAgentTextToSpeechSettings(res["textToSpeechSettings"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
+	if err := d.Set("gen_app_builder_settings", flattenDialogflowCXAgentGenAppBuilderSettings(res["genAppBuilderSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
 
 	return nil
 }
@@ -664,6 +690,12 @@ func resourceDialogflowCXAgentUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("text_to_speech_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, textToSpeechSettingsProp)) {
 		obj["textToSpeechSettings"] = textToSpeechSettingsProp
 	}
+	genAppBuilderSettingsProp, err := expandDialogflowCXAgentGenAppBuilderSettings(d.Get("gen_app_builder_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("gen_app_builder_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, genAppBuilderSettingsProp)) {
+		obj["genAppBuilderSettings"] = genAppBuilderSettingsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}projects/{{project}}/locations/{{location}}/agents/{{name}}")
 	if err != nil {
@@ -720,6 +752,10 @@ func resourceDialogflowCXAgentUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("text_to_speech_settings") {
 		updateMask = append(updateMask, "textToSpeechSettings")
+	}
+
+	if d.HasChange("gen_app_builder_settings") {
+		updateMask = append(updateMask, "genAppBuilderSettings")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1075,6 +1111,23 @@ func flattenDialogflowCXAgentTextToSpeechSettingsSynthesizeSpeechConfigs(v inter
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
+}
+
+func flattenDialogflowCXAgentGenAppBuilderSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["engine"] =
+		flattenDialogflowCXAgentGenAppBuilderSettingsEngine(original["engine"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowCXAgentGenAppBuilderSettingsEngine(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandDialogflowCXAgentDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1477,6 +1530,29 @@ func expandDialogflowCXAgentTextToSpeechSettingsSynthesizeSpeechConfigs(v interf
 		return nil, err
 	}
 	return m, nil
+}
+
+func expandDialogflowCXAgentGenAppBuilderSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEngine, err := expandDialogflowCXAgentGenAppBuilderSettingsEngine(original["engine"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEngine); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["engine"] = transformedEngine
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowCXAgentGenAppBuilderSettingsEngine(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func resourceDialogflowCXAgentPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {

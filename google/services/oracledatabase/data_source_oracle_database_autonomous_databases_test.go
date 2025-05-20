@@ -37,7 +37,7 @@ func testAccOracleDatabaseAutonomousDatabases_basic() string {
 	return fmt.Sprintf(`
 data "google_oracle_database_autonomous_databases" "my-adbs"{
   location = "us-east4"
-  project = "oci-terraform-testing"
+  project = "oci-terraform-testing-prod"
 }
 `)
 }

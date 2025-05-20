@@ -55,6 +55,8 @@ func ResourceBeyondcorpApplication() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		DeprecationMessage: "`google_beyondcorp_application` is deprecated. Use `google_beyondcorp_security_gateway_application` instead.",
+
 		Schema: map[string]*schema.Schema{
 			"application_id": {
 				Type:     schema.TypeString,
@@ -110,6 +112,49 @@ Hostname and Ports - ("abc.com" and "22"), ("abc.com" and "22,33") etc`,
 				Description: `Optional. An arbitrary user-provided name for the Application resource.
 Cannot exceed 64 characters.`,
 			},
+			"upstreams": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Optional. List of which upstream resource(s) to forward traffic to.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"egress_policy": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Optional. Routing policy information.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"regions": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `Required. List of regions where the application sends traffic to.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"network": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Network to forward traffic to.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `Required. Network name is of the format:
+'projects/{project}/global/networks/{network}'`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -155,6 +200,12 @@ func resourceBeyondcorpApplicationCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("endpoint_matchers"); !tpgresource.IsEmptyValue(reflect.ValueOf(endpointMatchersProp)) && (ok || !reflect.DeepEqual(v, endpointMatchersProp)) {
 		obj["endpointMatchers"] = endpointMatchersProp
+	}
+	upstreamsProp, err := expandBeyondcorpApplicationUpstreams(d.Get("upstreams"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("upstreams"); !tpgresource.IsEmptyValue(reflect.ValueOf(upstreamsProp)) && (ok || !reflect.DeepEqual(v, upstreamsProp)) {
+		obj["upstreams"] = upstreamsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/global/securityGateways/{{security_gateways_id}}/applications?applicationId={{application_id}}")
@@ -278,6 +329,9 @@ func resourceBeyondcorpApplicationRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("endpoint_matchers", flattenBeyondcorpApplicationEndpointMatchers(res["endpointMatchers"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Application: %s", err)
 	}
+	if err := d.Set("upstreams", flattenBeyondcorpApplicationUpstreams(res["upstreams"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Application: %s", err)
+	}
 	if err := d.Set("name", flattenBeyondcorpApplicationName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Application: %s", err)
 	}
@@ -316,6 +370,12 @@ func resourceBeyondcorpApplicationUpdate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("endpoint_matchers"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, endpointMatchersProp)) {
 		obj["endpointMatchers"] = endpointMatchersProp
 	}
+	upstreamsProp, err := expandBeyondcorpApplicationUpstreams(d.Get("upstreams"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("upstreams"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, upstreamsProp)) {
+		obj["upstreams"] = upstreamsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/global/securityGateways/{{security_gateways_id}}/applications/{{application_id}}")
 	if err != nil {
@@ -332,6 +392,10 @@ func resourceBeyondcorpApplicationUpdate(d *schema.ResourceData, meta interface{
 
 	if d.HasChange("endpoint_matchers") {
 		updateMask = append(updateMask, "endpointMatchers")
+	}
+
+	if d.HasChange("upstreams") {
+		updateMask = append(updateMask, "upstreams")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -487,6 +551,59 @@ func flattenBeyondcorpApplicationEndpointMatchersPorts(v interface{}, d *schema.
 	return v
 }
 
+func flattenBeyondcorpApplicationUpstreams(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"egress_policy": flattenBeyondcorpApplicationUpstreamsEgressPolicy(original["egressPolicy"], d, config),
+			"network":       flattenBeyondcorpApplicationUpstreamsNetwork(original["network"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenBeyondcorpApplicationUpstreamsEgressPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["regions"] =
+		flattenBeyondcorpApplicationUpstreamsEgressPolicyRegions(original["regions"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBeyondcorpApplicationUpstreamsEgressPolicyRegions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBeyondcorpApplicationUpstreamsNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenBeyondcorpApplicationUpstreamsNetworkName(original["name"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBeyondcorpApplicationUpstreamsNetworkName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenBeyondcorpApplicationName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -533,5 +650,80 @@ func expandBeyondcorpApplicationEndpointMatchersHostname(v interface{}, d tpgres
 }
 
 func expandBeyondcorpApplicationEndpointMatchersPorts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBeyondcorpApplicationUpstreams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedEgressPolicy, err := expandBeyondcorpApplicationUpstreamsEgressPolicy(original["egress_policy"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEgressPolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["egressPolicy"] = transformedEgressPolicy
+		}
+
+		transformedNetwork, err := expandBeyondcorpApplicationUpstreamsNetwork(original["network"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["network"] = transformedNetwork
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandBeyondcorpApplicationUpstreamsEgressPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRegions, err := expandBeyondcorpApplicationUpstreamsEgressPolicyRegions(original["regions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRegions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["regions"] = transformedRegions
+	}
+
+	return transformed, nil
+}
+
+func expandBeyondcorpApplicationUpstreamsEgressPolicyRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBeyondcorpApplicationUpstreamsNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandBeyondcorpApplicationUpstreamsNetworkName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	return transformed, nil
+}
+
+func expandBeyondcorpApplicationUpstreamsNetworkName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

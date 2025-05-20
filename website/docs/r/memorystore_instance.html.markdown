@@ -41,8 +41,8 @@ To get more information about Instance, see:
 ```hcl
 resource "google_memorystore_instance" "instance-basic" {
   instance_id = "basic-instance"
-  shard_count = 3
-  desired_psc_auto_connections {
+  shard_count = 1
+  desired_auto_created_endpoints {
     network    = google_compute_network.producer_net.id
     project_id = data.google_project.project.project_id
   }
@@ -105,13 +105,13 @@ data "google_project" "project" {
 ```hcl
 resource "google_memorystore_instance" "instance-full" {
   instance_id = "full-instance"
-  shard_count = 3
-  desired_psc_auto_connections {
+  shard_count = 1
+  desired_auto_created_endpoints {
     network    = google_compute_network.producer_net.id
     project_id = data.google_project.project.project_id
   }
   location                = "us-central1"
-  replica_count           = 2
+  replica_count           = 1
   node_type               = "SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_DISABLED"
   authorization_mode      = "AUTH_DISABLED"
@@ -192,8 +192,8 @@ data "google_project" "project" {
 ```hcl
 resource "google_memorystore_instance" "instance-persistence-aof" {
   instance_id = "aof-instance"
-  shard_count = 3
-  desired_psc_auto_connections {
+  shard_count = 1
+  desired_auto_created_endpoints {
     network    = google_compute_network.producer_net.id
     project_id = data.google_project.project.project_id
   }
@@ -252,7 +252,7 @@ data "google_project" "project" {
 resource "google_memorystore_instance" "primary_instance" {
   instance_id                    = "primary-instance"
   shard_count                    = 1
-  desired_psc_auto_connections {
+  desired_auto_created_endpoints {
     network                      = google_compute_network.primary_producer_net.id
     project_id                   = data.google_project.project.project_id
   }
@@ -313,7 +313,7 @@ resource "google_compute_network" "primary_producer_net" {
 resource "google_memorystore_instance" "secondary_instance" {
   instance_id                    = "secondary-instance"
   shard_count                    = 1
-  desired_psc_auto_connections {
+  desired_auto_created_endpoints {
     network                      = google_compute_network.secondary_producer_net.id
     project_id                   = data.google_project.project.project_id
   }
@@ -499,7 +499,8 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-* `desired_psc_auto_connections` - (Optional) Immutable. User inputs for the auto-created PSC connections. 
+* `desired_psc_auto_connections` - (Optional) `desired_psc_auto_connections` is deprecated  Use `desired_auto_created_endpoints` instead.
+* `desired_auto_created_endpoints` - (Optional) Immutable. User inputs for the auto-created endpoints connections. 
 
 <a name="nested_automated_backup_config"></a>The `automated_backup_config` block supports:
 
@@ -794,9 +795,12 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. System assigned, unique identifier for the instance.
 
 * `discovery_endpoints` -
+  (Deprecated)
   Output only. Endpoints clients can connect to the instance through. Currently only one
   discovery endpoint is supported.
   Structure is [documented below](#nested_discovery_endpoints).
+
+  ~> **Warning:** `discovery_endpoints` is deprecated  Use `endpoints` instead.
 
 * `maintenance_schedule` -
   Upcoming maintenance schedule.
@@ -815,8 +819,11 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_psc_attachment_details).
 
 * `psc_auto_connections` -
+  (Deprecated)
   Output only. User inputs and resource details of the auto-created PSC connections.
   Structure is [documented below](#nested_psc_auto_connections).
+
+  ~> **Warning:** `psc_auto_connections` is deprecated  Use `endpoints.connections.pscAutoConnections` instead.
 
 * `backup_collection` -
   The backup collection full resource name.

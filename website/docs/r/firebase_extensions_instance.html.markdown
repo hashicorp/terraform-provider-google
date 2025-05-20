@@ -67,7 +67,7 @@ resource "google_firebase_extensions_instance" "resize_image" {
     }
 
     system_params = {
-      "firebaseextensions.v1beta.function/location"                   = ""
+      "firebaseextensions.v1beta.function/location"                   = "us-central1"
       "firebaseextensions.v1beta.function/maxInstances"               = 3000
       "firebaseextensions.v1beta.function/minInstances"               = 0
       "firebaseextensions.v1beta.function/vpcConnectorEgressSettings" = "VPC_CONNECTOR_EGRESS_SETTINGS_UNSPECIFIED"
@@ -77,7 +77,7 @@ resource "google_firebase_extensions_instance" "resize_image" {
       "firebase.extensions.storage-resize-images.v1.onCompletion"
     ]
 
-    eventarc_channel = "projects/my-project-name/locations//channels/firebase"
+    eventarc_channel = "projects/my-project-name/locations/us-central1/channels/firebase"
   }
 }
 ```

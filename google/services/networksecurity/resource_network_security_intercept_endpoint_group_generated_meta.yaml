@@ -1,0 +1,29 @@
+resource: 'google_network_security_intercept_endpoint_group'
+generation_type: 'mmv1'
+source_file: 'products/networksecurity/InterceptEndpointGroup.yaml'
+api_service_name: 'networksecurity.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'InterceptEndpointGroup'
+fields:
+  - field: 'associations.name'
+  - field: 'associations.network'
+  - field: 'associations.state'
+  - field: 'connected_deployment_group.locations.location'
+  - field: 'connected_deployment_group.locations.state'
+  - field: 'connected_deployment_group.name'
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'intercept_deployment_group'
+  - field: 'intercept_endpoint_group_id'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'reconciling'
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

@@ -39,7 +39,7 @@ func testAccOracleDatabaseCloudVmCluster_basic() string {
 	return fmt.Sprintf(`
 data "google_oracle_database_cloud_vm_cluster" "my-vmcluster"{
   cloud_vm_cluster_id = "ofake-do-not-delete-tf-vmcluster"
-  project = "oci-terraform-testing"
+  project = "oci-terraform-testing-prod"
   location = "us-east4"
 }
 `)

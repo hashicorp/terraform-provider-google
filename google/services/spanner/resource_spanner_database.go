@@ -216,6 +216,12 @@ or 'terraform destroy' that would delete the database will fail.
 When the field is set to false, deleting the database is allowed.`,
 				Default: true,
 			},
+			"default_time_zone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The default time zone for the database. The default time zone must be a valid name
+from the tz database. Default value is "America/Los_angeles".`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -362,15 +368,28 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	// `extraStatements` in the call to the `create` endpoint and all DDL (other than
 	//
 	//	<CREATE DATABASE>) is run post-create, by calling the `updateDdl` endpoint
+	defaultTimeZoneObj, defaultTimeZoneOk := d.GetOk("default_time_zone")
+	defaultTimeZone := defaultTimeZoneObj.(string)
 	retention, retentionPeriodOk := d.GetOk("version_retention_period")
 	retentionPeriod := retention.(string)
 	ddl, ddlOk := d.GetOk("ddl")
 	ddlStatements := ddl.([]interface{})
 
-	if retentionPeriodOk || ddlOk {
+	if defaultTimeZoneOk || retentionPeriodOk || ddlOk {
 
 		obj := make(map[string]interface{})
 		updateDdls := []string{}
+
+		// We need to put setting default time zone as first because it requires an empty
+		// database where tables do not exist.
+		if defaultTimeZoneOk {
+			dbName := d.Get("name")
+			timeZoneDdl := fmt.Sprintf("ALTER DATABASE `%s` SET OPTIONS (default_time_zone=\"%s\")", dbName, defaultTimeZone)
+			if dialect, ok := d.GetOk("database_dialect"); ok && dialect == "POSTGRESQL" {
+				timeZoneDdl = fmt.Sprintf("ALTER DATABASE \"%s\" SET spanner.default_time_zone TO \"%s\"", dbName, defaultTimeZone)
+			}
+			updateDdls = append(updateDdls, timeZoneDdl)
+		}
 
 		if ddlOk {
 			for i := 0; i < len(ddlStatements); i++ {

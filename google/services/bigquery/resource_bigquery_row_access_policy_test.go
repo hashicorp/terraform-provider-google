@@ -1,0 +1,98 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+package bigquery_test
+
+import (
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+)
+
+func TestAccBigQueryRowAccessPolicy_update(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryRowAccessPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryRowAccessPolicy_full(context),
+			},
+			{
+				ResourceName:            "google_bigquery_row_access_policy.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"grantees"},
+			},
+			{
+				Config: testAccBigQueryRowAccessPolicy_update(context),
+			},
+			{
+				ResourceName:            "google_bigquery_row_access_policy.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"grantees"},
+			},
+		},
+	})
+}
+
+func testAccBigQueryRowAccessPolicy_full(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "tf_test_dataset_id%{random_suffix}"
+  location = "US"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "tf_test_table_id%{random_suffix}"
+}
+
+resource "google_bigquery_row_access_policy" "test" {
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = google_bigquery_table.test.table_id
+  policy_id = "tf_test_policy_id%{random_suffix}"
+
+  filter_predicate = "nullable_field is not NULL"
+  grantees = [
+    "domain:google.com"
+  ]
+}
+`, context)
+}
+
+func testAccBigQueryRowAccessPolicy_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "tf_test_dataset_id%{random_suffix}"
+  location = "US"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "tf_test_table_id%{random_suffix}"
+}
+
+resource "google_bigquery_row_access_policy" "test" {
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = google_bigquery_table.test.table_id
+  policy_id = "tf_test_policy_id%{random_suffix}"
+
+  filter_predicate = "nullable_field is NULL"
+  grantees = [
+    "group:googlers@google.com"
+  ]
+}
+`, context)
+}

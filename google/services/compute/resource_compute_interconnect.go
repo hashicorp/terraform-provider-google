@@ -83,6 +83,14 @@ bundle, not the speed of the entire bundle. Can take one of the following values
   - LINK_TYPE_ETHERNET_100G_LR: A 100G Ethernet with LR optics.
   - LINK_TYPE_ETHERNET_400G_LR4: A 400G Ethernet with LR4 optics Possible values: ["LINK_TYPE_ETHERNET_10G_LR", "LINK_TYPE_ETHERNET_100G_LR", "LINK_TYPE_ETHERNET_400G_LR4"]`,
 			},
+			"location": {
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description: `URL of the InterconnectLocation object that represents where this connection is to be provisioned.
+Specifies the location inside Google's Networks.`,
+			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -131,14 +139,6 @@ method. Each label key/value pair must comply with RFC1035. Label values may be 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
-			},
-			"location": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description: `URL of the InterconnectLocation object that represents where this connection is to be provisioned.
-Specifies the location inside Google's Networks, should not be passed in case of cross-cloud interconnect.`,
 			},
 			"macsec": {
 				Type:     schema.TypeList,
