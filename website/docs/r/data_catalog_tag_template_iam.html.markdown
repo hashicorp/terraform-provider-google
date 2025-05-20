@@ -81,6 +81,10 @@ resource "google_data_catalog_tag_template_iam_member" "member" {
 
 The following arguments are supported:
 
+* `region` - (Optional) Template location region.
+ Used to find the parent resource to bind the IAM policy to. If not specified,
+  the value will be parsed from the identifier of the parent resource. If no region is provided in the parent identifier and no
+  region is specified, it is taken from the provider configuration.
 * `tag_template` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.

@@ -304,6 +304,8 @@ region are guaranteed to support the same version.
     [Google Groups for GKE](https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-access-control#groups-setup-gsuite) feature.
     Structure is [documented below](#nested_authenticator_groups_config).
 
+* `user_managed_keys_config` - (Optional) The custom keys configuration of the cluster Structure is [documented below](#nested_control_plane_endpoints_config).
+
 * `control_plane_endpoints_config` - (Optional) Configuration for all of the cluster's control plane endpoints.
     Structure is [documented below](#nested_control_plane_endpoints_config).
 
@@ -386,6 +388,9 @@ subnetwork in which the cluster's instances are launched.
 
 * `datapath_provider` - (Optional)
     The desired datapath provider for this cluster. This is set to `LEGACY_DATAPATH` by default, which uses the IPTables-based kube-proxy implementation. Set to `ADVANCED_DATAPATH` to enable Dataplane v2.
+
+* `in_transit_encryption_config` - (Optional)
+    Defines the config of in-transit encryption. Valid values are `IN_TRANSIT_ENCRYPTION_DISABLED` and `IN_TRANSIT_ENCRYPTION_INTER_NODE_TRANSPARENT`.
 
 * `enable_cilium_clusterwide_network_policy` - (Optional)
     Whether CiliumClusterWideNetworkPolicy is enabled on this cluster. Defaults to false.
@@ -931,6 +936,8 @@ gvnic {
 
 * `max_run_duration` - (Optional) The runtime of each node in the node pool in seconds, terminated by 's'. Example: "3600s".
 
+* `flex_start` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))) Enables Flex Start provisioning model for the node pool.
+
 * `local_ssd_count` - (Optional) The amount of local SSD disks that will be
     attached to each cluster node. Defaults to 0.
 
@@ -1010,7 +1017,7 @@ kubelet_config {
 * `linux_node_config` - (Optional) Parameters that can be configured on Linux nodes. Structure is [documented below](#nested_linux_node_config).
 
 * `windows_node_config` - (Optional)
-Windows node configuration, currently supporting OSVersion [attribute](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/NodeConfig#osversion). The value must be one of [OS_VERSION_UNSPECIFIED, OS_VERSION_LTSC2019, OS_VERSION_LTSC2019]. For example:
+Windows node configuration, currently supporting OSVersion [attribute](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/NodeConfig#osversion). The value must be one of [OS_VERSION_UNSPECIFIED, OS_VERSION_LTSC2019, OS_VERSION_LTSC2022]. For example:
 
 ```hcl
 windows_node_config {
@@ -1106,7 +1113,7 @@ sole_tenant_config {
 
 * `gpu_driver_version` (Required) - Mode for how the GPU driver is installed.
     Accepted values are:
-    * `"GPU_DRIVER_VERSION_UNSPECIFIED"`: Default value is to not install any GPU driver.
+    * `"GPU_DRIVER_VERSION_UNSPECIFIED"`: Default value is to install the "Default" GPU driver. Before GKE `1.30.1-gke.1156000`, the default value is to not install any GPU driver.
     * `"INSTALLATION_DISABLED"`: Disable GPU driver auto installation and needs manual installation.
     * `"DEFAULT"`: "Default" GPU driver in COS and Ubuntu.
     * `"LATEST"`: "Latest" GPU driver in COS.
@@ -1214,6 +1221,17 @@ notification_config {
 <a name="nested_secret_manager_config"></a>The `secret_manager_config` block supports:
 
 * `enabled` (Required) - Enable the Secret Manager add-on for this cluster.
+
+<a name="nested_user_managed_keys_config"></a>The `user_managed_keys_config` block supports:
+
+* `cluster_ca` - (Optional) The Certificate Authority Service caPool to use for the cluster CA in this cluster.
+* `etcd_api_ca` - (Optional) The Certificate Authority Service caPool to use for the etcd API CA in this cluster.
+* `etcd_peer_ca` - (Optional) The Certificate Authority Service caPool to use for the etcd peer CA in this cluster.
+* `aggregation_ca` - (Optional) The Certificate Authority Service caPool to use for the aggreation CA in this cluster.
+* `service_account_signing_keys` - (Optional) The Cloud KMS cryptoKeyVersions to use for signing service account JWTs issued by this cluster.
+* `service_account_verification_keys` - (Optional) The Cloud KMS cryptoKeyVersions to use for verifying service account JWTs issued by this cluster.
+* `control_plane_disk_encryption_key` - (Optional) The Cloud KMS cryptoKey to use for Confidential Hyperdisk on the control plane nodes.
+* `gkeops_etcd_backup_encryption_key` - (Optional) Resource path of the Cloud KMS cryptoKey to use for encryption of internal etcd backups.
 
 <a name="nested_control_plane_endpoints_config"></a>The `control_plane_endpoints_config` block supports:
 

@@ -63,6 +63,11 @@ func testAccDataSourceComputeNetworkEndpointGroupCheck(data_source_name string, 
 				)
 			}
 		}
+
+		if v, ok := ds_attr["generated_id"]; !ok || v == "" {
+			return fmt.Errorf("generated_id is not set")
+		}
+
 		return nil
 	}
 }

@@ -49,7 +49,7 @@ resource "google_data_fusion_instance" "foobar" {
   region = "us-central1"
   type   = "BASIC"
   # See supported versions here https://cloud.google.com/data-fusion/docs/support/version-support-policy
-  version = "6.9.1"
+  version = "6.10.0"
   # Mark for testing to avoid service networking connection usage that is not cleaned up
   options = {
   	prober_test_run = "true"
@@ -75,7 +75,7 @@ resource "google_data_fusion_instance" "foobar" {
     label1 = "value1"
     label2 = "value2"
   }
-  version = "6.9.2"
+  version = "6.10.1"
 
   accelerators {
     accelerator_type = "CCAI_INSIGHTS"
@@ -154,62 +154,6 @@ resource "google_data_fusion_instance" "foobar" {
   }
 }
 `, instanceName)
-}
-
-func TestAccDataFusionInstanceVersion_dataFusionInstanceUpdate(t *testing.T) {
-	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20574")
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"version":       "6.9.1",
-	}
-
-	contextUpdate := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"version":       "6.9.2",
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataFusionInstanceVersion_dataFusionInstanceUpdate(context),
-			},
-			{
-				ResourceName:            "google_data_fusion_instance.basic_instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
-			},
-			{
-				Config: testAccDataFusionInstanceVersion_dataFusionInstanceUpdate(contextUpdate),
-			},
-			{
-				ResourceName:            "google_data_fusion_instance.basic_instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
-			},
-		},
-	})
-}
-
-func testAccDataFusionInstanceVersion_dataFusionInstanceUpdate(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_data_fusion_instance" "basic_instance" {
-  name   = "tf-test-my-instance%{random_suffix}"
-  region = "us-central1"
-  type   = "BASIC"
-  # Mark for testing to avoid service networking connection usage that is not cleaned up
-  options = {
-    prober_test_run = "true"
-  }
-  version = "%{version}"
-}
-`, context)
 }
 
 func TestAccDatafusionInstance_tags(t *testing.T) {

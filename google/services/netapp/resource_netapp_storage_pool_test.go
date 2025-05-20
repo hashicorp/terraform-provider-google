@@ -3,17 +3,19 @@
 package netapp_test
 
 import (
+	"testing"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"testing"
-	"time"
 )
 
 func TestAccNetappStoragePool_storagePoolCreateExample_update(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-2", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -46,24 +48,8 @@ func TestAccNetappStoragePool_storagePoolCreateExample_update(t *testing.T) {
 func testAccNetappStoragePool_storagePoolCreateExample_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 
-resource "google_compute_network" "peering_network" {
-  name = "tf-test-network%{random_suffix}"
-}
-
-# Create an IP address
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "tf-test-address%{random_suffix}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.peering_network.id
-}
-
-# Create a private connection
-resource "google_service_networking_connection" "default" {
-  network                 = google_compute_network.peering_network.id
-  service                 = "netapp.servicenetworking.goog"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+data "google_compute_network" "default" {
+    name = "%{network_name}"
 }
 
 resource "google_netapp_storage_pool" "test_pool" {
@@ -71,7 +57,7 @@ resource "google_netapp_storage_pool" "test_pool" {
   location = "us-central1"
   service_level = "PREMIUM"
   capacity_gib = "2048"
-  network = google_compute_network.peering_network.id
+  network = data.google_compute_network.default.id
   active_directory      = ""
   description           = "this is a test description"
   kms_config            = ""
@@ -88,24 +74,8 @@ resource "google_netapp_storage_pool" "test_pool" {
 func testAccNetappStoragePool_storagePoolCreateExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 
-resource "google_compute_network" "peering_network" {
-  name = "tf-test-network%{random_suffix}"
-}
-
-# Create an IP address
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "tf-test-address%{random_suffix}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.peering_network.id
-}
-
-# Create a private connection
-resource "google_service_networking_connection" "default" {
-  network                 = google_compute_network.peering_network.id
-  service                 = "netapp.servicenetworking.goog"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+data "google_compute_network" "default" {
+    name = "%{network_name}"
 }
 
 resource "google_netapp_storage_pool" "test_pool" {
@@ -113,7 +83,7 @@ resource "google_netapp_storage_pool" "test_pool" {
   location = "us-central1"
   service_level = "PREMIUM"
   capacity_gib = "4096"
-  network = google_compute_network.peering_network.id
+  network = data.google_compute_network.default.id
   active_directory      = ""
   description           = "this is test"
   kms_config            = ""
@@ -129,7 +99,7 @@ resource "google_netapp_storage_pool" "test_pool" {
 
 func TestAccNetappStoragePool_autoTieredStoragePoolCreateExample_update(t *testing.T) {
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-1", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-2", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -156,24 +126,8 @@ func TestAccNetappStoragePool_autoTieredStoragePoolCreateExample_update(t *testi
 
 func testAccNetappStoragePool_autoTieredStoragePoolCreateExample_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_network" "peering_network" {
-  name = "tf-test-network%{random_suffix}"
-}
-
-# Create an IP address
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "tf-test-address%{random_suffix}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.peering_network.id
-}
-
-# Create a private connection
-resource "google_service_networking_connection" "default" {
-  network                 = google_compute_network.peering_network.id
-  service                 = "netapp.servicenetworking.goog"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+data "google_compute_network" "default" {
+    name = "%{network_name}"
 }
 
 resource "google_netapp_storage_pool" "test_pool" {
@@ -181,7 +135,7 @@ resource "google_netapp_storage_pool" "test_pool" {
   location = "us-east4"
   service_level = "PREMIUM"
   capacity_gib = "2048"
-  network = google_compute_network.peering_network.id
+  network = data.google_compute_network.default.id
   active_directory      = ""
   description           = "this is a test description"
   kms_config            = ""
@@ -197,7 +151,7 @@ resource "google_netapp_storage_pool" "test_pool" {
 
 func TestAccNetappStoragePool_FlexRegionalStoragePoolCreateExample_update(t *testing.T) {
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-1", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-2", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -320,7 +274,7 @@ data "google_compute_network" "default" {
 
 func TestAccNetappStoragePool_FlexRegionalStoragePoolNoZone(t *testing.T) {
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-1", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-2", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -358,6 +312,79 @@ resource "google_netapp_storage_pool" "test_pool" {
 resource "time_sleep" "wait_5_minutes" {
     depends_on = [google_netapp_storage_pool.test_pool]
     destroy_duration = "5m"
+}
+
+data "google_compute_network" "default" {
+    name = "%{network_name}"
+}
+`, context)
+}
+
+func TestAccNetappStoragePool_customPerformanceStoragePoolCreateExample_update(t *testing.T) {
+	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-2", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetappStoragePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetappStoragePool_customPerformanceStoragePoolCreateExample_full(context),
+			},
+			{
+				ResourceName:            "google_netapp_storage_pool.test_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccNetappStoragePool_customPerformanceStoragePoolCreateExample_update(context),
+			},
+			{
+				ResourceName:            "google_netapp_storage_pool.test_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetappStoragePool_customPerformanceStoragePoolCreateExample_full(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_netapp_storage_pool" "test_pool" {
+  name = "tf-test-pool%{random_suffix}"
+  location = "us-east4-a"
+  service_level = "FLEX"
+  capacity_gib = "2048"
+  network = data.google_compute_network.default.id
+  description = "this is a test description"
+  custom_performance_enabled = true
+  total_throughput_mibps = "64"
+  total_iops = "1024"
+}
+
+data "google_compute_network" "default" {
+    name = "%{network_name}"
+}
+`, context)
+}
+
+func testAccNetappStoragePool_customPerformanceStoragePoolCreateExample_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_netapp_storage_pool" "test_pool" {
+  name = "tf-test-pool%{random_suffix}"
+  location = "us-east4-a"
+  service_level = "FLEX"
+  capacity_gib = "2048"
+  network = data.google_compute_network.default.id
+  description = "this is updated test description"
+  custom_performance_enabled = true
+  total_throughput_mibps = "200"
+  total_iops = "3200"
 }
 
 data "google_compute_network" "default" {

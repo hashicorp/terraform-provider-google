@@ -22,6 +22,10 @@ fields:
   - field: 'cross_instance_replication_config.secondary_instances.uid'
   - field: 'cross_instance_replication_config.update_time'
   - field: 'deletion_protection_enabled'
+  - field: 'desired_auto_created_endpoints.network'
+    provider_only: true
+  - field: 'desired_auto_created_endpoints.project_id'
+    provider_only: true
   - field: 'desired_psc_auto_connections.network'
     provider_only: true
   - field: 'desired_psc_auto_connections.project_id'

@@ -420,7 +420,7 @@ func resourceGeminiCodeRepositoryIndexDelete(d *schema.ResourceData, meta interf
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{GeminiBasePath}}projects/{{project}}/locations/{{location}}/codeRepositoryIndexes/{{code_repository_index_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GeminiBasePath}}projects/{{project}}/locations/{{location}}/codeRepositoryIndexes/{{code_repository_index_id}}?force={{force_destroy}}")
 	if err != nil {
 		return err
 	}
@@ -433,12 +433,6 @@ func resourceGeminiCodeRepositoryIndexDelete(d *schema.ResourceData, meta interf
 	}
 
 	headers := make(http.Header)
-	obj = make(map[string]interface{})
-	if v, ok := d.GetOk("force_destroy"); ok {
-		if v == true {
-			obj["force"] = true
-		}
-	}
 
 	log.Printf("[DEBUG] Deleting CodeRepositoryIndex %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

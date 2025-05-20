@@ -191,9 +191,10 @@ func TestGetRegionFromRegionalSelfLink(t *testing.T) {
 
 func TestGetProjectFromRegionalSelfLink(t *testing.T) {
 	cases := map[string]string{
-		"projects/foo/locations/europe-north1/datasets/bar/operations/foobar":            "foo",
-		"projects/REDACTED/regions/europe-north1/subnetworks/tf-test-net-xbwhsmlfm8":     "REDACTED",
-		"projects/REDA:CT-ED09/regions/europe-north1/subnetworks/tf-test-net-xbwhsmlfm8": "REDA:CT-ED09",
+		"projects/foo/locations/europe-north1/datasets/bar/operations/foobar":                "foo",
+		"projects/REDACTED/regions/europe-north1/subnetworks/tf-test-net-xbwhsmlfm8":         "REDACTED",
+		"projects/REDA:CT-ED09/regions/europe-north1/subnetworks/tf-test-net-xbwhsmlfm8":     "REDA:CT-ED09",
+		"projects/REDA.com:CT-ED09/regions/europe-north1/subnetworks/tf-test-net-xbwhsmlfm8": "REDA.com:CT-ED09",
 	}
 	for input, expected := range cases {
 		if result := GetProjectFromRegionalSelfLink(input); result != expected {

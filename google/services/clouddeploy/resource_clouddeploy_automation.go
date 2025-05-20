@@ -110,6 +110,7 @@ func ResourceClouddeployAutomation() *schema.Resource {
 									},
 								},
 							},
+							ExactlyOneOf: []string{},
 						},
 						"promote_release_rule": {
 							Type:        schema.TypeList,
@@ -140,6 +141,7 @@ func ResourceClouddeployAutomation() *schema.Resource {
 									},
 								},
 							},
+							ExactlyOneOf: []string{},
 						},
 						"repair_rollout_rule": {
 							Type:        schema.TypeList,
@@ -200,6 +202,7 @@ func ResourceClouddeployAutomation() *schema.Resource {
 															},
 														},
 													},
+													ExactlyOneOf: []string{},
 												},
 												"rollback": {
 													Type:        schema.TypeList,
@@ -220,12 +223,14 @@ func ResourceClouddeployAutomation() *schema.Resource {
 															},
 														},
 													},
+													ExactlyOneOf: []string{},
 												},
 											},
 										},
 									},
 								},
 							},
+							ExactlyOneOf: []string{},
 						},
 						"timed_promote_release_rule": {
 							Type:        schema.TypeList,
@@ -263,6 +268,7 @@ func ResourceClouddeployAutomation() *schema.Resource {
 									},
 								},
 							},
+							ExactlyOneOf: []string{},
 						},
 					},
 				},
@@ -1057,9 +1063,6 @@ func flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollback(v in
 		return nil
 	}
 	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
 	transformed["destination_phase"] =
 		flattenClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollbackDestinationPhase(original["destinationPhase"], d, config)
@@ -1430,7 +1433,7 @@ func expandClouddeployAutomationRulesRepairRolloutRuleRepairPhases(v interface{}
 		transformedRollback, err := expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollback(original["rollback"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedRollback); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		} else {
 			transformed["rollback"] = transformedRollback
 		}
 
@@ -1486,8 +1489,13 @@ func expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRetryBackoffMo
 
 func expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollback(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	if len(l) == 0 {
 		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})

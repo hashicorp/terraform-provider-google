@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
@@ -329,6 +330,74 @@ func TestUnitComputeGlobalForwardingRule_InternalIpDiffSuppress(t *testing.T) {
 	}
 }
 
+func TestAccComputeGlobalForwardingRule_updateCanaryMigration(t *testing.T) {
+	t.Parallel()
+
+	fr := fmt.Sprintf("fr-canary-mgiration-%s", acctest.RandString(t, 10))
+	proxy := fmt.Sprintf("pr-canary-mgiration-%s", acctest.RandString(t, 10))
+	urlmap := fmt.Sprintf("um-canary-mgiration-%s", acctest.RandString(t, 10))
+	backendservice := fmt.Sprintf("bs-canary-mgiration-%s", acctest.RandString(t, 10))
+	address := fmt.Sprintf("addr-canary-mgiration-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckComputeGlobalForwardingRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeGlobalForwardingRule_basic(fr, proxy, urlmap, backendservice, address),
+			},
+			{
+				ResourceName:      "google_compute_global_forwarding_rule.forwarding_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeGlobalForwardingRule_withCanaryMigration(fr, "PREPARE", proxy, urlmap, backendservice, address),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_global_forwarding_rule.forwarding_rule", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_global_forwarding_rule.forwarding_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeGlobalForwardingRule_withCanaryMigrationPercentage(fr, proxy, urlmap, backendservice, address, 50),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_global_forwarding_rule.forwarding_rule", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_global_forwarding_rule.forwarding_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeGlobalForwardingRule_withCanaryMigration(fr, "TEST_ALL_TRAFFIC", proxy, urlmap, backendservice, address),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_global_forwarding_rule.forwarding_rule", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_global_forwarding_rule.forwarding_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeGlobalForwardingRule_httpProxy(fr, targetProxy, proxy, proxy2, backend, hc, urlmap string) string {
 	return fmt.Sprintf(`
 resource "google_compute_global_forwarding_rule" "forwarding_rule" {
@@ -648,4 +717,111 @@ resource "google_compute_url_map" "urlmap" {
   }
 }
 `, fr, proxy, backend, hc, urlmap)
+}
+
+func testAccComputeGlobalForwardingRule_basic(fr, proxy, urlmap, backendservice, address string) string {
+	return fmt.Sprintf(`
+resource "google_compute_global_forwarding_rule" "forwarding_rule" {
+  name                  = "%s"
+  ip_protocol           = "TCP"
+  port_range            = "80"
+  load_balancing_scheme = "EXTERNAL"
+  target                = google_compute_target_http_proxy.my_target_http_proxy.id
+  ip_address            = google_compute_global_address.my_global_ip.address
+}
+
+resource "google_compute_target_http_proxy" "my_target_http_proxy" {
+  name    = "%s"
+  url_map = google_compute_url_map.my_url_map.id
+}
+
+resource "google_compute_url_map" "my_url_map" {
+  name            = "%s"
+  default_service = google_compute_backend_service.my_backend_service.id
+}
+
+resource "google_compute_backend_service" "my_backend_service" {
+  name                  = "%s"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL"
+}
+
+resource "google_compute_global_address" "my_global_ip" {
+  name = "%s"
+}
+`, fr, proxy, urlmap, backendservice, address)
+}
+
+func testAccComputeGlobalForwardingRule_withCanaryMigration(fr, bucket_migration_state, proxy, urlmap, backendservice, address string) string {
+	return fmt.Sprintf(`
+resource "google_compute_global_forwarding_rule" "forwarding_rule" {
+  name                  = "%s"
+  ip_protocol           = "TCP"
+  port_range            = "80"
+  load_balancing_scheme = "EXTERNAL"
+  target                = google_compute_target_http_proxy.my_target_http_proxy.id
+  ip_address            = google_compute_global_address.my_global_ip.address
+  external_managed_backend_bucket_migration_state = "%s"
+}
+
+resource "google_compute_target_http_proxy" "my_target_http_proxy" {
+  name    = "%s"
+  url_map = google_compute_url_map.my_url_map.id
+}
+
+resource "google_compute_url_map" "my_url_map" {
+  name            = "%s"
+  default_service = google_compute_backend_service.my_backend_service.id
+}
+
+resource "google_compute_backend_service" "my_backend_service" {
+  name                  = "%s"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL"
+}
+
+resource "google_compute_global_address" "my_global_ip" {
+  name = "%s"
+}
+`, fr, bucket_migration_state, proxy, urlmap, backendservice, address)
+}
+
+func testAccComputeGlobalForwardingRule_withCanaryMigrationPercentage(fr, proxy, urlmap, backendservice, address string, percentage int64) string {
+	return fmt.Sprintf(`
+resource "time_sleep" "six_minutes_delay" {
+  create_duration = "370s" # litte more than 6 minutes (360 seconds = 6 minutes)
+}
+
+resource "google_compute_global_forwarding_rule" "forwarding_rule" {
+  name                  = "%s"
+  ip_protocol           = "TCP"
+  port_range            = "80"
+  load_balancing_scheme = "EXTERNAL"
+  target                = google_compute_target_http_proxy.my_target_http_proxy.id
+  ip_address            = google_compute_global_address.my_global_ip.address
+  external_managed_backend_bucket_migration_state = "TEST_BY_PERCENTAGE"
+  external_managed_backend_bucket_migration_testing_percentage = %d
+  depends_on = [time_sleep.six_minutes_delay]
+}
+
+resource "google_compute_target_http_proxy" "my_target_http_proxy" {
+  name    = "%s"
+  url_map = google_compute_url_map.my_url_map.id
+}
+
+resource "google_compute_url_map" "my_url_map" {
+  name            = "%s"
+  default_service = google_compute_backend_service.my_backend_service.id
+}
+
+resource "google_compute_backend_service" "my_backend_service" {
+  name                  = "%s"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL"
+}
+
+resource "google_compute_global_address" "my_global_ip" {
+  name = "%s"
+}
+`, fr, percentage, proxy, urlmap, backendservice, address)
 }

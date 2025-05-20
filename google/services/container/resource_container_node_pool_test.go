@@ -645,6 +645,11 @@ func TestAccContainerNodePool_withWindowsNodeConfig(t *testing.T) {
 			// Perform an update.
 			{
 				Config: testAccContainerNodePool_withWindowsNodeConfig(cluster, np, "OS_VERSION_LTSC2022"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_node_pool.with_windows_node_config", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_container_node_pool.with_windows_node_config",
@@ -2826,7 +2831,7 @@ resource "google_container_node_pool" "np_with_management" {
 
   node_config {
     machine_type = "g1-small"
-    disk_size_gb = 10
+    disk_size_gb = 15
     oauth_scopes = ["compute-rw", "storage-ro", "logging-write", "monitoring"]
   }
 }
@@ -2851,7 +2856,7 @@ resource "google_container_node_pool" "np_with_node_config" {
   initial_node_count = 1
   node_config {
     machine_type = "g1-small"
-    disk_size_gb = 10
+    disk_size_gb = 15
     oauth_scopes = [
       "https://www.googleapis.com/auth/compute",
       "https://www.googleapis.com/auth/devstorage.read_only",
@@ -2908,7 +2913,7 @@ resource "google_container_node_pool" "np_with_node_config" {
   initial_node_count = 1
   node_config {
     machine_type = "g1-small"
-    disk_size_gb = 10
+    disk_size_gb = 15
     oauth_scopes = [
       "https://www.googleapis.com/auth/compute",
       "https://www.googleapis.com/auth/devstorage.read_only",
@@ -3775,7 +3780,7 @@ resource "google_container_node_pool" "np_with_node_config_scope_alias" {
   initial_node_count = 1
   node_config {
     machine_type = "g1-small"
-    disk_size_gb = 10
+    disk_size_gb = 15
     oauth_scopes = ["compute-rw", "storage-ro", "logging-write", "monitoring"]
   }
 }

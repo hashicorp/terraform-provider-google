@@ -51,6 +51,13 @@ func IpCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
+func DisksForceAttachDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	if new == old {
+		return true
+	}
+	return false
+}
+
 var (
 	advancedMachineFeaturesKeys = []string{
 		"advanced_machine_features.0.enable_nested_virtualization",
@@ -72,6 +79,7 @@ var (
 		"boot_disk.0.initialize_params",
 		"boot_disk.0.mode",
 		"boot_disk.0.source",
+		"boot_disk.0.force_attach",
 	}
 
 	initializeParamsKeys = []string{
@@ -136,8 +144,9 @@ func ValidateSubnetworkProjectFunc(d tpgresource.TerraformResourceDiff) error {
 			return nil
 		}
 
-		if tpgresource.GetProjectFromRegionalSelfLink(subnetwork.(string)) != subnetworkProject.(string) {
-			return fmt.Errorf("project in subnetwork's self_link %q must match subnetwork_project %q", subnetwork, subnetworkProject)
+		project := tpgresource.GetProjectFromRegionalSelfLink(subnetwork.(string))
+		if project != subnetworkProject.(string) {
+			return fmt.Errorf("project %s in subnetwork's self_link %q must match subnetwork_project %q", project, subnetwork, subnetworkProject)
 		}
 	}
 	return nil
@@ -541,6 +550,16 @@ func ResourceComputeInstance() *schema.Resource {
 							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 							Description:      `The name or self_link of the disk attached to this instance.`,
 						},
+
+						"force_attach": {
+							Type:             schema.TypeBool,
+							Optional:         true,
+							Default:          false,
+							AtLeastOneOf:     bootDiskKeys,
+							ForceNew:         true,
+							DiffSuppressFunc: DisksForceAttachDiffSuppress,
+							Description:      `Whether to force attach the regional disk even if it's currently attached to another instance. If you try to force attach a zonal disk to an instance, you will receive an error. Setting this parameter cause VM recreation.`,
+						},
 					},
 				},
 			},
@@ -832,6 +851,15 @@ func ResourceComputeInstance() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption key that protects this resource.`,
+						},
+
+						"force_attach": {
+							Type:             schema.TypeBool,
+							Optional:         true,
+							Default:          false,
+							ForceNew:         true,
+							DiffSuppressFunc: DisksForceAttachDiffSuppress,
+							Description:      `Whether to force attach the regional disk even if it's currently attached to another instance. If you try to force attach a zonal disk to an instance, you will receive an error. Setting this parameter cause VM recreation.`,
 						},
 					},
 				},
@@ -1953,6 +1981,10 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 				}
 			}
 
+			if v, ok := d.GetOk(fmt.Sprintf("attached_disk.%d.force_attach", adIndex)); ok {
+				di["force_attach"] = v.(bool)
+			}
+
 			// We want the disks to remain in the order we set in the config, so if a disk
 			// is present in the config, make sure it's at the correct index. Otherwise, append it.
 			if inConfig {
@@ -3008,6 +3040,11 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 			disk.DiskEncryptionKey.KmsKeyServiceAccount = kmsServiceAccount.(string)
 		}
 	}
+
+	if forceAttach, ok := diskConfig["force_attach"]; ok {
+		disk.ForceAttach = forceAttach.(bool)
+	}
+
 	return disk, nil
 }
 
@@ -3353,6 +3390,10 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 		disk.Mode = v.(string)
 	}
 
+	if v, ok := d.GetOk("boot_disk.0.force_attach"); ok {
+		disk.ForceAttach = v.(bool)
+	}
+
 	return disk, nil
 }
 
@@ -3363,6 +3404,7 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config 
 		"mode":              disk.Mode,
 		"source":            tpgresource.ConvertSelfLinkToV1(disk.Source),
 		"guest_os_features": flattenComputeInstanceGuestOsFeatures(disk.GuestOsFeatures),
+		"force_attach":      d.Get("boot_disk.0.force_attach"),
 		// disk_encryption_key_raw is not returned from the API, so copy it from what the user
 		// originally specified to avoid diffs.
 		"disk_encryption_key_raw": d.Get("boot_disk.0.disk_encryption_key_raw"),
@@ -3370,6 +3412,9 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config 
 	}
 	if _, ok := d.GetOk("boot_disk.0.interface"); ok {
 		result["interface"] = disk.Interface
+	}
+	if v, ok := d.GetOk("boot_disk.0.force_attach"); ok {
+		result["force_attach"] = v.(bool)
 	}
 
 	diskDetails, err := getDisk(disk.Source, d, config)

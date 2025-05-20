@@ -117,10 +117,11 @@ resource "google_cloudbuild_worker_pool" "pool" {
 		no_external_ip = true
 	}
 
-	private_service_connect {
-		network_attachment = "%{network_attachment}"
-		route_all_traffic = false
-	}
+	// private_service_connect feature is not supported yet. b/394920388
+	// private_service_connect {
+	// 	network_attachment = "%{network_attachment}"
+	// 	route_all_traffic = false
+	// }
 }
 `, context)
 }

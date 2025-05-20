@@ -11,6 +11,8 @@ fields:
   - field: 'description'
   - field: 'effective_labels'
     provider_only: true
+  - field: 'external_managed_backend_bucket_migration_state'
+  - field: 'external_managed_backend_bucket_migration_testing_percentage'
   - field: 'forwarding_rule_id'
     api_field: 'id'
   - field: 'ip_address'

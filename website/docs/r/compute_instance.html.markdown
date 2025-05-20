@@ -293,6 +293,10 @@ is desired, you will need to modify your state file manually using
     `google_compute_disk`) or disk image. To create an instance from a snapshot, first create a
     `google_compute_disk` from a snapshot and reference it here.
 
+* `force_attach` - (Optional) boolean field that determines whether to force attach the regional
+    disk even if it's currently attached to another instance. If you try to force attach a zonal
+    disk to an instance, you will receive an error. Setting this parameter cause VM recreation.
+
 <a name="nested_initialize_params"></a>The `initialize_params` block supports:
 
 * `size` - (Optional) The size of the image in gigabytes. If not specified, it
@@ -418,6 +422,10 @@ is desired, you will need to modify your state file manually using
     may be set.
 
 * `kms_key_service_account` - (Optional) The service account being used for the encryption request for the given KMS key. If absent, the Compute Engine default service account is used.
+
+* `force_attach` - (Optional) boolean field that determines whether to force attach the regional
+    disk even if it's currently attached to another instance. If you try to force attach a zonal
+    disk to an instance, you will receive an error. Setting this parameter cause VM recreation.
 
 <a name="nested_network_performance_config"></a>The `network_performance_config` block supports:
 

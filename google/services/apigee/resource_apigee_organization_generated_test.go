@@ -237,10 +237,12 @@ resource "google_project_service" "apigee" {
 }
 
 resource "google_apigee_organization" "org" {
-  description         = "Terraform-provisioned basic Apigee Org under European Union hosting jurisdiction."
-  project_id          = google_project.project.project_id
-  disable_vpc_peering = true
-  depends_on          = [
+  description                = "Terraform-provisioned basic Apigee Org under European Union hosting jurisdiction."
+  project_id                 = google_project.project.project_id
+  api_consumer_data_location = "europe-west1"
+  billing_type               = "PAYG"
+  disable_vpc_peering        = true
+  depends_on                 = [
     google_project_service.apigee,
   ]
 }

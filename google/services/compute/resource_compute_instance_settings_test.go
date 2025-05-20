@@ -57,7 +57,7 @@ func testAccComputeInstanceSettings_basic(context map[string]interface{}) string
 	return acctest.Nprintf(`
 
 resource "google_compute_instance_settings" "gce_instance_settings" {
-  zone = "us-east7-b"
+  zone = "us-east5-c"
   metadata {
     items = {
       foo = "baz"
@@ -72,7 +72,7 @@ func testAccComputeInstanceSettings_update(context map[string]interface{}) strin
 	return acctest.Nprintf(`
 
 resource "google_compute_instance_settings" "gce_instance_settings" {
-  zone = "us-east7-b"
+  zone = "us-east5-c"
   metadata {
     items = {
       foo = "bar"
@@ -88,7 +88,7 @@ func testAccComputeInstanceSettings_delete(context map[string]interface{}) strin
 	return acctest.Nprintf(`
 
 resource "google_compute_instance_settings" "gce_instance_settings" {
-  zone = "us-east7-b"
+  zone = "us-east5-c"
   metadata {
     items = {
       baz = "qux"

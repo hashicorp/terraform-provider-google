@@ -42,6 +42,10 @@ func TestAccStorageBucket_basic(t *testing.T) {
 						"google_storage_bucket.bucket", "project_number"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "rpo", "DEFAULT"),
+					resource.TestCheckResourceAttrSet(
+						"google_storage_bucket.bucket", "time_created"),
+					resource.TestCheckResourceAttrSet(
+						"google_storage_bucket.bucket", "updated"),
 				),
 			},
 			{
@@ -685,21 +689,6 @@ func TestAccStorageBucket_storageClass(t *testing.T) {
 						t, "google_storage_bucket.bucket", bucketName, &updated),
 					// storage_class-only change should not recreate
 					testAccCheckStorageBucketWasUpdated(&updated, &bucket),
-				),
-			},
-			{
-				ResourceName:            "google_storage_bucket.bucket",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"force_destroy"},
-			},
-			{
-				Config: testAccStorageBucket_storageClass(bucketName, "REGIONAL", "US-CENTRAL1"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckStorageBucketExists(
-						t, "google_storage_bucket.bucket", bucketName, &updated),
-					// Location change causes recreate
-					testAccCheckStorageBucketWasRecreated(&updated, &bucket),
 				),
 			},
 			{

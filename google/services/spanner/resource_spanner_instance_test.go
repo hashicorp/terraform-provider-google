@@ -86,7 +86,7 @@ func TestAccSpannerInstance_noNodeCountSpecified(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccSpannerInstance_noNodeCountSpecified(idName),
-				ExpectError: regexp.MustCompile(".*one of `autoscaling_config,num_nodes,processing_units`\nmust be specified.*"),
+				ExpectError: regexp.MustCompile(".*one of\n`autoscaling_config,instance_type,num_nodes,processing_units` must be\nspecified.*"),
 			},
 		},
 	})
@@ -499,6 +499,41 @@ func TestAccSpannerInstance_spannerInstanceWithAutoscaling(t *testing.T) {
 	})
 }
 
+func TestAccSpannerInstance_freeInstanceBasicUpdate(t *testing.T) {
+	displayName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerInstance_freeInstanceBasic(displayName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.main", "state"),
+				),
+			},
+			{
+				ResourceName:            "google_spanner_instance.main",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccSpannerInstance_freeInstanceBasicUpdate(displayName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.main", "state"),
+				),
+			},
+			{
+				ResourceName:            "google_spanner_instance.main",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func testAccSpannerInstance_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_spanner_instance" "basic" {
@@ -794,4 +829,28 @@ resource "google_spanner_instance" "example" {
   }
 }
 `, context)
+}
+
+func testAccSpannerInstance_freeInstanceBasic(name string) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "main" {
+  name          = "%s"
+  config        = "regional-europe-west1"
+  display_name  = "%s"
+  instance_type = "FREE_INSTANCE"
+}
+`, name, name)
+}
+
+func testAccSpannerInstance_freeInstanceBasicUpdate(name string) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "main" {
+  name          = "%s"
+  config        = "nam-eur-asia3"
+  display_name  = "%s"
+  edition       = "ENTERPRISE_PLUS"
+  instance_type = "PROVISIONED"
+  num_nodes     = 1
+}
+`, name, name)
 }

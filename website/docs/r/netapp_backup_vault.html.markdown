@@ -73,6 +73,15 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `backup_vault_type` -
+  (Optional)
+  Type of the backup vault to be created. Default is IN_REGION.
+  Possible values are: `BACKUP_VAULT_TYPE_UNSPECIFIED`, `IN_REGION`, `CROSS_REGION`.
+
+* `backup_region` -
+  (Optional)
+  Region in which backup is stored.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -88,6 +97,15 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `create_time` -
   Create time of the backup vault. A timestamp in RFC3339 UTC "Zulu" format. Examples: "2023-06-22T09:13:01.617Z".
+
+* `source_region` -
+  Region in which the backup vault is created.
+
+* `source_backup_vault` -
+  Name of the Backup vault created in source region.
+
+* `destination_backup_vault` -
+  Name of the Backup vault created in backup region.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

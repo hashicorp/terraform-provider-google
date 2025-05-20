@@ -432,6 +432,37 @@ func TestAccComputeInstanceFromTemplate_confidentialInstanceConfigMain(t *testin
 	})
 }
 
+func TestAccComputeInstanceFromTemplate_DiskForceAttach(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	resourceName := "google_compute_instance_from_template.foobar"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccComputeInstanceFromTemplate_DiskForceAttach_zonal(instanceName, templateName),
+				ExpectError: regexp.MustCompile("Force attaching zonal disks is not supported"),
+			},
+			{
+				Config: testAccComputeInstanceFromTemplate_DiskForceAttach(instanceName, templateName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
+
+					// Check that fields were set based on the template
+					resource.TestCheckResourceAttr(resourceName, "boot_disk.0.force_attach", "true"),
+					resource.TestCheckResourceAttr(resourceName, "attached_disk.0.force_attach", "true"),
+				),
+			},
+		},
+	})
+}
+
 func testAccComputeInstanceFromTemplate_basic(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -1710,4 +1741,139 @@ resource "google_compute_instance_from_template" "foobar" {
   source_instance_template = google_compute_region_instance_template.foobar.id
 }
   `, suffix, suffix, template, template)
+}
+
+func testAccComputeInstanceFromTemplate_DiskForceAttach_zonal(instance, template string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-1"  // can't be e2 because of local-ssd
+
+  disk {
+    source      = google_compute_disk.foobar.name
+    auto_delete = false
+    boot        = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  scheduling {
+    automatic_restart = true
+  }
+
+  can_ip_forward = true
+}
+
+resource "google_compute_instance_from_template" "foobar" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  source_instance_template = google_compute_instance_template.foobar.self_link
+
+  // Overrides
+  boot_disk {
+    source       = google_compute_disk.foobar.name
+    force_attach = true
+  }
+  attached_disk {
+    source       = google_compute_disk.foobar.name
+    force_attach = true
+  }
+}
+`, template, template, instance)
+}
+
+func testAccComputeInstanceFromTemplate_DiskForceAttach(instance, template string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_disk" "foobar" {
+  name  		= "%s-1"
+  size  		= 10
+  type  		= "pd-ssd"
+  region 		= "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-b"]
+}
+
+resource "google_compute_region_disk" "foobaz" {
+  name  		= "%s-2"
+  size  		= 10
+  type  		= "pd-ssd"
+  region 		= "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-b"]
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-1"  // can't be e2 because of local-ssd
+
+  disk {
+    source      = google_compute_region_disk.foobar.self_link
+    auto_delete = false
+    boot        = true
+  }
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 100
+    boot         = false
+    disk_type    = "pd-ssd"
+    type         = "PERSISTENT"
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  scheduling {
+    automatic_restart = true
+  }
+
+  can_ip_forward = true
+}
+
+resource "google_compute_instance_from_template" "foobar" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  source_instance_template = google_compute_instance_template.foobar.self_link
+
+  // Overrides
+  boot_disk {
+    source       = google_compute_region_disk.foobar.self_link
+    force_attach = true
+  }
+  attached_disk {
+    source       = google_compute_region_disk.foobaz.self_link
+    force_attach = true
+  }
+}
+`, template, template, template, instance)
 }

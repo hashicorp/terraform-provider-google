@@ -1255,7 +1255,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	if err := config.LoadAndValidate(stopCtx); err != nil {
 		return nil, diag.FromErr(err)
 	}
-
 	// Verify that universe domains match between credentials and configuration
 	if v, ok := d.GetOk("universe_domain"); ok {
 		if config.UniverseDomain == "" && v.(string) != "googleapis.com" { // v can't be "", as it wouldn't pass `ok` above
