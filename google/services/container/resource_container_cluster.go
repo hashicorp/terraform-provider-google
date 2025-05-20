@@ -1551,7 +1551,6 @@ func ResourceContainerCluster() *schema.Resource {
 						"stack_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ForceNew:     true,
 							Default:      "IPV4",
 							ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV4_IPV6"}, false),
 							Description:  `The IP Stack type of the cluster. Choose between IPV4 and IPV4_IPV6. Default type is IPV4 Only if not set`,
@@ -3154,6 +3153,24 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s's default enable private nodes has been updated to %v", d.Id(), enabled)
+	}
+
+	if d.HasChange("ip_allocation_policy.0.stack_type") {
+		if stackType, ok := d.GetOk("ip_allocation_policy.0.stack_type"); ok {
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredStackType: stackType.(string),
+				},
+			}
+
+			updateF := updateFunc(req, "updating GKE cluster stack type")
+			// Call update serially.
+			if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] GKE cluster %s stack type has been updated", d.Id())
+		}
 	}
 
 	if d.HasChange("addons_config") {
