@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 // Hardcode the Terraform resource name -> API service name mapping temporarily.
@@ -42,6 +43,7 @@ func GetTestMetadataForTgc(service, address, rawConfig string) resource.TestChec
 		if apiServiceName, ok := ApiServiceNames[resourceType]; !ok {
 			return fmt.Errorf("The Cai product backend name for resource %s doesn't exist.", resourceType)
 		} else {
+			var assetNames string
 			var rName string
 			switch resourceType {
 			case "google_project":
@@ -50,16 +52,35 @@ func GetTestMetadataForTgc(service, address, rawConfig string) resource.TestChec
 				rName = rState.Primary.ID
 			}
 			caiAssetName := fmt.Sprintf("//%s/%s", apiServiceName, rName)
-			log.Printf("[DEBUG]TGC CAI asset names start\n%s\nEnd of TGC CAI asset names", caiAssetName)
+
+			switch resourceType {
+			case "google_compute_instance":
+				// The disk asset name is to get the boot disk details,
+				// which are converted to boot_disk.initialize_params in google_compute_instance
+				diskAssetName := strings.Replace(caiAssetName, "/instances/", "/disks/", 1)
+				assetNames = fmt.Sprintf("%s\n%s", caiAssetName, diskAssetName)
+			default:
+				assetNames = caiAssetName
+			}
+			log.Printf("[DEBUG]TGC CAI asset names\n%s\nEnd of TGC CAI asset names", assetNames)
 		}
 
 		// The acceptance tests names will be also used for the tgc tests.
 		// "service" is logged and will be used to put the tgc tests into specific service packages.
 		log.Printf("[DEBUG]TGC Terraform service: %s", service)
-		log.Printf("[DEBUG]TGC Terraform resource: %s", address)
+		log.Printf("[DEBUG]TGC Terraform resource: %s", resourceType)
 
 		re := regexp.MustCompile(`\"(tf[-_]?test[-_]?.*?)([a-z0-9]+)\"`)
 		rawConfig = re.ReplaceAllString(rawConfig, `"${1}tgc"`)
+
+		// Replace resource name with the resource's real name,
+		// which is used to get the main resource object by checking the address after parsing raw config.
+		// For example, replace `"google_compute_instance" "foobar"` with `"google_compute_instance" "tf-test-mi3fqaucf8"`
+		n := tpgresource.GetResourceNameFromSelfLink(rState.Primary.ID)
+		old := fmt.Sprintf(`"%s" "%s"`, resourceType, resourceName)
+		new := fmt.Sprintf(`"%s" "%s"`, resourceType, n)
+		rawConfig = strings.Replace(rawConfig, old, new, 1)
+
 		log.Printf("[DEBUG]TGC raw_config starts %sEnd of TGC raw_config", rawConfig)
 		return nil
 	}

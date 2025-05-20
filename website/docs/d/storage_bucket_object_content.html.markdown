@@ -45,8 +45,3 @@ The following attributes are exported:
 
 * `content_base64` - (Computed) Base64 encoded version of the object content.
   Use this when dealing with binary data.
-
-* `content_hexsha512` - (Computed) Hex encoded SHA512 checksum of file content.
-
-* `content_base64sha512` - (Computed) Base64 encoded SHA512 checksum of file content.
-

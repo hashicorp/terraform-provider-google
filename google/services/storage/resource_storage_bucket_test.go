@@ -42,10 +42,6 @@ func TestAccStorageBucket_basic(t *testing.T) {
 						"google_storage_bucket.bucket", "project_number"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "rpo", "DEFAULT"),
-					resource.TestCheckResourceAttrSet(
-						"google_storage_bucket.bucket", "time_created"),
-					resource.TestCheckResourceAttrSet(
-						"google_storage_bucket.bucket", "updated"),
 				),
 			},
 			{

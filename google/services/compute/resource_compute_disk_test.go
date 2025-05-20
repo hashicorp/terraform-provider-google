@@ -1997,12 +1997,12 @@ func testAccComputeDisk_resourceManagerTags(context map[string]interface{}) stri
 	return acctest.Nprintf(`
 resource "google_tags_tag_key" "tag_key" {
   parent = "projects/%{project_id}"
-  short_name = "test-%{random_suffix}"
+  short_name = "test"
 }
 
 resource "google_tags_tag_value" "tag_value" {
   parent = "tagKeys/${google_tags_tag_key.tag_key.name}"
-  short_name = "name-%{random_suffix}"
+  short_name = "name"
 }
 
 resource "google_compute_disk" "foobar" {

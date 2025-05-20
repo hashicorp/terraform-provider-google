@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"reflect"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -326,8 +325,13 @@ func TestAccFilestoreInstance_performanceConfig(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"zone"},
 			},
 			{
-				Config:      testAccFilestoreInstance_defaultConfig(name, location, tier),
-				ExpectError: regexp.MustCompile("custom performance cannot be cleared"),
+				Config: testAccFilestoreInstance_defaultConfig(name, location, tier),
+			},
+			{
+				ResourceName:            "google_filestore_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"zone"},
 			},
 		},
 	})

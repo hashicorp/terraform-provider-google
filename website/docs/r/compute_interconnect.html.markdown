@@ -60,11 +60,6 @@ The following arguments are supported:
   character must be a lowercase letter, and all following characters must be a dash,
   lowercase letter, or digit, except the last character, which cannot be a dash.
 
-* `location` -
-  (Required)
-  URL of the InterconnectLocation object that represents where this connection is to be provisioned.
-  Specifies the location inside Google's Networks.
-
 * `link_type` -
   (Required)
   Type of link requested. Note that this field indicates the speed of each of the links in the
@@ -93,6 +88,11 @@ The following arguments are supported:
 * `description` -
   (Optional)
   An optional description of this resource. Provide this property when you create the resource.
+
+* `location` -
+  (Optional)
+  URL of the InterconnectLocation object that represents where this connection is to be provisioned.
+  Specifies the location inside Google's Networks, should not be passed in case of cross-cloud interconnect.
 
 * `admin_enabled` -
   (Optional)

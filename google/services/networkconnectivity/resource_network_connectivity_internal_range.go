@@ -96,12 +96,6 @@ Only IPv4 CIDR ranges are supported.`,
 					Type: schema.TypeString,
 				},
 			},
-			"immutable": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Immutable ranges cannot have their fields modified, except for labels and description.`,
-			},
 			"ip_cidr_range": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -275,12 +269,6 @@ func resourceNetworkConnectivityInternalRangeCreate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("migration"); !tpgresource.IsEmptyValue(reflect.ValueOf(migrationProp)) && (ok || !reflect.DeepEqual(v, migrationProp)) {
 		obj["migration"] = migrationProp
 	}
-	immutableProp, err := expandNetworkConnectivityInternalRangeImmutable(d.Get("immutable"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("immutable"); !tpgresource.IsEmptyValue(reflect.ValueOf(immutableProp)) && (ok || !reflect.DeepEqual(v, immutableProp)) {
-		obj["immutable"] = immutableProp
-	}
 	labelsProp, err := expandNetworkConnectivityInternalRangeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -420,9 +408,6 @@ func resourceNetworkConnectivityInternalRangeRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
 	if err := d.Set("migration", flattenNetworkConnectivityInternalRangeMigration(res["migration"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InternalRange: %s", err)
-	}
-	if err := d.Set("immutable", flattenNetworkConnectivityInternalRangeImmutable(res["immutable"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenNetworkConnectivityInternalRangeTerraformLabels(res["labels"], d, config)); err != nil {
@@ -773,10 +758,6 @@ func flattenNetworkConnectivityInternalRangeMigrationTarget(v interface{}, d *sc
 	return v
 }
 
-func flattenNetworkConnectivityInternalRangeImmutable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenNetworkConnectivityInternalRangeTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -863,10 +844,6 @@ func expandNetworkConnectivityInternalRangeMigrationSource(v interface{}, d tpgr
 }
 
 func expandNetworkConnectivityInternalRangeMigrationTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandNetworkConnectivityInternalRangeImmutable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

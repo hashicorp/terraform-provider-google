@@ -42,6 +42,7 @@ func TestAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.google_kms_crypto_key_latest_version.latest_version", "crypto_key", asymSignKey.CryptoKey.Name),
 					resource.TestMatchResourceAttr("data.google_kms_crypto_key_latest_version.latest_version", "version", regexp.MustCompile("[1-9]+[0-9]*")),
 				),
+				ExpectError: regexp.MustCompile("Error: googleapi: Error 400:"),
 			},
 			{
 				Config: testAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(context, fmt.Sprintf("filter = \"%s\"", filterNameFindEnabledLatestCryptoKeyVersion)),

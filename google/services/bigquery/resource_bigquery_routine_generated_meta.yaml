@@ -26,7 +26,6 @@ fields:
   - field: 'routine_reference.dataset_id'
   - field: 'routine_reference.routine_id'
   - field: 'routine_type'
-  - field: 'security_mode'
   - field: 'spark_options.archive_uris'
   - field: 'spark_options.connection'
   - field: 'spark_options.container_image'

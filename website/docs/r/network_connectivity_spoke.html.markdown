@@ -707,10 +707,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `state` -
   Output only. The current lifecycle state of this spoke.
 
-* `reasons` -
-  The reasons for the current state in the lifecycle
-  Structure is [documented below](#nested_reasons).
-
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -718,20 +714,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
-
-<a name="nested_reasons"></a>The `reasons` block contains:
-
-* `code` -
-  (Optional)
-  The code associated with this reason.
-
-* `message` -
-  (Optional)
-  Human-readable details about this reason.
-
-* `user_details` -
-  (Optional)
-  Additional information provided by the user in the RejectSpoke call.
 
 ## Timeouts
 

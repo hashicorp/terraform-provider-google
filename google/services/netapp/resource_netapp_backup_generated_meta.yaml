@@ -7,7 +7,6 @@ api_resource_type_kind: 'Backup'
 api_variant_patterns:
   - 'projects/{project}/locations/{location}/backupVaults/{backupVault}/backups/{backup}'
 fields:
-  - field: 'backup_region'
   - field: 'backup_type'
   - field: 'chain_storage_bytes'
   - field: 'create_time'
@@ -26,5 +25,4 @@ fields:
     provider_only: true
   - field: 'vault_name'
     provider_only: true
-  - field: 'volume_region'
   - field: 'volume_usage_bytes'

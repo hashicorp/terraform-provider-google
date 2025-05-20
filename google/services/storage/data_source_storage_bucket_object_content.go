@@ -3,9 +3,7 @@
 package storage
 
 import (
-	"crypto/sha512"
 	"encoding/base64"
-	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -29,22 +27,6 @@ func DataSourceGoogleStorageBucketObjectContent() *schema.Resource {
 	dsSchema["content_base64"] = &schema.Schema{
 		Type:        schema.TypeString,
 		Description: "Base64 encoded version of the object content. Use this when dealing with binary data.",
-		Computed:    true,
-		Optional:    false,
-		Required:    false,
-	}
-
-	dsSchema["content_hexsha512"] = &schema.Schema{
-		Type:        schema.TypeString,
-		Description: "Hex encoded SHA512 checksum of object content.",
-		Computed:    true,
-		Optional:    false,
-		Required:    false,
-	}
-
-	dsSchema["content_base64sha512"] = &schema.Schema{
-		Type:        schema.TypeString,
-		Description: "Base64 encoded SHA512 checksum of object content.",
 		Computed:    true,
 		Optional:    false,
 		Required:    false,
@@ -91,15 +73,6 @@ func dataSourceGoogleStorageBucketObjectContentRead(d *schema.ResourceData, meta
 
 	if err := d.Set("content_base64", base64.StdEncoding.EncodeToString(objectBytes)); err != nil {
 		return fmt.Errorf("Error setting content_base64: %s", err)
-	}
-
-	sha512Sum := sha512.Sum512(objectBytes)
-	if err := d.Set("content_hexsha512", hex.EncodeToString(sha512Sum[:])); err != nil {
-		return fmt.Errorf("Error setting content_hexsha512: %s", err)
-	}
-
-	if err := d.Set("content_base64sha512", base64.StdEncoding.EncodeToString(sha512Sum[:])); err != nil {
-		return fmt.Errorf("Error setting content_base64sha512: %s", err)
 	}
 
 	d.SetId(bucket + "-" + name)

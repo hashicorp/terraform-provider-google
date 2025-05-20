@@ -141,8 +141,6 @@ If no value is set, Cloud Bigtable automatically allocates nodes based on your d
 
 * `kms_key_name` - (Optional) Describes the Cloud KMS encryption key that will be used to protect the destination Bigtable cluster. The requirements for this key are: 1) The Cloud Bigtable service account associated with the project that contains this cluster must be granted the `cloudkms.cryptoKeyEncrypterDecrypter` role on the CMEK key. 2) Only regional keys can be used and the region of the CMEK key must match the region of the cluster.
 
-* `node_scaling_factor` - (Optional) The node scaling factor for this cluster. One of `"NodeScalingFactor1X"` or `"NodeScalingFactor2X"`. Defaults to `"NodeScalingFactor1X"`. If `"NodeScalingFactor2X"` is specified, then `num_nodes`, `min_nodes`, and `max_nodes` would need to be specified in increments of 2. This value cannot be updated after the cluster is created.
-
 -> **Note**: Removing the field entirely from the config will cause the provider to default to the backend value.
 
 !> **Warning:** Modifying the `storage_type`, `zone` or `kms_key_name` of an existing cluster (by

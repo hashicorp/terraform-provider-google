@@ -16,5 +16,3 @@ fields:
   - field: 'security_gateways_id'
     provider_only: true
   - field: 'update_time'
-  - field: 'upstreams.egress_policy.regions'
-  - field: 'upstreams.network.name'

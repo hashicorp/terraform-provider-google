@@ -94,7 +94,7 @@ resource "google_storage_bucket" "no-age-enabled" {
 ## Example Usage - Enabling public access prevention
 
 ```hcl
-resource "google_storage_bucket" "no-public-access" {
+resource "google_storage_bucket" "auto-expire" {
   name          = "no-public-access-bucket"
   location      = "US"
   force_destroy = true
@@ -106,7 +106,7 @@ resource "google_storage_bucket" "no-public-access" {
 ## Example Usage - Enabling hierarchical namespace
 
 ```hcl
-resource "google_storage_bucket" "hns-enabled" {
+resource "google_storage_bucket" "auto-expire" {
   name          = "hns-enabled-bucket"
   location      = "US"
   force_destroy = true
@@ -172,10 +172,6 @@ The following arguments are supported:
 * `soft_delete_policy` -  (Optional, Computed) The bucket's soft delete policy, which defines the period of time that soft-deleted objects will be retained, and cannot be permanently deleted. If the block is not provided, Server side value will be kept which means removal of block won't generate any terraform change. Structure is [documented below](#nested_soft_delete_policy).
 
 * `hierarchical_namespace` -  (Optional, ForceNew) The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is [documented below](#nested_hierarchical_namespace). To use this configuration, `uniform_bucket_level_access` must be enabled on bucket.
-
-* `time_created` -  (Computed) The creation time of the bucket in RFC 3339 format.
-
-* `updated` -  (Computed) The time at which the bucket's metadata or IAM policy was last updated, in RFC 3339 format.
 
 <a name="nested_lifecycle_rule"></a>The `lifecycle_rule` block supports:
 

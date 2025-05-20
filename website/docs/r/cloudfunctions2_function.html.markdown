@@ -836,7 +836,7 @@ resource "google_cloudfunctions2_function" "function" {
 
 }
 ```
-## Example Usage - Cloudfunctions2 Automatic Base Image Update
+## Example Usage - Cloudfunctions2 Abiu
 
 
 ```hcl
@@ -913,7 +913,7 @@ resource "google_cloudfunctions2_function" "function" {
   }
 }
 ```
-## Example Usage - Cloudfunctions2 On Deploy Base Image Update
+## Example Usage - Cloudfunctions2 Abiu On Deploy
 
 
 ```hcl

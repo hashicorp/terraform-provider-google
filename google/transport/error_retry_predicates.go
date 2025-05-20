@@ -51,12 +51,6 @@ var defaultErrorRetryPredicates = []RetryErrorPredicateFunc{
 	// GCE returns the wrong error code, as this should be a 429, which we retry
 	// already.
 	is403QuotaExceededPerMinuteError,
-
-	// GCE Networks are considered unready for a brief period when certain
-	// operations are performed on them, and the scope is likely too broad to
-	// apply a mutex. If we attempt an operation w/ an unready network, retry
-	// it.
-	isNetworkUnreadyError,
 }
 
 /** END GLOBAL ERROR RETRY PREDICATES HERE **/
@@ -147,19 +141,6 @@ func isSubnetworkUnreadyError(err error) (bool, string) {
 	if gerr.Code == 400 && strings.Contains(gerr.Body, "resourceNotReady") && strings.Contains(gerr.Body, "subnetworks") {
 		log.Printf("[DEBUG] Dismissed an error as retryable based on error code 400 and error reason 'resourceNotReady' w/ `subnetwork`: %s", err)
 		return true, "Subnetwork not ready"
-	}
-	return false, ""
-}
-
-func isNetworkUnreadyError(err error) (bool, string) {
-	gerr, ok := err.(*googleapi.Error)
-	if !ok {
-		return false, ""
-	}
-
-	if gerr.Code == 400 && strings.Contains(gerr.Body, "resourceNotReady") && strings.Contains(gerr.Body, "networks") {
-		log.Printf("[DEBUG] Dismissed an error as retryable based on error code 400 and error reason 'resourceNotReady' w/ 'networks': %s", err)
-		return true, "Network not ready"
 	}
 	return false, ""
 }

@@ -70,35 +70,11 @@ resource "google_clouddeploy_automation" "b-automation" {
       id = "*"
     }
   }
+  suspended = false
   rules {
     promote_release_rule {
       id = "promote-release"
     }
-  }
-  rules {
-      advance_rollout_rule {
-        id                    = "advance-rollout"
-      }
-    }
-  rules {
-    repair_rollout_rule {
-      id                    = "repair-rollout"
-      repair_phases {
-      retry  {
-                      attempts = "1"
-                  }
-       }
-      repair_phases {
-             rollback {}
-          }
-      }
-  }
-  rules {
-    timed_promote_release_rule {
-      id                    = "timed-promote-release"
-      schedule              = "0 9 * * 1"
-      time_zone              = "America/New_York"
-     }
   }
 }
 
