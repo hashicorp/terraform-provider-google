@@ -1,0 +1,7 @@
+```release-note:enhancement
+compute: added `network_pass_through_lb_traffic_policy.0.zonal_affinity.0.spillover`, `network_pass_through_lb_traffic_policy.0.zonal_affinity.0.spillover_ratio` and `dynamic_forwarding.0.ip_port_selection.0.enabled` to `google_compute_backend_service` resource (beta)
+```
+
+```release-note:enhancement
+compute: added `subsetting.0.subset_size` and `dynamic_forwarding.0.ip_port_selection.0.enabled` to `google_compute_region_backend_service` resource (beta)
+```
