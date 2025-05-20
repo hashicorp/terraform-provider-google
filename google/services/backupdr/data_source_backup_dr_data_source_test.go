@@ -17,8 +17,10 @@ import (
 func TestAccDataSourceGoogleCloudBackupDRDataSource_basic(t *testing.T) {
 	t.Parallel()
 
+	data_source_id := "56b93b14529b77d764b21b2251e1ea8f0006e8dd"
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix":  acctest.RandString(t, 10),
+		"data_source_id": data_source_id,
 	}
 
 	stepChecks := func(wantName string, wantState string) []resource.TestCheckFunc {
@@ -29,7 +31,7 @@ func TestAccDataSourceGoogleCloudBackupDRDataSource_basic(t *testing.T) {
 		return stepCheck
 	}
 	project := envvar.GetTestProjectFromEnv()
-	expectedName := fmt.Sprintf("projects/%s/locations/us-central1/backupVaults/bv-test/dataSources/ds-test", project)
+	expectedName := fmt.Sprintf("projects/%s/locations/us-central1/backupVaults/bv-test/dataSources/%s", project, data_source_id)
 	expectedState := "ACTIVE"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -53,8 +55,7 @@ data "google_backup_dr_data_source" "foo" {
   project = data.google_project.project.project_id
   location      = "us-central1"
   backup_vault_id = "bv-test"
-  data_source_id = "56b93b14529b77d764b21b2251e1ea8f0006e8dd"
+  data_source_id = "%{data_source_id}"
 }
-
 `, context)
 }
