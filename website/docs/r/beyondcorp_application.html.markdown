@@ -20,7 +20,7 @@ description: |-
 ---
 
 # google_beyondcorp_application
-~> **Warning:** `google_beyondcorp_application` is deprecated. Use `google_beyondcorp_security_gateway_application` instead.
+~> **Warning:** `google_beyondcorp_application` is deprecated.
 
 Specifies application endpoint(s) to protect behind a Security Gateway.
 
