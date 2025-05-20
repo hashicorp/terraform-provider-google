@@ -111,7 +111,7 @@ func computeRouterNatSubnetworkHash(v interface{}) int {
 		}
 	}
 
-	return schema.HashString(tpgresource.NameFromSelfLinkStateFunc(name)) + sourceIpRangesHash + secondaryIpRangeHash
+	return schema.HashString(tpgresource.GetResourceNameFromSelfLink(name.(string))) + sourceIpRangesHash + secondaryIpRangeHash
 }
 
 func computeRouterNatIPsHash(v interface{}) int {

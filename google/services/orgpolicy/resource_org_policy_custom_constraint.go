@@ -407,7 +407,7 @@ func flattenOrgPolicyCustomConstraintName(v interface{}, d *schema.ResourceData,
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenOrgPolicyCustomConstraintDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

@@ -829,7 +829,7 @@ func flattenComputeRegionTargetHttpsProxyRegion(v interface{}, d *schema.Resourc
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func expandComputeRegionTargetHttpsProxyDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
