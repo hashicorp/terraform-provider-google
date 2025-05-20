@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_migration_center_preference_set'
 generation_type: 'mmv1'
 source_file: 'products/migrationcenter/PreferenceSet.yaml'

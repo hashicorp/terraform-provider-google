@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_database_migration_service_connection_profile'
 generation_type: 'mmv1'
 source_file: 'products/databasemigrationservice/ConnectionProfile.yaml'
