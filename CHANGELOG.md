@@ -1,7 +1,7 @@
 ## 6.36.1 (Unreleased)
 
 BUG FIXES: 
-* compute: fixed forced instance recreation when adding a `attached_disk` with `force_attach` being `false` to `google_compute_instance` ([#22954](https://github.com/hashicorp/terraform-provider-google/pull/22954))
+* compute: fixed forced instance recreation when adding a `attached_disk` with unset `force_attach` to `google_compute_instance` ([#22954](https://github.com/hashicorp/terraform-provider-google/pull/22954))
 
 ## 6.36.0 (May 20, 2025)
 
