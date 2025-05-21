@@ -90,6 +90,41 @@ func TestAccComputeNetwork_customSubnet(t *testing.T) {
 	})
 }
 
+func TestAccComputeNetwork_mtuAndUpdate(t *testing.T) {
+	t.Parallel()
+
+	var network compute.Network
+	suffixName := acctest.RandString(t, 10)
+	networkName := fmt.Sprintf("tf-test-network-routing-mode-%s", suffixName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_mtu(networkName, 1460),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.acc_network_mtu", &network),
+					testAccCheckComputeNetworkHasMtu(
+						t, "google_compute_network.acc_network_mtu", &network, 1460),
+				),
+			},
+			// Test updating the mtu field from 1460 to 1500.
+			{
+				Config: testAccComputeNetwork_mtu(networkName, 1500),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.acc_network_mtu", &network),
+					testAccCheckComputeNetworkHasMtu(
+						t, "google_compute_network.acc_network_mtu", &network, 1500),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeNetwork_routingModeAndUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -537,6 +572,35 @@ func testAccCheckComputeNetworkIsCustomSubnet(t *testing.T, n string, network *c
 	}
 }
 
+func testAccCheckComputeNetworkHasMtu(t *testing.T, n string, network *compute.Network, mtu int32) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.Attributes["mtu"] == "" {
+			return fmt.Errorf("Routing mode not found on resource")
+		}
+
+		found, err := config.NewComputeClient(config.UserAgent).Networks.Get(
+			config.Project, network.Name).Do()
+		if err != nil {
+			return err
+		}
+
+		foundMtu := found.Mtu
+
+		if int64(mtu) != foundMtu {
+			return fmt.Errorf("Expected mtu %d to match actual routing mode %d", mtu, foundMtu)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckComputeNetworkHasRoutingMode(t *testing.T, n string, network *compute.Network, routingMode string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -649,6 +713,15 @@ resource "google_compute_network" "baz" {
   auto_create_subnetworks = false
 }
 `, networkName)
+}
+
+func testAccComputeNetwork_mtu(networkName string, mtu int32) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "acc_network_mtu" {
+  name = "%s"
+  mtu  = %d
+}
+`, networkName, mtu)
 }
 
 func testAccComputeNetwork_routing_mode(networkName, routingMode string) string {
