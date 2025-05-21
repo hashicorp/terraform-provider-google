@@ -57,11 +57,27 @@ func TestAccContainerNodePool_resourceManagerTags(t *testing.T) {
 	t.Parallel()
 	pid := envvar.GetTestProjectFromEnv()
 
-	randomSuffix := acctest.RandString(t, 10)
-	clusterName := fmt.Sprintf("tf-test-cluster-%s", randomSuffix)
-
 	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	tagData := map[string]interface{}{
+		"purpose": "GCE_FIREWALL",
+		"purpose_data": map[string]interface{}{
+			"network": pid + "/" + networkName,
+		},
+	}
+	tagKey1 := acctest.BootstrapSharedTestProjectTagKey(t, "resourceManagerTags1", tagData)
+	tagKey2 := acctest.BootstrapSharedTestProjectTagKey(t, "resourceManagerTags2", tagData)
+
+	context := map[string]interface{}{
+		"pid":           pid,
+		"org":           envvar.GetTestOrgFromEnv(t),
+		"network":       networkName,
+		"subnet":        acctest.BootstrapSubnet(t, "gke-cluster", networkName),
+		"tagKey1":       tagKey1,
+		"tagValue1":     acctest.BootstrapSharedTestProjectTagValue(t, "resourceManagerTags1", tagKey1),
+		"tagKey2":       tagKey2,
+		"tagValue2":     acctest.BootstrapSharedTestProjectTagValue(t, "resourceManagerTags2", tagKey2),
+		"random_suffix": acctest.RandString(t, 10),
+	}
 
 	bootstrapGkeTagManagerServiceAgents(t)
 
@@ -74,7 +90,7 @@ func TestAccContainerNodePool_resourceManagerTags(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_resourceManagerTags(pid, clusterName, networkName, subnetworkName, randomSuffix),
+				Config: testAccContainerNodePool_resourceManagerTags(context),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_container_node_pool.primary_nodes", "node_config.0.resource_manager_tags.%"),
 				),
@@ -86,7 +102,7 @@ func TestAccContainerNodePool_resourceManagerTags(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"min_master_version", "cluster"},
 			},
 			{
-				Config: testAccContainerNodePool_resourceManagerTagsUpdate1(pid, clusterName, networkName, subnetworkName, randomSuffix),
+				Config: testAccContainerNodePool_resourceManagerTagsUpdate1(context),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_container_node_pool.primary_nodes", "node_config.0.resource_manager_tags.%"),
 				),
@@ -98,7 +114,7 @@ func TestAccContainerNodePool_resourceManagerTags(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"min_master_version", "cluster"},
 			},
 			{
-				Config: testAccContainerNodePool_resourceManagerTagsUpdate2(pid, clusterName, networkName, subnetworkName, randomSuffix),
+				Config: testAccContainerNodePool_resourceManagerTagsUpdate2(context),
 			},
 			{
 				ResourceName:            "google_container_node_pool.primary_nodes",
@@ -4653,44 +4669,10 @@ resource "google_container_node_pool" "without_confidential_boot_disk" {
 `, cluster, networkName, subnetworkName, np)
 }
 
-func testAccContainerNodePool_resourceManagerTags(projectID, clusterName, networkName, subnetworkName, randomSuffix string) string {
-	return fmt.Sprintf(`
+func testAccContainerNodePool_resourceManagerTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
 data "google_project" "project" {
-  project_id = "%[1]s"
-}
-
-resource "google_tags_tag_key" "key1" {
-  parent      = "projects/%[1]s"
-  short_name  = "foobarbaz1-%[2]s"
-  description = "For foo/bar1 resources"
-  purpose     = "GCE_FIREWALL"
-  purpose_data = {
-    network = "%[1]s/%[4]s"
-  }
-}
-
-resource "google_tags_tag_value" "value1" {
-  parent      = google_tags_tag_key.key1.id
-  short_name  = "foo1-%[2]s"
-  description = "For foo1 resources"
-}
-
-resource "google_tags_tag_key" "key2" {
-  parent      = "projects/%[1]s"
-  short_name  = "foobarbaz2-%[2]s"
-  description = "For foo/bar2 resources"
-  purpose     = "GCE_FIREWALL"
-  purpose_data = {
-    network = "%[1]s/%[4]s"
-  }
-
-  depends_on = [google_tags_tag_key.key1]
-}
-
-resource "google_tags_tag_value" "value2" {
-  parent      = google_tags_tag_key.key2.id
-  short_name  = "foo2-%[2]s"
-  description = "For foo2 resources"
+  project_id = "%{pid}"
 }
 
 data "google_container_engine_versions" "uscentral1a" {
@@ -4698,7 +4680,7 @@ data "google_container_engine_versions" "uscentral1a" {
 }
 
 resource "google_container_cluster" "primary" {
-  name               = "%[3]s"
+  name               = "tf-test-cluster-%{random_suffix}"
   location           = "us-central1-a"
   min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
 
@@ -4709,8 +4691,8 @@ resource "google_container_cluster" "primary" {
   initial_node_count       = 1
 
   deletion_protection = false
-  network             = "%[4]s"
-  subnetwork          = "%[5]s"
+  network             = "%{network}"
+  subnetwork          = "%{subnet}"
 
   timeouts {
     create = "30m"
@@ -4732,51 +4714,17 @@ resource "google_container_node_pool" "primary_nodes" {
     disk_size_gb = 15
 
     resource_manager_tags = {
-      (google_tags_tag_key.key1.id) = google_tags_tag_value.value1.id
+      "%{pid}/%{tagKey1}" = "%{tagValue1}"
     }
   }
 }
-`, projectID, randomSuffix, clusterName, networkName, subnetworkName)
+`, context)
 }
 
-func testAccContainerNodePool_resourceManagerTagsUpdate1(projectID, clusterName, networkName, subnetworkName, randomSuffix string) string {
-	return fmt.Sprintf(`
+func testAccContainerNodePool_resourceManagerTagsUpdate1(context map[string]interface{}) string {
+	return acctest.Nprintf(`
 data "google_project" "project" {
-  project_id = "%[1]s"
-}
-
-resource "google_tags_tag_key" "key1" {
-  parent      = "projects/%[1]s"
-  short_name  = "foobarbaz1-%[2]s"
-  description = "For foo/bar1 resources"
-  purpose     = "GCE_FIREWALL"
-  purpose_data = {
-    network = "%[1]s/%[4]s"
-  }
-}
-
-resource "google_tags_tag_value" "value1" {
-  parent      = google_tags_tag_key.key1.id
-  short_name  = "foo1-%[2]s"
-  description = "For foo1 resources"
-}
-
-resource "google_tags_tag_key" "key2" {
-  parent      = "projects/%[1]s"
-  short_name  = "foobarbaz2-%[2]s"
-  description = "For foo/bar2 resources"
-  purpose     = "GCE_FIREWALL"
-  purpose_data = {
-    network = "%[1]s/%[4]s"
-  }
-
-  depends_on = [google_tags_tag_key.key1]
-}
-
-resource "google_tags_tag_value" "value2" {
-  parent      = google_tags_tag_key.key2.id
-  short_name  = "foo2-%[2]s"
-  description = "For foo2 resources"
+  project_id = "%{pid}"
 }
 
 data "google_container_engine_versions" "uscentral1a" {
@@ -4784,7 +4732,7 @@ data "google_container_engine_versions" "uscentral1a" {
 }
 
 resource "google_container_cluster" "primary" {
-  name               = "%[3]s"
+  name               = "tf-test-cluster-%{random_suffix}"
   location           = "us-central1-a"
   min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
 
@@ -4795,8 +4743,8 @@ resource "google_container_cluster" "primary" {
   initial_node_count       = 1
 
   deletion_protection = false
-  network             = "%[4]s"
-  subnetwork          = "%[5]s"
+  network             = "%{network}"
+  subnetwork          = "%{subnet}"
 
   timeouts {
     create = "30m"
@@ -4818,52 +4766,18 @@ resource "google_container_node_pool" "primary_nodes" {
     disk_size_gb = 15
 
     resource_manager_tags = {
-      (google_tags_tag_key.key1.id) = google_tags_tag_value.value1.id
-      (google_tags_tag_key.key2.id) = google_tags_tag_value.value2.id
+      "%{pid}/%{tagKey1}" = "%{tagValue1}"
+	  "%{pid}/%{tagKey2}" = "%{tagValue2}"
     }
   }
 }
-`, projectID, randomSuffix, clusterName, networkName, subnetworkName)
+`, context)
 }
 
-func testAccContainerNodePool_resourceManagerTagsUpdate2(projectID, clusterName, networkName, subnetworkName, randomSuffix string) string {
-	return fmt.Sprintf(`
+func testAccContainerNodePool_resourceManagerTagsUpdate2(context map[string]interface{}) string {
+	return acctest.Nprintf(`
 data "google_project" "project" {
-  project_id = "%[1]s"
-}
-
-resource "google_tags_tag_key" "key1" {
-  parent      = "projects/%[1]s"
-  short_name  = "foobarbaz1-%[2]s"
-  description = "For foo/bar1 resources"
-  purpose     = "GCE_FIREWALL"
-  purpose_data = {
-    network = "%[1]s/%[4]s"
-  }
-}
-
-resource "google_tags_tag_value" "value1" {
-  parent      = google_tags_tag_key.key1.id
-  short_name  = "foo1-%[2]s"
-  description = "For foo1 resources"
-}
-
-resource "google_tags_tag_key" "key2" {
-  parent      = "projects/%[1]s"
-  short_name  = "foobarbaz2-%[2]s"
-  description = "For foo/bar2 resources"
-  purpose     = "GCE_FIREWALL"
-  purpose_data = {
-    network = "%[1]s/%[4]s"
-  }
-
-  depends_on = [google_tags_tag_key.key1]
-}
-
-resource "google_tags_tag_value" "value2" {
-  parent      = google_tags_tag_key.key2.id
-  short_name  = "foo2-%[2]s"
-  description = "For foo2 resources"
+  project_id = "%{pid}"
 }
 
 data "google_container_engine_versions" "uscentral1a" {
@@ -4871,7 +4785,7 @@ data "google_container_engine_versions" "uscentral1a" {
 }
 
 resource "google_container_cluster" "primary" {
-  name               = "%[3]s"
+  name               = "tf-test-cluster-%{random_suffix}"
   location           = "us-central1-a"
   min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
 
@@ -4882,8 +4796,8 @@ resource "google_container_cluster" "primary" {
   initial_node_count       = 1
 
   deletion_protection = false
-  network             = "%[4]s"
-  subnetwork          = "%[5]s"
+  network             = "%{network}"
+  subnetwork          = "%{subnet}"
 
   timeouts {
     create = "30m"
@@ -4905,7 +4819,7 @@ resource "google_container_node_pool" "primary_nodes" {
     disk_size_gb = 15
   }
 }
-`, projectID, randomSuffix, clusterName, networkName, subnetworkName)
+`, context)
 }
 
 func TestAccContainerNodePool_privateRegistry(t *testing.T) {

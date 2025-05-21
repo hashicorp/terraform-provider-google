@@ -173,11 +173,11 @@ resource "google_data_fusion_instance" "foobar" {
 func TestAccDatafusionInstance_tags(t *testing.T) {
 	t.Parallel()
 
-	tagKey := acctest.BootstrapSharedTestTagKey(t, "datafusion-instances-tagkey")
+	tagKey := acctest.BootstrapSharedTestOrganizationTagKey(t, "datafusion-instances-tagkey", nil)
 	context := map[string]interface{}{
 		"org":           envvar.GetTestOrgFromEnv(t),
 		"tagKey":        tagKey,
-		"tagValue":      acctest.BootstrapSharedTestTagValue(t, "datafusion-instances-tagvalue", tagKey),
+		"tagValue":      acctest.BootstrapSharedTestOrganizationTagValue(t, "datafusion-instances-tagvalue", tagKey),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

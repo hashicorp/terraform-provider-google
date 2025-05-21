@@ -261,12 +261,12 @@ func TestAccProject_tags(t *testing.T) {
 	t.Parallel()
 
 	pid := fmt.Sprintf("%s-%d", TestPrefix, acctest.RandInt(t))
-	tagKey := acctest.BootstrapSharedTestTagKey(t, "crm-projects-tagkey")
+	tagKey := acctest.BootstrapSharedTestOrganizationTagKey(t, "crm-projects-tagkey", nil)
 	context := map[string]interface{}{
 		"pid":           pid,
 		"org":           envvar.GetTestOrgFromEnv(t),
 		"tagKey":        tagKey,
-		"tagValue":      acctest.BootstrapSharedTestTagValue(t, "crm-projects-tagvalue", tagKey),
+		"tagValue":      acctest.BootstrapSharedTestOrganizationTagValue(t, "crm-projects-tagvalue", tagKey),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 	acctest.VcrTest(t, resource.TestCase{

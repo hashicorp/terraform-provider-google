@@ -134,11 +134,11 @@ resource "google_filestore_backup" "backup" {
 func TestAccFilestoreBackup_tags(t *testing.T) {
 	t.Parallel()
 
-	tagKey := acctest.BootstrapSharedTestTagKey(t, "filestore-backups-tagkey")
+	tagKey := acctest.BootstrapSharedTestOrganizationTagKey(t, "filestore-backups-tagkey", nil)
 	context := map[string]interface{}{
 		"org":           envvar.GetTestOrgFromEnv(t),
 		"tagKey":        tagKey,
-		"tagValue":      acctest.BootstrapSharedTestTagValue(t, "filestore-backups-tagvalue", tagKey),
+		"tagValue":      acctest.BootstrapSharedTestOrganizationTagValue(t, "filestore-backups-tagvalue", tagKey),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
