@@ -24,8 +24,6 @@ description: |-
 The Compute FirewallPolicy with rules resource. It declaratively manges all
 rules in the firewall policy.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Compute Firewall Policy With Rules Full
@@ -33,11 +31,9 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_compute_firewall_policy_with_rules" "primary" {
-  provider    = google-beta
   short_name  = "fw-policy"
   description = "Terraform test"
   parent      = "organizations/123456789"
@@ -48,7 +44,7 @@ resource "google_compute_firewall_policy_with_rules" "primary" {
     enable_logging   = true
     action           = "allow"
     direction        = "EGRESS"
-    target_resources = ["https://www.googleapis.com/compute/beta/projects/${data.google_project.project.project_id}/global/networks/default"]
+    target_resources = [google_compute_network.network.self_link]
 
     match {
       dest_ip_ranges            = ["11.100.0.1/32"]
@@ -104,47 +100,9 @@ resource "google_compute_firewall_policy_with_rules" "primary" {
       }
     }
   }
-
-  rule {
-    description    = "network scope rule 1"
-    rule_name      = "network scope 1"
-    priority       = 4000
-    enable_logging = false
-    action         = "allow"
-    direction      = "INGRESS"
-    match {
-      src_ip_ranges     = ["11.100.0.1/32"]
-      src_network_scope = "VPC_NETWORKS"
-      src_networks      = [google_compute_network.network.id]
-
-      layer4_config {
-        ip_protocol = "tcp"
-        ports       = [8080]
-      }
-    }
-  }
-
-  rule {
-    description    = "network scope rule 2"
-    rule_name      = "network scope 2"
-    priority       = 5000
-    enable_logging = false
-    action         = "allow"
-    direction      = "EGRESS"
-    match {
-      dest_ip_ranges     = ["0.0.0.0/0"]
-      dest_network_scope = "INTERNET"
-
-      layer4_config {
-        ip_protocol = "tcp"
-        ports       = [8080]
-      }
-    }
-  }
 }
 
 resource "google_network_security_address_group" "address_group_1" {
-  provider    = google-beta
   name        = "address-group"
   parent      = "organizations/123456789"
   description = "Global address group"
@@ -155,7 +113,6 @@ resource "google_network_security_address_group" "address_group_1" {
 }
 
 resource "google_network_security_security_profile_group" "security_profile_group_1" {
-  provider                  = google-beta
   name                      = "spg"
   parent                    = "organizations/123456789"
   description               = "my description"
@@ -163,7 +120,6 @@ resource "google_network_security_security_profile_group" "security_profile_grou
 }
 
 resource "google_network_security_security_profile" "security_profile_1" {
-  provider    = google-beta
   name        = "sp"
   type        = "THREAT_PREVENTION"
   parent      = "organizations/123456789"
@@ -171,7 +127,6 @@ resource "google_network_security_security_profile" "security_profile_1" {
 }
 
 resource "google_compute_network" "network" {
-  provider                = google-beta
   name                    = "network"
   auto_create_subnetworks = false
 }
@@ -300,16 +255,16 @@ The following arguments are supported:
   traffic destination. Maximum number of destination fqdn allowed is 100.
 
 * `src_network_scope` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Network scope of the traffic source.
   Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
 
 * `src_networks` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Networks of the traffic source. It can be either a full or partial url.
 
 * `dest_network_scope` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Network scope of the traffic destination.
   Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
 
