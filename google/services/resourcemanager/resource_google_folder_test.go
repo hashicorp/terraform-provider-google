@@ -109,11 +109,11 @@ func TestAccFolder_moveParent(t *testing.T) {
 func TestAccFolder_tags(t *testing.T) {
 	t.Parallel()
 
-	tagKey := acctest.BootstrapSharedTestTagKey(t, "crm-folder-tagkey")
+	tagKey := acctest.BootstrapSharedTestOrganizationTagKey(t, "crm-folder-tagkey", nil)
 	context := map[string]interface{}{
 		"org":           envvar.GetTestOrgFromEnv(t),
 		"tagKey":        tagKey,
-		"tagValue":      acctest.BootstrapSharedTestTagValue(t, "crm-folder-tagvalue", tagKey),
+		"tagValue":      acctest.BootstrapSharedTestOrganizationTagValue(t, "crm-folder-tagvalue", tagKey),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

@@ -1753,11 +1753,30 @@ func BootstrapSharedCodeRepositoryIndex(t *testing.T, codeRepositoryIndexId, loc
 }
 
 const sharedTagKeyPrefix = "tf-bootstrap-tagkey"
+const sharedTagKeyParentErr = "Parent %q is not valid. Should be in format: 'organizations/123' OR 'projects/123'."
 
-func BootstrapSharedTestTagKey(t *testing.T, testId string) string {
+func BootstrapSharedTestProjectTagKey(t *testing.T, testId string, obj map[string]interface{}) string {
+	pid := envvar.GetTestProjectFromEnv()
+	return bootstrapSharedTestTagKey(t, testId, "projects/"+pid, obj)
+}
+
+func BootstrapSharedTestOrganizationTagKey(t *testing.T, testId string, obj map[string]interface{}) string {
 	org := envvar.GetTestOrgFromEnv(t)
+	return bootstrapSharedTestTagKey(t, testId, "organizations/"+org, obj)
+}
+
+// parent should be in format: {"organization" OR "projects"}/{id}
+func bootstrapSharedTestTagKey(t *testing.T, testId, parent string, obj map[string]interface{}) string {
 	sharedTagKey := fmt.Sprintf("%s-%s", sharedTagKeyPrefix, testId)
-	tagKeyName := fmt.Sprintf("%s/%s", org, sharedTagKey)
+
+	parentSplit := strings.Split(parent, "/")
+	if len(parentSplit) < 2 || (parentSplit[0] != "organizations" && parentSplit[0] != "projects") {
+		parentErr := fmt.Sprintf(sharedTagKeyParentErr, parent)
+		t.Fatalf("Error bootstrapping shared tag key %q: %s", sharedTagKey, parentErr)
+	}
+
+	parentId := parentSplit[1]
+	tagKeyName := fmt.Sprintf("%s/%s", parentId, sharedTagKey)
 
 	config := BootstrapConfig(t)
 	if config == nil {
@@ -1777,9 +1796,12 @@ func BootstrapSharedTestTagKey(t *testing.T, testId string) string {
 	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 403) {
 		log.Printf("[DEBUG] TagKey %q not found, bootstrapping", sharedTagKey)
 		tagKeyObj := map[string]interface{}{
-			"parent":      "organizations/" + org,
+			"parent":      parent,
 			"shortName":   sharedTagKey,
 			"description": "Bootstrapped tag key for Terraform Acceptance testing",
+		}
+		if obj != nil {
+			maps.Insert(tagKeyObj, maps.All(obj))
 		}
 
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -1825,10 +1847,19 @@ func BootstrapSharedTestTagKey(t *testing.T, testId string) string {
 
 const sharedTagValuePrefix = "tf-bootstrap-tagvalue"
 
-func BootstrapSharedTestTagValue(t *testing.T, testId string, tagKey string) string {
+func BootstrapSharedTestProjectTagValue(t *testing.T, testId string, tagKey string) string {
+	pid := envvar.GetTestProjectFromEnv()
+	return BootstrapSharedTestTagValue(t, testId, tagKey, pid)
+}
+
+func BootstrapSharedTestOrganizationTagValue(t *testing.T, testId string, tagKey string) string {
 	org := envvar.GetTestOrgFromEnv(t)
+	return BootstrapSharedTestTagValue(t, testId, tagKey, org)
+}
+
+func BootstrapSharedTestTagValue(t *testing.T, testId string, tagKey, parentId string) string {
 	sharedTagValue := fmt.Sprintf("%s-%s", sharedTagValuePrefix, testId)
-	tagKeyName := fmt.Sprintf("%s/%s", org, tagKey)
+	tagKeyName := fmt.Sprintf("%s/%s", parentId, tagKey)
 	tagValueName := fmt.Sprintf("%s/%s", tagKeyName, sharedTagValue)
 
 	config := BootstrapConfig(t)
