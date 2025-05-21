@@ -1,4 +1,9 @@
-## 6.36.0 (Unreleased)
+## 6.36.1 (Unreleased)
+
+BUG FIXES: 
+* compute: fixed forced instance recreation when adding a `attached_disk` with `force_attach` being `false` to `google_compute_instance` ([#22954](https://github.com/hashicorp/terraform-provider-google/pull/22954))
+
+## 6.36.0 (May 20, 2025)
 
 DEPRECATIONS:
 * beyondcorp: deprecated `google_beyondcorp_application`. ([#22754](https://github.com/hashicorp/terraform-provider-google/pull/22754))
