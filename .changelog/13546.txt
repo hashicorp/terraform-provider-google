@@ -1,0 +1,3 @@
+```release-note:note
+- `google_compute_region_network_firewall_policy_with_rules`, `google_compute_network_firewall_policy_with_rules`,  `compute_firewall_policy_with_rules` GA promotion 
+```

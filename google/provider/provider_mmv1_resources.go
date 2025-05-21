@@ -537,9 +537,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 608
+// Generated resources: 611
 // Generated IAM resources: 309
-// Total generated resources: 917
+// Total generated resources: 920
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -767,6 +767,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_compute_firewall_policy":                                             compute.ResourceComputeFirewallPolicy(),
 	"google_compute_firewall_policy_association":                                 compute.ResourceComputeFirewallPolicyAssociation(),
 	"google_compute_firewall_policy_rule":                                        compute.ResourceComputeFirewallPolicyRule(),
+	"google_compute_firewall_policy_with_rules":                                  compute.ResourceComputeFirewallPolicyWithRules(),
 	"google_compute_forwarding_rule":                                             compute.ResourceComputeForwardingRule(),
 	"google_compute_global_address":                                              compute.ResourceComputeGlobalAddress(),
 	"google_compute_global_forwarding_rule":                                      compute.ResourceComputeGlobalForwardingRule(),
@@ -804,6 +805,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_compute_network_firewall_policy":                                     compute.ResourceComputeNetworkFirewallPolicy(),
 	"google_compute_network_firewall_policy_association":                         compute.ResourceComputeNetworkFirewallPolicyAssociation(),
 	"google_compute_network_firewall_policy_rule":                                compute.ResourceComputeNetworkFirewallPolicyRule(),
+	"google_compute_network_firewall_policy_with_rules":                          compute.ResourceComputeNetworkFirewallPolicyWithRules(),
 	"google_compute_network_peering_routes_config":                               compute.ResourceComputeNetworkPeeringRoutesConfig(),
 	"google_compute_node_group":                                                  compute.ResourceComputeNodeGroup(),
 	"google_compute_node_template":                                               compute.ResourceComputeNodeTemplate(),
@@ -826,6 +828,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_compute_region_network_firewall_policy":                              compute.ResourceComputeRegionNetworkFirewallPolicy(),
 	"google_compute_region_network_firewall_policy_association":                  compute.ResourceComputeRegionNetworkFirewallPolicyAssociation(),
 	"google_compute_region_network_firewall_policy_rule":                         compute.ResourceComputeRegionNetworkFirewallPolicyRule(),
+	"google_compute_region_network_firewall_policy_with_rules":                   compute.ResourceComputeRegionNetworkFirewallPolicyWithRules(),
 	"google_compute_region_per_instance_config":                                  compute.ResourceComputeRegionPerInstanceConfig(),
 	"google_compute_region_security_policy":                                      compute.ResourceComputeRegionSecurityPolicy(),
 	"google_compute_region_security_policy_rule":                                 compute.ResourceComputeRegionSecurityPolicyRule(),
