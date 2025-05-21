@@ -52,6 +52,10 @@ func IpCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 }
 
 func DisksForceAttachDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	if (new == "false" && old == "") || (new == "" && old == "false") {
+		return true
+	}
+
 	if new == old {
 		return true
 	}

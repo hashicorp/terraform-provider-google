@@ -118,6 +118,16 @@ func TestDisksForceAttachDiffSuppress(t *testing.T) {
 			New:                "false",
 			ExpectDiffSuppress: true,
 		},
+		"force_attach changed false from empty": {
+			Old:                "",
+			New:                "false",
+			ExpectDiffSuppress: true,
+		},
+		"force_attach changed empty from false": {
+			Old:                "false",
+			New:                "",
+			ExpectDiffSuppress: true,
+		},
 	}
 
 	for tn, tc := range cases {
