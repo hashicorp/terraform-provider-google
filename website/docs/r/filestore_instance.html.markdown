@@ -241,6 +241,11 @@ The following arguments are supported:
   Anon_gid may only be set with squashMode of ROOT_SQUASH. An error will be returned
   if this field is specified for other squashMode settings.
 
+* `network` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The source VPC network for `ip_ranges`.
+  Required for instances using Private Service Connect, optional otherwise.
+
 <a name="nested_networks"></a>The `networks` block supports:
 
 * `network` -
@@ -269,7 +274,23 @@ The following arguments are supported:
   If not provided, the connect mode defaults to
   DIRECT_PEERING.
   Default value is `DIRECT_PEERING`.
-  Possible values are: `DIRECT_PEERING`, `PRIVATE_SERVICE_ACCESS`.
+  Possible values are: `DIRECT_PEERING`, `PRIVATE_SERVICE_ACCESS`, `PRIVATE_SERVICE_CONNECT`.
+
+* `psc_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Private Service Connect configuration.
+  Should only be set when connect_mode is PRIVATE_SERVICE_CONNECT.
+  Structure is [documented below](#nested_networks_networks_psc_config).
+
+
+<a name="nested_networks_networks_psc_config"></a>The `psc_config` block supports:
+
+* `endpoint_project` -
+  (Optional)
+  Consumer service project in which the Private Service Connect endpoint
+  would be set up. This is optional, and only relevant in case the network
+  is a shared VPC. If this is not specified, the endpoint would be set up
+  in the VPC host project.
 
 - - -
 
