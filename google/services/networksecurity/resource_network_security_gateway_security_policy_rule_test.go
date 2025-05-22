@@ -65,8 +65,6 @@ func TestAccNetworkSecurityGatewaySecurityPolicyRule_update(t *testing.T) {
 }
 
 func TestAccNetworkSecurityGatewaySecurityPolicyRule_multiple(t *testing.T) {
-	// Skip for now to avoid leaking resources until the fix for b/400293188 rolls out
-	t.Skip()
 	t.Parallel()
 
 	context := map[string]interface{}{
