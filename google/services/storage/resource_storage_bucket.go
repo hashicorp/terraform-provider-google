@@ -592,6 +592,83 @@ func ResourceStorageBucket() *schema.Resource {
 				Computed:    true,
 				Description: `The time at which the bucket's metadata or IAM policy was last updated, in RFC 3339 format.`,
 			},
+			"ip_filter": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Description: `The bucket IP filtering configuration.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mode": {
+							Type:         schema.TypeString,
+							Required:     true,
+							Description:  `The mode of the IP filter. Valid values are 'Enabled' and 'Disabled'.`,
+							ValidateFunc: validation.StringInSlice([]string{"Enabled", "Disabled"}, false),
+						},
+						"public_network_source": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: `The public network IP address ranges that can access the bucket and its data.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allowed_ip_cidr_ranges": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "The list of public IPv4, IPv6 cidr ranges that are allowed to access the bucket.",
+										Elem: &schema.Schema{
+											Type:         schema.TypeString,
+											ValidateFunc: validation.IsCIDR,
+										},
+									},
+								},
+							},
+						},
+						"vpc_network_sources": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The list of VPC networks that can access the bucket.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allowed_ip_cidr_ranges": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "The list of public or private IPv4 and IPv6 CIDR ranges that can access the bucket.",
+										Elem: &schema.Schema{
+											Type:         schema.TypeString,
+											ValidateFunc: validation.IsCIDR,
+										},
+									},
+									"network": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Name of the network. Format: projects/{PROJECT_ID}/global/networks/{NETWORK_NAME}",
+									},
+								},
+							},
+						},
+					},
+				},
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if k == "ip_filter.#" {
+						o, _ := d.GetChange("ip_filter")
+						l := o.([]interface{})
+						if len(l) == 0 {
+							return false
+						}
+
+						if contents, ok := l[0].(map[string]interface{}); !ok {
+							return false
+						} else if mode, ok := contents["mode"].(string); ok && mode == "Disabled" {
+							return true
+						}
+						return false
+					} else if k == "ip_filter.0.mode" {
+						return old == "Disabled" && new == ""
+					}
+					return false
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -843,6 +920,10 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 		sb.HierarchicalNamespace = expandBucketHierachicalNamespace(v.([]interface{}))
 	}
 
+	if v, ok := d.GetOk("ip_filter"); ok {
+		sb.IpFilter = expandBucketIpFilter(v.([]interface{}))
+	}
+
 	var res *storage.Bucket
 
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
@@ -1024,6 +1105,12 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	if d.HasChange("soft_delete_policy") {
 		if v, ok := d.GetOk("soft_delete_policy"); ok {
 			sb.SoftDeletePolicy = expandBucketSoftDeletePolicy(v.([]interface{}))
+		}
+	}
+
+	if d.HasChange("ip_filter") {
+		if v, ok := d.GetOk("ip_filter"); ok {
+			sb.IpFilter = expandBucketIpFilter(v.([]interface{}))
 		}
 	}
 
@@ -1961,6 +2048,107 @@ func lockRetentionPolicy(bucketsService *storage.BucketsService, bucketName stri
 	return nil
 }
 
+func flattenBucketIpFilter(ipFilter *storage.BucketIpFilter) []map[string]interface{} {
+	ipFilterList := make([]map[string]interface{}, 0, 1)
+
+	if ipFilter == nil {
+		return ipFilterList
+	}
+
+	filterItem := map[string]interface{}{
+		"mode": ipFilter.Mode,
+	}
+
+	if publicSrc := flattenBucketIpFilterPublicNetworkSource(ipFilter.PublicNetworkSource); publicSrc != nil {
+		filterItem["public_network_source"] = publicSrc
+	}
+	if vpcSrc := flattenBucketIpFilterVpcNetworkSources(ipFilter.VpcNetworkSources); vpcSrc != nil {
+		filterItem["vpc_network_sources"] = vpcSrc
+	}
+
+	return append(ipFilterList, filterItem)
+}
+
+func flattenBucketIpFilterPublicNetworkSource(publicNetworkSource *storage.BucketIpFilterPublicNetworkSource) []map[string]interface{} {
+	if publicNetworkSource == nil || len(publicNetworkSource.AllowedIpCidrRanges) == 0 {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"allowed_ip_cidr_ranges": publicNetworkSource.AllowedIpCidrRanges,
+		},
+	}
+}
+
+func flattenBucketIpFilterVpcNetworkSources(vpnNetworkSource []*storage.BucketIpFilterVpcNetworkSources) []map[string]interface{} {
+	if len(vpnNetworkSource) == 0 {
+		return nil
+	}
+
+	srcs := make([]map[string]interface{}, 0, len(vpnNetworkSource))
+
+	for i := range vpnNetworkSource {
+		srcs = append(srcs, map[string]interface{}{
+			"allowed_ip_cidr_ranges": vpnNetworkSource[i].AllowedIpCidrRanges,
+			"network":                vpnNetworkSource[i].Network,
+		})
+	}
+
+	return srcs
+}
+
+func expandBucketIpFilter(v interface{}) *storage.BucketIpFilter {
+	ipFilterList := v.([]interface{})
+	if len(ipFilterList) == 0 || ipFilterList[0] == nil {
+		return nil
+	}
+	ipFilter := ipFilterList[0].(map[string]interface{})
+	return &storage.BucketIpFilter{
+		Mode:                ipFilter["mode"].(string),
+		PublicNetworkSource: expandBucketIpFilterPublicNetworkSource(ipFilter["public_network_source"]),
+		VpcNetworkSources:   expandBucketIpFilterVpcNetworkSources(ipFilter["vpc_network_sources"]),
+		ForceSendFields:     []string{"PublicNetworkSource", "VpcNetworkSources"},
+	}
+}
+
+func expandBucketIpFilterPublicNetworkSource(v interface{}) *storage.BucketIpFilterPublicNetworkSource {
+	e := &storage.BucketIpFilterPublicNetworkSource{
+		ForceSendFields: []string{"AllowedIpCidrRanges"},
+	}
+
+	publicNetworkSources := v.([]interface{})
+	if len(publicNetworkSources) == 0 || publicNetworkSources[0] == nil {
+		return e
+	}
+	publicNetworkSource := publicNetworkSources[0].(map[string]interface{})
+	cidrs := publicNetworkSource["allowed_ip_cidr_ranges"].([]interface{})
+	if len(cidrs) == 0 {
+		return e
+	}
+
+	e.AllowedIpCidrRanges = tpgresource.ConvertStringArr(cidrs)
+	return e
+}
+
+func expandBucketIpFilterVpcNetworkSources(v interface{}) []*storage.BucketIpFilterVpcNetworkSources {
+	vpcNetworkSources := v.([]interface{})
+	if len(vpcNetworkSources) == 0 || vpcNetworkSources[0] == nil {
+		return nil
+	}
+
+	transformedvpcNetworkSources := make([]*storage.BucketIpFilterVpcNetworkSources, 0, len(vpcNetworkSources))
+	for i := range vpcNetworkSources {
+		transformedvpcNetworkSource := vpcNetworkSources[i].(map[string]interface{})
+		transformedvpcNetworkSources = append(transformedvpcNetworkSources, &storage.BucketIpFilterVpcNetworkSources{
+			AllowedIpCidrRanges: tpgresource.ConvertStringArr(transformedvpcNetworkSource["allowed_ip_cidr_ranges"].([]interface{})),
+			Network:             transformedvpcNetworkSource["network"].(string),
+		})
+	}
+
+	return transformedvpcNetworkSources
+}
+
 // d.HasChange("lifecycle_rule") always returns true, giving false positives. This function detects changes
 // to the list size or the actions/conditions of rules directly.
 func detectLifecycleChange(d *schema.ResourceData) bool {
@@ -2109,6 +2297,10 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 		if err := d.Set("requester_pays", res.Billing.RequesterPays); err != nil {
 			return fmt.Errorf("Error setting requester_pays: %s", err)
 		}
+	}
+
+	if err := d.Set("ip_filter", flattenBucketIpFilter(res.IpFilter)); err != nil {
+		return fmt.Errorf("Error setting ip_filter: %s", err)
 	}
 
 	d.SetId(res.Id)
