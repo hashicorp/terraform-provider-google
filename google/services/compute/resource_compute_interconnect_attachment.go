@@ -215,8 +215,8 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				Description: `Maximum Transmission Unit (MTU), in bytes, of packets passing through
-this interconnect attachment. Currently, only 1440 and 1500 are allowed. If not specified, the value will default to 1440.`,
+				Description: `Maximum Transmission Unit (MTU), in bytes, of packets passing through this interconnect attachment.
+Valid values are 1440, 1460, 1500, and 8896. If not specified, the value will default to 1440.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
