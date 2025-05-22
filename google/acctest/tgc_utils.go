@@ -83,7 +83,11 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 			}
 
 			// Resolve the CAI asset name
-			if apiServiceName, ok := ApiServiceNames[metadata.ResourceType]; ok {
+			apiServiceName := GetAPIServiceNameForResource(metadata.ResourceType)
+			if apiServiceName == "unknown" || apiServiceName == "failed_to_populate_metadata_cache" {
+				log.Printf("[DEBUG]TGC Terraform error: unknown resource type %s", metadata.ResourceType)
+				metadata.CaiAssetName = apiServiceName
+			} else {
 				var rName string
 				switch metadata.ResourceType {
 				case "google_project":
@@ -92,8 +96,6 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 					rName = rState.Primary.ID
 				}
 				metadata.CaiAssetName = fmt.Sprintf("//%s/%s", apiServiceName, rName)
-			} else {
-				metadata.CaiAssetName = "unknown"
 			}
 
 			// Resolve auto IDs in import metadata
@@ -132,34 +134,6 @@ func parseResources(config string) []string {
 	}
 
 	return resources
-}
-
-// getServicePackage determines the service package for a resource type
-func getServicePackage(resourceType string) string {
-	var ServicePackages = map[string]string{
-		"google_compute_":   "compute",
-		"google_storage_":   "storage",
-		"google_sql_":       "sql",
-		"google_container_": "container",
-		"google_bigquery_":  "bigquery",
-		"google_project":    "resourcemanager",
-		"google_cloud_run_": "cloudrun",
-	}
-
-	// Check for exact matches first
-	if service, ok := ServicePackages[resourceType]; ok {
-		return service
-	}
-
-	// Check for prefix matches
-	for prefix, service := range ServicePackages {
-		if strings.HasPrefix(resourceType, prefix) {
-			return service
-		}
-	}
-
-	// Default to "unknown" if no match found
-	return "unknown"
 }
 
 // determineImportMetadata checks if the next step is an import step and extracts all import metadata
@@ -263,7 +237,7 @@ func extendWithTGCData(t *testing.T, c resource.TestCase) resource.TestCase {
 						ResourceType:    resourceType,
 						ResourceAddress: res,
 						ImportMetadata:  importMeta,
-						Service:         getServicePackage(resourceType),
+						Service:         GetServicePackageForResourceType(resourceType),
 						// CaiAssetName will be populated at runtime in the check function
 					}
 				}
