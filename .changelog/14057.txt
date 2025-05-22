@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed forced instance recreation when adding a `attached_disk` with `force_attach` being `false` to `google_compute_instance` 
+```

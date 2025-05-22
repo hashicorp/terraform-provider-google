@@ -1,0 +1,3 @@
+```release-note:enhancement
+memorystore: added field `desired_auto_created_endpoints` for `google_memorystore_instance` resource
+```

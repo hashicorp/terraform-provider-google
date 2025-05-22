@@ -1,0 +1,7 @@
+```release-note:enhancement
+netblock: added `restricted-googleapis-with-directconnectivity` and `private-googleapis-with-directconnectivity` range_types to `google_netblock_ip_ranges` data source 
+```
+
+```release-note:enhancement
+netblock: added ipv6 ranges for `restricted-googleapis` and `private-googleapis` range_types to `google_netblock_ip_ranges` data source 
+```

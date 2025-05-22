@@ -564,8 +564,9 @@ Example: projects/{project}/locations/{location}/backupCollections/{collection}`
 				Description: `Output only. Creation timestamp of the instance.`,
 			},
 			"discovery_endpoints": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:       schema.TypeList,
+				Computed:   true,
+				Deprecated: "`discovery_endpoints` is deprecated  Use `endpoints` instead.",
 				Description: `Output only. Endpoints clients can connect to the instance through. Currently only one
 discovery endpoint is supported.`,
 				Elem: &schema.Resource{
@@ -745,6 +746,7 @@ Format: projects/{project}/locations/{location}/instances/{instance}`,
 			"psc_auto_connections": {
 				Type:        schema.TypeList,
 				Computed:    true,
+				Deprecated:  "`psc_auto_connections` is deprecated  Use `endpoints.connections.pscAutoConnections` instead.",
 				Description: `Output only. User inputs and resource details of the auto-created PSC connections.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -875,8 +877,9 @@ DELETING`,
 			"desired_psc_auto_connections": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				Deprecated:  "`desired_psc_auto_connections` is deprecated  Use `desired_auto_created_endpoints` instead.",
 				ForceNew:    true,
-				Description: `Immutable. User inputs for the auto-created PSC connections.`,
+				Description: `'desired_psc_auto_connections' is deprecated  Use 'desired_auto_created_endpoints' instead.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network": {
@@ -892,6 +895,29 @@ projects/{project_id}/global/networks/{network_id}.`,
 						},
 					},
 				},
+				ConflictsWith: []string{},
+			},
+			"desired_auto_created_endpoints": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Immutable. User inputs for the auto-created endpoints connections.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"network": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `Required. The consumer network where the IP address resides, in the form of
+projects/{project_id}/global/networks/{network_id}.`,
+						},
+						"project_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Required. The consumer project_id where the forwarding rule is created from.`,
+						},
+					},
+				},
+				ConflictsWith: []string{},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -3118,34 +3144,73 @@ func expandMemorystoreInstanceEffectiveLabels(v interface{}, d tpgresource.Terra
 }
 
 func resourceMemorystoreInstanceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	v, ok := d.GetOk("desired_psc_auto_connections")
-	if !ok {
-		return obj, nil // No desired connections, nothing to update
+	// Handles desired_auto_created_endpoints virtual field
+	v, ok := d.GetOk("desired_auto_created_endpoints")
+	if ok {
+		l := v.([]interface{})
+		if len(l) > 0 {
+			endpoints := make([]interface{}, 1)
+			endpointObj := make(map[string]interface{})
+			connections := make([]interface{}, 0, len(l))
+
+			for _, raw := range l {
+				if raw == nil {
+					continue
+				}
+				desiredEndpoint := raw.(map[string]interface{})
+				connectionObj := make(map[string]interface{})
+				pscAutoConnection := make(map[string]interface{})
+
+				projectId := desiredEndpoint["project_id"]
+				if val := reflect.ValueOf(projectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+					pscAutoConnection["projectId"] = projectId
+				}
+
+				network := desiredEndpoint["network"]
+				if val := reflect.ValueOf(network); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+					pscAutoConnection["network"] = network
+				}
+
+				connectionObj["pscAutoConnection"] = pscAutoConnection
+				connections = append(connections, connectionObj)
+			}
+
+			endpointObj["connections"] = connections
+			endpoints[0] = endpointObj
+			obj["endpoints"] = endpoints
+			log.Printf("[DEBUG] You are setting desired_auto_created_endpoints in encoder %#v", endpoints)
+
+		}
+		// Handles desired_auto_created_endpoints virtual field
+	} else if v, ok := d.GetOk("desired_psc_auto_connections"); ok {
+		l := v.([]interface{})
+		req := make([]interface{}, 0, len(l))
+		for _, raw := range l {
+			if raw == nil {
+				continue
+			}
+			desiredConnection := raw.(map[string]interface{})
+			connectionReq := make(map[string]interface{})
+
+			projectId := desiredConnection["project_id"]
+			if val := reflect.ValueOf(projectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+				connectionReq["projectId"] = projectId
+			}
+
+			network := desiredConnection["network"]
+			if val := reflect.ValueOf(network); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+				connectionReq["network"] = network
+			}
+
+			req = append(req, connectionReq)
+		}
+
+		obj["pscAutoConnections"] = req
+		log.Printf("[DEBUG] You are setting desired_psc_auto_connections in encoder  %#v", req)
+
 	}
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		desiredConnection := raw.(map[string]interface{})
-		connectionReq := make(map[string]interface{})
 
-		projectId := desiredConnection["project_id"]
-		if val := reflect.ValueOf(projectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			connectionReq["projectId"] = projectId
-		}
-
-		network := desiredConnection["network"]
-		if val := reflect.ValueOf(network); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			connectionReq["network"] = network
-		}
-
-		req = append(req, connectionReq)
-	}
-
-	obj["pscAutoConnections"] = req
-	// if the automated_backup_config is not defined, automatedBackupMode needs to be passed and set to DISABLED in the expand
+	// If the automated_backup_config is not defined, automatedBackupMode needs to be passed and set to DISABLED in the expand
 	if obj["automatedBackupConfig"] == nil {
 		config := meta.(*transport_tpg.Config)
 		automatedBackupConfigProp, _ := expandMemorystoreInstanceAutomatedBackupConfig(d.Get("automated_backup_config"), d, config)
@@ -3155,49 +3220,101 @@ func resourceMemorystoreInstanceEncoder(d *schema.ResourceData, meta interface{}
 }
 
 func resourceMemorystoreInstanceDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	// Retrieve pscAutoConnections from API response
+	// Retrieve endpoints.connections.pscAutoConnection from API response
 	v, ok := res["pscAutoConnections"]
-	if !ok {
-		if _, endpointsFound := res["endpoints"]; endpointsFound {
-			return res, nil // For Cluster Disabled instances, we would have 'endpoints' instead of 'pscAutoConnections'
-		}
-		return res, nil
-	}
+	if ok {
 
-	connections, ok := v.([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("pscAutoConnections is not an array")
-	}
-
-	transformed := make([]interface{}, 0, len(connections))
-	uniqueConnections := make(map[string]bool) // Track unique project+network combos
-
-	for _, raw := range connections {
-		connectionData, ok := raw.(map[string]interface{})
-		if !ok || len(connectionData) < 1 {
-			return nil, fmt.Errorf("Invalid or empty psc connection data: %v", raw)
-		}
-
-		projectID, ok := connectionData["projectId"].(string)
+		connections, ok := v.([]interface{})
 		if !ok {
-			return nil, fmt.Errorf("invalid project ID in psc connection: %v", connectionData)
+			return nil, fmt.Errorf("pscAutoConnections is not an array")
 		}
 
-		networkID, ok := connectionData["network"].(string)
-		if !ok {
-			return nil, fmt.Errorf("invalid network ID in psc connection: %v", connectionData)
+		transformed := make([]interface{}, 0, len(connections))
+		uniqueConnections := make(map[string]bool) // Track unique project+network combos
+
+		for _, raw := range connections {
+			connectionData, ok := raw.(map[string]interface{})
+			if !ok || len(connectionData) < 1 {
+				return nil, fmt.Errorf("Invalid or empty psc connection data: %v", raw)
+			}
+
+			projectID, ok := connectionData["projectId"].(string)
+			if !ok {
+				return nil, fmt.Errorf("invalid project ID in psc connection: %v", connectionData)
+			}
+
+			networkID, ok := connectionData["network"].(string)
+			if !ok {
+				return nil, fmt.Errorf("invalid network ID in psc connection: %v", connectionData)
+			}
+
+			uniqueKey := projectID + networkID
+			if !uniqueConnections[uniqueKey] { // Check for uniqueness
+				uniqueConnections[uniqueKey] = true
+				transformed = append(transformed, map[string]interface{}{
+					"project_id": projectID,
+					"network":    networkID,
+				})
+			}
+		}
+		d.Set("desired_psc_auto_connections", transformed)
+		log.Printf("[DEBUG] You are setting desired_psc_auto_connections in decoder %#v", transformed)
+
+		// Retrieve pscAutoConnections from API response
+	} else if v, ok := res["endpoints"]; ok {
+
+		endpointsArray, ok := v.([]interface{})
+		if !ok || len(endpointsArray) == 0 {
+			// No endpoints or empty array, nothing to process
+		} else {
+			transformed := make([]interface{}, 0)
+			uniqueEndpoints := make(map[string]bool) // Track unique project+network combos
+
+			for _, endpoint := range endpointsArray {
+				endpointData, ok := endpoint.(map[string]interface{})
+				if !ok {
+					continue
+				}
+
+				connections, ok := endpointData["connections"].([]interface{})
+				if !ok {
+					continue
+				}
+
+				for _, connection := range connections {
+					connectionData, ok := connection.(map[string]interface{})
+					if !ok {
+						continue
+					}
+
+					pscAutoConnection, ok := connectionData["pscAutoConnection"].(map[string]interface{})
+					if !ok {
+						continue
+					}
+
+					projectID, projectOk := pscAutoConnection["projectId"].(string)
+					networkID, networkOk := pscAutoConnection["network"].(string)
+
+					if projectOk && networkOk {
+						uniqueKey := projectID + networkID
+						if !uniqueEndpoints[uniqueKey] { // Check for uniqueness
+							uniqueEndpoints[uniqueKey] = true
+							transformed = append(transformed, map[string]interface{}{
+								"project_id": projectID,
+								"network":    networkID,
+							})
+						}
+					}
+				}
+			}
+			if len(transformed) > 0 {
+				d.Set("desired_auto_created_endpoints", transformed)
+				log.Printf("[DEBUG] Setting desired_auto_created_endpoints in decoder for %#v", transformed)
+
+			}
 		}
 
-		uniqueKey := projectID + networkID
-		if !uniqueConnections[uniqueKey] { // Check for uniqueness
-			uniqueConnections[uniqueKey] = true
-			transformed = append(transformed, map[string]interface{}{
-				"project_id": projectID,
-				"network":    networkID,
-			})
-		}
 	}
 
-	d.Set("desired_psc_auto_connections", transformed)
 	return res, nil
 }

@@ -233,6 +233,7 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 			},
 			"gen_app_builder_settings": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Gen App Builder-related agent-level settings.`,
 				MaxItems:    1,
@@ -864,7 +865,7 @@ func flattenDialogflowCXAgentName(v interface{}, d *schema.ResourceData, config 
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenDialogflowCXAgentDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

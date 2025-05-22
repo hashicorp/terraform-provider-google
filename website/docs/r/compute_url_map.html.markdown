@@ -641,6 +641,266 @@ resource "google_compute_http_health_check" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_default_mirror_percent&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Default Mirror Percent
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  provider    = google-beta
+  name        = "urlmap"
+  description = "Test for default route action mirror percent"
+  
+  default_service = google_compute_backend_service.home.id
+
+  default_route_action {
+    request_mirror_policy {
+      backend_service = google_compute_backend_service.mirror.id
+      mirror_percent = 50.0
+    }
+  }
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.home.id
+  }
+}
+
+resource "google_compute_backend_service" "home" {
+  provider    = google-beta
+  name        = "home"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "mirror" {
+  provider    = google-beta
+  name        = "mirror"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  provider    = google-beta
+  name               = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_path_matcher_default_mirror_percent&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Path Matcher Default Mirror Percent
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  provider    = google-beta
+  name        = "urlmap"
+  description = "Test for default route action mirror percent"
+  
+  default_service = google_compute_backend_service.home.id
+
+  default_route_action {
+    request_mirror_policy {
+      backend_service = google_compute_backend_service.mirror.id
+      mirror_percent = 50.0
+    }
+  }
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.home.id
+  }
+}
+
+resource "google_compute_backend_service" "home" {
+  provider    = google-beta
+  name        = "home"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "mirror" {
+  provider    = google-beta
+  name        = "mirror"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  provider = google-beta
+  name               = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_path_rule_mirror_percent&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Path Rule Mirror Percent
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  provider    = google-beta
+  name        = "urlmap"
+  description = "Test for path matcher default route action mirror percent"
+  
+  default_service = google_compute_backend_service.home.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.home.id
+
+    default_route_action {
+      request_mirror_policy {
+        backend_service = google_compute_backend_service.mirror.id
+        mirror_percent = 75.0
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "home" {
+  provider    = google-beta
+  name        = "home"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "mirror" {
+  provider    = google-beta
+  name        = "mirror"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  provider    = google-beta 
+  name               = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_route_rule_mirror_percent&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Route Rule Mirror Percent
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  provider    = google-beta
+  name        = "urlmap"
+  description = "Test for path rule route action mirror percent"
+
+  default_service = google_compute_backend_service.home.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.home.id
+
+    path_rule {
+      paths   = ["/home"]
+      service = google_compute_backend_service.home.id
+      route_action {
+        request_mirror_policy {
+          backend_service = google_compute_backend_service.mirror.id
+          mirror_percent = 25.0
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "home" {
+  provider    = google-beta
+  name        = "home"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "mirror" {
+  provider    = google-beta
+  name        = "mirror"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  provider = google-beta
+  name               = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_path_template_match&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -1401,6 +1661,11 @@ The following arguments are supported:
   (Required)
   The BackendService resource being mirrored to.
 
+* `mirror_percent` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The percentage of requests to be mirrored to backendService.
+  The value must be between 0.0 and 100.0 inclusive.
+
 <a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_retry_policy"></a>The `retry_policy` block supports:
 
 * `num_retries` -
@@ -2107,6 +2372,11 @@ The following arguments are supported:
   (Required)
   The BackendService resource being mirrored to.
 
+* `mirror_percent` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The percentage of requests to be mirrored to backendService.
+  The value must be between 0.0 and 100.0 inclusive.
+
 <a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_retry_policy"></a>The `retry_policy` block supports:
 
 * `num_retries` -
@@ -2652,6 +2922,11 @@ The following arguments are supported:
   (Required)
   The full or partial URL to the BackendService resource being mirrored to.
 
+* `mirror_percent` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The percentage of requests to be mirrored to backendService.
+  The value must be between 0.0 and 100.0 inclusive.
+
 <a name="nested_path_matcher_path_matcher_default_route_action_cors_policy"></a>The `cors_policy` block supports:
 
 * `allow_origins` -
@@ -3077,6 +3352,11 @@ The following arguments are supported:
 * `backend_service` -
   (Required)
   The full or partial URL to the BackendService resource being mirrored to.
+
+* `mirror_percent` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The percentage of requests to be mirrored to backendService.
+  The value must be between 0.0 and 100.0 inclusive.
 
 <a name="nested_default_route_action_cors_policy"></a>The `cors_policy` block supports:
 

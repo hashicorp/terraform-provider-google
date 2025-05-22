@@ -790,7 +790,7 @@ func flattenNetworkManagementConnectivityTestName(v interface{}, d *schema.Resou
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenNetworkManagementConnectivityTestDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
