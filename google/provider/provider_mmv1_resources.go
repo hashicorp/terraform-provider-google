@@ -198,6 +198,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_beyondcorp_app_gateway":                              beyondcorp.DataSourceGoogleBeyondcorpAppGateway(),
 	"google_beyondcorp_security_gateway":                         beyondcorp.DataSourceGoogleBeyondcorpSecurityGateway(),
 	"google_billing_account":                                     billing.DataSourceGoogleBillingAccount(),
+	"google_bigquery_table":                                      bigquery.DataSourceGoogleBigQueryTable(),
 	"google_bigquery_tables":                                     bigquery.DataSourceGoogleBigQueryTables(),
 	"google_bigquery_dataset":                                    bigquery.DataSourceGoogleBigqueryDataset(),
 	"google_bigquery_default_service_account":                    bigquery.DataSourceGoogleBigqueryDefaultServiceAccount(),
