@@ -21,6 +21,14 @@ fields:
   - field: 'force_stopping'
     provider_only: true
   - field: 'healthy'
+  - field: 'hybrid_peering_details.command'
+  - field: 'hybrid_peering_details.command_expiry_time'
+  - field: 'hybrid_peering_details.passphrase'
+  - field: 'hybrid_peering_details.peer_cluster_name'
+  - field: 'hybrid_peering_details.peer_svm_name'
+  - field: 'hybrid_peering_details.peer_volume_name'
+  - field: 'hybrid_peering_details.subnet_ip'
+  - field: 'hybrid_replication_type'
   - field: 'labels'
   - field: 'location'
     provider_only: true

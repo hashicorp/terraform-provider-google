@@ -1,0 +1,6 @@
+```release-note:enhancement
+netapp: added `hybridReplicationParameters` fields to `google_netapp_volume` resource
+```
+```release-note:enhancement
+netapp: added `hybridPeeringDetails` and `hybridReplicationType` fields to `google_netapp_volume_replication` resource
+```
