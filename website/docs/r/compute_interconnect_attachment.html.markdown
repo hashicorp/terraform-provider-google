@@ -148,8 +148,8 @@ The following arguments are supported:
 
 * `mtu` -
   (Optional)
-  Maximum Transmission Unit (MTU), in bytes, of packets passing through
-  this interconnect attachment. Currently, only 1440 and 1500 are allowed. If not specified, the value will default to 1440.
+  Maximum Transmission Unit (MTU), in bytes, of packets passing through this interconnect attachment.
+  Valid values are 1440, 1460, 1500, and 8896. If not specified, the value will default to 1440.
 
 * `bandwidth` -
   (Optional)
