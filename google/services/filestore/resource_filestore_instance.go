@@ -239,7 +239,7 @@ Possible values include: STANDARD, PREMIUM, BASIC_HDD, BASIC_SSD, HIGH_SCALE_SSD
 				Optional: true,
 				ForceNew: true,
 				Description: `Replication configuration, once set, this cannot be updated.
-Addtionally this should be specified on the replica instance only, indicating the active as the peer_instance`,
+Additionally this should be specified on the replica instance only, indicating the active as the peer_instance`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -407,6 +407,11 @@ resource, see the 'google_tags_tag_value' resource.`,
 A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
 Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z"`,
 									},
+									"peer_instance": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The peer instance.`,
+									},
 									"state": {
 										Type:        schema.TypeString,
 										Computed:    true,
@@ -422,6 +427,11 @@ Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z"`,
 									},
 								},
 							},
+						},
+						"role": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The replication role.`,
 						},
 					},
 				},
@@ -517,6 +527,12 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("tags"); !tpgresource.IsEmptyValue(reflect.ValueOf(tagsProp)) && (ok || !reflect.DeepEqual(v, tagsProp)) {
 		obj["tags"] = tagsProp
+	}
+	replicationProp, err := expandFilestoreInstanceInitialReplication(d.Get("initial_replication"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("initial_replication"); !tpgresource.IsEmptyValue(reflect.ValueOf(replicationProp)) && (ok || !reflect.DeepEqual(v, replicationProp)) {
+		obj["replication"] = replicationProp
 	}
 	labelsProp, err := expandFilestoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -1202,10 +1218,16 @@ func flattenFilestoreInstanceEffectiveReplication(v interface{}, d *schema.Resou
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["role"] =
+		flattenFilestoreInstanceEffectiveReplicationRole(original["role"], d, config)
 	transformed["replicas"] =
 		flattenFilestoreInstanceEffectiveReplicationReplicas(original["replicas"], d, config)
 	return []interface{}{transformed}
 }
+func flattenFilestoreInstanceEffectiveReplicationRole(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenFilestoreInstanceEffectiveReplicationReplicas(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1219,6 +1241,7 @@ func flattenFilestoreInstanceEffectiveReplicationReplicas(v interface{}, d *sche
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
+			"peer_instance":         flattenFilestoreInstanceEffectiveReplicationReplicasPeerInstance(original["peerInstance"], d, config),
 			"state":                 flattenFilestoreInstanceEffectiveReplicationReplicasState(original["state"], d, config),
 			"state_reasons":         flattenFilestoreInstanceEffectiveReplicationReplicasStateReasons(original["stateReasons"], d, config),
 			"last_active_sync_time": flattenFilestoreInstanceEffectiveReplicationReplicasLastActiveSyncTime(original["lastActiveSyncTime"], d, config),
@@ -1226,6 +1249,10 @@ func flattenFilestoreInstanceEffectiveReplicationReplicas(v interface{}, d *sche
 	}
 	return transformed
 }
+func flattenFilestoreInstanceEffectiveReplicationReplicasPeerInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenFilestoreInstanceEffectiveReplicationReplicasState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1557,6 +1584,62 @@ func expandFilestoreInstanceTags(v interface{}, d tpgresource.TerraformResourceD
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandFilestoreInstanceInitialReplication(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRole, err := expandFilestoreInstanceInitialReplicationRole(original["role"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRole); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["role"] = transformedRole
+	}
+
+	transformedReplicas, err := expandFilestoreInstanceInitialReplicationReplicas(original["replicas"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReplicas); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["replicas"] = transformedReplicas
+	}
+
+	return transformed, nil
+}
+
+func expandFilestoreInstanceInitialReplicationRole(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFilestoreInstanceInitialReplicationReplicas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedPeerInstance, err := expandFilestoreInstanceInitialReplicationReplicasPeerInstance(original["peer_instance"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPeerInstance); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["peerInstance"] = transformedPeerInstance
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandFilestoreInstanceInitialReplicationReplicasPeerInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandFilestoreInstanceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
