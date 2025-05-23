@@ -348,7 +348,7 @@ The following arguments are supported:
 * `initial_replication` -
   (Optional)
   Replication configuration, once set, this cannot be updated.
-  Addtionally this should be specified on the replica instance only, indicating the active as the peer_instance
+  Additionally this should be specified on the replica instance only, indicating the active as the peer_instance
   Structure is [documented below](#nested_initial_replication).
 
 * `directory_services` -
@@ -486,6 +486,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 <a name="nested_effective_replication"></a>The `effective_replication` block contains:
 
+* `role` -
+  (Output)
+  The replication role.
+
 * `replicas` -
   (Optional)
   The replication role.
@@ -493,6 +497,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 
 <a name="nested_effective_replication_replicas"></a>The `replicas` block supports:
+
+* `peer_instance` -
+  (Output)
+  The peer instance.
 
 * `state` -
   (Output)

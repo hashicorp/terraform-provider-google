@@ -1,0 +1,7 @@
+```release-note:enhancement
+filestore: added `effective_replication.role` and `effective_replication.replicas.peer_instance` fields to `google_filestore_instance` resource
+```
+
+```release-note:bug
+filestore: fixed bug where `google_filestore_instance.initial_replication` field could not be set
+```
