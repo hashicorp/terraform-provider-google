@@ -1454,6 +1454,28 @@ func ResourceContainerCluster() *schema.Resource {
 				Description: `The Kubernetes version on the nodes. Must either be unset or set to the same value as min_master_version on create. Defaults to the default version set by GKE which is not necessarily the latest version. This only affects nodes in the default node pool. While a fuzzy version can be specified, it's recommended that you specify explicit versions as Terraform will see spurious diffs when fuzzy versions are used. See the google_container_engine_versions data source's version_prefix field to approximate fuzzy versions in a Terraform-compatible way. To update nodes in other node pools, use the version attribute on the node pool.`,
 			},
 
+			"pod_autoscaling": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Description: `PodAutoscaling is used for configuration of parameters for workload autoscaling`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"hpa_profile": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"NONE", "PERFORMANCE"}, false),
+							Description: `
+								HPA Profile is used to configure the Horizontal Pod Autoscaler (HPA) profile for the cluster.
+								Available options include:
+								- NONE: Customers explicitly opt-out of HPA profiles.
+								- PERFORMANCE: PERFORMANCE is used when customers opt-in to the performance HPA profile. In this profile we support a higher number of HPAs per cluster and faster metrics collection for workload autoscaling.
+							`,
+						},
+					},
+				},
+			},
 			"secret_manager_config": {
 				Type:             schema.TypeList,
 				Optional:         true,
@@ -2365,6 +2387,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		AddonsConfig:          expandClusterAddonsConfig(d.Get("addons_config")),
 		EnableKubernetesAlpha: d.Get("enable_kubernetes_alpha").(bool),
 		IpAllocationPolicy:    ipAllocationBlock,
+		PodAutoscaling:        expandPodAutoscaling(d.Get("pod_autoscaling")),
 		SecretManagerConfig:   expandSecretManagerConfig(d.Get("secret_manager_config")),
 		Autoscaling:           expandClusterAutoscaling(d.Get("cluster_autoscaling"), d),
 		BinaryAuthorization:   expandBinaryAuthorization(d.Get("binary_authorization")),
@@ -3022,6 +3045,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("database_encryption", flattenDatabaseEncryption(cluster.DatabaseEncryption)); err != nil {
+		return err
+	}
+
+	if err := d.Set("pod_autoscaling", flattenPodAutoscaling(cluster.PodAutoscaling)); err != nil {
 		return err
 	}
 
@@ -4046,6 +4073,33 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		log.Printf("[INFO] GKE cluster %s database encryption config has been updated", d.Id())
+	}
+
+	if d.HasChange("pod_autoscaling") {
+		c := d.Get("pod_autoscaling")
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredPodAutoscaling: expandPodAutoscaling(c),
+			},
+		}
+
+		updateF := func() error {
+			name := containerClusterFullName(project, location, clusterName)
+			clusterUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Update(name, req)
+			if config.UserProjectOverride {
+				clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
+			}
+			op, err := clusterUpdateCall.Do()
+			if err != nil {
+				return err
+			}
+			// Wait until it's updated
+			return ContainerOperationWait(config, op, project, location, "updating Horizontal pod Autoscaling profile", userAgent, d.Timeout(schema.TimeoutUpdate))
+		}
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+		log.Printf("[INFO] GKE cluster %s horizontal pod autoscaling profile has been updated", d.Id())
 	}
 
 	if d.HasChange("secret_manager_config") {
@@ -5472,6 +5526,28 @@ func expandIdentityServiceConfig(configured interface{}) *container.IdentityServ
 	return v
 }
 
+func expandPodAutoscaling(configured interface{}) *container.PodAutoscaling {
+	if configured == nil {
+		return nil
+	}
+
+	podAutoscaling := &container.PodAutoscaling{}
+
+	configs := configured.([]interface{})
+
+	if len(configs) == 0 || configs[0] == nil {
+		return nil
+	}
+
+	config := configs[0].(map[string]interface{})
+
+	if v, ok := config["hpa_profile"]; ok {
+		podAutoscaling.HpaProfile = v.(string)
+	}
+
+	return podAutoscaling
+}
+
 func expandSecretManagerConfig(configured interface{}) *container.SecretManagerConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -6362,6 +6438,19 @@ func flattenMasterAuthorizedNetworksConfig(c *container.MasterAuthorizedNetworks
 	result["gcp_public_cidrs_access_enabled"] = c.GcpPublicCidrsAccessEnabled
 	result["private_endpoint_enforcement_enabled"] = c.PrivateEndpointEnforcementEnabled
 	return []map[string]interface{}{result}
+}
+
+func flattenPodAutoscaling(c *container.PodAutoscaling) []map[string]interface{} {
+	config := make([]map[string]interface{}, 0, 1)
+
+	if c == nil {
+		return config
+	}
+
+	config = append(config, map[string]interface{}{
+		"hpa_profile": c.HpaProfile,
+	})
+	return config
 }
 
 func flattenSecretManagerConfig(c *container.SecretManagerConfig) []map[string]interface{} {

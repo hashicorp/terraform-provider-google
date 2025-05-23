@@ -851,6 +851,64 @@ func TestUnitContainerCluster_Rfc3339TimeDiffSuppress(t *testing.T) {
 	}
 }
 
+func TestAccContainerCluster_withPodAutoscaling(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_podAutoscalingConfig(clusterName, networkName, subnetworkName, "NONE"),
+			},
+			{
+				ResourceName:            "google_container_cluster.pod_autoscaling_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				Check:                   resource.TestCheckResourceAttr("google_container_cluster.pod_autoscaling_config", "pod_autoscaling.hpa_profile", "NONE"),
+			},
+			{
+				Config: testAccContainerCluster_podAutoscalingConfig(clusterName, networkName, subnetworkName, "PERFORMANCE"),
+			},
+			{
+				ResourceName:            "google_container_cluster.pod_autoscaling_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				Check:                   resource.TestCheckResourceAttr("google_container_cluster.pod_autoscaling_config", "pod_autoscaling.hpa_profile", "PERFORMANCE"),
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_podAutoscalingConfig(clusterName string, networkName string, subnetworkName string, hpaProfile string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "pod_autoscaling_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  network 		     = "%s"
+  subnetwork		 = "%s"
+
+  pod_autoscaling {
+    hpa_profile = "%s"
+  }
+
+  private_cluster_config {
+    enable_private_nodes    = true
+  }
+
+  deletion_protection = false
+}
+`, clusterName, networkName, subnetworkName, hpaProfile)
+}
+
 func testAccContainerCluster_enableMultiNetworking(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "container_network" {

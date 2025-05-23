@@ -307,7 +307,7 @@ region are guaranteed to support the same version.
     [PodSecurityPolicy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies) feature.
     Structure is [documented below](#nested_pod_security_policy_config).
 
-* `pod_autoscaling` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration for the
+* `pod_autoscaling` - (Optional) Configuration for the
     Structure is [documented below](#nested_pod_autoscaling).
 
 * `secret_manager_config` - (Optional) Configuration for the
