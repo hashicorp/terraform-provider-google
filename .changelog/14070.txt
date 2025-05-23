@@ -1,0 +1,3 @@
+```release-note:enhancement
+privateca: added support for setting default values for basic constraints for `google_privateca_certificate_template` via the `null_ca` and `zero_max_issuer_path_length` fields. also added `name_constraints` field for `google_privateca_certificate_template`.
+```
