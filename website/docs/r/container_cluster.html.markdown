@@ -871,7 +871,7 @@ The `master_authorized_networks_config.cidr_blocks` block supports:
     in GB. The smallest allowed disk size is 10GB. Defaults to 100GB.
 
 * `disk_type` - (Optional) Type of the disk attached to each node
-    (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
+    (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-balanced'
 
 * `enable_confidential_storage` - (Optional) Enabling Confidential Storage will create boot disk with confidential mode. It is disabled by default.
 
