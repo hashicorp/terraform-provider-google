@@ -404,7 +404,7 @@ The following arguments are supported:
 
 * `interval_sec` - (Required) Interval over which the threshold is computed.
 
-* <a  name="nested_exceed_redirect_options"></a>The `exceed_redirect_options` block supports:
+<a  name="nested_exceed_redirect_options"></a>The `exceed_redirect_options` block supports:
 
 * `type` - (Required) Type of the redirect action.
 
