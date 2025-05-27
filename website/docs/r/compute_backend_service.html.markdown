@@ -464,6 +464,11 @@ resource "google_compute_backend_service" "default" {
       dry_run = false
     }
   }
+  log_config {
+    enable          = true
+    optional_mode   = "CUSTOM"
+    optional_fields = [ "orca_load_report", "tls.protocol" ]
+  }  
 }
 
 resource "google_compute_health_check" "default" {
@@ -1619,6 +1624,7 @@ The following arguments are supported:
   This field can only be specified if logging is enabled for this backend service and "logConfig.optionalMode"
   was set to CUSTOM. Contains a list of optional fields you want to include in the logs.
   For example: serverInstance, serverGkeDetails.cluster, serverGkeDetails.pod.podNamespace
+  For example: orca_load_report, tls.protocol
 
 <a name="nested_tls_settings"></a>The `tls_settings` block supports:
 

@@ -497,6 +497,11 @@ resource "google_compute_backend_service" "default" {
       dry_run = false
     }
   }
+  log_config {
+    enable          = true
+    optional_mode   = "CUSTOM"
+    optional_fields = [ "orca_load_report", "tls.protocol" ]
+  }  
 }
 
 resource "google_compute_health_check" "default" {
