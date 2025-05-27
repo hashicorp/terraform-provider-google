@@ -932,7 +932,8 @@ If logging is enabled, logs will be exported to Stackdriver.`,
 							Optional: true,
 							Description: `This field can only be specified if logging is enabled for this backend service and "logConfig.optionalMode"
 was set to CUSTOM. Contains a list of optional fields you want to include in the logs.
-For example: serverInstance, serverGkeDetails.cluster, serverGkeDetails.pod.podNamespace`,
+For example: serverInstance, serverGkeDetails.cluster, serverGkeDetails.pod.podNamespace
+For example: orca_load_report, tls.protocol`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
