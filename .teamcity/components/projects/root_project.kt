@@ -30,8 +30,6 @@ fun googleCloudRootProject(allConfig: AllContextParameters): Project {
         // Registering the VCS roots used by subprojects
         vcsRoot(vcs_roots.HashiCorpVCSRootGa)
         vcsRoot(vcs_roots.HashiCorpVCSRootBeta)
-        vcsRoot(vcs_roots.ModularMagicianVCSRootGa)
-        vcsRoot(vcs_roots.ModularMagicianVCSRootBeta)
 
         features {
             // For controlling sweeping of the GA nightly test project
@@ -61,7 +59,6 @@ fun googleCloudRootProject(allConfig: AllContextParameters): Project {
         subProject(googleSubProjectGa(allConfig))
         subProject(googleSubProjectBeta(allConfig))
         subProject(projectSweeperSubProject(allConfig))
-        subProject(featureBranchResourceIdentitySubProject(allConfig))
         // Feature branch-testing projects - these will be added and removed as needed
 
         params {

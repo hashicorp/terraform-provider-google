@@ -30,23 +30,3 @@ object HashiCorpVCSRootBeta: GitVcsRoot({
         -:refs/pull/*/head
     """.trimIndent()
 })
-
-object ModularMagicianVCSRootGa: GitVcsRoot({
-    name = "https://github.com/BBBmau/terraform-provider-${ProviderNameGa}#refs/heads/identity_playground_ModularMagician"
-    url = "https://github.com/BBBmau/terraform-provider-${ProviderNameGa}"
-    branch = "refs/heads/identity_playground"
-    branchSpec = """
-        +:*
-        -:refs/pull/*/head
-    """.trimIndent()
-})
-
-object ModularMagicianVCSRootBeta: GitVcsRoot({
-    name = "https://github.com/BBBmau/terraform-provider-${ProviderNameBeta}#refs/heads/identity_playground_ModularMagician"
-    url = "https://github.com/BBBmau/terraform-provider-${ProviderNameBeta}"
-    branch = "refs/heads/identity_playground"
-    branchSpec = """
-        +:*
-        -:refs/pull/*/head
-    """.trimIndent()
-})
