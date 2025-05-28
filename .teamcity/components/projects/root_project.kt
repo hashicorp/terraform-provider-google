@@ -18,7 +18,6 @@ import generated.ServicesListBeta
 import generated.ServicesListGa
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.sharedResource
-import projects.feature_branches.featureBranchResourceIdentitySubProject
 // googleCloudRootProject returns a root project that contains a subprojects for the GA and Beta version of the
 // Google provider. There are also resources to help manage the test projects used for acceptance tests.
 fun googleCloudRootProject(allConfig: AllContextParameters): Project {

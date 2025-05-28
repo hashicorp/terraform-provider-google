@@ -39,8 +39,5 @@ fun vcrRecording(parentProject:String, providerName: String, hashicorpVcsRoot: G
         buildType(
             hcBuildConfig
         )
-        buildType(
-            mmBuildConfig
-        )
     }
 }
