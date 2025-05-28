@@ -201,6 +201,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_bigquery_table":                                      bigquery.DataSourceGoogleBigQueryTable(),
 	"google_bigquery_tables":                                     bigquery.DataSourceGoogleBigQueryTables(),
 	"google_bigquery_dataset":                                    bigquery.DataSourceGoogleBigqueryDataset(),
+	"google_bigquery_datasets":                                   bigquery.DataSourceGoogleBigqueryDatasets(),
 	"google_bigquery_default_service_account":                    bigquery.DataSourceGoogleBigqueryDefaultServiceAccount(),
 	"google_certificate_manager_certificates":                    certificatemanager.DataSourceGoogleCertificateManagerCertificates(),
 	"google_certificate_manager_certificate_map":                 certificatemanager.DataSourceGoogleCertificateManagerCertificateMap(),
