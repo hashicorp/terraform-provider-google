@@ -434,29 +434,15 @@ func resourceFirebaseAppHostingBuildCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = FirebaseAppHostingOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Build", userAgent,
+	err = FirebaseAppHostingOperationWaitTime(
+		config, res, project, "Creating Build", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Build: %s", err)
 	}
-
-	if err := d.Set("name", flattenFirebaseAppHostingBuildName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backends/{{backend}}/builds/{{build_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Build %q: %#v", d.Id(), res)
 

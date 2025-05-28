@@ -253,29 +253,15 @@ func resourceDiscoveryEngineSearchEngineCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = DiscoveryEngineOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating SearchEngine", userAgent,
+	err = DiscoveryEngineOperationWaitTime(
+		config, res, project, "Creating SearchEngine", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create SearchEngine: %s", err)
 	}
-
-	if err := d.Set("name", flattenDiscoveryEngineSearchEngineName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating SearchEngine %q: %#v", d.Id(), res)
 

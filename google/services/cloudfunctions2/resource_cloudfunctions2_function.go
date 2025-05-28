@@ -693,26 +693,14 @@ func resourceCloudfunctions2functionCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = Cloudfunctions2OperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating function", userAgent,
+	err = Cloudfunctions2OperationWaitTime(
+		config, res, project, "Creating function", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
+
 		return fmt.Errorf("Error waiting to create function: %s", err)
 	}
-
-	if err := d.Set("name", flattenCloudfunctions2functionName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/functions/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating function %q: %#v", d.Id(), res)
 

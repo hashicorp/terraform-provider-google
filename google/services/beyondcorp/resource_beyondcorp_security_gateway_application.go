@@ -247,29 +247,15 @@ func resourceBeyondcorpSecurityGatewayApplicationCreate(d *schema.ResourceData, 
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = BeyondcorpOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating SecurityGatewayApplication", userAgent,
+	err = BeyondcorpOperationWaitTime(
+		config, res, project, "Creating SecurityGatewayApplication", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create SecurityGatewayApplication: %s", err)
 	}
-
-	if err := d.Set("name", flattenBeyondcorpSecurityGatewayApplicationName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/securityGateways/{{security_gateway_id}}/applications/{{application_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating SecurityGatewayApplication %q: %#v", d.Id(), res)
 
