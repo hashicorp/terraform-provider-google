@@ -22,7 +22,6 @@ fun vcrRecording(parentProject:String, providerName: String, hashicorpVcsRoot: G
     projectId = replaceCharsId(projectId)
 
     val buildIdHashiCorp = replaceCharsId("${providerName}_HASHICORP_VCR")
-    val buildIdModularMagician = replaceCharsId("${providerName}_MODMAGICIAN_VCR")
 
     // Shared resource allows VCR recording process to not clash with acceptance test or sweeper
     var sharedResources: List<String> = listOf(SharedResourceNameVcr)
@@ -30,10 +29,6 @@ fun vcrRecording(parentProject:String, providerName: String, hashicorpVcsRoot: G
     // Create the build config for hashicorp/terraform-provider-google
     var hcVcr = VcrDetails(providerName, buildIdHashiCorp, hashicorpVcsRoot, sharedResources)
     var hcBuildConfig = hcVcr.vcrBuildConfig(config)
-
-    // Create the build config for modular-magician/terraform-provider-google
-    var mmVcr = VcrDetails(providerName, buildIdModularMagician, modularMagicianVcsRoot, sharedResources)
-    var mmBuildConfig = mmVcr.vcrBuildConfig(config)
 
     // Return VCR project with both build configs
     return Project {

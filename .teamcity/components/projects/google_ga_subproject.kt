@@ -14,7 +14,6 @@ import projects.reused.mmUpstream
 import projects.reused.nightlyTests
 import replaceCharsId
 import vcs_roots.HashiCorpVCSRootGa
-import vcs_roots.ModularMagicianVCSRootGa
 
 // googleSubProjectGa returns a subproject that is used for testing terraform-provider-google (GA)
 fun googleSubProjectGa(allConfig: AllContextParameters): Project {
@@ -32,9 +31,6 @@ fun googleSubProjectGa(allConfig: AllContextParameters): Project {
 
         // Nightly Test project that uses hashicorp/terraform-provider-google
         subProject(nightlyTests(gaId, ProviderNameGa, HashiCorpVCSRootGa, gaConfig, NightlyTriggerConfiguration()))
-
-        // MM Upstream project that uses modular-magician/terraform-provider-google
-        subProject(mmUpstream(gaId, ProviderNameGa, ModularMagicianVCSRootGa, HashiCorpVCSRootGa, vcrConfig, NightlyTriggerConfiguration()))
 
         params {
             readOnlySettings()
