@@ -12,9 +12,9 @@ import ProviderNameGa
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 
 object HashiCorpVCSRootGa: GitVcsRoot({
-    name = "https://github.com/BBBmau/terraform-provider-${ProviderNameGa}#refs/heads/main"
+    name = "https://github.com/BBBmau/terraform-provider-${ProviderNameGa}#refs/heads/identity_playground"
     url = "https://github.com/BBBmau/terraform-provider-${ProviderNameGa}"
-    branch = "refs/heads/main"
+    branch = "refs/heads/identity_playground"
     branchSpec = """
         +:*
         -:refs/pull/*/head
@@ -22,9 +22,9 @@ object HashiCorpVCSRootGa: GitVcsRoot({
 })
 
 object HashiCorpVCSRootBeta: GitVcsRoot({
-    name = "https://github.com/BBBmau/terraform-provider-${ProviderNameBeta}#refs/heads/main"
+    name = "https://github.com/BBBmau/terraform-provider-${ProviderNameBeta}#refs/heads/identity_playground"
     url = "https://github.com/BBBmau/terraform-provider-${ProviderNameBeta}"
-    branch = "refs/heads/main"
+    branch = "refs/heads/identity_playground"
     branchSpec = """
         +:*
         -:refs/pull/*/head
@@ -32,9 +32,9 @@ object HashiCorpVCSRootBeta: GitVcsRoot({
 })
 
 object ModularMagicianVCSRootGa: GitVcsRoot({
-    name = "https://github.com/BBBmau/terraform-provider-${ProviderNameGa}#refs/heads/main"
+    name = "https://github.com/BBBmau/terraform-provider-${ProviderNameGa}#refs/heads/identity_playground"
     url = "https://github.com/BBBmau/terraform-provider-${ProviderNameGa}"
-    branch = "refs/heads/main"
+    branch = "refs/heads/identity_playground"
     branchSpec = """
         +:*
         -:refs/pull/*/head
@@ -42,9 +42,9 @@ object ModularMagicianVCSRootGa: GitVcsRoot({
 })
 
 object ModularMagicianVCSRootBeta: GitVcsRoot({
-    name = "https://github.com/BBBmau/terraform-provider-${ProviderNameBeta}#refs/heads/main"
+    name = "https://github.com/BBBmau/terraform-provider-${ProviderNameBeta}#refs/heads/identity_playground"
     url = "https://github.com/BBBmau/terraform-provider-${ProviderNameBeta}"
-    branch = "refs/heads/main"
+    branch = "refs/heads/identity_playground"
     branchSpec = """
         +:*
         -:refs/pull/*/head
