@@ -283,29 +283,15 @@ func resourceNetworkSecurityMirroringEndpointGroupAssociationCreate(d *schema.Re
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = NetworkSecurityOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating MirroringEndpointGroupAssociation", userAgent,
+	err = NetworkSecurityOperationWaitTime(
+		config, res, project, "Creating MirroringEndpointGroupAssociation", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create MirroringEndpointGroupAssociation: %s", err)
 	}
-
-	if err := d.Set("name", flattenNetworkSecurityMirroringEndpointGroupAssociationName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/mirroringEndpointGroupAssociations/{{mirroring_endpoint_group_association_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating MirroringEndpointGroupAssociation %q: %#v", d.Id(), res)
 

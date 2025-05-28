@@ -802,25 +802,15 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = GKEHub2OperationWaitTimeWithResponse(
-		config, res, &opRes, tpgresource.GetResourceNameFromSelfLink(project), "Creating Feature", userAgent,
+	err = GKEHub2OperationWaitTime(
+		config, res, tpgresource.GetResourceNameFromSelfLink(project), "Creating Feature", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Feature: %s", err)
 	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/features/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Feature %q: %#v", d.Id(), res)
 
