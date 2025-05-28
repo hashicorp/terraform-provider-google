@@ -30,6 +30,9 @@ import (
 	"strings"
 	"time"
 
+	"cloud.google.com/go/auth/credentials"
+	"cloud.google.com/go/auth/credentials/impersonate"
+	"cloud.google.com/go/auth/oauth2adapt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 
@@ -2375,10 +2378,33 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 		}
 
 		if c.ImpersonateServiceAccount != "" && !initialCredentialsOnly {
-			opts := []option.ClientOption{option.WithCredentialsJSON([]byte(contents)), option.ImpersonateCredentials(c.ImpersonateServiceAccount, c.ImpersonateServiceAccountDelegates...), option.WithScopes(clientScopes...)}
-			creds, err := transport.Creds(context.TODO(), opts...)
+			jsonCreds, err := credentials.DetectDefault(&credentials.DetectOptions{
+				Scopes:          clientScopes,
+				CredentialsJSON: []byte(contents),
+			})
 			if err != nil {
-				return googleoauth.Credentials{}, err
+				return googleoauth.Credentials{}, fmt.Errorf("error loading credentials: %s", err)
+			}
+
+			impersonateOpts := &impersonate.CredentialsOptions{
+				TargetPrincipal: c.ImpersonateServiceAccount,
+				Scopes:          clientScopes,
+				Delegates:       c.ImpersonateServiceAccountDelegates,
+				Credentials:     jsonCreds,
+			}
+
+			if c.UniverseDomain != "" && c.UniverseDomain != "googleapis.com" {
+				impersonateOpts.UniverseDomain = c.UniverseDomain
+			}
+
+			authCred, err := impersonate.NewCredentials(impersonateOpts)
+			if err != nil {
+				return googleoauth.Credentials{}, fmt.Errorf("error loading credentials: %s", err)
+			}
+
+			creds := oauth2adapt.Oauth2CredentialsFromAuthCredentials(authCred)
+			if err != nil {
+				return googleoauth.Credentials{}, fmt.Errorf("error loading credentials: %s", err)
 			}
 			return *creds, nil
 		}
