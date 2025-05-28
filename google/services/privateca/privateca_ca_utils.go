@@ -145,7 +145,7 @@ func activateSubCAWithThirdPartyIssuer(config *transport_tpg.Config, d *schema.R
 		config, res, &opRes, project, "Activating CertificateAuthority", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return fmt.Errorf("Error waiting to actiavte CertificateAuthority: %s", err)
+		return fmt.Errorf("Error waiting to activate CertificateAuthority: %s", err)
 	}
 	return nil
 }
@@ -276,7 +276,7 @@ func activateSubCAWithFirstPartyIssuer(config *transport_tpg.Config, d *schema.R
 		config, res, &opRes, project, "Enabling CertificateAuthority", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return fmt.Errorf("Error waiting to actiavte CertificateAuthority: %s", err)
+		return fmt.Errorf("Error waiting to activate CertificateAuthority: %s", err)
 	}
 	return nil
 }
