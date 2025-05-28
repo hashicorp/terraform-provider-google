@@ -31,7 +31,7 @@ fun googleSubProjectBeta(allConfig: AllContextParameters): Project {
         description = "Subproject containing builds for testing the Beta version of the Google provider"
 
         // Nightly Test project that uses hashicorp/terraform-provider-google-beta
-        subProject(nightlyTests(betaId, ProviderNameBeta, HashiCorpVCSRootBeta, betaConfig, NightlyTriggerConfiguration()))
+        subProject(nightlyTests(betaId, ProviderNameBeta, HashiCorpVCSRootBeta, betaConfig, NightlyTriggerConfiguration(nightlyTestsEnabled = false)))
 
         params {
             readOnlySettings()

@@ -30,7 +30,7 @@ fun googleSubProjectGa(allConfig: AllContextParameters): Project {
         description = "Subproject containing builds for testing the GA version of the Google provider"
 
         // Nightly Test project that uses hashicorp/terraform-provider-google
-        subProject(nightlyTests(gaId, ProviderNameGa, HashiCorpVCSRootGa, gaConfig, NightlyTriggerConfiguration()))
+        subProject(nightlyTests(gaId, ProviderNameGa, HashiCorpVCSRootGa, gaConfig, NightlyTriggerConfiguration(nightlyTestsEnabled = false)))
 
         params {
             readOnlySettings()
