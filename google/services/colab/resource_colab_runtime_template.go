@@ -299,6 +299,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						"post_startup_script_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
+							Deprecated:  "`post_startup_script_config` is deprecated and will be removed in a future major release. New resource creation with this field is unavailable at this time.",
 							ForceNew:    true,
 							Description: `Post startup script config.`,
 							MaxItems:    1,
