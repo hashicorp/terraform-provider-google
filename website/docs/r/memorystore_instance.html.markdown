@@ -755,13 +755,13 @@ The following arguments are supported:
 * `uris` -
   (Required)
   URIs of the GCS objects to import.
-  Example: gs://bucket1/object1, gs//bucket2/folder2/object2
+  Example: gs://bucket1/object1, gs://bucket2/folder2/object2
 
 <a name="nested_managed_backup_source"></a>The `managed_backup_source` block supports:
 
 * `backup` -
   (Required)
-  Example: //memorystore.googleapis.com/projects/{project}/locations/{location}/backups/{backupId}. In this case, it assumes the backup is under memorystore.googleapis.com.
+  Example: `projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup}`.
 
 ## Attributes Reference
 

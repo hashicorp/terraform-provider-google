@@ -281,7 +281,7 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 							Required: true,
 							ForceNew: true,
 							Description: `URIs of the GCS objects to import.
-Example: gs://bucket1/object1, gs//bucket2/folder2/object2`,
+Example: gs://bucket1/object1, gs://bucket2/folder2/object2`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -406,7 +406,7 @@ resolution and up to nine fractional digits.`,
 							Type:        schema.TypeString,
 							Required:    true,
 							ForceNew:    true,
-							Description: `Example: //memorystore.googleapis.com/projects/{project}/locations/{location}/backups/{backupId}. In this case, it assumes the backup is under memorystore.googleapis.com.`,
+							Description: `Example: 'projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup}'.`,
 						},
 					},
 				},

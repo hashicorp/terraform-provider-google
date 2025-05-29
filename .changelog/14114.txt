@@ -1,0 +1,7 @@
+```release-note:note
+memorystore: update the description for `managedBackupSource` and `gcsSource`
+```
+
+```release-note:note
+redis: update the description for `managedBackupSource`
+```
