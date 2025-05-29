@@ -711,8 +711,7 @@ The following arguments are supported:
 
 * `backup` -
   (Required)
-  Example: //redis.googleapis.com/projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup} A shorter version (without the prefix) of the backup name is also supported,
-  like projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backupId}. In this case, it assumes the backup is under redis.googleapis.com.
+  Example: `projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup}`.
 
 <a name="nested_automated_backup_config"></a>The `automated_backup_config` block supports:
 
