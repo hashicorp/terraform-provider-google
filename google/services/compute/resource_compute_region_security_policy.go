@@ -35,6 +35,35 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
+func resourceComputeRegionSecurityPolicySpecRulesDiffSuppress(k, o, n string, d *schema.ResourceData) bool {
+	oldCount, newCount := d.GetChange("rules.#")
+	var count int
+	// There could be duplicates - worth continuing even if the counts are unequal.
+	if oldCount.(int) < newCount.(int) {
+		count = newCount.(int)
+	} else {
+		count = oldCount.(int)
+	}
+
+	old := make([]interface{}, 0, count)
+	new := make([]interface{}, 0, count)
+	for i := 0; i < count; i++ {
+		o, n := d.GetChange(fmt.Sprintf("rules.%d", i))
+
+		if o != nil {
+			old = append(old, o)
+		}
+		if n != nil {
+			new = append(new, n)
+		}
+	}
+
+	oldSet := schema.NewSet(schema.HashResource(ResourceComputeRegionSecurityPolicy().Schema["rules"].Elem.(*schema.Resource)), old)
+	newSet := schema.NewSet(schema.HashResource(ResourceComputeRegionSecurityPolicy().Schema["rules"].Elem.(*schema.Resource)), new)
+
+	return oldSet.Equal(newSet)
+}
+
 func ResourceComputeRegionSecurityPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRegionSecurityPolicyCreate,
@@ -98,10 +127,11 @@ Specifically, the name must be 1-63 characters long and match the regular expres
 If it is not provided, the provider region is used.`,
 			},
 			"rules": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Optional:    true,
-				Description: `The set of rules that belong to this policy. There must always be a default rule (rule with priority 2147483647 and match "*"). If no rules are provided when creating a security policy, a default rule with action "allow" will be added.`,
+				Type:             schema.TypeList,
+				Computed:         true,
+				Optional:         true,
+				DiffSuppressFunc: resourceComputeRegionSecurityPolicySpecRulesDiffSuppress,
+				Description:      `The set of rules that belong to this policy. There must always be a default rule (rule with priority 2147483647 and match "*"). If no rules are provided when creating a security policy, a default rule with action "allow" will be added.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"action": {

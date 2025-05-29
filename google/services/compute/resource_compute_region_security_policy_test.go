@@ -734,3 +734,115 @@ func testAccComputeRegionSecurityPolicy_withMultipleEnforceOnKeyConfigs_update(c
 		}
 	`, context)
 }
+
+func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyRuleOrderingWithMultipleRules(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionSecurityPolicy_ruleOrderingWithMultipleRules_create(context),
+			},
+			{
+				ResourceName:      "google_compute_region_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionSecurityPolicy_ruleOrderingWithMultipleRules_update(context),
+			},
+			{
+				ResourceName:      "google_compute_region_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionSecurityPolicy_ruleOrderingWithMultipleRules_create(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+resource "google_compute_region_security_policy" "policy" {
+	name	    = "tf-test-ordering%{random_suffix}"
+	description = "basic region security policy with multiple rules"
+	type        = "CLOUD_ARMOR"
+	region      = "us-central1"
+
+	rules {
+		action   = "deny"
+		priority = "3000"
+		match {
+			expr {
+			expression = "request.path.matches(\"/login.html\") && token.recaptcha_session.score < 0.2"
+			}
+		}
+	}
+
+	rules {
+		action   = "deny"
+		priority = "2147483647"
+		match {
+			versioned_expr = "SRC_IPS_V1"
+			config {
+				src_ip_ranges = ["*"]
+			}
+		}
+		description = "default rule"
+	}
+}
+
+	`, context)
+}
+
+func testAccComputeRegionSecurityPolicy_ruleOrderingWithMultipleRules_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+resource "google_compute_region_security_policy" "policy" {
+	name	    = "tf-test-ordering%{random_suffix}"
+	description = "basic region security policy with multiple rules, updated"
+	type        = "CLOUD_ARMOR"
+	region      = "us-central1"
+
+	rules {
+		action   = "allow"
+		priority = "4000"
+		match {
+			expr {
+				expression = "request.path.matches(\"/login.html\") && token.recaptcha_session.score < 0.2"
+			}
+		}
+	}
+
+	rules {
+		action   = "allow"
+		priority = "5000"
+		match {
+			expr {
+				expression = "request.path.matches(\"/404.html\") && token.recaptcha_session.score > 0.4"
+			}
+		}
+		description = "new rule"
+	}
+
+	rules {
+		action   = "deny"
+		priority = "2147483647"
+		match {
+			versioned_expr = "SRC_IPS_V1"
+			config {
+				src_ip_ranges = ["*"]
+			}
+		}
+		description = "default rule"
+	}
+}
+	`, context)
+}
