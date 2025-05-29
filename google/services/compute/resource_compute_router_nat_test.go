@@ -813,6 +813,38 @@ func testAccCheckComputeRouterNatDelete(t *testing.T, n string) resource.TestChe
 	}
 }
 
+func TestAccComputeRouterNat_withNat64Configuration(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterNatDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouterNatWithNat64Configuration(context),
+			},
+			{
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRouterNatWithNat64ConfigurationUpdate(context),
+			},
+			{
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeRouterNatBasic(routerName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
@@ -2062,4 +2094,137 @@ resource "google_compute_router_nat" "foobar" {
   auto_network_tier                  = "PREMIUM"
 }
 `, testAccComputeRouterNatBaseResourcesWithPrivateNatSubnetworks(routerName, hubName), routerName)
+}
+
+func testAccComputeRouterNatWithNat64Configuration(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dns_policy" "foobar" {
+  name                      = "tf-test-example-policy%{random_suffix}"
+  enable_inbound_forwarding = false
+  enable_logging            = false
+
+  dns64_config {
+    scope {
+      all_queries = true
+    }
+  }
+  networks {
+    network_url = google_compute_network.foobar.id
+  }
+}
+
+resource "google_compute_network" "foobar" {
+  name                     = "tf-test-network%{random_suffix}"
+  enable_ula_internal_ipv6 = true
+  auto_create_subnetworks  = false
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "tf-test-subnetwork-%{random_suffix}"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_compute_subnetwork" "foobar2" {
+  name             = "tf-test-subnetwork-2-%{random_suffix}"
+  network          = google_compute_network.foobar.self_link
+  ip_cidr_range    = "10.182.0.0/20"
+  ipv6_access_type = "EXTERNAL"
+  stack_type       = "IPV4_IPV6"
+  region           = "us-central1"
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "tf-test-router%{random_suffix}"
+  region  = google_compute_subnetwork.foobar.region
+  network = google_compute_network.foobar.self_link
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_router_nat" "foobar" {
+  name                   = "tf-test-router-nat%{random_suffix}"
+  router                 = google_compute_router.foobar.name
+  region                 = google_compute_router.foobar.region
+  nat_ip_allocate_option = "AUTO_ONLY"
+  
+  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
+  subnetwork {
+    name                    = google_compute_subnetwork.foobar.name
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
+
+  source_subnetwork_ip_ranges_to_nat64 = "ALL_IPV6_SUBNETWORKS"
+}
+`, context)
+}
+
+func testAccComputeRouterNatWithNat64ConfigurationUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dns_policy" "foobar" {
+  name                      = "tf-test-example-policy%{random_suffix}"
+  enable_inbound_forwarding = false
+  enable_logging            = false
+
+  dns64_config {
+    scope {
+      all_queries = true
+    }
+  }
+  networks {
+    network_url = google_compute_network.foobar.id
+  }
+}
+
+resource "google_compute_network" "foobar" {
+  name                     = "tf-test-network%{random_suffix}"
+  enable_ula_internal_ipv6 = true
+  auto_create_subnetworks  = false
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "tf-test-subnetwork-%{random_suffix}"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_compute_subnetwork" "foobar2" {
+  name             = "tf-test-subnetwork-2-%{random_suffix}"
+  network          = google_compute_network.foobar.self_link
+  ip_cidr_range    = "10.182.0.0/20"
+  ipv6_access_type = "EXTERNAL"
+  stack_type       = "IPV4_IPV6"
+  region           = "us-central1"
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "tf-test-router%{random_suffix}"
+  region  = google_compute_subnetwork.foobar.region
+  network = google_compute_network.foobar.self_link
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_router_nat" "foobar" {
+  name                   = "tf-test-router-nat%{random_suffix}"
+  router                 = google_compute_router.foobar.name
+  region                 = google_compute_router.foobar.region
+  nat_ip_allocate_option = "AUTO_ONLY"
+  
+  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
+  subnetwork {
+    name                    = google_compute_subnetwork.foobar.name
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
+  
+  source_subnetwork_ip_ranges_to_nat64 = "LIST_OF_IPV6_SUBNETWORKS"
+  nat64_subnetwork {
+    name = google_compute_subnetwork.foobar2.name
+  }
+}
+`, context)
 }
