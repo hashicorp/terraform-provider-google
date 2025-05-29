@@ -307,9 +307,11 @@ The following arguments are supported:
   Structure is [documented below](#nested_software_config_env).
 
 * `post_startup_script_config` -
-  (Optional)
+  (Optional, Deprecated)
   Post startup script config.
   Structure is [documented below](#nested_software_config_post_startup_script_config).
+
+  ~> **Warning:** `post_startup_script_config` is deprecated and will be removed in a future major release. New resource creation with this field is unavailable at this time.
 
 
 <a name="nested_software_config_env"></a>The `env` block supports:
