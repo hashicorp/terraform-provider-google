@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `source_subnetwork_ip_ranges_to_nat64` and `nat64_subnetwork` fields  to `google_compute_router_nat` resource
+```
+```release-note:enhancement
+dns: added `dns64_config` field  to `google_dns_policy` resource
+```

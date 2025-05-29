@@ -310,6 +310,21 @@ The following arguments are supported:
   `source_subnetwork_ip_ranges_to_nat` is set to `LIST_OF_SUBNETWORKS`
   Structure is [documented below](#nested_subnetwork).
 
+* `source_subnetwork_ip_ranges_to_nat64` -
+  (Optional)
+  Specify the Nat option for NAT64, which can take one of the following values:
+  ALL_IPV6_SUBNETWORKS: All of the IP ranges in every Subnetwork are allowed to Nat.
+  LIST_OF_IPV6_SUBNETWORKS: A list of Subnetworks are allowed to Nat (specified in the field nat64Subnetwork below).
+  Note that if this field contains NAT64_ALL_V6_SUBNETWORKS no other Router.Nat section in this region can also enable NAT64 for any Subnetworks in this network.
+  Other Router.Nat sections can still be present to enable NAT44 only.
+  Possible values are: `ALL_IPV6_SUBNETWORKS`, `LIST_OF_IPV6_SUBNETWORKS`.
+
+* `nat64_subnetwork` -
+  (Optional)
+  One or more subnetwork NAT configurations whose traffic should be translated by NAT64 Gateway.
+  Only used if `source_subnetwork_ip_ranges_to_nat64` is set to `LIST_OF_IPV6_SUBNETWORKS`
+  Structure is [documented below](#nested_nat64_subnetwork).
+
 * `min_ports_per_vm` -
   (Optional)
   Minimum number of ports allocated to a VM from this NAT. Defaults to 64 for static port allocation and 32 dynamic port allocation if not set.
@@ -416,6 +431,12 @@ The following arguments are supported:
   to use NAT. This can be populated only if
   `LIST_OF_SECONDARY_IP_RANGES` is one of the values in
   sourceIpRangesToNat
+
+<a name="nested_nat64_subnetwork"></a>The `nat64_subnetwork` block supports:
+
+* `name` -
+  (Required)
+  Self-link of the subnetwork resource that will use NAT64
 
 <a name="nested_log_config"></a>The `log_config` block supports:
 
