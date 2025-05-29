@@ -30,7 +30,7 @@ import (
 )
 
 type ResourceMetadata struct {
-	CaiAssetName    string         `json:"cai_asset_name"`
+	CaiAssetNames   []string       `json:"cai_asset_names"`
 	ResourceType    string         `json:"resource_type"`
 	ResourceAddress string         `json:"resource_address"`
 	ImportMetadata  ImportMetadata `json:"import_metadata,omitempty"`
@@ -86,7 +86,7 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 			apiServiceName := GetAPIServiceNameForResource(metadata.ResourceType)
 			if apiServiceName == "unknown" || apiServiceName == "failed_to_populate_metadata_cache" {
 				log.Printf("[DEBUG]TGC Terraform error: unknown resource type %s", metadata.ResourceType)
-				metadata.CaiAssetName = apiServiceName
+				metadata.CaiAssetNames = []string{apiServiceName}
 			} else {
 				var rName string
 				switch metadata.ResourceType {
@@ -95,7 +95,7 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 				default:
 					rName = rState.Primary.ID
 				}
-				metadata.CaiAssetName = fmt.Sprintf("//%s/%s", apiServiceName, rName)
+				metadata.CaiAssetNames = []string{fmt.Sprintf("//%s/%s", apiServiceName, rName)}
 			}
 
 			// Resolve auto IDs in import metadata
@@ -238,7 +238,7 @@ func extendWithTGCData(t *testing.T, c resource.TestCase) resource.TestCase {
 						ResourceAddress: res,
 						ImportMetadata:  importMeta,
 						Service:         GetServicePackageForResourceType(resourceType),
-						// CaiAssetName will be populated at runtime in the check function
+						// CaiAssetNames will be populated at runtime in the check function
 					}
 				}
 			}
