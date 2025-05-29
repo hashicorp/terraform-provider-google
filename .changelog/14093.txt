@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue where rules ordering in `google_compute_region_security_policy` caused a diff after apply
+```
