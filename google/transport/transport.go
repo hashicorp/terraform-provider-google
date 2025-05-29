@@ -46,6 +46,10 @@ type SendRequestOptions struct {
 }
 
 func SendRequest(opt SendRequestOptions) (map[string]interface{}, error) {
+	if opt.Config == nil || opt.Config.Client == nil {
+		return nil, fmt.Errorf("client is nil for request to %s", opt.RawURL)
+	}
+
 	reqHeaders := opt.Headers
 	if reqHeaders == nil {
 		reqHeaders = make(http.Header)
