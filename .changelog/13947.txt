@@ -1,0 +1,3 @@
+```release-note:enhancement
+datastream: `google_datastream_private_connection` resource `network_attachement` support via `psc_interface_config` attribute
+```
