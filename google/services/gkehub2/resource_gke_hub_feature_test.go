@@ -934,6 +934,76 @@ resource "google_gke_hub_feature" "feature" {
 `, context)
 }
 
+func TestAccGKEHubFeature_Rbacrolebindingactuation(t *testing.T) {
+	// VCR fails to handle batched project services
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEHubFeatureDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEHubFeature_Rbacrolebindingactuation(context),
+			},
+			{
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccGKEHubFeature_RbacrolebindingactuationUpdate(context),
+			},
+			{
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccGKEHubFeature_Rbacrolebindingactuation(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "rbacrolebindingactuation"
+  location = "global"
+  spec {
+    rbacrolebindingactuation {
+	allowed_custom_roles = ["custom-role1","custom-role2","custom-role3"]
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_RbacrolebindingactuationUpdate(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "rbacrolebindingactuation"
+  location = "global"
+  spec {
+    rbacrolebindingactuation {
+	allowed_custom_roles = ["custom-role1","custom-role2","custom-role3","custom-role4"]
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
 func gkeHubFeatureProjectSetupForGA(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "project" {
