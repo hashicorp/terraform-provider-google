@@ -432,7 +432,7 @@ func testAccEventarcMessageBus_pipeline(t *testing.T) {
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"region":                  envvar.GetTestRegionFromEnv(),
 		"random_suffix":           acctest.RandString(t, 10),
-		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-test-eventarc-messagebus-na", acctest.BootstrapSubnet(t, "tf-test-eventarc-messagebus-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-test-eventarc-messagebus-network"))),
+		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-messagebus-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-messagebus-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-messagebus-network"))),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -480,7 +480,7 @@ func testAccEventarcMessageBus_enrollment(t *testing.T) {
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"region":                  envvar.GetTestRegionFromEnv(),
 		"random_suffix":           acctest.RandString(t, 10),
-		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-test-eventarc-messagebus-na", acctest.BootstrapSubnet(t, "tf-test-eventarc-messagebus-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-test-eventarc-messagebus-network"))),
+		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-messagebus-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-messagebus-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-messagebus-network"))),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -547,7 +547,7 @@ func testAccEventarcMessageBus_updateEnrollment(t *testing.T) {
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"region":                  envvar.GetTestRegionFromEnv(),
 		"random_suffix":           acctest.RandString(t, 10),
-		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-test-eventarc-messagebus-na", acctest.BootstrapSubnet(t, "tf-test-eventarc-messagebus-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-test-eventarc-messagebus-network"))),
+		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-messagebus-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-messagebus-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-messagebus-network"))),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
