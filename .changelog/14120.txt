@@ -1,0 +1,3 @@
+```release-note:enhancement
+gemini: added `disable_web_grounding` field to `google_gemini_gemini_gcp_enablement_setting` resource
+```
