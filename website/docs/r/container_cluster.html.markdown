@@ -950,7 +950,7 @@ gvnic {
 
 * `max_run_duration` - (Optional) The runtime of each node in the node pool in seconds, terminated by 's'. Example: "3600s".
 
-* `flex_start` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))) Enables Flex Start provisioning model for the node pool.
+* `flex_start` - (Optional) Enables Flex Start provisioning model for the node pool.
 
 * `local_ssd_count` - (Optional) The amount of local SSD disks that will be
     attached to each cluster node. Defaults to 0.
