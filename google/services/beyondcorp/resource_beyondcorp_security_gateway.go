@@ -118,6 +118,11 @@ as a key.`,
 				Computed:    true,
 				Description: `Output only. Timestamp when the resource was created.`,
 			},
+			"delegating_service_account": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Service account used for operations that involve resources in consumer projects.`,
+			},
 			"external_ips": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -299,6 +304,9 @@ func resourceBeyondcorpSecurityGatewayRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading SecurityGateway: %s", err)
 	}
 	if err := d.Set("name", flattenBeyondcorpSecurityGatewayName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	}
+	if err := d.Set("delegating_service_account", flattenBeyondcorpSecurityGatewayDelegatingServiceAccount(res["delegatingServiceAccount"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityGateway: %s", err)
 	}
 
@@ -522,6 +530,10 @@ func flattenBeyondcorpSecurityGatewayExternalIps(v interface{}, d *schema.Resour
 }
 
 func flattenBeyondcorpSecurityGatewayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBeyondcorpSecurityGatewayDelegatingServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

@@ -7,6 +7,7 @@ api_resource_type_kind: 'SecurityGateway'
 autogen_status: true
 fields:
   - field: 'create_time'
+  - field: 'delegating_service_account'
   - field: 'display_name'
   - field: 'external_ips'
   - field: 'hubs.hub.internet_gateway.assigned_ips'
