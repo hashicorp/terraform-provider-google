@@ -116,7 +116,7 @@ func TestAccEventarcTrigger_eventarcTriggerWithHttpDestinationExample(t *testing
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"service_account":         envvar.GetTestServiceAccountFromEnv(t),
-		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-test-eventarc-trigger-na", acctest.BootstrapSubnet(t, "tf-test-eventarc-trigger-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-test-eventarc-trigger-network"))),
+		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-trigger-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-trigger-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-trigger-network"))),
 		"random_suffix":           acctest.RandString(t, 10),
 	}
 
