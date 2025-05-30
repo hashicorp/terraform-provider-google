@@ -4464,6 +4464,87 @@ resource "google_container_node_pool" "np" {
 `, clusterName, networkName, subnetworkName, np)
 }
 
+func TestAccContainerNodePool_withFlexStart(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-cluster-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withFlexStart(clusterName, np, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.machine_type", "n1-standard-1"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np",
+						"node_config.0.reservation_affinity.0.consume_reservation_type", "NO_RESERVATION"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.flex_start", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_node_pool.np",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"node_config.0.taint"},
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_withFlexStart(clusterName, np, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  deletion_protection = false
+
+  min_master_version = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
+  release_channel {
+    channel = "RAPID"
+  }
+  network             = "%s"
+  subnetwork          = "%s"
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 0
+  autoscaling {
+    total_min_node_count = 0
+    total_max_node_count = 1
+  }
+
+  node_config {
+   	machine_type = "n1-standard-1"
+	flex_start = true
+	max_run_duration = "604800s"
+
+	reservation_affinity {
+      consume_reservation_type = "NO_RESERVATION"
+    }
+	
+	taint {
+	  key    = "taint_key"
+	  value  = "taint_value"
+	  effect = "NO_SCHEDULE"
+	}
+  }
+}
+`, clusterName, networkName, subnetworkName, np)
+}
+
 func TestAccContainerNodePool_tpuTopology(t *testing.T) {
 	t.Parallel()
 	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/15254#issuecomment-1646277473")
