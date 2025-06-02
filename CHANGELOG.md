@@ -1,4 +1,43 @@
-## 6.37.0 (Unreleased)
+## 6.38.0 (Unreleased)
+
+## 6.37.0 (May 27, 2025)
+
+FEATURES:
+* **New Data Source:** `google_bigquery_table` ([#22973](https://github.com/hashicorp/terraform-provider-google/pull/22973))
+* **New Data Source:** `google_gke_hub_membership` ([#22972](https://github.com/hashicorp/terraform-provider-google/pull/22972))
+* **New Resource:** `google_apigee_security_monitoring_condition` ([#22953](https://github.com/hashicorp/terraform-provider-google/pull/22953))
+* **New Resource:** `google_beyondcorp_security_gateway_application` ([#22938](https://github.com/hashicorp/terraform-provider-google/pull/22938))
+* **New Resource:** `google_cloud_run_v2_worker_pool` ([#22933](https://github.com/hashicorp/terraform-provider-google/pull/22933))
+* **New Resource:** `google_compute_future_reservation` ([#22860](https://github.com/hashicorp/terraform-provider-google/pull/22860))
+* **New Resource:** `google_dataplex_glossary_category` ([#22835](https://github.com/hashicorp/terraform-provider-google/pull/22835))
+* **New Resource:** `google_dataplex_glossary_term` ([#22835](https://github.com/hashicorp/terraform-provider-google/pull/22835))
+* **New Resource:** `google_iam_workforce_pool_provider_key` ([#22960](https://github.com/hashicorp/terraform-provider-google/pull/22960))
+* **New Resource:** `google_managed_kafka_acl` ([#22957](https://github.com/hashicorp/terraform-provider-google/pull/22957))
+
+IMPROVEMENTS:
+* alloydb: added `activation_policy` field to `google_alloydb_instance` resource ([#22818](https://github.com/hashicorp/terraform-provider-google/pull/22818))
+* compute: added in-place update support for `mtu` field in `google_compute_network` ([#22956](https://github.com/hashicorp/terraform-provider-google/pull/22956))
+* compute: promoted `google_compute_region_network_firewall_policy_with_rules`, `google_compute_network_firewall_policy_with_rules`,  and `compute_firewall_policy_with_rules` resources to GA ([#22958](https://github.com/hashicorp/terraform-provider-google/pull/22958))
+* container: added in-place update support for `ip_allocation_policy.stack_type` field in `google_container_cluster` resource ([#22915](https://github.com/hashicorp/terraform-provider-google/pull/22915))
+* container: added in-place update support for `enable_multi_networking` in `google_container_cluster` resource ([#22924](https://github.com/hashicorp/terraform-provider-google/pull/22924))
+* databasemigrationservice: added `create_without_validation` field to `google_database_migration_service_private_connection` resource ([#22925](https://github.com/hashicorp/terraform-provider-google/pull/22925))
+* dataflow: added `additional_pipeline_options` field to `google_dataflow_flex_template_job` resource ([#22919](https://github.com/hashicorp/terraform-provider-google/pull/22919))
+* memorystore: added field `desired_auto_created_endpoints` for `google_memorystore_instance` resource ([#22871](https://github.com/hashicorp/terraform-provider-google/pull/22871))
+* netapp: added `hybrid_peering_details` and `hybrid_replication_type` fields to `google_netapp_volume_replication` resource ([#22975](https://github.com/hashicorp/terraform-provider-google/pull/22975))
+* netapp: added `hybrid_replication_parameters` fields to `google_netapp_volume` resource ([#22975](https://github.com/hashicorp/terraform-provider-google/pull/22975))
+* netblock: added `restricted-googleapis-with-directconnectivity` and `private-googleapis-with-directconnectivity` range_types to `google_netblock_ip_ranges` data source ([#22930](https://github.com/hashicorp/terraform-provider-google/pull/22930))
+* netblock: added ipv6 ranges for `restricted-googleapis` and `private-googleapis` range_types to `google_netblock_ip_ranges` data source ([#22930](https://github.com/hashicorp/terraform-provider-google/pull/22930))
+* privateca: added `name_constraints` field for `google_privateca_certificate_template` resource ([#22981](https://github.com/hashicorp/terraform-provider-google/pull/22981))
+* spanner: added field `instance_type` to the `google_spanner_instance` resource ([#22916](https://github.com/hashicorp/terraform-provider-google/pull/22916))
+* storage: added `ip_filter` to `google_storage_bucket` resource. ([#22976](https://github.com/hashicorp/terraform-provider-google/pull/22976))
+
+BUG FIXES:
+* compute: fixed forced instance recreation when adding a `attached_disk` with `force_attach` being `false` to `google_compute_instance` ([#22954](https://github.com/hashicorp/terraform-provider-google/pull/22954))
+* gemini: fixed permadiff on `product` field in `google_gemini_logging_setting_binding ` resource ([#22819](https://github.com/hashicorp/terraform-provider-google/pull/22819))
+* gemini: fixed permadiff on `product` field in `google_gemini_release_channel_setting_binding ` resource ([#22929](https://github.com/hashicorp/terraform-provider-google/pull/22929))
+* networkservices: fixed validation error when modifying the `cache_mode` field in `edge_cache_service` ([#22932](https://github.com/hashicorp/terraform-provider-google/pull/22932))
+* privateca: fixed issue preventing setting `0` and null values for basic constraints in the `google_privateca_certificate_template` resource via the addition of `null_ca` and `zero_max_issuer_path_length` fields ([#22981](https://github.com/hashicorp/terraform-provider-google/pull/22981))
+* vpcaccess: fixed an issue where Terraform config validation conditions could have erroneously invalidated existing `google_vpc_access_connector` resources ([#22837](https://github.com/hashicorp/terraform-provider-google/pull/22837))
 
 ## 6.36.1 (May 21, 2025)
 
