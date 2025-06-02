@@ -178,8 +178,11 @@ func resourceBigqueryReservationReservationAssignmentCreate(d *schema.ResourceDa
 	if err != nil {
 		return fmt.Errorf("Error creating ReservationAssignment: %s", err)
 	}
-	if err := d.Set("name", flattenNestedBigqueryReservationReservationAssignmentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceBigqueryReservationReservationAssignmentPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -336,7 +339,7 @@ func flattenNestedBigqueryReservationReservationAssignmentName(v interface{}, d 
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenNestedBigqueryReservationReservationAssignmentAssignee(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -406,4 +409,21 @@ func resourceBigqueryReservationReservationAssignmentFindNestedObjectInList(d *s
 		return idx, item, nil
 	}
 	return -1, nil, nil
+}
+func resourceBigqueryReservationReservationAssignmentPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if _, ok := res["assignments"]; ok {
+		res, err := flattenNestedBigqueryReservationReservationAssignment(d, meta, res)
+		if err != nil {
+			return fmt.Errorf("Error getting nested object from operation response: %s", err)
+		}
+		if res == nil {
+			// Object isn't there any more - remove it from the state.
+			return fmt.Errorf("Error decoding response from operation, could not find nested object")
+		}
+	}
+	if err := d.Set("name", flattenNestedBigqueryReservationReservationAssignmentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

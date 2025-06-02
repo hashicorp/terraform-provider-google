@@ -122,8 +122,11 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error creating Client: %s", err)
 	}
-	if err := d.Set("client_id", flattenIapClientClientId(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "client_id": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceIapClientPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -132,14 +135,6 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-
-	brand := d.Get("brand")
-	clientId := flattenIapClientClientId(res["name"], d, config)
-
-	if err := d.Set("client_id", clientId); err != nil {
-		return fmt.Errorf("Error setting client_id: %s", err)
-	}
-	d.SetId(fmt.Sprintf("%s/identityAwareProxyClients/%s", brand, clientId))
 
 	log.Printf("[DEBUG] Finished creating Client %q: %#v", d.Id(), res)
 
@@ -273,9 +268,17 @@ func flattenIapClientClientId(v interface{}, d *schema.ResourceData, config *tra
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func expandIapClientDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceIapClientPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("client_id", flattenIapClientClientId(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "client_id": %s`, err)
+	}
+	return nil
 }

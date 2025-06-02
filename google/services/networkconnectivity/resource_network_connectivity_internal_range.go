@@ -87,11 +87,28 @@ func ResourceNetworkConnectivityInternalRange() *schema.Resource {
 				Optional:    true,
 				Description: `An optional description of this resource.`,
 			},
-			"ip_cidr_range": {
-				Type:        schema.TypeString,
-				Computed:    true,
+			"exclude_cidr_ranges": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Optional. List of IP CIDR ranges to be excluded. Resulting reserved Internal Range will not overlap with any CIDR blocks mentioned in this list.
+Only IPv4 CIDR ranges are supported.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"immutable": {
+				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: `The IP range that this internal range defines.`,
+				ForceNew:    true,
+				Description: `Immutable ranges cannot have their fields modified, except for labels and description.`,
+			},
+			"ip_cidr_range": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				Description: `The IP range that this internal range defines.
+NOTE: IPv6 ranges are limited to usage=EXTERNAL_TO_VPC and peering=FOR_SELF
+NOTE: For IPv6 Ranges this field is compulsory, i.e. the address range must be specified explicitly.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -143,7 +160,9 @@ For example /projects/{project}/regions/{region}/subnetworks/{subnet}`,
 				Type:     schema.TypeInt,
 				Optional: true,
 				Description: `An alternate to ipCidrRange. Can be set when trying to create a reservation that automatically finds a free range of the given size.
-If both ipCidrRange and prefixLength are set, there is an error if the range sizes do not match. Can also be used during updates to change the range size.`,
+If both ipCidrRange and prefixLength are set, there is an error if the range sizes do not match. Can also be used during updates to change the range size.
+NOTE: For IPv6 this field only works if ip_cidr_range is set as well, and both fields must match. In other words, with IPv6 this field only works as
+a redundant parameter.`,
 			},
 			"target_cidr_range": {
 				Type:     schema.TypeList,
@@ -238,6 +257,12 @@ func resourceNetworkConnectivityInternalRangeCreate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("target_cidr_range"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetCidrRangeProp)) && (ok || !reflect.DeepEqual(v, targetCidrRangeProp)) {
 		obj["targetCidrRange"] = targetCidrRangeProp
 	}
+	excludeCidrRangesProp, err := expandNetworkConnectivityInternalRangeExcludeCidrRanges(d.Get("exclude_cidr_ranges"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("exclude_cidr_ranges"); !tpgresource.IsEmptyValue(reflect.ValueOf(excludeCidrRangesProp)) && (ok || !reflect.DeepEqual(v, excludeCidrRangesProp)) {
+		obj["excludeCidrRanges"] = excludeCidrRangesProp
+	}
 	overlapsProp, err := expandNetworkConnectivityInternalRangeOverlaps(d.Get("overlaps"), d, config)
 	if err != nil {
 		return err
@@ -249,6 +274,12 @@ func resourceNetworkConnectivityInternalRangeCreate(d *schema.ResourceData, meta
 		return err
 	} else if v, ok := d.GetOkExists("migration"); !tpgresource.IsEmptyValue(reflect.ValueOf(migrationProp)) && (ok || !reflect.DeepEqual(v, migrationProp)) {
 		obj["migration"] = migrationProp
+	}
+	immutableProp, err := expandNetworkConnectivityInternalRangeImmutable(d.Get("immutable"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("immutable"); !tpgresource.IsEmptyValue(reflect.ValueOf(immutableProp)) && (ok || !reflect.DeepEqual(v, immutableProp)) {
+		obj["immutable"] = immutableProp
 	}
 	labelsProp, err := expandNetworkConnectivityInternalRangeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -379,6 +410,9 @@ func resourceNetworkConnectivityInternalRangeRead(d *schema.ResourceData, meta i
 	if err := d.Set("target_cidr_range", flattenNetworkConnectivityInternalRangeTargetCidrRange(res["targetCidrRange"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
+	if err := d.Set("exclude_cidr_ranges", flattenNetworkConnectivityInternalRangeExcludeCidrRanges(res["excludeCidrRanges"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
 	if err := d.Set("users", flattenNetworkConnectivityInternalRangeUsers(res["users"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
@@ -386,6 +420,9 @@ func resourceNetworkConnectivityInternalRangeRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
 	if err := d.Set("migration", flattenNetworkConnectivityInternalRangeMigration(res["migration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err := d.Set("immutable", flattenNetworkConnectivityInternalRangeImmutable(res["immutable"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenNetworkConnectivityInternalRangeTerraformLabels(res["labels"], d, config)); err != nil {
@@ -456,6 +493,12 @@ func resourceNetworkConnectivityInternalRangeUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("target_cidr_range"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetCidrRangeProp)) {
 		obj["targetCidrRange"] = targetCidrRangeProp
 	}
+	excludeCidrRangesProp, err := expandNetworkConnectivityInternalRangeExcludeCidrRanges(d.Get("exclude_cidr_ranges"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("exclude_cidr_ranges"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, excludeCidrRangesProp)) {
+		obj["excludeCidrRanges"] = excludeCidrRangesProp
+	}
 	overlapsProp, err := expandNetworkConnectivityInternalRangeOverlaps(d.Get("overlaps"), d, config)
 	if err != nil {
 		return err
@@ -504,6 +547,10 @@ func resourceNetworkConnectivityInternalRangeUpdate(d *schema.ResourceData, meta
 
 	if d.HasChange("target_cidr_range") {
 		updateMask = append(updateMask, "targetCidrRange")
+	}
+
+	if d.HasChange("exclude_cidr_ranges") {
+		updateMask = append(updateMask, "excludeCidrRanges")
 	}
 
 	if d.HasChange("overlaps") {
@@ -691,6 +738,10 @@ func flattenNetworkConnectivityInternalRangeTargetCidrRange(v interface{}, d *sc
 	return v
 }
 
+func flattenNetworkConnectivityInternalRangeExcludeCidrRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkConnectivityInternalRangeUsers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -719,6 +770,10 @@ func flattenNetworkConnectivityInternalRangeMigrationSource(v interface{}, d *sc
 }
 
 func flattenNetworkConnectivityInternalRangeMigrationTarget(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityInternalRangeImmutable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -769,6 +824,10 @@ func expandNetworkConnectivityInternalRangeTargetCidrRange(v interface{}, d tpgr
 	return v, nil
 }
 
+func expandNetworkConnectivityInternalRangeExcludeCidrRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkConnectivityInternalRangeOverlaps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -804,6 +863,10 @@ func expandNetworkConnectivityInternalRangeMigrationSource(v interface{}, d tpgr
 }
 
 func expandNetworkConnectivityInternalRangeMigrationTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivityInternalRangeImmutable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

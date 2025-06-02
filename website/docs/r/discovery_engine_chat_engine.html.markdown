@@ -86,7 +86,7 @@ resource "google_discovery_engine_chat_engine" "primary" {
 
 ```hcl
 resource "google_discovery_engine_data_store" "test_data_store" {
-  location                    = "global"
+  location                    = "eu"
   data_store_id               = "data-store"
   display_name                = "Structured datastore"
   industry_vertical           = "GENERIC"
@@ -96,7 +96,7 @@ resource "google_discovery_engine_data_store" "test_data_store" {
 
 resource "google_dialogflow_cx_agent" "agent" {
   display_name = "dialogflowcx-agent"
-  location = "global"
+  location = "europe-west3"
   default_language_code = "en"
   time_zone = "America/Los_Angeles"
 }
@@ -113,6 +113,7 @@ resource "google_discovery_engine_chat_engine" "primary" {
   }
   chat_engine_config {
     dialogflow_agent_to_link = google_dialogflow_cx_agent.agent.id
+    allow_cross_region = true
   }
 }
 ```
@@ -160,6 +161,16 @@ The following arguments are supported:
   (Optional)
   The resource name of an existing Dialogflow agent to link to this Chat Engine. Format: `projects/<Project_ID>/locations/<Location_ID>/agents/<Agent_ID>`.
   Exactly one of `agent_creation_config` or `dialogflow_agent_to_link` must be set.
+
+* `allow_cross_region` -
+  (Optional)
+  If the flag set to true, we allow the agent and engine are in
+  different locations, otherwise the agent and engine are required to be
+  in the same location. The flag is set to false by default.
+  Note that the `allow_cross_region` are one-time consumed by and passed
+  to EngineService.CreateEngine. It means they cannot be retrieved using
+  EngineService.GetEngine or EngineService.ListEngines API after engine
+  creation.
 
 
 <a name="nested_chat_engine_config_agent_creation_config"></a>The `agent_creation_config` block supports:

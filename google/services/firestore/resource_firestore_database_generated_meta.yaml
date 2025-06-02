@@ -10,6 +10,7 @@ fields:
   - field: 'cmek_config.kms_key_name'
   - field: 'concurrency_mode'
   - field: 'create_time'
+  - field: 'database_edition'
   - field: 'delete_protection_state'
   - field: 'deletion_policy'
     provider_only: true

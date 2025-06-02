@@ -26,6 +26,11 @@ issuance policies for one or more CertificateAuthority resources and to rotate C
 trust anchor.
 
 
+To get more information about CaPool, see:
+
+* [API documentation](https://cloud.google.com/certificate-authority-service/docs/reference/rest/v1/projects.locations.caPools)
+* How-to Guides
+    * [Certificate Authority Service Overview](https://cloud.google.com/certificate-authority-service/docs/overview)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=privateca_capool_basic&open_in_editor=main.tf" target="_blank">
@@ -82,6 +87,7 @@ resource "google_privateca_ca_pool" "default" {
         max_modulus_size = 10
       }
     }
+    backdate_duration = "3600s"
     maximum_lifetime = "50000s"
     allowed_issuance_modes {
       allow_csr_based_issuance = true
@@ -202,6 +208,14 @@ The following arguments are supported:
   If any AllowedKeyType is specified, then the certificate request's public key must match one of the key types listed here.
   Otherwise, any key may be used.
   Structure is [documented below](#nested_issuance_policy_allowed_key_types).
+
+* `backdate_duration` -
+  (Optional)
+  The duration to backdate all certificates issued from this CaPool. If not set, the
+  certificates will be issued with a not_before_time of the issuance time (i.e. the current
+  time). If set, the certificates will be issued with a not_before_time of the issuance
+  time minus the backdate_duration. The not_after_time will be adjusted to preserve the
+  requested lifetime. The backdate_duration must be less than or equal to 48 hours.
 
 * `maximum_lifetime` -
   (Optional)

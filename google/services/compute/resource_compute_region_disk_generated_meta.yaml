@@ -16,6 +16,8 @@ fields:
   - field: 'disk_encryption_key.raw_key'
   - field: 'disk_encryption_key.rsa_encrypted_key'
   - field: 'disk_encryption_key.sha256'
+  - field: 'disk_id'
+    api_field: 'id'
   - field: 'effective_labels'
     provider_only: true
   - field: 'guest_os_features.type'

@@ -175,6 +175,30 @@ expiration time indicated by this property.`,
 				Optional:    true,
 				Description: `A user-friendly description of the dataset`,
 			},
+			"external_catalog_dataset_options": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Options defining open source compatible datasets living in the BigQuery catalog. Contains
+metadata of open source database, schema or namespace represented by the current dataset.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"default_storage_location_uri": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The storage location URI for all tables in the dataset. Equivalent to hive metastore's
+database locationUri. Maximum length of 1024 characters.`,
+						},
+						"parameters": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Description: `A map of key value pairs defining the parameters and properties of the open source schema.
+Maximum size of 2Mib.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
 			"external_dataset_reference": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -592,6 +616,12 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("resource_tags"); !tpgresource.IsEmptyValue(reflect.ValueOf(resourceTagsProp)) && (ok || !reflect.DeepEqual(v, resourceTagsProp)) {
 		obj["resourceTags"] = resourceTagsProp
 	}
+	externalCatalogDatasetOptionsProp, err := expandBigQueryDatasetExternalCatalogDatasetOptions(d.Get("external_catalog_dataset_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("external_catalog_dataset_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(externalCatalogDatasetOptionsProp)) && (ok || !reflect.DeepEqual(v, externalCatalogDatasetOptionsProp)) {
+		obj["externalCatalogDatasetOptions"] = externalCatalogDatasetOptionsProp
+	}
 	labelsProp, err := expandBigQueryDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -760,6 +790,9 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("resource_tags", flattenBigQueryDatasetResourceTags(res["resourceTags"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
+	if err := d.Set("external_catalog_dataset_options", flattenBigQueryDatasetExternalCatalogDatasetOptions(res["externalCatalogDatasetOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenBigQueryDatasetTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
@@ -872,6 +905,12 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("resource_tags"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, resourceTagsProp)) {
 		obj["resourceTags"] = resourceTagsProp
+	}
+	externalCatalogDatasetOptionsProp, err := expandBigQueryDatasetExternalCatalogDatasetOptions(d.Get("external_catalog_dataset_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("external_catalog_dataset_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, externalCatalogDatasetOptionsProp)) {
+		obj["externalCatalogDatasetOptions"] = externalCatalogDatasetOptionsProp
 	}
 	labelsProp, err := expandBigQueryDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -1354,6 +1393,29 @@ func flattenBigQueryDatasetResourceTags(v interface{}, d *schema.ResourceData, c
 	return v
 }
 
+func flattenBigQueryDatasetExternalCatalogDatasetOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["parameters"] =
+		flattenBigQueryDatasetExternalCatalogDatasetOptionsParameters(original["parameters"], d, config)
+	transformed["default_storage_location_uri"] =
+		flattenBigQueryDatasetExternalCatalogDatasetOptionsDefaultStorageLocationUri(original["defaultStorageLocationUri"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigQueryDatasetExternalCatalogDatasetOptionsParameters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigQueryDatasetExternalCatalogDatasetOptionsDefaultStorageLocationUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenBigQueryDatasetTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1811,6 +1873,47 @@ func expandBigQueryDatasetResourceTags(v interface{}, d tpgresource.TerraformRes
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandBigQueryDatasetExternalCatalogDatasetOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedParameters, err := expandBigQueryDatasetExternalCatalogDatasetOptionsParameters(original["parameters"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedParameters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["parameters"] = transformedParameters
+	}
+
+	transformedDefaultStorageLocationUri, err := expandBigQueryDatasetExternalCatalogDatasetOptionsDefaultStorageLocationUri(original["default_storage_location_uri"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefaultStorageLocationUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["defaultStorageLocationUri"] = transformedDefaultStorageLocationUri
+	}
+
+	return transformed, nil
+}
+
+func expandBigQueryDatasetExternalCatalogDatasetOptionsParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandBigQueryDatasetExternalCatalogDatasetOptionsDefaultStorageLocationUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandBigQueryDatasetEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

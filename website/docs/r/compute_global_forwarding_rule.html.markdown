@@ -1364,6 +1364,29 @@ The following arguments are supported:
   networkTier of the Address.
   Possible values are: `PREMIUM`, `STANDARD`.
 
+* `external_managed_backend_bucket_migration_state` -
+  (Optional)
+  Specifies the canary migration state for the backend buckets attached to this forwarding rule.
+  Possible values are PREPARE, TEST_BY_PERCENTAGE, and TEST_ALL_TRAFFIC.
+  To begin the migration from EXTERNAL to EXTERNAL_MANAGED, the state must be changed to
+  PREPARE. The state must be changed to TEST_ALL_TRAFFIC before the loadBalancingScheme can be
+  changed to EXTERNAL_MANAGED. Optionally, the TEST_BY_PERCENTAGE state can be used to migrate
+  traffic to backend buckets attached to this forwarding rule by percentage using
+  externalManagedBackendBucketMigrationTestingPercentage.
+  Rolling back a migration requires the states to be set in reverse order. So changing the
+  scheme from EXTERNAL_MANAGED to EXTERNAL requires the state to be set to TEST_ALL_TRAFFIC at
+  the same time. Optionally, the TEST_BY_PERCENTAGE state can be used to migrate some traffic
+  back to EXTERNAL or PREPARE can be used to migrate all traffic back to EXTERNAL.
+  Possible values are: `PREPARE`, `TEST_BY_PERCENTAGE`, `TEST_ALL_TRAFFIC`.
+
+* `external_managed_backend_bucket_migration_testing_percentage` -
+  (Optional)
+  Determines the fraction of requests to backend buckets that should be processed by the Global
+  external Application Load Balancer.
+  The value of this field must be in the range [0, 100].
+  This value can only be set if the loadBalancingScheme in the forwarding rule is set to
+  EXTERNAL (when using the Classic ALB) and the migration state is TEST_BY_PERCENTAGE.
+
 * `service_directory_registrations` -
   (Optional)
   Service Directory resources to register this forwarding rule with.

@@ -64,6 +64,10 @@ resource "google_identity_platform_oauth_idp_config" "oauth_idp_config" {
   issuer        = "issuer"
   enabled       = true
   client_secret = "secret"
+  response_type {
+    id_token = true
+    code = false
+  }
 }
 `, context)
 }

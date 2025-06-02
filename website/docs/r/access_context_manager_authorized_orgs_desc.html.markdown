@@ -58,7 +58,7 @@ resource "google_access_context_manager_authorized_orgs_desc" "authorized-orgs-d
 }
 
 resource "google_access_context_manager_access_policy" "test-access" {
-  parent = "organizations/"
+  parent = "organizations/123456789"
   title  = "my policy"
 }
 ```

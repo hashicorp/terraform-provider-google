@@ -9,6 +9,7 @@ fields:
   - field: 'authorization_mode'
   - field: 'automated_backup_config.fixed_frequency_schedule.start_time.hours'
   - field: 'automated_backup_config.retention'
+  - field: 'backup_collection'
   - field: 'create_time'
   - field: 'cross_instance_replication_config.instance_role'
   - field: 'cross_instance_replication_config.membership.primary_instance.instance'
@@ -21,6 +22,10 @@ fields:
   - field: 'cross_instance_replication_config.secondary_instances.uid'
   - field: 'cross_instance_replication_config.update_time'
   - field: 'deletion_protection_enabled'
+  - field: 'desired_auto_created_endpoints.network'
+    provider_only: true
+  - field: 'desired_auto_created_endpoints.project_id'
+    provider_only: true
   - field: 'desired_psc_auto_connections.network'
     provider_only: true
   - field: 'desired_psc_auto_connections.project_id'
@@ -40,6 +45,7 @@ fields:
   - field: 'endpoints.connections.psc_auto_connection.service_attachment'
   - field: 'engine_configs'
   - field: 'engine_version'
+  - field: 'gcs_source.uris'
   - field: 'instance_id'
     provider_only: true
   - field: 'labels'
@@ -56,6 +62,7 @@ fields:
   - field: 'maintenance_schedule.end_time'
   - field: 'maintenance_schedule.schedule_deadline_time'
   - field: 'maintenance_schedule.start_time'
+  - field: 'managed_backup_source.backup'
   - field: 'mode'
   - field: 'name'
   - field: 'node_config.size_gb'

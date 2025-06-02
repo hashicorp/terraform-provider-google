@@ -298,29 +298,15 @@ func resourceIAM3OrganizationsPolicyBindingCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = IAM3OperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating OrganizationsPolicyBinding", userAgent,
+	err = IAM3OperationWaitTime(
+		config, res, project, "Creating OrganizationsPolicyBinding", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create OrganizationsPolicyBinding: %s", err)
 	}
-
-	if err := d.Set("name", flattenIAM3OrganizationsPolicyBindingName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "organizations/{{organization}}/locations/{{location}}/policyBindings/{{policy_binding_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating OrganizationsPolicyBinding %q: %#v", d.Id(), res)
 

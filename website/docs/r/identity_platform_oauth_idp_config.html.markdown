@@ -45,6 +45,10 @@ resource "google_identity_platform_oauth_idp_config" "oauth_idp_config" {
   issuer        = "issuer"
   enabled       = true
   client_secret = "secret"
+  response_type {
+    id_token = true
+    code = false
+  }
 }
 ```
 
@@ -81,9 +85,26 @@ The following arguments are supported:
   (Optional)
   The client secret of the OAuth client, to enable OIDC code flow.
 
+* `response_type` -
+  (Optional)
+  The response type to request for in the OAuth authorization flow.
+  You can set either idToken or code to true, but not both.
+  Setting both types to be simultaneously true ({code: true, idToken: true}) is not yet supported.
+  Structure is [documented below](#nested_response_type).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_response_type"></a>The `response_type` block supports:
+
+* `id_token` -
+  (Optional)
+  If true, ID token is returned from IdP's authorization endpoint.
+
+* `code` -
+  (Optional)
+  If true, authorization code is returned from IdP's authorization endpoint.
 
 ## Attributes Reference
 

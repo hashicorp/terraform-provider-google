@@ -5,8 +5,16 @@ api_service_name: 'netapp.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'BackupVault'
 fields:
+  - field: 'backup_region'
+  - field: 'backup_retention_policy.backup_minimum_enforced_retention_days'
+  - field: 'backup_retention_policy.daily_backup_immutable'
+  - field: 'backup_retention_policy.manual_backup_immutable'
+  - field: 'backup_retention_policy.monthly_backup_immutable'
+  - field: 'backup_retention_policy.weekly_backup_immutable'
+  - field: 'backup_vault_type'
   - field: 'create_time'
   - field: 'description'
+  - field: 'destination_backup_vault'
   - field: 'effective_labels'
     provider_only: true
   - field: 'labels'
@@ -14,6 +22,8 @@ fields:
     provider_only: true
   - field: 'name'
     provider_only: true
+  - field: 'source_backup_vault'
+  - field: 'source_region'
   - field: 'state'
   - field: 'terraform_labels'
     provider_only: true

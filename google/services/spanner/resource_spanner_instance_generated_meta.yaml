@@ -22,6 +22,7 @@ fields:
     provider_only: true
   - field: 'force_destroy'
     provider_only: true
+  - field: 'instance_type'
   - field: 'labels'
   - field: 'name'
   - field: 'num_nodes'

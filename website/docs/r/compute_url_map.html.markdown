@@ -641,6 +641,266 @@ resource "google_compute_http_health_check" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_default_mirror_percent&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Default Mirror Percent
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  provider    = google-beta
+  name        = "urlmap"
+  description = "Test for default route action mirror percent"
+  
+  default_service = google_compute_backend_service.home.id
+
+  default_route_action {
+    request_mirror_policy {
+      backend_service = google_compute_backend_service.mirror.id
+      mirror_percent = 50.0
+    }
+  }
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.home.id
+  }
+}
+
+resource "google_compute_backend_service" "home" {
+  provider    = google-beta
+  name        = "home"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "mirror" {
+  provider    = google-beta
+  name        = "mirror"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  provider    = google-beta
+  name               = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_path_matcher_default_mirror_percent&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Path Matcher Default Mirror Percent
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  provider    = google-beta
+  name        = "urlmap"
+  description = "Test for default route action mirror percent"
+  
+  default_service = google_compute_backend_service.home.id
+
+  default_route_action {
+    request_mirror_policy {
+      backend_service = google_compute_backend_service.mirror.id
+      mirror_percent = 50.0
+    }
+  }
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.home.id
+  }
+}
+
+resource "google_compute_backend_service" "home" {
+  provider    = google-beta
+  name        = "home"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "mirror" {
+  provider    = google-beta
+  name        = "mirror"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  provider = google-beta
+  name               = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_path_rule_mirror_percent&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Path Rule Mirror Percent
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  provider    = google-beta
+  name        = "urlmap"
+  description = "Test for path matcher default route action mirror percent"
+  
+  default_service = google_compute_backend_service.home.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.home.id
+
+    default_route_action {
+      request_mirror_policy {
+        backend_service = google_compute_backend_service.mirror.id
+        mirror_percent = 75.0
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "home" {
+  provider    = google-beta
+  name        = "home"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "mirror" {
+  provider    = google-beta
+  name        = "mirror"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  provider    = google-beta 
+  name               = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_route_rule_mirror_percent&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Route Rule Mirror Percent
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  provider    = google-beta
+  name        = "urlmap"
+  description = "Test for path rule route action mirror percent"
+
+  default_service = google_compute_backend_service.home.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.home.id
+
+    path_rule {
+      paths   = ["/home"]
+      service = google_compute_backend_service.home.id
+      route_action {
+        request_mirror_policy {
+          backend_service = google_compute_backend_service.mirror.id
+          mirror_percent = 25.0
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "home" {
+  provider    = google-beta
+  name        = "home"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "mirror" {
+  provider    = google-beta
+  name        = "mirror"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  provider = google-beta
+  name               = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_path_template_match&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -820,6 +1080,215 @@ resource "google_storage_bucket" "error" {
   name        = "static-asset-bucket"
   location    = "US"
 }
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_http_filter_configs&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Http Filter Configs
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  provider    = google-beta
+  name        = "urlmap"
+  description = "Test for httpFilterConfigs in route rules"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    route_rules {
+      priority = 1
+      service = google_compute_backend_service.service-a.id
+      match_rules {
+        prefix_match = "/"
+        ignore_case = true
+      }
+      http_filter_configs {
+        filter_name = "envoy.wasm"
+        config_type_url = "type.googleapis.com/google.protobuf.Struct"
+        config = jsonencode({
+          name = "my-filter"
+          root_id = "my_root_id"
+          vm_config = {
+            vm_id = "my_vm_id"
+            runtime = "envoy.wasm.runtime.v8"
+            code = {
+              local = {
+                inline_string = "const WASM_BINARY = '...'"
+              }
+            }
+          }
+        })
+      }
+    }
+  }
+
+  test {
+    service = google_compute_backend_service.default.id
+    host    = "mysite.com"
+    path    = "/"
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  provider    = google-beta
+  name        = "default-backend"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "service-a" {
+  provider    = google-beta
+  name        = "service-a-backend"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  provider = google-beta
+  name               = "health-check"
+  http_health_check {
+    port = 80
+  }
+} 
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_http_filter_metadata&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Http Filter Metadata
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  provider    = google-beta
+  name        = "urlmap"
+  description = "Test for httpFilterMetadata in route rules"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    route_rules {
+      priority = 1
+      service = google_compute_backend_service.service-a.id
+      match_rules {
+        prefix_match = "/"
+        ignore_case = true
+      }
+      http_filter_metadata {
+        filter_name = "envoy.wasm"
+        config_type_url = "type.googleapis.com/google.protobuf.Struct"
+        config = jsonencode({
+          fields = {
+            timeout = {
+              string_value = "30s"
+            }
+            retries = {
+              number_value = 3
+            }
+            debug = {
+              bool_value = true
+            }
+          }
+        })
+      }
+    }
+    route_rules {
+      priority = 2
+      service = google_compute_backend_service.service-b.id
+      match_rules {
+        prefix_match = "/api"
+        ignore_case = true
+      }
+      http_filter_metadata {
+        filter_name = "envoy.rate_limit"
+        config_type_url = "type.googleapis.com/google.protobuf.Struct"
+        config = jsonencode({
+          fields = {
+            requests_per_unit = {
+              number_value = 100
+            }
+            unit = {
+              string_value = "MINUTE"
+            }
+          }
+        })
+      }
+    }
+  }
+
+  test {
+    service = google_compute_backend_service.default.id
+    host    = "mysite.com"
+    path    = "/"
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  provider    = google-beta
+  name        = "default-backend"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "service-a" {
+  provider    = google-beta
+  name        = "service-a-backend"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "service-b" {
+  provider    = google-beta
+  name        = "service-b-backend"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+
+  health_checks = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  provider = google-beta
+  name               = "health-check"
+  http_health_check {
+    port = 80
+  }
+} 
 ```
 
 ## Argument Reference
@@ -1401,6 +1870,11 @@ The following arguments are supported:
   (Required)
   The BackendService resource being mirrored to.
 
+* `mirror_percent` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The percentage of requests to be mirrored to backendService.
+  The value must be between 0.0 and 100.0 inclusive.
+
 <a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_retry_policy"></a>The `retry_policy` block supports:
 
 * `num_retries` -
@@ -1684,6 +2158,22 @@ The following arguments are supported:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   customErrorResponsePolicy specifies how the Load Balancer returns error responses when BackendService or BackendBucket responds with an error.
   Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_custom_error_response_policy).
+
+* `http_filter_configs` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Outbound route specific configuration for networkservices.HttpFilter resources enabled by Traffic Director.
+  httpFilterConfigs only applies for load balancers with loadBalancingScheme set to INTERNAL_SELF_MANAGED.
+  See ForwardingRule for more details.
+  Not supported when the URL map is bound to a target gRPC proxy that has validateForProxyless field set to true.
+  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_http_filter_configs).
+
+* `http_filter_metadata` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Outbound route specific metadata supplied to networkservices.HttpFilter resources enabled by Traffic Director.
+  httpFilterMetadata only applies for load balancers with loadBalancingScheme set to INTERNAL_SELF_MANAGED.
+  See ForwardingRule for more details.
+  Not supported when the URL map is bound to a target gRPC proxy that has validateForProxyless field set to true.
+  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_http_filter_metadata).
 
 
 <a name="nested_path_matcher_path_matcher_route_rules_route_rules_header_action"></a>The `header_action` block supports:
@@ -2107,6 +2597,11 @@ The following arguments are supported:
   (Required)
   The BackendService resource being mirrored to.
 
+* `mirror_percent` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The percentage of requests to be mirrored to backendService.
+  The value must be between 0.0 and 100.0 inclusive.
+
 <a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_retry_policy"></a>The `retry_policy` block supports:
 
 * `num_retries` -
@@ -2374,6 +2869,40 @@ The following arguments are supported:
   (Optional)
   The HTTP status code returned with the response containing the custom error content.
   If overrideResponseCode is not supplied, the same response code returned by the original backend bucket or backend service is returned to the client.
+
+<a name="nested_path_matcher_path_matcher_route_rules_route_rules_http_filter_configs"></a>The `http_filter_configs` block supports:
+
+* `filter_name` -
+  (Optional)
+  Name of the networkservices.HttpFilter resource this configuration belongs to.
+  This name must be known to the xDS client. Example: envoy.wasm
+
+* `config_type_url` -
+  (Optional)
+  The fully qualified versioned proto3 type url of the protobuf that the filter expects for its contextual settings,
+  for example: type.googleapis.com/google.protobuf.Struct
+
+* `config` -
+  (Optional)
+  The configuration needed to enable the networkservices.HttpFilter resource.
+  The configuration must be YAML formatted and only contain fields defined in the protobuf identified in configTypeUrl
+
+<a name="nested_path_matcher_path_matcher_route_rules_route_rules_http_filter_metadata"></a>The `http_filter_metadata` block supports:
+
+* `filter_name` -
+  (Optional)
+  Name of the networkservices.HttpFilter resource this configuration belongs to.
+  This name must be known to the xDS client. Example: envoy.wasm
+
+* `config_type_url` -
+  (Optional)
+  The fully qualified versioned proto3 type url of the protobuf that the filter expects for its contextual settings,
+  for example: type.googleapis.com/google.protobuf.Struct
+
+* `config` -
+  (Optional)
+  The configuration needed to enable the networkservices.HttpFilter resource.
+  The configuration must be YAML formatted and only contain fields defined in the protobuf identified in configTypeUrl
 
 <a name="nested_path_matcher_path_matcher_default_url_redirect"></a>The `default_url_redirect` block supports:
 
@@ -2651,6 +3180,11 @@ The following arguments are supported:
 * `backend_service` -
   (Required)
   The full or partial URL to the BackendService resource being mirrored to.
+
+* `mirror_percent` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The percentage of requests to be mirrored to backendService.
+  The value must be between 0.0 and 100.0 inclusive.
 
 <a name="nested_path_matcher_path_matcher_default_route_action_cors_policy"></a>The `cors_policy` block supports:
 
@@ -3077,6 +3611,11 @@ The following arguments are supported:
 * `backend_service` -
   (Required)
   The full or partial URL to the BackendService resource being mirrored to.
+
+* `mirror_percent` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The percentage of requests to be mirrored to backendService.
+  The value must be between 0.0 and 100.0 inclusive.
 
 <a name="nested_default_route_action_cors_policy"></a>The `cors_policy` block supports:
 

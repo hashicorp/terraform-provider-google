@@ -110,6 +110,9 @@ resource "google_dialogflow_cx_agent" "full_agent" {
       }
     })
   }
+  gen_app_builder_settings {
+    engine = "projects/-/locations/-/collections/-/engines/-"
+  }
 }
 ```
 
@@ -189,6 +192,11 @@ The following arguments are supported:
   (Optional)
   Settings related to speech synthesizing.
   Structure is [documented below](#nested_text_to_speech_settings).
+
+* `gen_app_builder_settings` -
+  (Optional)
+  Gen App Builder-related agent-level settings.
+  Structure is [documented below](#nested_gen_app_builder_settings).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -328,6 +336,13 @@ The following arguments are supported:
   These settings affect:
   * The phone gateway synthesize configuration set via Agent.text_to_speech_settings.
   * How speech is synthesized when invoking session APIs. `Agent.text_to_speech_settings` only applies if `OutputAudioConfig.synthesize_speech_config` is not specified.
+
+<a name="nested_gen_app_builder_settings"></a>The `gen_app_builder_settings` block supports:
+
+* `engine` -
+  (Required)
+  The full name of the Gen App Builder engine related to this agent if there is one.
+  Format: projects/{Project ID}/locations/{Location ID}/collections/{Collection ID}/engines/{Engine ID}
 
 ## Attributes Reference
 

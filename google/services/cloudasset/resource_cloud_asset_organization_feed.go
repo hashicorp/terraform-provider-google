@@ -253,8 +253,11 @@ func resourceCloudAssetOrganizationFeedCreate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return fmt.Errorf("Error creating OrganizationFeed: %s", err)
 	}
-	if err := d.Set("name", flattenCloudAssetOrganizationFeedName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceCloudAssetOrganizationFeedPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -697,4 +700,12 @@ func resourceCloudAssetOrganizationFeedEncoder(d *schema.ResourceData, meta inte
 	newObj := make(map[string]interface{})
 	newObj["feed"] = obj
 	return newObj, nil
+}
+
+func resourceCloudAssetOrganizationFeedPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("name", flattenCloudAssetOrganizationFeedName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

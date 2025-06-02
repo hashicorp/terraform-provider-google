@@ -360,8 +360,11 @@ func resourceDataLossPreventionStoredInfoTypeCreate(d *schema.ResourceData, meta
 	if err != nil {
 		return fmt.Errorf("Error creating StoredInfoType: %s", err)
 	}
-	if err := d.Set("name", flattenDataLossPreventionStoredInfoTypeName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceDataLossPreventionStoredInfoTypePostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -682,7 +685,7 @@ func flattenDataLossPreventionStoredInfoTypeName(v interface{}, d *schema.Resour
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenDataLossPreventionStoredInfoTypeDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1205,4 +1208,11 @@ func resourceDataLossPreventionStoredInfoTypeDecoder(d *schema.ResourceData, met
 	}
 
 	return config, nil
+}
+func resourceDataLossPreventionStoredInfoTypePostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("name", flattenDataLossPreventionStoredInfoTypeName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

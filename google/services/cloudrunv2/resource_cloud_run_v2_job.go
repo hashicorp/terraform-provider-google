@@ -206,7 +206,7 @@ If omitted, a port number will be chosen and passed to the container through the
 									"max_retries": {
 										Type:        schema.TypeInt,
 										Optional:    true,
-										Description: `Number of retries allowed per Task, before marking this Task failed.`,
+										Description: `Number of retries allowed per Task, before marking this Task failed. Defaults to 3. Minimum value is 0.`,
 										Default:     3,
 									},
 									"service_account": {
@@ -913,22 +913,14 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = CloudRunV2OperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Job", userAgent,
+	err = CloudRunV2OperationWaitTime(
+		config, res, project, "Creating Job", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
+
 		return fmt.Errorf("Error waiting to create Job: %s", err)
 	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/jobs/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Job %q: %#v", d.Id(), res)
 

@@ -12,6 +12,7 @@ fields:
   - field: 'effective_labels'
     provider_only: true
   - field: 'failover_origin'
+  - field: 'flex_shielding.flex_shielding_regions'
   - field: 'labels'
   - field: 'max_attempts'
   - field: 'name'

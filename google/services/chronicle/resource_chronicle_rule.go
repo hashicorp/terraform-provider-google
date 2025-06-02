@@ -358,12 +358,11 @@ func resourceChronicleRuleCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return fmt.Errorf("Error creating Rule: %s", err)
 	}
-	// Setting `name` field so that `id_from_name` flattener will work properly.
-	if err := d.Set("name", flattenChronicleRuleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
-	if err := d.Set("rule_id", flattenChronicleRuleRuleId(res["ruleId"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "rule_id": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceChronicleRulePostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -372,12 +371,6 @@ func resourceChronicleRuleCreate(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-
-	// Rule id is set by API and required to GET the connection
-	// it is set by reading the "name" field rather than a field in the response
-	if err := d.Set("rule_id", flattenChronicleRuleRuleId("", d, config)); err != nil {
-		return fmt.Errorf("Error reading Rule ID: %s", err)
-	}
 
 	log.Printf("[DEBUG] Finished creating Rule %q: %#v", d.Id(), res)
 
@@ -877,4 +870,16 @@ func expandChronicleRuleScope(v interface{}, d tpgresource.TerraformResourceData
 
 func expandChronicleRuleEtag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceChronicleRulePostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	// Setting `name` field so that `id_from_name` flattener will work properly.
+	if err := d.Set("name", flattenChronicleRuleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	if err := d.Set("rule_id", flattenChronicleRuleRuleId(res["ruleId"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "rule_id": %s`, err)
+	}
+	return nil
 }

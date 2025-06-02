@@ -1092,8 +1092,11 @@ func resourceDataLossPreventionDiscoveryConfigCreate(d *schema.ResourceData, met
 	if err != nil {
 		return fmt.Errorf("Error creating DiscoveryConfig: %s", err)
 	}
-	if err := d.Set("name", flattenDataLossPreventionDiscoveryConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceDataLossPreventionDiscoveryConfigPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -1390,7 +1393,7 @@ func flattenDataLossPreventionDiscoveryConfigName(v interface{}, d *schema.Resou
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenDataLossPreventionDiscoveryConfigDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4238,4 +4241,18 @@ func resourceDataLossPreventionDiscoveryConfigDecoder(d *schema.ResourceData, me
 	}
 
 	return v.(map[string]interface{}), nil
+}
+func resourceDataLossPreventionDiscoveryConfigPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	res, err := resourceDataLossPreventionDiscoveryConfigDecoder(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("decoding response: %w", err)
+	}
+	if res == nil {
+		return fmt.Errorf("decoding response, could not find object")
+	}
+	if err := d.Set("name", flattenDataLossPreventionDiscoveryConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

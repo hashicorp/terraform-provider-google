@@ -557,29 +557,15 @@ func resourceGKEBackupBackupPlanCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = GKEBackupOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating BackupPlan", userAgent,
+	err = GKEBackupOperationWaitTime(
+		config, res, project, "Creating BackupPlan", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create BackupPlan: %s", err)
 	}
-
-	if err := d.Set("name", flattenGKEBackupBackupPlanName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating BackupPlan %q: %#v", d.Id(), res)
 
@@ -885,7 +871,7 @@ func flattenGKEBackupBackupPlanName(v interface{}, d *schema.ResourceData, confi
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenGKEBackupBackupPlanUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

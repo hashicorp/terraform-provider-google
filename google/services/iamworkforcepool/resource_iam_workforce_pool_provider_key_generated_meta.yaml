@@ -1,0 +1,24 @@
+resource: 'google_iam_workforce_pool_provider_key'
+generation_type: 'mmv1'
+source_file: 'products/iamworkforcepool/WorkforcePoolProviderKey.yaml'
+api_service_name: 'iam.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'WorkforcePoolProviderKey'
+fields:
+  - field: 'expire_time'
+  - field: 'key_data.format'
+  - field: 'key_data.key'
+  - field: 'key_data.key_spec'
+  - field: 'key_data.not_after_time'
+  - field: 'key_data.not_before_time'
+  - field: 'key_id'
+    provider_only: true
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'provider_id'
+    provider_only: true
+  - field: 'state'
+  - field: 'use'
+  - field: 'workforce_pool_id'
+    provider_only: true

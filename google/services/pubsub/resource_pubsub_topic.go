@@ -372,7 +372,7 @@ constraints are in effect.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"allowed_persistence_regions": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Required: true,
 							Description: `A list of IDs of GCP regions where messages that are published to
 the topic may be persisted in storage. Messages published by
@@ -383,6 +383,7 @@ and is not a valid configuration.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Set: schema.HashString,
 						},
 						"enforce_in_transit": {
 							Type:     schema.TypeBool,
@@ -869,7 +870,7 @@ func flattenPubsubTopicName(v interface{}, d *schema.ResourceData, config *trans
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenPubsubTopicKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -907,7 +908,10 @@ func flattenPubsubTopicMessageStoragePolicy(v interface{}, d *schema.ResourceDat
 	return []interface{}{transformed}
 }
 func flattenPubsubTopicMessageStoragePolicyAllowedPersistenceRegions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenPubsubTopicMessageStoragePolicyEnforceInTransit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1267,6 +1271,7 @@ func expandPubsubTopicMessageStoragePolicy(v interface{}, d tpgresource.Terrafor
 }
 
 func expandPubsubTopicMessageStoragePolicyAllowedPersistenceRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	return v, nil
 }
 

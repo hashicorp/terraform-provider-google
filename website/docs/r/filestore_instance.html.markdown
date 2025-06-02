@@ -241,6 +241,11 @@ The following arguments are supported:
   Anon_gid may only be set with squashMode of ROOT_SQUASH. An error will be returned
   if this field is specified for other squashMode settings.
 
+* `network` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The source VPC network for `ip_ranges`.
+  Required for instances using Private Service Connect, optional otherwise.
+
 <a name="nested_networks"></a>The `networks` block supports:
 
 * `network` -
@@ -269,7 +274,23 @@ The following arguments are supported:
   If not provided, the connect mode defaults to
   DIRECT_PEERING.
   Default value is `DIRECT_PEERING`.
-  Possible values are: `DIRECT_PEERING`, `PRIVATE_SERVICE_ACCESS`.
+  Possible values are: `DIRECT_PEERING`, `PRIVATE_SERVICE_ACCESS`, `PRIVATE_SERVICE_CONNECT`.
+
+* `psc_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Private Service Connect configuration.
+  Should only be set when connect_mode is PRIVATE_SERVICE_CONNECT.
+  Structure is [documented below](#nested_networks_networks_psc_config).
+
+
+<a name="nested_networks_networks_psc_config"></a>The `psc_config` block supports:
+
+* `endpoint_project` -
+  (Optional)
+  Consumer service project in which the Private Service Connect endpoint
+  would be set up. This is optional, and only relevant in case the network
+  is a shared VPC. If this is not specified, the endpoint would be set up
+  in the VPC host project.
 
 - - -
 
@@ -327,8 +348,14 @@ The following arguments are supported:
 * `initial_replication` -
   (Optional)
   Replication configuration, once set, this cannot be updated.
-  Addtionally this should be specified on the replica instance only, indicating the active as the peer_instance
+  Additionally this should be specified on the replica instance only, indicating the active as the peer_instance
   Structure is [documented below](#nested_initial_replication).
+
+* `directory_services` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Directory Services configuration.
+  Should only be set if protocol is "NFS_V4_1".
+  Structure is [documented below](#nested_directory_services).
 
 * `zone` -
   (Optional, Deprecated)
@@ -397,6 +424,41 @@ The following arguments are supported:
   (Required)
   The peer instance.
 
+<a name="nested_directory_services"></a>The `directory_services` block supports:
+
+* `ldap` -
+  (Optional)
+  Configuration for LDAP servers.
+  Structure is [documented below](#nested_directory_services_ldap).
+
+
+<a name="nested_directory_services_ldap"></a>The `ldap` block supports:
+
+* `domain` -
+  (Required)
+  The LDAP domain name in the format of `my-domain.com`.
+
+* `servers` -
+  (Required)
+  The servers names are used for specifying the LDAP servers names.
+  The LDAP servers names can come with two formats:
+  1. DNS name, for example: `ldap.example1.com`, `ldap.example2.com`.
+  2. IP address, for example: `10.0.0.1`, `10.0.0.2`, `10.0.0.3`.
+  All servers names must be in the same format: either all DNS names or all
+  IP addresses.
+
+* `users_ou` -
+  (Optional)
+  The users Organizational Unit (OU) is optional. This parameter is a hint
+  to allow faster lookup in the LDAP namespace. In case that this parameter
+  is not provided, Filestore instance will query the whole LDAP namespace.
+
+* `groups_ou` -
+  (Optional)
+  The groups Organizational Unit (OU) is optional. This parameter is a hint
+  to allow faster lookup in the LDAP namespace. In case that this parameter
+  is not provided, Filestore instance will query the whole LDAP namespace.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -424,6 +486,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 <a name="nested_effective_replication"></a>The `effective_replication` block contains:
 
+* `role` -
+  (Output)
+  The replication role.
+
 * `replicas` -
   (Optional)
   The replication role.
@@ -431,6 +497,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 
 <a name="nested_effective_replication_replicas"></a>The `replicas` block supports:
+
+* `peer_instance` -
+  (Output)
+  The peer instance.
 
 * `state` -
   (Output)

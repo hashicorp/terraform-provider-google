@@ -1016,32 +1016,35 @@ func flattenIdentityPlatformConfigBlockingFunctionsTriggersUpdateTime(v interfac
 }
 
 func flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentials(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
-	transformed["id_token"] =
-		flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsIdToken(original["idToken"], d, config)
-	transformed["access_token"] =
-		flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsAccessToken(original["accessToken"], d, config)
-	transformed["refresh_token"] =
-		flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsRefreshToken(original["refreshToken"], d, config)
+
+	if v == nil {
+		transformed["id_token"] = false
+		transformed["access_token"] = false
+		transformed["refresh_token"] = false
+	} else {
+		original := v.(map[string]interface{})
+
+		if original["idToken"] == nil {
+			transformed["id_token"] = false
+		} else {
+			transformed["id_token"] = original["idToken"]
+		}
+
+		if original["accessToken"] == nil {
+			transformed["access_token"] = false
+		} else {
+			transformed["access_token"] = original["accessToken"]
+		}
+
+		if original["refreshToken"] == nil {
+			transformed["refresh_token"] = false
+		} else {
+			transformed["refresh_token"] = original["refreshToken"]
+		}
+	}
+
 	return []interface{}{transformed}
-}
-func flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsIdToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsAccessToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsRefreshToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
 }
 
 func flattenIdentityPlatformConfigQuota(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1279,26 +1282,25 @@ func flattenIdentityPlatformConfigMfaProviderConfigsTotpProviderConfigAdjacentIn
 }
 
 func flattenIdentityPlatformConfigMultiTenant(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	transformed := make(map[string]interface{})
+
 	if v == nil {
 		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["allow_tenants"] =
-		flattenIdentityPlatformConfigMultiTenantAllowTenants(original["allowTenants"], d, config)
-	transformed["default_tenant_location"] =
-		flattenIdentityPlatformConfigMultiTenantDefaultTenantLocation(original["defaultTenantLocation"], d, config)
-	return []interface{}{transformed}
-}
-func flattenIdentityPlatformConfigMultiTenantAllowTenants(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
+	} else {
+		original := v.(map[string]interface{})
 
-func flattenIdentityPlatformConfigMultiTenantDefaultTenantLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+		if original["allowTenants"] == nil {
+			transformed["allow_tenants"] = false
+		} else {
+			transformed["allow_tenants"] = original["allowTenants"]
+		}
+
+		if original["defaultTenantLocation"] != nil {
+			transformed["default_tenant_location"] = original["defaultTenantLocation"]
+		}
+	}
+
+	return []interface{}{transformed}
 }
 
 func flattenIdentityPlatformConfigMonitoring(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

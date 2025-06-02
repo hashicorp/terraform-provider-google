@@ -95,10 +95,15 @@ resource "google_project_service" "servicenetworking" {
   depends_on = [google_project_service.compute]
 }
 
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.servicenetworking]
+}
+
 resource "google_compute_network" "apigee_network" {
   name       = "apigee-network"
   project    = google_project.project.project_id
-  depends_on = [google_project_service.compute]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 
 resource "google_compute_global_address" "apigee_range" {
@@ -178,6 +183,66 @@ resource "google_apigee_organization" "org" {
   project_id          = google_project.project.project_id
   disable_vpc_peering = true
   depends_on          = [
+    google_project_service.apigee,
+  ]
+}
+`, context)
+}
+
+func TestAccApigeeOrganization_apigeeOrganizationCloudBasicDataResidencyTestExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApigeeOrganizationDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccApigeeOrganization_apigeeOrganizationCloudBasicDataResidencyTestExample(context),
+			},
+			{
+				ResourceName:            "google_apigee_organization.org",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project_id", "properties", "retention"},
+			},
+		},
+	})
+}
+
+func testAccApigeeOrganization_apigeeOrganizationCloudBasicDataResidencyTestExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+provider "google" {
+  apigee_custom_endpoint = "https://eu-apigee.googleapis.com/v1/"
+}
+
+resource "google_project" "project" {
+  project_id      = "tf-test%{random_suffix}"
+  name            = "tf-test%{random_suffix}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "apigee" {
+  project = google_project.project.project_id
+  service = "apigee.googleapis.com"
+}
+
+resource "google_apigee_organization" "org" {
+  description                = "Terraform-provisioned basic Apigee Org under European Union hosting jurisdiction."
+  project_id                 = google_project.project.project_id
+  api_consumer_data_location = "europe-west1"
+  billing_type               = "PAYG"
+  disable_vpc_peering        = true
+  depends_on                 = [
     google_project_service.apigee,
   ]
 }

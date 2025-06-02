@@ -42,8 +42,9 @@ values will be stored in the raw state as plain text: `http_check.auth_info.pass
 
 ```hcl
 resource "google_monitoring_uptime_check_config" "http" {
-  display_name = "http-uptime-check"
-  timeout      = "60s"
+  display_name       = "http-uptime-check"
+  timeout            = "60s"
+  log_check_failures = true
   user_labels  = {
     example-key = "example-value"
   }
@@ -320,6 +321,10 @@ The following arguments are supported:
 * `selected_regions` -
   (Optional)
   The list of regions from which the check will be run. Some regions contain one location, and others contain more than one. If this field is specified, enough regions to include a minimum of 3 locations must be provided, or an error message is returned. Not specifying this field will result in uptime checks running from all regions.
+
+* `log_check_failures` -
+  (Optional)
+  Specifies whether to log the results of failed probes to Cloud Logging.
 
 * `checker_type` -
   (Optional)

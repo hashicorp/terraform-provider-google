@@ -170,29 +170,15 @@ func resourceApigeeDnsZoneCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = ApigeeOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating DnsZone", userAgent,
+	err = ApigeeOperationWaitTime(
+		config, res, "Creating DnsZone", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create DnsZone: %s", err)
 	}
-
-	if err := d.Set("name", flattenApigeeDnsZoneName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{org_id}}/dnsZones/{{dns_zone_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating DnsZone %q: %#v", d.Id(), res)
 

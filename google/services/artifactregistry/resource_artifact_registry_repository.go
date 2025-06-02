@@ -413,8 +413,8 @@ snapshot versions.`,
 													Type:         schema.TypeString,
 													Required:     true,
 													ForceNew:     true,
-													ValidateFunc: verify.ValidateEnum([]string{"DEBIAN", "UBUNTU"}),
-													Description:  `A common public repository base for Apt, e.g. '"debian/dists/buster"' Possible values: ["DEBIAN", "UBUNTU"]`,
+													ValidateFunc: verify.ValidateEnum([]string{"DEBIAN", "UBUNTU", "DEBIAN_SNAPSHOT"}),
+													Description:  `A common public repository base for Apt, e.g. '"debian/dists/buster"' Possible values: ["DEBIAN", "UBUNTU", "DEBIAN_SNAPSHOT"]`,
 												},
 												"repository_path": {
 													Type:        schema.TypeString,
@@ -944,29 +944,15 @@ func resourceArtifactRegistryRepositoryCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = ArtifactRegistryOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Repository", userAgent,
+	err = ArtifactRegistryOperationWaitTime(
+		config, res, project, "Creating Repository", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Repository: %s", err)
 	}
-
-	if err := d.Set("name", flattenArtifactRegistryRepositoryName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Repository %q: %#v", d.Id(), res)
 
@@ -1296,7 +1282,7 @@ func flattenArtifactRegistryRepositoryName(v interface{}, d *schema.ResourceData
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenArtifactRegistryRepositoryFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

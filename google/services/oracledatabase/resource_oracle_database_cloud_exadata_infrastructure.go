@@ -502,29 +502,15 @@ func resourceOracleDatabaseCloudExadataInfrastructureCreate(d *schema.ResourceDa
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = OracleDatabaseOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating CloudExadataInfrastructure", userAgent,
+	err = OracleDatabaseOperationWaitTime(
+		config, res, project, "Creating CloudExadataInfrastructure", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create CloudExadataInfrastructure: %s", err)
 	}
-
-	if err := d.Set("name", flattenOracleDatabaseCloudExadataInfrastructureName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/cloudExadataInfrastructures/{{cloud_exadata_infrastructure_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating CloudExadataInfrastructure %q: %#v", d.Id(), res)
 

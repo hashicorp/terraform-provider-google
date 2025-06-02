@@ -211,12 +211,6 @@ The `config` block supports:
   (Optional)
   Optional. The Azure VM size name. Example: `Standard_DS2_v2`. See (/anthos/clusters/docs/azure/reference/supported-vms) for options. When unspecified, it defaults to `Standard_DS2_v2`.
     
-The `ssh_config` block supports:
-    
-* `authorized_key` -
-  (Required)
-  The SSH public key data for VMs managed by Anthos. This accepts the authorized_keys file format used in OpenSSH according to the sshd(8) manual page.
-    
 The `max_pods_constraint` block supports:
     
 * `max_pods_per_node` -
@@ -261,6 +255,12 @@ The `root_volume` block supports:
 * `size_gib` -
   (Optional)
   Optional. The size of the disk, in GiBs. When unspecified, a default value is provided. See the specific reference in the parent resource.
+    
+The `ssh_config` block supports:
+    
+* `authorized_key` -
+  (Required)
+  The SSH public key data for VMs managed by Anthos. This accepts the authorized_keys file format used in OpenSSH according to the sshd(8) manual page.
     
 The `management` block supports:
     

@@ -23,8 +23,6 @@ description: |-
 
 Represents a Region Cloud Armor Security Policy resource.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about RegionSecurityPolicy, see:
 
@@ -42,8 +40,6 @@ To get more information about RegionSecurityPolicy, see:
 
 ```hcl
 resource "google_compute_region_security_policy" "region-sec-policy-basic" {
-  provider    = google-beta
-
   name        = "my-sec-policy-basic"
   description = "basic region security policy"
   type        = "CLOUD_ARMOR"
@@ -59,8 +55,6 @@ resource "google_compute_region_security_policy" "region-sec-policy-basic" {
 
 ```hcl
 resource "google_compute_region_security_policy" "region-sec-policy-ddos-protection" {
-  provider    = google-beta  
-
   name        = "my-sec-policy-ddos-protection"
   description = "with ddos protection config"
   type        = "CLOUD_ARMOR_NETWORK"
@@ -80,8 +74,6 @@ resource "google_compute_region_security_policy" "region-sec-policy-ddos-protect
 
 ```hcl
 resource "google_compute_region_security_policy" "region-sec-policy-user-defined-fields" {
-  provider    = google-beta  
-
   name        = "my-sec-policy-user-defined-fields"
   description = "with user defined fields"
   type        = "CLOUD_ARMOR_NETWORK"
@@ -111,8 +103,6 @@ resource "google_compute_region_security_policy" "region-sec-policy-user-defined
 
 ```hcl
 resource "google_compute_region_security_policy" "region-sec-policy-with-rules" {
-  provider    = google-beta
-
   name        = "my-sec-policy-with-rules"
   description = "basic region security policy with multiple rules"
   type        = "CLOUD_ARMOR"

@@ -1598,8 +1598,11 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("Error creating Trigger: %s", err)
 	}
-	if err := d.Set("trigger_id", flattenCloudBuildTriggerTriggerId(res["id"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "trigger_id": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceCloudBuildTriggerPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -6034,4 +6037,11 @@ Only populated on get requests.`,
 		},
 		UseJSONNumber: true,
 	}
+}
+func resourceCloudBuildTriggerPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("trigger_id", flattenCloudBuildTriggerTriggerId(res["id"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "trigger_id": %s`, err)
+	}
+	return nil
 }

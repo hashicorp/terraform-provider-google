@@ -119,6 +119,7 @@ encrypted with GMEK.`,
 			"run_as_service_account": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Deprecated:  "`run_as_service_account` is deprecated and will be removed in a future major release.",
 				ForceNew:    true,
 				Description: `User input run-as service account, if empty, will bring up a new default service account.`,
 			},

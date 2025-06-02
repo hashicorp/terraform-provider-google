@@ -263,15 +263,11 @@ func resourceChronicleWatchlistCreate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return fmt.Errorf("Error creating Watchlist: %s", err)
 	}
-	// Setting `name` field so that `id_from_name` flattener will work properly.
-	if err := d.Set("name", flattenChronicleWatchlistName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
-	// watchlist_id is set by API when unset
-	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("watchlist_id"))) {
-		if err := d.Set("watchlist_id", flattenChronicleWatchlistWatchlistId(res["watchlistId"], d, config)); err != nil {
-			return fmt.Errorf(`Error setting computed identity field "watchlist_id": %s`, err)
-		}
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceChronicleWatchlistPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -280,14 +276,6 @@ func resourceChronicleWatchlistCreate(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-
-	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("watchlist_id"))) {
-		// watchlist id is set by API when unset and required to GET the connection
-		// it is set by reading the "name" field rather than a field in the response
-		if err := d.Set("watchlist_id", flattenChronicleWatchlistWatchlistId("", d, config)); err != nil {
-			return fmt.Errorf("Error reading Watchlist ID: %s", err)
-		}
-	}
 
 	log.Printf("[DEBUG] Finished creating Watchlist %q: %#v", d.Id(), res)
 
@@ -747,4 +735,19 @@ func resourceChronicleWatchlistEncoder(d *schema.ResourceData, meta interface{},
 	// watchlist_id is needed to qualify the URL but cannot be sent in the body
 	delete(obj, "watchlistId")
 	return obj, nil
+}
+
+func resourceChronicleWatchlistPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	// Setting `name` field so that `id_from_name` flattener will work properly.
+	if err := d.Set("name", flattenChronicleWatchlistName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	// watchlist_id is set by API when unset
+	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("watchlist_id"))) {
+		if err := d.Set("watchlist_id", flattenChronicleWatchlistWatchlistId(res["watchlistId"], d, config)); err != nil {
+			return fmt.Errorf(`Error setting computed identity field "watchlist_id": %s`, err)
+		}
+	}
+	return nil
 }

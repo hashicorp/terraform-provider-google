@@ -612,6 +612,16 @@ The following arguments are supported:
 - - -
 
 
+* `gcs_source` -
+  (Optional)
+  Backups stored in Cloud Storage buckets. The Cloud Storage buckets need to be the same region as the clusters.
+  Structure is [documented below](#nested_gcs_source).
+
+* `managed_backup_source` -
+  (Optional)
+  Backups that generated and managed by memorystore.
+  Structure is [documented below](#nested_managed_backup_source).
+
 * `automated_backup_config` -
   (Optional)
   The automated backup config for a instance.
@@ -690,6 +700,18 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_gcs_source"></a>The `gcs_source` block supports:
+
+* `uris` -
+  (Required)
+  URIs of the GCS objects to import. Example: gs://bucket1/object1, gs://bucket2/folder2/object2
+
+<a name="nested_managed_backup_source"></a>The `managed_backup_source` block supports:
+
+* `backup` -
+  (Required)
+  Example: `projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup}`.
 
 <a name="nested_automated_backup_config"></a>The `automated_backup_config` block supports:
 
@@ -959,6 +981,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `uid` -
   System assigned, unique identifier for the cluster.
+
+* `backup_collection` -
+  The backup collection full resource name.
+  Example: projects/{project}/locations/{location}/backupCollections/{collection}
 
 * `discovery_endpoints` -
   Output only. Endpoints created on each given network,

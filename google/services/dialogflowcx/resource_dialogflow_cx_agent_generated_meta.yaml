@@ -22,6 +22,7 @@ fields:
   - field: 'display_name'
   - field: 'enable_spell_correction'
   - field: 'enable_stackdriver_logging'
+  - field: 'gen_app_builder_settings.engine'
   - field: 'git_integration_settings.github_settings.access_token'
   - field: 'git_integration_settings.github_settings.branches'
   - field: 'git_integration_settings.github_settings.display_name'

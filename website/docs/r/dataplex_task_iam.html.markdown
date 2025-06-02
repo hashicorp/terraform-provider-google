@@ -96,6 +96,7 @@ The following arguments are supported:
   location is specified, it is taken from the provider configuration.
 * `lake` - (Required) The lake in which the task will be created in.
  Used to find the parent resource to bind the IAM policy to
+* `task_id` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

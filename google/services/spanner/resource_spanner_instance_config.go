@@ -109,14 +109,6 @@ func ResourceSpannerInstanceConfig() *schema.Resource {
 				Required:    true,
 				Description: `The name of this instance configuration as it appears in UIs.`,
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-				Description: `A unique identifier for the instance configuration. Values are of the
-form projects/<project>/instanceConfigs/[a-z][-a-z0-9]*`,
-			},
 			"replicas": {
 				Type:        schema.TypeSet,
 				Required:    true,
@@ -144,6 +136,14 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `A unique identifier for the instance configuration. Values are of the
+form projects/<project>/instanceConfigs/[a-z][-a-z0-9]*`,
 			},
 			"config_type": {
 				Type:        schema.TypeString,
@@ -310,8 +310,11 @@ func resourceSpannerInstanceConfigCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error decoding response from operation, could not find object")
 	}
 
-	if err := d.Set("name", flattenSpannerInstanceConfigName(opRes["name"], d, config)); err != nil {
-		return err
+	// name is set by API when unset
+	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("name"))) {
+		if err := d.Set("name", flattenSpannerInstanceConfigName(opRes["name"], d, config)); err != nil {
+			return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+		}
 	}
 
 	// This may have caused the ID to update - update it if so.
@@ -581,7 +584,7 @@ func flattenSpannerInstanceConfigBaseConfig(v interface{}, d *schema.ResourceDat
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenSpannerInstanceConfigConfigType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

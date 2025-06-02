@@ -296,29 +296,15 @@ func resourceIAM3FoldersPolicyBindingCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = IAM3OperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating FoldersPolicyBinding", userAgent,
+	err = IAM3OperationWaitTime(
+		config, res, project, "Creating FoldersPolicyBinding", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create FoldersPolicyBinding: %s", err)
 	}
-
-	if err := d.Set("name", flattenIAM3FoldersPolicyBindingName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "folders/{{folder}}/locations/{{location}}/policyBindings/{{policy_binding_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating FoldersPolicyBinding %q: %#v", d.Id(), res)
 
