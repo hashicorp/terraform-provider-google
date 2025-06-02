@@ -254,7 +254,8 @@ cluster.
 
 <a name="network_performance_config"></a>The `network_performance_config` block supports:
 
-* `total_egress_bandwidth_tier` (Required) - Specifies the total network bandwidth tier for the NodePool.
+* `total_egress_bandwidth_tier` (Required) - Specifies the total network bandwidth tier for the NodePool. [Valid values](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/projects.locations.clusters.nodePools#NodePool.Tier) include: "TIER_1" and "TIER_UNSPECIFIED".
+* ```
 
 <a name="pod_cidr_overprovision_config"></a>The `pod_cidr_overprovision_config` block supports:
 

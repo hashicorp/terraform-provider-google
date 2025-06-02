@@ -482,7 +482,7 @@ var schemaNodePool = map[string]*schema.Schema{
 							"total_egress_bandwidth_tier": {
 								Type:        schema.TypeString,
 								Required:    true,
-								Description: `Specifies the total network bandwidth tier for the NodePool.`,
+								Description: `Specifies the total network bandwidth tier for the NodePool. [Valid values](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/projects.locations.clusters.nodePools#NodePool.Tier) include: "TIER_1" and "TIER_UNSPECIFIED".`,
 							},
 						},
 					},
