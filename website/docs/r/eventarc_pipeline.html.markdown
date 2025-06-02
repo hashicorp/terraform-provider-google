@@ -43,9 +43,6 @@ resource "google_eventarc_pipeline" "primary" {
   pipeline_id = "some-pipeline"
   destinations {
     topic = google_pubsub_topic.topic.id
-    network_config {
-      network_attachment = "projects/my-project-name/regions/us-central1/networkAttachments/some-network-attachment"
-    }
   }
   labels = {
     test_label = "test-eventarc-label"
@@ -115,9 +112,6 @@ resource "google_eventarc_pipeline" "primary" {
   pipeline_id = "some-pipeline"
   destinations {
     workflow = google_workflows_workflow.workflow.id
-    network_config {
-      network_attachment = "projects/my-project-name/regions/us-central1/networkAttachments/some-network-attachment"
-    }
   }
 }
 ```
@@ -437,10 +431,12 @@ The following arguments are supported:
 <a name="nested_destinations_destinations_network_config"></a>The `network_config` block supports:
 
 * `network_attachment` -
-  (Required)
+  (Optional)
   Name of the NetworkAttachment that allows access to the consumer VPC.
   Format:
   `projects/{PROJECT_ID}/regions/{REGION}/networkAttachments/{NETWORK_ATTACHMENT_NAME}`
+  Required for HTTP endpoint destinations. Must not be specified for
+  Workflows, MessageBus, or Topic destinations.
 
 <a name="nested_destinations_destinations_http_endpoint"></a>The `http_endpoint` block supports:
 
