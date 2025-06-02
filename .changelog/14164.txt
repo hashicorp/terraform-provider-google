@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `data_source_id` to update requests through `google_bigquery_data_transfer_config`
+```

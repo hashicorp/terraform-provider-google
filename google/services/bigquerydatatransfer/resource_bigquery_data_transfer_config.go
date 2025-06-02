@@ -701,6 +701,15 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 		return err
 	}
 
+	// Primarily added to fix b/421406404
+	// This field is immutable, so it should be safe to set it.
+	dataSourceIdProp, err := expandBigqueryDataTransferConfigDataSourceId(d.Get("data_source_id"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("data_source_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(dataSourceIdProp)) && (ok || !reflect.DeepEqual(v, dataSourceIdProp)) {
+		obj["dataSourceId"] = dataSourceIdProp
+	}
+
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
