@@ -170,8 +170,8 @@ with the same dimension.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"ANY_API", "DATASTORE_MODE_API", ""}),
-				Description:  `The API scope at which a query is run. Default value: "ANY_API" Possible values: ["ANY_API", "DATASTORE_MODE_API"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"ANY_API", "DATASTORE_MODE_API", "MONGODB_COMPATIBLE_API", ""}),
+				Description:  `The API scope at which a query is run. Default value: "ANY_API" Possible values: ["ANY_API", "DATASTORE_MODE_API", "MONGODB_COMPATIBLE_API"]`,
 				Default:      "ANY_API",
 			},
 			"database": {
@@ -180,6 +180,21 @@ with the same dimension.`,
 				ForceNew:    true,
 				Description: `The Firestore database id. Defaults to '"(default)"'.`,
 				Default:     "(default)",
+			},
+			"density": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"SPARSE_ALL", "SPARSE_ANY", "DENSE", ""}),
+				Description:  `The density configuration for this index. Possible values: ["SPARSE_ALL", "SPARSE_ANY", "DENSE"]`,
+			},
+			"multikey": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Optional. Whether the index is multikey. By default, the index is not multikey. For non-multikey indexes, none of the paths in the index definition reach or traverse an array, except via an explicit array index. For multikey indexes, at most one of the paths in the index definition reach or traverse an array, except via an explicit array index. Violations will result in errors. Note this field only applies to indexes with MONGODB_COMPATIBLE_API ApiScope.`,
+				Default:     false,
 			},
 			"query_scope": {
 				Type:         schema.TypeString,
@@ -237,6 +252,18 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("api_scope"); !tpgresource.IsEmptyValue(reflect.ValueOf(apiScopeProp)) && (ok || !reflect.DeepEqual(v, apiScopeProp)) {
 		obj["apiScope"] = apiScopeProp
+	}
+	densityProp, err := expandFirestoreIndexDensity(d.Get("density"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("density"); !tpgresource.IsEmptyValue(reflect.ValueOf(densityProp)) && (ok || !reflect.DeepEqual(v, densityProp)) {
+		obj["density"] = densityProp
+	}
+	multikeyProp, err := expandFirestoreIndexMultikey(d.Get("multikey"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("multikey"); !tpgresource.IsEmptyValue(reflect.ValueOf(multikeyProp)) && (ok || !reflect.DeepEqual(v, multikeyProp)) {
+		obj["multikey"] = multikeyProp
 	}
 	fieldsProp, err := expandFirestoreIndexFields(d.Get("fields"), d, config)
 	if err != nil {
@@ -316,16 +343,6 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	// The operation for this resource contains the generated name that we need
-	// in order to perform a READ.
-	metadata := res["metadata"].(map[string]interface{})
-	name := metadata["index"].(string)
-	log.Printf("[DEBUG] Setting Index name, id to %s", name)
-	if err := d.Set("name", name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
-	d.SetId(name)
-
 	log.Printf("[DEBUG] Finished creating Index %q: %#v", d.Id(), res)
 
 	return resourceFirestoreIndexRead(d, meta)
@@ -381,6 +398,12 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 	if err := d.Set("api_scope", flattenFirestoreIndexApiScope(res["apiScope"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err := d.Set("density", flattenFirestoreIndexDensity(res["density"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err := d.Set("multikey", flattenFirestoreIndexMultikey(res["multikey"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 	if err := d.Set("fields", flattenFirestoreIndexFields(res["fields"], d, config)); err != nil {
@@ -493,6 +516,14 @@ func flattenFirestoreIndexApiScope(v interface{}, d *schema.ResourceData, config
 	return v
 }
 
+func flattenFirestoreIndexDensity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFirestoreIndexMultikey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenFirestoreIndexFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -579,6 +610,14 @@ func expandFirestoreIndexQueryScope(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandFirestoreIndexApiScope(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirestoreIndexDensity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirestoreIndexMultikey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

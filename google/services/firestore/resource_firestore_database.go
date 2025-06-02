@@ -141,6 +141,14 @@ The expected format is
 				ValidateFunc: verify.ValidateEnum([]string{"OPTIMISTIC", "PESSIMISTIC", "OPTIMISTIC_WITH_ENTITY_GROUPS", ""}),
 				Description:  `The concurrency control mode to use for this database. Possible values: ["OPTIMISTIC", "PESSIMISTIC", "OPTIMISTIC_WITH_ENTITY_GROUPS"]`,
 			},
+			"database_edition": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"STANDARD", "ENTERPRISE", ""}),
+				Description:  `The database edition. Possible values: ["STANDARD", "ENTERPRISE"]`,
+			},
 			"delete_protection_state": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -208,8 +216,9 @@ If the PITR feature is enabled, the retention period is 7 days. Otherwise, the r
 A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".`,
 			},
 			"deletion_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				Deprecated: "`deletion_policy` is deprecated and will be removed in a future major release. Use `delete_protection_state` instead.",
 				Description: `Deletion behavior for this database.
 If the deletion policy is 'ABANDON', the database will be removed from Terraform state but not deleted from Google Cloud upon destruction.
 If the deletion policy is 'DELETE', the database will both be removed from Terraform state and deleted from Google Cloud upon destruction.
@@ -253,6 +262,12 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
+	}
+	databaseEditionProp, err := expandFirestoreDatabaseDatabaseEdition(d.Get("database_edition"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("database_edition"); !tpgresource.IsEmptyValue(reflect.ValueOf(databaseEditionProp)) && (ok || !reflect.DeepEqual(v, databaseEditionProp)) {
+		obj["databaseEdition"] = databaseEditionProp
 	}
 	concurrencyModeProp, err := expandFirestoreDatabaseConcurrencyMode(d.Get("concurrency_mode"), d, config)
 	if err != nil {
@@ -332,29 +347,15 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = FirestoreOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Database", userAgent,
+	err = FirestoreOperationWaitTime(
+		config, res, project, "Creating Database", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Database: %s", err)
 	}
-
-	if err := d.Set("name", flattenFirestoreDatabaseName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/databases/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)
 
@@ -416,6 +417,9 @@ func resourceFirestoreDatabaseRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("type", flattenFirestoreDatabaseType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err := d.Set("database_edition", flattenFirestoreDatabaseDatabaseEdition(res["databaseEdition"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("concurrency_mode", flattenFirestoreDatabaseConcurrencyMode(res["concurrencyMode"], d, config)); err != nil {
@@ -670,7 +674,7 @@ func flattenFirestoreDatabaseName(v interface{}, d *schema.ResourceData, config 
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenFirestoreDatabaseLocationId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -678,6 +682,10 @@ func flattenFirestoreDatabaseLocationId(v interface{}, d *schema.ResourceData, c
 }
 
 func flattenFirestoreDatabaseType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFirestoreDatabaseDatabaseEdition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -757,6 +765,10 @@ func expandFirestoreDatabaseLocationId(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandFirestoreDatabaseType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirestoreDatabaseDatabaseEdition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

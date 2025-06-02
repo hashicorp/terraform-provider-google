@@ -313,8 +313,11 @@ func resourceStorageInsightsReportConfigCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return fmt.Errorf("Error creating ReportConfig: %s", err)
 	}
-	if err := d.Set("name", flattenStorageInsightsReportConfigName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceStorageInsightsReportConfigPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -578,7 +581,7 @@ func flattenStorageInsightsReportConfigName(v interface{}, d *schema.ResourceDat
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenStorageInsightsReportConfigFrequencyOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1123,4 +1126,12 @@ func expandStorageInsightsReportConfigObjectMetadataReportOptionsStorageDestinat
 
 func expandStorageInsightsReportConfigDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceStorageInsightsReportConfigPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("name", flattenStorageInsightsReportConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

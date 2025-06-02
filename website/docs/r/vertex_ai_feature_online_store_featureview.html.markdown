@@ -373,13 +373,7 @@ resource "google_vertex_ai_feature_online_store" "featureonlinestore" {
     foo = "bar"
   }
   region = "us-central1"
-  bigtable {
-    auto_scaling {
-      min_node_count         = 1
-      max_node_count         = 2
-      cpu_utilization_target = 80
-    }
-  }
+  optimized {}
   embedding_management {
     enabled = true
   }
@@ -445,6 +439,7 @@ resource "google_bigquery_table" "tf-test-table" {
 ]
 EOF
 }
+
 resource "google_vertex_ai_feature_online_store_featureview" "featureview_vector_search" {
   provider             = google-beta
   name                 = "example_feature_view_vector_search"

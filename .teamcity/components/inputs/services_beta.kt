@@ -671,6 +671,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Resourcemanager",
         "path" to "./google-beta/services/resourcemanager"
     ),
+    "resourcemanager3" to mapOf(
+        "name" to "resourcemanager3",
+        "displayName" to "Resourcemanager3",
+        "path" to "./google-beta/services/resourcemanager3"
+    ),
     "runtimeconfig" to mapOf(
         "name" to "runtimeconfig",
         "displayName" to "Runtimeconfig",
@@ -765,6 +770,11 @@ var ServicesListBeta = mapOf(
         "name" to "storage",
         "displayName" to "Storage",
         "path" to "./google-beta/services/storage"
+    ),
+    "storagebatchoperations" to mapOf(
+        "name" to "storagebatchoperations",
+        "displayName" to "StorageBatchOperations",
+        "path" to "./google-beta/services/storagebatchoperations"
     ),
     "storagecontrol" to mapOf(
         "name" to "storagecontrol",

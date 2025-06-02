@@ -23,8 +23,6 @@ description: |-
 
 A rule for the RegionSecurityPolicy.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about RegionSecurityPolicyRule, see:
 
@@ -42,8 +40,6 @@ To get more information about RegionSecurityPolicyRule, see:
 
 ```hcl
 resource "google_compute_region_security_policy" "default" {
-  provider    = google-beta
-  
   region      = "us-west2"
   name        = "policyruletest"
   description = "basic region security policy"
@@ -51,8 +47,6 @@ resource "google_compute_region_security_policy" "default" {
 }
 
 resource "google_compute_region_security_policy_rule" "policy_rule" {
-  provider = google-beta
-  
   region          = "us-west2"
   security_policy = google_compute_region_security_policy.default.name
   description     = "new rule"
@@ -77,8 +71,6 @@ resource "google_compute_region_security_policy_rule" "policy_rule" {
 
 ```hcl
 resource "google_compute_region_security_policy" "default" {
-  provider    = google-beta
-  
   region      = "us-west2"
   name        = "policywithmultiplerules"
   description = "basic region security policy"
@@ -86,8 +78,6 @@ resource "google_compute_region_security_policy" "default" {
 }
 
 resource "google_compute_region_security_policy_rule" "policy_rule_one" {
-  provider = google-beta
-  
   region          = "us-west2"
   security_policy = google_compute_region_security_policy.default.name
   description     = "new rule one"
@@ -103,8 +93,6 @@ resource "google_compute_region_security_policy_rule" "policy_rule_one" {
 }
 
 resource "google_compute_region_security_policy_rule" "policy_rule_two" {
-  provider = google-beta
-  
   region          = "us-west2"
   security_policy = google_compute_region_security_policy.default.name
   description     = "new rule two"
@@ -129,7 +117,6 @@ resource "google_compute_region_security_policy_rule" "policy_rule_two" {
 
 ```hcl
 resource "google_compute_region_security_policy" "default" {
-  provider    = google-beta
   region      = "us-west2"
   name        = "policywithdefaultrule"
   description = "basic region security policy"
@@ -137,7 +124,6 @@ resource "google_compute_region_security_policy" "default" {
 }
 
 resource "google_compute_region_security_policy_rule" "default_rule" {
-  provider        = google-beta
   region          = "us-west2"
   security_policy = google_compute_region_security_policy.default.name
   description     = "new rule"
@@ -152,7 +138,6 @@ resource "google_compute_region_security_policy_rule" "default_rule" {
 }
 
 resource "google_compute_region_security_policy_rule" "policy_rule" {
-  provider        = google-beta
   region          = "us-west2"
   security_policy = google_compute_region_security_policy.default.name
   description     = "new rule"
@@ -177,8 +162,6 @@ resource "google_compute_region_security_policy_rule" "policy_rule" {
 
 ```hcl
 resource "google_compute_region_security_policy" "default" {
-  provider    = google-beta
-
   region      = "asia-southeast1"
   name        = "policyruletest"
   description = "basic region security policy"
@@ -186,8 +169,6 @@ resource "google_compute_region_security_policy" "default" {
 }
 
 resource "google_compute_region_security_policy_rule" "policy_rule" {
-  provider    = google-beta
-
   region          = "asia-southeast1"
   security_policy = google_compute_region_security_policy.default.name
   description     = "new rule"
@@ -236,8 +217,6 @@ resource "google_compute_region_security_policy_rule" "policy_rule" {
 ```hcl
 # First activate advanced network DDoS protection for the desired region
 resource "google_compute_region_security_policy" "policyddosprotection" {
-  provider    = google-beta
-
   region      = "us-west2"
   name        = "policyddosprotection"
   description = "policy for activating network DDoS protection for the desired region"
@@ -248,8 +227,6 @@ resource "google_compute_region_security_policy" "policyddosprotection" {
 }
 
 resource "google_compute_network_edge_security_service" "edge_sec_service" {
-  provider        = google-beta
-
   region          = "us-west2"
   name            = "edgesecservice"
   description     = "linking policy to edge security service"
@@ -258,8 +235,6 @@ resource "google_compute_network_edge_security_service" "edge_sec_service" {
 
 # Add the desired policy and custom rule.
 resource "google_compute_region_security_policy" "policynetworkmatch" {
-  provider    = google-beta
-
   region      = "us-west2"
   name        = "policyfornetworkmatch"
   description = "region security policy for network match"
@@ -275,8 +250,6 @@ resource "google_compute_region_security_policy" "policynetworkmatch" {
 }
 
 resource "google_compute_region_security_policy_rule" "policy_rule_network_match" {
-  provider        = google-beta
-
   region          = "us-west2"
   security_policy = google_compute_region_security_policy.policynetworkmatch.name
   description     = "custom rule for network match"

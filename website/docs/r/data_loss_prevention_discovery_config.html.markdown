@@ -204,8 +204,8 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 
 ```hcl
 resource "google_data_loss_prevention_discovery_config" "org_folder_paused" {
-	parent = "organizations/123456789/locations/us"
-    location = "us"
+	parent = "organizations/123456789/locations/us-west1"
+    location = "us-west1"
 
     targets {
         big_query_target {

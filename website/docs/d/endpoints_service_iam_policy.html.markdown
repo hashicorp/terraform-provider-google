@@ -38,6 +38,7 @@ data "google_endpoints_service_iam_policy" "policy" {
 
 The following arguments are supported:
 
+* `service_name` - (Required) Used to find the parent resource to bind the IAM policy to
 
 ## Attributes Reference
 

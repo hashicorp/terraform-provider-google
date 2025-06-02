@@ -165,8 +165,11 @@ func resourceFirestoreDocumentCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("Error creating Document: %s", err)
 	}
-	if err := d.Set("name", flattenFirestoreDocumentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceFirestoreDocumentPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -439,4 +442,18 @@ func resourceFirestoreDocumentDecoder(d *schema.ResourceData, meta interface{}, 
 		}
 	}
 	return res, nil
+}
+func resourceFirestoreDocumentPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	res, err := resourceFirestoreDocumentDecoder(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("decoding response: %w", err)
+	}
+	if res == nil {
+		return fmt.Errorf("decoding response, could not find object")
+	}
+	if err := d.Set("name", flattenFirestoreDocumentName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

@@ -231,6 +231,56 @@ Please refer to the field 'effective_labels' for all of the labels present on th
   - true: The replication relationship is healthy. It has not missed the most recent scheduled transfer.
   - false: The replication relationship is not healthy. It has missed the most recent scheduled transfer.`,
 			},
+			"hybrid_peering_details": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `HybridPeeringDetails contains details about the hybrid peering.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"command": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Optional. Copy-paste-able commands to be used on user's ONTAP to accept peering requests.`,
+						},
+						"command_expiry_time": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `Optional. Expiration time for the peering command to be executed on user's ONTAP.
+Uses RFC 3339, where generated output will always be Z-normalized and uses 0, 3, 6 or 9 fractional digits. Offsets other than "Z" are also accepted.`,
+						},
+						"passphrase": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Optional. Temporary passphrase generated to accept cluster peering command.`,
+						},
+						"peer_cluster_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Optional. Name of the user's local source cluster to be peered with the destination cluster.`,
+						},
+						"peer_svm_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Optional. Name of the user's local source vserver svm to be peered with the destination vserver svm.`,
+						},
+						"peer_volume_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Optional. Name of the user's local source volume to be peered with the destination volume.`,
+						},
+						"subnet_ip": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Optional. IP address of the subnet.`,
+						},
+					},
+				},
+			},
+			"hybrid_replication_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Hybrid replication type.`,
+			},
 			"mirror_state": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -562,6 +612,12 @@ func resourceNetappVolumeReplicationRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading VolumeReplication: %s", err)
 	}
 	if err := d.Set("description", flattenNetappVolumeReplicationDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err := d.Set("hybrid_replication_type", flattenNetappVolumeReplicationHybridReplicationType(res["hybridReplicationType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err := d.Set("hybrid_peering_details", flattenNetappVolumeReplicationHybridPeeringDetails(res["hybridPeeringDetails"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VolumeReplication: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenNetappVolumeReplicationTerraformLabels(res["labels"], d, config)); err != nil {
@@ -1056,6 +1112,63 @@ func flattenNetappVolumeReplicationHealthy(v interface{}, d *schema.ResourceData
 }
 
 func flattenNetappVolumeReplicationDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridReplicationType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridPeeringDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["subnet_ip"] =
+		flattenNetappVolumeReplicationHybridPeeringDetailsSubnetIp(original["subnetIp"], d, config)
+	transformed["command"] =
+		flattenNetappVolumeReplicationHybridPeeringDetailsCommand(original["command"], d, config)
+	transformed["command_expiry_time"] =
+		flattenNetappVolumeReplicationHybridPeeringDetailsCommandExpiryTime(original["commandExpiryTime"], d, config)
+	transformed["passphrase"] =
+		flattenNetappVolumeReplicationHybridPeeringDetailsPassphrase(original["passphrase"], d, config)
+	transformed["peer_volume_name"] =
+		flattenNetappVolumeReplicationHybridPeeringDetailsPeerVolumeName(original["peerVolumeName"], d, config)
+	transformed["peer_cluster_name"] =
+		flattenNetappVolumeReplicationHybridPeeringDetailsPeerClusterName(original["peerClusterName"], d, config)
+	transformed["peer_svm_name"] =
+		flattenNetappVolumeReplicationHybridPeeringDetailsPeerSvmName(original["peerSvmName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetappVolumeReplicationHybridPeeringDetailsSubnetIp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridPeeringDetailsCommand(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridPeeringDetailsCommandExpiryTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridPeeringDetailsPassphrase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridPeeringDetailsPeerVolumeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridPeeringDetailsPeerClusterName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridPeeringDetailsPeerSvmName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

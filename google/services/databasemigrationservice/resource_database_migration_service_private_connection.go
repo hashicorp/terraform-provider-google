@@ -93,6 +93,13 @@ Format: projects/{project}/global/{networks}/{name}`,
 					},
 				},
 			},
+			"create_without_validation": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `If set to true, will skip validations.`,
+				Default:     false,
+			},
 			"display_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -191,7 +198,7 @@ func resourceDatabaseMigrationServicePrivateConnectionCreate(d *schema.ResourceD
 		obj["labels"] = labelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DatabaseMigrationServiceBasePath}}projects/{{project}}/locations/{{location}}/privateConnections?privateConnectionId={{private_connection_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DatabaseMigrationServiceBasePath}}projects/{{project}}/locations/{{location}}/privateConnections?privateConnectionId={{private_connection_id}}&skip_validation={{create_without_validation}}")
 	if err != nil {
 		return err
 	}

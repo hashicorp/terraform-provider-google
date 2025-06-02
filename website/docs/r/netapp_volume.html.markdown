@@ -175,6 +175,11 @@ The following arguments are supported:
   Tiering policy for the volume.
   Structure is [documented below](#nested_tiering_policy).
 
+* `hybrid_replication_parameters` -
+  (Optional)
+  The Hybrid Replication parameters for the volume.
+  Structure is [documented below](#nested_hybrid_replication_parameters).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -249,7 +254,7 @@ Possible values: DEFAULT, FORCE.
 
 * `source_backup` -
   (Optional)
-  Full name of the snapshot to use for creating this volume.
+  Full name of the backup to use for creating this volume.
   `source_snapshot` and `source_backup` cannot be used simultaneously.
   Format: `projects/{{project}}/locations/{{location}}/backupVaults/{{backupVaultId}}/backups/{{backup}}`.
 
@@ -368,6 +373,41 @@ Possible values: DEFAULT, FORCE.
   Optional. Flag indicating if the volume has tiering policy enable/pause. Default is PAUSED.
   Default value is `PAUSED`.
   Possible values are: `ENABLED`, `PAUSED`.
+
+<a name="nested_hybrid_replication_parameters"></a>The `hybrid_replication_parameters` block supports:
+
+* `replication` -
+  (Optional)
+  Required. Desired name for the replication of this volume.
+
+* `peer_volume_name` -
+  (Optional)
+  Required. Name of the user's local source volume to be peered with the destination volume.
+
+* `peer_cluster_name` -
+  (Optional)
+  Required. Name of the user's local source cluster to be peered with the destination cluster.
+
+* `peer_svm_name` -
+  (Optional)
+  Required. Name of the user's local source vserver svm to be peered with the destination vserver svm.
+
+* `peer_ip_addresses` -
+  (Optional)
+  Required. List of node ip addresses to be peered with.
+
+* `cluster_location` -
+  (Optional)
+  Optional. Name of source cluster location associated with the Hybrid replication. This is a free-form field for the display purpose only.
+
+* `description` -
+  (Optional)
+  Optional. Description of the replication.
+
+* `labels` -
+  (Optional)
+  Optional. Labels to be added to the replication as the key value pairs.
+  An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
 ## Attributes Reference
 

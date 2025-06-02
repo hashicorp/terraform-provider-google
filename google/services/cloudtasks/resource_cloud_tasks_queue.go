@@ -794,7 +794,7 @@ func flattenCloudTasksQueueName(v interface{}, d *schema.ResourceData, config *t
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 // service, version, and instance are input-only. host is output-only.

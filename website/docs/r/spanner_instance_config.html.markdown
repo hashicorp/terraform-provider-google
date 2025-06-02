@@ -60,11 +60,6 @@ resource "google_spanner_instance_config" "example" {
 The following arguments are supported:
 
 
-* `name` -
-  (Required)
-  A unique identifier for the instance configuration. Values are of the
-  form projects/<project>/instanceConfigs/[a-z][-a-z0-9]*
-
 * `display_name` -
   (Required)
   The name of this instance configuration as it appears in UIs.
@@ -95,6 +90,11 @@ The following arguments are supported:
 
 - - -
 
+
+* `name` -
+  (Optional)
+  A unique identifier for the instance configuration. Values are of the
+  form projects/<project>/instanceConfigs/[a-z][-a-z0-9]*
 
 * `base_config` -
   (Optional)

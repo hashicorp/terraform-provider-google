@@ -167,37 +167,15 @@ func resourceApigeeNatAddressCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = ApigeeOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating NatAddress", userAgent,
+	err = ApigeeOperationWaitTime(
+		config, res, "Creating NatAddress", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create NatAddress: %s", err)
 	}
-
-	opRes, err = resourceApigeeNatAddressDecoder(d, meta, opRes)
-	if err != nil {
-		return fmt.Errorf("Error decoding response from operation: %s", err)
-	}
-	if opRes == nil {
-		return fmt.Errorf("Error decoding response from operation, could not find object")
-	}
-
-	if err := d.Set("name", flattenApigeeNatAddressName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{instance_id}}/natAddresses/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	if d.Get("activate").(bool) {
 		if err := waitForNatAddressReserved(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {

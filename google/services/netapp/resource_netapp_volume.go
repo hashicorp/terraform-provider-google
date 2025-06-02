@@ -205,6 +205,58 @@ Format: 'projects/{{projectId}}/locations/{{location}}/backupVaults/{{backupVaul
 					},
 				},
 			},
+			"hybrid_replication_parameters": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The Hybrid Replication parameters for the volume.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cluster_location": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Optional. Name of source cluster location associated with the Hybrid replication. This is a free-form field for the display purpose only.`,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Optional. Description of the replication.`,
+						},
+						"labels": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Description: `Optional. Labels to be added to the replication as the key value pairs.
+An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
+						},
+						"peer_cluster_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Required. Name of the user's local source cluster to be peered with the destination cluster.`,
+						},
+						"peer_ip_addresses": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Required. List of node ip addresses to be peered with.`,
+						},
+						"peer_svm_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Required. Name of the user's local source vserver svm to be peered with the destination vserver svm.`,
+						},
+						"peer_volume_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Required. Name of the user's local source volume to be peered with the destination volume.`,
+						},
+						"replication": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Required. Desired name for the replication of this volume.`,
+						},
+					},
+				},
+			},
 			"kerberos_enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -245,7 +297,7 @@ Only the volume with largeCapacity will be allowed to have multiple endpoints.`,
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							Description: `Full name of the snapshot to use for creating this volume.
+							Description: `Full name of the backup to use for creating this volume.
 'source_snapshot' and 'source_backup' cannot be used simultaneously.
 Format: 'projects/{{project}}/locations/{{location}}/backupVaults/{{backupVaultId}}/backups/{{backup}}'.`,
 							ExactlyOneOf: []string{"restore_parameters.0.source_backup", "restore_parameters.0.source_snapshot"},
@@ -713,6 +765,12 @@ func resourceNetappVolumeCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("tiering_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(tieringPolicyProp)) && (ok || !reflect.DeepEqual(v, tieringPolicyProp)) {
 		obj["tieringPolicy"] = tieringPolicyProp
 	}
+	hybridReplicationParametersProp, err := expandNetappVolumeHybridReplicationParameters(d.Get("hybrid_replication_parameters"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("hybrid_replication_parameters"); !tpgresource.IsEmptyValue(reflect.ValueOf(hybridReplicationParametersProp)) && (ok || !reflect.DeepEqual(v, hybridReplicationParametersProp)) {
+		obj["hybridReplicationParameters"] = hybridReplicationParametersProp
+	}
 	labelsProp, err := expandNetappVolumeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -926,6 +984,9 @@ func resourceNetappVolumeRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("tiering_policy", flattenNetappVolumeTieringPolicy(res["tieringPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
+	if err := d.Set("hybrid_replication_parameters", flattenNetappVolumeHybridReplicationParameters(res["hybridReplicationParameters"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Volume: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetappVolumeTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
@@ -1030,6 +1091,12 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("tiering_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tieringPolicyProp)) {
 		obj["tieringPolicy"] = tieringPolicyProp
 	}
+	hybridReplicationParametersProp, err := expandNetappVolumeHybridReplicationParameters(d.Get("hybrid_replication_parameters"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("hybrid_replication_parameters"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, hybridReplicationParametersProp)) {
+		obj["hybridReplicationParameters"] = hybridReplicationParametersProp
+	}
 	labelsProp, err := expandNetappVolumeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1099,6 +1166,10 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 	if d.HasChange("tiering_policy") {
 		updateMask = append(updateMask, "tiering_policy.cooling_threshold_days",
 			"tiering_policy.tier_action")
+	}
+
+	if d.HasChange("hybrid_replication_parameters") {
+		updateMask = append(updateMask, "hybridReplicationParameters")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -1836,6 +1907,65 @@ func flattenNetappVolumeTieringPolicyTierAction(v interface{}, d *schema.Resourc
 	return v
 }
 
+func flattenNetappVolumeHybridReplicationParameters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["replication"] =
+		flattenNetappVolumeHybridReplicationParametersReplication(original["replication"], d, config)
+	transformed["peer_volume_name"] =
+		flattenNetappVolumeHybridReplicationParametersPeerVolumeName(original["peerVolumeName"], d, config)
+	transformed["peer_cluster_name"] =
+		flattenNetappVolumeHybridReplicationParametersPeerClusterName(original["peerClusterName"], d, config)
+	transformed["peer_svm_name"] =
+		flattenNetappVolumeHybridReplicationParametersPeerSvmName(original["peerSvmName"], d, config)
+	transformed["peer_ip_addresses"] =
+		flattenNetappVolumeHybridReplicationParametersPeerIpAddresses(original["peerIpAddresses"], d, config)
+	transformed["cluster_location"] =
+		flattenNetappVolumeHybridReplicationParametersClusterLocation(original["clusterLocation"], d, config)
+	transformed["description"] =
+		flattenNetappVolumeHybridReplicationParametersDescription(original["description"], d, config)
+	transformed["labels"] =
+		flattenNetappVolumeHybridReplicationParametersLabels(original["labels"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetappVolumeHybridReplicationParametersReplication(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeHybridReplicationParametersPeerVolumeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeHybridReplicationParametersPeerClusterName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeHybridReplicationParametersPeerSvmName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeHybridReplicationParametersPeerIpAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeHybridReplicationParametersClusterLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeHybridReplicationParametersDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeHybridReplicationParametersLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetappVolumeTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2415,6 +2545,113 @@ func expandNetappVolumeTieringPolicyCoolingThresholdDays(v interface{}, d tpgres
 
 func expandNetappVolumeTieringPolicyTierAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandNetappVolumeHybridReplicationParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedReplication, err := expandNetappVolumeHybridReplicationParametersReplication(original["replication"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReplication); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["replication"] = transformedReplication
+	}
+
+	transformedPeerVolumeName, err := expandNetappVolumeHybridReplicationParametersPeerVolumeName(original["peer_volume_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPeerVolumeName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["peerVolumeName"] = transformedPeerVolumeName
+	}
+
+	transformedPeerClusterName, err := expandNetappVolumeHybridReplicationParametersPeerClusterName(original["peer_cluster_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPeerClusterName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["peerClusterName"] = transformedPeerClusterName
+	}
+
+	transformedPeerSvmName, err := expandNetappVolumeHybridReplicationParametersPeerSvmName(original["peer_svm_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPeerSvmName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["peerSvmName"] = transformedPeerSvmName
+	}
+
+	transformedPeerIpAddresses, err := expandNetappVolumeHybridReplicationParametersPeerIpAddresses(original["peer_ip_addresses"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPeerIpAddresses); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["peerIpAddresses"] = transformedPeerIpAddresses
+	}
+
+	transformedClusterLocation, err := expandNetappVolumeHybridReplicationParametersClusterLocation(original["cluster_location"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClusterLocation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["clusterLocation"] = transformedClusterLocation
+	}
+
+	transformedDescription, err := expandNetappVolumeHybridReplicationParametersDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedLabels, err := expandNetappVolumeHybridReplicationParametersLabels(original["labels"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLabels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["labels"] = transformedLabels
+	}
+
+	return transformed, nil
+}
+
+func expandNetappVolumeHybridReplicationParametersReplication(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeHybridReplicationParametersPeerVolumeName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeHybridReplicationParametersPeerClusterName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeHybridReplicationParametersPeerSvmName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeHybridReplicationParametersPeerIpAddresses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeHybridReplicationParametersClusterLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeHybridReplicationParametersDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeHybridReplicationParametersLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandNetappVolumeEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

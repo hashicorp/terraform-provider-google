@@ -87,6 +87,28 @@ func ResourceIdentityPlatformOauthIdpConfig() *schema.Resource {
 				Optional:    true,
 				Description: `If this config allows users to sign in with the provider.`,
 			},
+			"response_type": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The response type to request for in the OAuth authorization flow.
+You can set either idToken or code to true, but not both.
+Setting both types to be simultaneously true ({code: true, idToken: true}) is not yet supported.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"code": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, authorization code is returned from IdP's authorization endpoint.`,
+						},
+						"id_token": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, ID token is returned from IdP's authorization endpoint.`,
+						},
+					},
+				},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -141,6 +163,12 @@ func resourceIdentityPlatformOauthIdpConfigCreate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("client_secret"); !tpgresource.IsEmptyValue(reflect.ValueOf(clientSecretProp)) && (ok || !reflect.DeepEqual(v, clientSecretProp)) {
 		obj["clientSecret"] = clientSecretProp
+	}
+	responseTypeProp, err := expandIdentityPlatformOauthIdpConfigResponseType(d.Get("response_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("response_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(responseTypeProp)) && (ok || !reflect.DeepEqual(v, responseTypeProp)) {
+		obj["responseType"] = responseTypeProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/oauthIdpConfigs?oauthIdpConfigId={{name}}")
@@ -249,6 +277,9 @@ func resourceIdentityPlatformOauthIdpConfigRead(d *schema.ResourceData, meta int
 	if err := d.Set("client_secret", flattenIdentityPlatformOauthIdpConfigClientSecret(res["clientSecret"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
 	}
+	if err := d.Set("response_type", flattenIdentityPlatformOauthIdpConfigResponseType(res["responseType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OauthIdpConfig: %s", err)
+	}
 
 	return nil
 }
@@ -299,6 +330,12 @@ func resourceIdentityPlatformOauthIdpConfigUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("client_secret"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, clientSecretProp)) {
 		obj["clientSecret"] = clientSecretProp
 	}
+	responseTypeProp, err := expandIdentityPlatformOauthIdpConfigResponseType(d.Get("response_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("response_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, responseTypeProp)) {
+		obj["responseType"] = responseTypeProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/oauthIdpConfigs/{{name}}")
 	if err != nil {
@@ -327,6 +364,10 @@ func resourceIdentityPlatformOauthIdpConfigUpdate(d *schema.ResourceData, meta i
 
 	if d.HasChange("client_secret") {
 		updateMask = append(updateMask, "clientSecret")
+	}
+
+	if d.HasChange("response_type") {
+		updateMask = append(updateMask, "responseType")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -436,7 +477,7 @@ func flattenIdentityPlatformOauthIdpConfigName(v interface{}, d *schema.Resource
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenIdentityPlatformOauthIdpConfigDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -456,6 +497,29 @@ func flattenIdentityPlatformOauthIdpConfigClientId(v interface{}, d *schema.Reso
 }
 
 func flattenIdentityPlatformOauthIdpConfigClientSecret(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformOauthIdpConfigResponseType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["id_token"] =
+		flattenIdentityPlatformOauthIdpConfigResponseTypeIdToken(original["idToken"], d, config)
+	transformed["code"] =
+		flattenIdentityPlatformOauthIdpConfigResponseTypeCode(original["code"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformOauthIdpConfigResponseTypeIdToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformOauthIdpConfigResponseTypeCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -480,5 +544,39 @@ func expandIdentityPlatformOauthIdpConfigClientId(v interface{}, d tpgresource.T
 }
 
 func expandIdentityPlatformOauthIdpConfigClientSecret(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformOauthIdpConfigResponseType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIdToken, err := expandIdentityPlatformOauthIdpConfigResponseTypeIdToken(original["id_token"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdToken); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["idToken"] = transformedIdToken
+	}
+
+	transformedCode, err := expandIdentityPlatformOauthIdpConfigResponseTypeCode(original["code"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["code"] = transformedCode
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformOauthIdpConfigResponseTypeIdToken(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformOauthIdpConfigResponseTypeCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

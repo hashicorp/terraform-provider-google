@@ -29,6 +29,9 @@ For managed internal load balancing, use a regional backend service instead.
 
 Currently self-managed internal load balancing is only available in beta.
 
+~> **Note:** Recreating a `google_compute_backend_service` that references other dependent resources like `google_compute_url_map` will give a `resourceInUseByAnotherResource` error, when modifying the number of other dependent resources.
+Use `lifecycle.create_before_destroy` on the dependent resources to avoid this type of error as shown in the Dynamic Backends example.
+
 
 To get more information about BackendService, see:
 
@@ -388,6 +391,7 @@ resource "google_compute_backend_service" "default" {
   name          = "backend-service"
   health_checks = [google_compute_health_check.default.id]
   load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol              = "H2C"
 }
 
 resource "google_compute_health_check" "default" {
@@ -460,6 +464,11 @@ resource "google_compute_backend_service" "default" {
       dry_run = false
     }
   }
+  log_config {
+    enable          = true
+    optional_mode   = "CUSTOM"
+    optional_fields = [ "orca_load_report", "tls.protocol" ]
+  }  
 }
 
 resource "google_compute_health_check" "default" {
@@ -511,6 +520,139 @@ resource "google_network_security_backend_authentication_config" "default" {
   provider = google-beta
   name             = "authentication"
   well_known_roots = "PUBLIC_ROOTS"
+}
+```
+## Example Usage - Backend Service Dynamic Backends
+
+
+```hcl
+# This is a map which manages the number of backend and related resources.
+# You can comment any of the VMs in the list and terraform will update its configuration properly.
+
+locals {
+  instances = {
+    # name: zone
+    "a-vm" : "us-central1-b",
+    "b-vm" : "us-central1-a",
+    "c-vm" : "us-central1-c",
+    "d-vm" : "us-central1-b",
+    "e-vm" : "us-central1-a",
+  }
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "default" {
+  for_each     = local.instances
+  name         = each.key
+  machine_type = "f1-micro"
+  zone         = each.value
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network    = "default"
+    subnetwork = "default"
+  }
+  metadata_startup_script = <<EOF
+#! /bin/bash
+apt-get update
+apt-get install apache2 -y
+a2ensite default-ssl
+a2enmod ssl
+vm_hostname="$(curl -H "Metadata-Flavor:Google" \
+http://169.254.169.254/computeMetadata/v1/instance/name)"
+echo "Page served from: $vm_hostname" | \
+tee /var/www/html/index.html
+systemctl restart apache2
+EOF
+
+}
+
+resource "google_compute_instance_group" "default" {
+  for_each = local.instances
+  name     = each.key
+  zone     = each.value
+
+  instances = [google_compute_instance.default[each.key].self_link]
+
+  named_port {
+    name = "http"
+    port = "80"
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  for_each = local.instances
+  name     = each.key
+
+  backend {
+    group = google_compute_instance_group.default[each.key].self_link
+  }
+
+  health_checks = [google_compute_http_health_check.default[each.key].self_link]
+  port_name     = "http"
+}
+
+resource "google_compute_http_health_check" "default" {
+  for_each           = local.instances
+  name               = "${each.key}-hc"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+
+
+resource "google_compute_url_map" "default" {
+  name            = "url_map"
+  default_service = google_compute_backend_service.default["a-vm"].self_link
+
+  dynamic "host_rule" {
+    for_each = keys(local.instances)
+    content {
+      hosts        = ["${host_rule.value}.example.com"]
+      path_matcher = host_rule.value
+    }
+  }
+
+  dynamic "path_matcher" {
+    for_each = keys(local.instances)
+    content {
+      name            = path_matcher.value
+      default_service = google_compute_backend_service.default[path_matcher.value].self_link
+    }
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=backend_service_dynamic_forwarding&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Dynamic Forwarding
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  provider              = google-beta
+  name                  = "backend-service"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  dynamic_forwarding {
+    ip_port_selection {
+      enabled = true
+    }
+  }
 }
 ```
 
@@ -626,6 +768,30 @@ The following arguments are supported:
   Default value is `EXTERNAL`.
   Possible values are: `EXTERNAL`, `INTERNAL_SELF_MANAGED`, `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`.
 
+* `external_managed_migration_state` -
+  (Optional)
+  Specifies the canary migration state. Possible values are PREPARE, TEST_BY_PERCENTAGE, and
+  TEST_ALL_TRAFFIC.
+  To begin the migration from EXTERNAL to EXTERNAL_MANAGED, the state must be changed to
+  PREPARE. The state must be changed to TEST_ALL_TRAFFIC before the loadBalancingScheme can be
+  changed to EXTERNAL_MANAGED. Optionally, the TEST_BY_PERCENTAGE state can be used to migrate
+  traffic by percentage using externalManagedMigrationTestingPercentage.
+  Rolling back a migration requires the states to be set in reverse order. So changing the
+  scheme from EXTERNAL_MANAGED to EXTERNAL requires the state to be set to TEST_ALL_TRAFFIC at
+  the same time. Optionally, the TEST_BY_PERCENTAGE state can be used to migrate some traffic
+  back to EXTERNAL or PREPARE can be used to migrate all traffic back to EXTERNAL.
+  Possible values are: `PREPARE`, `TEST_BY_PERCENTAGE`, `TEST_ALL_TRAFFIC`.
+
+* `external_managed_migration_testing_percentage` -
+  (Optional)
+  Determines the fraction of requests that should be processed by the Global external
+  Application Load Balancer.
+  The value of this field must be in the range [0, 100].
+  Session affinity options will slightly affect this routing behavior, for more details,
+  see: Session Affinity.
+  This value can only be set if the loadBalancingScheme in the backend service is set to
+  EXTERNAL (when using the Classic ALB) and the migration state is TEST_BY_PERCENTAGE.
+
 * `locality_lb_policy` -
   (Optional)
   The load balancing algorithm used within the scope of the locality.
@@ -668,7 +834,7 @@ The following arguments are supported:
                             to use for computing the weights are specified via the
                             backends[].customMetrics fields.
   locality_lb_policy is applicable to either:
-  * A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
+  * A regional backend service with the service_protocol set to HTTP, HTTPS, HTTP2 or H2C,
     and loadBalancingScheme set to INTERNAL_MANAGED.
   * A global backend service with the load_balancing_scheme set to INTERNAL_SELF_MANAGED.
   * A regional backend service with loadBalancingScheme set to EXTERNAL (External Network
@@ -712,11 +878,11 @@ The following arguments are supported:
 * `protocol` -
   (Optional)
   The protocol this BackendService uses to communicate with backends.
-  The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
-  types and may result in errors if used with the GA API. **NOTE**: With protocol “UNSPECIFIED”,
-  the backend service can be used by Layer 4 Internal Load Balancing or Network Load Balancing
-  with TCP/UDP/L3_DEFAULT Forwarding Rule protocol.
-  Possible values are: `HTTP`, `HTTPS`, `HTTP2`, `TCP`, `SSL`, `GRPC`, `UNSPECIFIED`.
+  The default is HTTP. Possible values are HTTP, HTTPS, HTTP2, H2C, TCP, SSL, UDP
+  or GRPC. Refer to the documentation for the load balancers or for Traffic Director
+  for more information. Must be set to GRPC when the backend service is referenced
+  by a URL map that is bound to target gRPC proxy.
+  Possible values are: `HTTP`, `HTTPS`, `HTTP2`, `TCP`, `SSL`, `UDP`, `GRPC`, `UNSPECIFIED`, `H2C`.
 
 * `security_policy` -
   (Optional)
@@ -729,7 +895,7 @@ The following arguments are supported:
 * `security_settings` -
   (Optional)
   The security settings that apply to this backend service. This field is applicable to either
-  a regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2, and
+  a regional backend service with the service_protocol set to HTTP, HTTPS, HTTP2 or H2C, and
   load_balancing_scheme set to INTERNAL_MANAGED; or a global backend service with the
   load_balancing_scheme set to INTERNAL_SELF_MANAGED.
   Structure is [documented below](#nested_security_settings).
@@ -768,6 +934,27 @@ The following arguments are supported:
   Configuration for Backend Authenticated TLS and mTLS. May only be specified when the backend protocol is SSL, HTTPS or HTTP2.
   Structure is [documented below](#nested_tls_settings).
 
+* `max_stream_duration` -
+  (Optional)
+  Specifies the default maximum duration (timeout) for streams to this service. Duration is computed from the
+  beginning of the stream until the response has been completely processed, including all retries. A stream that
+  does not complete in this duration is closed.
+  If not specified, there will be no timeout limit, i.e. the maximum duration is infinite.
+  This value can be overridden in the PathMatcher configuration of the UrlMap that references this backend service.
+  This field is only allowed when the loadBalancingScheme of the backend service is INTERNAL_SELF_MANAGED.
+  Structure is [documented below](#nested_max_stream_duration).
+
+* `network_pass_through_lb_traffic_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Configures traffic steering properties of internal passthrough Network Load Balancers.
+  Structure is [documented below](#nested_network_pass_through_lb_traffic_policy).
+
+* `dynamic_forwarding` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
+  feature which together with Service Extension allows customized and complex routing logic.
+  Structure is [documented below](#nested_dynamic_forwarding).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -793,6 +980,16 @@ The following arguments are supported:
   of its configured capacity (depending on balancingMode). A
   setting of 0 means the group is completely drained, offering
   0% of its available Capacity. Valid range is [0.0,1.0].
+
+* `preference` -
+  (Optional)
+  This field indicates whether this backend should be fully utilized before sending traffic to backends
+  with default preference. This field cannot be set when loadBalancingScheme is set to 'EXTERNAL'. The possible values are:
+    - PREFERRED: Backends with this preference level will be filled up to their capacity limits first,
+      based on RTT.
+    - DEFAULT: If preferred backends don't have enough capacity, backends in this layer would be used and
+      traffic would be assigned based on the load balancing algorithm you use. This is the default
+  Possible values are: `PREFERRED`, `DEFAULT`.
 
 * `description` -
   (Optional)
@@ -1004,6 +1201,11 @@ The following arguments are supported:
   be from 0 to 999,999,999 inclusive.
 
 <a name="nested_cdn_policy"></a>The `cdn_policy` block supports:
+
+* `request_coalescing` -
+  (Optional)
+  If true then Cloud CDN will combine multiple concurrent cache fill requests into a small number of requests
+  to the origin.
 
 * `cache_key_policy` -
   (Optional)
@@ -1411,6 +1613,19 @@ The following arguments are supported:
   where 1.0 means all logged requests are reported and 0.0 means no logged requests are reported.
   The default value is 1.0.
 
+* `optional_mode` -
+  (Optional)
+  Specifies the optional logging mode for the load balancer traffic.
+  Supported values: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+  Possible values are: `INCLUDE_ALL_OPTIONAL`, `EXCLUDE_ALL_OPTIONAL`, `CUSTOM`.
+
+* `optional_fields` -
+  (Optional)
+  This field can only be specified if logging is enabled for this backend service and "logConfig.optionalMode"
+  was set to CUSTOM. Contains a list of optional fields you want to include in the logs.
+  For example: serverInstance, serverGkeDetails.cluster, serverGkeDetails.pod.podNamespace
+  For example: orca_load_report, tls.protocol
+
 <a name="nested_tls_settings"></a>The `tls_settings` block supports:
 
 * `sni` -
@@ -1445,6 +1660,56 @@ The following arguments are supported:
 * `uniform_resource_identifier` -
   (Optional)
   The SAN specified as a URI.
+
+<a name="nested_max_stream_duration"></a>The `max_stream_duration` block supports:
+
+* `seconds` -
+  (Required)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive. (int64 format)
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution.
+  Durations less than one second are represented with a 0 seconds field and a positive nanos field.
+  Must be from 0 to 999,999,999 inclusive.
+
+<a name="nested_network_pass_through_lb_traffic_policy"></a>The `network_pass_through_lb_traffic_policy` block supports:
+
+* `zonal_affinity` -
+  (Optional)
+  When configured, new connections are load balanced across healthy backend endpoints in the local zone.
+  Structure is [documented below](#nested_network_pass_through_lb_traffic_policy_zonal_affinity).
+
+
+<a name="nested_network_pass_through_lb_traffic_policy_zonal_affinity"></a>The `zonal_affinity` block supports:
+
+* `spillover` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  This field indicates whether zonal affinity is enabled or not.
+  Default value is `ZONAL_AFFINITY_DISABLED`.
+  Possible values are: `ZONAL_AFFINITY_DISABLED`, `ZONAL_AFFINITY_SPILL_CROSS_ZONE`, `ZONAL_AFFINITY_STAY_WITHIN_ZONE`.
+
+* `spillover_ratio` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The value of the field must be in [0, 1]. When the ratio of the count of healthy backend endpoints in a zone
+  to the count of backend endpoints in that same zone is equal to or above this threshold, the load balancer
+  distributes new connections to all healthy endpoints in the local zone only. When the ratio of the count
+  of healthy backend endpoints in a zone to the count of backend endpoints in that same zone is below this
+  threshold, the load balancer distributes all new connections to all healthy endpoints across all zones.
+
+<a name="nested_dynamic_forwarding"></a>The `dynamic_forwarding` block supports:
+
+* `ip_port_selection` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  IP:PORT based dynamic forwarding configuration.
+  Structure is [documented below](#nested_dynamic_forwarding_ip_port_selection).
+
+
+<a name="nested_dynamic_forwarding_ip_port_selection"></a>The `ip_port_selection` block supports:
+
+* `enabled` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A boolean flag enabling IP:PORT based dynamic forwarding.
 
 ## Attributes Reference
 

@@ -37,6 +37,40 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func setEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) error {
+	name := d.Get("name").(string)
+	if name == "" {
+		return nil
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerRegionalBasePath}}{{name}}")
+	if err != nil {
+		return err
+	}
+	if v == true {
+		url = fmt.Sprintf("%s:enable", url)
+	} else {
+		url = fmt.Sprintf("%s:disable", url)
+	}
+
+	parts := strings.Split(name, "/")
+	project := parts[1]
+
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	return err
+}
+
 func ResourceSecretManagerRegionalRegionalSecretVersion() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSecretManagerRegionalRegionalSecretVersionCreate,
@@ -204,8 +238,11 @@ func resourceSecretManagerRegionalRegionalSecretVersionCreate(d *schema.Resource
 	if err != nil {
 		return fmt.Errorf("Error creating RegionalSecretVersion: %s", err)
 	}
-	if err := d.Set("name", flattenSecretManagerRegionalRegionalSecretVersionName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceSecretManagerRegionalRegionalSecretVersionPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -225,7 +262,7 @@ func resourceSecretManagerRegionalRegionalSecretVersionCreate(d *schema.Resource
 	}
 	d.SetId(name.(string))
 
-	_, err = expandSecretManagerRegionalRegionalSecretVersionEnabled(d.Get("enabled"), d, config)
+	err = setEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
 	}
@@ -349,7 +386,7 @@ func resourceSecretManagerRegionalRegionalSecretVersionRead(d *schema.ResourceDa
 
 func resourceSecretManagerRegionalRegionalSecretVersionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	_, err := expandSecretManagerRegionalRegionalSecretVersionEnabled(d.Get("enabled"), d, config)
+	err := setEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
 	}
@@ -541,42 +578,7 @@ func flattenSecretManagerRegionalRegionalSecretVersionPayload(v interface{}, d *
 	return []interface{}{transformed}
 }
 
-func expandSecretManagerRegionalRegionalSecretVersionEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	name := d.Get("name").(string)
-	if name == "" {
-		return "", nil
-	}
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerRegionalBasePath}}{{name}}")
-	if err != nil {
-		return nil, err
-	}
-
-	if v == true {
-		url = fmt.Sprintf("%s:enable", url)
-	} else {
-		url = fmt.Sprintf("%s:disable", url)
-	}
-
-	parts := strings.Split(name, "/")
-	project := parts[1]
-
-	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		Project:   project,
-		RawURL:    url,
-		UserAgent: userAgent,
-	})
-	if err != nil {
-		return nil, err
-	}
-
+func expandSecretManagerRegionalRegionalSecretVersionEnabled(_ interface{}, _ tpgresource.TerraformResourceData, _ *transport_tpg.Config) (interface{}, error) {
 	return nil, nil
 }
 
@@ -609,4 +611,18 @@ func resourceSecretManagerRegionalRegionalSecretVersionDecoder(d *schema.Resourc
 	}
 
 	return res, nil
+}
+func resourceSecretManagerRegionalRegionalSecretVersionPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	res, err := resourceSecretManagerRegionalRegionalSecretVersionDecoder(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("decoding response: %w", err)
+	}
+	if res == nil {
+		return fmt.Errorf("decoding response, could not find object")
+	}
+	if err := d.Set("name", flattenSecretManagerRegionalRegionalSecretVersionName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

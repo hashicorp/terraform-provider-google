@@ -274,6 +274,31 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
+## Example Usage - Cloud Run Service Iap
+
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  provider = google-beta
+  name     = "cloudrun-srv"
+  location = "us-central1"
+
+  metadata {
+    annotations = {
+      "run.googleapis.com/launch-stage" = "BETA"
+      "run.googleapis.com/iap-enabled": true
+    }
+  }
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -1055,6 +1080,9 @@ this field is set to false, the revision name will still autogenerate.)
     for the Service. For example, `"run.googleapis.com/ingress" = "all"`.
   - `run.googleapis.com/launch-stage` sets the [launch stage](https://cloud.google.com/run/docs/troubleshooting#launch-stage-validation)
     when a preview feature is used. For example, `"run.googleapis.com/launch-stage": "BETA"`
+  - `run.googleapis.com/minScale` sets the [minimum number of container instances](https://cloud.google.com/sdk/gcloud/reference/run/deploy#--min) of the Service.
+  - `run.googleapis.com/scalingMode` sets the type of scaling mode for the service. The supported values for scaling mode are "manual" and "automatic". If not provided, it defaults to "automatic".
+  - `run.googleapis.com/manualInstanceCount` sets the total instance count for the service in manual scaling mode. This number of instances is divided among all revisions with specified traffic based on the percent of traffic they are receiving.
   **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
   Please refer to the field `effective_annotations` for all of the annotations present on the resource.
 

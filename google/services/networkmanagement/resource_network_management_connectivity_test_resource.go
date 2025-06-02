@@ -434,29 +434,15 @@ func resourceNetworkManagementConnectivityTestCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = NetworkManagementOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating ConnectivityTest", userAgent,
+	err = NetworkManagementOperationWaitTime(
+		config, res, project, "Creating ConnectivityTest", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create ConnectivityTest: %s", err)
 	}
-
-	if err := d.Set("name", flattenNetworkManagementConnectivityTestName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/connectivityTests/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating ConnectivityTest %q: %#v", d.Id(), res)
 
@@ -790,7 +776,7 @@ func flattenNetworkManagementConnectivityTestName(v interface{}, d *schema.Resou
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenNetworkManagementConnectivityTestDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

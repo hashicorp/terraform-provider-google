@@ -80,6 +80,14 @@ The `source` block supports:
   (Optional)
   `Language` of the `Source` bundle. If unspecified, the language will default to `FIREBASE_RULES`. Possible values: LANGUAGE_UNSPECIFIED, FIREBASE_RULES, EVENT_FLOW_TRIGGERS
     
+- - -
+
+* `project` -
+  (Optional)
+  The project for the resource
+  
+
+
 The `files` block supports:
     
 * `content` -
@@ -94,14 +102,6 @@ The `files` block supports:
   (Required)
   File name.
     
-- - -
-
-* `project` -
-  (Optional)
-  The project for the resource
-  
-
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -255,8 +255,11 @@ func resourceContainerAnalysisOccurrenceCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return fmt.Errorf("Error creating Occurrence: %s", err)
 	}
-	if err := d.Set("name", flattenContainerAnalysisOccurrenceName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceContainerAnalysisOccurrencePostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -525,7 +528,7 @@ func flattenContainerAnalysisOccurrenceName(v interface{}, d *schema.ResourceDat
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenContainerAnalysisOccurrenceResourceUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -699,4 +702,18 @@ func resourceContainerAnalysisOccurrenceUpdateEncoder(d *schema.ResourceData, me
 func resourceContainerAnalysisOccurrenceDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	// encoder logic only in non-GA version
 	return res, nil
+}
+func resourceContainerAnalysisOccurrencePostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	res, err := resourceContainerAnalysisOccurrenceDecoder(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("decoding response: %w", err)
+	}
+	if res == nil {
+		return fmt.Errorf("decoding response, could not find object")
+	}
+	if err := d.Set("name", flattenContainerAnalysisOccurrenceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

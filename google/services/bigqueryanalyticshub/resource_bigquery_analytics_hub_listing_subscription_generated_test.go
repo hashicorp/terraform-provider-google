@@ -49,7 +49,7 @@ func TestAccBigqueryAnalyticsHubListingSubscription_bigqueryAnalyticshubListingS
 				ResourceName:            "google_bigquery_analytics_hub_listing_subscription.subscription",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"data_exchange_id", "destination_dataset", "listing_id", "location", "subscription_id"},
+				ImportStateVerifyIgnore: []string{"data_exchange_id", "destination_dataset", "listing_id", "location"},
 			},
 		},
 	})
@@ -61,7 +61,7 @@ resource "google_bigquery_analytics_hub_data_exchange" "subscription" {
   location         = "US"
   data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
   display_name     = "tf_test_my_data_exchange%{random_suffix}"
-  description      = ""
+  description      = "Test Description"
 }
 
 resource "google_bigquery_analytics_hub_listing" "subscription" {
@@ -69,7 +69,7 @@ resource "google_bigquery_analytics_hub_listing" "subscription" {
   data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
   listing_id       = "tf_test_my_listing%{random_suffix}"
   display_name     = "tf_test_my_listing%{random_suffix}"
-  description      = ""
+  description      = "Test Description"
 
   bigquery_dataset {
     dataset = google_bigquery_dataset.subscription.id
@@ -79,7 +79,7 @@ resource "google_bigquery_analytics_hub_listing" "subscription" {
 resource "google_bigquery_dataset" "subscription" {
   dataset_id                  = "tf_test_my_listing%{random_suffix}"
   friendly_name               = "tf_test_my_listing%{random_suffix}"
-  description                 = ""
+  description                 = "Test Description"
   location                    = "US"
 }
 

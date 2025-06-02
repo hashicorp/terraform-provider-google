@@ -212,29 +212,15 @@ func resourceGeminiGeminiGcpEnablementSettingBindingCreate(d *schema.ResourceDat
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = GeminiOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating GeminiGcpEnablementSettingBinding", userAgent,
+	err = GeminiOperationWaitTime(
+		config, res, project, "Creating GeminiGcpEnablementSettingBinding", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create GeminiGcpEnablementSettingBinding: %s", err)
 	}
-
-	if err := d.Set("name", flattenGeminiGeminiGcpEnablementSettingBindingName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/geminiGcpEnablementSettings/{{gemini_gcp_enablement_setting_id}}/settingBindings/{{setting_binding_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating GeminiGcpEnablementSettingBinding %q: %#v", d.Id(), res)
 

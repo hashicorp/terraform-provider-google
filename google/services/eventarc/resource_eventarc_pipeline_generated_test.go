@@ -36,7 +36,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithTopicDestinationExample(t *test
 
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
-		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-test-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-test-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-test-eventarc-pipeline-network"))),
+		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
 		"random_suffix":           acctest.RandString(t, 10),
 	}
 
@@ -89,7 +89,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithHttpDestinationExample(t *testi
 
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
-		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-test-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-test-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-test-eventarc-pipeline-network"))),
+		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
 		"random_suffix":           acctest.RandString(t, 10),
 	}
 
@@ -133,7 +133,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithWorkflowDestinationExample(t *t
 
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
-		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-test-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-test-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-test-eventarc-pipeline-network"))),
+		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
 		"random_suffix":           acctest.RandString(t, 10),
 	}
 
@@ -209,7 +209,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithOidcAndJsonFormatExample(t *tes
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"service_account":         envvar.GetTestServiceAccountFromEnv(t),
-		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-test-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-test-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-test-eventarc-pipeline-network"))),
+		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
 		"random_suffix":           acctest.RandString(t, 10),
 	}
 
@@ -286,7 +286,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithOauthAndProtobufFormatExample(t
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"service_account":         envvar.GetTestServiceAccountFromEnv(t),
-		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-test-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-test-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-test-eventarc-pipeline-network"))),
+		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
 		"random_suffix":           acctest.RandString(t, 10),
 	}
 
@@ -385,7 +385,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithCmekAndAvroFormatExample(t *tes
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
 		"key_name":                acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-eventarc-pipeline-key").CryptoKey.Name,
-		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-test-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-test-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-test-eventarc-pipeline-network"))),
+		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
 		"random_suffix":           acctest.RandString(t, 10),
 	}
 

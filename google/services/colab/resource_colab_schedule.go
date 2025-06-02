@@ -334,8 +334,11 @@ func resourceColabScheduleCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return fmt.Errorf("Error creating Schedule: %s", err)
 	}
-	if err := d.Set("name", flattenColabScheduleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceColabSchedulePostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -344,22 +347,6 @@ func resourceColabScheduleCreate(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-
-	// The response for create request contains the generated name generated name that we need
-	// in order to perform a READ. We need to access the object inside of it as
-	// a map[string]interface, so let's do that.
-
-	longName := res["name"].(string)
-	name := tpgresource.GetResourceNameFromSelfLink(longName)
-	log.Printf("[DEBUG] Setting resource name to %s", name)
-	if err := d.Set("name", name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
-
-	parts := strings.Split(longName, "/")
-	parts[1] = project
-	updatedLongName := strings.Join(parts, "/")
-	d.SetId(updatedLongName)
 
 	if p, ok := d.GetOk("desired_state"); ok && p.(string) == "PAUSED" {
 		_, err := modifyScheduleState(config, d, project, billingProject, userAgent, "pause")
@@ -700,7 +687,7 @@ func flattenColabScheduleName(v interface{}, d *schema.ResourceData, config *tra
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenColabScheduleDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1076,4 +1063,12 @@ func resourceColabScheduleEncoder(d *schema.ResourceData, meta interface{}, obj 
 	jobRequest["parent"] = fmt.Sprintf("projects/%s/locations/%s", project, location)
 
 	return obj, nil
+}
+
+func resourceColabSchedulePostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("name", flattenColabScheduleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

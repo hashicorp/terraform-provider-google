@@ -113,12 +113,6 @@ func ResourcePrivatecaCertificateAuthority() *schema.Resource {
 													ForceNew:    true,
 													Description: `The common name of the distinguished name.`,
 												},
-												"organization": {
-													Type:        schema.TypeString,
-													Required:    true,
-													ForceNew:    true,
-													Description: `The organization of the subject.`,
-												},
 												"country_code": {
 													Type:        schema.TypeString,
 													Optional:    true,
@@ -130,6 +124,12 @@ func ResourcePrivatecaCertificateAuthority() *schema.Resource {
 													Optional:    true,
 													ForceNew:    true,
 													Description: `The locality or city of the subject.`,
+												},
+												"organization": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													ForceNew:    true,
+													Description: `The organization of the subject.`,
 												},
 												"organizational_unit": {
 													Type:        schema.TypeString,
@@ -988,37 +988,15 @@ func resourcePrivatecaCertificateAuthorityCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = PrivatecaOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating CertificateAuthority", userAgent,
+	err = PrivatecaOperationWaitTime(
+		config, res, project, "Creating CertificateAuthority", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create CertificateAuthority: %s", err)
 	}
-
-	opRes, err = resourcePrivatecaCertificateAuthorityDecoder(d, meta, opRes)
-	if err != nil {
-		return fmt.Errorf("Error decoding response from operation: %s", err)
-	}
-	if opRes == nil {
-		return fmt.Errorf("Error decoding response from operation, could not find object")
-	}
-
-	if err := d.Set("name", flattenPrivatecaCertificateAuthorityName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	staged := d.Get("type").(string) == "SELF_SIGNED"
 

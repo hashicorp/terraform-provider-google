@@ -60,8 +60,9 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(t *testing.
 func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_monitoring_uptime_check_config" "http" {
-  display_name = "tf-test-http-uptime-check%{random_suffix}"
-  timeout      = "60s"
+  display_name       = "tf-test-http-uptime-check%{random_suffix}"
+  timeout            = "60s"
+  log_check_failures = true
   user_labels  = {
     example-key = "example-value"
   }

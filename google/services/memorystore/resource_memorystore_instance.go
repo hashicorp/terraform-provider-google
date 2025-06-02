@@ -268,6 +268,29 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 				Optional:    true,
 				Description: `Optional. Engine version of the instance.`,
 			},
+			"gcs_source": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `GCS source for the instance.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"uris": {
+							Type:     schema.TypeSet,
+							Required: true,
+							ForceNew: true,
+							Description: `URIs of the GCS objects to import.
+Example: gs://bucket1/object1, gs://bucket2/folder2/object2`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Set: schema.HashString,
+						},
+					},
+				},
+				ConflictsWith: []string{"managed_backup_source"},
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -370,6 +393,24 @@ resolution and up to nine fractional digits.`,
 						},
 					},
 				},
+			},
+			"managed_backup_source": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Managed backup source for the instance.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"backup": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Example: 'projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup}'.`,
+						},
+					},
+				},
+				ConflictsWith: []string{"gcs_source"},
 			},
 			"mode": {
 				Type:         schema.TypeString,
@@ -511,14 +552,21 @@ Ignored for MULTI_ZONE mode.`,
 					},
 				},
 			},
+			"backup_collection": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The backup collection full resource name.
+Example: projects/{project}/locations/{location}/backupCollections/{collection}`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Output only. Creation timestamp of the instance.`,
 			},
 			"discovery_endpoints": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:       schema.TypeList,
+				Computed:   true,
+				Deprecated: "`discovery_endpoints` is deprecated  Use `endpoints` instead.",
 				Description: `Output only. Endpoints clients can connect to the instance through. Currently only one
 discovery endpoint is supported.`,
 				Elem: &schema.Resource{
@@ -698,6 +746,7 @@ Format: projects/{project}/locations/{location}/instances/{instance}`,
 			"psc_auto_connections": {
 				Type:        schema.TypeList,
 				Computed:    true,
+				Deprecated:  "`psc_auto_connections` is deprecated  Use `endpoints.connections.pscAutoConnections` instead.",
 				Description: `Output only. User inputs and resource details of the auto-created PSC connections.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -828,8 +877,9 @@ DELETING`,
 			"desired_psc_auto_connections": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				Deprecated:  "`desired_psc_auto_connections` is deprecated  Use `desired_auto_created_endpoints` instead.",
 				ForceNew:    true,
-				Description: `Immutable. User inputs for the auto-created PSC connections.`,
+				Description: `'desired_psc_auto_connections' is deprecated  Use 'desired_auto_created_endpoints' instead.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network": {
@@ -845,6 +895,29 @@ projects/{project_id}/global/networks/{network_id}.`,
 						},
 					},
 				},
+				ConflictsWith: []string{},
+			},
+			"desired_auto_created_endpoints": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Immutable. User inputs for the auto-created endpoints connections.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"network": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `Required. The consumer network where the IP address resides, in the form of
+projects/{project_id}/global/networks/{network_id}.`,
+						},
+						"project_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Required. The consumer project_id where the forwarding rule is created from.`,
+						},
+					},
+				},
+				ConflictsWith: []string{},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -949,6 +1022,18 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(modeProp)) && (ok || !reflect.DeepEqual(v, modeProp)) {
 		obj["mode"] = modeProp
 	}
+	gcsSourceProp, err := expandMemorystoreInstanceGcsSource(d.Get("gcs_source"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("gcs_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(gcsSourceProp)) && (ok || !reflect.DeepEqual(v, gcsSourceProp)) {
+		obj["gcsSource"] = gcsSourceProp
+	}
+	managedBackupSourceProp, err := expandMemorystoreInstanceManagedBackupSource(d.Get("managed_backup_source"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("managed_backup_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(managedBackupSourceProp)) && (ok || !reflect.DeepEqual(v, managedBackupSourceProp)) {
+		obj["managedBackupSource"] = managedBackupSourceProp
+	}
 	labelsProp, err := expandMemorystoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1002,37 +1087,15 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = MemorystoreOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Instance", userAgent,
+	err = MemorystoreOperationWaitTime(
+		config, res, project, "Creating Instance", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Instance: %s", err)
 	}
-
-	opRes, err = resourceMemorystoreInstanceDecoder(d, meta, opRes)
-	if err != nil {
-		return fmt.Errorf("Error decoding response from operation: %s", err)
-	}
-	if opRes == nil {
-		return fmt.Errorf("Error decoding response from operation, could not find object")
-	}
-
-	if err := d.Set("name", flattenMemorystoreInstanceName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{instance_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Instance %q: %#v", d.Id(), res)
 
@@ -1173,6 +1236,9 @@ func resourceMemorystoreInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("psc_auto_connections", flattenMemorystoreInstancePscAutoConnections(res["pscAutoConnections"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("backup_collection", flattenMemorystoreInstanceBackupCollection(res["backupCollection"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenMemorystoreInstanceTerraformLabels(res["labels"], d, config)); err != nil {
@@ -2354,6 +2420,10 @@ func flattenMemorystoreInstancePscAutoConnectionsPort(v interface{}, d *schema.R
 	return v // let terraform core handle it otherwise
 }
 
+func flattenMemorystoreInstanceBackupCollection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenMemorystoreInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2993,6 +3063,53 @@ func expandMemorystoreInstanceMode(v interface{}, d tpgresource.TerraformResourc
 	return v, nil
 }
 
+func expandMemorystoreInstanceGcsSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedUris, err := expandMemorystoreInstanceGcsSourceUris(original["uris"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUris); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["uris"] = transformedUris
+	}
+
+	return transformed, nil
+}
+
+func expandMemorystoreInstanceGcsSourceUris(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandMemorystoreInstanceManagedBackupSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBackup, err := expandMemorystoreInstanceManagedBackupSourceBackup(original["backup"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBackup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["backup"] = transformedBackup
+	}
+
+	return transformed, nil
+}
+
+func expandMemorystoreInstanceManagedBackupSourceBackup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandMemorystoreInstanceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -3005,34 +3122,73 @@ func expandMemorystoreInstanceEffectiveLabels(v interface{}, d tpgresource.Terra
 }
 
 func resourceMemorystoreInstanceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	v, ok := d.GetOk("desired_psc_auto_connections")
-	if !ok {
-		return obj, nil // No desired connections, nothing to update
+	// Handles desired_auto_created_endpoints virtual field
+	v, ok := d.GetOk("desired_auto_created_endpoints")
+	if ok {
+		l := v.([]interface{})
+		if len(l) > 0 {
+			endpoints := make([]interface{}, 1)
+			endpointObj := make(map[string]interface{})
+			connections := make([]interface{}, 0, len(l))
+
+			for _, raw := range l {
+				if raw == nil {
+					continue
+				}
+				desiredEndpoint := raw.(map[string]interface{})
+				connectionObj := make(map[string]interface{})
+				pscAutoConnection := make(map[string]interface{})
+
+				projectId := desiredEndpoint["project_id"]
+				if val := reflect.ValueOf(projectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+					pscAutoConnection["projectId"] = projectId
+				}
+
+				network := desiredEndpoint["network"]
+				if val := reflect.ValueOf(network); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+					pscAutoConnection["network"] = network
+				}
+
+				connectionObj["pscAutoConnection"] = pscAutoConnection
+				connections = append(connections, connectionObj)
+			}
+
+			endpointObj["connections"] = connections
+			endpoints[0] = endpointObj
+			obj["endpoints"] = endpoints
+			log.Printf("[DEBUG] You are setting desired_auto_created_endpoints in encoder %#v", endpoints)
+
+		}
+		// Handles desired_auto_created_endpoints virtual field
+	} else if v, ok := d.GetOk("desired_psc_auto_connections"); ok {
+		l := v.([]interface{})
+		req := make([]interface{}, 0, len(l))
+		for _, raw := range l {
+			if raw == nil {
+				continue
+			}
+			desiredConnection := raw.(map[string]interface{})
+			connectionReq := make(map[string]interface{})
+
+			projectId := desiredConnection["project_id"]
+			if val := reflect.ValueOf(projectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+				connectionReq["projectId"] = projectId
+			}
+
+			network := desiredConnection["network"]
+			if val := reflect.ValueOf(network); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+				connectionReq["network"] = network
+			}
+
+			req = append(req, connectionReq)
+		}
+
+		obj["pscAutoConnections"] = req
+		log.Printf("[DEBUG] You are setting desired_psc_auto_connections in encoder  %#v", req)
+
 	}
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		desiredConnection := raw.(map[string]interface{})
-		connectionReq := make(map[string]interface{})
 
-		projectId := desiredConnection["project_id"]
-		if val := reflect.ValueOf(projectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			connectionReq["projectId"] = projectId
-		}
-
-		network := desiredConnection["network"]
-		if val := reflect.ValueOf(network); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			connectionReq["network"] = network
-		}
-
-		req = append(req, connectionReq)
-	}
-
-	obj["pscAutoConnections"] = req
-	// if the automated_backup_config is not defined, automatedBackupMode needs to be passed and set to DISABLED in the expand
+	// If the automated_backup_config is not defined, automatedBackupMode needs to be passed and set to DISABLED in the expand
 	if obj["automatedBackupConfig"] == nil {
 		config := meta.(*transport_tpg.Config)
 		automatedBackupConfigProp, _ := expandMemorystoreInstanceAutomatedBackupConfig(d.Get("automated_backup_config"), d, config)
@@ -3042,49 +3198,101 @@ func resourceMemorystoreInstanceEncoder(d *schema.ResourceData, meta interface{}
 }
 
 func resourceMemorystoreInstanceDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	// Retrieve pscAutoConnections from API response
+	// Retrieve endpoints.connections.pscAutoConnection from API response
 	v, ok := res["pscAutoConnections"]
-	if !ok {
-		if _, endpointsFound := res["endpoints"]; endpointsFound {
-			return res, nil // For Cluster Disabled instances, we would have 'endpoints' instead of 'pscAutoConnections'
-		}
-		return res, nil
-	}
+	if ok {
 
-	connections, ok := v.([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("pscAutoConnections is not an array")
-	}
-
-	transformed := make([]interface{}, 0, len(connections))
-	uniqueConnections := make(map[string]bool) // Track unique project+network combos
-
-	for _, raw := range connections {
-		connectionData, ok := raw.(map[string]interface{})
-		if !ok || len(connectionData) < 1 {
-			return nil, fmt.Errorf("Invalid or empty psc connection data: %v", raw)
-		}
-
-		projectID, ok := connectionData["projectId"].(string)
+		connections, ok := v.([]interface{})
 		if !ok {
-			return nil, fmt.Errorf("invalid project ID in psc connection: %v", connectionData)
+			return nil, fmt.Errorf("pscAutoConnections is not an array")
 		}
 
-		networkID, ok := connectionData["network"].(string)
-		if !ok {
-			return nil, fmt.Errorf("invalid network ID in psc connection: %v", connectionData)
+		transformed := make([]interface{}, 0, len(connections))
+		uniqueConnections := make(map[string]bool) // Track unique project+network combos
+
+		for _, raw := range connections {
+			connectionData, ok := raw.(map[string]interface{})
+			if !ok || len(connectionData) < 1 {
+				return nil, fmt.Errorf("Invalid or empty psc connection data: %v", raw)
+			}
+
+			projectID, ok := connectionData["projectId"].(string)
+			if !ok {
+				return nil, fmt.Errorf("invalid project ID in psc connection: %v", connectionData)
+			}
+
+			networkID, ok := connectionData["network"].(string)
+			if !ok {
+				return nil, fmt.Errorf("invalid network ID in psc connection: %v", connectionData)
+			}
+
+			uniqueKey := projectID + networkID
+			if !uniqueConnections[uniqueKey] { // Check for uniqueness
+				uniqueConnections[uniqueKey] = true
+				transformed = append(transformed, map[string]interface{}{
+					"project_id": projectID,
+					"network":    networkID,
+				})
+			}
+		}
+		d.Set("desired_psc_auto_connections", transformed)
+		log.Printf("[DEBUG] You are setting desired_psc_auto_connections in decoder %#v", transformed)
+
+		// Retrieve pscAutoConnections from API response
+	} else if v, ok := res["endpoints"]; ok {
+
+		endpointsArray, ok := v.([]interface{})
+		if !ok || len(endpointsArray) == 0 {
+			// No endpoints or empty array, nothing to process
+		} else {
+			transformed := make([]interface{}, 0)
+			uniqueEndpoints := make(map[string]bool) // Track unique project+network combos
+
+			for _, endpoint := range endpointsArray {
+				endpointData, ok := endpoint.(map[string]interface{})
+				if !ok {
+					continue
+				}
+
+				connections, ok := endpointData["connections"].([]interface{})
+				if !ok {
+					continue
+				}
+
+				for _, connection := range connections {
+					connectionData, ok := connection.(map[string]interface{})
+					if !ok {
+						continue
+					}
+
+					pscAutoConnection, ok := connectionData["pscAutoConnection"].(map[string]interface{})
+					if !ok {
+						continue
+					}
+
+					projectID, projectOk := pscAutoConnection["projectId"].(string)
+					networkID, networkOk := pscAutoConnection["network"].(string)
+
+					if projectOk && networkOk {
+						uniqueKey := projectID + networkID
+						if !uniqueEndpoints[uniqueKey] { // Check for uniqueness
+							uniqueEndpoints[uniqueKey] = true
+							transformed = append(transformed, map[string]interface{}{
+								"project_id": projectID,
+								"network":    networkID,
+							})
+						}
+					}
+				}
+			}
+			if len(transformed) > 0 {
+				d.Set("desired_auto_created_endpoints", transformed)
+				log.Printf("[DEBUG] Setting desired_auto_created_endpoints in decoder for %#v", transformed)
+
+			}
 		}
 
-		uniqueKey := projectID + networkID
-		if !uniqueConnections[uniqueKey] { // Check for uniqueness
-			uniqueConnections[uniqueKey] = true
-			transformed = append(transformed, map[string]interface{}{
-				"project_id": projectID,
-				"network":    networkID,
-			})
-		}
 	}
 
-	d.Set("desired_psc_auto_connections", transformed)
 	return res, nil
 }

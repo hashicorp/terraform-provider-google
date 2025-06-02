@@ -666,6 +666,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Resourcemanager",
         "path" to "./google/services/resourcemanager"
     ),
+    "resourcemanager3" to mapOf(
+        "name" to "resourcemanager3",
+        "displayName" to "Resourcemanager3",
+        "path" to "./google/services/resourcemanager3"
+    ),
     "runtimeconfig" to mapOf(
         "name" to "runtimeconfig",
         "displayName" to "Runtimeconfig",
@@ -760,6 +765,11 @@ var ServicesListGa = mapOf(
         "name" to "storage",
         "displayName" to "Storage",
         "path" to "./google/services/storage"
+    ),
+    "storagebatchoperations" to mapOf(
+        "name" to "storagebatchoperations",
+        "displayName" to "StorageBatchOperations",
+        "path" to "./google/services/storagebatchoperations"
     ),
     "storagecontrol" to mapOf(
         "name" to "storagecontrol",

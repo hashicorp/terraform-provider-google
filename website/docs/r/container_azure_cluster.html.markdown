@@ -194,12 +194,6 @@ The `authorization` block supports:
   (Required)
   Users that can perform operations as a cluster admin. A new ClusterRoleBinding will be created to grant the cluster-admin ClusterRole to the users. Up to ten admin users can be provided. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
     
-The `admin_users` block supports:
-    
-* `username` -
-  (Required)
-  The name of the user, e.g. `my-gcp-id@gmail.com`.
-    
 The `control_plane` block supports:
     
 * `database_encryption` -
@@ -241,12 +235,6 @@ The `control_plane` block supports:
 * `vm_size` -
   (Optional)
   Optional. The Azure VM size name. Example: `Standard_DS2_v2`. For available VM sizes, see https://docs.microsoft.com/en-us/azure/virtual-machines/vm-naming-conventions. When unspecified, it defaults to `Standard_DS2_v2`.
-    
-The `ssh_config` block supports:
-    
-* `authorized_key` -
-  (Required)
-  The SSH public key data for VMs managed by Anthos. This accepts the authorized_keys file format used in OpenSSH according to the sshd(8) manual page.
     
 The `fleet` block supports:
     
@@ -308,6 +296,12 @@ The `admin_groups` block supports:
   (Required)
   The name of the group, e.g. `my-group@domain.com`.
     
+The `admin_users` block supports:
+    
+* `username` -
+  (Required)
+  The name of the user, e.g. `my-gcp-id@gmail.com`.
+    
 The `azure_services_authentication` block supports:
     
 * `application_id` -
@@ -355,6 +349,12 @@ The `root_volume` block supports:
 * `size_gib` -
   (Optional)
   Optional. The size of the disk, in GiBs. When unspecified, a default value is provided. See the specific reference in the parent resource.
+    
+The `ssh_config` block supports:
+    
+* `authorized_key` -
+  (Required)
+  The SSH public key data for VMs managed by Anthos. This accepts the authorized_keys file format used in OpenSSH according to the sshd(8) manual page.
     
 The `logging_config` block supports:
     

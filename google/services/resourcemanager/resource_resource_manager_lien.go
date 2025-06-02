@@ -161,8 +161,11 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return fmt.Errorf("Error creating Lien: %s", err)
 	}
-	if err := d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceResourceManagerLienPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -171,18 +174,6 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-
-	// This resource is unusual - instead of returning an Operation from
-	// Create, it returns the created object itself.  We don't parse
-	// any of the values there, preferring to centralize that logic in
-	// Read().  In this resource, Read is also unusual - it requires
-	// us to know the server-side generated name of the object we're
-	// trying to fetch, and the only way to know that is to capture
-	// it here.  The following two lines do that.
-	d.SetId(flattenNestedResourceManagerLienName(res["name"], d, config).(string))
-	if err := d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
 
 	log.Printf("[DEBUG] Finished creating Lien %q: %#v", d.Id(), res)
 
@@ -347,7 +338,7 @@ func flattenNestedResourceManagerLienName(v interface{}, d *schema.ResourceData,
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenNestedResourceManagerLienReason(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -501,4 +492,28 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 		res["parent"] = d.Get("parent")
 	}
 	return res, nil
+}
+func resourceResourceManagerLienPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	res, err := resourceResourceManagerLienDecoder(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("decoding response: %w", err)
+	}
+	if res == nil {
+		return fmt.Errorf("decoding response, could not find object")
+	}
+	if _, ok := res["liens"]; ok {
+		res, err := flattenNestedResourceManagerLien(d, meta, res)
+		if err != nil {
+			return fmt.Errorf("Error getting nested object from operation response: %s", err)
+		}
+		if res == nil {
+			// Object isn't there any more - remove it from the state.
+			return fmt.Errorf("Error decoding response from operation, could not find nested object")
+		}
+	}
+	if err := d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

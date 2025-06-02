@@ -149,8 +149,11 @@ func resourceSiteVerificationWebResourceCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return fmt.Errorf("Error creating WebResource: %s", err)
 	}
-	if err := d.Set("web_resource_id", flattenSiteVerificationWebResourceWebResourceId(res["id"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "web_resource_id": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceSiteVerificationWebResourcePostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -343,4 +346,12 @@ func expandSiteVerificationWebResourceSiteType(v interface{}, d tpgresource.Terr
 
 func expandSiteVerificationWebResourceSiteIdentifier(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceSiteVerificationWebResourcePostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("web_resource_id", flattenSiteVerificationWebResourceWebResourceId(res["id"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "web_resource_id": %s`, err)
+	}
+	return nil
 }

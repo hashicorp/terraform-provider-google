@@ -4860,7 +4860,7 @@ func flattenComputeRegionUrlMapRegion(v interface{}, d *schema.ResourceData, con
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func expandComputeRegionUrlMapDefaultService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

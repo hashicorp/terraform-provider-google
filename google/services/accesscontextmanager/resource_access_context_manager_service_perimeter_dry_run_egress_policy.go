@@ -432,45 +432,15 @@ func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyCreate(d *sch
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = AccessContextManagerOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating ServicePerimeterDryRunEgressPolicy", userAgent,
+	err = AccessContextManagerOperationWaitTime(
+		config, res, "Creating ServicePerimeterDryRunEgressPolicy", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create ServicePerimeterDryRunEgressPolicy: %s", err)
 	}
-
-	if _, ok := opRes["spec"]; ok {
-		opRes, err = flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicy(d, meta, opRes)
-		if err != nil {
-			return fmt.Errorf("Error getting nested object from operation response: %s", err)
-		}
-		if opRes == nil {
-			// Object isn't there any more - remove it from the state.
-			return fmt.Errorf("Error decoding response from operation, could not find nested object")
-		}
-	}
-	if err := d.Set("egress_from", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFrom(opRes["egressFrom"], d, config)); err != nil {
-		return err
-	}
-	if err := d.Set("egress_to", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(opRes["egressTo"], d, config)); err != nil {
-		return err
-	}
-	if err := d.Set("title", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyTitle(opRes["title"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{perimeter}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating ServicePerimeterDryRunEgressPolicy %q: %#v", d.Id(), res)
 

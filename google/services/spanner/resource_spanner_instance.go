@@ -135,21 +135,12 @@ In order to obtain a valid list please consult the
 				Description: `The descriptive name for this instance as it appears in UIs. Must be
 unique per project and between 4 and 30 characters in length.`,
 			},
-			"name": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: verify.ValidateRegexp(`^[a-z][-a-z0-9]*[a-z0-9]$`),
-				Description: `A unique identifier for the instance, which cannot be changed after
-the instance is created. The name must be between 6 and 30 characters
-in length.
-If not provided, a random string starting with 'tf-' will be selected.`,
-			},
 			"autoscaling_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Description: `The autoscaling configuration. Autoscaling is enabled if this field is set.
+Exactly one of either num_nodes, processing_units or autoscaling_config must be
+present in terraform except when instance_type = FREE_INSTANCE.
 When autoscaling is enabled, num_nodes and processing_units are treated as,
 OUTPUT_ONLY fields and reflect the current compute capacity allocated to
 the instance.`,
@@ -283,7 +274,8 @@ This number is on a scale from 0 (no utilization) to 100 (full utilization).`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"num_nodes", "processing_units", "autoscaling_config"},
+				ConflictsWith: []string{"num_nodes", "processing_units"},
+				AtLeastOneOf:  []string{"num_nodes", "processing_units", "autoscaling_config", "instance_type"},
 			},
 			"default_backup_schedule_type": {
 				Type:         schema.TypeString,
@@ -301,6 +293,16 @@ if unset or NONE, no default backup schedule will be created for new databases w
 				ValidateFunc: verify.ValidateEnum([]string{"EDITION_UNSPECIFIED", "STANDARD", "ENTERPRISE", "ENTERPRISE_PLUS", ""}),
 				Description:  `The edition selected for this instance. Different editions provide different capabilities at different price points. Possible values: ["EDITION_UNSPECIFIED", "STANDARD", "ENTERPRISE", "ENTERPRISE_PLUS"]`,
 			},
+			"instance_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"PROVISIONED", "FREE_INSTANCE", ""}),
+				Description: `The type of this instance. The type can be used to distinguish product variants, that can affect aspects like:
+usage restrictions, quotas and billing. Currently this is used to distinguish FREE_INSTANCE vs PROVISIONED instances.
+When configured as FREE_INSTANCE, the field 'edition' should not be configured. Possible values: ["PROVISIONED", "FREE_INSTANCE"]`,
+				AtLeastOneOf: []string{"num_nodes", "processing_units", "autoscaling_config", "instance_type"},
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -312,21 +314,34 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"name": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateRegexp(`^[a-z][-a-z0-9]*[a-z0-9]$`),
+				Description: `A unique identifier for the instance, which cannot be changed after
+the instance is created. The name must be between 6 and 30 characters
+in length.
+If not provided, a random string starting with 'tf-' will be selected.`,
+			},
 			"num_nodes": {
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
-				Description: `The number of nodes allocated to this instance. Exactly one of either node_count or processing_units
-must be present in terraform.`,
-				ExactlyOneOf: []string{"num_nodes", "processing_units", "autoscaling_config"},
+				Description: `The number of nodes allocated to this instance. Exactly one of either num_nodes, processing_units or
+autoscaling_config must be present in terraform except when instance_type = FREE_INSTANCE.`,
+				ConflictsWith: []string{"processing_units", "autoscaling_config"},
+				AtLeastOneOf:  []string{"num_nodes", "processing_units", "autoscaling_config", "instance_type"},
 			},
 			"processing_units": {
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
-				Description: `The number of processing units allocated to this instance. Exactly one of processing_units
-or node_count must be present in terraform.`,
-				ExactlyOneOf: []string{"num_nodes", "processing_units", "autoscaling_config"},
+				Description: `The number of processing units allocated to this instance. Exactly one of either num_nodes,
+processing_units or autoscaling_config must be present in terraform except when instance_type = FREE_INSTANCE.`,
+				ConflictsWith: []string{"num_nodes", "autoscaling_config"},
+				AtLeastOneOf:  []string{"num_nodes", "processing_units", "autoscaling_config", "instance_type"},
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
@@ -414,6 +429,12 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("edition"); !tpgresource.IsEmptyValue(reflect.ValueOf(editionProp)) && (ok || !reflect.DeepEqual(v, editionProp)) {
 		obj["edition"] = editionProp
 	}
+	instanceTypeProp, err := expandSpannerInstanceInstanceType(d.Get("instance_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("instance_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(instanceTypeProp)) && (ok || !reflect.DeepEqual(v, instanceTypeProp)) {
+		obj["instanceType"] = instanceTypeProp
+	}
 	defaultBackupScheduleTypeProp, err := expandSpannerInstanceDefaultBackupScheduleType(d.Get("default_backup_schedule_type"), d, config)
 	if err != nil {
 		return err
@@ -494,8 +515,11 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error decoding response from operation, could not find object")
 	}
 
-	if err := d.Set("name", flattenSpannerInstanceName(opRes["name"], d, config)); err != nil {
-		return err
+	// name is set by API when unset
+	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("name"))) {
+		if err := d.Set("name", flattenSpannerInstanceName(opRes["name"], d, config)); err != nil {
+			return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+		}
 	}
 
 	// This may have caused the ID to update - update it if so.
@@ -602,6 +626,9 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("edition", flattenSpannerInstanceEdition(res["edition"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("instance_type", flattenSpannerInstanceInstanceType(res["instanceType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("default_backup_schedule_type", flattenSpannerInstanceDefaultBackupScheduleType(res["defaultBackupScheduleType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -660,6 +687,12 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("edition"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, editionProp)) {
 		obj["edition"] = editionProp
+	}
+	instanceTypeProp, err := expandSpannerInstanceInstanceType(d.Get("instance_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("instance_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, instanceTypeProp)) {
+		obj["instanceType"] = instanceTypeProp
 	}
 	defaultBackupScheduleTypeProp, err := expandSpannerInstanceDefaultBackupScheduleType(d.Get("default_backup_schedule_type"), d, config)
 	if err != nil {
@@ -829,7 +862,7 @@ func flattenSpannerInstanceName(v interface{}, d *schema.ResourceData, config *t
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenSpannerInstanceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1151,6 +1184,10 @@ func flattenSpannerInstanceEdition(v interface{}, d *schema.ResourceData, config
 	return v
 }
 
+func flattenSpannerInstanceInstanceType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenSpannerInstanceDefaultBackupScheduleType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1436,6 +1473,10 @@ func expandSpannerInstanceEdition(v interface{}, d tpgresource.TerraformResource
 	return v, nil
 }
 
+func expandSpannerInstanceInstanceType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandSpannerInstanceDefaultBackupScheduleType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1452,10 +1493,18 @@ func expandSpannerInstanceEffectiveLabels(v interface{}, d tpgresource.Terraform
 }
 
 func resourceSpannerInstanceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	// Temp Logic to accommodate autoscaling_config, processing_units and num_nodes
-	if obj["processingUnits"] == nil && obj["nodeCount"] == nil && obj["autoscalingConfig"] == nil {
-		obj["nodeCount"] = 1
+	if obj["instanceType"] == "FREE_INSTANCE" {
+		// when provisioning a FREE_INSTANCE, the following fields cannot be specified
+		if obj["nodeCount"] != nil || obj["processingUnits"] != nil || obj["autoscalingConfig"] != nil {
+			return nil, fmt.Errorf("`num_nodes`, `processing_units`, and `autoscaling_config` cannot be specified when instance_type is FREE_INSTANCE")
+		}
+	} else {
+		// Temp Logic to accommodate autoscaling_config, processing_units and num_nodes
+		if obj["processingUnits"] == nil && obj["nodeCount"] == nil && obj["autoscalingConfig"] == nil && obj["instanceType"] != "FREE_INSTANCE" {
+			obj["nodeCount"] = 1
+		}
 	}
+
 	newObj := make(map[string]interface{})
 	newObj["instance"] = obj
 	if obj["name"] == nil {

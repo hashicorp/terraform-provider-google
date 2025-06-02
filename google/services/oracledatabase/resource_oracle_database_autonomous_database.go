@@ -1041,29 +1041,15 @@ func resourceOracleDatabaseAutonomousDatabaseCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = OracleDatabaseOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating AutonomousDatabase", userAgent,
+	err = OracleDatabaseOperationWaitTime(
+		config, res, project, "Creating AutonomousDatabase", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create AutonomousDatabase: %s", err)
 	}
-
-	if err := d.Set("name", flattenOracleDatabaseAutonomousDatabaseName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/autonomousDatabases/{{autonomous_database_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating AutonomousDatabase %q: %#v", d.Id(), res)
 

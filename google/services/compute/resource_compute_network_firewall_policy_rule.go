@@ -35,6 +35,16 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
+func SecurityProfileGroupPrefixSlashes(_, old, new string, _ *schema.ResourceData) bool {
+	if strings.HasPrefix(old, "//") {
+		old = old[1:]
+	}
+	if strings.HasPrefix(new, "//") {
+		new = new[1:]
+	}
+	return old == new
+}
+
 func ResourceComputeNetworkFirewallPolicyRule() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeNetworkFirewallPolicyRuleCreate,
@@ -243,8 +253,9 @@ Note: you cannot enable logging on "goto_next" rules.`,
 				Description: `An optional name for the rule. This field is not a unique identifier and can be updated.`,
 			},
 			"security_profile_group": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: SecurityProfileGroupPrefixSlashes,
 				Description: `A fully-qualified URL of a SecurityProfile resource instance.
 Example: https://networksecurity.googleapis.com/v1/projects/{project}/locations/{location}/securityProfileGroups/my-security-profile-group
 Must be specified if action = 'apply_security_profile_group' and cannot be specified for other actions.`,

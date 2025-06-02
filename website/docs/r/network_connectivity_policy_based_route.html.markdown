@@ -122,7 +122,7 @@ The following arguments are supported:
 * `protocol_version` -
   (Required)
   Internet protocol versions this policy-based route applies to.
-  Possible values are: `IPV4`.
+  Possible values are: `IPV4`, `IPV6`.
 
 * `ip_protocol` -
   (Optional)
@@ -130,11 +130,11 @@ The following arguments are supported:
 
 * `src_range` -
   (Optional)
-  The source IP range of outgoing packets that this policy-based route applies to. Default is "0.0.0.0/0" if protocol version is IPv4.
+  The source IP range of outgoing packets that this policy-based route applies to. Default is "0.0.0.0/0".
 
 * `dest_range` -
   (Optional)
-  The destination IP range of outgoing packets that this policy-based route applies to. Default is "0.0.0.0/0" if protocol version is IPv4.
+  The destination IP range of outgoing packets that this policy-based route applies to. Default is "0.0.0.0/0".
 
 - - -
 

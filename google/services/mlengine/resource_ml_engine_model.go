@@ -65,6 +65,8 @@ func ResourceMLEngineModel() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		DeprecationMessage: "This resource is deprecated at the API level and will be removed in a future version of Terraform.",
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -408,7 +410,7 @@ func flattenMLEngineModelName(v interface{}, d *schema.ResourceData, config *tra
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenMLEngineModelDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

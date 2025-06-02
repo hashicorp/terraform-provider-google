@@ -44,7 +44,10 @@ func TestAccApigeeEnvgroup_apigeeEnvironmentGroupBasicTestExample(t *testing.T) 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckApigeeEnvgroupDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckApigeeEnvgroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeEnvgroup_apigeeEnvironmentGroupBasicTestExample(context),
@@ -84,10 +87,15 @@ resource "google_project_service" "servicenetworking" {
   service = "servicenetworking.googleapis.com"
 }
 
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.compute]
+}
+
 resource "google_compute_network" "apigee_network" {
   name       = "apigee-network"
   project    = google_project.project.project_id
-  depends_on = [google_project_service.compute]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 
 resource "google_compute_global_address" "apigee_range" {

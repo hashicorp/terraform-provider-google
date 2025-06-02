@@ -371,6 +371,16 @@ func resourceHealthcarePipelineJobCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
+	err = HealthcareOperationWaitTime(
+		config, res, "Creating PipelineJob", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create PipelineJob: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating PipelineJob %q: %#v", d.Id(), res)
 
 	return resourceHealthcarePipelineJobRead(d, meta)
@@ -558,6 +568,13 @@ func resourceHealthcarePipelineJobUpdate(d *schema.ResourceData, meta interface{
 			log.Printf("[DEBUG] Finished updating PipelineJob %q: %#v", d.Id(), res)
 		}
 
+		err = HealthcareOperationWaitTime(
+			config, res, "Updating PipelineJob", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return resourceHealthcarePipelineJobRead(d, meta)

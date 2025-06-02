@@ -168,6 +168,16 @@ func resourceMonitoringMonitoredProjectCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
+	err = MonitoringOperationWaitTime(
+		config, res, "Creating MonitoredProject", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create MonitoredProject: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating MonitoredProject %q: %#v", d.Id(), res)
 
 	return resourceMonitoringMonitoredProjectRead(d, meta)
@@ -275,6 +285,14 @@ func resourceMonitoringMonitoredProjectDelete(d *schema.ResourceData, meta inter
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "MonitoredProject")
+	}
+
+	err = MonitoringOperationWaitTime(
+		config, res, "Deleting MonitoredProject", userAgent,
+		d.Timeout(schema.TimeoutDelete))
+
+	if err != nil {
+		return err
 	}
 
 	log.Printf("[DEBUG] Finished deleting MonitoredProject %q: %#v", d.Id(), res)

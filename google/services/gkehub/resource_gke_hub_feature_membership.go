@@ -186,6 +186,13 @@ func GkeHubFeatureMembershipConfigmanagementBinauthzSchema() *schema.Resource {
 func GkeHubFeatureMembershipConfigmanagementConfigSyncSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"deployment_overrides": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "The override configurations for the Config Sync Deployments.",
+				Elem:        GkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesSchema(),
+			},
+
 			"enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -232,6 +239,67 @@ func GkeHubFeatureMembershipConfigmanagementConfigSyncSchema() *schema.Resource 
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "Set to true to stop syncing configs for a single cluster. Default: false.",
+			},
+		},
+	}
+}
+
+func GkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"containers": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "The override configurations for the containers in the Deployment.",
+				Elem:        GkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainersSchema(),
+			},
+
+			"deployment_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of the Deployment.",
+			},
+
+			"deployment_namespace": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The namespace of the Deployment.",
+			},
+		},
+	}
+}
+
+func GkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainersSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"container_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of the container.",
+			},
+
+			"cpu_limit": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The CPU limit of the container.",
+			},
+
+			"cpu_request": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The CPU request of the container.",
+			},
+
+			"memory_limit": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The memory limit of the container.",
+			},
+
+			"memory_request": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The memory request of the container.",
 			},
 		},
 	}
@@ -1063,6 +1131,7 @@ func expandGkeHubFeatureMembershipConfigmanagementConfigSync(o interface{}) *gke
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &gkehub.FeatureMembershipConfigmanagementConfigSync{
+		DeploymentOverrides:           expandGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesArray(obj["deployment_overrides"]),
 		Enabled:                       dcl.Bool(obj["enabled"].(bool)),
 		Git:                           expandGkeHubFeatureMembershipConfigmanagementConfigSyncGit(obj["git"]),
 		MetricsGcpServiceAccountEmail: dcl.String(obj["metrics_gcp_service_account_email"].(string)),
@@ -1078,6 +1147,7 @@ func flattenGkeHubFeatureMembershipConfigmanagementConfigSync(obj *gkehub.Featur
 		return nil
 	}
 	transformed := map[string]interface{}{
+		"deployment_overrides":              flattenGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesArray(obj.DeploymentOverrides),
 		"enabled":                           obj.Enabled,
 		"git":                               flattenGkeHubFeatureMembershipConfigmanagementConfigSyncGit(obj.Git),
 		"metrics_gcp_service_account_email": obj.MetricsGcpServiceAccountEmail,
@@ -1088,6 +1158,128 @@ func flattenGkeHubFeatureMembershipConfigmanagementConfigSync(obj *gkehub.Featur
 	}
 
 	return []interface{}{transformed}
+
+}
+func expandGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesArray(o interface{}) []gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverrides {
+	if o == nil {
+		return make([]gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverrides, 0)
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 || objs[0] == nil {
+		return make([]gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverrides, 0)
+	}
+
+	items := make([]gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverrides, 0, len(objs))
+	for _, item := range objs {
+		i := expandGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverrides(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverrides(o interface{}) *gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverrides {
+	if o == nil {
+		return gkehub.EmptyFeatureMembershipConfigmanagementConfigSyncDeploymentOverrides
+	}
+
+	obj := o.(map[string]interface{})
+	return &gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverrides{
+		Containers:          expandGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainersArray(obj["containers"]),
+		DeploymentName:      dcl.String(obj["deployment_name"].(string)),
+		DeploymentNamespace: dcl.String(obj["deployment_namespace"].(string)),
+	}
+}
+
+func flattenGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesArray(objs []gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverrides) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverrides(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverrides(obj *gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverrides) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"containers":           flattenGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainersArray(obj.Containers),
+		"deployment_name":      obj.DeploymentName,
+		"deployment_namespace": obj.DeploymentNamespace,
+	}
+
+	return transformed
+
+}
+func expandGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainersArray(o interface{}) []gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainers {
+	if o == nil {
+		return make([]gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainers, 0)
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 || objs[0] == nil {
+		return make([]gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainers, 0)
+	}
+
+	items := make([]gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainers, 0, len(objs))
+	for _, item := range objs {
+		i := expandGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainers(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainers(o interface{}) *gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainers {
+	if o == nil {
+		return gkehub.EmptyFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainers
+	}
+
+	obj := o.(map[string]interface{})
+	return &gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainers{
+		ContainerName: dcl.String(obj["container_name"].(string)),
+		CpuLimit:      dcl.String(obj["cpu_limit"].(string)),
+		CpuRequest:    dcl.String(obj["cpu_request"].(string)),
+		MemoryLimit:   dcl.String(obj["memory_limit"].(string)),
+		MemoryRequest: dcl.String(obj["memory_request"].(string)),
+	}
+}
+
+func flattenGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainersArray(objs []gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainers) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainers(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenGkeHubFeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainers(obj *gkehub.FeatureMembershipConfigmanagementConfigSyncDeploymentOverridesContainers) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"container_name": obj.ContainerName,
+		"cpu_limit":      obj.CpuLimit,
+		"cpu_request":    obj.CpuRequest,
+		"memory_limit":   obj.MemoryLimit,
+		"memory_request": obj.MemoryRequest,
+	}
+
+	return transformed
 
 }
 

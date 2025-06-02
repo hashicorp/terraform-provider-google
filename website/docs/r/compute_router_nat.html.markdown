@@ -185,14 +185,10 @@ resource "google_compute_router_nat" "nat_rules" {
 
 ```hcl
 resource "google_compute_network" "net" {
-  provider = google-beta
-
   name     = "my-network"
 }
 
 resource "google_compute_subnetwork" "subnet" {
-  provider      = google-beta
-
   name          = "my-subnetwork"
   network       = google_compute_network.net.id
   ip_cidr_range = "10.0.0.0/16"
@@ -201,23 +197,17 @@ resource "google_compute_subnetwork" "subnet" {
 }
 
 resource "google_compute_router" "router" {
-  provider = google-beta
-
   name     = "my-router"
   region   = google_compute_subnetwork.subnet.region
   network  = google_compute_network.net.id
 }
 
 resource "google_network_connectivity_hub" "hub" {
-  provider    = google-beta
-
   name        = "my-hub"
   description = "vpc hub for inter vpc nat"
 }
 
 resource "google_network_connectivity_spoke" "spoke" {
-  provider    = google-beta
-
   name        = "my-spoke"
   location    = "global"
   description = "vpc spoke for inter vpc nat"
@@ -232,8 +222,6 @@ resource "google_network_connectivity_spoke" "spoke" {
 }
 
 resource "google_compute_router_nat" "nat_type" {
-  provider                            = google-beta
-
   name                                = "my-router-nat"
   router                              = google_compute_router.router.name
   region                              = google_compute_router.router.region
@@ -322,6 +310,21 @@ The following arguments are supported:
   `source_subnetwork_ip_ranges_to_nat` is set to `LIST_OF_SUBNETWORKS`
   Structure is [documented below](#nested_subnetwork).
 
+* `source_subnetwork_ip_ranges_to_nat64` -
+  (Optional)
+  Specify the Nat option for NAT64, which can take one of the following values:
+  ALL_IPV6_SUBNETWORKS: All of the IP ranges in every Subnetwork are allowed to Nat.
+  LIST_OF_IPV6_SUBNETWORKS: A list of Subnetworks are allowed to Nat (specified in the field nat64Subnetwork below).
+  Note that if this field contains NAT64_ALL_V6_SUBNETWORKS no other Router.Nat section in this region can also enable NAT64 for any Subnetworks in this network.
+  Other Router.Nat sections can still be present to enable NAT44 only.
+  Possible values are: `ALL_IPV6_SUBNETWORKS`, `LIST_OF_IPV6_SUBNETWORKS`.
+
+* `nat64_subnetwork` -
+  (Optional)
+  One or more subnetwork NAT configurations whose traffic should be translated by NAT64 Gateway.
+  Only used if `source_subnetwork_ip_ranges_to_nat64` is set to `LIST_OF_IPV6_SUBNETWORKS`
+  Structure is [documented below](#nested_nat64_subnetwork).
+
 * `min_ports_per_vm` -
   (Optional)
   Minimum number of ports allocated to a VM from this NAT. Defaults to 64 for static port allocation and 32 dynamic port allocation if not set.
@@ -386,7 +389,7 @@ The following arguments are supported:
   For more information see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).
 
 * `type` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Indicates whether this NAT is used for public or private IP translation.
   If unspecified, it defaults to PUBLIC.
   If `PUBLIC` NAT used for public IP translation.
@@ -428,6 +431,12 @@ The following arguments are supported:
   to use NAT. This can be populated only if
   `LIST_OF_SECONDARY_IP_RANGES` is one of the values in
   sourceIpRangesToNat
+
+<a name="nested_nat64_subnetwork"></a>The `nat64_subnetwork` block supports:
+
+* `name` -
+  (Required)
+  Self-link of the subnetwork resource that will use NAT64
 
 <a name="nested_log_config"></a>The `log_config` block supports:
 
@@ -483,13 +492,13 @@ The following arguments are supported:
   This field is used for public NAT.
 
 * `source_nat_active_ranges` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A list of URLs of the subnetworks used as source ranges for this NAT Rule.
   These subnetworks must have purpose set to PRIVATE_NAT.
   This field is used for private NAT.
 
 * `source_nat_drain_ranges` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A list of URLs of subnetworks representing source ranges to be drained.
   This is only supported on patch/update, and these subnetworks must have previously been used as active ranges in this NAT Rule.
   This field is used for private NAT.

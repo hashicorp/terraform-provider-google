@@ -130,12 +130,13 @@ resource "google_firestore_database" "database" {
 }
 
 resource "google_firestore_index" "my-index" {
-  project     = "%{project_id}"
+  project    = "%{project_id}"
   database   = google_firestore_database.database.name
   collection = "atestcollection"
 
   query_scope = "COLLECTION_RECURSIVE"
-  api_scope = "DATASTORE_MODE_API"
+  api_scope   = "DATASTORE_MODE_API"
+  density     = "SPARSE_ALL"
 
   fields {
     field_path = "name"
@@ -261,6 +262,130 @@ resource "google_firestore_index" "my-index" {
     field_path = "__name__"
     order      = "DESCENDING"
   }
+}
+`, context)
+}
+
+func TestAccFirestoreIndex_firestoreIndexMongodbCompatibleScopeExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirestoreIndexDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFirestoreIndex_firestoreIndexMongodbCompatibleScopeExample(context),
+			},
+			{
+				ResourceName:            "google_firestore_index.my-index",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"collection", "database"},
+			},
+		},
+	})
+}
+
+func testAccFirestoreIndex_firestoreIndexMongodbCompatibleScopeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_firestore_database" "database" {
+	project                  = "%{project_id}"
+	name                     = "tf-test-database-id-mongodb-compatible%{random_suffix}"
+	location_id              = "nam5"
+	type                     = "FIRESTORE_NATIVE"
+	database_edition         = "ENTERPRISE"
+
+	delete_protection_state = "DELETE_PROTECTION_DISABLED"
+	deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_index" "my-index" {
+	project     = "%{project_id}"
+	database   = google_firestore_database.database.name
+	collection = "atestcollection"
+
+	api_scope   = "MONGODB_COMPATIBLE_API"
+	query_scope = "COLLECTION_GROUP"
+	multikey    = true
+	density     = "DENSE"
+
+	fields {
+		field_path = "name"
+		order      = "ASCENDING"
+	}
+
+	fields {
+		field_path = "description"
+		order      = "DESCENDING"
+	}
+}
+`, context)
+}
+
+func TestAccFirestoreIndex_firestoreIndexSparseAnyExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirestoreIndexDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFirestoreIndex_firestoreIndexSparseAnyExample(context),
+			},
+			{
+				ResourceName:            "google_firestore_index.my-index",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"collection", "database"},
+			},
+		},
+	})
+}
+
+func testAccFirestoreIndex_firestoreIndexSparseAnyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_firestore_database" "database" {
+	project                  = "%{project_id}"
+	name                     = "tf-test-database-id-sparse-any%{random_suffix}"
+	location_id              = "nam5"
+	type                     = "FIRESTORE_NATIVE"
+	database_edition         = "ENTERPRISE"
+
+	delete_protection_state = "DELETE_PROTECTION_DISABLED"
+	deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_index" "my-index" {
+	project     = "%{project_id}"
+	database   = google_firestore_database.database.name
+	collection = "atestcollection"
+
+	api_scope   = "MONGODB_COMPATIBLE_API"
+	query_scope = "COLLECTION_GROUP"
+	multikey    = true
+	density     = "SPARSE_ANY"
+
+	fields {
+		field_path = "name"
+		order      = "ASCENDING"
+	}
+
+	fields {
+		field_path = "description"
+		order      = "DESCENDING"
+	}
 }
 `, context)
 }

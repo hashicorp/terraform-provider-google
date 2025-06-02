@@ -365,7 +365,7 @@ resource "google_datastream_connection_profile" "default" {
     display_name          = "Salesforce Source"
     location              = "us-central1"
     connection_profile_id = "source-profile"
-    create_without_validation: true
+    create_without_validation = true
     provider = google-beta
 
     salesforce_profile {

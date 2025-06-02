@@ -315,8 +315,11 @@ func resourceSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleCr
 	if err != nil {
 		return fmt.Errorf("Error creating FolderSecurityHealthAnalyticsCustomModule: %s", err)
 	}
-	if err := d.Set("name", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModulePostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -542,7 +545,7 @@ func flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleNam
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -982,4 +985,12 @@ func expandSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleCust
 
 func expandSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleCustomConfigRecommendation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModulePostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("name", flattenSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModuleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

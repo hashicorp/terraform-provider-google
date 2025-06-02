@@ -8,6 +8,8 @@ fields:
   - field: 'description'
   - field: 'effective_labels'
     provider_only: true
+  - field: 'exclude_cidr_ranges'
+  - field: 'immutable'
   - field: 'ip_cidr_range'
   - field: 'labels'
   - field: 'migration.source'

@@ -156,8 +156,11 @@ func resourceDataCatalogEntryGroupCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("Error creating EntryGroup: %s", err)
 	}
-	if err := d.Set("name", flattenDataCatalogEntryGroupName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceDataCatalogEntryGroupPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -409,4 +412,12 @@ func expandDataCatalogEntryGroupDisplayName(v interface{}, d tpgresource.Terrafo
 
 func expandDataCatalogEntryGroupDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceDataCatalogEntryGroupPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("name", flattenDataCatalogEntryGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

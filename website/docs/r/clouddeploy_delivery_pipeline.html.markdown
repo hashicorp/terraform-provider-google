@@ -257,32 +257,6 @@ The following arguments are supported:
   
 
 
-The `phase_configs` block supports:
-    
-* `percentage` -
-  (Required)
-  Required. Percentage deployment for the phase.
-    
-* `phase_id` -
-  (Required)
-  Required. The ID to assign to the `Rollout` phase. This value must consist of lower-case letters, numbers, and hyphens, start with a letter and end with a letter or a number, and have a max length of 63 characters. In other words, it must match the following regex: `^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$`.
-    
-* `postdeploy` -
-  (Optional)
-  Optional. Configuration for the postdeploy job of this phase. If this is not configured, postdeploy job will not be present for this phase.
-    
-* `predeploy` -
-  (Optional)
-  Optional. Configuration for the predeploy job of this phase. If this is not configured, predeploy job will not be present for this phase.
-    
-* `profiles` -
-  (Optional)
-  Skaffold profiles to use when rendering the manifest for this phase. These are in addition to the profiles list specified in the `DeliveryPipeline` stage.
-    
-* `verify` -
-  (Optional)
-  Whether to run verify tests after the deployment.
-    
 - - -
 
 * `annotations` -
@@ -410,6 +384,32 @@ The `custom_canary_deployment` block supports:
 * `phase_configs` -
   (Required)
   Required. Configuration for each phase in the canary deployment in the order executed.
+    
+The `phase_configs` block supports:
+    
+* `percentage` -
+  (Required)
+  Required. Percentage deployment for the phase.
+    
+* `phase_id` -
+  (Required)
+  Required. The ID to assign to the `Rollout` phase. This value must consist of lower-case letters, numbers, and hyphens, start with a letter and end with a letter or a number, and have a max length of 63 characters. In other words, it must match the following regex: `^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$`.
+    
+* `postdeploy` -
+  (Optional)
+  Optional. Configuration for the postdeploy job of this phase. If this is not configured, postdeploy job will not be present for this phase.
+    
+* `predeploy` -
+  (Optional)
+  Optional. Configuration for the predeploy job of this phase. If this is not configured, predeploy job will not be present for this phase.
+    
+* `profiles` -
+  (Optional)
+  Skaffold profiles to use when rendering the manifest for this phase. These are in addition to the profiles list specified in the `DeliveryPipeline` stage.
+    
+* `verify` -
+  (Optional)
+  Whether to run verify tests after the deployment.
     
 The `postdeploy` block supports:
     

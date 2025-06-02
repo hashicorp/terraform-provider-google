@@ -849,8 +849,11 @@ func resourceMonitoringSloCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return fmt.Errorf("Error creating Slo: %s", err)
 	}
-	if err := d.Set("name", flattenMonitoringSloName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceMonitoringSloPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -1669,7 +1672,7 @@ func flattenMonitoringSloSloId(v interface{}, d *schema.ResourceData, config *tr
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func expandMonitoringSloDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -2473,4 +2476,12 @@ func resourceMonitoringSloEncoder(d *schema.ResourceData, meta interface{}, obj 
 	}
 
 	return obj, nil
+}
+
+func resourceMonitoringSloPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("name", flattenMonitoringSloName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

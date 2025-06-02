@@ -60,8 +60,8 @@ func ResourceKMSKeyRingImportJob() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"RSA_OAEP_3072_SHA1_AES_256", "RSA_OAEP_4096_SHA1_AES_256"}),
-				Description:  `The wrapping method to be used for incoming key material. Possible values: ["RSA_OAEP_3072_SHA1_AES_256", "RSA_OAEP_4096_SHA1_AES_256"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"RSA_OAEP_3072_SHA1_AES_256", "RSA_OAEP_4096_SHA1_AES_256", "RSA_OAEP_3072_SHA256_AES_256", "RSA_OAEP_4096_SHA256_AES_256", "RSA_OAEP_3072_SHA256", "RSA_OAEP_4096_SHA256"}),
+				Description:  `The wrapping method to be used for incoming key material. Possible values: ["RSA_OAEP_3072_SHA1_AES_256", "RSA_OAEP_4096_SHA1_AES_256", "RSA_OAEP_3072_SHA256_AES_256", "RSA_OAEP_4096_SHA256_AES_256", "RSA_OAEP_3072_SHA256", "RSA_OAEP_4096_SHA256"]`,
 			},
 			"key_ring": {
 				Type:             schema.TypeString,
@@ -185,8 +185,11 @@ func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return fmt.Errorf("Error creating KeyRingImportJob: %s", err)
 	}
-	if err := d.Set("name", flattenKMSKeyRingImportJobName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourceKMSKeyRingImportJobPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -393,4 +396,12 @@ func expandKMSKeyRingImportJobImportMethod(v interface{}, d tpgresource.Terrafor
 
 func expandKMSKeyRingImportJobProtectionLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceKMSKeyRingImportJobPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("name", flattenKMSKeyRingImportJobName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	return nil
 }

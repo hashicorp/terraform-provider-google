@@ -269,6 +269,67 @@ Format://bigquery.googleapis.com/projects/PROJECT_ID/datasets/DATASET_ID/tables/
 											},
 										},
 									},
+									"notification_report": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `The configuration of notification report post scan action.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"recipients": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: `The individuals or groups who are designated to receive notifications upon triggers.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"emails": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `The email recipients who will receive the DataQualityScan results report.`,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+														},
+													},
+												},
+												"job_end_trigger": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `This trigger is triggered whenever a scan job run ends, regardless of the result.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+												},
+												"job_failure_trigger": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `This trigger is triggered when the scan job itself fails, regardless of the result.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+												},
+												"score_threshold_trigger": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `This trigger is triggered when the DQ score in the job result is less than a specified input score.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"score_threshold": {
+																Type:        schema.TypeFloat,
+																Optional:    true,
+																Description: `The score range is in [0,100].`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -1194,6 +1255,8 @@ func flattenDataplexDatascanDataQualitySpecPostScanActions(v interface{}, d *sch
 	transformed := make(map[string]interface{})
 	transformed["bigquery_export"] =
 		flattenDataplexDatascanDataQualitySpecPostScanActionsBigqueryExport(original["bigqueryExport"], d, config)
+	transformed["notification_report"] =
+		flattenDataplexDatascanDataQualitySpecPostScanActionsNotificationReport(original["notificationReport"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataplexDatascanDataQualitySpecPostScanActionsBigqueryExport(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1211,6 +1274,75 @@ func flattenDataplexDatascanDataQualitySpecPostScanActionsBigqueryExport(v inter
 }
 func flattenDataplexDatascanDataQualitySpecPostScanActionsBigqueryExportResultsTable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenDataplexDatascanDataQualitySpecPostScanActionsNotificationReport(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["recipients"] =
+		flattenDataplexDatascanDataQualitySpecPostScanActionsNotificationReportRecipients(original["recipients"], d, config)
+	transformed["score_threshold_trigger"] =
+		flattenDataplexDatascanDataQualitySpecPostScanActionsNotificationReportScoreThresholdTrigger(original["scoreThresholdTrigger"], d, config)
+	transformed["job_failure_trigger"] =
+		flattenDataplexDatascanDataQualitySpecPostScanActionsNotificationReportJobFailureTrigger(original["jobFailureTrigger"], d, config)
+	transformed["job_end_trigger"] =
+		flattenDataplexDatascanDataQualitySpecPostScanActionsNotificationReportJobEndTrigger(original["jobEndTrigger"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataQualitySpecPostScanActionsNotificationReportRecipients(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["emails"] =
+		flattenDataplexDatascanDataQualitySpecPostScanActionsNotificationReportRecipientsEmails(original["emails"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataQualitySpecPostScanActionsNotificationReportRecipientsEmails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataQualitySpecPostScanActionsNotificationReportScoreThresholdTrigger(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["score_threshold"] =
+		flattenDataplexDatascanDataQualitySpecPostScanActionsNotificationReportScoreThresholdTriggerScoreThreshold(original["scoreThreshold"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataQualitySpecPostScanActionsNotificationReportScoreThresholdTriggerScoreThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataQualitySpecPostScanActionsNotificationReportJobFailureTrigger(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataplexDatascanDataQualitySpecPostScanActionsNotificationReportJobEndTrigger(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
 }
 
 func flattenDataplexDatascanDataQualitySpecRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1755,6 +1887,13 @@ func expandDataplexDatascanDataQualitySpecPostScanActions(v interface{}, d tpgre
 		transformed["bigqueryExport"] = transformedBigqueryExport
 	}
 
+	transformedNotificationReport, err := expandDataplexDatascanDataQualitySpecPostScanActionsNotificationReport(original["notification_report"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNotificationReport); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["notificationReport"] = transformedNotificationReport
+	}
+
 	return transformed, nil
 }
 
@@ -1779,6 +1918,122 @@ func expandDataplexDatascanDataQualitySpecPostScanActionsBigqueryExport(v interf
 
 func expandDataplexDatascanDataQualitySpecPostScanActionsBigqueryExportResultsTable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDataplexDatascanDataQualitySpecPostScanActionsNotificationReport(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRecipients, err := expandDataplexDatascanDataQualitySpecPostScanActionsNotificationReportRecipients(original["recipients"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRecipients); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["recipients"] = transformedRecipients
+	}
+
+	transformedScoreThresholdTrigger, err := expandDataplexDatascanDataQualitySpecPostScanActionsNotificationReportScoreThresholdTrigger(original["score_threshold_trigger"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScoreThresholdTrigger); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scoreThresholdTrigger"] = transformedScoreThresholdTrigger
+	}
+
+	transformedJobFailureTrigger, err := expandDataplexDatascanDataQualitySpecPostScanActionsNotificationReportJobFailureTrigger(original["job_failure_trigger"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["jobFailureTrigger"] = transformedJobFailureTrigger
+	}
+
+	transformedJobEndTrigger, err := expandDataplexDatascanDataQualitySpecPostScanActionsNotificationReportJobEndTrigger(original["job_end_trigger"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["jobEndTrigger"] = transformedJobEndTrigger
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataQualitySpecPostScanActionsNotificationReportRecipients(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEmails, err := expandDataplexDatascanDataQualitySpecPostScanActionsNotificationReportRecipientsEmails(original["emails"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEmails); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["emails"] = transformedEmails
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataQualitySpecPostScanActionsNotificationReportRecipientsEmails(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataQualitySpecPostScanActionsNotificationReportScoreThresholdTrigger(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScoreThreshold, err := expandDataplexDatascanDataQualitySpecPostScanActionsNotificationReportScoreThresholdTriggerScoreThreshold(original["score_threshold"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScoreThreshold); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scoreThreshold"] = transformedScoreThreshold
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataQualitySpecPostScanActionsNotificationReportScoreThresholdTriggerScoreThreshold(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataQualitySpecPostScanActionsNotificationReportJobFailureTrigger(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataQualitySpecPostScanActionsNotificationReportJobEndTrigger(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
 
 func expandDataplexDatascanDataQualitySpecRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

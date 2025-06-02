@@ -164,7 +164,7 @@ The following arguments are supported:
 
 * `network_configs` -
   (Required)
-  Virtual Private Cloud (VPC) subnets where IP addresses for the Kafka cluster are allocated. To make the cluster available in a VPC, you must specify at least one subnet per network. You must specify between 1 and 10 subnets. Additional subnets may be specified with additional `network_configs` blocks.
+  Virtual Private Cloud (VPC) subnets where IP addresses for the Kafka cluster are allocated. To make the cluster available in a VPC, you must specify at least one `network_configs` block. Max of 10 subnets per cluster. Additional subnets may be specified with additional `network_configs` blocks.
   Structure is [documented below](#nested_gcp_config_access_config_network_configs).
 
 
@@ -172,7 +172,7 @@ The following arguments are supported:
 
 * `subnet` -
   (Required)
-  Name of the VPC subnet from which the cluster is accessible. Both broker and bootstrap server IP addresses and DNS entries are automatically created in the subnet. The subnet must be located in the same region as the cluster. The project may differ. The name of the subnet must be in the format `projects/PROJECT_ID/regions/REGION/subnetworks/SUBNET`.
+  Name of the VPC subnet from which the cluster is accessible. Both broker and bootstrap server IP addresses and DNS entries are automatically created in the subnet. There can only be one subnet per network, and the subnet must be located in the same region as the cluster. The project may differ. The name of the subnet must be in the format `projects/PROJECT_ID/regions/REGION/subnetworks/SUBNET`.
 
 <a name="nested_capacity_config"></a>The `capacity_config` block supports:
 

@@ -369,6 +369,34 @@ resource "google_cloud_run_v2_job" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_job_multicontainer&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Job Multicontainer
+
+
+```hcl
+resource "google_cloud_run_v2_job" "default" {
+  name     = "cloudrun-job"
+  location = "us-central1"
+  deletion_protection = false
+
+  template {
+    template {
+      containers {
+        name = "job-1"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
+      }
+      containers {
+        name = "job-2"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -457,7 +485,7 @@ The following arguments are supported:
 
 * `max_retries` -
   (Optional)
-  Number of retries allowed per Task, before marking this Task failed.
+  Number of retries allowed per Task, before marking this Task failed. Defaults to 3. Minimum value is 0.
 
 
 <a name="nested_template_template_containers"></a>The `containers` block supports:
