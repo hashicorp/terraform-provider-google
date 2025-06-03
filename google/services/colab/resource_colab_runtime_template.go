@@ -268,6 +268,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			},
 			"software_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `The notebook software configuration of the notebook runtime.`,
