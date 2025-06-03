@@ -1,7 +1,7 @@
 ## 6.38.0 (Unreleased)
 
 * DEPRECATIONS:
-* colab: deprecated  `post_startup_script_config` field in `google_colab_runtime_template` resource ([#10104](https://github.com/hashicorp/terraform-provider-google-beta/pull/10104))
+* colab: deprecated  `post_startup_script_config` field in `google_colab_runtime_template` resource ([#23075](https://github.com/hashicorp/terraform-provider-google/pull/23075))
 
 FEATURES:
 * **New Data Source:** `google_bigquery_datasets` ([#23059](https://github.com/hashicorp/terraform-provider-google/pull/23059))
@@ -20,6 +20,7 @@ IMPROVEMENTS:
 * provider: supported service account impersonation in different universes through credential file ([#23063](https://github.com/hashicorp/terraform-provider-google/pull/23063))
 
 BUG FIXES:
+* colab: fixed perma-diff in `google_colab_runtime_template` caused by the API returning a non-null default value ([#23137](https://github.com/hashicorp/terraform-provider-google/pull/23137))
 * compute: fixed an issue where rules ordering in `google_compute_region_security_policy` caused a diff after apply ([#23076](https://github.com/hashicorp/terraform-provider-google/pull/23076))
 * filestore: fixed bug where `google_filestore_instance.initial_replication` field could not be set ([#23001](https://github.com/hashicorp/terraform-provider-google/pull/23001))
 
