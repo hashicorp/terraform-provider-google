@@ -73,6 +73,20 @@ func IsDiskShrinkage(_ context.Context, old, new, _ interface{}) bool {
 	return new.(int) < old.(int)
 }
 
+func matchImageLink(old string) (string, string, bool) {
+	// 'old' is read from the API.
+	// In GCP It has the format 'https://www.googleapis.com/compute/v1/projects/(%s)/global/images/(%s)'
+	matches := resolveImageLink.FindStringSubmatch(old)
+	if matches == nil {
+		// In alternate universes, it has the format https://compute.%s/compute/[a-z0-9]+/projects/(%s)/global/images/(%s)
+		matches = resolveImageUniverseLink.FindStringSubmatch(old)
+		if matches == nil {
+			return "", "", false
+		}
+	}
+	return matches[1], matches[2], true
+}
+
 // We cannot suppress the diff for the case when family name is not part of the image name since we can't
 // make a network call in a DiffSuppressFunc.
 func DiskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
@@ -83,15 +97,10 @@ func DiskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	// In order to keep this maintainable, we need to ensure that the positive and negative examples
 	// in resource_compute_disk_test.go are as complete as possible.
 
-	// 'old' is read from the API.
-	// It always has the format 'https://www.googleapis.com/compute/v1/projects/(%s)/global/images/(%s)'
-	matches := resolveImageLink.FindStringSubmatch(old)
-	if matches == nil {
-		// Image read from the API doesn't have the expected format. In practice, it should never happen
+	oldProject, oldName, matched := matchImageLink(old)
+	if matched == false {
 		return false
 	}
-	oldProject := matches[1]
-	oldName := matches[2]
 
 	// Partial or full self link family
 	if resolveImageProjectFamily.MatchString(new) {
