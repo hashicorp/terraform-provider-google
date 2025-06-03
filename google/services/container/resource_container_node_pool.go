@@ -31,7 +31,6 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"google.golang.org/api/container/v1"
 )
@@ -398,12 +397,12 @@ var schemaNodePool = map[string]*schema.Schema{
 					Description: `The ID of the secondary range for pod IPs. If create_pod_range is true, this ID is used for the new range. If create_pod_range is false, uses an existing secondary range with this ID.`,
 				},
 				"pod_ipv4_cidr_block": {
-					Type:         schema.TypeString,
-					Optional:     true,
-					ForceNew:     true,
-					Computed:     true,
-					ValidateFunc: verify.ValidateIpCidrRange,
-					Description:  `The IP address range for pod IPs in this node pool. Only applicable if create_pod_range is true. Set to blank to have a range chosen with the default size. Set to /netmask (e.g. /14) to have a range chosen with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14) to pick a specific range to use.`,
+					Type:             schema.TypeString,
+					Optional:         true,
+					ForceNew:         true,
+					Computed:         true,
+					DiffSuppressFunc: tpgresource.CidrOrSizeDiffSuppress,
+					Description:      `The IP address range for pod IPs in this node pool. Only applicable if create_pod_range is true. Set to blank to have a range chosen with the default size. Set to /netmask (e.g. /14) to have a range chosen with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14) to pick a specific range to use.`,
 				},
 				"additional_node_network_configs": {
 					Type:        schema.TypeList,

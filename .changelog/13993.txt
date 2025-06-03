@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed nodepool secondary range validation to allow the use of netmasks.
+```
