@@ -288,6 +288,49 @@ func TestAccComputeNetwork_networkProfile(t *testing.T) {
 	})
 }
 
+func TestComputeNetworkProfileDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"old: no previous profile, new: partial profile URL": {
+			Old:                "",
+			New:                "projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			ExpectDiffSuppress: false,
+		},
+		"old: no previous profile, new: full profile URL": {
+			Old:                "",
+			New:                "https://www.googleapis.com/compute/v1/projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			ExpectDiffSuppress: false,
+		},
+		"old: beta profile URL, new: partial profile URL": {
+			Old:                "https://www.googleapis.com/compute/beta/projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			New:                "projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			ExpectDiffSuppress: true,
+		},
+		"old: v1 profile URL, new: partial profile URL": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			New:                "projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			ExpectDiffSuppress: true,
+		},
+		"old: beta profile URL, new: v1 profile URL": {
+			Old:                "https://www.googleapis.com/compute/beta/projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			New:                "https://www.googleapis.com/compute/v1/projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			ExpectDiffSuppress: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		tc := tc
+		t.Run(tn, func(t *testing.T) {
+			t.Parallel()
+			if tpgresource.CompareSelfLinkRelativePaths("", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+				t.Errorf("%q => %q expected DiffSuppress to return %t", tc.Old, tc.New, tc.ExpectDiffSuppress)
+			}
+		})
+	}
+}
+
 func TestAccComputeNetwork_numericId(t *testing.T) {
 	t.Parallel()
 	suffixName := acctest.RandString(t, 10)
