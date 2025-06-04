@@ -268,6 +268,10 @@ In addition to the arguments listed above, the following computed attributes are
   ports. If not present then the Interconnect connection is provisioned on non-MACsec capable
   ports and MACsec isn't supported and enabling MACsec fails).
 
+* `interconnect_groups` -
+  URLs of InterconnectGroups that include this Interconnect.
+  Order is arbitrary and items are unique.
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.

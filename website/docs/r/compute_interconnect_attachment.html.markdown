@@ -370,6 +370,9 @@ In addition to the arguments listed above, the following computed attributes are
   You must always provide an up-to-date fingerprint hash in order to update or change labels,
   otherwise the request will fail with error 412 conditionNotMet.
 
+* `attachment_group` -
+  URL of the AttachmentGroup that includes this Attachment.
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
