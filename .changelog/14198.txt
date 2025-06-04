@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a permadiff in `network_profile` field of `google_compute_network` related to specifying partial self-links
+```
