@@ -1,0 +1,7 @@
+```release-note:new-resource
+`google_compute_interconnect_group`
+```
+
+```release-note:new-resource
+`google_compute_interconnect_attachment_group`
+```

@@ -371,6 +371,16 @@ backend connectivity issues.`,
 					Type: schema.TypeString,
 				},
 			},
+			"interconnect_groups": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Description: `URLs of InterconnectGroups that include this Interconnect.
+Order is arbitrary and items are unique.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Set: schema.HashString,
+			},
 			"label_fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -773,6 +783,9 @@ func resourceComputeInterconnectRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Interconnect: %s", err)
 	}
 	if err := d.Set("available_features", flattenComputeInterconnectAvailableFeatures(res["availableFeatures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err := d.Set("interconnect_groups", flattenComputeInterconnectInterconnectGroups(res["interconnectGroups"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Interconnect: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenComputeInterconnectTerraformLabels(res["labels"], d, config)); err != nil {
@@ -1278,6 +1291,13 @@ func flattenComputeInterconnectRequestedFeatures(v interface{}, d *schema.Resour
 
 func flattenComputeInterconnectAvailableFeatures(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenComputeInterconnectInterconnectGroups(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenComputeInterconnectTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
