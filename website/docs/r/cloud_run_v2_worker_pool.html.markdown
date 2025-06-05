@@ -317,10 +317,6 @@ resource "google_cloud_run_v2_worker_pool" "default" {
     containers {
       name = "hello-2"
       image = "us-docker.pkg.dev/cloudrun/container/worker-pool"
-      env {
-        name = "PORT"
-        value = "8081"
-      }
     }
     volumes {
       name = "empty-dir-volume"
