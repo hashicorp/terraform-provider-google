@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: modified `google_bigquery_dataset_iam_member`  to no longer remove authorized views and routines
+```
