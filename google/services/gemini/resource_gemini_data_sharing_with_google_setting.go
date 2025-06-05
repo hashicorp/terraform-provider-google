@@ -63,10 +63,15 @@ func ResourceGeminiDataSharingWithGoogleSetting() *schema.Resource {
 				ForceNew:    true,
 				Description: `Id of the Data Sharing With Google Setting.`,
 			},
+			"enable_data_sharing": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether data sharing should be enabled in GA products.`,
+			},
 			"enable_preview_data_sharing": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: `Whether preview data sharing should be enabled.`,
+				Description: `Whether data sharing should be enabled in Preview products.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -136,6 +141,12 @@ func resourceGeminiDataSharingWithGoogleSettingCreate(d *schema.ResourceData, me
 		return err
 	} else if v, ok := d.GetOkExists("enable_preview_data_sharing"); !tpgresource.IsEmptyValue(reflect.ValueOf(enablePreviewDataSharingProp)) && (ok || !reflect.DeepEqual(v, enablePreviewDataSharingProp)) {
 		obj["enablePreviewDataSharing"] = enablePreviewDataSharingProp
+	}
+	enableDataSharingProp, err := expandGeminiDataSharingWithGoogleSettingEnableDataSharing(d.Get("enable_data_sharing"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_data_sharing"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableDataSharingProp)) && (ok || !reflect.DeepEqual(v, enableDataSharingProp)) {
+		obj["enableDataSharing"] = enableDataSharingProp
 	}
 	labelsProp, err := expandGeminiDataSharingWithGoogleSettingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -254,6 +265,9 @@ func resourceGeminiDataSharingWithGoogleSettingRead(d *schema.ResourceData, meta
 	if err := d.Set("enable_preview_data_sharing", flattenGeminiDataSharingWithGoogleSettingEnablePreviewDataSharing(res["enablePreviewDataSharing"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
 	}
+	if err := d.Set("enable_data_sharing", flattenGeminiDataSharingWithGoogleSettingEnableDataSharing(res["enableDataSharing"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenGeminiDataSharingWithGoogleSettingTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataSharingWithGoogleSetting: %s", err)
 	}
@@ -286,6 +300,12 @@ func resourceGeminiDataSharingWithGoogleSettingUpdate(d *schema.ResourceData, me
 	} else if v, ok := d.GetOkExists("enable_preview_data_sharing"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enablePreviewDataSharingProp)) {
 		obj["enablePreviewDataSharing"] = enablePreviewDataSharingProp
 	}
+	enableDataSharingProp, err := expandGeminiDataSharingWithGoogleSettingEnableDataSharing(d.Get("enable_data_sharing"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_data_sharing"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableDataSharingProp)) {
+		obj["enableDataSharing"] = enableDataSharingProp
+	}
 	labelsProp, err := expandGeminiDataSharingWithGoogleSettingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -311,6 +331,10 @@ func resourceGeminiDataSharingWithGoogleSettingUpdate(d *schema.ResourceData, me
 
 	if d.HasChange("enable_preview_data_sharing") {
 		updateMask = append(updateMask, "enablePreviewDataSharing")
+	}
+
+	if d.HasChange("enable_data_sharing") {
+		updateMask = append(updateMask, "enableDataSharing")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -458,6 +482,10 @@ func flattenGeminiDataSharingWithGoogleSettingEnablePreviewDataSharing(v interfa
 	return v
 }
 
+func flattenGeminiDataSharingWithGoogleSettingEnableDataSharing(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenGeminiDataSharingWithGoogleSettingTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -478,6 +506,10 @@ func flattenGeminiDataSharingWithGoogleSettingEffectiveLabels(v interface{}, d *
 }
 
 func expandGeminiDataSharingWithGoogleSettingEnablePreviewDataSharing(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataSharingWithGoogleSettingEnableDataSharing(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
