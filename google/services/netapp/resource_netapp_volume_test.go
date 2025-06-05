@@ -721,6 +721,10 @@ resource "google_netapp_storage_pool" "default" {
     network = data.google_compute_network.default.id
     allow_auto_tiering = true
 }
+resource "time_sleep" "wait_3_minutes" {
+    depends_on = [google_netapp_storage_pool.default]
+    create_duration = "3m"
+}
 resource "google_netapp_volume" "test_volume" {
     location = "us-west4"
     name = "tf-test-volume%{random_suffix}"
@@ -749,7 +753,10 @@ resource "google_netapp_storage_pool" "default" {
     network = data.google_compute_network.default.id
     allow_auto_tiering = true
 }
-
+resource "time_sleep" "wait_3_minutes" {
+    depends_on = [google_netapp_storage_pool.default]
+    create_duration = "3m"
+}
 resource "google_netapp_volume" "test_volume" {
     location = "us-west4"
     name = "tf-test-volume%{random_suffix}"
