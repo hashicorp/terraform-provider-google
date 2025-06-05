@@ -71,6 +71,10 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-basic" {
       snat_pool = "test-snat-pool"
     }
   }
+  private_registry_config {
+    address = "test-address"
+    ca_cert = "test-ca-cert"
+  }
 }
 ```
 ## Example Usage - Gkeonprem Vmware Admin Cluster Full
@@ -164,6 +168,10 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-full" {
   platform_config {
     required_platform_version = "1.31.0"
   }
+  private_registry_config {
+    address = "test-address"
+    ca_cert = "test-ca-cert"
+  }
 }
 ```
 ## Example Usage - Gkeonprem Vmware Admin Cluster Metallb
@@ -207,6 +215,10 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-metallb" {
     metal_lb_config {
       enabled = true
     }
+  }
+  private_registry_config {
+    address = "test-address"
+    ca_cert = "test-ca-cert"
   }
 }
 ```
@@ -430,6 +442,11 @@ The following arguments are supported:
   (Optional)
   The VMware platform configuration.
   Structure is [documented below](#nested_platform_config).
+
+* `private_registry_config` -
+  (Optional)
+  Configuration for private registry.
+  Structure is [documented below](#nested_private_registry_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -726,6 +743,16 @@ The following arguments are supported:
 * `state` -
   (Output)
   The lifecycle state of the condition.
+
+<a name="nested_private_registry_config"></a>The `private_registry_config` block supports:
+
+* `address` -
+  (Optional)
+  The registry address.
+
+* `ca_cert` -
+  (Optional)
+  The CA certificate public key for private registry.
 
 ## Attributes Reference
 
