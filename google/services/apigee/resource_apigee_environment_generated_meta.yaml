@@ -6,6 +6,8 @@ api_version: 'v1'
 api_resource_type_kind: 'Environment'
 fields:
   - field: 'api_proxy_type'
+  - field: 'client_ip_resolution_config.header_index_algorithm.ip_header_index'
+  - field: 'client_ip_resolution_config.header_index_algorithm.ip_header_name'
   - field: 'deployment_type'
   - field: 'description'
   - field: 'display_name'
