@@ -311,7 +311,8 @@ This field allows you to control which network's VMs get
 this rule. If this field is left blank, all VMs
 within the organization will receive the rule.`,
 							Elem: &schema.Schema{
-								Type: schema.TypeString,
+								Type:             schema.TypeString,
+								DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 							},
 						},
 						"target_service_accounts": {
@@ -1171,7 +1172,10 @@ func flattenComputeFirewallPolicyWithRulesRuleTlsInspect(v interface{}, d *schem
 }
 
 func flattenComputeFirewallPolicyWithRulesRuleTargetResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return tpgresource.ConvertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)
 }
 
 func flattenComputeFirewallPolicyWithRulesRuleDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1357,7 +1361,10 @@ func flattenComputeFirewallPolicyWithRulesPredefinedRulesTlsInspect(v interface{
 }
 
 func flattenComputeFirewallPolicyWithRulesPredefinedRulesTargetResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return tpgresource.ConvertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)
 }
 
 func flattenComputeFirewallPolicyWithRulesPredefinedRulesDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1707,7 +1714,15 @@ func expandComputeFirewallPolicyWithRulesRuleTlsInspect(v interface{}, d tpgreso
 }
 
 func expandComputeFirewallPolicyWithRulesRuleTargetResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			return nil, fmt.Errorf("Invalid value for target_resources: nil")
+		}
+		req = append(req, raw.(string))
+	}
+	return req, nil
 }
 
 func expandComputeFirewallPolicyWithRulesRuleDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
