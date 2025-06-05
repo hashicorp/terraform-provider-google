@@ -144,8 +144,11 @@ func mergeAccess(newAccess []map[string]interface{}, currAccess []interface{}) [
 
 	for _, item := range currAccess {
 		if itemMap, ok := item.(map[string]interface{}); ok {
-			// Check if the item has a "dataset" key
-			if _, ok := itemMap["dataset"]; ok {
+			if _, hasDataset := itemMap["dataset"]; hasDataset {
+				mergedAccess = append(mergedAccess, itemMap)
+			} else if _, hasView := itemMap["view"]; hasView {
+				mergedAccess = append(mergedAccess, itemMap)
+			} else if _, hasRoutine := itemMap["routine"]; hasRoutine {
 				mergedAccess = append(mergedAccess, itemMap)
 			}
 		}
