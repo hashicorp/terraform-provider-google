@@ -531,6 +531,17 @@ The following arguments are supported:
   (Optional)
   Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image.
 
+* `depends_on` -
+  (Optional)
+  Names of the containers that must start before this container.
+
+* `startup_probe` -
+  (Optional)
+  Startup probe of application within the container.
+  All other probes are disabled if a startup probe is provided, until it
+  succeeds. Container will not be added to service endpoints if the probe fails.
+  Structure is [documented below](#nested_template_template_containers_containers_startup_probe).
+
 
 <a name="nested_template_template_containers_containers_env"></a>The `env` block supports:
 
@@ -591,6 +602,93 @@ The following arguments are supported:
 * `mount_path` -
   (Required)
   Path within the container at which the volume should be mounted. Must not contain ':'. For Cloud SQL volumes, it can be left empty, or must otherwise be /cloudsql. All instances defined in the Volume will be available as /cloudsql/[instance]. For more information on Cloud SQL volumes, visit https://cloud.google.com/sql/docs/mysql/connect-run
+
+<a name="nested_template_template_containers_containers_startup_probe"></a>The `startup_probe` block supports:
+
+* `initial_delay_seconds` -
+  (Optional)
+  Number of seconds after the container has started before the probe is
+  initiated.
+  Defaults to 0 seconds. Minimum value is 0. Maximum value is 240.
+
+* `timeout_seconds` -
+  (Optional)
+  Number of seconds after which the probe times out.
+  Defaults to 1 second. Minimum value is 1. Maximum value is 3600.
+  Must be smaller than periodSeconds.
+
+* `period_seconds` -
+  (Optional)
+  How often (in seconds) to perform the probe.
+  Default to 10 seconds. Minimum value is 1. Maximum value is 240.
+
+* `failure_threshold` -
+  (Optional)
+  Minimum consecutive failures for the probe to be considered failed after
+  having succeeded. Defaults to 3. Minimum value is 1.
+
+* `tcp_socket` -
+  (Optional)
+  TcpSocket specifies an action involving a TCP port.
+  Structure is [documented below](#nested_template_template_containers_containers_startup_probe_tcp_socket).
+
+* `http_get` -
+  (Optional)
+  HttpGet specifies the http request to perform.
+  Structure is [documented below](#nested_template_template_containers_containers_startup_probe_http_get).
+
+* `grpc` -
+  (Optional)
+  GRPC specifies an action involving a GRPC port.
+  Structure is [documented below](#nested_template_template_containers_containers_startup_probe_grpc).
+
+
+<a name="nested_template_template_containers_containers_startup_probe_tcp_socket"></a>The `tcp_socket` block supports:
+
+* `port` -
+  (Optional)
+  Port number to access on the container. Number must be in the range 1 to 65535.
+  If not specified, defaults to the same value as container.ports[0].containerPort.
+
+<a name="nested_template_template_containers_containers_startup_probe_http_get"></a>The `http_get` block supports:
+
+* `path` -
+  (Optional)
+  Path to access on the HTTP server. If set, it should not be empty string.
+
+* `port` -
+  (Optional)
+  Port number to access on the container. Number must be in the range 1 to 65535.
+  If not specified, defaults to the same value as container.ports[0].containerPort.
+
+* `http_headers` -
+  (Optional)
+  Custom headers to set in the request. HTTP allows repeated headers.
+  Structure is [documented below](#nested_template_template_containers_containers_startup_probe_http_get_http_headers).
+
+
+<a name="nested_template_template_containers_containers_startup_probe_http_get_http_headers"></a>The `http_headers` block supports:
+
+* `name` -
+  (Required)
+  The header field name.
+
+* `value` -
+  (Optional)
+  The header field value.
+
+<a name="nested_template_template_containers_containers_startup_probe_grpc"></a>The `grpc` block supports:
+
+* `port` -
+  (Optional)
+  Port number to access on the container. Number must be in the range 1 to 65535.
+  If not specified, defaults to the same value as container.ports[0].containerPort.
+
+* `service` -
+  (Optional)
+  The name of the service to place in the gRPC HealthCheckRequest
+  (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+  If this is not specified, the default behavior is defined by gRPC.
 
 <a name="nested_template_template_volumes"></a>The `volumes` block supports:
 

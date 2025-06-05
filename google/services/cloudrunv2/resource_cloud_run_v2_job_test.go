@@ -486,3 +486,408 @@ func testAccCloudRunV2Job_cloudrunv2JobWithNfsVolume(context map[string]interfac
   }
 `, context)
 }
+
+func TestAccCloudRunV2Job_cloudrunv2JobTCPProbesUpdate(t *testing.T) {
+	t.Parallel()
+
+	jobName := fmt.Sprintf("tf-test-cloudrun-job%s", acctest.RandString(t, 10))
+	context := map[string]interface{}{
+		"job_name": jobName,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobWithEmptyTCPStartupProbe(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
+			},
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobUpdateWithTCPStartupProbe(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccCloudRunV2Job_cloudrunv2JobHTTPProbesUpdate(t *testing.T) {
+	t.Parallel()
+
+	jobName := fmt.Sprintf("tf-test-cloudrun-job%s", acctest.RandString(t, 10))
+	context := map[string]interface{}{
+		"job_name": jobName,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobUpdateWithEmptyHTTPStartupProbe(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
+			},
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobUpdateWithHTTPStartupProbe(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccCloudRunV2Job_cloudrunv2JobGRPCProbesUpdate(t *testing.T) {
+	t.Parallel()
+
+	jobName := fmt.Sprintf("tf-test-cloudrun-job%s", acctest.RandString(t, 10))
+	context := map[string]interface{}{
+		"job_name": jobName,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Job_cloudRunJobUpdateWithEmptyGRPCStartupProbe(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
+			},
+			{
+				Config: testAccCloudRunV2Job_cloudRunJobUpdateWithGRPCStartupProbe(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Job_cloudrunv2JobWithEmptyTCPStartupProbe(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_job" "default" {
+  name     = "%{job_name}"
+  location = "us-central1"
+  deletion_protection = false
+
+  template {
+    template {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/job"
+        ports {
+          container_port = 8080
+        }
+        startup_probe {
+          tcp_socket {}
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Job_cloudrunv2JobUpdateWithTCPStartupProbe(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_job" "default" {
+  name     = "%{job_name}"
+  location = "us-central1"
+  deletion_protection = false
+
+  template {
+    template {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        ports {
+          container_port = 8080
+        }
+        startup_probe {
+          initial_delay_seconds = 2
+          period_seconds = 1
+          timeout_seconds = 5
+          failure_threshold = 2
+          tcp_socket {
+            port = 8080
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Job_cloudrunv2JobUpdateWithEmptyHTTPStartupProbe(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_job" "default" {
+  name     = "%{job_name}"
+  location = "us-central1"
+  deletion_protection = false
+
+  template {
+    template {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        startup_probe {
+          http_get {}
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Job_cloudrunv2JobUpdateWithHTTPStartupProbe(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_job" "default" {
+  name     = "%{job_name}"
+  location = "us-central1"
+  deletion_protection = false
+
+  template {
+    template {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        startup_probe {
+          initial_delay_seconds = 3
+          period_seconds = 2
+          timeout_seconds = 6
+          failure_threshold = 3
+          http_get {
+            path = "/some-path"
+            port = 8080
+            http_headers {
+              name = "User-Agent"
+              value = "magic-modules"
+            }
+            http_headers {
+              name = "Some-Name"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Job_cloudRunJobUpdateWithEmptyGRPCStartupProbe(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_job" "default" {
+  name     = "%{job_name}"
+  location = "us-central1"
+  deletion_protection = false
+
+  template {
+    template {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        ports {
+          container_port = 8080
+        }
+        startup_probe {
+          grpc {}
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Job_cloudRunJobUpdateWithGRPCStartupProbe(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_job" "default" {
+  name     = "%{job_name}"
+  location = "us-central1"
+  deletion_protection = false
+
+  template {
+    template {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        ports {
+          container_port = 8080
+        }
+        startup_probe {
+          grpc {
+            port = 8080
+            service = "grpc.health.v1.Health"
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCloudRunV2Job_cloudrunv2JobDependsOnUpdate(t *testing.T) {
+	t.Parallel()
+
+	jobName := fmt.Sprintf("tf-test-cloudrun-job%s", acctest.RandString(t, 10))
+	context := map[string]interface{}{
+		"job_name": jobName,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Job_cloudRunJobWithoutDependsOn(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
+			},
+			{
+				Config: testAccCloudRunV2Job_cloudRunJobWithDependsOn(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
+			},
+			{
+				Config: testAccCloudRunV2Job_cloudRunJobWithDependsOnUpdate(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Job_cloudRunJobWithoutDependsOn(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_job" "default" {
+  name     = "%{job_name}"
+  location = "us-central1"
+  deletion_protection = false
+
+  template {
+    template {
+      containers {
+        name  = "foo"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        ports {
+          container_port = 8080
+        }
+        startup_probe {
+          grpc {}
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Job_cloudRunJobWithDependsOn(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_job" "default" {
+  name     = "%{job_name}"
+  location = "us-central1"
+  deletion_protection = false
+
+  template {
+    template {
+      containers {
+        name  = "foo"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        ports {
+          container_port = 8080
+        }
+        startup_probe {
+          grpc {}
+        }
+      }
+      containers {
+        name  = "bar"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        ports {
+          container_port = 8080
+        }
+        depends_on = [
+          "foo"
+        ]
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Job_cloudRunJobWithDependsOnUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_job" "default" {
+  name     = "%{job_name}"
+  location = "us-central1"
+  deletion_protection = false
+
+  template {
+    template {
+      containers {
+        name  = "baz"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        ports {
+          container_port = 8080
+        }
+        startup_probe {
+          grpc {}
+        }
+      }
+      containers {
+        name  = "bar"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        ports {
+          container_port = 8080
+        }
+        depends_on = [
+          "baz"
+        ]
+      }
+    }
+  }
+}
+`, context)
+}
