@@ -170,6 +170,7 @@ resource "google_dataplex_datascan" "full_quality" {
   data_quality_spec {
     sampling_percent = 5
     row_filter = "station_id > 1000"
+    catalog_publishing_enabled = true
     post_scan_actions {
       notification_report {
         recipients {
@@ -384,6 +385,10 @@ The following arguments are supported:
   (Optional)
   The list of rules to evaluate against a data source. At least one rule is required.
   Structure is [documented below](#nested_data_quality_spec_rules).
+
+* `catalog_publishing_enabled` -
+  (Optional)
+  If set, the latest DataScan job result will be published to Dataplex Catalog.
 
 
 <a name="nested_data_quality_spec_post_scan_actions"></a>The `post_scan_actions` block supports:

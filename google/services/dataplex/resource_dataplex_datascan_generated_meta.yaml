@@ -13,6 +13,7 @@ fields:
   - field: 'data_profile_spec.post_scan_actions.bigquery_export.results_table'
   - field: 'data_profile_spec.row_filter'
   - field: 'data_profile_spec.sampling_percent'
+  - field: 'data_quality_spec.catalog_publishing_enabled'
   - field: 'data_quality_spec.post_scan_actions.bigquery_export.results_table'
   - field: 'data_quality_spec.post_scan_actions.notification_report.job_end_trigger'
   - field: 'data_quality_spec.post_scan_actions.notification_report.job_failure_trigger'

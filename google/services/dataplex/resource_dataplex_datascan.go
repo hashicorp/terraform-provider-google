@@ -246,6 +246,11 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"catalog_publishing_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If set, the latest DataScan job result will be published to Dataplex Catalog.`,
+						},
 						"post_scan_actions": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -1234,6 +1239,8 @@ func flattenDataplexDatascanDataQualitySpec(v interface{}, d *schema.ResourceDat
 		flattenDataplexDatascanDataQualitySpecPostScanActions(original["postScanActions"], d, config)
 	transformed["rules"] =
 		flattenDataplexDatascanDataQualitySpecRules(original["rules"], d, config)
+	transformed["catalog_publishing_enabled"] =
+		flattenDataplexDatascanDataQualitySpecCatalogPublishingEnabled(original["catalogPublishingEnabled"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataplexDatascanDataQualitySpecSamplingPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1578,6 +1585,10 @@ func flattenDataplexDatascanDataQualitySpecRulesSqlAssertionSqlStatement(v inter
 	return v
 }
 
+func flattenDataplexDatascanDataQualitySpecCatalogPublishingEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDataplexDatascanDataProfileSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1858,6 +1869,13 @@ func expandDataplexDatascanDataQualitySpec(v interface{}, d tpgresource.Terrafor
 		return nil, err
 	} else if val := reflect.ValueOf(transformedRules); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["rules"] = transformedRules
+	}
+
+	transformedCatalogPublishingEnabled, err := expandDataplexDatascanDataQualitySpecCatalogPublishingEnabled(original["catalog_publishing_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCatalogPublishingEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["catalogPublishingEnabled"] = transformedCatalogPublishingEnabled
 	}
 
 	return transformed, nil
@@ -2445,6 +2463,10 @@ func expandDataplexDatascanDataQualitySpecRulesSqlAssertion(v interface{}, d tpg
 }
 
 func expandDataplexDatascanDataQualitySpecRulesSqlAssertionSqlStatement(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataQualitySpecCatalogPublishingEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
