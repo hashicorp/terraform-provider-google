@@ -272,6 +272,9 @@ func TestAccNetappBackup_NetappIntegratedBackup(t *testing.T) {
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNetappBackupDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetappBackup_IntegratedBackup(context),
@@ -297,6 +300,10 @@ resource "google_netapp_storage_pool" "default" {
   service_level = "PREMIUM"
   capacity_gib = "2048"
   network = data.google_compute_network.default.id
+}
+resource "time_sleep" "wait_3_minutes" {
+  depends_on = [google_netapp_storage_pool.default]
+  create_duration = "3m"
 }
 resource "google_netapp_volume" "default" {
   name = "tf-test-backup-volume%{random_suffix}"
