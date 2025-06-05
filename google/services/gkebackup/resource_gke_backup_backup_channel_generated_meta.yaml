@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_gke_backup_backup_channel'
 generation_type: 'mmv1'
 source_file: 'products/gkebackup/BackupChannel.yaml'
