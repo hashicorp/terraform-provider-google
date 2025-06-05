@@ -1,0 +1,3 @@
+```release-note:bug
+gemini: removed overly restrictive `product` validation on `google_gemini_gemini_gcp_enablement_setting_binding`, `google_gemini_data_sharing_with_google_setting_binding`. New values like `GOOGLE_CLOUD_ASSIST` will now be accepted.
+```

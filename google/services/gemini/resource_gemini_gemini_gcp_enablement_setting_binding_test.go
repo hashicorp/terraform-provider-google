@@ -106,7 +106,7 @@ resource "google_gemini_gemini_gcp_enablement_setting_binding" "basic_binding" {
     location = "global"
     target = "projects/${data.google_project.project.number}"
     labels = {"my_key" = "my_value"}
-    product = "GEMINI_IN_BIGQUERY"
+    product = "GEMINI_CLOUD_ASSIST"
 }
 `, context)
 }
