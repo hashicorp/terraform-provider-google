@@ -1,0 +1,3 @@
+```release-note:enhancement
+gemini: added `enable_data_sharing` field to `google_gemini_data_sharing_with_google_setting` resource
+```
