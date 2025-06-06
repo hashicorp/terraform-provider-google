@@ -1,0 +1,6 @@
+```release-note:enhancement
+netapp: added `enable_hot_tier_auto_resize` and `hot_tier_size_gib` fields to `google_netapp_storage_pool` resource (beta)
+```
+```release-note:enhancement
+netapp: added `tiering_policy.hot_tier_bypass_mode_enabled` field to `google_netapp_volume` resource (beta)
+```

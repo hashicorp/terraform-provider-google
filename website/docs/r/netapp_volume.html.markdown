@@ -374,6 +374,11 @@ Possible values: DEFAULT, FORCE.
   Default value is `PAUSED`.
   Possible values are: `ENABLED`, `PAUSED`.
 
+* `hot_tier_bypass_mode_enabled` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Optional. Flag indicating that the hot tier bypass mode is enabled. Default is false.
+  Only applicable to Flex service level.
+
 <a name="nested_hybrid_replication_parameters"></a>The `hybrid_replication_parameters` block supports:
 
 * `replication` -
