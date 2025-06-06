@@ -48,7 +48,37 @@ resource "google_gke_hub_scope_rbac_role_binding" "scope_rbac_role_binding" {
   labels = {
       key = "value" 
   }
-  depends_on = [google_gke_hub_scope.scope]
+}
+```
+## Example Usage - Gkehub Scope Rbac Custom Role Binding Basic
+
+
+```hcl
+resource "google_gke_hub_scope" "scope" {
+  scope_id = "tf-test-scope%{random_suffix}"
+}
+
+resource "google_gke_hub_feature" "rbacrolebindingactuation" {
+  name = "rbacrolebindingactuation"
+  location = "global"
+  spec {
+    rbacrolebindingactuation {
+      allowed_custom_roles = ["my-custom-role"]
+    }
+  }
+}
+
+resource "google_gke_hub_scope_rbac_role_binding" "scope_rbac_role_binding" {
+  scope_rbac_role_binding_id = "tf-test-scope-rbac-role-binding%{random_suffix}"
+  scope_id = google_gke_hub_scope.scope.scope_id
+  user = "test-email@gmail.com"
+  role {
+    custom_role = "my-custom-role"
+  }
+  labels = {
+      key = "value" 
+  }
+  depends_on = [google_gke_hub_feature.rbacrolebindingactuation]
 }
 ```
 
@@ -77,6 +107,10 @@ The following arguments are supported:
   (Optional)
   PredefinedRole is an ENUM representation of the default Kubernetes Roles
   Possible values are: `UNKNOWN`, `ADMIN`, `EDIT`, `VIEW`.
+
+* `custom_role` -
+  (Optional)
+  CustomRole is the custom Kubernetes ClusterRole to be used. The custom role format must be allowlisted in the rbacrolebindingactuation feature and RFC 1123 compliant.
 
 - - -
 
