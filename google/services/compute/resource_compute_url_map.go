@@ -2838,16 +2838,53 @@ tests per UrlMap.`,
 							Required:    true,
 							Description: `Path portion of the URL.`,
 						},
-						"service": {
-							Type:             schema.TypeString,
-							Required:         true,
-							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-							Description:      `The backend service or backend bucket link that should be matched by this test.`,
-						},
 						"description": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `Description of this test case.`,
+						},
+						"expected_output_url": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The expected output URL evaluated by the load balancer containing the scheme, host, path and query parameters.
+
+For rules that forward requests to backends, the test passes only when expectedOutputUrl matches the request forwarded by the load balancer to backends. For rules with urlRewrite, the test verifies that the forwarded request matches hostRewrite and pathPrefixRewrite in the urlRewrite action. When service is specified, expectedOutputUrl's scheme is ignored.
+
+For rules with urlRedirect, the test passes only if expectedOutputUrl matches the URL in the load balancer's redirect response. If urlRedirect specifies httpsRedirect, the test passes only if the scheme in expectedOutputUrl is also set to HTTPS. If urlRedirect specifies stripQuery, the test passes only if expectedOutputUrl does not contain any query parameters.
+
+expectedOutputUrl is optional when service is specified.`,
+						},
+						"expected_redirect_response_code": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `For rules with urlRedirect, the test passes only if expectedRedirectResponseCode matches the HTTP status code in load balancer's redirect response.
+
+expectedRedirectResponseCode cannot be set when service is set.`,
+						},
+						"headers": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `HTTP headers for this request.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Header name.`,
+									},
+									"value": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Header value.`,
+									},
+								},
+							},
+						},
+						"service": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+							Description:      `The backend service or backend bucket link that should be matched by this test.`,
 						},
 					},
 				},
@@ -5768,10 +5805,13 @@ func flattenComputeUrlMapTest(v interface{}, d *schema.ResourceData, config *tra
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"description": flattenComputeUrlMapTestDescription(original["description"], d, config),
-			"host":        flattenComputeUrlMapTestHost(original["host"], d, config),
-			"path":        flattenComputeUrlMapTestPath(original["path"], d, config),
-			"service":     flattenComputeUrlMapTestService(original["service"], d, config),
+			"description":                     flattenComputeUrlMapTestDescription(original["description"], d, config),
+			"host":                            flattenComputeUrlMapTestHost(original["host"], d, config),
+			"path":                            flattenComputeUrlMapTestPath(original["path"], d, config),
+			"headers":                         flattenComputeUrlMapTestHeaders(original["headers"], d, config),
+			"service":                         flattenComputeUrlMapTestService(original["service"], d, config),
+			"expected_output_url":             flattenComputeUrlMapTestExpectedOutputUrl(original["expectedOutputUrl"], d, config),
+			"expected_redirect_response_code": flattenComputeUrlMapTestExpectedRedirectResponseCode(original["expectedRedirectResponseCode"], d, config),
 		})
 	}
 	return transformed
@@ -5788,11 +5828,59 @@ func flattenComputeUrlMapTestPath(v interface{}, d *schema.ResourceData, config 
 	return v
 }
 
+func flattenComputeUrlMapTestHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":  flattenComputeUrlMapTestHeadersName(original["name"], d, config),
+			"value": flattenComputeUrlMapTestHeadersValue(original["value"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeUrlMapTestHeadersName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeUrlMapTestHeadersValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeUrlMapTestService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeUrlMapTestExpectedOutputUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeUrlMapTestExpectedRedirectResponseCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeUrlMapDefaultUrlRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -10018,11 +10106,32 @@ func expandComputeUrlMapTest(v interface{}, d tpgresource.TerraformResourceData,
 			transformed["path"] = transformedPath
 		}
 
+		transformedHeaders, err := expandComputeUrlMapTestHeaders(original["headers"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["headers"] = transformedHeaders
+		}
+
 		transformedService, err := expandComputeUrlMapTestService(original["service"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedService); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["service"] = transformedService
+		}
+
+		transformedExpectedOutputUrl, err := expandComputeUrlMapTestExpectedOutputUrl(original["expected_output_url"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedExpectedOutputUrl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["expectedOutputUrl"] = transformedExpectedOutputUrl
+		}
+
+		transformedExpectedRedirectResponseCode, err := expandComputeUrlMapTestExpectedRedirectResponseCode(original["expected_redirect_response_code"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedExpectedRedirectResponseCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["expectedRedirectResponseCode"] = transformedExpectedRedirectResponseCode
 		}
 
 		req = append(req, transformed)
@@ -10039,6 +10148,43 @@ func expandComputeUrlMapTestHost(v interface{}, d tpgresource.TerraformResourceD
 }
 
 func expandComputeUrlMapTestPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeUrlMapTestHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandComputeUrlMapTestHeadersName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedValue, err := expandComputeUrlMapTestHeadersValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeUrlMapTestHeadersName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeUrlMapTestHeadersValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -10072,6 +10218,14 @@ func expandComputeUrlMapTestService(v interface{}, d tpgresource.TerraformResour
 	}
 
 	return f.RelativeLink(), nil
+}
+
+func expandComputeUrlMapTestExpectedOutputUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeUrlMapTestExpectedRedirectResponseCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeUrlMapDefaultUrlRedirect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

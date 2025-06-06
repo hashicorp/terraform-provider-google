@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `headers`, `expected_output_url`, and `expected_redirect_response_code` fields to `test[]` in `google_compute_url_map` resource and made `service` field optional
+```
