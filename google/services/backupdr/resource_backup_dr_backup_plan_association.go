@@ -58,7 +58,10 @@ func ResourceBackupDRBackupPlanAssociation() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
-				Description:      `The BP with which resource needs to be created`,
+				Description: `The BP with which resource needs to be created
+Note:
+- A Backup Plan configured for 'compute.googleapis.com/Instance', can only protect instance type resources.
+- A Backup Plan configured for 'compute.googleapis.com/Disk' can be used to protect both standard Disks and Regional Disks resources.`,
 			},
 			"backup_plan_association_id": {
 				Type:        schema.TypeString,
@@ -79,10 +82,11 @@ func ResourceBackupDRBackupPlanAssociation() *schema.Resource {
 				Description: `The resource for which BPA needs to be created`,
 			},
 			"resource_type": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The resource type of workload on which backupplan is applied`,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `The resource type of workload on which backupplan is applied.
+Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", and "compute.googleapis.com/RegionDisk"`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,

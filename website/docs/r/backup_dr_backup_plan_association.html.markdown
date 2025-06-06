@@ -117,10 +117,14 @@ The following arguments are supported:
 * `backup_plan` -
   (Required)
   The BP with which resource needs to be created
+  Note:
+  - A Backup Plan configured for 'compute.googleapis.com/Instance', can only protect instance type resources.
+  - A Backup Plan configured for 'compute.googleapis.com/Disk' can be used to protect both standard Disks and Regional Disks resources.
 
 * `resource_type` -
   (Required)
-  The resource type of workload on which backupplan is applied
+  The resource type of workload on which backupplan is applied.
+  Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", and "compute.googleapis.com/RegionDisk"
 
 * `location` -
   (Required)
