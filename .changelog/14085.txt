@@ -1,0 +1,3 @@
+```release-note:enhancement
+storage: removed the hardcoded 80m timeout used during `google_storage_bucket` deletion when removing an anywhere cache, polling instead. This should speed up deletion in these cases.
+```
