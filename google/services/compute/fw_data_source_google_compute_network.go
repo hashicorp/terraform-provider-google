@@ -177,7 +177,7 @@ func (d *ComputeNetworkFWDataSource) Read(ctx context.Context, req datasource.Re
 	// GET Request
 	clientResp, err := d.client.Networks.Get(project.ValueString(), data.Name.ValueString()).Do()
 	if err != nil {
-		fwtransport.HandleDatasourceNotFoundError(ctx, err, &resp.State, fmt.Sprintf("dataSourceComputeNetwork %q", data.Name.ValueString()), &resp.Diagnostics)
+		fwtransport.HandleNotFoundError(ctx, err, &resp.State, fmt.Sprintf("dataSourceComputeNetwork %q", data.Name.ValueString()), &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}

@@ -66,7 +66,7 @@ func GenerateFrameworkUserAgentString(metaData *fwmodels.ProviderMetaModel, curr
 	return currUserAgent
 }
 
-func HandleDatasourceNotFoundError(ctx context.Context, err error, state *tfsdk.State, resource string, diags *diag.Diagnostics) {
+func HandleNotFoundError(ctx context.Context, err error, state *tfsdk.State, resource string, diags *diag.Diagnostics) {
 	if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		tflog.Warn(ctx, fmt.Sprintf("Removing %s because it's gone", resource))
 		// The resource doesn't exist anymore
