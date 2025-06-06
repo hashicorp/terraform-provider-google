@@ -395,7 +395,7 @@ For example:
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: `The architecture of the disk. Values include 'X86_64', 'ARM64'.`,
 			},
 			"async_primary_disk": {
 				Type:             schema.TypeList,
