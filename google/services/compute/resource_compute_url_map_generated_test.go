@@ -778,6 +778,279 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
+func TestAccComputeUrlMap_urlMapTestHeadersExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeUrlMap_urlMapTestHeadersExample(context),
+			},
+			{
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
+			},
+		},
+	})
+}
+
+func testAccComputeUrlMap_urlMapTestHeadersExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_health_check" "tf-test-health-check%{random_suffix}" {
+  name               = "tf-test-health-check%{random_suffix}"
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_backend_service" "backend%{random_suffix}" {
+  name        = "backend%{random_suffix}"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_health_check.tf-test-health-check%{random_suffix}.id]
+}
+
+resource "google_compute_url_map" "urlmap" {
+  name            = "urlmap%{random_suffix}"
+  description     = "URL map with test headers"
+  default_service = google_compute_backend_service.backend%{random_suffix}.id
+
+  test {
+    description = "Test with custom headers"
+    host        = "example.com"
+    path        = "/"
+    service     = google_compute_backend_service.backend%{random_suffix}.id
+    
+    headers {
+      name  = "User-Agent"
+      value = "TestBot/1.0"
+    }
+    
+    headers {
+      name  = "X-Custom-Header"
+      value = "test-value"
+    }
+  }
+
+  test {
+    description = "Test with authorization headers"
+    host        = "api.example.com"
+    path        = "/v1/test"
+    service     = google_compute_backend_service.backend%{random_suffix}.id
+    
+    headers {
+      name  = "Authorization"
+      value = "Bearer token123"
+    }
+    
+    headers {
+      name  = "Content-Type"
+      value = "application/json"
+    }
+  }
+} 
+`, context)
+}
+
+func TestAccComputeUrlMap_urlMapTestExpectedOutputUrlExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeUrlMap_urlMapTestExpectedOutputUrlExample(context),
+			},
+			{
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
+			},
+		},
+	})
+}
+
+func testAccComputeUrlMap_urlMapTestExpectedOutputUrlExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_health_check" "tf-test-health-check%{random_suffix}" {
+  name               = "tf-test-health-check%{random_suffix}"
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_backend_service" "backend%{random_suffix}" {
+  name        = "backend%{random_suffix}"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_health_check.tf-test-health-check%{random_suffix}.id]
+}
+
+resource "google_compute_url_map" "urlmap" {
+  name            = "urlmap%{random_suffix}"
+  description     = "URL map with expected output URL tests"
+  default_service = google_compute_backend_service.backend%{random_suffix}.id
+
+  test {
+    description = "Test with expected output URL"
+    host        = "example.com"
+    path        = "/"
+    service     = google_compute_backend_service.backend%{random_suffix}.id
+    
+    headers {
+      name  = "User-Agent"
+      value = "TestBot/1.0"
+    }
+    
+    expected_output_url = "http://example.com/"
+  }
+
+  test {
+    description = "Test API routing with expected output URL"
+    host        = "api.example.com"
+    path        = "/v1/users"
+    service     = google_compute_backend_service.backend%{random_suffix}.id
+    
+    headers {
+      name  = "Authorization"
+      value = "Bearer token123"
+    }
+    
+    expected_output_url = "http://api.example.com/v1/users"
+  }
+} 
+`, context)
+}
+
+func TestAccComputeUrlMap_urlMapTestRedirectResponseCodeExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeUrlMap_urlMapTestRedirectResponseCodeExample(context),
+			},
+			{
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
+			},
+		},
+	})
+}
+
+func testAccComputeUrlMap_urlMapTestRedirectResponseCodeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_health_check" "tf-test-health-check%{random_suffix}" {
+  name               = "tf-test-health-check%{random_suffix}"
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_backend_service" "backend%{random_suffix}" {
+  name        = "backend%{random_suffix}"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_health_check.tf-test-health-check%{random_suffix}.id]
+}
+
+resource "google_compute_url_map" "urlmap" {
+  name            = "urlmap%{random_suffix}"
+  description     = "URL map with redirect response code tests"
+  default_service = google_compute_backend_service.backend%{random_suffix}.id
+
+  host_rule {
+    hosts        = ["example.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.backend%{random_suffix}.id
+
+    path_rule {
+      paths = ["/redirect/*"]
+      url_redirect {
+        host_redirect          = "newsite.com"
+        path_redirect          = "/new-path/"
+        https_redirect         = true
+        redirect_response_code = "MOVED_PERMANENTLY_DEFAULT"
+        strip_query           = false
+      }
+    }
+  }
+
+  test {
+    description = "Test redirect with expected response code"
+    host        = "example.com"
+    path        = "/redirect/old-page"
+    
+    headers {
+      name  = "Referer"
+      value = "https://oldsite.com"
+    }
+    
+    expected_output_url              = "https://newsite.com/new-path/"
+    expected_redirect_response_code  = 301
+  }
+
+  test {
+    description = "Test another redirect scenario"
+    host        = "example.com"
+    path        = "/redirect/another-page"
+    
+    headers {
+      name  = "User-Agent"
+      value = "TestBot/1.0"
+    }
+    
+    expected_output_url              = "https://newsite.com/new-path/"
+    expected_redirect_response_code  = 301
+  }
+} 
+`, context)
+}
+
 func TestAccComputeUrlMap_urlMapPathTemplateMatchExample(t *testing.T) {
 	t.Parallel()
 
