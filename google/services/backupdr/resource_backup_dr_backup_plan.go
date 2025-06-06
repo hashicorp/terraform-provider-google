@@ -206,10 +206,11 @@ This is required for 'recurrence_type', 'HOURLY' and is not applicable otherwise
 				Description: `The location for the backup plan`,
 			},
 			"resource_type": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The resource type to which the 'BackupPlan' will be applied. Examples include, "compute.googleapis.com/Instance" and "storage.googleapis.com/Bucket".`,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `The resource type to which the 'BackupPlan' will be applied.
+Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", and "storage.googleapis.com/Bucket".`,
 			},
 			"description": {
 				Type:        schema.TypeString,
