@@ -8,14 +8,14 @@ FEATURES:
 
 IMPROVEMENTS:
 * apigee: added `client_ip_resolution_config` field to `google_apigee_environment` resource ([#23172](https://github.com/hashicorp/terraform-provider-google/pull/23172))
-* beyondcorp:added `delegating_service_account` field to `google_beyondcorp_security_gateway` resource ([#23094](https://github.com/hashicorp/terraform-provider-google/pull/23094))
+* beyondcorp: added `delegating_service_account` field to `google_beyondcorp_security_gateway` resource ([#23094](https://github.com/hashicorp/terraform-provider-google/pull/23094))
 * bigquery: added `data_source_id` to update requests through `google_bigquery_data_transfer_config` ([#23134](https://github.com/hashicorp/terraform-provider-google/pull/23134))
 * cloudrunv2: added `google_cloud_run_v2_job` support for `depends_on` and `startup_probe` properties ([#23179](https://github.com/hashicorp/terraform-provider-google/pull/23179))
 * container: added `network_performance_config` field to `google_container_cluster` resource ([#23098](https://github.com/hashicorp/terraform-provider-google/pull/23098))
 * container: promoted `flex_start` in `google_container_cluster` to GA ([#23093](https://github.com/hashicorp/terraform-provider-google/pull/23093))
 * dataplex: added `catalog_publishing_enabled` field to `google_dataplex_datascan` resource ([#23165](https://github.com/hashicorp/terraform-provider-google/pull/23165))
 * datastream: added `network_attachment` support via `psc_interface_config` attribute in `google_datastream_private_connection` ([#23091](https://github.com/hashicorp/terraform-provider-google/pull/23091))
-* eventarc: NetworkAttachment is now optional in google_eventarc_pipeline ([#23133](https://github.com/hashicorp/terraform-provider-google/pull/23133))
+* eventarc: made `network_attachment` field optional in `google_eventarc_pipeline` ([#23133](https://github.com/hashicorp/terraform-provider-google/pull/23133))
 * gemini: added `disable_web_grounding` field to `google_gemini_gemini_gcp_enablement_setting` resource ([#23096](https://github.com/hashicorp/terraform-provider-google/pull/23096))
 * gemini: added `enable_data_sharing` field to `google_gemini_data_sharing_with_google_setting` resource ([#23173](https://github.com/hashicorp/terraform-provider-google/pull/23173))
 * gkehub2: added `spec.rbacrolebindingactuation` field to resource `google_gke_hub_feature` ([#23102](https://github.com/hashicorp/terraform-provider-google/pull/23102))
