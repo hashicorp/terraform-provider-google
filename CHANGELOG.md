@@ -1,4 +1,31 @@
-## 6.38.0 (Unreleased)
+## 6.39.0 (Unreleased)
+
+## 6.38.0 (June 4, 2025)
+
+DEPRECATIONS:
+* colab: deprecated  `post_startup_script_config` field in `google_colab_runtime_template` resource ([#23075](https://github.com/hashicorp/terraform-provider-google/pull/23075))
+
+FEATURES:
+* **New Data Source:** `google_bigquery_datasets` ([#23059](https://github.com/hashicorp/terraform-provider-google/pull/23059))
+* **New Resource:** `google_dataplex_entry` ([#23000](https://github.com/hashicorp/terraform-provider-google/pull/23000))
+
+IMPROVEMENTS:
+* compute: added `numeric_id` field to `google_compute_region_instance_template` resource ([#23065](https://github.com/hashicorp/terraform-provider-google/pull/23065))
+* compute: added `source_subnetwork_ip_ranges_to_nat64` and `nat64_subnetwork` fields  to `google_compute_router_nat` resource ([#23078](https://github.com/hashicorp/terraform-provider-google/pull/23078))
+* container: promoted `pod_autoscaling` field in `google_container_cluster` resource to GA ([#23002](https://github.com/hashicorp/terraform-provider-google/pull/23002))
+* datastream: added `psc_interface_config` field in  `google_datastream_private_connection` resource ([#23091](https://github.com/hashicorp/terraform-provider-google/pull/23091))
+* dns: added `dns64_config` field  to `google_dns_policy` resource ([#23078](https://github.com/hashicorp/terraform-provider-google/pull/23078))
+* filestore: added `effective_replication.role` and `effective_replication.replicas.peer_instance` fields to `google_filestore_instance` resource ([#23001](https://github.com/hashicorp/terraform-provider-google/pull/23001))
+* netapp: added `backup_retention_policy.backup_minimum_enforced_retention_days`, `backup_retention_policy.daily_backup_immutable`, `backup_retention_policy.weekly_backup_immutable`, `backup_retention_policy.monthly_backup_immutable`, and `backup_retention_policy.manual_backup_immutable` fields to `google_netapp_backup_vault` ([#23087](https://github.com/hashicorp/terraform-provider-google/pull/23087))
+* networkconnectivity: added `IPV6` enum to `protocol_version` field in `google_network_connectivity_policy_based_route` resource ([#23069](https://github.com/hashicorp/terraform-provider-google/pull/23069))
+* privateca: added support for setting default values for basic constraints for `google_privateca_certificate_template` via the `null_ca` and `zero_max_issuer_path_length` fields ([#22981](https://github.com/hashicorp/terraform-provider-google/pull/22981))
+* privateca: added `name_constraints` field for `google_privateca_certificate_template` resource ([#22981](https://github.com/hashicorp/terraform-provider-google/pull/22981))
+* provider: supported service account impersonation in different universes through credential file ([#23063](https://github.com/hashicorp/terraform-provider-google/pull/23063))
+
+BUG FIXES:
+* colab: fixed perma-diff in `google_colab_runtime_template` caused by the API returning a non-null default value ([#23137](https://github.com/hashicorp/terraform-provider-google/pull/23137))
+* compute: fixed an issue where rules ordering in `google_compute_region_security_policy` caused a diff after apply ([#23076](https://github.com/hashicorp/terraform-provider-google/pull/23076))
+* filestore: fixed bug where `google_filestore_instance.initial_replication` field could not be set ([#23001](https://github.com/hashicorp/terraform-provider-google/pull/23001))
 
 ## 6.37.0 (May 27, 2025)
 
