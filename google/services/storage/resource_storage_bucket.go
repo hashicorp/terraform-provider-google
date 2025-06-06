@@ -726,71 +726,63 @@ func getAnywhereCacheListResult(d *schema.ResourceData, config *transport_tpg.Co
 }
 
 func deleteAnywhereCacheIfAny(d *schema.ResourceData, config *transport_tpg.Config) error {
-	// Get the initial list of Anywhere Caches
-	cacheList, err := getAnywhereCacheListResult(d, config)
-	if err != nil {
-		return err
-	}
-
-	// If no cache exists initially, return early
-	if len(cacheList) == 0 {
-		return nil
-	}
-
-	// Iterate over each object in the resource list
-	for _, item := range cacheList {
-		// Ensure the item is a map
-		obj, ok := item.(map[string]interface{})
-		if !ok {
-			return fmt.Errorf("unexpected type for resource list item: %T", item)
-		}
-
-		// Check the state of the object
-		state, ok := obj["state"].(string)
-		if !ok {
-			continue // If state is not a string, skip this item
-		}
-		if !strings.EqualFold(state, "running") && !strings.EqualFold(state, "paused") {
-			continue
-		}
-
-		// Disable the cache if state is running or paused
-		anywhereCacheId, ok := obj["anywhereCacheId"].(string)
-		if !ok {
-			return fmt.Errorf("missing or invalid anywhereCacheId: %v", obj)
-		}
-		anywhereCacheUrl, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}b/{{name}}/anywhereCaches/")
+	for {
+		// Get the list of Anywhere Caches
+		cacheList, err := getAnywhereCacheListResult(d, config)
 		if err != nil {
 			return err
 		}
-		disableUrl := anywhereCacheUrl + fmt.Sprintf("%s/disable", anywhereCacheId)
 
-		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "POST",
-			Project:   config.Project,
-			RawURL:    disableUrl,
-			UserAgent: config.UserAgent,
-		})
-		if err != nil {
-			return err
+		// Check if the cache list is empty
+		if len(cacheList) == 0 {
+			break
 		}
-	}
-	time.Sleep(80 * time.Minute) // It takes around 70 minutes of time for cache to finally delete post it disable time.
 
-	// Post this time, we check again!
-	// Get the list of Anywhere Caches after the sleep
-	cacheList, err = getAnywhereCacheListResult(d, config)
-	if err != nil {
-		return err
+		// Iterate over each object in the resource list
+		for _, item := range cacheList {
+			// Ensure the item is a map
+			obj, ok := item.(map[string]interface{})
+			if !ok {
+				return fmt.Errorf("unexpected type for resource list item: %T", item)
+			}
+
+			// Check the state of the object
+			state, ok := obj["state"].(string)
+			if !ok {
+				continue // If state is not a string, skip this item
+			}
+			if !strings.EqualFold(state, "running") && !strings.EqualFold(state, "paused") {
+				continue
+			}
+
+			// Disable the cache if state is running or paused
+			anywhereCacheId, ok := obj["anywhereCacheId"].(string)
+			if !ok {
+				return fmt.Errorf("missing or invalid anywhereCacheId: %v", obj)
+			}
+			anywhereCacheUrl, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}b/{{name}}/anywhereCaches/")
+			if err != nil {
+				return err
+			}
+			disableUrl := anywhereCacheUrl + fmt.Sprintf("%s/disable", anywhereCacheId)
+
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "POST",
+				Project:   config.Project,
+				RawURL:    disableUrl,
+				UserAgent: config.UserAgent,
+			})
+			if err != nil {
+				return err
+			}
+		}
+
+		// Sleep for 1 minute
+		time.Sleep(1 * time.Minute)
 	}
 
-	// Check if the cache list is now empty
-	if len(cacheList) == 0 {
-		return nil
-	}
-
-	return fmt.Errorf("Error while deleting the cache: caches still exists post 80mins of their disable time")
+	return nil
 }
 
 func resourceDataplexLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
@@ -1195,7 +1187,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	// Get the bucket
 	bucket := d.Get("name").(string)
 
-	var listError, deleteObjectError error
+	var listError, deleteObjectError, deleteCacheError error
 	for deleteObjectError == nil {
 		res, err := config.NewStorageClient(userAgent).Objects.List(bucket).Versions(true).Do()
 		if err != nil {
@@ -1255,7 +1247,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		wp.Submit(func() {
 			err = deleteAnywhereCacheIfAny(d, config)
 			if err != nil {
-				deleteObjectError = fmt.Errorf("error deleting the caches on the bucket %s : %w", bucket, err)
+				deleteCacheError = fmt.Errorf("error deleting the caches on the bucket %s : %w", bucket, err)
 			}
 		})
 
@@ -1294,6 +1286,9 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	}
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && deleteObjectError != nil {
 		return fmt.Errorf("could not delete non-empty bucket due to error when deleting contents: %v", deleteObjectError)
+	}
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "Anywhere Caches") && deleteCacheError != nil {
+		return fmt.Errorf("could not delete bucket due to error when deleting anywhere caches on it: %v", deleteCacheError)
 	}
 	if err != nil {
 		log.Printf("Error deleting bucket %s: %v", bucket, err)
