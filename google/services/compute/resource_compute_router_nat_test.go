@@ -47,27 +47,31 @@ func TestAccComputeRouterNat_basic(t *testing.T) {
 			},
 			{
 				// implicitly full ImportStateId
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportStateId:     fmt.Sprintf("%s/%s/%s/%s", project, region, routerName, routerName),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportStateId:           fmt.Sprintf("%s/%s/%s/%s", project, region, routerName, routerName),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportStateId:     fmt.Sprintf("%s/%s/%s", region, routerName, routerName),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportStateId:           fmt.Sprintf("%s/%s/%s", region, routerName, routerName),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportStateId:     fmt.Sprintf("%s/%s", routerName, routerName),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportStateId:           fmt.Sprintf("%s/%s", routerName, routerName),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatKeepRouter(routerName),
@@ -93,9 +97,10 @@ func TestAccComputeRouterNat_update(t *testing.T) {
 				Config: testAccComputeRouterNatBasicBeforeUpdate(routerName),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatUpdated(routerName),
@@ -106,9 +111,10 @@ func TestAccComputeRouterNat_update(t *testing.T) {
 				},
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatUpdateToNatIPsId(routerName),
@@ -119,9 +125,10 @@ func TestAccComputeRouterNat_update(t *testing.T) {
 				},
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatUpdateToNatIPsName(routerName),
@@ -132,9 +139,10 @@ func TestAccComputeRouterNat_update(t *testing.T) {
 				},
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatBasicBeforeUpdate(routerName),
@@ -145,9 +153,10 @@ func TestAccComputeRouterNat_update(t *testing.T) {
 				},
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 		},
 	})
@@ -168,9 +177,10 @@ func TestAccComputeRouterNat_withManualIpAndSubnetConfiguration(t *testing.T) {
 				Config: testAccComputeRouterNatWithManualIpAndSubnetConfiguration(routerName),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 		},
 	})
@@ -191,49 +201,55 @@ func TestAccComputeRouterNat_withPortAllocationMethods(t *testing.T) {
 				Config: testAccComputeRouterNatWithAllocationMethod(routerName, false, true),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatWithAllocationMethod(routerName, true, false),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatWithAllocationMethod(routerName, false, false),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatWithAllocationMethod(routerName, true, false),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatWithAllocationMethod(routerName, false, true),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatWithAllocationMethodWithParameters(routerName, false, true, 256, 8192),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 		},
 	})
@@ -260,9 +276,10 @@ func TestAccComputeRouterNat_withNatIpsAndDrainNatIps(t *testing.T) {
 				Config: testAccComputeRouterNatWithNatIps(routerName),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			// (ERROR) - Should not allow draining IPs still in natIps
 			{
@@ -274,9 +291,10 @@ func TestAccComputeRouterNat_withNatIpsAndDrainNatIps(t *testing.T) {
 				Config: testAccComputeRouterNatWithOneDrainOneRemovedNatIps(routerName),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			// (ERROR): Should not be able to drain previously removed natIps (#1)
 			{
@@ -306,105 +324,118 @@ func TestAccComputeRouterNat_withNatRules(t *testing.T) {
 				Config: testAccComputeRouterNatRulesBasic_omitRules(routerName),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatRulesBasic(routerName, 0, ruleDescription, match),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatRulesBasic(routerName, 65000, ruleDescription, match),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatRulesBasic(routerName, 100, ruleDescription, match),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatRulesBasic(routerName, 100, ruleDescriptionUpdate, match),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatRulesBasic(routerName, 100, ruleDescriptionUpdate, matchUpdate),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatRulesWithSourceActiveAndDrainIps(routerName, 100, ruleDescriptionUpdate, matchUpdate),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatRulesWithDrainIps(routerName, 100, ruleDescriptionUpdate, matchUpdate),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatMultiRules(routerName),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatRulesBasic_omitAction(routerName, 100, ruleDescriptionUpdate, matchUpdate),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatRulesBasic_omitDescription(routerName, 100, matchUpdate),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatMultiRulesWithIpId(routerName),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatRulesBasic_omitRules(routerName),
 			},
 			{
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 		},
 	})
@@ -429,9 +460,10 @@ func TestAccComputeRouterNat_withEndpointTypes(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      testResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            testResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatUpdateEndpointType(routerName, "ENDPOINT_TYPE_SWG"),
@@ -440,9 +472,10 @@ func TestAccComputeRouterNat_withEndpointTypes(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      testResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            testResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatUpdateEndpointType(routerName, "ENDPOINT_TYPE_VM"),
@@ -451,9 +484,10 @@ func TestAccComputeRouterNat_withEndpointTypes(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      testResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            testResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 			{
 				Config: testAccComputeRouterNatUpdateEndpointType(routerName, "ENDPOINT_TYPE_MANAGED_PROXY_LB"),
@@ -462,9 +496,10 @@ func TestAccComputeRouterNat_withEndpointTypes(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      testResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            testResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
 			},
 		},
 	})
@@ -487,9 +522,64 @@ func TestAccComputeRouterNat_AutoNetworkTier(t *testing.T) {
 			},
 			{
 				// implicitly full ImportStateId
-				ResourceName:      "google_compute_router_nat.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
+			},
+		},
+	})
+}
+
+func TestAccComputeRouterNat_withPrivateNatNetworkTierStandard(t *testing.T) {
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+	region := envvar.GetTestRegionFromEnv()
+
+	testId := acctest.RandString(t, 10)
+	routerName := fmt.Sprintf("tf-test-router-nat-%s", testId)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterNatDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouterNatPrivateTypeNetworkTierStandard(routerName),
+			},
+			{
+				// implicitly full ImportStateId
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
+			},
+			{
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportStateId:           fmt.Sprintf("%s/%s/%s/%s", project, region, routerName, routerName),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
+			},
+			{
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportStateId:           fmt.Sprintf("%s/%s/%s", region, routerName, routerName),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
+			},
+			{
+				ResourceName:            "google_compute_router_nat.foobar",
+				ImportStateId:           fmt.Sprintf("%s/%s", routerName, routerName),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_network_tier"},
+			},
+			{
+				Config: testAccComputeRouterNatKeepRouter(routerName),
+				Check: testAccCheckComputeRouterNatDelete(
+					t, "google_compute_router_nat.foobar"),
 			},
 		},
 	})
@@ -2094,6 +2184,46 @@ resource "google_compute_router_nat" "foobar" {
   auto_network_tier                  = "PREMIUM"
 }
 `, testAccComputeRouterNatBaseResourcesWithPrivateNatSubnetworks(routerName, hubName), routerName)
+}
+
+func testAccComputeRouterNatPrivateTypeNetworkTierStandard(routerName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name                    = "%s-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "%s-subnet"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  purpose          = "PRIVATE_NAT"
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "%s"
+  region  = google_compute_subnetwork.foobar.region
+  network = google_compute_network.foobar.self_link
+}
+
+resource "google_compute_router_nat" "foobar" {
+  name                                = "%s"
+  router                              = google_compute_router.foobar.name
+  region                              = google_compute_router.foobar.region
+  source_subnetwork_ip_ranges_to_nat  = "LIST_OF_SUBNETWORKS"
+  type                                = "PRIVATE"
+  enable_dynamic_port_allocation      = false
+  enable_endpoint_independent_mapping = false
+  auto_network_tier                   = "STANDARD"
+  min_ports_per_vm                    = 32
+
+  subnetwork {
+    name                    = google_compute_subnetwork.foobar.id
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
+}
+`, routerName, routerName, routerName, routerName)
 }
 
 func testAccComputeRouterNatWithNat64Configuration(context map[string]interface{}) string {

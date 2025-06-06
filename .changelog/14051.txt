@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fix `google_compute_router_nat` where changes to `auto_network_tier` are always showed after initial apply
+```
