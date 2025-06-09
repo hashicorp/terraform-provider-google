@@ -1,0 +1,3 @@
+```release-note:bug
+dataproc: Terraform should ignore "prodcurrent" and "prodprevious" when diff image subminor version for Dataproc clusters
+```
