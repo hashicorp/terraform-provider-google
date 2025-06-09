@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_gke_hub_scope_rbac_role_binding'
 generation_type: 'mmv1'
 source_file: 'products/gkehub2/ScopeRBACRoleBinding.yaml'
