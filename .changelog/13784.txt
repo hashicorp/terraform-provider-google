@@ -1,0 +1,3 @@
+```release-note:bug
+networksecurity: marked google_network_security_address_group.capacity as immutable because it can't be updated in place.
+```

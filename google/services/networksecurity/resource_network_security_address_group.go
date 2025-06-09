@@ -60,6 +60,7 @@ func ResourceNetworkSecurityAddressGroup() *schema.Resource {
 			"capacity": {
 				Type:        schema.TypeInt,
 				Required:    true,
+				ForceNew:    true,
 				Description: `Capacity of the Address Group.`,
 			},
 			"location": {
@@ -323,12 +324,6 @@ func resourceNetworkSecurityAddressGroupUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("items"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, itemsProp)) {
 		obj["items"] = itemsProp
 	}
-	capacityProp, err := expandNetworkSecurityAddressGroupCapacity(d.Get("capacity"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("capacity"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, capacityProp)) {
-		obj["capacity"] = capacityProp
-	}
 	labelsProp, err := expandNetworkSecurityAddressGroupEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -355,10 +350,6 @@ func resourceNetworkSecurityAddressGroupUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("items") {
 		updateMask = append(updateMask, "items")
-	}
-
-	if d.HasChange("capacity") {
-		updateMask = append(updateMask, "capacity")
 	}
 
 	if d.HasChange("effective_labels") {
