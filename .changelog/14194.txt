@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `workload_policy` and `group_placement_policy.gpu_topology` fields to `google_compute_resource_policy` resource (ga)
+```
