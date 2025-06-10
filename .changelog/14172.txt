@@ -1,0 +1,3 @@
+```release-note:enhancement
+redis: added `managed_server_ca` to `google_redis_cluster` resource
+```
