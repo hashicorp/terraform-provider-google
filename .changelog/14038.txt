@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataflow: Fields `network`, `subnetwork`, `numWorkers`, `maxNumWorkers` and `machineType` will no longer cause permadiff on `dataflow_flex_template_job`
+```
