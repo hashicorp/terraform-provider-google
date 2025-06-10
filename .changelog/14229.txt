@@ -1,0 +1,3 @@
+```release-note:enhancement
+integrationconnectors: added support for `log_config.level` for `google_integration_connectors_connection`
+```

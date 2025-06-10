@@ -118,6 +118,7 @@ fields:
   - field: 'lock_config.locked'
   - field: 'lock_config.reason'
   - field: 'log_config.enabled'
+  - field: 'log_config.level'
   - field: 'name'
     provider_only: true
   - field: 'node_config.max_node_count'
