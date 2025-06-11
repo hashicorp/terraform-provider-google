@@ -1,0 +1,3 @@
+```release-note:enhancement
+resourcemanager: allowed `dataproc-control.googleapis.com` and `stackdriverprovisioning.googleapis.com` services in `google_project_service` resource 
+```
