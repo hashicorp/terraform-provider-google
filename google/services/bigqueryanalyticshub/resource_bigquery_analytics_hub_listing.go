@@ -157,6 +157,12 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 				Optional:    true,
 				Description: `Base64 encoded image representing the listing.`,
 			},
+			"log_linked_dataset_query_user_email": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `If true, subscriber email logging is enabled and all queries on the linked dataset will log the email address of the querying user.`,
+			},
 			"primary_contact": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -302,6 +308,12 @@ func resourceBigqueryAnalyticsHubListingCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("restricted_export_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(restrictedExportConfigProp)) && (ok || !reflect.DeepEqual(v, restrictedExportConfigProp)) {
 		obj["restrictedExportConfig"] = restrictedExportConfigProp
 	}
+	logLinkedDatasetQueryUserEmailProp, err := expandBigqueryAnalyticsHubListingLogLinkedDatasetQueryUserEmail(d.Get("log_linked_dataset_query_user_email"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_linked_dataset_query_user_email"); !tpgresource.IsEmptyValue(reflect.ValueOf(logLinkedDatasetQueryUserEmailProp)) && (ok || !reflect.DeepEqual(v, logLinkedDatasetQueryUserEmailProp)) {
+		obj["logLinkedDatasetQueryUserEmail"] = logLinkedDatasetQueryUserEmailProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings?listing_id={{listing_id}}")
 	if err != nil {
@@ -425,6 +437,9 @@ func resourceBigqueryAnalyticsHubListingRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading Listing: %s", err)
 	}
 	if err := d.Set("restricted_export_config", flattenBigqueryAnalyticsHubListingRestrictedExportConfig(res["restrictedExportConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err := d.Set("log_linked_dataset_query_user_email", flattenBigqueryAnalyticsHubListingLogLinkedDatasetQueryUserEmail(res["logLinkedDatasetQueryUserEmail"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Listing: %s", err)
 	}
 
@@ -808,6 +823,10 @@ func flattenBigqueryAnalyticsHubListingRestrictedExportConfigRestrictQueryResult
 	return v
 }
 
+func flattenBigqueryAnalyticsHubListingLogLinkedDatasetQueryUserEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandBigqueryAnalyticsHubListingDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1002,5 +1021,9 @@ func expandBigqueryAnalyticsHubListingRestrictedExportConfigRestrictDirectTableA
 }
 
 func expandBigqueryAnalyticsHubListingRestrictedExportConfigRestrictQueryResult(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingLogLinkedDatasetQueryUserEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

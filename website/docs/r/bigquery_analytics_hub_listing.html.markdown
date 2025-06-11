@@ -175,6 +175,42 @@ resource "google_bigquery_table" "listing" {
 EOF
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_analyticshub_listing_log_linked_dataset_query_user&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Analyticshub Listing Log Linked Dataset Query User
+
+
+```hcl
+resource "google_bigquery_analytics_hub_data_exchange" "listing_log_email" {
+  location         = "US"
+  data_exchange_id = "tf_test_log_email_de" 
+  display_name     = "tf_test_log_email_de" 
+  description      = "Example for log email test"
+}
+
+resource "google_bigquery_analytics_hub_listing" "listing" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing_log_email.data_exchange_id
+  listing_id       = "tf_test_log_email_listing" 
+  display_name     = "tf_test_log_email_listing" 
+  description      = "Example for log email test"
+  log_linked_dataset_query_user_email = true
+
+  bigquery_dataset {
+    dataset = google_bigquery_dataset.listing_log_email.id
+  }
+}
+
+resource "google_bigquery_dataset" "listing_log_email" {
+  dataset_id                  = "tf_test_log_email_ds" 
+  friendly_name               = "tf_test_log_email_ds" 
+  description                 = "Example for log email test"
+  location                    = "US"
+}
+```
 
 ## Argument Reference
 
@@ -262,6 +298,10 @@ The following arguments are supported:
   (Optional)
   If set, restricted export configuration will be propagated and enforced on the linked dataset.
   Structure is [documented below](#nested_restricted_export_config).
+
+* `log_linked_dataset_query_user_email` -
+  (Optional)
+  If true, subscriber email logging is enabled and all queries on the linked dataset will log the email address of the querying user.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
