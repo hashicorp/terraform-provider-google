@@ -20,6 +20,7 @@ fields:
     provider_only: true
   - field: 'location'
     provider_only: true
+  - field: 'log_linked_dataset_query_user_email'
   - field: 'name'
   - field: 'primary_contact'
   - field: 'publisher.name'
