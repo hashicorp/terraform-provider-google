@@ -826,16 +826,13 @@ func ListCurrentlyEnabledServices(project, billingProject, userAgent string, con
 						// services are returned as "projects/{{project}}/services/{{name}}"
 						name := tpgresource.GetResourceNameFromSelfLink(v.Name)
 
-						// if name not in ignoredProjectServicesSet
-						if _, ok := ignoredProjectServicesSet[name]; !ok {
-							apiServices[name] = struct{}{}
+						apiServices[name] = struct{}{}
 
-							// if a service has been renamed, set both. We'll deal
-							// with setting the right values later.
-							if v, ok := renamedServicesByOldAndNewServiceNames[name]; ok {
-								log.Printf("[DEBUG] Adding service alias for %s to enabled services: %s", name, v)
-								apiServices[v] = struct{}{}
-							}
+						// if a service has been renamed, set both. We'll deal
+						// with setting the right values later.
+						if v, ok := renamedServicesByOldAndNewServiceNames[name]; ok {
+							log.Printf("[DEBUG] Adding service alias for %s to enabled services: %s", name, v)
+							apiServices[v] = struct{}{}
 						}
 					}
 					return nil
