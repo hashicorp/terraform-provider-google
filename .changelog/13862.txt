@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed validation for `target_service` field in `google_compute_service_attachment` resource causing issues when targeting a `google_network_services_gateway` resource
+```
