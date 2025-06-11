@@ -891,11 +891,12 @@ func expandComputeServiceAttachmentConnectionPreference(v interface{}, d tpgreso
 
 func expandComputeServiceAttachmentTargetService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	resource := strings.Split(v.(string), "/")
-	resourceKind := resource[len(resource)-2]
-	resourceBound := resource[len(resource)-4]
 	if len(resource) < 4 {
 		return nil, fmt.Errorf("invalid value for target_service")
 	}
+
+	resourceKind := resource[len(resource)-2]
+	resourceBound := resource[len(resource)-4]
 
 	_, err := tpgresource.ParseRegionalFieldValue(resourceKind, v.(string), "project", resourceBound, "zone", d, config, true)
 	if err != nil {
