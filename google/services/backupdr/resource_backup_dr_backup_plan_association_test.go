@@ -127,16 +127,17 @@ resource "google_backup_dr_backup_plan" "foo" {
 
   backup_rules {
     rule_id                = "rule-1"
-    backup_retention_days  = 2
+    backup_retention_days  = 366
 
     standard_schedule {
-      recurrence_type     = "HOURLY"
-      hourly_frequency    = 6
-      time_zone           = "UTC"
+      recurrence_type = "YEARLY"
+      months          = ["JANUARY"]
+      days_of_month   = [15]
+      time_zone       = "UTC"
 
       backup_window {
-        start_hour_of_day = 0
-        end_hour_of_day   = 6
+        start_hour_of_day = 2  # Backup starts at 2:00 AM UTC
+        end_hour_of_day   = 8  # Optional, backup window ends at 3:00 AM
       }
     }
   }
@@ -215,16 +216,17 @@ resource "google_backup_dr_backup_plan" "updated-bp" {
 
   backup_rules {
     rule_id                = "rule-1"
-    backup_retention_days  = 4
+    backup_retention_days  = 366
 
     standard_schedule {
-      recurrence_type     = "HOURLY"
-      hourly_frequency    = 10
-      time_zone           = "UTC"
+      recurrence_type = "YEARLY"
+      months          = ["JANUARY"]
+      days_of_month   = [15]
+      time_zone       = "UTC"
 
       backup_window {
-        start_hour_of_day = 0
-        end_hour_of_day   = 6
+        start_hour_of_day = 2  # Backup starts at 2:00 AM UTC
+        end_hour_of_day   = 8  # Optional, backup window ends at 3:00 AM
       }
     }
   }
@@ -238,16 +240,17 @@ resource "google_backup_dr_backup_plan" "foo" {
 
   backup_rules {
     rule_id                = "rule-1"
-    backup_retention_days  = 2
+    backup_retention_days  = 366
 
     standard_schedule {
-      recurrence_type     = "HOURLY"
-      hourly_frequency    = 6
-      time_zone           = "UTC"
+      recurrence_type = "YEARLY"
+      months          = ["JANUARY"]
+      days_of_month   = [15]
+      time_zone       = "UTC"
 
       backup_window {
-        start_hour_of_day = 0
-        end_hour_of_day   = 6
+        start_hour_of_day = 2  # Backup starts at 2:00 AM UTC
+        end_hour_of_day   = 8  # Optional, backup window ends at 3:00 AM
       }
     }
   }
