@@ -1,0 +1,3 @@
+```release-note:bug
+beyondcorp: fixed the issue where `hubs.internet_gateway.assigned_ips` was not populated correctly in the `google_beyondcorp_security_gateway` resource
+```
