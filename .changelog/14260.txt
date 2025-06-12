@@ -1,0 +1,3 @@
+```release-note:deprecation
+notebook: `google_notebook_runtime` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.
+```
