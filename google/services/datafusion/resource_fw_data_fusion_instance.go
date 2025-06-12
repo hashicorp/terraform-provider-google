@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -97,6 +98,9 @@ type DataFusionInstanceFWModel struct {
 	TerraformLabels             types.Map    `tfsdk:"terraform_labels"`
 	UpdateTime                  types.String `tfsdk:"update_time"`
 	Project                     types.String `tfsdk:"project"`
+
+	Id       types.String   `tfsdk:"id"`
+	Timeouts timeouts.Value `tfsdk:"timeouts"`
 }
 
 // Metadata returns the resource type name.
@@ -312,10 +316,12 @@ func (r *DataFusionInstanceFWResource) Create(ctx context.Context, req resource.
 		return
 	}
 
-	project := fwresource.GetProjectFramework(data.Project, types.StringValue(r.providerConfig.Project), &resp.Diagnostics)
+	var project, billingProject types.String
+	project = fwresource.GetProjectFramework(data.Project, types.StringValue(r.providerConfig.Project), &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	billingProject = project
 	region := fwresource.GetRegionFramework(data.Region, types.StringValue(r.providerConfig.Region), &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
@@ -544,6 +550,18 @@ func (r *DataFusionInstanceFWResource) Create(ctx context.Context, req resource.
 	data.Project = project
 	data.Region = region
 
+	err := DataFusionOperationWaitTime(
+		r.providerConfig, res, project.ValueString(), "Creating Instance", userAgent,
+		createTimeout)
+
+	if err != nil {
+
+		// The resource didn't actually create
+		resp.State.RemoveResource(ctx)
+		resp.Diagnostics.AddError("Error, failure waiting to create Instance", err.Error())
+		return
+	}
+
 	// read back Instance
 	r.DataFusionInstanceFWRefresh(ctx, &data, &resp.State, req, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
@@ -552,6 +570,8 @@ func (r *DataFusionInstanceFWResource) Create(ctx context.Context, req resource.
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+
+	log.Printf("[DEBUG] Finished creating Instance %q: %#v", data.Id.ValueString(), res)
 
 }
 
@@ -571,9 +591,6 @@ func (r *DataFusionInstanceFWResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 
-	// Use provider_meta to set User-Agent
-	r.client.UserAgent = fwtransport.GenerateFrameworkUserAgentString(metaData, r.client.UserAgent)
-
 	tflog.Trace(ctx, "read Instance resource")
 
 	// read back Instance
@@ -589,6 +606,11 @@ func (r *DataFusionInstanceFWResource) Read(ctx context.Context, req resource.Re
 func (r *DataFusionInstanceFWResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var state, plan DataFusionInstanceFWModel
 	var metaData *fwmodels.ProviderMetaModel
+	// Read Provider meta into the meta model
+	resp.Diagnostics.Append(req.ProviderMeta.Get(ctx, &metaData)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
@@ -600,10 +622,12 @@ func (r *DataFusionInstanceFWResource) Update(ctx context.Context, req resource.
 		return
 	}
 
-	project := fwresource.GetProjectFramework(plan.Project, types.StringValue(r.providerConfig.Project), &resp.Diagnostics)
+	var project, billingProject types.String
+	project = fwresource.GetProjectFramework(data.Project, types.StringValue(r.providerConfig.Project), &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	billingProject = project
 	region := fwresource.GetRegionFramework(plan.Region, types.StringValue(r.providerConfig.Region), &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
@@ -674,6 +698,12 @@ func (r *DataFusionInstanceFWResource) Update(ctx context.Context, req resource.
 		obj["labels"] = labelsProp
 	}
 
+	updateTimeout, diags := data.Timeouts.Update(ctx, 20*time.Minute)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	url := fwtransport.ReplaceVars(ctx, req, &resp.Diagnostics, schemaDefaultVals, r.providerConfig, "{{DataFusionBasePath}}projects/{{project}}/locations/{{region}}/instances?instanceId={{name}}")
 	if resp.Diagnostics.HasError() {
 		return
@@ -699,9 +729,10 @@ func (r *DataFusionInstanceFWResource) Update(ctx context.Context, req resource.
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
 
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err := transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
-		return err
+		resp.Diagnostics.AddError("Error, failure building update mask query parameters in Instance", err.Error())
+		return
 	}
 	res := fwtransport.SendRequest(fwtransport.SendRequestOptions{
 		Config:    r.providerConfig,
@@ -710,10 +741,18 @@ func (r *DataFusionInstanceFWResource) Update(ctx context.Context, req resource.
 		RawURL:    url,
 		UserAgent: userAgent,
 		Body:      obj,
-		Timeout:   createTimeout,
+		Timeout:   updateTimeout,
 		Headers:   headers,
 	}, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	err = DataFusionOperationWaitTime(
+		r.providerConfig, res, project.ValueString(), "Updating Instance", userAgent,
+		updateTimeout)
+	if err != nil {
+		resp.Diagnostics.AddError("Error, failure waiting to update Instance", err.Error())
 		return
 	}
 
@@ -731,6 +770,12 @@ func (r *DataFusionInstanceFWResource) Update(ctx context.Context, req resource.
 
 func (r *DataFusionInstanceFWResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data DataFusionInstanceFWModel
+	var metaData *fwmodels.ProviderMetaModel
+	// Read Provider meta into the meta model
+	resp.Diagnostics.Append(req.ProviderMeta.Get(ctx, &metaData)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
@@ -738,10 +783,12 @@ func (r *DataFusionInstanceFWResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	project := fwresource.GetProjectFramework(data.Project, types.StringValue(r.providerConfig.Project), &resp.Diagnostics)
+	var project, billingProject types.String
+	project = fwresource.GetProjectFramework(data.Project, types.StringValue(r.providerConfig.Project), &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	billingProject = project
 	region := fwresource.GetRegionFramework(data.Region, types.StringValue(r.providerConfig.Region), &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
@@ -769,7 +816,7 @@ func (r *DataFusionInstanceFWResource) Delete(ctx context.Context, req resource.
 
 	headers := make(http.Header)
 
-	log.Printf("[DEBUG] Deleting Instance %q", r.Id())
+	log.Printf("[DEBUG] Deleting Instance %q", data.Id.ValueString())
 	res := fwtransport.SendRequest(fwtransport.SendRequestOptions{
 		Config:    r.providerConfig,
 		Method:    "DELETE",
@@ -777,15 +824,24 @@ func (r *DataFusionInstanceFWResource) Delete(ctx context.Context, req resource.
 		RawURL:    url,
 		UserAgent: userAgent,
 		Body:      obj,
-		Timeout:   createTimeout,
+		Timeout:   deleteTimeout,
 		Headers:   headers,
 	}, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
-		diags.AddError(fmt.Sprintf("Error deleting Instance: %s", data.Id))
+		diags.AddError(fmt.Sprintf("Error deleting Instance: %s", data.Id.ValueString()), err.Error())
 		return
 	}
 
-	log.Printf("[DEBUG] Finished deleting Instance %q: %#v", data.Id, res)
+	err := DataFusionOperationWaitTime(
+		r.providerConfig, res, project.ValueString(), "Deleting Instance", userAgent,
+		deleteTimeout)
+
+	if err != nil {
+		resp.Diagnostics.AddError("Error, failure waiting to delete Instance", err.Error())
+		return
+	}
+
+	log.Printf("[DEBUG] Finished deleting Instance %q: %#v", data.Id.ValueString(), res)
 }
 
 func (r *DataFusionInstanceFWResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
