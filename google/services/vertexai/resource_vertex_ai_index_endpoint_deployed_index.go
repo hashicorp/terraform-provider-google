@@ -211,6 +211,12 @@ Note: we only support up to 5 deployment groups (not including 'default').`,
 				Description: `If true, private endpoint's access logs are sent to Cloud Logging.`,
 				Default:     false,
 			},
+			"region": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The region of the index endpoint deployment. eg us-central1`,
+			},
 			"reserved_ip_ranges": {
 				Type:     schema.TypeList,
 				Optional: true,
