@@ -20,6 +20,7 @@
 package beyondcorp
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/http"
@@ -34,6 +35,19 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
+
+func beyondcorpSecurityGatewayHubsHash(v interface{}) int {
+	if v == nil {
+		return 0
+	}
+
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+
+	buf.WriteString(fmt.Sprintf("%s-", m["region"].(string)))
+
+	return tpgresource.Hashcode(buf.String())
+}
 
 func ResourceBeyondcorpSecurityGateway() *schema.Resource {
 	return &schema.Resource{
@@ -85,6 +99,7 @@ as a key.`,
 						},
 						"internet_gateway": {
 							Type:        schema.TypeList,
+							Computed:    true,
 							Optional:    true,
 							Description: `Internet Gateway configuration.`,
 							MaxItems:    1,
@@ -103,6 +118,7 @@ as a key.`,
 						},
 					},
 				},
+				Set: beyondcorpSecurityGatewayHubsHash,
 			},
 			"location": {
 				Type:         schema.TypeString,
@@ -499,7 +515,7 @@ func flattenBeyondcorpSecurityGatewayHubs(v interface{}, d *schema.ResourceData,
 		original := raw.(map[string]interface{})
 		transformed = append(transformed, map[string]interface{}{
 			"region":           k,
-			"internet_gateway": flattenBeyondcorpSecurityGatewayHubsInternetGateway(original["internet_gateway"], d, config),
+			"internet_gateway": flattenBeyondcorpSecurityGatewayHubsInternetGateway(original["internetGateway"], d, config),
 		})
 	}
 	return transformed
@@ -514,7 +530,7 @@ func flattenBeyondcorpSecurityGatewayHubsInternetGateway(v interface{}, d *schem
 	}
 	transformed := make(map[string]interface{})
 	transformed["assigned_ips"] =
-		flattenBeyondcorpSecurityGatewayHubsInternetGatewayAssignedIps(original["assigned_ips"], d, config)
+		flattenBeyondcorpSecurityGatewayHubsInternetGatewayAssignedIps(original["assignedIps"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBeyondcorpSecurityGatewayHubsInternetGatewayAssignedIps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -550,7 +566,7 @@ func expandBeyondcorpSecurityGatewayHubs(v interface{}, d tpgresource.TerraformR
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedInternetGateway); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["internet_gateway"] = transformedInternetGateway
+			transformed["internetGateway"] = transformedInternetGateway
 		}
 
 		transformedRegion, err := tpgresource.ExpandString(original["region"], d, config)
@@ -575,7 +591,7 @@ func expandBeyondcorpSecurityGatewayHubsInternetGateway(v interface{}, d tpgreso
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedAssignedIps); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["assigned_ips"] = transformedAssignedIps
+		transformed["assignedIps"] = transformedAssignedIps
 	}
 
 	return transformed, nil
