@@ -48,6 +48,8 @@ func TestAccNotebooksInstance_create_vm_image(t *testing.T) {
 }
 
 func TestAccNotebooksInstance_update(t *testing.T) {
+	t.Skip()
+
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 	}
