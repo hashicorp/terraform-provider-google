@@ -1208,7 +1208,6 @@ resource "google_storage_bucket" "static" {
 
 ```hcl
 resource "google_compute_url_map" "urlmap" {
-  provider    = google-beta
   name        = "urlmap"
   description = "a description"
 
@@ -1263,7 +1262,6 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "example" {
-  provider    = google-beta
   name        = "login"
   port_name   = "http"
   protocol    = "HTTP"
@@ -1274,7 +1272,6 @@ resource "google_compute_backend_service" "example" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  provider           = google-beta
   name               = "health-check"
   request_path       = "/"
   check_interval_sec = 1
@@ -1282,14 +1279,12 @@ resource "google_compute_http_health_check" "default" {
 }
 
 resource "google_compute_backend_bucket" "error" {
-  provider    = google-beta
   name        = "error-backend-bucket"
   bucket_name = google_storage_bucket.error.name
   enable_cdn  = true
 }
 
 resource "google_storage_bucket" "error" {
-  provider    = google-beta
   name        = "static-asset-bucket"
   location    = "US"
 }
@@ -1549,7 +1544,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_path_matcher).
 
 * `default_custom_error_response_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   defaultCustomErrorResponsePolicy specifies how the Load Balancer returns error responses when BackendService or BackendBucket responds with an error.
   This policy takes effect at the PathMatcher level and applies only when no policy has been defined for the error code at lower levels like RouteRule and PathRule within this PathMatcher. If an error code does not have a policy defined in defaultCustomErrorResponsePolicy, then a policy defined for the error code in UrlMap.defaultCustomErrorResponsePolicy takes effect.
   For example, consider a UrlMap with the following configuration:
@@ -1673,7 +1668,7 @@ The following arguments are supported:
   the resource.
 
 * `default_custom_error_response_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   defaultCustomErrorResponsePolicy specifies how the Load Balancer returns error responses when BackendService or BackendBucket responds with an error.
   This policy takes effect at the PathMatcher level and applies only when no policy has been defined for the error code at lower levels like RouteRule and PathRule within this PathMatcher. If an error code does not have a policy defined in defaultCustomErrorResponsePolicy, then a policy defined for the error code in UrlMap.defaultCustomErrorResponsePolicy takes effect.
   For example, consider a UrlMap with the following configuration:
@@ -1844,7 +1839,7 @@ The following arguments are supported:
   allowed here.
 
 * `custom_error_response_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   customErrorResponsePolicy specifies how the Load Balancer returns error responses when BackendService or BackendBucket responds with an error.
   If a policy for an error code is not configured for the PathRule, a policy for the error code configured in pathMatcher.defaultCustomErrorResponsePolicy is applied. If one is not specified in pathMatcher.defaultCustomErrorResponsePolicy, the policy configured in UrlMap.defaultCustomErrorResponsePolicy takes effect.
   For example, consider a UrlMap with the following configuration:
@@ -2368,7 +2363,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_url_redirect).
 
 * `custom_error_response_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   customErrorResponsePolicy specifies how the Load Balancer returns error responses when BackendService or BackendBucket responds with an error.
   Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_custom_error_response_policy).
 
