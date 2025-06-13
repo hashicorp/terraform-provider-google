@@ -633,3 +633,61 @@ resource "google_dns_managed_zone" "foobar" {
 }
 `, suffix, suffix, description, project)
 }
+
+func TestAccDNSManagedZone_privateForwardingWithDomainNameUpdate(t *testing.T) {
+	t.Parallel()
+
+	zoneSuffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsManagedZone_privateForwardingWithDomainNameUpdate(zoneSuffix, "dns.infra.foo.com.", "private"),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.private",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDnsManagedZone_privateForwardingWithDomainNameUpdate(zoneSuffix, "dns.infra.goo.com.", "default"),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.private",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDnsManagedZone_privateForwardingWithDomainNameUpdate(suffix, domain_name, forwarding_path string) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "private" {
+  name        = "private-zone-%s"
+  dns_name    = "private.example.com."
+  description = "Example private DNS zone"
+  visibility  = "private"
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.network-1.self_link
+    }
+  }
+
+  forwarding_config {
+    target_name_servers {
+      domain_name = "%s"
+      forwarding_path = "%s"
+    }
+  }
+}
+
+resource "google_compute_network" "network-1" {
+  name                    = "tf-test-net-1-%s"
+  auto_create_subnetworks = false
+}
+`, suffix, domain_name, forwarding_path, suffix)
+}
