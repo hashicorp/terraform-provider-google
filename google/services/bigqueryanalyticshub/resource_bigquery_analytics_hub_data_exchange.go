@@ -88,6 +88,12 @@ func ResourceBigqueryAnalyticsHubDataExchange() *schema.Resource {
 				Optional:    true,
 				Description: `Base64 encoded image representing the data exchange.`,
 			},
+			"log_linked_dataset_query_user_email": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `If true, subscriber email logging is enabled and all queries on the linked dataset will log the email address of the querying user.`,
+			},
 			"primary_contact": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -193,6 +199,12 @@ func resourceBigqueryAnalyticsHubDataExchangeCreate(d *schema.ResourceData, meta
 		return err
 	} else if v, ok := d.GetOkExists("sharing_environment_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(sharingEnvironmentConfigProp)) && (ok || !reflect.DeepEqual(v, sharingEnvironmentConfigProp)) {
 		obj["sharingEnvironmentConfig"] = sharingEnvironmentConfigProp
+	}
+	logLinkedDatasetQueryUserEmailProp, err := expandBigqueryAnalyticsHubDataExchangeLogLinkedDatasetQueryUserEmail(d.Get("log_linked_dataset_query_user_email"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_linked_dataset_query_user_email"); !tpgresource.IsEmptyValue(reflect.ValueOf(logLinkedDatasetQueryUserEmailProp)) && (ok || !reflect.DeepEqual(v, logLinkedDatasetQueryUserEmailProp)) {
+		obj["logLinkedDatasetQueryUserEmail"] = logLinkedDatasetQueryUserEmailProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges?data_exchange_id={{data_exchange_id}}")
@@ -305,6 +317,9 @@ func resourceBigqueryAnalyticsHubDataExchangeRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading DataExchange: %s", err)
 	}
 	if err := d.Set("sharing_environment_config", flattenBigqueryAnalyticsHubDataExchangeSharingEnvironmentConfig(res["sharingEnvironmentConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataExchange: %s", err)
+	}
+	if err := d.Set("log_linked_dataset_query_user_email", flattenBigqueryAnalyticsHubDataExchangeLogLinkedDatasetQueryUserEmail(res["logLinkedDatasetQueryUserEmail"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataExchange: %s", err)
 	}
 
@@ -563,6 +578,10 @@ func flattenBigqueryAnalyticsHubDataExchangeSharingEnvironmentConfigDcrExchangeC
 	return []interface{}{transformed}
 }
 
+func flattenBigqueryAnalyticsHubDataExchangeLogLinkedDatasetQueryUserEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandBigqueryAnalyticsHubDataExchangeDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -637,4 +656,8 @@ func expandBigqueryAnalyticsHubDataExchangeSharingEnvironmentConfigDcrExchangeCo
 	transformed := make(map[string]interface{})
 
 	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubDataExchangeLogLinkedDatasetQueryUserEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
