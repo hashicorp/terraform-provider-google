@@ -1156,6 +1156,117 @@ resource "google_storage_bucket" "static" {
 `, context)
 }
 
+func TestAccComputeUrlMap_urlMapCustomErrorResponsePolicyExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeUrlMap_urlMapCustomErrorResponsePolicyExample(context),
+			},
+			{
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
+			},
+		},
+	})
+}
+
+func testAccComputeUrlMap_urlMapCustomErrorResponsePolicyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_url_map" "urlmap" {
+  name        = "urlmap%{random_suffix}"
+  description = "a description"
+
+  default_service = google_compute_backend_service.example.id
+
+  default_custom_error_response_policy {
+    error_response_rule {
+      match_response_codes = ["5xx"] # Catch all 5xx responses
+      path = "/internal_error.html" # Serve /internal_error.html from error service
+      override_response_code = 502
+    }
+    error_service = google_compute_backend_bucket.error.id
+  }
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "mysite"
+  }
+
+  path_matcher {
+    name            = "mysite"
+    default_service = google_compute_backend_service.example.id
+
+    default_custom_error_response_policy {
+      error_response_rule {
+        match_response_codes = ["4xx", "5xx"] # Catch all 4xx and 5xx responses
+        path = "/login_error.html" # Serve /login_error.html from the error service
+        override_response_code = 404
+      }
+      error_response_rule {
+        match_response_codes = ["503"] # Catch only 503 responses
+        path = "/bad_gateway.html" # Serve /bad_gateway.html from the error service
+        override_response_code = 502
+      }
+      error_service = google_compute_backend_bucket.error.id
+    }
+
+    path_rule {
+      paths   = ["/private/*"]
+      service = google_compute_backend_service.example.id
+
+      custom_error_response_policy {
+        error_response_rule {
+          match_response_codes = ["4xx"] # Catch all 4xx responses under /private/*
+          path = "/login.html" # Serve /login.html from the error service
+          override_response_code = 401
+        }
+        error_service = google_compute_backend_bucket.error.id
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "example" {
+  name        = "login%{random_suffix}"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_http_health_check" "default" {
+  name               = "tf-test-health-check%{random_suffix}"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+
+resource "google_compute_backend_bucket" "error" {
+  name        = "tf-test-error-backend-bucket%{random_suffix}"
+  bucket_name = google_storage_bucket.error.name
+  enable_cdn  = true
+}
+
+resource "google_storage_bucket" "error" {
+  name        = "tf-test-static-asset-bucket%{random_suffix}"
+  location    = "US"
+}
+`, context)
+}
+
 func testAccCheckComputeUrlMapDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
