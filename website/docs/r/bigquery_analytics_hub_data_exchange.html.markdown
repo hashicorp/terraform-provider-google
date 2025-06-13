@@ -65,6 +65,23 @@ resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_analyticshub_data_exchange_log_linked_dataset_query_user&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Analyticshub Data Exchange Log Linked Dataset Query User
+
+
+```hcl
+resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
+  location         = "US"
+  data_exchange_id = "tf_test_log_email_data_exchange" 
+  display_name     = "tf_test_log_email_data_exchange" 
+  description      = "Example for log email test for data exchange"
+  log_linked_dataset_query_user_email = true
+}
+```
 
 ## Argument Reference
 
@@ -108,6 +125,10 @@ The following arguments are supported:
   Configurable data sharing environment option for a data exchange.
   This field is required for data clean room exchanges.
   Structure is [documented below](#nested_sharing_environment_config).
+
+* `log_linked_dataset_query_user_email` -
+  (Optional)
+  If true, subscriber email logging is enabled and all queries on the linked dataset will log the email address of the querying user.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
