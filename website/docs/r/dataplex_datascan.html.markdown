@@ -456,7 +456,7 @@ The following arguments are supported:
 
 * `dimension` -
   (Required)
-  The dimension a rule belongs to. Results are also aggregated at the dimension level. Supported dimensions are ["COMPLETENESS", "ACCURACY", "CONSISTENCY", "VALIDITY", "UNIQUENESS", "INTEGRITY"]
+  The dimension name a rule belongs to. Custom dimension name is supported with all uppercase letters and maximum length of 30 characters.
 
 * `threshold` -
   (Optional)
