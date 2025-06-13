@@ -26,7 +26,6 @@ IMPROVEMENTS:
 BUG FIXES:
 * beyondcorp: fixed the issue where `hubs.internet_gateway.assigned_ips` was not populated correctly in the `google_beyondcorp_security_gateway` resource ([#23244](https://github.com/hashicorp/terraform-provider-google/pull/23244))
 * compute: fixed `google_compute_router_nat` where changes to `auto_network_tier` are always shown after initial apply ([#23190](https://github.com/hashicorp/terraform-provider-google/pull/23190))
-* compute: fixed validation for `target_service`  in `google_compute_service_attachment` ([#23243](https://github.com/hashicorp/terraform-provider-google/pull/23243))
 * compute: fixed validation for `target_service` field in `google_compute_service_attachment` resource causing issues when targeting a `google_network_services_gateway` resource ([#23239](https://github.com/hashicorp/terraform-provider-google/pull/23239))
 * dataflow: fields `network`, `subnetwork`, `num_workers`, `max_num_workers` and `machine_type` will no longer cause permadiff on `dataflow_flex_template_job` ([#23222](https://github.com/hashicorp/terraform-provider-google/pull/23222))
 * dataproc: fixed a permadiff with "prodcurrent" and "prodprevious" within image subminor version for `google_dataproc_cluster` ([#23207](https://github.com/hashicorp/terraform-provider-google/pull/23207))
