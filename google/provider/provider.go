@@ -393,6 +393,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"contact_center_insights_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"container_analysis_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1143,6 +1148,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.ColabBasePath = d.Get("colab_custom_endpoint").(string)
 	config.ComposerBasePath = d.Get("composer_custom_endpoint").(string)
 	config.ComputeBasePath = d.Get("compute_custom_endpoint").(string)
+	config.ContactCenterInsightsBasePath = d.Get("contact_center_insights_custom_endpoint").(string)
 	config.ContainerAnalysisBasePath = d.Get("container_analysis_custom_endpoint").(string)
 	config.ContainerAttachedBasePath = d.Get("container_attached_custom_endpoint").(string)
 	config.CoreBillingBasePath = d.Get("core_billing_custom_endpoint").(string)

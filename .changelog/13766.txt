@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_contact_center_insights_view`
+```

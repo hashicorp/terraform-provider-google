@@ -93,6 +93,7 @@ type ProviderModel struct {
 	ColabCustomEndpoint                    types.String `tfsdk:"colab_custom_endpoint"`
 	ComposerCustomEndpoint                 types.String `tfsdk:"composer_custom_endpoint"`
 	ComputeCustomEndpoint                  types.String `tfsdk:"compute_custom_endpoint"`
+	ContactCenterInsightsCustomEndpoint    types.String `tfsdk:"contact_center_insights_custom_endpoint"`
 	ContainerAnalysisCustomEndpoint        types.String `tfsdk:"container_analysis_custom_endpoint"`
 	ContainerAttachedCustomEndpoint        types.String `tfsdk:"container_attached_custom_endpoint"`
 	CoreBillingCustomEndpoint              types.String `tfsdk:"core_billing_custom_endpoint"`

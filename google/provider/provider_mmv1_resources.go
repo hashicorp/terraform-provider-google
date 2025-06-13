@@ -59,6 +59,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/colab"
 	"github.com/hashicorp/terraform-provider-google/google/services/composer"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/contactcenterinsights"
 	"github.com/hashicorp/terraform-provider-google/google/services/containeranalysis"
 	"github.com/hashicorp/terraform-provider-google/google/services/containerattached"
 	"github.com/hashicorp/terraform-provider-google/google/services/corebilling"
@@ -541,9 +542,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 618
+// Generated resources: 619
 // Generated IAM resources: 309
-// Total generated resources: 927
+// Total generated resources: 928
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -880,6 +881,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_compute_url_map":                                                     compute.ResourceComputeUrlMap(),
 	"google_compute_vpn_gateway":                                                 compute.ResourceComputeVpnGateway(),
 	"google_compute_vpn_tunnel":                                                  compute.ResourceComputeVpnTunnel(),
+	"google_contact_center_insights_view":                                        contactcenterinsights.ResourceContactCenterInsightsView(),
 	"google_container_analysis_note":                                             containeranalysis.ResourceContainerAnalysisNote(),
 	"google_container_analysis_note_iam_binding":                                 tpgiamresource.ResourceIamBinding(containeranalysis.ContainerAnalysisNoteIamSchema, containeranalysis.ContainerAnalysisNoteIamUpdaterProducer, containeranalysis.ContainerAnalysisNoteIdParseFunc),
 	"google_container_analysis_note_iam_member":                                  tpgiamresource.ResourceIamMember(containeranalysis.ContainerAnalysisNoteIamSchema, containeranalysis.ContainerAnalysisNoteIamUpdaterProducer, containeranalysis.ContainerAnalysisNoteIdParseFunc),
@@ -1651,6 +1653,7 @@ func UseGeneratedProducts() {
 	var _ = colab.ProductName
 	var _ = composer.ProductName
 	var _ = compute.ProductName
+	var _ = contactcenterinsights.ProductName
 	var _ = containeranalysis.ProductName
 	var _ = containerattached.ProductName
 	var _ = corebilling.ProductName
