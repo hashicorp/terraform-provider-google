@@ -281,6 +281,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_container_engine_versions":                           container.DataSourceGoogleContainerEngineVersions(),
 	"google_container_registry_image":                            containeranalysis.DataSourceGoogleContainerImage(),
 	"google_container_registry_repository":                       containeranalysis.DataSourceGoogleContainerRepo(),
+	"google_dataplex_data_quality_rules":                         dataplex.DataSourceDataplexDataQualityRules(),
 	"google_dataproc_metastore_service":                          dataprocmetastore.DataSourceDataprocMetastoreService(),
 	"google_datastream_static_ips":                               datastream.DataSourceGoogleDatastreamStaticIps(),
 	"google_dns_keys":                                            dns.DataSourceDNSKeys(),
