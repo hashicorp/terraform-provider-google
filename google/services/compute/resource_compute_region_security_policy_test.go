@@ -735,6 +735,63 @@ func testAccComputeRegionSecurityPolicy_withMultipleEnforceOnKeyConfigs_update(c
 	`, context)
 }
 
+func testAccComputeRegionSecurityPolicy_withMultipleEnforceOnKeyConfigs_ja4(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+		resource "google_compute_region_security_policy" "policy" {
+			name	= "tf-test%{random_suffix}"
+			type	= "CLOUD_ARMOR"
+			region  = "us-west2"
+
+			rules {
+				priority = "100"
+				action          = "throttle"
+				rate_limit_options {
+					conform_action = "allow"
+					exceed_action = "deny(429)"
+
+					rate_limit_threshold {
+						count = 10
+						interval_sec = 60
+					}
+
+					enforce_on_key_configs {
+						enforce_on_key_type = "USER_IP"
+					}
+
+					enforce_on_key_configs {
+						enforce_on_key_type = "TLS_JA4_FINGERPRINT"
+					}
+
+					enforce_on_key_configs {
+						enforce_on_key_type = "REGION_CODE"
+					}
+				}
+				match {
+					config {
+						src_ip_ranges = [
+							"*"
+						]
+					}
+					versioned_expr = "SRC_IPS_V1"
+				}
+			}
+
+			rules {
+				action   = "allow"
+				priority = "2147483647"
+				preview 	= false
+				match {
+					versioned_expr = "SRC_IPS_V1"
+					config {
+						src_ip_ranges = ["*"]
+					}
+				}
+				description = "default rule"
+			}
+		}
+	`, context)
+}
+
 func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyRuleOrderingWithMultipleRules(t *testing.T) {
 	t.Parallel()
 
