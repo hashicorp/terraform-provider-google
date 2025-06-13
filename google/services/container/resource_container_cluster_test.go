@@ -12871,6 +12871,92 @@ resource "google_container_cluster" "primary" {
 `, clusterName, networkName, subnetworkName)
 }
 
+func TestAccContainerCluster_withAdvancedMachineFeaturesPMU_Standard(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	clusterResourceName := "google_container_cluster.primary"
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", suffix)
+	networkName := fmt.Sprintf("test-network-%s", suffix)
+	subnetworkName := fmt.Sprintf("test-subnetwork-%s", suffix)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAdvancedMachineFeaturesPMU(clusterName, networkName, subnetworkName, "STANDARD"),
+			},
+			{
+				ResourceName:            clusterResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withAdvancedMachineFeaturesPMU_Architectural(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	clusterResourceName := "google_container_cluster.primary"
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", suffix)
+	networkName := fmt.Sprintf("test-network-%s", suffix)
+	subnetworkName := fmt.Sprintf("test-subnetwork-%s", suffix)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAdvancedMachineFeaturesPMU(clusterName, networkName, subnetworkName, "ARCHITECTURAL"),
+			},
+			{
+				ResourceName:            clusterResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withAdvancedMachineFeaturesPMU(clusterName, networkName, subnetworkName, pmuLevel string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "default" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%s"
+  network       = google_compute_network.default.name
+  ip_cidr_range = "10.9.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_container_cluster" "primary" {
+  name                 = "%s"
+  location             = "us-central1-a"
+  initial_node_count   = 1
+  network              = google_compute_network.default.name
+  subnetwork           = google_compute_subnetwork.default.name
+  deletion_protection  = false
+  node_config {
+    machine_type = "c4-standard-2"
+    advanced_machine_features {
+      threads_per_core = 2
+      performance_monitoring_unit = "%s"
+    }
+  }
+}
+`, networkName, subnetworkName, clusterName, pmuLevel)
+}
+
 func testAccContainerCluster_inTransitEncryptionConfig(name, networkName, subnetworkName, config string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
