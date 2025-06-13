@@ -236,6 +236,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Compute",
         "path" to "./google-beta/services/compute"
     ),
+    "contactcenterinsights" to mapOf(
+        "name" to "contactcenterinsights",
+        "displayName" to "Contact Center AI Insights",
+        "path" to "./google-beta/services/contactcenterinsights"
+    ),
     "container" to mapOf(
         "name" to "container",
         "displayName" to "Container",
