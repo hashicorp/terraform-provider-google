@@ -20,6 +20,7 @@ fields:
     provider_only: true
   - field: 'force_destroy'
     provider_only: true
+  - field: 'forwarding_config.target_name_servers.domain_name'
   - field: 'forwarding_config.target_name_servers.forwarding_path'
   - field: 'forwarding_config.target_name_servers.ipv4_address'
   - field: 'labels'

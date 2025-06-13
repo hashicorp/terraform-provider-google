@@ -498,7 +498,7 @@ The following arguments are supported:
   IPv4 address of a target name server.
 
 * `domain_name` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Fully qualified domain name for the forwarding target.
 
 * `forwarding_path` -
