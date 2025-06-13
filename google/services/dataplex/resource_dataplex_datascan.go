@@ -353,7 +353,7 @@ Format://bigquery.googleapis.com/projects/PROJECT_ID/datasets/DATASET_ID/tables/
 									"dimension": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: `The dimension a rule belongs to. Results are also aggregated at the dimension level. Supported dimensions are ["COMPLETENESS", "ACCURACY", "CONSISTENCY", "VALIDITY", "UNIQUENESS", "INTEGRITY"]`,
+										Description: `The dimension name a rule belongs to. Custom dimension name is supported with all uppercase letters and maximum length of 30 characters.`,
 									},
 									"column": {
 										Type:        schema.TypeString,
