@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `TLS_JA4_FINGERPRINT` option to `enforce_on_key` field in `google_compute_region_security_policy`, `google_compute_security_policy`, and `google_compute_security_policy_rule` resources
+```
