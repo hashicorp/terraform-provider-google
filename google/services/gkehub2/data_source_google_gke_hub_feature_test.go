@@ -36,9 +36,9 @@ func TestAccDataSourceGoogleGkeHubFeature_basic(t *testing.T) {
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:     func() { acctest.AccTestPreCheck(t) },
-		Providers:    acctest.TestAccProviders,
-		CheckDestroy: testAccCheckGoogleGkeHubFeatureDestroyProducer(t),
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleGkeHubFeatureDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleGkeHubFeature_basic(context),
