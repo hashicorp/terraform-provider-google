@@ -194,6 +194,9 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. Linked resources created in the subscription. Only contains values if state = STATE_ACTIVE.
   Structure is [documented below](#nested_linked_resources).
 
+* `log_linked_dataset_query_user_email` -
+  Output only. By default, false. If true, the Subscriber agreed to the email sharing mandate that is enabled for Listing.
+
 
 <a name="nested_linked_dataset_map"></a>The `linked_dataset_map` block contains:
 
