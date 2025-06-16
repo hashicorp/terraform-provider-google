@@ -189,6 +189,11 @@ e.g. projects/123/locations/US/dataExchanges/456/listings/789 -> projects/123/da
 					},
 				},
 			},
+			"log_linked_dataset_query_user_email": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Output only. By default, false. If true, the Subscriber agreed to the email sharing mandate that is enabled for Listing.`,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -404,6 +409,9 @@ func resourceBigqueryAnalyticsHubListingSubscriptionRead(d *schema.ResourceData,
 	if err := d.Set("linked_resources", flattenBigqueryAnalyticsHubListingSubscriptionLinkedResources(res["linkedResources"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ListingSubscription: %s", err)
 	}
+	if err := d.Set("log_linked_dataset_query_user_email", flattenBigqueryAnalyticsHubListingSubscriptionLogLinkedDatasetQueryUserEmail(res["logLinkedDatasetQueryUserEmail"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ListingSubscription: %s", err)
+	}
 
 	return nil
 }
@@ -598,6 +606,10 @@ func flattenBigqueryAnalyticsHubListingSubscriptionLinkedResourcesListing(v inte
 }
 
 func flattenBigqueryAnalyticsHubListingSubscriptionLinkedResourcesLinkedDataset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingSubscriptionLogLinkedDatasetQueryUserEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
