@@ -90,6 +90,8 @@ func TestAccSpannerInstance_basicUpdateWithProviderDefaultLabels(t *testing.T) {
 }
 
 func TestAccSpannerInstance_noNodeCountSpecified(t *testing.T) {
+	// Cannot be run in VCR because no API calls are made
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	idName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
