@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataplex: added support for discovery scan in `google_dataplex_datascan` resource
+```
