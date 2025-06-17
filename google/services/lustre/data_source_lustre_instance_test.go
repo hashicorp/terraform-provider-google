@@ -53,14 +53,14 @@ func TestAccLustreInstanceDatasource_basic(t *testing.T) {
 func testAccLustreInstanceDatasource_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_lustre_instance" "instance" {
-  instance_id             = "my-instance-%{random_suffix}"
-  location                = "us-central1-a"
-  filesystem              = "testfs"
-  capacity_gib            = 18000
-  network                 = google_compute_network.producer_net.id
-  gke_support_enabled     = false
-       
- depends_on               = [ google_service_networking_connection.service_con ]
+  instance_id                 = "my-instance-%{random_suffix}"
+  location                    = "us-central1-a"
+  filesystem                  = "testfs"
+  capacity_gib                = 18000
+  network                     = google_compute_network.producer_net.id
+  gke_support_enabled         = false
+  per_unit_storage_throughput = 1000   
+  depends_on                   = [ google_service_networking_connection.service_con ]
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
