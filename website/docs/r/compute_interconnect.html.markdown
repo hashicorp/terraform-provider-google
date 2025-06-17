@@ -42,7 +42,7 @@ resource "google_compute_interconnect" "example-interconnect" {
   customer_name        = "example_customer"
   interconnect_type    = "DEDICATED"
   link_type            = "LINK_TYPE_ETHERNET_10G_LR"
-  location             = "https://www.googleapis.com/compute/v1/projects/${data.google_project.project.name}/global/interconnectLocations/iad-zone1-1"
+  location             = "https://www.googleapis.com/compute/v1/${data.google_project.project.id}/global/interconnectLocations/iad-zone1-1"
   requested_link_count = 1
 }
 ```
@@ -145,7 +145,7 @@ The following arguments are supported:
   specified, the default value is false, which allocates non-MACsec capable ports first if
   available). Note that MACSEC is still technically allowed for compatibility reasons, but it
   does not work with the API, and will be removed in an upcoming major version.
-  Each value may be one of: `MACSEC`, `IF_MACSEC`.
+  Each value may be one of: `MACSEC`, `CROSS_SITE_NETWORK`, `IF_MACSEC`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -267,6 +267,10 @@ In addition to the arguments listed above, the following computed attributes are
   MACSEC. If present then the Interconnect connection is provisioned on MACsec capable hardware
   ports. If not present then the Interconnect connection is provisioned on non-MACsec capable
   ports and MACsec isn't supported and enabling MACsec fails).
+
+* `wire_groups` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A list of the URLs of all CrossSiteNetwork WireGroups configured to use this Interconnect. The Interconnect cannot be deleted if this list is non-empty.
 
 * `interconnect_groups` -
   URLs of InterconnectGroups that include this Interconnect.

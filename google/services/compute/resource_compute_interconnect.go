@@ -231,10 +231,10 @@ of Google's network that the interconnect is connected to.`,
 If specified then the connection is created on MACsec capable hardware ports. If not
 specified, the default value is false, which allocates non-MACsec capable ports first if
 available). Note that MACSEC is still technically allowed for compatibility reasons, but it
-does not work with the API, and will be removed in an upcoming major version. Possible values: ["MACSEC", "IF_MACSEC"]`,
+does not work with the API, and will be removed in an upcoming major version. Possible values: ["MACSEC", "CROSS_SITE_NETWORK", "IF_MACSEC"]`,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: verify.ValidateEnum([]string{"MACSEC", "IF_MACSEC"}),
+					ValidateFunc: verify.ValidateEnum([]string{"MACSEC", "CROSS_SITE_NETWORK", "IF_MACSEC"}),
 				},
 			},
 			"available_features": {
