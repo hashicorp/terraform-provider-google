@@ -25,6 +25,8 @@ fields:
   - field: 'primary_contact'
   - field: 'publisher.name'
   - field: 'publisher.primary_contact'
+  - field: 'pubsub_topic.data_affinity_regions'
+  - field: 'pubsub_topic.topic'
   - field: 'request_access'
   - field: 'restricted_export_config.enabled'
   - field: 'restricted_export_config.restrict_direct_table_access'

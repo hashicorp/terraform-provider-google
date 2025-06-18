@@ -291,6 +291,62 @@ resource "google_bigquery_dataset" "listing_log_email" {
 `, context)
 }
 
+func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingPubsubExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryAnalyticsHubListingDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingPubsubExample(context),
+			},
+			{
+				ResourceName:            "google_bigquery_analytics_hub_listing.listing",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_exchange_id", "listing_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingPubsubExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_analytics_hub_data_exchange" "listing" {
+  location         = "US"
+  data_exchange_id = "tf_test_tf_test_pubsub_data_exchange%{random_suffix}"
+  display_name     = "tf_test_tf_test_pubsub_data_exchange%{random_suffix}"
+  description      = "Example for pubsub topic source%{random_suffix}"
+}
+
+resource "google_pubsub_topic" "tf_test_pubsub_topic" { 
+  name    = "tf_test_test_pubsub%{random_suffix}" 
+}
+
+resource "google_bigquery_analytics_hub_listing" "listing" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
+  listing_id       = "tf_test_tf_test_pubsub_listing%{random_suffix}"
+  display_name     = "tf_test_tf_test_pubsub_listing%{random_suffix}"
+  description      = "Example for pubsub topic source%{random_suffix}"
+
+  pubsub_topic {
+    topic = google_pubsub_topic.tf_test_pubsub_topic.id
+    data_affinity_regions = [
+      "us-central1",
+      "europe-west1"
+    ]
+  }
+}
+`, context)
+}
+
 func testAccCheckBigqueryAnalyticsHubListingDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

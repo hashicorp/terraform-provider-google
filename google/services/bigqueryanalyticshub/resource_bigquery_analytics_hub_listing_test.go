@@ -46,6 +46,26 @@ func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingUpdate(t *tes
 			{
 				Config: testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingUpdate(context),
 			},
+			{
+				ResourceName:      "google_bigquery_analytics_hub_listing.listing",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccBigqueryAnalyticsHubListing_pubsubListingUpdateConfig(context, `["us-central1"]`, "Example for pubsub topic source - initial"),
+				Check: resource.ComposeTestCheckFunc(
+					// Verify initial state for Pub/Sub listing
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing.listing_pubsub", "pubsub_topic.0.data_affinity_regions.#", "1"),
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing.listing_pubsub", "pubsub_topic.0.data_affinity_regions.0", "us-central1"),
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing.listing_pubsub", "description", "Example for pubsub topic source - initial"),
+				),
+			},
+			// Step 7: Import the updated Pub/Sub Topic listing to verify import after update.
+			{
+				ResourceName:      "google_bigquery_analytics_hub_listing.listing_pubsub",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -78,4 +98,46 @@ resource "google_bigquery_dataset" "listing" {
   location                    = "US"
 }
 `, context)
+}
+func testAccBigqueryAnalyticsHubListing_pubsubListingUpdateConfig(context map[string]interface{}, dataAffinityRegionsHCL string, description string) string {
+	// Create a mutable copy of the context map
+	updatedContext := make(map[string]interface{})
+	for k, v := range context {
+		updatedContext[k] = v
+	}
+
+	// Directly assign the HCL string for data_affinity_regions and the description.
+	// dataAffinityRegionsHCL will be something like `["us-central1"]` or `["us-central1", "europe-west1"]`
+	updatedContext["data_affinity_regions_hcl"] = dataAffinityRegionsHCL
+	updatedContext["description_hcl"] = description
+
+	return acctest.Nprintf(`
+# Separate Data Exchange for the Pub/Sub listing to prevent conflicts
+resource "google_bigquery_analytics_hub_data_exchange" "listing_pubsub" {
+  location         = "US"
+  data_exchange_id = "tf_test_pubsub_data_exchange_update_%{random_suffix}"
+  display_name     = "tf_test_pubsub_data_exchange_update_%{random_suffix}"
+  description      = "Example for pubsub topic source - data exchange%{random_suffix}"
+}
+
+# Pub/Sub Topic used as the source for the listing
+resource "google_pubsub_topic" "tf_test_pubsub_topic" {
+  name = "tf_test_test_pubsub_update_%{random_suffix}"
+}
+
+# BigQuery Analytics Hub Listing sourced from the Pub/Sub Topic
+resource "google_bigquery_analytics_hub_listing" "listing_pubsub" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing_pubsub.data_exchange_id
+  listing_id       = "tf_test_pubsub_listing_update_%{random_suffix}"
+  display_name     = "tf_test_pubsub_listing_update_%{random_suffix}"
+  description      = "%{description_hcl}" 
+  primary_contact  = "test_pubsub_contact@example.com" 
+
+  pubsub_topic {
+    topic               = google_pubsub_topic.tf_test_pubsub_topic.id
+    data_affinity_regions = %{data_affinity_regions_hcl} 
+  }
+}
+`, updatedContext)
 }

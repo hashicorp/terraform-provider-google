@@ -211,6 +211,42 @@ resource "google_bigquery_dataset" "listing_log_email" {
   location                    = "US"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_analyticshub_listing_pubsub&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Analyticshub Listing Pubsub
+
+
+```hcl
+resource "google_bigquery_analytics_hub_data_exchange" "listing" {
+  location         = "US"
+  data_exchange_id = "tf_test_pubsub_data_exchange"
+  display_name     = "tf_test_pubsub_data_exchange"
+  description      = "Example for pubsub topic source"
+}
+
+resource "google_pubsub_topic" "tf_test_pubsub_topic" { 
+  name    = "test_pubsub" 
+}
+
+resource "google_bigquery_analytics_hub_listing" "listing" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
+  listing_id       = "tf_test_pubsub_listing"
+  display_name     = "tf_test_pubsub_listing"
+  description      = "Example for pubsub topic source"
+
+  pubsub_topic {
+    topic = google_pubsub_topic.tf_test_pubsub_topic.id
+    data_affinity_regions = [
+      "us-central1",
+      "europe-west1"
+    ]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -233,29 +269,6 @@ The following arguments are supported:
   (Required)
   Human-readable display name of the listing. The display name must contain only Unicode letters, numbers (0-9), underscores (_), dashes (-), spaces ( ), ampersands (&) and can't start or end with spaces.
 
-* `bigquery_dataset` -
-  (Required)
-  Shared dataset i.e. BigQuery dataset source.
-  Structure is [documented below](#nested_bigquery_dataset).
-
-
-<a name="nested_bigquery_dataset"></a>The `bigquery_dataset` block supports:
-
-* `dataset` -
-  (Required)
-  Resource name of the dataset source for this listing. e.g. projects/myproject/datasets/123
-
-* `selected_resources` -
-  (Optional)
-  Resource in this dataset that is selectively shared. This field is required for data clean room exchanges.
-  Structure is [documented below](#nested_bigquery_dataset_selected_resources).
-
-
-<a name="nested_bigquery_dataset_selected_resources"></a>The `selected_resources` block supports:
-
-* `table` -
-  (Optional)
-  Format: For table: projects/{projectId}/datasets/{datasetId}/tables/{tableId} Example:"projects/test_project/datasets/test_dataset/tables/test_table"
 
 - - -
 
@@ -294,6 +307,16 @@ The following arguments are supported:
   (Optional)
   Categories of the listing. Up to two categories are allowed.
 
+* `bigquery_dataset` -
+  (Optional)
+  Shared dataset i.e. BigQuery dataset source.
+  Structure is [documented below](#nested_bigquery_dataset).
+
+* `pubsub_topic` -
+  (Optional)
+  Pub/Sub topic source.
+  Structure is [documented below](#nested_pubsub_topic).
+
 * `restricted_export_config` -
   (Optional)
   If set, restricted export configuration will be propagated and enforced on the linked dataset.
@@ -326,6 +349,35 @@ The following arguments are supported:
 * `primary_contact` -
   (Optional)
   Email or URL of the listing publisher.
+
+<a name="nested_bigquery_dataset"></a>The `bigquery_dataset` block supports:
+
+* `dataset` -
+  (Required)
+  Resource name of the dataset source for this listing. e.g. projects/myproject/datasets/123
+
+* `selected_resources` -
+  (Optional)
+  Resource in this dataset that is selectively shared. This field is required for data clean room exchanges.
+  Structure is [documented below](#nested_bigquery_dataset_selected_resources).
+
+
+<a name="nested_bigquery_dataset_selected_resources"></a>The `selected_resources` block supports:
+
+* `table` -
+  (Optional)
+  Format: For table: projects/{projectId}/datasets/{datasetId}/tables/{tableId} Example:"projects/test_project/datasets/test_dataset/tables/test_table"
+
+<a name="nested_pubsub_topic"></a>The `pubsub_topic` block supports:
+
+* `topic` -
+  (Required)
+  Resource name of the Pub/Sub topic source for this listing. e.g. projects/myproject/topics/topicId
+
+* `data_affinity_regions` -
+  (Optional)
+  Region hint on where the data might be published. Data affinity regions are modifiable.
+  See https://cloud.google.com/about/locations for full listing of possible Cloud regions.
 
 <a name="nested_restricted_export_config"></a>The `restricted_export_config` block supports:
 
