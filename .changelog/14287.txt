@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `release_channel_upgrade_target_version` to `google_container_engine_versions` data source
+```

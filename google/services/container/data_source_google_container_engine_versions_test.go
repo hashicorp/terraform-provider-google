@@ -138,6 +138,11 @@ func testAccCheckGoogleContainerEngineVersionsMeta(n string) resource.TestCheckF
 			return errors.New("failed to read latest STABLE version")
 		}
 
+		_, ok = rs.Primary.Attributes["release_channel_upgrade_target_version.STABLE"]
+		if !ok {
+			return errors.New("failed to read latest STABLE version")
+		}
+
 		return nil
 	}
 }
