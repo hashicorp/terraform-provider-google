@@ -17,9 +17,11 @@
 package compute_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
@@ -45,7 +47,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(t *test
 				ImportStateVerifyIgnore: []string{"target_service", "region"},
 			},
 			{
-				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context, true),
+				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context, true, -1),
 			},
 			{
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
@@ -54,13 +56,21 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(t *test
 				ImportStateVerifyIgnore: []string{"target_service", "region"},
 			},
 			{
-				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context, false),
+				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context, false, -1),
 			},
 			{
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"target_service", "region"},
+			},
+			{
+				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context, false, 0),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectNonEmptyPlan(),
+					},
+				},
 			},
 		},
 	})
@@ -195,13 +205,25 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 `, context)
 }
 
-func testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context map[string]interface{}, preventDestroy bool) string {
+func testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context map[string]interface{}, preventDestroy bool, propagatedConnectionLimit int) string {
 	context["lifecycle_block"] = ""
 	if preventDestroy {
 		context["lifecycle_block"] = `
 		lifecycle {
 			prevent_destroy = true
 		}`
+	}
+
+	switch {
+	case propagatedConnectionLimit == 0:
+		context["propagated_connection_limit"] = `
+		propagated_connection_limit = 0
+		send_propagated_connection_limit_if_zero = true
+		`
+	case propagatedConnectionLimit > 0:
+		context["propagated_connection_limit"] = fmt.Sprintf("propagated_connection_limit = %d", propagatedConnectionLimit)
+	default:
+		context["propagated_connection_limit"] = ""
 	}
 
 	return acctest.Nprintf(`
@@ -222,6 +244,7 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
   }
   reconcile_connections = false
   %{lifecycle_block}
+  %{propagated_connection_limit}
 }
 
 resource "google_compute_address" "psc_ilb_consumer_address" {

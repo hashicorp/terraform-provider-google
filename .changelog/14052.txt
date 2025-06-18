@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `send_propagated_connection_limit_if_zero` to `google_compute_service_attachment` to resolve an issue where `propagated_connection_limit` were not working for 0 value previously. Now setting `send_propagated_connection_limit_if_zero = true` will send `propagated_connection_limit = 0` when it's unset or set to `0`.
+```
