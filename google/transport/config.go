@@ -2440,11 +2440,34 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 	var creds *googleoauth.Credentials
 	var err error
 	if c.ImpersonateServiceAccount != "" && !initialCredentialsOnly {
-		opts := option.ImpersonateCredentials(c.ImpersonateServiceAccount, c.ImpersonateServiceAccountDelegates...)
-		creds, err = transport.Creds(context.TODO(), opts, option.WithScopes(clientScopes...))
+		defaultCreds, err := credentials.DetectDefault(&credentials.DetectOptions{
+			Scopes: clientScopes,
+		})
 		if err != nil {
-			return googleoauth.Credentials{}, err
+			return googleoauth.Credentials{}, fmt.Errorf("error loading credentials: %s", err)
 		}
+
+		impersonateOpts := &impersonate.CredentialsOptions{
+			TargetPrincipal: c.ImpersonateServiceAccount,
+			Scopes:          clientScopes,
+			Delegates:       c.ImpersonateServiceAccountDelegates,
+			Credentials:     defaultCreds,
+		}
+
+		if c.UniverseDomain != "" && c.UniverseDomain != "googleapis.com" {
+			impersonateOpts.UniverseDomain = c.UniverseDomain
+		}
+
+		authCred, err := impersonate.NewCredentials(impersonateOpts)
+		if err != nil {
+			return googleoauth.Credentials{}, fmt.Errorf("error loading credentials: %s", err)
+		}
+
+		creds := oauth2adapt.Oauth2CredentialsFromAuthCredentials(authCred)
+		if err != nil {
+			return googleoauth.Credentials{}, fmt.Errorf("error loading credentials: %s", err)
+		}
+		return *creds, nil
 	} else {
 		log.Printf("[INFO] Authenticating using DefaultClient...")
 		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
