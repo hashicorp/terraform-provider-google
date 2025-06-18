@@ -74,6 +74,11 @@ func DataSourceGoogleContainerEngineVersions() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"release_channel_upgrade_target_version": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -142,8 +147,10 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 
 	releaseChannelDefaultVersion := map[string]string{}
 	releaseChannelLatestVersion := map[string]string{}
+	releaseChannelUpgradeTargetVersion := map[string]string{}
 	for _, channelResp := range resp.Channels {
 		releaseChannelDefaultVersion[channelResp.Channel] = channelResp.DefaultVersion
+		releaseChannelUpgradeTargetVersion[channelResp.Channel] = channelResp.UpgradeTargetVersion
 		for _, v := range channelResp.ValidVersions {
 			if strings.HasPrefix(v, d.Get("version_prefix").(string)) {
 				releaseChannelLatestVersion[channelResp.Channel] = v
@@ -157,6 +164,9 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 	}
 	if err := d.Set("release_channel_latest_version", releaseChannelLatestVersion); err != nil {
 		return fmt.Errorf("Error setting release_channel_latest_version: %s", err)
+	}
+	if err := d.Set("release_channel_upgrade_target_version", releaseChannelUpgradeTargetVersion); err != nil {
+		return fmt.Errorf("Error setting release_channel_upgrade_target_version: %s", err)
 	}
 
 	d.SetId(time.Now().UTC().String())
