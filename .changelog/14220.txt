@@ -1,0 +1,3 @@
+```release-note:bug
+tags: fixed perma-diff for `parent` field in `google_tags_location_tag_binding` resource
+```
