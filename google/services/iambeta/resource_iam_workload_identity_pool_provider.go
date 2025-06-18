@@ -20,6 +20,7 @@
 package iambeta
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -36,6 +37,41 @@ import (
 )
 
 const workloadIdentityPoolProviderIdRegexp = `^[0-9a-z-]+$`
+
+// normalizeJSON normalizes JSON strings for comparison by parsing and re-encoding
+// This ensures consistent formatting regardless of input whitespace and key ordering
+func normalizeJSON(jsonStr string) (string, error) {
+	if jsonStr == "" {
+		return "", nil
+	}
+	var obj interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &obj); err != nil {
+		return "", err
+	}
+	normalized, err := json.Marshal(obj)
+	if err != nil {
+		return "", err
+	}
+	return string(normalized), nil
+}
+
+// jwksJsonDiffSuppressFunc suppresses cosmetic differences in JWKS JSON formatting
+// This addresses the permadiff issue where GCP normalizes JSON formatting
+func jwksJsonDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	normalizedOld, err := normalizeJSON(old)
+	if err != nil {
+		log.Printf("[WARN] Error normalizing old JWKS JSON: %v", err)
+		return false
+	}
+
+	normalizedNew, err := normalizeJSON(new)
+	if err != nil {
+		log.Printf("[WARN] Error normalizing new JWKS JSON: %v", err)
+		return false
+	}
+
+	return normalizedOld == normalizedNew
+}
 
 func ValidateWorkloadIdentityPoolProviderId(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
@@ -254,8 +290,9 @@ https://iam.googleapis.com/projects/<project-number>/locations/<location>/worklo
 							},
 						},
 						"jwks_json": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: jwksJsonDiffSuppressFunc,
 							Description: `OIDC JWKs in JSON String format. For details on definition of a
 JWK, see https:tools.ietf.org/html/rfc7517. If not set, then we
 use the 'jwks_uri' from the discovery document fetched from the
