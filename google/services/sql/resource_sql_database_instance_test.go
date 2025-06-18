@@ -873,6 +873,37 @@ func TestAccSqlDatabaseInstance_withoutMCPEnabled(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_updateMCPEnabled(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-" + acctest.RandString(t, 10)
+	resourceName := "google_sql_database_instance.instance"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_withoutMCPEnabled(instanceName),
+			},
+			{
+				Config: testAccSqlDatabaseInstance_withMCPEnabled(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "settings.0.connection_pool_config.0.connection_pooling_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "settings.0.connection_pool_config.0.flags.#", "1"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_withPSCEnabled_withoutAllowedConsumerProjects(t *testing.T) {
 	t.Parallel()
 

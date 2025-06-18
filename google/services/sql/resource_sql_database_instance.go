@@ -1450,12 +1450,12 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		UserLabels:                tpgresource.ConvertStringMap(_settings["user_labels"].(map[string]interface{})),
 		BackupConfiguration:       expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
 		DatabaseFlags:             expandDatabaseFlags(_settings["database_flags"].(*schema.Set).List()),
-		ConnectionPoolConfig:      expandConnectionPoolConfig(_settings["connection_pool_config"].(*schema.Set).List()),
 		IpConfiguration:           expandIpConfiguration(_settings["ip_configuration"].([]interface{}), databaseVersion),
 		LocationPreference:        expandLocationPreference(_settings["location_preference"].([]interface{})),
 		MaintenanceWindow:         expandMaintenanceWindow(_settings["maintenance_window"].([]interface{})),
 		InsightsConfig:            expandInsightsConfig(_settings["insights_config"].([]interface{})),
 		PasswordValidationPolicy:  expandPasswordValidationPolicy(_settings["password_validation_policy"].([]interface{})),
+		ConnectionPoolConfig:      expandConnectionPoolConfig(_settings["connection_pool_config"].(*schema.Set).List()),
 	}
 
 	resize := _settings["disk_autoresize"].(bool)
@@ -2189,7 +2189,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Database Version is required for all calls with Google ML integration enabled or it will be rejected by the API.
-	if d.Get("settings.0.enable_google_ml_integration").(bool) {
+	if d.Get("settings.0.enable_google_ml_integration").(bool) || len(_settings["connection_pool_config"].(*schema.Set).List()) > 0 {
 		instance.DatabaseVersion = databaseVersion
 	}
 

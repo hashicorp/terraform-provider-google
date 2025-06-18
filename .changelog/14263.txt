@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed an error in updating `connection_pool_config` in `google_sql_database_instance`
+```
