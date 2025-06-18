@@ -145,8 +145,7 @@ func determineImportMetadata(steps []resource.TestStep, currentStepIndex int, re
 		nextStep := steps[currentStepIndex+1]
 
 		// Check if it's an import step for our resource
-		if nextStep.ImportState && (nextStep.ResourceName == resourceName ||
-			strings.HasSuffix(nextStep.ResourceName, "."+strings.Split(resourceName, ".")[1])) {
+		if nextStep.ImportState && nextStep.ResourceName == resourceName {
 			// Capture ignored fields if present
 			if nextStep.ImportStateVerify && len(nextStep.ImportStateVerifyIgnore) > 0 {
 				metadata.IgnoredFields = nextStep.ImportStateVerifyIgnore
