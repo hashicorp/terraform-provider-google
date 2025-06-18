@@ -91,12 +91,12 @@ func ResourceSecretManagerSecret() *schema.Resource {
 				return map[string]*schema.Schema{
 					"project": {
 						Type:              schema.TypeString,
-						RequiredForImport: true,
+						OptionalForImport: true,
 						Description:       `The project that the secret belongs to.`,
 					},
 					"secret_id": {
 						Type:              schema.TypeString,
-						RequiredForImport: true,
+						OptionalForImport: true,
 						Description:       `The secret ID that the secret belongs to.`,
 					},
 				}
@@ -571,7 +571,7 @@ func resourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	err = identity.Set("secret_id", d.Id())
+	err = identity.Set("secret_id", d.Get("secret_id").(string))
 	if err != nil {
 		return fmt.Errorf("Error setting secret_id: %s", err)
 	}

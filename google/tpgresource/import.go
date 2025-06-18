@@ -71,8 +71,6 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 				return err
 			}
 
-			return nil
-		} else {
 			identity, err := d.Identity()
 			if err != nil {
 				return err
@@ -84,6 +82,7 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 			if err != nil {
 				return err
 			}
+
 			return nil
 		}
 	}
@@ -93,11 +92,17 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 func identityImport(re *regexp.Regexp, identity *schema.IdentityData, idFormat string, d TerraformResourceData) error {
 	log.Print("[DEBUG] Using IdentitySchema to import resource")
 	namedGroups := re.SubexpNames()
-
+	log.Printf("[DEBUG] Named Groups %v", namedGroups)
 	for _, group := range namedGroups {
+		if val, ok := d.GetOk(group); ok && group != "" {
+			log.Printf("[DEBUG] Group %s = %s Identity Group", group, val)
+			identity.Set(group, val)
+		}
 		if identityValue, identityExists := identity.GetOk(group); identityExists {
 			log.Printf("[DEBUG] Importing %s = %s", group, identityValue)
 			d.Set(group, identityValue)
+		} else {
+			log.Printf("[DEBUG] No value was found for %s during import", group)
 		}
 	}
 

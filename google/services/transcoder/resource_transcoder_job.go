@@ -56,6 +56,24 @@ func ResourceTranscoderJob() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+						Description:       `The project that the transcoding job resource belongs to.`,
+					},
+					"name": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+						Description:       `The name of the transcoding job resource.`,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -940,6 +958,17 @@ func resourceTranscoderJobRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 	if err := d.Set("effective_labels", flattenTranscoderJobEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err := identity.Set("project", d.Get("project").(string)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err := identity.Set("name", d.Get("name").(string)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 

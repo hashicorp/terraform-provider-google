@@ -488,8 +488,7 @@ func TestAccSecretManagerSecret_tags(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_secret_manager_secret.secret-tags",
-				ImportState:             true,
-				ImportStateVerify:       true,
+				ImportStateKind:         resource.ImportBlockWithResourceIdentity,
 				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels", "tags"},
 			},
 		},
