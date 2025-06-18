@@ -456,6 +456,12 @@ The following arguments are supported:
   (Optional)
   Enabling outbound public ip for the instance.
 
+* `allocated_ip_range_override` -
+  (Optional)
+  Name of the allocated IP range for the private IP AlloyDB instance, for example: "google-managed-services-default".
+  If set, the instance IPs will be created from this allocated range and will override the IP range used by the parent cluster.
+  The range name must comply with RFC 1035. Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])?.
+
 
 <a name="nested_network_config_authorized_external_networks"></a>The `authorized_external_networks` block supports:
 

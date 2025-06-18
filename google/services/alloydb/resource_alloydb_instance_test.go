@@ -1098,3 +1098,66 @@ resource "google_alloydb_cluster" "default" {
 data "google_project" "project" {}
 `, context)
 }
+
+func TestAccAlloydbInstance_createPrimaryAndReadPoolInstanceWithAllocatedIpRangeOverride(t *testing.T) {
+	t.Parallel()
+
+	testId := "alloydb-1"
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"address_name":  acctest.BootstrapSharedTestGlobalAddress(t, testId),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, testId),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbInstance_createPrimaryAndReadPoolInstanceWithAllocatedIpRangeOverride(context),
+			},
+		},
+	})
+}
+
+func testAccAlloydbInstance_createPrimaryAndReadPoolInstanceWithAllocatedIpRangeOverride(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "primary" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+}
+
+resource "google_alloydb_instance" "read_pool" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}-read"
+  instance_type = "READ_POOL"
+  read_pool_config {
+    node_count = 4
+  }
+  network_config {
+	allocated_ip_range_override = data.google_compute_global_address.private_ip_alloc.name
+  }
+  depends_on = [google_alloydb_instance.primary]
+}
+
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+}
+
+data "google_project" "project" {}
+
+data "google_compute_network" "default" {
+  name = "%{network_name}"
+}
+
+data "google_compute_global_address" "private_ip_alloc" {
+  name =  "%{address_name}"
+}
+`, context)
+}
