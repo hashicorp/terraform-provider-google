@@ -189,6 +189,43 @@ func TestAccComputeFirewallPolicyRule_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeFirewallPolicyRule_disabled_enabled(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"org_name":      fmt.Sprintf("organizations/%s", envvar.GetTestOrgFromEnv(t)),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeFirewallPolicyRule_disabled(context, true),
+			},
+			{
+				ResourceName:            "google_compute_firewall_policy_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"firewall_policy"},
+			},
+			{
+				Config: testAccComputeFirewallPolicyRule_disabled(context, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_firewall_policy_rule.default", "disabled", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_firewall_policy_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"firewall_policy"},
+			},
+		},
+	})
+}
+
 func testAccComputeFirewallPolicyRule_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_folder" "folder" {
@@ -790,6 +827,42 @@ resource "google_compute_firewall_policy_rule" "fw_policy_rule3" {
     src_fqdns                = ["google.com"]
     src_region_codes         = ["US"]
     src_threat_intelligences = ["iplist-known-malicious-ips"]
+  }
+}
+`, context)
+}
+
+func testAccComputeFirewallPolicyRule_disabled(context map[string]interface{}, disabled bool) string {
+	context["disabled"] = fmt.Sprintf("%t", disabled)
+	return acctest.Nprintf(`
+resource "google_folder" "default" {
+  display_name = "tf-test-folder-%{random_suffix}"
+  parent       = "%{org_name}"
+  deletion_protection = false
+}
+
+resource "google_compute_firewall_policy" "default" {
+  parent      = google_folder.default.name
+  short_name  = "tf-test-policy-%{random_suffix}"
+  description = "Resource created for Terraform acceptance testing"
+}
+
+resource "google_compute_firewall_policy_rule" "default" {
+  firewall_policy         = google_compute_firewall_policy.default.name
+  description             = "Resource created for Terraform acceptance testing"
+  priority                = 9000
+  enable_logging          = true
+  action                  = "allow"
+  direction               = "EGRESS"
+  disabled                = %{disabled}
+
+  match {
+    dest_ip_ranges = ["35.235.240.0/20"]
+
+    layer4_configs {
+      ip_protocol = "tcp"
+      ports       = [22]
+    }
   }
 }
 `, context)
