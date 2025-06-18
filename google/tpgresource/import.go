@@ -64,7 +64,8 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 						"cannot handle %s, which currently has value %v, and should be set to %#v, during import", fieldName, val, fieldValue)
 				}
 			}
-
+			return nil
+		} else if d.Id() == "" {
 			// The first id format is applied first and contains all the fields.
 			err := setDefaultValues(idRegexes[0], nil, d, config)
 			if err != nil {
@@ -82,7 +83,6 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 			if err != nil {
 				return err
 			}
-
 			return nil
 		}
 	}
@@ -99,7 +99,7 @@ func identityImport(re *regexp.Regexp, identity *schema.IdentityData, idFormat s
 			identity.Set(group, val)
 		}
 		if identityValue, identityExists := identity.GetOk(group); identityExists {
-			log.Printf("[DEBUG] Importing %s = %s", group, identityValue)
+			log.Printf("[DEBUG] identity Importing %s = %s", group, identityValue)
 			d.Set(group, identityValue)
 		} else {
 			log.Printf("[DEBUG] No value was found for %s during import", group)
