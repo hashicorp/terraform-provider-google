@@ -54,6 +54,12 @@ func ResourceComputeNodeTemplate() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Name of the resource.`,
+			},
 			"accelerators": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -121,12 +127,6 @@ node template`,
 						},
 					},
 				},
-			},
-			"name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Name of the resource.`,
 			},
 			"node_affinity_labels": {
 				Type:     schema.TypeMap,

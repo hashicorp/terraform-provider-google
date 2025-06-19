@@ -1,0 +1,1 @@
+unknown: updated google_compute_node_group and google_compute_node_template name property to be required
