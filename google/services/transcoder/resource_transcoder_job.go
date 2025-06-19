@@ -65,6 +65,11 @@ func ResourceTranscoderJob() *schema.Resource {
 						OptionalForImport: true,
 						Description:       `The project that the transcoding job resource belongs to.`,
 					},
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+						Description:       `The location of the transcoding job resource.`,
+					},
 					"name": {
 						Type:              schema.TypeString,
 						OptionalForImport: true,
@@ -965,11 +970,20 @@ func resourceTranscoderJobRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
-	if err := identity.Set("project", d.Get("project").(string)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if err := identity.Set("name", d.Get("name").(string)); err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
+	// if project != "" {
+	// 	log.Printf("[DEBUG] Setting project for identity %s", project)
+	// 	if val, _ := identity.GetOk("project"); val == "" {
+	// 		log.Printf("[DEBUG] Setting project for identity %s, previously was %s", project, val)
+	// 		if err := identity.Set("project", project); err != nil {
+	// 			return fmt.Errorf("Error reading Job: %s", err)
+	// 		} // investigate this since this is causing issues where the read causes a change despite the identity itself not being set
+	// 	}
+	// }
+	if val, _ := identity.GetOk("name"); val == "" {
+		log.Printf("[DEBUG] Setting name for identity %s, previously was %s", d.Get("name").(string), val)
+		if err := identity.Set("name", d.Get("name").(string)); err != nil {
+			return fmt.Errorf("Error reading Job: %s", err)
+		}
 	}
 
 	return nil
@@ -1036,7 +1050,6 @@ func resourceTranscoderJobImport(d *schema.ResourceData, meta interface{}) ([]*s
 	if err := tpgresource.ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
 		return nil, err
 	}
-
 	return []*schema.ResourceData{d}, nil
 }
 
