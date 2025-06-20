@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -877,19 +878,30 @@ func resourceTranscoderJobCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return fmt.Errorf("Error creating Job: %s", err)
 	}
-	// Set computed resource properties from create API response so that they're available on the subsequent Read
-	// call.
-	err = resourceTranscoderJobPostCreateSetComputedFields(d, meta, res)
-	if err != nil {
-		return fmt.Errorf("setting computed ID format fields: %w", err)
+
+	name := res["name"].(string)
+	// name is in the format projects/{project}/locations/{location}/jobs/{{jobId}}
+	parts := strings.Split(name, "/")
+	if len(parts) < 4 {
+		return fmt.Errorf("Error parsing resource name %q: unexpected number of parts", name)
 	}
 
-	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
+	identity, err := d.Identity()
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("Error getting identity: %s", err)
 	}
-	d.SetId(id)
+
+	if err := identity.Set("project", parts[1]); err != nil {
+		return fmt.Errorf("Error setting project for identity: %s", err)
+	}
+
+	if err := identity.Set("location", parts[3]); err != nil {
+		return fmt.Errorf("Error setting location for identity: %s", err)
+	}
+
+	if err := identity.Set("name", name); err != nil {
+		return fmt.Errorf("Error setting name for identity: %s", err)
+	}
 
 	log.Printf("[DEBUG] Finished creating Job %q: %#v", d.Id(), res)
 
@@ -934,11 +946,22 @@ func resourceTranscoderJobRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("TranscoderJob %q", d.Id()))
 	}
 
-	if err := d.Set("project", project); err != nil {
+	name := res["name"].(string)
+	// name is in the format projects/{project}/locations/{location}/jobs/{{jobId}}
+	parts := strings.Split(name, "/")
+	if len(parts) < 4 {
+		return fmt.Errorf("Error parsing resource name %q: unexpected number of parts", name)
+	}
+
+	if err := d.Set("project", parts[1]); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 
-	if err := d.Set("name", flattenTranscoderJobName(res["name"], d, config)); err != nil {
+	if err := d.Set("location", parts[3]); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+
+	if err := d.Set("name", flattenTranscoderJobName(name, d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 	if err := d.Set("create_time", flattenTranscoderJobCreateTime(res["createTime"], d, config)); err != nil {
@@ -970,20 +993,14 @@ func resourceTranscoderJobRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
-	// if project != "" {
-	// 	log.Printf("[DEBUG] Setting project for identity %s", project)
-	// 	if val, _ := identity.GetOk("project"); val == "" {
-	// 		log.Printf("[DEBUG] Setting project for identity %s, previously was %s", project, val)
-	// 		if err := identity.Set("project", project); err != nil {
-	// 			return fmt.Errorf("Error reading Job: %s", err)
-	// 		} // investigate this since this is causing issues where the read causes a change despite the identity itself not being set
-	// 	}
-	// }
-	if val, _ := identity.GetOk("name"); val == "" {
-		log.Printf("[DEBUG] Setting name for identity %s, previously was %s", d.Get("name").(string), val)
-		if err := identity.Set("name", d.Get("name").(string)); err != nil {
-			return fmt.Errorf("Error reading Job: %s", err)
-		}
+	if err := identity.Set("project", parts[1]); err != nil {
+		return fmt.Errorf("Error setting project for identity: %s", err)
+	}
+	if err := identity.Set("location", parts[3]); err != nil {
+		return fmt.Errorf("Error setting location for identity: %s", err)
+	}
+	if err := identity.Set("name", name); err != nil {
+		return fmt.Errorf("Error setting name for identity: %s", err)
 	}
 
 	return nil
@@ -1025,15 +1042,15 @@ func resourceTranscoderJobDelete(d *schema.ResourceData, meta interface{}) error
 
 	log.Printf("[DEBUG] Deleting Job %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "DELETE",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutDelete),
-		Headers:   headers,
-	})
+			Config:    config,
+			Method:    "DELETE",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutDelete),
+			Headers:   headers,
+		})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Job")
 	}
@@ -3020,12 +3037,4 @@ func expandTranscoderJobEffectiveLabels(v interface{}, d tpgresource.TerraformRe
 		m[k] = val.(string)
 	}
 	return m, nil
-}
-
-func resourceTranscoderJobPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
-	config := meta.(*transport_tpg.Config)
-	if err := d.Set("name", flattenTranscoderJobName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
-	return nil
 }
