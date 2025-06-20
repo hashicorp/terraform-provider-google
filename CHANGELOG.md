@@ -1,5 +1,40 @@
 ## 6.41.0 (Unreleased)
 
+BREAKING CHANGES:
+* lustre: added `per_unit_storage_throughput` as a required field to `google_lustre_instance` resource in response to a change in the API surface ([#23319](https://github.com/hashicorp/terraform-provider-google/pull/23319))
+
+FEATURES:
+* **New Data Source:** `google_dataplex_data_quality_rules` ([#23255](https://github.com/hashicorp/terraform-provider-google/pull/23255))
+* **New Resource:** `google_apihub_plugin_instance` ([#23346](https://github.com/hashicorp/terraform-provider-google/pull/23346))
+* **New Resource:** `google_contact_center_insights_view` ([#23263](https://github.com/hashicorp/terraform-provider-google/pull/23263))
+* **New Resource:** `google_dataproc_session_template` ([#23288](https://github.com/hashicorp/terraform-provider-google/pull/23288))
+* **New Resource:** `google_dialogflow_encryption_spec` ([#23335](https://github.com/hashicorp/terraform-provider-google/pull/23335))
+
+IMPROVEMENTS:
+* alloydb: added `network_config.allocated_ip_range_override` field to `google_alloydb_instance` resource ([#23330](https://github.com/hashicorp/terraform-provider-google/pull/23330))
+* bigqueryanalyticshub: added `log_linked_dataset_query_user_email` field to `google_bigquery_analytics_hub_data_exchange` resource ([#23271](https://github.com/hashicorp/terraform-provider-google/pull/23271))
+* bigqueryanalyticshub: added `log_linked_dataset_query_user_email` field to `google_bigquery_analytics_hub_listing_subscription` resource ([#23286](https://github.com/hashicorp/terraform-provider-google/pull/23286))
+* bigqueryanalyticshub: added `pubsub_topic` field to `google_bigquery_analytics_hub_listing` resource ([#23334](https://github.com/hashicorp/terraform-provider-google/pull/23334))
+* bigtable: added `row_key_schema` to `google_bigtable_table` resource ([#23337](https://github.com/hashicorp/terraform-provider-google/pull/23337))
+* cloudasset: added support for universe domain handling for `google_cloud_asset_resources_search_all` datasource ([#23318](https://github.com/hashicorp/terraform-provider-google/pull/23318))
+* cloudquotas: added `inherited`  and `inherited_from` fields to `google_cloud_quotas_quota_adjuster_settings` resource ([#23339](https://github.com/hashicorp/terraform-provider-google/pull/23339))
+* compute: added `CROSS_SITE_NETWORK` enum option to `requested_features` field in `google_compute_interconnect` resource ([#23316](https://github.com/hashicorp/terraform-provider-google/pull/23316))
+* compute: added `TLS_JA4_FINGERPRINT` option to `enforce_on_key` field in `google_compute_region_security_policy`, `google_compute_security_policy`, and `google_compute_security_policy_rule` resources ([#23270](https://github.com/hashicorp/terraform-provider-google/pull/23270))
+* compute: added `send_propagated_connection_limit_if_zero` to `google_compute_service_attachment` to resolve an issue where `propagated_connection_limit` were not working for 0 value previously. Now setting `send_propagated_connection_limit_if_zero = true` will send `propagated_connection_limit = 0` when it's unset or set to `0`. ([#23325](https://github.com/hashicorp/terraform-provider-google/pull/23325))
+* compute: promoted `default_custom_error_response_policy` to GA in `google_compute_url_map` ([#23268](https://github.com/hashicorp/terraform-provider-google/pull/23268))
+* container: added `performance_monitoring_unit` in node_config/advanced_machine_features to 'google_container_cluster' resource ([#23260](https://github.com/hashicorp/terraform-provider-google/pull/23260))
+* container: added `release_channel_upgrade_target_version` to `google_container_engine_versions` data source ([#23336](https://github.com/hashicorp/terraform-provider-google/pull/23336))
+* dataplex: added support for discovery scan in `google_dataplex_datascan` resource ([#23291](https://github.com/hashicorp/terraform-provider-google/pull/23291))
+* dns: added `target_name_servers.domain_name` field to `google_dns_managed_zone` resource ([#23265](https://github.com/hashicorp/terraform-provider-google/pull/23265))
+* provider: added support for adc impersonation in different universes ([#23320](https://github.com/hashicorp/terraform-provider-google/pull/23320))
+* storage: added `source_md5hash` field in `google_storage_bucket_object` ([#23267](https://github.com/hashicorp/terraform-provider-google/pull/23267))
+
+BUG FIXES:
+* compute: fixed `google_compute_firewall_policy_rule` staying disabled after apply with `disabled = false` ([#23329](https://github.com/hashicorp/terraform-provider-google/pull/23329))
+* compute: marked `name` in `google_compute_node_group`, `google_compute_node_template` as required as it was impossible to create successfully without a value ([#23345](https://github.com/hashicorp/terraform-provider-google/pull/23345))
+* sql: fixed an error in updating `connection_pool_config` in `google_sql_database_instance` ([#23332](https://github.com/hashicorp/terraform-provider-google/pull/23332))
+* tags: fixed perma-diff for `parent` field in `google_tags_location_tag_binding` resource ([#23331](https://github.com/hashicorp/terraform-provider-google/pull/23331))
+
 ## 6.40.0 (June 17, 2025)
 
 DEPRECATIONS:
