@@ -70,13 +70,13 @@ func testAccDataplexDatascanDataplexDatascanFullQuality_full(context map[string]
 	return acctest.Nprintf(`
 
 resource "google_bigquery_dataset" "tf_test_dataset" {
-  dataset_id = "tf_test_dataset_id"
+  dataset_id = "tf_test_dataset_id_%{random_suffix}"
   default_table_expiration_ms = 3600000
 }
 
 resource "google_bigquery_table" "tf_test_table" {
   dataset_id          = google_bigquery_dataset.tf_test_dataset.dataset_id
-  table_id            = "tf_test_table"
+  table_id            = "tf_test_table_%{random_suffix}"
   deletion_protection = false
   schema              = <<EOF
     [
@@ -105,7 +105,7 @@ resource "google_dataplex_datascan" "full_quality" {
   }
 
   data {
-    resource = "//bigquery.googleapis.com/projects/%{project_name}/datasets/tf_test_dataset_id/tables/tf_test_table"
+    resource = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_test_table.table_id}"
   }
 
   execution_spec {
@@ -159,13 +159,13 @@ resource "google_dataplex_datascan" "full_quality" {
 func testAccDataplexDatascanDataplexDatascanFullQuality_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "tf_test_dataset" {
-  dataset_id = "tf_test_dataset_id"
+  dataset_id = "tf_test_dataset_id_%{random_suffix}"
   default_table_expiration_ms = 3600000
 }
 
 resource "google_bigquery_table" "tf_test_table" {
   dataset_id          = google_bigquery_dataset.tf_test_dataset.dataset_id
-  table_id            = "tf_test_table"
+  table_id            = "tf_test_table_%{random_suffix}"
   deletion_protection = false
   schema              = <<EOF
     [
@@ -194,7 +194,7 @@ resource "google_dataplex_datascan" "full_quality" {
   }
 
   data {
-    resource = "//bigquery.googleapis.com/projects/%{project_name}/datasets/tf_test_dataset_id/tables/tf_test_table"
+    resource = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_test_table.table_id}"
   }
 
   execution_spec {
