@@ -27,6 +27,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 type ResourceMetadata struct {
@@ -49,11 +50,29 @@ type TgcMetadataPayload struct {
 	PrimaryResource  string                      `json:"primary_resource"`
 }
 
-// Hardcode the Terraform resource name -> API service name mapping temporarily.
-// TODO: [tgc] read the mapping from the resource metadata files.
-var ApiServiceNames = map[string]string{
-	"google_compute_instance": "compute.googleapis.com",
-	"google_project":          "cloudresourcemanager.googleapis.com",
+// PROJECT_NUMBER instead of PROJECT_ID is in the CAI asset names for the resources in those services
+// https://cloud.google.com/asset-inventory/docs/asset-names
+var serviceWithProjectNumber = map[string]struct{}{
+	"apikeys":               {}, // DCL
+	"binaryauthorization":   {},
+	"cloudtasks":            {},
+	"cloudbuild":            {},
+	"colab":                 {},
+	"containerattached":     {},
+	"containeraws":          {},
+	"containerazure":        {},
+	"dialogflowcx":          {},
+	"discoveryengine":       {},
+	"documentai":            {},
+	"healthcare":            {},
+	"iap":                   {},
+	"identityplatform":      {},
+	"logging":               {},
+	"monitoring":            {},
+	"osconfig":              {},
+	"secretmanager":         {},
+	"secretmanagerregional": {},
+	"vpcaccess":             {},
 }
 
 // encodeToBase64JSON converts a struct to base64-encoded JSON
@@ -69,6 +88,9 @@ func encodeToBase64JSON(data interface{}) (string, error) {
 // CollectAllTgcMetadata collects metadata for all resources in a test step
 func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		projectId := envvar.GetTestProjectFromEnv()
+		projectNumber := envvar.GetTestProjectNumberFromEnv()
+
 		// Process each resource to get CAI asset names and resolve auto IDs
 		for address, metadata := range tgcPayload.ResourceMetadata {
 			// If there is import metadata update our primary resource
@@ -95,6 +117,11 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 				default:
 					rName = rState.Primary.ID
 				}
+
+				if _, ok := serviceWithProjectNumber[metadata.Service]; ok {
+					rName = strings.Replace(rName, projectId, projectNumber, 1)
+				}
+
 				metadata.CaiAssetNames = []string{fmt.Sprintf("//%s/%s", apiServiceName, rName)}
 			}
 
