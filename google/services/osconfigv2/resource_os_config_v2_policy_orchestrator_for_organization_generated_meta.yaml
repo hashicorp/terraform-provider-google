@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_os_config_v2_policy_orchestrator_for_organization'
 generation_type: 'mmv1'
 source_file: 'products/osconfigv2/PolicyOrchestratorForOrganization.yaml'
