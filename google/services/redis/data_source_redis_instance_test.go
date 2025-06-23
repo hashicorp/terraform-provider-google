@@ -35,6 +35,7 @@ func TestAccRedisInstanceDatasource_basic(t *testing.T) {
 				Config: testAccRedisInstanceDatasourceConfig(acctest.RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceState("data.google_redis_instance.redis", "google_redis_instance.redis"),
+					resource.TestCheckResourceAttrSet("data.google_redis_instance.redis", "reserved_ip_range"),
 				),
 			},
 		},

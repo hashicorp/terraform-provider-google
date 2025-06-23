@@ -446,6 +446,15 @@ and can change after a failover event.`,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"effective_reserved_ip_range": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The CIDR range of internal addresses that are reserved for this
+instance. If not provided, the service will choose an unused /29
+block, for example, 10.0.0.0/29 or 192.168.0.0/29. Ranges must be
+unique and non-overlapping with existing subnets in an authorized
+network.`,
+			},
 			"host": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -902,6 +911,9 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("redis_version", flattenRedisInstanceRedisVersion(res["redisVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("effective_reserved_ip_range", flattenRedisInstanceEffectiveReservedIpRange(res["reservedIpRange"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("tier", flattenRedisInstanceTier(res["tier"], d, config)); err != nil {
@@ -1565,6 +1577,10 @@ func flattenRedisInstancePersistenceIamIdentity(v interface{}, d *schema.Resourc
 }
 
 func flattenRedisInstanceRedisVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenRedisInstanceEffectiveReservedIpRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
