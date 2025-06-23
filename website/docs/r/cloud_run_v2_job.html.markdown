@@ -397,6 +397,33 @@ resource "google_cloud_run_v2_job" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_job_gpu&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Job Gpu
+
+
+```hcl
+resource "google_cloud_run_v2_job" "default" {
+  provider = google-beta
+  name     = "cloudrun-job"
+  location = "us-central1"
+  deletion_protection = false
+  launch_stage = "BETA"
+  template {
+    template {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/job"
+      }
+      node_selector {
+        accelerator = "nvidia-l4"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -486,6 +513,11 @@ The following arguments are supported:
 * `max_retries` -
   (Optional)
   Number of retries allowed per Task, before marking this Task failed. Defaults to 3. Minimum value is 0.
+
+* `node_selector` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Node Selector describes the hardware requirements of the resources.
+  Structure is [documented below](#nested_template_template_node_selector).
 
 
 <a name="nested_template_template_containers"></a>The `containers` block supports:
@@ -581,7 +613,7 @@ The following arguments are supported:
 
 * `limits` -
   (Optional)
-  Only memory and CPU are supported. Use key `cpu` for CPU limit and `memory` for memory limit. Note: The only supported values for CPU are '1', '2', '4', and '8'. Setting 4 CPU requires at least 2Gi of memory. The values of the map is string form of the 'quantity' k8s type: https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
+  Only memory, CPU, and nvidia.com/gpu are supported. Use key `cpu` for CPU limit, `memory` for memory limit, `nvidia.com/gpu` for gpu limit. Note: The only supported values for CPU are '1', '2', '4', and '8'. Setting 4 CPU requires at least 2Gi of memory. The values of the map is string form of the 'quantity' k8s type: https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
 
 <a name="nested_template_template_containers_containers_ports"></a>The `ports` block supports:
 
@@ -833,6 +865,12 @@ The following arguments are supported:
 * `tags` -
   (Optional)
   Network tags applied to this Cloud Run job.
+
+<a name="nested_template_template_node_selector"></a>The `node_selector` block supports:
+
+* `accelerator` -
+  (Required)
+  The GPU to attach to an instance. See https://cloud.google.com/run/docs/configuring/jobs/gpu for configuring GPU.
 
 - - -
 

@@ -227,7 +227,7 @@ resource "google_compute_network" "custom_test" {
 func TestAccCloudRunV2Job_cloudrunv2JobWithDirectVPCUpdate(t *testing.T) {
 	t.Parallel()
 
-	jobName := fmt.Sprintf("tf-test-cloudrun-service%s", acctest.RandString(t, 10))
+	jobName := fmt.Sprintf("tf-test-cloudrun-job%s", acctest.RandString(t, 10))
 	context := map[string]interface{}{
 		"job_name": jobName,
 		"project":  envvar.GetTestProjectFromEnv(),
@@ -328,7 +328,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobWithGcsUpdate(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	jobName := fmt.Sprintf("tf-test-cloudrun-service%s", acctest.RandString(t, 10))
+	jobName := fmt.Sprintf("tf-test-cloudrun-job%s", acctest.RandString(t, 10))
 	context := map[string]interface{}{
 		"job_name": jobName,
 	}
@@ -339,7 +339,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobWithGcsUpdate(t *testing.T) {
 		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudRunV2Job_cloudrunv2JobWithNoVolume(context),
+				Config: testAccCloudRunV2Job_cloudrunv2BasicJob(context),
 			},
 			{
 				ResourceName:            "google_cloud_run_v2_job.default",
@@ -360,7 +360,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobWithGcsUpdate(t *testing.T) {
 	})
 }
 
-func testAccCloudRunV2Job_cloudrunv2JobWithNoVolume(context map[string]interface{}) string {
+func testAccCloudRunV2Job_cloudrunv2BasicJob(context map[string]interface{}) string {
 	return acctest.Nprintf(`
   resource "google_cloud_run_v2_job" "default" {
     name     = "%{job_name}"
@@ -421,7 +421,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobWithNfsUpdate(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	jobName := fmt.Sprintf("tf-test-cloudrun-service%s", acctest.RandString(t, 10))
+	jobName := fmt.Sprintf("tf-test-cloudrun-job%s", acctest.RandString(t, 10))
 	context := map[string]interface{}{
 		"job_name": jobName,
 	}
@@ -432,7 +432,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobWithNfsUpdate(t *testing.T) {
 		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudRunV2Job_cloudrunv2JobWithNoVolume(context),
+				Config: testAccCloudRunV2Job_cloudrunv2BasicJob(context),
 			},
 			{
 				ResourceName:            "google_cloud_run_v2_job.default",
