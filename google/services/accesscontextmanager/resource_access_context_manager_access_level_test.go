@@ -62,7 +62,13 @@ func testAccAccessContextManagerAccessLevel_basicTest(t *testing.T) {
 }
 
 func testAccAccessContextManagerAccessLevel_fullTest(t *testing.T) {
-	org := envvar.GetTestOrgFromEnv(t)
+	context := map[string]interface{}{
+		"org_id":           envvar.GetTestOrgFromEnv(t),
+		"billing_account":  envvar.GetTestBillingAccountFromEnv(t),
+		"random_suffix":    acctest.RandString(t, 10),
+		"policy_title":     "my policy",
+		"level_title_name": "level",
+	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -70,7 +76,7 @@ func testAccAccessContextManagerAccessLevel_fullTest(t *testing.T) {
 		CheckDestroy:             testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerAccessLevel_full(org, "my policy", "level"),
+				Config: testAccAccessContextManagerAccessLevel_full(context),
 			},
 			{
 				ResourceName:      "google_access_context_manager_access_level.test-access",
@@ -218,23 +224,38 @@ resource "google_access_context_manager_access_level" "test-access" {
 `, org, policyTitle, levelTitleName, levelTitleName)
 }
 
-func testAccAccessContextManagerAccessLevel_full(org, policyTitle, levelTitleName string) string {
-	return fmt.Sprintf(`
+func testAccAccessContextManagerAccessLevel_full(context map[string]interface{}) string {
+
+	return acctest.Nprintf(`
 resource "google_access_context_manager_access_policy" "test-access" {
-  parent = "organizations/%s"
-  title  = "%s"
+  parent = "organizations/%{org_id}"
+  title  = "%{policy_title}"
+}
+
+resource "google_project" "project" {
+  project_id      = "tf-test%{random_suffix}"
+  name            = "tf-test%{random_suffix}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+  deletion_policy = "DELETE"
+}
+
+resource "google_service_account" "test-account" {
+  account_id   = "tf-test-account%{random_suffix}"
+  display_name = "Test Service Account"
+  project      = google_project.project.project_id
 }
 
 resource "google_access_context_manager_access_level" "test-access" {
   parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
-  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/%s"
-  title       = "%s"
+  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/%{level_title_name}"
+  title       = "%{level_title_name}"
   description = "hello"
   basic {
     combining_function = "AND"
     conditions {
       ip_subnetworks = ["192.0.4.0/24"]
-      members = ["user:test@google.com", "user:test2@google.com"]
+      members = ["serviceAccount:${google_service_account.test-account.email}"]
       negate = false
       device_policy {
         require_screen_lock = false
@@ -252,5 +273,5 @@ resource "google_access_context_manager_access_level" "test-access" {
     }
   }
 }
-`, org, policyTitle, levelTitleName, levelTitleName)
+`, context)
 }
