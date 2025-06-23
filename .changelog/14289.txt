@@ -1,0 +1,7 @@
+```release-note:enhancement 
+redis: added output-only `effective_reserved_ip_range` field in `google_redis_instance` resource to display the value of `reservedIpRange` from API
+```
+
+```release-note:bug 
+redis: fixed the bug that the `reserved_ip_range` field is null in `google_redis_instance` data source
+```

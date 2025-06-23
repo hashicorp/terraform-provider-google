@@ -571,6 +571,13 @@ In addition to the arguments listed above, the following computed attributes are
   The value may change over time for a given instance so should be
   checked before each import/export operation.
 
+* `effective_reserved_ip_range` -
+  The CIDR range of internal addresses that are reserved for this
+  instance. If not provided, the service will choose an unused /29
+  block, for example, 10.0.0.0/29 or 192.168.0.0/29. Ranges must be
+  unique and non-overlapping with existing subnets in an authorized
+  network.
+
 * `server_ca_certs` -
   List of server CA certificates for the instance.
   Structure is [documented below](#nested_server_ca_certs).
