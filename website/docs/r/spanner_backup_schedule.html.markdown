@@ -236,6 +236,11 @@ The following arguments are supported:
   The resource name of the Cloud KMS key to use for encryption.
   Format: 'projects/{project}/locations/{location}/keyRings/{keyRing}/cryptoKeys/{cryptoKey}'
 
+* `kms_key_names` -
+  (Optional)
+  Fully qualified name of the KMS keys to use to encrypt this database. The keys must exist
+  in the same locations as the Spanner Database.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
