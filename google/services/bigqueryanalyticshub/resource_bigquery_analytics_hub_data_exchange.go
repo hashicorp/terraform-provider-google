@@ -91,8 +91,7 @@ func ResourceBigqueryAnalyticsHubDataExchange() *schema.Resource {
 			"log_linked_dataset_query_user_email": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
-				Description: `If true, subscriber email logging is enabled and all queries on the linked dataset will log the email address of the querying user.`,
+				Description: `If true, subscriber email logging is enabled and all queries on the linked dataset will log the email address of the querying user. Once enabled, this setting cannot be turned off.`,
 			},
 			"primary_contact": {
 				Type:        schema.TypeString,
@@ -372,6 +371,12 @@ func resourceBigqueryAnalyticsHubDataExchangeUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("icon"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, iconProp)) {
 		obj["icon"] = iconProp
 	}
+	logLinkedDatasetQueryUserEmailProp, err := expandBigqueryAnalyticsHubDataExchangeLogLinkedDatasetQueryUserEmail(d.Get("log_linked_dataset_query_user_email"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_linked_dataset_query_user_email"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logLinkedDatasetQueryUserEmailProp)) {
+		obj["logLinkedDatasetQueryUserEmail"] = logLinkedDatasetQueryUserEmailProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}")
 	if err != nil {
@@ -400,6 +405,10 @@ func resourceBigqueryAnalyticsHubDataExchangeUpdate(d *schema.ResourceData, meta
 
 	if d.HasChange("icon") {
 		updateMask = append(updateMask, "icon")
+	}
+
+	if d.HasChange("log_linked_dataset_query_user_email") {
+		updateMask = append(updateMask, "logLinkedDatasetQueryUserEmail")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
