@@ -155,12 +155,12 @@ resource "google_logging_log_view_iam_member" "member" {
 
 The following arguments are supported:
 
-* `name` - (Required) Used to find the parent resource to bind the IAM policy to
 * `parent` - (Required) The parent of the resource. Used to find the parent resource to bind the IAM policy to
 * `location` - (Optional) The location of the resource. The supported locations are: global, us-central1, us-east1, us-west1, asia-east1, europe-west1. Used to find the parent resource to bind the IAM policy to. If not specified,
   the value will be parsed from the identifier of the parent resource. If no location is provided in the parent identifier and no
   location is specified, it is taken from the provider configuration.
 * `bucket` - (Required) The bucket of the resource Used to find the parent resource to bind the IAM policy to
+* `name` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `member/members` - (Required) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:

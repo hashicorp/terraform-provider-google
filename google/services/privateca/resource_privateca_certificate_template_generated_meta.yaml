@@ -29,6 +29,10 @@ fields:
   - field: 'predefined_values.aia_ocsp_servers'
   - field: 'predefined_values.ca_options.is_ca'
   - field: 'predefined_values.ca_options.max_issuer_path_length'
+  - field: 'predefined_values.ca_options.null_ca'
+    provider_only: true
+  - field: 'predefined_values.ca_options.zero_max_issuer_path_length'
+    provider_only: true
   - field: 'predefined_values.key_usage.base_key_usage.cert_sign'
   - field: 'predefined_values.key_usage.base_key_usage.content_commitment'
   - field: 'predefined_values.key_usage.base_key_usage.crl_sign'
@@ -45,6 +49,15 @@ fields:
   - field: 'predefined_values.key_usage.extended_key_usage.server_auth'
   - field: 'predefined_values.key_usage.extended_key_usage.time_stamping'
   - field: 'predefined_values.key_usage.unknown_extended_key_usages.object_id_path'
+  - field: 'predefined_values.name_constraints.critical'
+  - field: 'predefined_values.name_constraints.excluded_dns_names'
+  - field: 'predefined_values.name_constraints.excluded_email_addresses'
+  - field: 'predefined_values.name_constraints.excluded_ip_ranges'
+  - field: 'predefined_values.name_constraints.excluded_uris'
+  - field: 'predefined_values.name_constraints.permitted_dns_names'
+  - field: 'predefined_values.name_constraints.permitted_email_addresses'
+  - field: 'predefined_values.name_constraints.permitted_ip_ranges'
+  - field: 'predefined_values.name_constraints.permitted_uris'
   - field: 'predefined_values.policy_ids.object_id_path'
   - field: 'terraform_labels'
     provider_only: true

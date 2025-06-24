@@ -341,7 +341,7 @@ responses will not be altered.`,
 				Optional: true,
 				Description: `Settings controlling the volume of connections to a backend service. This field
 is applicable only when the 'load_balancing_scheme' is set to INTERNAL_MANAGED
-and the 'protocol' is set to HTTP, HTTPS, or HTTP2.`,
+and the 'protocol' is set to HTTP, HTTPS, HTTP2 or H2C.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -408,7 +408,7 @@ destination service. This field specifies parameters that control consistent
 hashing.
 This field only applies when all of the following are true -
   * 'load_balancing_scheme' is set to INTERNAL_MANAGED
-  * 'protocol' is set to HTTP, HTTPS, or HTTP2
+  * 'protocol' is set to HTTP, HTTPS, HTTP2 or H2C
   * 'locality_lb_policy' is set to MAGLEV or RING_HASH`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -691,7 +691,7 @@ The possible values are:
 
 locality_lb_policy is applicable to either:
 
-* A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
+* A regional backend service with the service_protocol set to HTTP, HTTPS, HTTP2 or H2C,
   and loadBalancingScheme set to INTERNAL_MANAGED.
 * A global backend service with the load_balancing_scheme set to INTERNAL_SELF_MANAGED.
 * A regional backend service with loadBalancingScheme set to EXTERNAL (External Network
@@ -764,7 +764,7 @@ This field can only be specified when the load balancing scheme is set to INTERN
 				Optional: true,
 				Description: `Settings controlling eviction of unhealthy hosts from the load balancing pool.
 This field is applicable only when the 'load_balancing_scheme' is set
-to INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, or HTTP2.`,
+to INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, HTTP2 or H2C.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -915,10 +915,11 @@ Must be omitted when the loadBalancingScheme is INTERNAL (Internal TCP/UDP Load 
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP", "GRPC", "UNSPECIFIED", ""}),
-				Description: `The protocol this RegionBackendService uses to communicate with backends.
-The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
-types and may result in errors if used with the GA API. Possible values: ["HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP", "GRPC", "UNSPECIFIED"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "UDP", "GRPC", "UNSPECIFIED", "H2C", ""}),
+				Description: `The protocol this BackendService uses to communicate with backends.
+The default is HTTP. Possible values are HTTP, HTTPS, HTTP2, H2C, TCP, SSL, UDP
+or GRPC. Refer to the documentation for the load balancers or for Traffic Director
+for more information. Possible values: ["HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "UDP", "GRPC", "UNSPECIFIED", "H2C"]`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -3097,7 +3098,7 @@ func flattenComputeRegionBackendServiceRegion(v interface{}, d *schema.ResourceD
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func expandComputeRegionBackendServiceAffinityCookieTtlSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

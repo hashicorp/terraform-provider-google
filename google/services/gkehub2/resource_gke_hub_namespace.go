@@ -227,29 +227,15 @@ func resourceGKEHub2NamespaceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = GKEHub2OperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Namespace", userAgent,
+	err = GKEHub2OperationWaitTime(
+		config, res, project, "Creating Namespace", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Namespace: %s", err)
 	}
-
-	if err := d.Set("name", flattenGKEHub2NamespaceName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/scopes/{{scope_id}}/namespaces/{{scope_namespace_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Namespace %q: %#v", d.Id(), res)
 

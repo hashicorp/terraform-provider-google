@@ -79,6 +79,8 @@ fields:
   - field: 'settings.disk_autoresize'
   - field: 'settings.disk_autoresize_limit'
   - field: 'settings.disk_size'
+  - field: 'settings.data_disk_provisioned_iops'
+  - field: 'settings.data_disk_provisioned_throughput'
   - field: 'settings.disk_type'
   - field: 'settings.edition'
   - field: 'settings.enable_dataplex_integration'

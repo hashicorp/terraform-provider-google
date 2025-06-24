@@ -1361,22 +1361,14 @@ func resourceGkeonpremBareMetalClusterCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = GkeonpremOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating BareMetalCluster", userAgent,
+	err = GkeonpremOperationWaitTime(
+		config, res, project, "Creating BareMetalCluster", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
+
 		return fmt.Errorf("Error waiting to create BareMetalCluster: %s", err)
 	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/bareMetalClusters/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating BareMetalCluster %q: %#v", d.Id(), res)
 

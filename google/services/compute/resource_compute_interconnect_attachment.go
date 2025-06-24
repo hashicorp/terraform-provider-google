@@ -215,8 +215,8 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				Description: `Maximum Transmission Unit (MTU), in bytes, of packets passing through
-this interconnect attachment. Currently, only 1440 and 1500 are allowed. If not specified, the value will default to 1440.`,
+				Description: `Maximum Transmission Unit (MTU), in bytes, of packets passing through this interconnect attachment.
+Valid values are 1440, 1460, 1500, and 8896. If not specified, the value will default to 1440.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -262,6 +262,11 @@ DEDICATED. Possible values: ["DEDICATED", "PARTNER", "PARTNER_PROVIDER"]`,
 				ForceNew: true,
 				Description: `The IEEE 802.1Q VLAN tag for this attachment, in the range 2-4094. When
 using PARTNER type this will be managed upstream.`,
+			},
+			"attachment_group": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `URL of the AttachmentGroup that includes this Attachment.`,
 			},
 			"cloud_router_ip_address": {
 				Type:     schema.TypeString,
@@ -724,6 +729,9 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 	if err := d.Set("label_fingerprint", flattenComputeInterconnectAttachmentLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
+	if err := d.Set("attachment_group", flattenComputeInterconnectAttachmentAttachmentGroup(res["attachmentGroup"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenComputeInterconnectAttachmentTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
@@ -1130,6 +1138,10 @@ func flattenComputeInterconnectAttachmentLabels(v interface{}, d *schema.Resourc
 }
 
 func flattenComputeInterconnectAttachmentLabelFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectAttachmentAttachmentGroup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -37,6 +38,7 @@ func ResourceBackupDRBackupPlanAssociation() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBackupDRBackupPlanAssociationCreate,
 		Read:   resourceBackupDRBackupPlanAssociationRead,
+		Update: resourceBackupDRBackupPlanAssociationUpdate,
 		Delete: resourceBackupDRBackupPlanAssociationDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -45,6 +47,7 @@ func ResourceBackupDRBackupPlanAssociation() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
@@ -56,33 +59,32 @@ func ResourceBackupDRBackupPlanAssociation() *schema.Resource {
 			"backup_plan": {
 				Type:             schema.TypeString,
 				Required:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
-				Description:      `The BP with which resource needs to be created`,
+				Description: `The BP with which resource needs to be created
+Note:
+- A Backup Plan configured for 'compute.googleapis.com/Instance', can only protect instance type resources.
+- A Backup Plan configured for 'compute.googleapis.com/Disk' can be used to protect both standard Disks and Regional Disks resources.`,
 			},
 			"backup_plan_association_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The id of backupplan association`,
 			},
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The location for the backupplan association`,
 			},
 			"resource": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The resource for which BPA needs to be created`,
 			},
 			"resource_type": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The resource type of workload on which backupplan is applied`,
+				Type:     schema.TypeString,
+				Required: true,
+				Description: `The resource type of workload on which backupplan is applied.
+Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", and "compute.googleapis.com/RegionDisk"`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -226,29 +228,15 @@ func resourceBackupDRBackupPlanAssociationCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = BackupDROperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating BackupPlanAssociation", userAgent,
+	err = BackupDROperationWaitTime(
+		config, res, project, "Creating BackupPlanAssociation", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create BackupPlanAssociation: %s", err)
 	}
-
-	if err := d.Set("name", flattenBackupDRBackupPlanAssociationName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backupPlanAssociations/{{backup_plan_association_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating BackupPlanAssociation %q: %#v", d.Id(), res)
 
@@ -323,6 +311,104 @@ func resourceBackupDRBackupPlanAssociationRead(d *schema.ResourceData, meta inte
 	}
 
 	return nil
+}
+
+func resourceBackupDRBackupPlanAssociationUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for BackupPlanAssociation: %s", err)
+	}
+	billingProject = project
+
+	obj := make(map[string]interface{})
+	resourceProp, err := expandBackupDRBackupPlanAssociationResource(d.Get("resource"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("resource"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, resourceProp)) {
+		obj["resource"] = resourceProp
+	}
+	backupPlanProp, err := expandBackupDRBackupPlanAssociationBackupPlan(d.Get("backup_plan"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("backup_plan"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backupPlanProp)) {
+		obj["backupPlan"] = backupPlanProp
+	}
+	resourceTypeProp, err := expandBackupDRBackupPlanAssociationResourceType(d.Get("resource_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("resource_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, resourceTypeProp)) {
+		obj["resourceType"] = resourceTypeProp
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupPlanAssociations/{{backup_plan_association_id}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating BackupPlanAssociation %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+	updateMask := []string{}
+
+	if d.HasChange("resource") {
+		updateMask = append(updateMask, "resource")
+	}
+
+	if d.HasChange("backup_plan") {
+		updateMask = append(updateMask, "backupPlan")
+	}
+
+	if d.HasChange("resource_type") {
+		updateMask = append(updateMask, "resourceType")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error updating BackupPlanAssociation %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating BackupPlanAssociation %q: %#v", d.Id(), res)
+		}
+
+		err = BackupDROperationWaitTime(
+			config, res, project, "Updating BackupPlanAssociation", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return resourceBackupDRBackupPlanAssociationRead(d, meta)
 }
 
 func resourceBackupDRBackupPlanAssociationDelete(d *schema.ResourceData, meta interface{}) error {

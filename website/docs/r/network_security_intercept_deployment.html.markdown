@@ -27,8 +27,6 @@ GENEVE-encapsulated traffic, e.g. a zonal instance group fronted by an
 internal passthrough load balancer. Deployments are always part of a
 global deployment group which represents a global intercept service.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -41,13 +39,11 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_compute_network" "network" {
-  provider                = google-beta
   name                    = "example-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  provider      = google-beta
   name          = "example-subnet"
   region        = "us-central1"
   ip_cidr_range = "10.1.0.0/16"
@@ -55,16 +51,14 @@ resource "google_compute_subnetwork" "subnetwork" {
 }
 
 resource "google_compute_region_health_check" "health_check" {
-  provider = google-beta
-  name     = "example-hc"
-  region   = "us-central1"
+  name   = "example-hc"
+  region = "us-central1"
   http_health_check {
     port = 80
   }
 }
 
 resource "google_compute_region_backend_service" "backend_service" {
-  provider              = google-beta
   name                  = "example-bs"
   region                = "us-central1"
   health_checks         = [google_compute_region_health_check.health_check.id]
@@ -73,26 +67,23 @@ resource "google_compute_region_backend_service" "backend_service" {
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule" {
-  provider               = google-beta
-  name                   = "example-fwr"
-  region                 = "us-central1"
-  network                = google_compute_network.network.name
-  subnetwork             = google_compute_subnetwork.subnetwork.name
-  backend_service        = google_compute_region_backend_service.backend_service.id
-  load_balancing_scheme  = "INTERNAL"
-  ports                  = [6081]
-  ip_protocol            = "UDP"
+  name                  = "example-fwr"
+  region                = "us-central1"
+  network               = google_compute_network.network.name
+  subnetwork            = google_compute_subnetwork.subnetwork.name
+  backend_service       = google_compute_region_backend_service.backend_service.id
+  load_balancing_scheme = "INTERNAL"
+  ports                 = [6081]
+  ip_protocol           = "UDP"
 }
 
 resource "google_network_security_intercept_deployment_group" "deployment_group" {
-  provider                      = google-beta
   intercept_deployment_group_id = "example-dg"
   location                      = "global"
   network                       = google_compute_network.network.id
 }
 
 resource "google_network_security_intercept_deployment" "default" {
-  provider                   = google-beta
   intercept_deployment_id    = "example-deployment"
   location                   = "us-central1-a"
   forwarding_rule            = google_compute_forwarding_rule.forwarding_rule.id

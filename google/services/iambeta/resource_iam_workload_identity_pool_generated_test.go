@@ -63,42 +63,6 @@ resource "google_iam_workload_identity_pool" "example" {
 `, context)
 }
 
-func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullExample(context),
-			},
-			{
-				ResourceName:            "google_iam_workload_identity_pool.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"workload_identity_pool_id"},
-			},
-		},
-	})
-}
-
-func testAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_iam_workload_identity_pool" "example" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
-  display_name              = "Name of pool"
-  description               = "Identity pool for automated test"
-  disabled                  = true
-}
-`, context)
-}
-
 func testAccCheckIAMBetaWorkloadIdentityPoolDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

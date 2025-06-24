@@ -45,7 +45,7 @@ resource "google_bigquery_analytics_hub_data_exchange" "subscription" {
   location         = "US"
   data_exchange_id = "my_data_exchange"
   display_name     = "my_data_exchange"
-  description      = ""
+  description      = "Test Description"
 }
 
 resource "google_bigquery_analytics_hub_listing" "subscription" {
@@ -53,7 +53,7 @@ resource "google_bigquery_analytics_hub_listing" "subscription" {
   data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
   listing_id       = "my_listing"
   display_name     = "my_listing"
-  description      = ""
+  description      = "Test Description"
 
   bigquery_dataset {
     dataset = google_bigquery_dataset.subscription.id
@@ -63,7 +63,7 @@ resource "google_bigquery_analytics_hub_listing" "subscription" {
 resource "google_bigquery_dataset" "subscription" {
   dataset_id                  = "my_listing"
   friendly_name               = "my_listing"
-  description                 = ""
+  description                 = "Test Description"
   location                    = "US"
 }
 
@@ -193,6 +193,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `linked_resources` -
   Output only. Linked resources created in the subscription. Only contains values if state = STATE_ACTIVE.
   Structure is [documented below](#nested_linked_resources).
+
+* `log_linked_dataset_query_user_email` -
+  Output only. By default, false. If true, the Subscriber agreed to the email sharing mandate that is enabled for Listing.
 
 
 <a name="nested_linked_dataset_map"></a>The `linked_dataset_map` block contains:

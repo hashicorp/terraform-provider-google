@@ -39,6 +39,9 @@ data "google_apigee_environment_iam_policy" "policy" {
 
 The following arguments are supported:
 
+* `org_id` - (Required) The Apigee Organization associated with the Apigee environment,
+in the format `organizations/{{org_name}}`.
+ Used to find the parent resource to bind the IAM policy to
 * `env_id` - (Required) Used to find the parent resource to bind the IAM policy to
 
 ## Attributes Reference

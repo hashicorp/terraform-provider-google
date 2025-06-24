@@ -73,9 +73,45 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `backup_vault_type` -
+  (Optional)
+  Type of the backup vault to be created. Default is IN_REGION.
+  Possible values are: `BACKUP_VAULT_TYPE_UNSPECIFIED`, `IN_REGION`, `CROSS_REGION`.
+
+* `backup_region` -
+  (Optional)
+  Region in which backup is stored.
+
+* `backup_retention_policy` -
+  (Optional)
+  Backup retention policy defining the retention of the backups.
+  Structure is [documented below](#nested_backup_retention_policy).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_backup_retention_policy"></a>The `backup_retention_policy` block supports:
+
+* `backup_minimum_enforced_retention_days` -
+  (Required)
+  Minimum retention duration in days for backups in the backup vault.
+
+* `daily_backup_immutable` -
+  (Optional)
+  Indicates if the daily backups are immutable. At least one of daily_backup_immutable, weekly_backup_immutable, monthly_backup_immutable and manual_backup_immutable must be true.
+
+* `weekly_backup_immutable` -
+  (Optional)
+  Indicates if the weekly backups are immutable. At least one of daily_backup_immutable, weekly_backup_immutable, monthly_backup_immutable and manual_backup_immutable must be true.
+
+* `monthly_backup_immutable` -
+  (Optional)
+  Indicates if the monthly backups are immutable. At least one of daily_backup_immutable, weekly_backup_immutable, monthly_backup_immutable and manual_backup_immutable must be true.
+
+* `manual_backup_immutable` -
+  (Optional)
+  Indicates if the manual backups are immutable. At least one of daily_backup_immutable, weekly_backup_immutable, monthly_backup_immutable and manual_backup_immutable must be true.
 
 ## Attributes Reference
 
@@ -88,6 +124,15 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `create_time` -
   Create time of the backup vault. A timestamp in RFC3339 UTC "Zulu" format. Examples: "2023-06-22T09:13:01.617Z".
+
+* `source_region` -
+  Region in which the backup vault is created.
+
+* `source_backup_vault` -
+  Name of the Backup vault created in source region.
+
+* `destination_backup_vault` -
+  Name of the Backup vault created in backup region.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

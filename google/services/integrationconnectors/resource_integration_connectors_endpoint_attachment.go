@@ -208,25 +208,15 @@ func resourceIntegrationConnectorsEndpointAttachmentCreate(d *schema.ResourceDat
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = IntegrationConnectorsOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating EndpointAttachment", userAgent,
+	err = IntegrationConnectorsOperationWaitTime(
+		config, res, project, "Creating EndpointAttachment", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create EndpointAttachment: %s", err)
 	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/endpointAttachments/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating EndpointAttachment %q: %#v", d.Id(), res)
 

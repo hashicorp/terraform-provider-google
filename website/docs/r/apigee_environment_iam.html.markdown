@@ -84,6 +84,9 @@ resource "google_apigee_environment_iam_member" "member" {
 
 The following arguments are supported:
 
+* `org_id` - (Required) The Apigee Organization associated with the Apigee environment,
+in the format `organizations/{{org_name}}`.
+ Used to find the parent resource to bind the IAM policy to
 * `env_id` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `member/members` - (Required) Identities that will be granted the privilege in `role`.

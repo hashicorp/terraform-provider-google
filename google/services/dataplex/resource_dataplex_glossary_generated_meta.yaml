@@ -1,0 +1,24 @@
+resource: 'google_dataplex_glossary'
+generation_type: 'mmv1'
+source_file: 'products/dataplex/Glossary.yaml'
+api_service_name: 'dataplex.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Glossary'
+fields:
+  - field: 'category_count'
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'display_name'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'glossary_id'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'term_count'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'uid'
+  - field: 'update_time'

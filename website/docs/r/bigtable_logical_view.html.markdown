@@ -61,6 +61,7 @@ resource "google_bigtable_table" "table" {
 resource "google_bigtable_logical_view" "logical_view" {
   logical_view_id = "bt-logical-view"
   instance        = google_bigtable_instance.instance.name
+  deletion_protection  = false
   query = <<EOT
 SELECT _key, CF
 FROM ` + "`bt-table`" + `
@@ -88,6 +89,10 @@ The following arguments are supported:
 
 - - -
 
+
+* `deletion_protection` -
+  (Optional)
+  Set to true to make the logical view protected against deletion.
 
 * `instance` -
   (Optional)

@@ -105,6 +105,11 @@ Format: 'projects/{{projectId}}/locations/{{location}}/volumes/{{volumename}}/sn
 				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 				Description:      `ID of volumes this backup belongs to. Format: 'projects/{{projects_id}}/locations/{{location}}/volumes/{{name}}''`,
 			},
+			"backup_region": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Region in which backup is stored.`,
+			},
 			"backup_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -138,6 +143,11 @@ Total size of all backups in a chain in bytes = baseline backup size + sum(incre
 				Description: `The combination of labels configured directly on the resource
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"volume_region": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Region of the volume from which the backup was created.`,
 			},
 			"volume_usage_bytes": {
 				Type:        schema.TypeString,
@@ -311,6 +321,12 @@ func resourceNetappBackupRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Backup: %s", err)
 	}
 	if err := d.Set("source_snapshot", flattenNetappBackupSourceSnapshot(res["sourceSnapshot"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err := d.Set("volume_region", flattenNetappBackupVolumeRegion(res["volumeRegion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err := d.Set("backup_region", flattenNetappBackupBackupRegion(res["backupRegion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Backup: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenNetappBackupTerraformLabels(res["labels"], d, config)); err != nil {
@@ -541,6 +557,14 @@ func flattenNetappBackupChainStorageBytes(v interface{}, d *schema.ResourceData,
 }
 
 func flattenNetappBackupSourceSnapshot(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappBackupVolumeRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappBackupBackupRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

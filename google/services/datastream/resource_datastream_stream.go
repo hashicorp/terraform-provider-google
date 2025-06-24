@@ -1959,29 +1959,15 @@ func resourceDatastreamStreamCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = DatastreamOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Stream", userAgent,
+	err = DatastreamOperationWaitTime(
+		config, res, project, "Creating Stream", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Stream: %s", err)
 	}
-
-	if err := d.Set("name", flattenDatastreamStreamName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/streams/{{stream_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	if err := waitForDatastreamStreamReady(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
 		return fmt.Errorf("Error waiting for Stream %q to be NOT_STARTED or RUNNING during creation: %q", d.Get("name").(string), err)

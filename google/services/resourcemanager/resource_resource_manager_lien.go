@@ -175,18 +175,6 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	// This resource is unusual - instead of returning an Operation from
-	// Create, it returns the created object itself.  We don't parse
-	// any of the values there, preferring to centralize that logic in
-	// Read().  In this resource, Read is also unusual - it requires
-	// us to know the server-side generated name of the object we're
-	// trying to fetch, and the only way to know that is to capture
-	// it here.  The following two lines do that.
-	d.SetId(flattenNestedResourceManagerLienName(res["name"], d, config).(string))
-	if err := d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
-
 	log.Printf("[DEBUG] Finished creating Lien %q: %#v", d.Id(), res)
 
 	return resourceResourceManagerLienRead(d, meta)
@@ -350,7 +338,7 @@ func flattenNestedResourceManagerLienName(v interface{}, d *schema.ResourceData,
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenNestedResourceManagerLienReason(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

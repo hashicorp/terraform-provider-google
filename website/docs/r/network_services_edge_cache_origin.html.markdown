@@ -244,6 +244,12 @@ The following arguments are supported:
   Follow redirects from this origin.
   Structure is [documented below](#nested_origin_redirect).
 
+* `flex_shielding` -
+  (Optional)
+  The FlexShieldingOptions to be used for all routes to this origin.
+  If not set, defaults to a global caching layer in front of the origin.
+  Structure is [documented below](#nested_flex_shielding).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -352,6 +358,15 @@ The following arguments are supported:
   follows. Values of
   [RedirectConditions](https://cloud.google.com/media-cdn/docs/reference/rest/v1/projects.locations.edgeCacheOrigins#redirectconditions)
   are accepted.
+
+<a name="nested_flex_shielding"></a>The `flex_shielding` block supports:
+
+* `flex_shielding_regions` -
+  (Optional)
+  Whenever possible, content will be fetched from origin and cached in or
+  near the specified origin. Best effort.
+  You must specify exactly one FlexShieldingRegion.
+  Each value may be one of: `AFRICA_SOUTH1`, `ME_CENTRAL1`.
 
 ## Attributes Reference
 

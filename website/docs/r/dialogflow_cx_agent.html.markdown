@@ -110,6 +110,9 @@ resource "google_dialogflow_cx_agent" "full_agent" {
       }
     })
   }
+  gen_app_builder_settings {
+    engine = "projects/-/locations/-/collections/-/engines/-"
+  }
 }
 ```
 
@@ -190,8 +193,28 @@ The following arguments are supported:
   Settings related to speech synthesizing.
   Structure is [documented below](#nested_text_to_speech_settings).
 
+* `gen_app_builder_settings` -
+  (Optional)
+  Gen App Builder-related agent-level settings.
+  Structure is [documented below](#nested_gen_app_builder_settings).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `delete_chat_engine_on_destroy` - (Optional) If set to `true`, Terraform will delete the chat engine associated with the agent when the agent is destroyed.
+Otherwise, the chat engine will persist.
+
+This virtual field addresses a critical dependency chain: `agent` -> `engine` -> `data store`. The chat engine is automatically
+provisioned when a data store is linked to the agent, meaning Terraform doesn't have direct control over its lifecycle as a managed
+resource. This creates a problem when both the agent and data store are managed by Terraform and need to be destroyed. Without
+delete_chat_engine_on_destroy set to true, the data store's deletion would fail because the unmanaged chat engine would still be
+using it. This setting ensures that the entire dependency chain can be properly torn down.
+See `mmv1/templates/terraform/examples/dialogflowcx_tool_data_store.tf.tmpl` as an example.
+
+Data store can be linked to an agent through the `knowledgeConnectorSettings` field of a [flow](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.flows#resource:-flow)
+or a [page](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.flows.pages#resource:-page)
+or the `dataStoreSpec` field of a [tool](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.tools#resource:-tool).
+The ID of the implicitly created engine is stored in the `genAppBuilderSettings` field of the [agent](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents#resource:-agent).
 
 
 <a name="nested_speech_to_text_settings"></a>The `speech_to_text_settings` block supports:
@@ -328,6 +351,13 @@ The following arguments are supported:
   These settings affect:
   * The phone gateway synthesize configuration set via Agent.text_to_speech_settings.
   * How speech is synthesized when invoking session APIs. `Agent.text_to_speech_settings` only applies if `OutputAudioConfig.synthesize_speech_config` is not specified.
+
+<a name="nested_gen_app_builder_settings"></a>The `gen_app_builder_settings` block supports:
+
+* `engine` -
+  (Required)
+  The full name of the Gen App Builder engine related to this agent if there is one.
+  Format: projects/{Project ID}/locations/{Location ID}/collections/{Collection ID}/engines/{Engine ID}
 
 ## Attributes Reference
 

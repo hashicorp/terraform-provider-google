@@ -69,6 +69,11 @@ func ResourceGeminiGeminiGcpEnablementSetting() *schema.Resource {
 				ForceNew:    true,
 				Description: `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
 			},
+			"disable_web_grounding": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether web grounding should be disabled.`,
+			},
 			"enable_customer_data_sharing": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -136,6 +141,12 @@ func resourceGeminiGeminiGcpEnablementSettingCreate(d *schema.ResourceData, meta
 		return err
 	} else if v, ok := d.GetOkExists("enable_customer_data_sharing"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableCustomerDataSharingProp)) && (ok || !reflect.DeepEqual(v, enableCustomerDataSharingProp)) {
 		obj["enableCustomerDataSharing"] = enableCustomerDataSharingProp
+	}
+	disableWebGroundingProp, err := expandGeminiGeminiGcpEnablementSettingDisableWebGrounding(d.Get("disable_web_grounding"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disable_web_grounding"); !tpgresource.IsEmptyValue(reflect.ValueOf(disableWebGroundingProp)) && (ok || !reflect.DeepEqual(v, disableWebGroundingProp)) {
+		obj["disableWebGrounding"] = disableWebGroundingProp
 	}
 	labelsProp, err := expandGeminiGeminiGcpEnablementSettingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -254,6 +265,9 @@ func resourceGeminiGeminiGcpEnablementSettingRead(d *schema.ResourceData, meta i
 	if err := d.Set("enable_customer_data_sharing", flattenGeminiGeminiGcpEnablementSettingEnableCustomerDataSharing(res["enableCustomerDataSharing"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
 	}
+	if err := d.Set("disable_web_grounding", flattenGeminiGeminiGcpEnablementSettingDisableWebGrounding(res["disableWebGrounding"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenGeminiGeminiGcpEnablementSettingTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
 	}
@@ -286,6 +300,12 @@ func resourceGeminiGeminiGcpEnablementSettingUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("enable_customer_data_sharing"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableCustomerDataSharingProp)) {
 		obj["enableCustomerDataSharing"] = enableCustomerDataSharingProp
 	}
+	disableWebGroundingProp, err := expandGeminiGeminiGcpEnablementSettingDisableWebGrounding(d.Get("disable_web_grounding"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disable_web_grounding"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableWebGroundingProp)) {
+		obj["disableWebGrounding"] = disableWebGroundingProp
+	}
 	labelsProp, err := expandGeminiGeminiGcpEnablementSettingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -311,6 +331,10 @@ func resourceGeminiGeminiGcpEnablementSettingUpdate(d *schema.ResourceData, meta
 
 	if d.HasChange("enable_customer_data_sharing") {
 		updateMask = append(updateMask, "enableCustomerDataSharing")
+	}
+
+	if d.HasChange("disable_web_grounding") {
+		updateMask = append(updateMask, "disableWebGrounding")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -458,6 +482,10 @@ func flattenGeminiGeminiGcpEnablementSettingEnableCustomerDataSharing(v interfac
 	return v
 }
 
+func flattenGeminiGeminiGcpEnablementSettingDisableWebGrounding(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenGeminiGeminiGcpEnablementSettingTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -478,6 +506,10 @@ func flattenGeminiGeminiGcpEnablementSettingEffectiveLabels(v interface{}, d *sc
 }
 
 func expandGeminiGeminiGcpEnablementSettingEnableCustomerDataSharing(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiGeminiGcpEnablementSettingDisableWebGrounding(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

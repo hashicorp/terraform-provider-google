@@ -245,29 +245,15 @@ func resourceDeveloperConnectAccountConnectorCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = DeveloperConnectOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating AccountConnector", userAgent,
+	err = DeveloperConnectOperationWaitTime(
+		config, res, project, "Creating AccountConnector", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create AccountConnector: %s", err)
 	}
-
-	if err := d.Set("name", flattenDeveloperConnectAccountConnectorName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/accountConnectors/{{account_connector_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating AccountConnector %q: %#v", d.Id(), res)
 

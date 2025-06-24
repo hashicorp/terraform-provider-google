@@ -197,25 +197,15 @@ func resourceVertexAIFeatureGroupFeatureCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = VertexAIOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating FeatureGroupFeature", userAgent,
+	err = VertexAIOperationWaitTime(
+		config, res, project, "Creating FeatureGroupFeature", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create FeatureGroupFeature: %s", err)
 	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/featureGroups/{{feature_group}}/features/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating FeatureGroupFeature %q: %#v", d.Id(), res)
 

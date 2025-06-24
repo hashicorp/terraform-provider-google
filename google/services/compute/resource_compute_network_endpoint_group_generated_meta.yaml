@@ -7,6 +7,8 @@ api_resource_type_kind: 'NetworkEndpointGroup'
 fields:
   - field: 'default_port'
   - field: 'description'
+  - field: 'generated_id'
+    api_field: 'id'
   - field: 'name'
   - field: 'network'
   - field: 'network_endpoint_type'

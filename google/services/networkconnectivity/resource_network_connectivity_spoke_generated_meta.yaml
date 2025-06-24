@@ -33,6 +33,9 @@ fields:
   - field: 'location'
     provider_only: true
   - field: 'name'
+  - field: 'reasons.code'
+  - field: 'reasons.message'
+  - field: 'reasons.user_details'
   - field: 'state'
   - field: 'terraform_labels'
     provider_only: true

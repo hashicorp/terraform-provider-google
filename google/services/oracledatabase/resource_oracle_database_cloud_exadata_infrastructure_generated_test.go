@@ -36,7 +36,7 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 	context := map[string]interface{}{
 		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-basic-%s", acctest.RandString(t, 10)),
 		"deletion_protection":             false,
-		"project":                         "oci-terraform-testing",
+		"project":                         "oci-terraform-testing-prod",
 		"random_suffix":                   acctest.RandString(t, 10),
 	}
 
@@ -82,7 +82,7 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 	context := map[string]interface{}{
 		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-full-%s", acctest.RandString(t, 10)),
 		"deletion_protection":             false,
-		"project":                         "oci-terraform-testing",
+		"project":                         "oci-terraform-testing-prod",
 		"random_suffix":                   acctest.RandString(t, 10),
 	}
 

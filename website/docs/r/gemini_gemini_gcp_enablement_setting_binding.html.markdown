@@ -37,6 +37,7 @@ resource "google_gemini_gemini_gcp_enablement_setting" "basic" {
     location = "global"
     labels = {"my_key": "my_value"}
     enable_customer_data_sharing = true
+    disable_web_grounding = true
 }
 
 resource "google_gemini_gemini_gcp_enablement_setting_binding" "example" {
@@ -76,8 +77,7 @@ The following arguments are supported:
 
 * `product` -
   (Optional)
-  Product type of the setting binding.
-  Possible values are: `GEMINI_IN_BIGQUERY`.
+  Product type of the setting binding. Values include GEMINI_IN_BIGQUERY, GEMINI_CLOUD_ASSIST, etc. See [product reference](https://cloud.google.com/gemini/docs/api/reference/rest/v1/projects.locations.dataSharingWithGoogleSettings.settingBindings) for a complete list.
 
 * `location` -
   (Optional)

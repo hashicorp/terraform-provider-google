@@ -63,7 +63,7 @@ func testAccGKEBackupRestoreChannel_gkebackupRestorechannelBasicExample(context 
 resource "google_gke_backup_restore_channel" "basic" {
   name = "tf-test-basic-channel%{random_suffix}"
   location = "us-central1"
-  description = ""
+  description = "Description"
   destination_project = "%{destination_project}"
   labels = { "key": "some-value" }
 }

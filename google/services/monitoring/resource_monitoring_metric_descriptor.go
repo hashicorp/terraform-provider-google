@@ -56,18 +56,6 @@ func ResourceMonitoringMetricDescriptor() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			"description": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `A detailed description of the metric, which can be used in documentation.`,
-			},
-			"display_name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `A concise name for the metric, which can be displayed in user interfaces. Use sentence case without an ending period, for example "Request count".`,
-			},
 			"metric_kind": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -87,6 +75,16 @@ func ResourceMonitoringMetricDescriptor() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION"}),
 				Description:  `Whether the measurement is an integer, a floating-point number, etc. Some combinations of metricKind and valueType might not be supported. Possible values: ["BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION"]`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A detailed description of the metric, which can be used in documentation.`,
+			},
+			"display_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A concise name for the metric, which can be displayed in user interfaces. Use sentence case without an ending period, for example "Request count".`,
 			},
 			"labels": {
 				Type:        schema.TypeSet,
@@ -128,7 +126,6 @@ func ResourceMonitoringMetricDescriptor() *schema.Resource {
 			"unit": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Description: `The units in which the metric value is reported. It is only applicable if the
 valueType is INT64, DOUBLE, or DISTRIBUTION. The unit defines the representation of
 the stored metric values.

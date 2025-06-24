@@ -334,7 +334,7 @@ func testAccComputeInstanceIamMember_basicGenerated(context map[string]interface
 	return acctest.Nprintf(`
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -362,7 +362,7 @@ func testAccComputeInstanceIamPolicy_basicGenerated(context map[string]interface
 	return acctest.Nprintf(`
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -405,7 +405,7 @@ func testAccComputeInstanceIamPolicy_emptyBinding(context map[string]interface{}
 	return acctest.Nprintf(`
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -435,7 +435,7 @@ func testAccComputeInstanceIamBinding_basicGenerated(context map[string]interfac
 	return acctest.Nprintf(`
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -463,7 +463,7 @@ func testAccComputeInstanceIamBinding_updateGenerated(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -491,7 +491,7 @@ func testAccComputeInstanceIamBinding_withConditionGenerated(context map[string]
 	return acctest.Nprintf(`
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -524,7 +524,7 @@ func testAccComputeInstanceIamBinding_withAndWithoutConditionGenerated(context m
 	return acctest.Nprintf(`
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -579,7 +579,7 @@ func testAccComputeInstanceIamMember_withConditionGenerated(context map[string]i
 	return acctest.Nprintf(`
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -612,7 +612,7 @@ func testAccComputeInstanceIamMember_withAndWithoutConditionGenerated(context ma
 	return acctest.Nprintf(`
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -667,7 +667,7 @@ func testAccComputeInstanceIamPolicy_withConditionGenerated(context map[string]i
 	return acctest.Nprintf(`
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {

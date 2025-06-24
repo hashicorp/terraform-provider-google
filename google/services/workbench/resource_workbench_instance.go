@@ -88,6 +88,7 @@ var WorkbenchInstanceProvidedMetadata = []string{
 	"install-monitoring-agent",
 	"install-nvidia-driver",
 	"installed-extensions",
+	"instance-region",
 	"last_updated_diagnostics",
 	"notebooks-api",
 	"notebooks-api-version",
@@ -121,9 +122,12 @@ var WorkbenchInstanceProvidedMetadata = []string{
 }
 
 func WorkbenchInstanceMetadataDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	// Suppress diffs for the Metadata
+	// Extract the actual metadata key from the full key path
+	parts := strings.Split(k, ".")
+	key := parts[len(parts)-1]
+
 	for _, metadata := range WorkbenchInstanceProvidedMetadata {
-		if strings.Contains(k, metadata) {
+		if key == metadata {
 			return true
 		}
 	}
@@ -939,25 +943,15 @@ func resourceWorkbenchInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = WorkbenchOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Instance", userAgent,
+	err = WorkbenchOperationWaitTime(
+		config, res, project, "Creating Instance", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Instance: %s", err)
 	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	if err := waitForWorkbenchInstanceActive(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
 		return fmt.Errorf("Workbench instance %q did not reach ACTIVE state: %q", d.Get("name").(string), err)
@@ -1408,7 +1402,7 @@ func flattenWorkbenchInstanceGceSetupMachineType(v interface{}, d *schema.Resour
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenWorkbenchInstanceGceSetupAcceleratorConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

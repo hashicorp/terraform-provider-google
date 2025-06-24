@@ -47,7 +47,6 @@ fields:
     provider_only: true
   - field: 'state'
   - field: 'state_message'
-  - field: 'tags'
   - field: 'telemetry_config.log_format'
   - field: 'terraform_labels'
     provider_only: true

@@ -339,7 +339,7 @@ func resourceComputeFirewallPolicyRuleCreate(d *schema.ResourceData, meta interf
 	disabledProp, err := expandComputeFirewallPolicyRuleDisabled(d.Get("disabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(disabledProp)) && (ok || !reflect.DeepEqual(v, disabledProp)) {
+	} else if v, ok := d.GetOkExists("disabled"); ok || !reflect.DeepEqual(v, disabledProp) {
 		obj["disabled"] = disabledProp
 	}
 	firewallPolicyProp, err := expandComputeFirewallPolicyRuleFirewallPolicy(d.Get("firewall_policy"), d, config)
@@ -552,7 +552,7 @@ func resourceComputeFirewallPolicyRuleUpdate(d *schema.ResourceData, meta interf
 	disabledProp, err := expandComputeFirewallPolicyRuleDisabled(d.Get("disabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disabledProp)) {
+	} else if v, ok := d.GetOkExists("disabled"); ok || !reflect.DeepEqual(v, disabledProp) {
 		obj["disabled"] = disabledProp
 	}
 	firewallPolicyProp, err := expandComputeFirewallPolicyRuleFirewallPolicy(d.Get("firewall_policy"), d, config)
