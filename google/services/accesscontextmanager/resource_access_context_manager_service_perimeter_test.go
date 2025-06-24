@@ -274,7 +274,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 		ingress_policies {
 			title = "ingress policy 2"
 			ingress_from {
-				identities = ["user:test@google.com"]
+				identities = ["group:test@google.com"]
 			}
 			ingress_to {
 				resources = ["*"]
@@ -283,7 +283,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 		ingress_policies {
 			title = "ingress policy 3"
 			ingress_from {
-				identities = ["user:test@google.com"]
+				identities = ["group:test@google.com"]
 			}
 			ingress_to {
 				resources = ["*"]
@@ -318,7 +318,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 		egress_policies {
 			title = "egress policy 2"
 			egress_from {
-				identities = ["user:test@google.com"]
+				identities = ["group:test@google.com"]
 			}
 			egress_to {
 				resources = ["*"]
@@ -327,7 +327,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 		egress_policies {
 			title = "egress policy 3"
 			egress_from {
-				identities = ["user:test@google.com"]
+				identities = ["group:test@google.com"]
 			}
 			egress_to {
 				resources = ["*"]
@@ -384,7 +384,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 		ingress_policies {
 			title = "ingress policy 2"
 			ingress_from {
-				identities = ["user:test@google.com"]
+				identities = ["group:test@google.com"]
 			}
 			ingress_to {
 				resources = ["*"]
@@ -419,7 +419,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 		egress_policies {
 			title = "egress policy 2"
 			egress_from {
-				identities = ["user:test@google.com"]
+				identities = ["group:test@google.com"]
 			}
 			egress_to {
 				resources = ["*"]

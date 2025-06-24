@@ -41,7 +41,7 @@ func testAccAccessContextManagerAccessLevelCondition_basicTest(t *testing.T) {
 	vpcName := fmt.Sprintf("test-vpc-%s", acctest.RandString(t, 10))
 
 	expected := map[string]interface{}{
-		"members": []interface{}{"user:test@google.com", "user:test2@google.com", fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", serviceAccountName, project)},
+		"members": []interface{}{fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", serviceAccountName, project)},
 		"devicePolicy": map[string]interface{}{
 			"requireCorpOwned": true,
 			"osConstraints": []interface{}{
@@ -180,7 +180,7 @@ resource "google_compute_network" "vpc_network" {
 
 resource "google_access_context_manager_access_level_condition" "access-level-condition" {
   access_level = google_access_context_manager_access_level.test-access.name
-  members = ["user:test@google.com", "user:test2@google.com", "serviceAccount:${google_service_account.created-later.email}"]
+  members = ["serviceAccount:${google_service_account.created-later.email}"]
   negate = false
   device_policy {
     require_screen_lock = false
