@@ -48,6 +48,7 @@ fields:
   - field: 'gcs_source.uris'
   - field: 'instance_id'
     provider_only: true
+  - field: 'kms_key'
   - field: 'labels'
   - field: 'location'
     provider_only: true
