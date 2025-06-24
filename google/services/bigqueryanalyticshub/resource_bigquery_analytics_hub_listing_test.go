@@ -45,6 +45,10 @@ func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingUpdate(t *tes
 			},
 			{
 				Config: testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingUpdate(context),
+				Check: resource.ComposeTestCheckFunc(
+					// Verify log_linked_dataset_query_user_email has been set to true (at top level)
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing.listing", "log_linked_dataset_query_user_email", "true"),
+				),
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_listing.listing",
@@ -85,6 +89,7 @@ resource "google_bigquery_analytics_hub_listing" "listing" {
   listing_id       = "tf_test_my_listing%{random_suffix}"
   display_name     = "tf_test_my_listing%{random_suffix}"
   description      = "example data exchange update%{random_suffix}"
+  log_linked_dataset_query_user_email  = true
 
   bigquery_dataset {
     dataset = google_bigquery_dataset.listing.id

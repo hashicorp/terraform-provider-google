@@ -161,8 +161,7 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 			"log_linked_dataset_query_user_email": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
-				Description: `If true, subscriber email logging is enabled and all queries on the linked dataset will log the email address of the querying user.`,
+				Description: `If true, subscriber email logging is enabled and all queries on the linked dataset will log the email address of the querying user. Once enabled, this setting cannot be turned off.`,
 			},
 			"primary_contact": {
 				Type:        schema.TypeString,
@@ -566,6 +565,12 @@ func resourceBigqueryAnalyticsHubListingUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("restricted_export_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, restrictedExportConfigProp)) {
 		obj["restrictedExportConfig"] = restrictedExportConfigProp
 	}
+	logLinkedDatasetQueryUserEmailProp, err := expandBigqueryAnalyticsHubListingLogLinkedDatasetQueryUserEmail(d.Get("log_linked_dataset_query_user_email"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_linked_dataset_query_user_email"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logLinkedDatasetQueryUserEmailProp)) {
+		obj["logLinkedDatasetQueryUserEmail"] = logLinkedDatasetQueryUserEmailProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}")
 	if err != nil {
@@ -618,6 +623,10 @@ func resourceBigqueryAnalyticsHubListingUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("restricted_export_config") {
 		updateMask = append(updateMask, "restrictedExportConfig")
+	}
+
+	if d.HasChange("log_linked_dataset_query_user_email") {
+		updateMask = append(updateMask, "logLinkedDatasetQueryUserEmail")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it

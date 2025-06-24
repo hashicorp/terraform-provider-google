@@ -324,7 +324,7 @@ The following arguments are supported:
 
 * `log_linked_dataset_query_user_email` -
   (Optional)
-  If true, subscriber email logging is enabled and all queries on the linked dataset will log the email address of the querying user.
+  If true, subscriber email logging is enabled and all queries on the linked dataset will log the email address of the querying user. Once enabled, this setting cannot be turned off.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
