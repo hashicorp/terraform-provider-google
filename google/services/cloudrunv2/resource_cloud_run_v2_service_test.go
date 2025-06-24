@@ -1262,7 +1262,6 @@ resource "google_cloud_run_v2_service" "default" {
     image_uri = "us-docker.pkg.dev/cloudrun/container/hello"
     base_image = "us-central1-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/nodejs22"
     enable_automatic_updates = true
-    worker_pool = "worker-pool"
     environment_variables = {
       FOO_KEY = "FOO_VALUE"
       BAR_KEY = "BAR_VALUE"
@@ -1328,7 +1327,6 @@ resource "google_cloud_run_v2_service" "default" {
     image_uri = "gcr.io/cloudrun/hello:latest"
     base_image = "us-central1-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/nodejs20"
     enable_automatic_updates = false
-    worker_pool = "worker-pool-2"
     environment_variables = {
       FOO_KEY_FOO = "FOO_VALUE_FOO"
       BAR_KEY_BAR = "BAR_VALUE_BAR"
