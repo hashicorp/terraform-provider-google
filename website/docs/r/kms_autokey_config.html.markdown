@@ -148,6 +148,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `folders/{{folder}}/autokeyConfig`
 
+* `etag` -
+  The etag of the AutokeyConfig for optimistic concurrency control.
+
 
 ## Timeouts
 

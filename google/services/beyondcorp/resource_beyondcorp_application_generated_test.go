@@ -30,7 +30,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccBeyondcorpApplication_beyondcorpSecurityGatewayApplicationBasicExample(t *testing.T) {
+func TestAccBeyondcorpApplication_beyondcorpApplicationBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -43,7 +43,7 @@ func TestAccBeyondcorpApplication_beyondcorpSecurityGatewayApplicationBasicExamp
 		CheckDestroy:             testAccCheckBeyondcorpApplicationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBeyondcorpApplication_beyondcorpSecurityGatewayApplicationBasicExample(context),
+				Config: testAccBeyondcorpApplication_beyondcorpApplicationBasicExample(context),
 			},
 			{
 				ResourceName:            "google_beyondcorp_application.example",
@@ -55,7 +55,7 @@ func TestAccBeyondcorpApplication_beyondcorpSecurityGatewayApplicationBasicExamp
 	})
 }
 
-func testAccBeyondcorpApplication_beyondcorpSecurityGatewayApplicationBasicExample(context map[string]interface{}) string {
+func testAccBeyondcorpApplication_beyondcorpApplicationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_beyondcorp_security_gateway" "default" {
   security_gateway_id = "default%{random_suffix}"
@@ -73,7 +73,7 @@ resource "google_beyondcorp_application" "example" {
 `, context)
 }
 
-func TestAccBeyondcorpApplication_beyondcorpSecurityGatewayApplicationVpcExample(t *testing.T) {
+func TestAccBeyondcorpApplication_beyondcorpApplicationVpcExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -86,7 +86,7 @@ func TestAccBeyondcorpApplication_beyondcorpSecurityGatewayApplicationVpcExample
 		CheckDestroy:             testAccCheckBeyondcorpApplicationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBeyondcorpApplication_beyondcorpSecurityGatewayApplicationVpcExample(context),
+				Config: testAccBeyondcorpApplication_beyondcorpApplicationVpcExample(context),
 			},
 			{
 				ResourceName:            "google_beyondcorp_application.example",
@@ -98,7 +98,7 @@ func TestAccBeyondcorpApplication_beyondcorpSecurityGatewayApplicationVpcExample
 	})
 }
 
-func testAccBeyondcorpApplication_beyondcorpSecurityGatewayApplicationVpcExample(context map[string]interface{}) string {
+func testAccBeyondcorpApplication_beyondcorpApplicationVpcExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_project" "project" {}
 

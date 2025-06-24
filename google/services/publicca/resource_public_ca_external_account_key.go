@@ -204,5 +204,8 @@ func resourcePublicCAExternalAccountKeyPostCreateSetComputedFields(d *schema.Res
 	if err := d.Set("name", flattenPublicCAExternalAccountKeyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
+	if err := d.Set("key_id", flattenPublicCAExternalAccountKeyKeyId(res["keyId"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "key_id": %s`, err)
+	}
 	return nil
 }

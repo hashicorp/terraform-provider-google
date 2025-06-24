@@ -404,15 +404,6 @@ an existing instance. For DIRECT_PEERING mode value must be a CIDR range of size
 "auto". For PRIVATE_SERVICE_ACCESS mode value must be the name of an allocated address
 range associated with the private service access connection, or "auto".`,
 			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Description: `A map of resource manager tags.
-Resource manager tag keys and values have the same definition as resource manager tags.
-Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/{tag_key_value}.`,
-				Elem: &schema.Schema{Type: schema.TypeString},
-			},
 			"tier": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -454,6 +445,15 @@ and can change after a failover event.`,
 				Computed:    true,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_reserved_ip_range": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The CIDR range of internal addresses that are reserved for this
+instance. If not provided, the service will choose an unused /29
+block, for example, 10.0.0.0/29 or 192.168.0.0/29. Ranges must be
+unique and non-overlapping with existing subnets in an authorized
+network.`,
 			},
 			"host": {
 				Type:     schema.TypeString,
@@ -723,12 +723,6 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("customer_managed_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(customerManagedKeyProp)) && (ok || !reflect.DeepEqual(v, customerManagedKeyProp)) {
 		obj["customerManagedKey"] = customerManagedKeyProp
 	}
-	tagsProp, err := expandRedisInstanceTags(d.Get("tags"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("tags"); !tpgresource.IsEmptyValue(reflect.ValueOf(tagsProp)) && (ok || !reflect.DeepEqual(v, tagsProp)) {
-		obj["tags"] = tagsProp
-	}
 	labelsProp, err := expandRedisInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -917,6 +911,9 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("redis_version", flattenRedisInstanceRedisVersion(res["redisVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("effective_reserved_ip_range", flattenRedisInstanceEffectiveReservedIpRange(res["reservedIpRange"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("tier", flattenRedisInstanceTier(res["tier"], d, config)); err != nil {
@@ -1327,7 +1324,7 @@ func flattenRedisInstanceName(v interface{}, d *schema.ResourceData, config *tra
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenRedisInstancePersistenceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1580,6 +1577,10 @@ func flattenRedisInstancePersistenceIamIdentity(v interface{}, d *schema.Resourc
 }
 
 func flattenRedisInstanceRedisVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenRedisInstanceEffectiveReservedIpRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2023,17 +2024,6 @@ func expandRedisInstanceSecondaryIpRange(v interface{}, d tpgresource.TerraformR
 
 func expandRedisInstanceCustomerManagedKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandRedisInstanceTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
 
 func expandRedisInstanceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

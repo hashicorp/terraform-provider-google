@@ -60,8 +60,8 @@ func testAccMemorystoreInstance_memorystoreInstanceBasicExample(context map[stri
 	return acctest.Nprintf(`
 resource "google_memorystore_instance" "instance-basic" {
   instance_id = "tf-test-basic-instance%{random_suffix}"
-  shard_count = 3
-  desired_psc_auto_connections {
+  shard_count = 1
+  desired_auto_created_endpoints {
     network    = google_compute_network.producer_net.id
     project_id = data.google_project.project.project_id
   }
@@ -145,13 +145,13 @@ func testAccMemorystoreInstance_memorystoreInstanceFullExample(context map[strin
 	return acctest.Nprintf(`
 resource "google_memorystore_instance" "instance-full" {
   instance_id = "tf-test-full-instance%{random_suffix}"
-  shard_count = 3
-  desired_psc_auto_connections {
+  shard_count = 1
+  desired_auto_created_endpoints {
     network    = google_compute_network.producer_net.id
     project_id = data.google_project.project.project_id
   }
   location                = "us-central1"
-  replica_count           = 2
+  replica_count           = 1
   node_type               = "SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_DISABLED"
   authorization_mode      = "AUTH_DISABLED"
@@ -253,8 +253,8 @@ func testAccMemorystoreInstance_memorystoreInstancePersistenceAofExample(context
 	return acctest.Nprintf(`
 resource "google_memorystore_instance" "instance-persistence-aof" {
   instance_id = "tf-test-aof-instance%{random_suffix}"
-  shard_count = 3
-  desired_psc_auto_connections {
+  shard_count = 1
+  desired_auto_created_endpoints {
     network    = google_compute_network.producer_net.id
     project_id = data.google_project.project.project_id
   }
@@ -337,7 +337,7 @@ func testAccMemorystoreInstance_memorystoreInstanceSecondaryInstanceExample(cont
 resource "google_memorystore_instance" "primary_instance" {
   instance_id                    = "tf-test-primary-instance%{random_suffix}"
   shard_count                    = 1
-  desired_psc_auto_connections {
+  desired_auto_created_endpoints {
     network                      = google_compute_network.primary_producer_net.id
     project_id                   = data.google_project.project.project_id
   }
@@ -398,7 +398,7 @@ resource "google_compute_network" "primary_producer_net" {
 resource "google_memorystore_instance" "secondary_instance" {
   instance_id                    = "tf-test-secondary-instance%{random_suffix}"
   shard_count                    = 1
-  desired_psc_auto_connections {
+  desired_auto_created_endpoints {
     network                      = google_compute_network.secondary_producer_net.id
     project_id                   = data.google_project.project.project_id
   }

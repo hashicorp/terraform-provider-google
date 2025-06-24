@@ -143,39 +143,15 @@ func resourceAccessContextManagerEgressPolicyCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = AccessContextManagerOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating EgressPolicy", userAgent,
+	err = AccessContextManagerOperationWaitTime(
+		config, res, "Creating EgressPolicy", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create EgressPolicy: %s", err)
 	}
-
-	if _, ok := opRes["status"]; ok {
-		opRes, err = flattenNestedAccessContextManagerEgressPolicy(d, meta, opRes)
-		if err != nil {
-			return fmt.Errorf("Error getting nested object from operation response: %s", err)
-		}
-		if opRes == nil {
-			// Object isn't there any more - remove it from the state.
-			return fmt.Errorf("Error decoding response from operation, could not find nested object")
-		}
-	}
-	if err := d.Set("resource", flattenNestedAccessContextManagerEgressPolicyResource(opRes["resource"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{egress_policy_name}}/{{resource}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating EgressPolicy %q: %#v", d.Id(), res)
 

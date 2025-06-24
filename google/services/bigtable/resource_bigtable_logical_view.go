@@ -67,6 +67,11 @@ func ResourceBigtableLogicalView() *schema.Resource {
 				Required:    true,
 				Description: `The logical view's select query.`,
 			},
+			"deletion_protection": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Set to true to make the logical view protected against deletion.`,
+			},
 			"instance": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -103,6 +108,12 @@ func resourceBigtableLogicalViewCreate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("query"); !tpgresource.IsEmptyValue(reflect.ValueOf(queryProp)) && (ok || !reflect.DeepEqual(v, queryProp)) {
 		obj["query"] = queryProp
+	}
+	deletionProtectionProp, err := expandBigtableLogicalViewDeletionProtection(d.Get("deletion_protection"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_protection"); !tpgresource.IsEmptyValue(reflect.ValueOf(deletionProtectionProp)) && (ok || !reflect.DeepEqual(v, deletionProtectionProp)) {
+		obj["deletionProtection"] = deletionProtectionProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/logicalViews?logicalViewId={{logical_view_id}}")
@@ -199,6 +210,9 @@ func resourceBigtableLogicalViewRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("query", flattenBigtableLogicalViewQuery(res["query"], d, config)); err != nil {
 		return fmt.Errorf("Error reading LogicalView: %s", err)
 	}
+	if err := d.Set("deletion_protection", flattenBigtableLogicalViewDeletionProtection(res["deletionProtection"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LogicalView: %s", err)
+	}
 
 	return nil
 }
@@ -225,6 +239,12 @@ func resourceBigtableLogicalViewUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("query"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, queryProp)) {
 		obj["query"] = queryProp
 	}
+	deletionProtectionProp, err := expandBigtableLogicalViewDeletionProtection(d.Get("deletion_protection"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_protection"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deletionProtectionProp)) {
+		obj["deletionProtection"] = deletionProtectionProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/logicalViews/{{logical_view_id}}")
 	if err != nil {
@@ -237,6 +257,10 @@ func resourceBigtableLogicalViewUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("query") {
 		updateMask = append(updateMask, "query")
+	}
+
+	if d.HasChange("deletion_protection") {
+		updateMask = append(updateMask, "deletionProtection")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -350,6 +374,14 @@ func flattenBigtableLogicalViewQuery(v interface{}, d *schema.ResourceData, conf
 	return v
 }
 
+func flattenBigtableLogicalViewDeletionProtection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandBigtableLogicalViewQuery(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigtableLogicalViewDeletionProtection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -49,7 +49,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceBasicExample(t *tes
 				ResourceName:            "google_dataproc_metastore_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -99,7 +99,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDeletionProtectionE
 				ResourceName:            "google_dataproc_metastore_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -135,6 +135,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceCmekTestExample(t *
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"kms_key_name":  acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-metastore-service-key1").CryptoKey.Name,
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -150,7 +151,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceCmekTestExample(t *
 				ResourceName:            "google_dataproc_metastore_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -168,7 +169,7 @@ resource "google_dataproc_metastore_service" "default" {
   location   = "us-central1"
 
   encryption_config {
-    kms_key = "tf-test-acctest.BootstrapKMSKeyWithPurposeInLocationAn%{random_suffix}"
+    kms_key = "%{kms_key_name}"
   }
 
   hive_metastore_config {
@@ -182,14 +183,14 @@ resource "google_dataproc_metastore_service" "default" {
 }
 
 resource "google_kms_crypto_key_iam_member" "crypto_key_member_1" {
-  crypto_key_id = "tf-test-acctest.BootstrapKMSKeyWithPurposeInLocationAn%{random_suffix}"
+  crypto_key_id = "%{kms_key_name}"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-metastore.iam.gserviceaccount.com"
 }
 
 resource "google_kms_crypto_key_iam_member" "crypto_key_member_2" {
-  crypto_key_id = "tf-test-acctest.BootstrapKMSKeyWithPurposeInLocationAn%{random_suffix}"
+  crypto_key_id = "%{kms_key_name}"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
   member = "serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"
@@ -216,7 +217,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceEndpointExample(t *
 				ResourceName:            "google_dataproc_metastore_service.endpoint",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -256,7 +257,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAuxExample(t *testi
 				ResourceName:            "google_dataproc_metastore_service.aux",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -299,7 +300,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceMetadataExample(t *
 				ResourceName:            "google_dataproc_metastore_service.metadata",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -344,7 +345,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceTelemetryExample(t 
 				ResourceName:            "google_dataproc_metastore_service.telemetry",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -388,7 +389,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2Example(t *tes
 				ResourceName:            "google_dataproc_metastore_service.dpms2",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -434,7 +435,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorE
 				ResourceName:            "google_dataproc_metastore_service.dpms2_scaling_factor",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -480,7 +481,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorL
 				ResourceName:            "google_dataproc_metastore_service.dpms2_scaling_factor_lt1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -526,7 +527,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceScheduledBackupExam
 				ResourceName:            "google_dataproc_metastore_service.backup",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -587,7 +588,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMaxScali
 				ResourceName:            "google_dataproc_metastore_service.test_resource",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -638,7 +639,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinAndMa
 				ResourceName:            "google_dataproc_metastore_service.test_resource",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -690,7 +691,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinScali
 				ResourceName:            "google_dataproc_metastore_service.test_resource",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -741,7 +742,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingNoLimitC
 				ResourceName:            "google_dataproc_metastore_service.test_resource",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})

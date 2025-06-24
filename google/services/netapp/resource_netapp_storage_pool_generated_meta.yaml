@@ -8,6 +8,7 @@ fields:
   - field: 'active_directory'
   - field: 'allow_auto_tiering'
   - field: 'capacity_gib'
+  - field: 'custom_performance_enabled'
   - field: 'description'
   - field: 'effective_labels'
     provider_only: true
@@ -24,6 +25,8 @@ fields:
   - field: 'service_level'
   - field: 'terraform_labels'
     provider_only: true
+  - field: 'total_iops'
+  - field: 'total_throughput_mibps'
   - field: 'volume_capacity_gib'
   - field: 'volume_count'
   - field: 'zone'

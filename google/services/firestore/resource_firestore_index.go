@@ -343,16 +343,6 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	// The operation for this resource contains the generated name that we need
-	// in order to perform a READ.
-	metadata := res["metadata"].(map[string]interface{})
-	name := metadata["index"].(string)
-	log.Printf("[DEBUG] Setting Index name, id to %s", name)
-	if err := d.Set("name", name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
-	d.SetId(name)
-
 	log.Printf("[DEBUG] Finished creating Index %q: %#v", d.Id(), res)
 
 	return resourceFirestoreIndexRead(d, meta)

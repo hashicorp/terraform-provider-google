@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -74,6 +75,77 @@ resource "google_datastream_private_connection" "default" {
 
 resource "google_compute_network" "default" {
   name = "tf-test-my-network%{random_suffix}"
+}
+`, context)
+}
+
+func TestAccDatastreamPrivateConnection_datastreamPrivateConnectionPscInterfaceExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"project":         envvar.GetTestProjectFromEnv(),
+		"project_number":  envvar.GetTestProjectNumberFromEnv(),
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDatastreamPrivateConnectionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDatastreamPrivateConnection_datastreamPrivateConnectionPscInterfaceExample(context),
+			},
+			{
+				ResourceName:            "google_datastream_private_connection.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "private_connection_id", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDatastreamPrivateConnection_datastreamPrivateConnectionPscInterfaceExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_datastream_private_connection" "default" {
+    display_name          = "Connection profile"
+    location              = "us-central1"
+    private_connection_id = "tf-test-my-connection%{random_suffix}"
+
+    labels = {
+        key = "value"
+    }
+
+    psc_interface_config {
+        network_attachment = google_compute_network_attachment.default.id
+    }
+}
+
+resource "google_compute_network_attachment" "default" {
+    name                  = "tf-test-my-network-attachment%{random_suffix}"
+    region                = "us-central1"
+    description           = "basic network attachment description"
+    connection_preference = "ACCEPT_AUTOMATIC"
+
+    subnetworks = [
+        google_compute_subnetwork.default.self_link
+    ]
+}
+
+resource "google_compute_network" "default" {
+    name                    = "tf-test-my-network%{random_suffix}"
+    auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+    name   = "tf-test-my-subnetwork%{random_suffix}"
+    region = "us-central1"
+
+    network       = google_compute_network.default.id
+    ip_cidr_range = "10.0.0.0/16"
 }
 `, context)
 }

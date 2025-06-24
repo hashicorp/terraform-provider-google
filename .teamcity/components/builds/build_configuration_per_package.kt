@@ -20,7 +20,7 @@ import replaceCharsId
 
 // BuildConfigurationsForPackages accepts a map containing details of multiple packages in a provider and returns a list of build configurations for them all.
 // Intended to be used in projects where we're testing all packages, e.g. the nightly test projects
-fun BuildConfigurationsForPackages(packages: Map<String, Map<String, String>>, providerName: String, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration): List<BuildType> {
+fun BuildConfigurationsForPackages(packages: Map<String, Map<String, String>>, providerName: String, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration, testPrefix: String = "TestAcc"): List<BuildType> {
     val list = ArrayList<BuildType>()
 
     // Create build configurations for all packages, except sweeper
@@ -29,7 +29,7 @@ fun BuildConfigurationsForPackages(packages: Map<String, Map<String, String>>, p
         val displayName: String = info.getValue("displayName").toString()
 
         val pkg = PackageDetails(packageName, displayName, providerName, parentProjectName)
-        val buildConfig = pkg.buildConfiguration(path, vcsRoot, sharedResources, environmentVariables)
+        val buildConfig = pkg.buildConfiguration(path, vcsRoot, sharedResources, environmentVariables, testPrefix = testPrefix)
         list.add(buildConfig)
     }
 
@@ -38,17 +38,16 @@ fun BuildConfigurationsForPackages(packages: Map<String, Map<String, String>>, p
 
 // BuildConfigurationForSinglePackage accepts details of a single package in a provider and returns a build configuration for it
 // Intended to be used in short-lived projects where we're testing specific packages, e.g. feature branch testing
-fun BuildConfigurationForSinglePackage(packageName: String, packagePath: String, packageDisplayName: String, providerName: String, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration): BuildType{
+fun BuildConfigurationForSinglePackage(packageName: String, packagePath: String, packageDisplayName: String, providerName: String, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration, testPrefix: String = "TestAcc"): BuildType{
     val pkg = PackageDetails(packageName, packageDisplayName, providerName, parentProjectName)
-    return pkg.buildConfiguration(packagePath, vcsRoot, sharedResources, environmentVariables)
+    return pkg.buildConfiguration(packagePath, vcsRoot, sharedResources, environmentVariables, testPrefix = testPrefix)
 }
 
 class PackageDetails(private val packageName: String, private val displayName: String, private val providerName: String, private val parentProjectName: String) {
 
     // buildConfiguration returns a BuildType for a service package
     // For BuildType docs, see https://teamcity.jetbrains.com/app/dsl-documentation/root/build-type/index.html
-    fun buildConfiguration(path: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration, buildTimeout: Int = DefaultBuildTimeoutDuration): BuildType {
-
+    fun buildConfiguration(path: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration, buildTimeout: Int = DefaultBuildTimeoutDuration, testPrefix: String): BuildType {
         val testPrefix = "TestAcc"
         val testTimeout = "12"
 

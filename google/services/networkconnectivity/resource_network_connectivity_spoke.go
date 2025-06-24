@@ -309,6 +309,30 @@ The only allowed value for now is "ALL_IPV4_RANGES".`,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"reasons": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The reasons for the current state in the lifecycle`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"code": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The code associated with this reason.`,
+						},
+						"message": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Human-readable details about this reason.`,
+						},
+						"user_details": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Additional information provided by the user in the RejectSpoke call.`,
+						},
+					},
+				},
+			},
 			"state": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -550,6 +574,9 @@ func resourceNetworkConnectivitySpokeRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading Spoke: %s", err)
 	}
 	if err := d.Set("state", flattenNetworkConnectivitySpokeState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err := d.Set("reasons", flattenNetworkConnectivitySpokeReasons(res["reasons"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Spoke: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenNetworkConnectivitySpokeTerraformLabels(res["labels"], d, config)); err != nil {
@@ -984,6 +1011,38 @@ func flattenNetworkConnectivitySpokeUniqueId(v interface{}, d *schema.ResourceDa
 }
 
 func flattenNetworkConnectivitySpokeState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivitySpokeReasons(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"code":         flattenNetworkConnectivitySpokeReasonsCode(original["code"], d, config),
+			"message":      flattenNetworkConnectivitySpokeReasonsMessage(original["message"], d, config),
+			"user_details": flattenNetworkConnectivitySpokeReasonsUserDetails(original["userDetails"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkConnectivitySpokeReasonsCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivitySpokeReasonsMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivitySpokeReasonsUserDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

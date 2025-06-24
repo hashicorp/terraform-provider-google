@@ -276,7 +276,7 @@ resource "google_compute_network" "network2" {
 resource "google_memorystore_instance" "instance-user-auto-conn" {
   instance_id                 = "instance-user-auto-conn"
   shard_count                 = 1
-  desired_psc_auto_connections {
+  desired_auto_created_endpoints {
     network                   = google_compute_network.network1.id
     project_id                = data.google_project.project.project_id
   }

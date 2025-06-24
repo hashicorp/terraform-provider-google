@@ -214,29 +214,15 @@ func resourceGeminiRepositoryGroupCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = GeminiOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating RepositoryGroup", userAgent,
+	err = GeminiOperationWaitTime(
+		config, res, project, "Creating RepositoryGroup", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create RepositoryGroup: %s", err)
 	}
-
-	if err := d.Set("name", flattenGeminiRepositoryGroupName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/codeRepositoryIndexes/{{code_repository_index}}/repositoryGroups/{{repository_group_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating RepositoryGroup %q: %#v", d.Id(), res)
 

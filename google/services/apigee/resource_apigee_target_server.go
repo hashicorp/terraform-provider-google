@@ -138,6 +138,11 @@ in the format 'organizations/{{org_name}}/environments/{{env_name}}'.`,
 								},
 							},
 						},
+						"enforce": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, TLS is strictly enforced.`,
+						},
 						"ignore_validation_errors": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -531,6 +536,8 @@ func flattenApigeeTargetServerSSLInfo(v interface{}, d *schema.ResourceData, con
 		flattenApigeeTargetServerSSLInfoCiphers(original["ciphers"], d, config)
 	transformed["common_name"] =
 		flattenApigeeTargetServerSSLInfoCommonName(original["commonName"], d, config)
+	transformed["enforce"] =
+		flattenApigeeTargetServerSSLInfoEnforce(original["enforce"], d, config)
 	return []interface{}{transformed}
 }
 func flattenApigeeTargetServerSSLInfoEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -585,6 +592,10 @@ func flattenApigeeTargetServerSSLInfoCommonNameValue(v interface{}, d *schema.Re
 }
 
 func flattenApigeeTargetServerSSLInfoCommonNameWildcardMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApigeeTargetServerSSLInfoEnforce(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -684,6 +695,13 @@ func expandApigeeTargetServerSSLInfo(v interface{}, d tpgresource.TerraformResou
 		transformed["commonName"] = transformedCommonName
 	}
 
+	transformedEnforce, err := expandApigeeTargetServerSSLInfoEnforce(original["enforce"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnforce); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enforce"] = transformedEnforce
+	}
+
 	return transformed, nil
 }
 
@@ -750,6 +768,10 @@ func expandApigeeTargetServerSSLInfoCommonNameValue(v interface{}, d tpgresource
 }
 
 func expandApigeeTargetServerSSLInfoCommonNameWildcardMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeTargetServerSSLInfoEnforce(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

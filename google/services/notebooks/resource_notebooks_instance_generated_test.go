@@ -50,7 +50,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicExample(t *testing.T) {
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "vm_image"},
+				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "update_time", "vm_image"},
 			},
 		},
 	})
@@ -64,13 +64,14 @@ resource "google_notebooks_instance" "instance" {
   machine_type = "e2-medium"
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    image_family = "pytorch-latest-cu124"
   }
 }
 `, context)
 }
 
 func TestAccNotebooksInstance_notebookInstanceBasicStoppedExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/17593#issuecomment-2888583933")
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -103,7 +104,7 @@ resource "google_notebooks_instance" "instance" {
   machine_type = "e2-medium"
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    image_family = "pytorch-latest-cu124"
   }
   desired_state = "STOPPED"
 }
@@ -192,7 +193,7 @@ resource "google_notebooks_instance" "instance" {
   }
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-gpu"
+    image_family = "pytorch-latest-cu124"
   }
 }
 `, context)
@@ -234,7 +235,7 @@ resource "google_notebooks_instance" "instance" {
 
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    image_family = "pytorch-latest-cu124"
   }
 
   instance_owners = [ "%{service_account}"]

@@ -124,6 +124,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `name` -
   Identifier. Name of the resource.
 
+* `delegating_service_account` -
+  Service account used for operations that involve resources in consumer projects.
+
 
 ## Timeouts
 

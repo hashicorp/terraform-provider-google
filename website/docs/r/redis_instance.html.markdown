@@ -419,12 +419,6 @@ The following arguments are supported:
   Optional. The KMS key reference that you want to use to encrypt the data at rest for this Redis
   instance. If this is provided, CMEK is enabled.
 
-* `tags` -
-  (Optional)
-  A map of resource manager tags.
-  Resource manager tag keys and values have the same definition as resource manager tags.
-  Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/{tag_key_value}.
-
 * `region` -
   (Optional)
   The name of the Redis region of the instance.
@@ -576,6 +570,13 @@ In addition to the arguments listed above, the following computed attributes are
   to transfer data to/from Cloud Storage. Format is "serviceAccount:".
   The value may change over time for a given instance so should be
   checked before each import/export operation.
+
+* `effective_reserved_ip_range` -
+  The CIDR range of internal addresses that are reserved for this
+  instance. If not provided, the service will choose an unused /29
+  block, for example, 10.0.0.0/29 or 192.168.0.0/29. Ranges must be
+  unique and non-overlapping with existing subnets in an authorized
+  network.
 
 * `server_ca_certs` -
   List of server CA certificates for the instance.

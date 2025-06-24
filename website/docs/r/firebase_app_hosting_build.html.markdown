@@ -202,10 +202,6 @@ resource "google_developer_connect_git_repository_link" "my-repository" {
 
   project  = "my-project-name"
   location = "us-central1"
-  provider = google-beta
-
-  provider = google-beta
-  project  = "my-project-name"
   service  = "developerconnect.googleapis.com"
 }
 

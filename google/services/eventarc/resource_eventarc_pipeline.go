@@ -346,10 +346,14 @@ connectivity.`,
 								Schema: map[string]*schema.Schema{
 									"network_attachment": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 										Description: `Name of the NetworkAttachment that allows access to the consumer VPC.
+
 Format:
-'projects/{PROJECT_ID}/regions/{REGION}/networkAttachments/{NETWORK_ATTACHMENT_NAME}'`,
+'projects/{PROJECT_ID}/regions/{REGION}/networkAttachments/{NETWORK_ATTACHMENT_NAME}'
+
+Required for HTTP endpoint destinations. Must not be specified for
+Workflows, MessageBus, or Topic destinations.`,
 									},
 								},
 							},
@@ -849,29 +853,15 @@ func resourceEventarcPipelineCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = EventarcOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Pipeline", userAgent,
+	err = EventarcOperationWaitTime(
+		config, res, project, "Creating Pipeline", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Pipeline: %s", err)
 	}
-
-	if err := d.Set("name", flattenEventarcPipelineName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/pipelines/{{pipeline_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Pipeline %q: %#v", d.Id(), res)
 

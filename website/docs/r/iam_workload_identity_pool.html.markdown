@@ -29,6 +29,8 @@ To get more information about WorkloadIdentityPool, see:
 
 * [API documentation](https://cloud.google.com/iam/docs/reference/rest/v1/projects.locations.workloadIdentityPools)
 * How-to Guides
+    * [Configure managed workload identity authentication for Compute Engine](https://cloud.google.com/iam/docs/create-managed-workload-identities)
+    * [Configure managed workload identity authentication for GKE](https://cloud.google.com/iam/docs/create-managed-workload-identities-gke)
     * [Managing workload identity pools](https://cloud.google.com/iam/docs/manage-workload-identity-pools-providers#pools)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -45,19 +47,70 @@ resource "google_iam_workload_identity_pool" "example" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=iam_workload_identity_pool_full&open_in_editor=main.tf" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=iam_workload_identity_pool_full_federation_only_mode&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Iam Workload Identity Pool Full
+## Example Usage - Iam Workload Identity Pool Full Federation Only Mode
 
 
 ```hcl
 resource "google_iam_workload_identity_pool" "example" {
+  provider = google-beta
+
   workload_identity_pool_id = "example-pool"
-  display_name              = "Name of pool"
-  description               = "Identity pool for automated test"
+  display_name              = "Name of the pool"
+  description               = "Identity pool operates in FEDERATION_ONLY mode"
   disabled                  = true
+  mode                      = "FEDERATION_ONLY"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=iam_workload_identity_pool_full_trust_domain_mode&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Iam Workload Identity Pool Full Trust Domain Mode
+
+
+```hcl
+resource "google_iam_workload_identity_pool" "example" {
+  provider = google-beta
+
+  workload_identity_pool_id = "example-pool"
+  display_name              = "Name of the pool"
+  description               = "Identity pool operates in TRUST_DOMAIN mode"
+  disabled                  = true
+  mode                      = "TRUST_DOMAIN"
+  inline_certificate_issuance_config {
+    ca_pools = {      
+      "us-central1" : "projects/project-bar/locations/us-central1/caPools/ca-pool-bar"
+      "asia-east2" : "projects/project-foo/locations/asia-east2/caPools/ca-pool-foo"
+    }
+    lifetime                   = "86400s"
+    rotation_window_percentage = 50
+    key_algorithm              = "ECDSA_P256"
+  }
+  inline_trust_config {
+    additional_trust_bundles {
+      trust_domain = "example.com"
+      trust_anchors {
+        pem_certificate = file("test-fixtures/trust_anchor_1.pem")
+      }
+      trust_anchors {
+        pem_certificate = file("test-fixtures/trust_anchor_2.pem")
+      }
+    }
+    additional_trust_bundles {
+      trust_domain = "example.net"
+      trust_anchors {
+        pem_certificate = file("test-fixtures/trust_anchor_3.pem")
+      }
+      trust_anchors {
+        pem_certificate = file("test-fixtures/trust_anchor_4.pem")
+      }
+    }
+  }
 }
 ```
 
@@ -90,9 +143,116 @@ The following arguments are supported:
   existing tokens to access resources. If the pool is re-enabled, existing tokens grant
   access again.
 
+* `mode` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The mode for the pool is operating in. Pools with an unspecified mode will operate as if they
+  are in `FEDERATION_ONLY` mode.
+  
+  ~> **Note** This field cannot be changed after the Workload Identity Pool is created. While
+  `terraform plan` may show an update if you change this field's value, `terraform apply`
+  **will fail with an API error** (such as `Error 400: Attempted to update an immutable field.`).
+  To specify a different `mode`, please create a new Workload Identity Pool resource.
+  * `FEDERATION_ONLY`: Pools can only be used for federating external workload identities into
+  Google Cloud. Unless otherwise noted, no structure or format constraints are applied to
+  workload identities in a `FEDERATION_ONLY` mode pool, and you may not create any resources
+  within the pool besides providers.
+  * `TRUST_DOMAIN`: Pools can be used to assign identities to Google Cloud workloads. All
+  identities within a `TRUST_DOMAIN` mode pool must consist of a single namespace and individual
+  workload identifier. The subject identifier for all identities must conform to the following
+  format: `ns/<namespace>/sa/<workload_identifier>`.
+  `google_iam_workload_identity_pool_provider`s cannot be created within `TRUST_DOMAIN`
+  mode pools.
+  Possible values are: `FEDERATION_ONLY`, `TRUST_DOMAIN`.
+
+* `inline_certificate_issuance_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Represents configuration for generating mutual TLS (mTLS) certificates for the identities
+  within this pool. Defines the Certificate Authority (CA) pool resources and configurations
+  required for issuance and rotation of mTLS workload certificates.
+  Structure is [documented below](#nested_inline_certificate_issuance_config).
+
+* `inline_trust_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Represents config to add additional trusted trust domains. Defines configuration for extending
+  trust to additional trust domains. By establishing trust with another domain, the current
+  domain will recognize and accept certificates issued by entities within the trusted domains.
+  Note that a trust domain automatically trusts itself, eliminating the need for explicit
+  configuration.
+  Structure is [documented below](#nested_inline_trust_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_inline_certificate_issuance_config"></a>The `inline_certificate_issuance_config` block supports:
+
+* `ca_pools` -
+  (Required)
+  A required mapping of a cloud region to the CA pool resource located in that region used
+  for certificate issuance, adhering to these constraints:
+  * **Key format:** A supported cloud region name equivalent to the location identifier in
+  the corresponding map entry's value.
+  * **Value format:** A valid CA pool resource path format like:
+  `projects/{project}/locations/{location}/caPools/{ca_pool}`
+  * **Region Matching:** Workloads are ONLY issued certificates from CA pools within the
+  same region. Also the CA pool region (in value) must match the workload's region (key).
+
+* `lifetime` -
+  (Optional)
+  Lifetime of the workload certificates issued by the CA pool in seconds. Must be between
+  `86400s` (24 hours) to `2592000s` (30 days), ends in the suffix "`s`" (indicating seconds)
+  and is preceded by the number of seconds. If unspecified, this will be defaulted to
+  `86400s` (24 hours).
+
+* `rotation_window_percentage` -
+  (Optional)
+  Rotation window percentage indicating when certificate rotation should be initiated based
+  on remaining lifetime. Must be between `50` - `80`. If unspecified, this will be defaulted
+  to `50`.
+
+* `key_algorithm` -
+  (Optional)
+  Key algorithm to use when generating the key pair. This key pair will be used to create
+  the certificate. If unspecified, this will default to `ECDSA_P256`.
+  * `RSA_2048`: Specifies RSA with a 2048-bit modulus.
+  * `RSA_3072`: Specifies RSA with a 3072-bit modulus.
+  * `RSA_4096`: Specifies RSA with a 4096-bit modulus.
+  * `ECDSA_P256`: Specifies ECDSA with curve P256.
+  * `ECDSA_P384`: Specifies ECDSA with curve P384.
+  Possible values are: `RSA_2048`, `RSA_3072`, `RSA_4096`, `ECDSA_P256`, `ECDSA_P384`.
+
+<a name="nested_inline_trust_config"></a>The `inline_trust_config` block supports:
+
+* `additional_trust_bundles` -
+  (Optional)
+  Maps specific trust domains (e.g., "example.com") to their corresponding `TrustStore`
+  objects, which contain the trusted root certificates for that domain. There can be a
+  maximum of `10` trust domain entries in this map.
+  Note that a trust domain automatically trusts itself and don't need to be specified here.
+  If however, this `WorkloadIdentityPool`'s trust domain contains any trust anchors in the
+  `additional_trust_bundles` map, those trust anchors will be *appended to* the Trust Bundle
+  automatically derived from your `InlineCertificateIssuanceConfig`'s `ca_pools`.
+  Structure is [documented below](#nested_inline_trust_config_additional_trust_bundles).
+
+
+<a name="nested_inline_trust_config_additional_trust_bundles"></a>The `additional_trust_bundles` block supports:
+
+* `trust_domain` - (Required) The identifier for this object. Format specified above.
+
+* `trust_anchors` -
+  (Required)
+  List of Trust Anchors to be used while performing validation against a given
+  `TrustStore`. The incoming end entity's certificate must be chained up to one of the
+  trust anchors here.
+  Structure is [documented below](#nested_inline_trust_config_additional_trust_bundles_trust_store_trust_anchors).
+
+
+<a name="nested_inline_trust_config_additional_trust_bundles_trust_store_trust_anchors"></a>The `trust_anchors` block supports:
+
+* `pem_certificate` -
+  (Required)
+  PEM certificate of the PKI used for validation. Must only contain one ca
+  certificate(either root or intermediate cert).
 
 ## Attributes Reference
 
@@ -102,11 +262,11 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `state` -
   The state of the pool.
-  * STATE_UNSPECIFIED: State unspecified.
-  * ACTIVE: The pool is active, and may be used in Google Cloud policies.
-  * DELETED: The pool is soft-deleted. Soft-deleted pools are permanently deleted after
+  * `STATE_UNSPECIFIED`: State unspecified.
+  * `ACTIVE`: The pool is active, and may be used in Google Cloud policies.
+  * `DELETED`: The pool is soft-deleted. Soft-deleted pools are permanently deleted after
     approximately 30 days. You can restore a soft-deleted pool using
-    UndeleteWorkloadIdentityPool. You cannot reuse the ID of a soft-deleted pool until it is
+    `UndeleteWorkloadIdentityPool`. You cannot reuse the ID of a soft-deleted pool until it is
     permanently deleted. While a pool is deleted, you cannot use it to exchange tokens, or
     use existing tokens to access resources. If the pool is undeleted, existing tokens grant
     access again.

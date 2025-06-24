@@ -100,6 +100,11 @@ The following arguments are supported:
   (Optional)
   A textual description field. Defaults to 'Managed by Terraform'.
 
+* `dns64_config` -
+  (Optional)
+  Configurations related to DNS64 for this Policy.
+  Structure is [documented below](#nested_dns64_config).
+
 * `enable_inbound_forwarding` -
   (Optional)
   Allows networks bound to this policy to receive DNS queries sent
@@ -143,6 +148,20 @@ The following arguments are supported:
   decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
   to the Internet. When set to `private`, Cloud DNS will always send queries through VPC for this target
   Possible values are: `default`, `private`.
+
+<a name="nested_dns64_config"></a>The `dns64_config` block supports:
+
+* `scope` -
+  (Required)
+  The scope to which DNS64 config will be applied to.
+  Structure is [documented below](#nested_dns64_config_scope).
+
+
+<a name="nested_dns64_config_scope"></a>The `scope` block supports:
+
+* `all_queries` -
+  (Optional)
+  Controls whether DNS64 is enabled globally at the network level.
 
 <a name="nested_networks"></a>The `networks` block supports:
 

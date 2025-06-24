@@ -709,6 +709,11 @@ The following arguments are supported:
   (Required)
   Enabled represents whether logging is enabled or not for a connection.
 
+* `level` -
+  (Optional)
+  Log configuration level.
+  Possible values are: `LOG_LEVEL_UNSPECIFIED`, `ERROR`, `INFO`, `DEBUG`.
+
 <a name="nested_ssl_config"></a>The `ssl_config` block supports:
 
 * `type` -

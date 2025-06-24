@@ -144,25 +144,15 @@ func resourceApigeeControlPlaneAccessCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = ApigeeOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating ControlPlaneAccess", userAgent,
+	err = ApigeeOperationWaitTime(
+		config, res, "Creating ControlPlaneAccess", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create ControlPlaneAccess: %s", err)
 	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "organizations/{{name}}/controlPlaneAccess")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating ControlPlaneAccess %q: %#v", d.Id(), res)
 

@@ -128,7 +128,7 @@ func ResourceVmwareenginePrivateCloud() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Minute),
+			Create: schema.DefaultTimeout(360 * time.Minute),
 			Update: schema.DefaultTimeout(190 * time.Minute),
 			Delete: schema.DefaultTimeout(150 * time.Minute),
 		},

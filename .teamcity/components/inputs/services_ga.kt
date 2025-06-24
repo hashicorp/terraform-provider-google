@@ -236,6 +236,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Compute",
         "path" to "./google/services/compute"
     ),
+    "contactcenterinsights" to mapOf(
+        "name" to "contactcenterinsights",
+        "displayName" to "Contact Center AI Insights",
+        "path" to "./google/services/contactcenterinsights"
+    ),
     "container" to mapOf(
         "name" to "container",
         "displayName" to "Container",
@@ -665,6 +670,11 @@ var ServicesListGa = mapOf(
         "name" to "resourcemanager",
         "displayName" to "Resourcemanager",
         "path" to "./google/services/resourcemanager"
+    ),
+    "resourcemanager3" to mapOf(
+        "name" to "resourcemanager3",
+        "displayName" to "Resourcemanager3",
+        "path" to "./google/services/resourcemanager3"
     ),
     "runtimeconfig" to mapOf(
         "name" to "runtimeconfig",

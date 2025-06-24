@@ -1,0 +1,14 @@
+resource: 'google_contact_center_insights_view'
+generation_type: 'mmv1'
+source_file: 'products/contactcenterinsights/View.yaml'
+api_service_name: 'contactcenterinsights.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'View'
+fields:
+  - field: 'create_time'
+  - field: 'display_name'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'update_time'
+  - field: 'value'

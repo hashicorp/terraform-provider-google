@@ -18,6 +18,7 @@ fields:
   - field: 'name'
   - field: 'private_connection_id'
     provider_only: true
+  - field: 'psc_interface_config.network_attachment'
   - field: 'state'
   - field: 'terraform_labels'
     provider_only: true

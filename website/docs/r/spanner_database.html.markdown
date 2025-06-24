@@ -57,6 +57,7 @@ resource "google_spanner_database" "database" {
   instance = google_spanner_instance.main.name
   name     = "my-database"
   version_retention_period = "3d"
+  default_time_zone = "UTC"
   ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
     "CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)",
@@ -132,6 +133,9 @@ the command will fail if this field is not set to false in Terraform state.
 When the field is set to true or unset in Terraform state, a `terraform apply`
 or `terraform destroy` that would delete the database will fail.
 When the field is set to false, deleting the database is allowed.
+
+* `default_time_zone` - (Optional) The default time zone for the database. The default time zone must be a valid name
+from the tz database. Default value is "America/Los_angeles".
 
 
 <a name="nested_encryption_config"></a>The `encryption_config` block supports:

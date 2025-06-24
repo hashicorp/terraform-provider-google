@@ -42,7 +42,7 @@ resource "google_dialogflow_agent" "basic_agent" {
 
 resource "google_dialogflow_entity_type" "basic_entity_type" {
   depends_on = [google_dialogflow_agent.basic_agent]
-  display_name = ""
+  display_name = "basic-entity-type"
   kind = "KIND_MAP"
   entities {
     value = "value1"

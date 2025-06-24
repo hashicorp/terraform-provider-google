@@ -30,8 +30,6 @@ network to the endpoint group, but does not enable intercept by itself.
 To enable intercept, the user must also create a network firewall policy
 containing intercept rules and associate it with the network.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -44,33 +42,28 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_compute_network" "producer_network" {
-  provider                = google-beta
   name                    = "example-prod-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "consumer_network" {
-  provider                = google-beta
   name                    = "example-cons-network"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_intercept_deployment_group" "deployment_group" {
-  provider                      = google-beta
   intercept_deployment_group_id = "example-dg"
   location                      = "global"
   network                       = google_compute_network.producer_network.id
 }
 
 resource "google_network_security_intercept_endpoint_group" "endpoint_group" {
-  provider                      = google-beta
-  intercept_endpoint_group_id   = "example-eg"
-  location                      = "global"
-  intercept_deployment_group    = google_network_security_intercept_deployment_group.deployment_group.id
+  intercept_endpoint_group_id = "example-eg"
+  location                    = "global"
+  intercept_deployment_group  = google_network_security_intercept_deployment_group.deployment_group.id
 }
 
 resource "google_network_security_intercept_endpoint_group_association" "default" {
-  provider                                = google-beta
   intercept_endpoint_group_association_id = "example-ega"
   location                                = "global"
   network                                 = google_compute_network.consumer_network.id

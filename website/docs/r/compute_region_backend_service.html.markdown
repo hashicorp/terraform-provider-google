@@ -306,7 +306,7 @@ resource "google_compute_region_backend_service" "default" {
 
   region      = "us-central1"
   name        = "region-service"
-  protocol    = "HTTP"
+  protocol    = "H2C"
   timeout_sec = 10
 
   health_checks = [google_compute_region_health_check.default.id]
@@ -535,6 +535,27 @@ resource "google_compute_instance_group" "s1" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_backend_service_dynamic_forwarding&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Backend Service Dynamic Forwarding
+
+
+```hcl
+resource "google_compute_region_backend_service" "default" {
+  provider                        = google-beta
+  name                            = "region-service"
+  region                          = "us-central1"
+  load_balancing_scheme           = "EXTERNAL_MANAGED"
+  dynamic_forwarding {
+    ip_port_selection {
+      enabled = true
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -572,7 +593,7 @@ The following arguments are supported:
   (Optional)
   Settings controlling the volume of connections to a backend service. This field
   is applicable only when the `load_balancing_scheme` is set to INTERNAL_MANAGED
-  and the `protocol` is set to HTTP, HTTPS, or HTTP2.
+  and the `protocol` is set to HTTP, HTTPS, HTTP2 or H2C.
   Structure is [documented below](#nested_circuit_breakers).
 
 * `consistent_hash` -
@@ -585,7 +606,7 @@ The following arguments are supported:
   hashing.
   This field only applies when all of the following are true -
     * `load_balancing_scheme` is set to INTERNAL_MANAGED
-    * `protocol` is set to HTTP, HTTPS, or HTTP2
+    * `protocol` is set to HTTP, HTTPS, HTTP2 or H2C
     * `locality_lb_policy` is set to MAGLEV or RING_HASH
   Structure is [documented below](#nested_consistent_hash).
 
@@ -682,7 +703,7 @@ The following arguments are supported:
                             to use for computing the weights are specified via the
                             backends[].customMetrics fields.
   locality_lb_policy is applicable to either:
-  * A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
+  * A regional backend service with the service_protocol set to HTTP, HTTPS, HTTP2 or H2C,
     and loadBalancingScheme set to INTERNAL_MANAGED.
   * A global backend service with the load_balancing_scheme set to INTERNAL_SELF_MANAGED.
   * A regional backend service with loadBalancingScheme set to EXTERNAL (External Network
@@ -704,7 +725,7 @@ The following arguments are supported:
   (Optional)
   Settings controlling eviction of unhealthy hosts from the load balancing pool.
   This field is applicable only when the `load_balancing_scheme` is set
-  to INTERNAL_MANAGED and the `protocol` is set to HTTP, HTTPS, or HTTP2.
+  to INTERNAL_MANAGED and the `protocol` is set to HTTP, HTTPS, HTTP2 or H2C.
   Structure is [documented below](#nested_outlier_detection).
 
 * `port_name` -
@@ -719,10 +740,11 @@ The following arguments are supported:
 
 * `protocol` -
   (Optional)
-  The protocol this RegionBackendService uses to communicate with backends.
-  The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
-  types and may result in errors if used with the GA API.
-  Possible values are: `HTTP`, `HTTPS`, `HTTP2`, `SSL`, `TCP`, `UDP`, `GRPC`, `UNSPECIFIED`.
+  The protocol this BackendService uses to communicate with backends.
+  The default is HTTP. Possible values are HTTP, HTTPS, HTTP2, H2C, TCP, SSL, UDP
+  or GRPC. Refer to the documentation for the load balancers or for Traffic Director
+  for more information.
+  Possible values are: `HTTP`, `HTTPS`, `HTTP2`, `TCP`, `SSL`, `UDP`, `GRPC`, `UNSPECIFIED`, `H2C`.
 
 * `security_policy` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -768,6 +790,12 @@ The following arguments are supported:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Subsetting configuration for this BackendService. Currently this is applicable only for Internal TCP/UDP load balancing and Internal HTTP(S) load balancing.
   Structure is [documented below](#nested_subsetting).
+
+* `dynamic_forwarding` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
+  feature which together with Service Extension allows customized and complex routing logic.
+  Structure is [documented below](#nested_dynamic_forwarding).
 
 * `region` -
   (Optional)
@@ -1396,6 +1424,30 @@ The following arguments are supported:
   (Required)
   The algorithm used for subsetting.
   Possible values are: `CONSISTENT_HASH_SUBSETTING`.
+
+* `subset_size` -
+  (Optional)
+  The number of backends per backend group assigned to each proxy instance or each service mesh client.
+  An input parameter to the CONSISTENT_HASH_SUBSETTING algorithm. Can only be set if policy is set to
+  CONSISTENT_HASH_SUBSETTING. Can only be set if load balancing scheme is INTERNAL_MANAGED or INTERNAL_SELF_MANAGED.
+  subsetSize is optional for Internal HTTP(S) load balancing and required for Traffic Director.
+  If you do not provide this value, Cloud Load Balancing will calculate it dynamically to optimize the number
+  of proxies/clients visible to each backend and vice versa.
+  Must be greater than 0. If subsetSize is larger than the number of backends/endpoints, then subsetting is disabled.
+
+<a name="nested_dynamic_forwarding"></a>The `dynamic_forwarding` block supports:
+
+* `ip_port_selection` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  IP:PORT based dynamic forwarding configuration.
+  Structure is [documented below](#nested_dynamic_forwarding_ip_port_selection).
+
+
+<a name="nested_dynamic_forwarding_ip_port_selection"></a>The `ip_port_selection` block supports:
+
+* `enabled` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A boolean flag enabling IP:PORT based dynamic forwarding.
 
 ## Attributes Reference
 

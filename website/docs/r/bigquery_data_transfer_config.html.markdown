@@ -91,7 +91,7 @@ resource "google_project_iam_member" "permissions" {
 resource "google_bigquery_data_transfer_config" "query_config_cmek" {
   depends_on = [google_project_iam_member.permissions]
 
-  display_name           = ""
+  display_name           = "display-name"
   location               = "asia-northeast1"
   data_source_id         = "scheduled_query"
   schedule               = "first sunday of quarter 00:00"
