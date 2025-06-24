@@ -43,7 +43,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "cloudrun-worker-pool"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "ALPHA"
+  launch_stage = "BETA"
   
   template {
     containers {
@@ -65,7 +65,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "cloudrun-worker-pool"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "ALPHA"
+  launch_stage = "BETA"
 
   template {
     containers {
@@ -93,7 +93,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "cloudrun-worker-pool"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "ALPHA"
+  launch_stage = "BETA"
   
   template {
   
@@ -180,7 +180,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "cloudrun-worker-pool"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "ALPHA"
+  launch_stage = "BETA"
 
   template {
     containers {
@@ -241,7 +241,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "cloudrun-worker-pool"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "ALPHA"
+  launch_stage = "BETA"
 
   template {
     volumes {
@@ -302,13 +302,12 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "cloudrun-worker-pool"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "ALPHA"
+  launch_stage = "BETA"
 
   template {
     containers {
       name = "hello-1"
       image = "us-docker.pkg.dev/cloudrun/container/worker-pool"
-      depends_on = ["hello-2"]
       volume_mounts {
         name = "empty-dir-volume"
         mount_path = "/mnt"
@@ -342,7 +341,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
 
   location     = "us-central1"
   deletion_protection = false
-  launch_stage = "ALPHA"
+  launch_stage = "BETA"
 
   template {
     containers {
@@ -383,7 +382,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
 
   location     = "us-central1"
   deletion_protection = false
-  launch_stage = "ALPHA"
+  launch_stage = "BETA"
 
   template {
     containers {
@@ -440,7 +439,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "cloudrun-worker-pool"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "ALPHA"
+  launch_stage = "BETA"
 
   custom_audiences = ["aud1"]
   template {
