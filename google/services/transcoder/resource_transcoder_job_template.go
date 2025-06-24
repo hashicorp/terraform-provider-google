@@ -56,6 +56,29 @@ func ResourceTranscoderJobTemplate() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+						Description:       `The project that the transcoding job resource belongs to.`,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+						Description:       `The location of the transcoding job resource.`,
+					},
+					"job_template_id": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+						Description:       `The name of the transcoding job resource.`,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"job_template_id": {
 				Type:        schema.TypeString,
@@ -895,6 +918,20 @@ func resourceTranscoderJobTemplateRead(d *schema.ResourceData, meta interface{})
 	}
 	if err := d.Set("effective_labels", flattenTranscoderJobTemplateEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading JobTemplate: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error reading JobTemplate: %s", err)
+	}
+	if err := identity.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project for identity: %s", err)
+	}	
+	if err := identity.Set("location", d.Get("location")); err != nil {
+		return fmt.Errorf("Error setting location for identity: %s", err)
+	}
+	if err := identity.Set("job_template_id", d.Get("job_template_id")); err != nil {
+		return fmt.Errorf("Error setting job_template_id for identity: %s", err)
 	}
 
 	return nil
