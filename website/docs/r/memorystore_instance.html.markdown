@@ -115,6 +115,7 @@ resource "google_memorystore_instance" "instance-full" {
   node_type               = "SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_DISABLED"
   authorization_mode      = "AUTH_DISABLED"
+  kms_key                 = "my-key"
   engine_configs = {
     maxmemory-policy = "volatile-ttl"
   }
@@ -495,6 +496,10 @@ The following arguments are supported:
   (Optional)
   Managed backup source for the instance.
   Structure is [documented below](#nested_managed_backup_source).
+
+* `kms_key` -
+  (Optional)
+  The KMS key used to encrypt the at-rest data of the cluster
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
