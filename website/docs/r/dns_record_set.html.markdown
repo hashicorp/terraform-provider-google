@@ -232,6 +232,7 @@ resource "google_dns_record_set" "a" {
 resource "google_dns_managed_zone" "prod" {
   name     = "prod-zone"
   dns_name = "prod.mydomain.com."
+  visibility = "private"
 }
 
 resource "google_compute_forwarding_rule" "prod" {
