@@ -187,9 +187,6 @@ cluster.
 * `queued_provisioning` - (Optional) Specifies node pool-level settings of queued provisioning.
     Structure is [documented below](#nested_queued_provisioning).
 
-* `reservation_affinity` (Optional) The configuration of the desired reservation which instances could take capacity from.
-    Structure is [documented below](#nested_reservation_affinity).
-
 <a name="nested_autoscaling"></a>The `autoscaling` block supports (either total or per zone limits are required):
 
 * `min_node_count` - (Optional) Minimum number of nodes per zone in the NodePool.
