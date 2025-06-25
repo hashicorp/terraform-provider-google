@@ -385,11 +385,12 @@ character, which cannot be a dash.`,
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				Description: `The accessMode of the disk.
+				Description: `The access mode of the disk.
 For example:
-* READ_WRITE_SINGLE
-* READ_WRITE_MANY
-* READ_ONLY_SINGLE`,
+  * READ_WRITE_SINGLE: The default AccessMode, means the disk can be attached to single instance in RW mode.
+  * READ_WRITE_MANY: The AccessMode means the disk can be attached to multiple instances in RW mode.
+  * READ_ONLY_SINGLE: The AccessMode means the disk can be attached to multiple instances in RO mode.
+The AccessMode is only valid for Hyperdisk disk types.`,
 			},
 			"architecture": {
 				Type:        schema.TypeString,

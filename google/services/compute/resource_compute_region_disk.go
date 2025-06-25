@@ -86,6 +86,17 @@ character, which cannot be a dash.`,
 					DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				},
 			},
+			"access_mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				Description: `The access mode of the disk.
+For example:
+  * READ_WRITE_SINGLE: The default AccessMode, means the disk can be attached to single instance in RW mode.
+  * READ_WRITE_MANY: The AccessMode means the disk can be attached to multiple instances in RW mode.
+  * READ_ONLY_SINGLE: The AccessMode means the disk can be attached to multiple instances in RO mode.
+The AccessMode is only valid for Hyperdisk disk types.`,
+			},
 			"async_primary_disk": {
 				Type:             schema.TypeList,
 				Optional:         true,
@@ -482,6 +493,12 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("licenses"); !tpgresource.IsEmptyValue(reflect.ValueOf(licensesProp)) && (ok || !reflect.DeepEqual(v, licensesProp)) {
 		obj["licenses"] = licensesProp
 	}
+	accessModeProp, err := expandComputeRegionDiskAccessMode(d.Get("access_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("access_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(accessModeProp)) && (ok || !reflect.DeepEqual(v, accessModeProp)) {
+		obj["accessMode"] = accessModeProp
+	}
 	labelsProp, err := expandComputeRegionDiskEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -685,6 +702,9 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("licenses", flattenComputeRegionDiskLicenses(res["licenses"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
+	if err := d.Set("access_mode", flattenComputeRegionDiskAccessMode(res["accessMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionDisk: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenComputeRegionDiskTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
@@ -797,6 +817,51 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating RegionDisk %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating RegionDisk", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("access_mode") {
+		obj := make(map[string]interface{})
+
+		accessModeProp, err := expandComputeRegionDiskAccessMode(d.Get("access_mode"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("access_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessModeProp)) {
+			obj["accessMode"] = accessModeProp
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}?paths=accessMode")
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
 			Project:   billingProject,
 			RawURL:    url,
 			UserAgent: userAgent,
@@ -1270,6 +1335,10 @@ func flattenComputeRegionDiskLicenses(v interface{}, d *schema.ResourceData, con
 	return tpgresource.ConvertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)
 }
 
+func flattenComputeRegionDiskAccessMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionDiskTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1505,6 +1574,10 @@ func expandComputeRegionDiskLicenses(v interface{}, d tpgresource.TerraformResou
 		req = append(req, f.RelativeLink())
 	}
 	return req, nil
+}
+
+func expandComputeRegionDiskAccessMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeRegionDiskEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

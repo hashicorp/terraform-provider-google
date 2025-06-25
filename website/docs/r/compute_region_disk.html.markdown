@@ -145,6 +145,23 @@ resource "google_compute_region_disk" "regiondisk" {
   replica_zones = ["us-central1-a", "us-central1-f"]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_disk_hyperdisk_balanced_ha_write_many&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Disk Hyperdisk Balanced Ha Write Many
+
+
+```hcl
+resource "google_compute_region_disk" "primary" {
+  name                      = "my-region-hyperdisk"
+  type                      = "hyperdisk-balanced-high-availability"
+  region                    = "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-f"]
+  access_mode = "READ_WRITE_MANY"
+}
+```
 
 ## Argument Reference
 
@@ -255,6 +272,15 @@ The following arguments are supported:
 * `licenses` -
   (Optional)
   Any applicable license URI.
+
+* `access_mode` -
+  (Optional)
+  The access mode of the disk.
+  For example:
+    * READ_WRITE_SINGLE: The default AccessMode, means the disk can be attached to single instance in RW mode.
+    * READ_WRITE_MANY: The AccessMode means the disk can be attached to multiple instances in RW mode.
+    * READ_ONLY_SINGLE: The AccessMode means the disk can be attached to multiple instances in RO mode.
+  The AccessMode is only valid for Hyperdisk disk types.
 
 * `region` -
   (Optional)

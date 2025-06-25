@@ -5,6 +5,7 @@ api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Disk'
 fields:
+  - field: 'access_mode'
   - field: 'async_primary_disk.disk'
   - field: 'create_snapshot_before_destroy'
     provider_only: true
