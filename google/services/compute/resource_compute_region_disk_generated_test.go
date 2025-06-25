@@ -186,6 +186,43 @@ resource "google_compute_region_disk" "regiondisk" {
 `, context)
 }
 
+func TestAccComputeRegionDisk_regionDiskHyperdiskBalancedHaWriteManyExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionDisk_regionDiskHyperdiskBalancedHaWriteManyExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_disk.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "region", "snapshot", "terraform_labels", "type"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionDisk_regionDiskHyperdiskBalancedHaWriteManyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_disk" "primary" {
+  name                      = "tf-test-my-region-hyperdisk%{random_suffix}"
+  type                      = "hyperdisk-balanced-high-availability"
+  region                    = "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-f"]
+  access_mode = "READ_WRITE_MANY"
+}
+`, context)
+}
+
 func testAccCheckComputeRegionDiskDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
