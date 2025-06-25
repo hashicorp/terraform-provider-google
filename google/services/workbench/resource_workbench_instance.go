@@ -20,6 +20,7 @@
 package workbench
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -59,6 +60,10 @@ func WorkbenchInstanceLabelsDiffSuppress(k, old, new string, d *schema.ResourceD
 
 	// For other keys, don't suppress diff.
 	return false
+}
+
+var WorkbenchInstanceSettableUnmodifiableDefaultMetadata = []string{
+	"serial-port-logging-enable",
 }
 
 var WorkbenchInstanceProvidedMetadata = []string{
@@ -107,7 +112,6 @@ var WorkbenchInstanceProvidedMetadata = []string{
 	"report-system-status",
 	"resource-url",
 	"restriction",
-	"serial-port-logging-enable",
 	"service-account-mode",
 	"shutdown-script",
 	"title",
@@ -128,6 +132,12 @@ func WorkbenchInstanceMetadataDiffSuppress(k, old, new string, d *schema.Resourc
 
 	for _, metadata := range WorkbenchInstanceProvidedMetadata {
 		if key == metadata {
+			return true
+		}
+	}
+
+	for _, metadata := range WorkbenchInstanceSettableUnmodifiableDefaultMetadata {
+		if strings.Contains(k, metadata) && new == "" {
 			return true
 		}
 	}
@@ -299,6 +309,34 @@ func mergeMaps(oldMap, newMap map[string]interface{}) map[string]string {
 	return modifiedMap
 }
 
+func workbenchMetadataCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	if diff.HasChange("gce_setup.0.metadata") {
+		o, n := diff.GetChange("gce_setup.0.metadata")
+		oldMetadata := o.(map[string]interface{})
+		newMetadata := n.(map[string]interface{})
+
+		for _, key := range WorkbenchInstanceSettableUnmodifiableDefaultMetadata {
+			oldValue, oldOk := oldMetadata[key]
+			newValue, newOk := newMetadata[key]
+
+			// Condition to force new:
+			// 1. The key exists in both old and new metadata AND their values differ.
+			// 2. The key exists in new but not in old (meaning it was added).
+			//
+			// The key exists in old but not in new (meaning it was removed) is ignored.
+			if (oldOk && newOk && oldValue != newValue) ||
+				(!oldOk && newOk) {
+				// If a change is detected for this specific key, force a new resource and stop checking.
+				if err := diff.ForceNew("gce_setup.0.metadata"); err != nil {
+					return err
+				}
+				return nil // Return nil immediately after forcing new
+			}
+		}
+	}
+	return nil
+}
+
 func ResourceWorkbenchInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceWorkbenchInstanceCreate,
@@ -317,6 +355,7 @@ func ResourceWorkbenchInstance() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			workbenchMetadataCustomizeDiff,
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),

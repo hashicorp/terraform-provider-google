@@ -1,0 +1,3 @@
+```release-note:bug
+google_workbench_instance: serial-port-logging-enable` metadata key is now settable.
+```
