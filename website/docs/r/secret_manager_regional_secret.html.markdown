@@ -52,6 +52,7 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
     key2 = "value2",
     key3 = "value3"
   }
+  deletion_protection = false
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -297,6 +298,10 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the regional secret. Defaults to false.
+When the field is set to true in Terraform state, a `terraform apply`
+or `terraform destroy` that would delete the federation will fail.
 
 
 <a name="nested_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
