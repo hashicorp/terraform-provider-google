@@ -36,14 +36,14 @@ class NightlyTriggerConfiguration(
 fun Triggers.runNightly(config: NightlyTriggerConfiguration) {
 
     schedule{
-        enabled = true
+        enabled = config.nightlyTestsEnabled
         branchFilter = "+:" + config.branch // returns "+:/refs/heads/nightly-test" if default
         triggerBuild = always() // Run build even if no new commits/pending changes
         withPendingChangesOnly = false
         enforceCleanCheckout = true
 
         schedulingPolicy = cron {
-            minutes = "25"
+            minutes = "18"
             hours = "*"
             timezone = "SERVER"
 
