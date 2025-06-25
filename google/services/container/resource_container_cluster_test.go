@@ -419,7 +419,7 @@ func TestAccContainerCluster_withConfidentialNodes(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withConfidentialNodes(clusterName, npName, networkName, subnetworkName),
+				Config: testAccContainerCluster_withConfidentialNodes(clusterName, npName, networkName, subnetworkName, false, "", "n2d-standard-2"),
 			},
 			{
 				ResourceName:            "google_container_cluster.confidential_nodes",
@@ -428,7 +428,7 @@ func TestAccContainerCluster_withConfidentialNodes(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_disableConfidentialNodes(clusterName, npName, networkName, subnetworkName),
+				Config: testAccContainerCluster_withConfidentialNodes(clusterName, npName, networkName, subnetworkName, true, "", "n2d-standard-2"),
 			},
 			{
 				ResourceName:            "google_container_cluster.confidential_nodes",
@@ -437,7 +437,25 @@ func TestAccContainerCluster_withConfidentialNodes(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_withConfidentialNodes(clusterName, npName, networkName, subnetworkName),
+				Config: testAccContainerCluster_withConfidentialNodes(clusterName, npName, networkName, subnetworkName, false, "SEV", "n2d-standard-2"),
+			},
+			{
+				ResourceName:            "google_container_cluster.confidential_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withConfidentialNodes(clusterName, npName, networkName, subnetworkName, false, "SEV_SNP", "n2d-standard-2"),
+			},
+			{
+				ResourceName:            "google_container_cluster.confidential_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withConfidentialNodes(clusterName, npName, networkName, subnetworkName, false, "TDX", "c3-standard-4"),
 			},
 			{
 				ResourceName:            "google_container_cluster.confidential_nodes",
@@ -6666,60 +6684,36 @@ resource "google_container_cluster" "filtered_notification_config" {
 `, topic, topic, clusterName, topic, networkName, subnetworkName)
 }
 
-func testAccContainerCluster_withConfidentialNodes(clusterName, npName, networkName, subnetworkName string) string {
+func testAccContainerCluster_withConfidentialNodes(clusterName, npName, networkName, subnetworkName string, enable bool, confidentialInstanceType, machineType string) string {
+	confInsTypeString := ""
+	if confidentialInstanceType != "" {
+		confInsTypeString = fmt.Sprintf(`confidential_instance_type = "%s"`, confidentialInstanceType)
+	}
+
 	return fmt.Sprintf(`
 resource "google_container_cluster" "confidential_nodes" {
   name               = "%s"
   location           = "us-central1-a"
-  release_channel {
-    channel = "RAPID"
-  }
 
   node_pool {
     name = "%s"
     initial_node_count = 1
     node_config {
-      machine_type = "n2d-standard-2" // can't be e2 because Confidential Nodes require AMD CPUs
+      machine_type = "%s"
     }
   }
 
   confidential_nodes {
-    enabled = true
+    enabled = %t
+    %s
   }
+
   network    = "%s"
   subnetwork = "%s"
 
   deletion_protection = false
 }
-`, clusterName, npName, networkName, subnetworkName)
-}
-
-func testAccContainerCluster_disableConfidentialNodes(clusterName, npName, networkName, subnetworkName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "confidential_nodes" {
-  name               = "%s"
-  location           = "us-central1-a"
-  release_channel {
-    channel = "RAPID"
-  }
-
-  node_pool {
-    name = "%s"
-    initial_node_count = 1
-    node_config {
-      machine_type = "n2d-standard-2"
-    }
-  }
-
-  confidential_nodes {
-    enabled = false
-  }
-  network    = "%s"
-  subnetwork = "%s"
-
-  deletion_protection = false
-}
-`, clusterName, npName, networkName, subnetworkName)
+`, clusterName, npName, machineType, enable, confInsTypeString, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withLocalSsdEncryptionMode(clusterName, npName, networkName, subnetworkName, mode string) string {

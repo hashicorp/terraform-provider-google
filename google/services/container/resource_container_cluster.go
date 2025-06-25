@@ -151,6 +151,14 @@ var (
 		}
 		return false
 	})
+
+	suppressDiffForConfidentialNodes = schema.SchemaDiffSuppressFunc(func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+		k = strings.Replace(k, "confidential_instance_type", "enabled", 1)
+		if v, _ := d.Get(k).(bool); v {
+			return oldValue == "SEV" && newValue == ""
+		}
+		return false
+	})
 )
 
 // Defines default nodel pool settings for the entire cluster. These settings are
@@ -1286,6 +1294,14 @@ func ResourceContainerCluster() *schema.Resource {
 							Required:    true,
 							ForceNew:    true,
 							Description: `Whether Confidential Nodes feature is enabled for all nodes in this cluster.`,
+						},
+						"confidential_instance_type": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: suppressDiffForConfidentialNodes,
+							Description:      `Defines the type of technology used by the confidential node.`,
+							ValidateFunc:     validation.StringInSlice([]string{"SEV", "SEV_SNP", "TDX"}, false),
 						},
 					},
 				},
