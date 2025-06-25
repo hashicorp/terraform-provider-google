@@ -1963,6 +1963,24 @@ func ResourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"gke_auto_upgrade_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Description: `Configuration options for the auto-upgrade patch type feature, which provide more control over the speed of automatic upgrades of your GKE clusters.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"patch_mode": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The selected auto-upgrade patch type. Accepted values are:
+* ACCELERATED: Upgrades to the latest available patch version in a given minor and release channel.`,
+						},
+					},
+				},
+			},
+
 			"tpu_ipv4_cidr_block": {
 				Computed:    true,
 				Type:        schema.TypeString,
@@ -2427,8 +2445,9 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			WorkloadPolicyConfig: workloadPolicyConfig,
 			ForceSendFields:      []string{"Enabled"},
 		},
-		ReleaseChannel: expandReleaseChannel(d.Get("release_channel")),
-		EnableTpu:      d.Get("enable_tpu").(bool),
+		ReleaseChannel:       expandReleaseChannel(d.Get("release_channel")),
+		GkeAutoUpgradeConfig: expandGkeAutoUpgradeConfig(d.Get("gke_auto_upgrade_config")),
+		EnableTpu:            d.Get("enable_tpu").(bool),
 		NetworkConfig: &container.NetworkConfig{
 			EnableIntraNodeVisibility:            d.Get("enable_intranode_visibility").(bool),
 			DefaultSnatStatus:                    expandDefaultSnatStatus(d.Get("default_snat_status")),
@@ -2970,6 +2989,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("release_channel", flattenReleaseChannel(cluster.ReleaseChannel)); err != nil {
 		return err
 	}
+	if err := d.Set("gke_auto_upgrade_config", flattenGkeAutoUpgradeConfig(cluster.GkeAutoUpgradeConfig)); err != nil {
+		return err
+	}
 	if err := d.Set("notification_config", flattenNotificationConfig(cluster.NotificationConfig)); err != nil {
 		return err
 	}
@@ -3382,6 +3404,38 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s Release Channel has been updated to %#v", d.Id(), req.Update.DesiredReleaseChannel)
+	}
+
+	if d.HasChange("gke_auto_upgrade_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				GkeAutoUpgradeConfig: expandGkeAutoUpgradeConfig(d.Get("gke_auto_upgrade_config")),
+			},
+		}
+		updateF := func() error {
+			log.Println("[DEBUG] updating gke_auto_upgrade_config")
+			name := containerClusterFullName(project, location, clusterName)
+			clusterUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Update(name, req)
+			if config.UserProjectOverride {
+				clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
+			}
+			op, err := clusterUpdateCall.Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			err = ContainerOperationWait(config, op, project, location, "updating GKE Auto Upgrade Config", userAgent, d.Timeout(schema.TimeoutUpdate))
+			log.Println("[DEBUG] done updating gke_auto_upgrade_config")
+			return err
+		}
+
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s GKE Auto Upgrade Config has been updated to %#v", d.Id(), req.Update.GkeAutoUpgradeConfig)
 	}
 
 	if d.HasChange("enable_intranode_visibility") {
@@ -5539,6 +5593,17 @@ func expandReleaseChannel(configured interface{}) *container.ReleaseChannel {
 	}
 }
 
+func expandGkeAutoUpgradeConfig(configured interface{}) *container.GkeAutoUpgradeConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &container.GkeAutoUpgradeConfig{
+		PatchMode: config["patch_mode"].(string),
+	}
+}
+
 func expandDefaultSnatStatus(configured interface{}) *container.DefaultSnatStatus {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -6211,6 +6276,21 @@ func flattenReleaseChannel(c *container.ReleaseChannel) []map[string]interface{}
 			"channel": "UNSPECIFIED",
 		})
 	}
+	return result
+}
+
+func flattenGkeAutoUpgradeConfig(c *container.GkeAutoUpgradeConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+
+	result := []map[string]interface{}{}
+	if c.PatchMode != "" {
+		result = append(result, map[string]interface{}{
+			"patch_mode": c.PatchMode,
+		})
+	}
+
 	return result
 }
 
