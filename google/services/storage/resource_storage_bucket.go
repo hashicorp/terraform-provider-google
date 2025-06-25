@@ -647,6 +647,17 @@ func ResourceStorageBucket() *schema.Resource {
 								},
 							},
 						},
+						"allow_cross_org_vpcs": {
+							Type:         schema.TypeBool,
+							Optional:     true,
+							Description:  `Whether to allow cross-org VPCs in the bucket's IP filter configuration.`,
+							RequiredWith: []string{"ip_filter.0.vpc_network_sources"},
+						},
+						"allow_all_service_agent_access": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Whether to allow all service agents to access the bucket regardless of the IP filter configuration.`,
+						},
 					},
 				},
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
@@ -2051,7 +2062,9 @@ func flattenBucketIpFilter(ipFilter *storage.BucketIpFilter) []map[string]interf
 	}
 
 	filterItem := map[string]interface{}{
-		"mode": ipFilter.Mode,
+		"mode":                           ipFilter.Mode,
+		"allow_cross_org_vpcs":           ipFilter.AllowCrossOrgVpcs,
+		"allow_all_service_agent_access": ipFilter.AllowAllServiceAgentAccess,
 	}
 
 	if publicSrc := flattenBucketIpFilterPublicNetworkSource(ipFilter.PublicNetworkSource); publicSrc != nil {
@@ -2100,10 +2113,12 @@ func expandBucketIpFilter(v interface{}) *storage.BucketIpFilter {
 	}
 	ipFilter := ipFilterList[0].(map[string]interface{})
 	return &storage.BucketIpFilter{
-		Mode:                ipFilter["mode"].(string),
-		PublicNetworkSource: expandBucketIpFilterPublicNetworkSource(ipFilter["public_network_source"]),
-		VpcNetworkSources:   expandBucketIpFilterVpcNetworkSources(ipFilter["vpc_network_sources"]),
-		ForceSendFields:     []string{"PublicNetworkSource", "VpcNetworkSources"},
+		Mode:                       ipFilter["mode"].(string),
+		PublicNetworkSource:        expandBucketIpFilterPublicNetworkSource(ipFilter["public_network_source"]),
+		VpcNetworkSources:          expandBucketIpFilterVpcNetworkSources(ipFilter["vpc_network_sources"]),
+		AllowCrossOrgVpcs:          ipFilter["allow_cross_org_vpcs"].(bool),
+		AllowAllServiceAgentAccess: ipFilter["allow_all_service_agent_access"].(bool),
+		ForceSendFields:            []string{"PublicNetworkSource", "VpcNetworkSources", "AllowCrossOrgVpcs", "AllowAllServiceAgentAccess"},
 	}
 }
 

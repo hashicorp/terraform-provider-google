@@ -1612,6 +1612,21 @@ func TestAccStorageBucket_IPFilter(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
+				Config: testAccStorageBucket_IPFilter_update(
+					bucketName, nwSuffix, project, serviceAccount,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						t, "google_storage_bucket.bucket", bucketName, &bucket),
+				),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+			{
 				Config: testAccStorageBucket_IPFilter_disable(bucketName, nwSuffix, project, serviceAccount),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
@@ -2836,6 +2851,52 @@ resource "google_storage_bucket" "bucket" {
       network = google_compute_network.vpc_gcs_ipfilter1.id
       allowed_ip_cidr_ranges = ["0.0.0.0/0", "::/0"]
     }
+    allow_all_service_agent_access = true
+  }
+}
+`, nwSuffix, nwSuffix, nwSuffix, project, project, serviceAccount, bucketName)
+}
+
+func testAccStorageBucket_IPFilter_update(bucketName string, nwSuffix string, project string, serviceAccount string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "vpc_gcs_ipfilter1" {
+  name = "tf-test-storage-ipfilter1-%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "ipfilter_1" {
+  name          = "tf-test-storage-ipfilter1-%s"
+  ip_cidr_range = "10.201.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.vpc_gcs_ipfilter1.id
+}
+
+resource "google_project_iam_custom_role" "ipfilter_exempt_role" {
+  role_id     = "_%s"
+  title       = "IP Filter Exempt Role"
+  description = "A custom role to bypass IP Filtering on GCS bucket."
+  permissions = ["storage.buckets.exemptFromIpFilter"]
+}
+
+resource "google_project_iam_member" "primary" {
+  project = "%s"
+  role    = "projects/%s/roles/${google_project_iam_custom_role.ipfilter_exempt_role.role_id}"
+  member  = "serviceAccount:%s"
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "us-central1"
+  uniform_bucket_level_access = true
+  force_destroy = true
+  ip_filter  {
+    mode = "Enabled"
+    vpc_network_sources {
+      network = google_compute_network.vpc_gcs_ipfilter1.id
+      allowed_ip_cidr_ranges = ["0.0.0.0/0"]
+    }
+    allow_cross_org_vpcs = false
+    allow_all_service_agent_access = false
   }
 }
 `, nwSuffix, nwSuffix, nwSuffix, project, project, serviceAccount, bucketName)
