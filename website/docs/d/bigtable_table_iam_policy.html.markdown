@@ -26,8 +26,8 @@ Retrieves the current IAM policy data for a Bigtable Table.
 
 ```hcl
 data "google_bigtable_table_iam_policy" "policy" {
-  instance    = google_bigtable_instance.instance.name
-  table       = google_bigtable_table.table.name
+  instance_name    = google_bigtable_instance.instance.name
+  table            = google_bigtable_table.table.name
 }
 ```
 

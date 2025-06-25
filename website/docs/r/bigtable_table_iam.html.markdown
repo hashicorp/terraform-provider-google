@@ -43,10 +43,10 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_bigtable_table_iam_policy" "editor" {
-  project     = "your-project"
-  instance    = "your-bigtable-instance"
-  table       = "your-bigtable-table"
-  policy_data = data.google_iam_policy.admin.policy_data
+  project       = "your-project"
+  instance_name = "your-bigtable-instance"
+  table         = "your-bigtable-table"
+  policy_data   = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -54,10 +54,10 @@ resource "google_bigtable_table_iam_policy" "editor" {
 
 ```hcl
 resource "google_bigtable_table_iam_binding" "editor" {
-  table       = "your-bigtable-table"
-  instance    = "your-bigtable-instance"
-  role     = "roles/bigtable.user"
-  members = [
+  table         = "your-bigtable-table"
+  instance_name = "your-bigtable-instance"
+  role          = "roles/bigtable.user"
+  members       = [
     "user:jane@example.com",
   ]
 }
@@ -67,10 +67,10 @@ resource "google_bigtable_table_iam_binding" "editor" {
 
 ```hcl
 resource "google_bigtable_table_iam_member" "editor" {
-  table       = "your-bigtable-table"
-  instance    = "your-bigtable-instance"
-  role        = "roles/bigtable.user"
-  member      = "user:jane@example.com"
+  table         = "your-bigtable-table"
+  instance_name = "your-bigtable-instance"
+  role          = "roles/bigtable.user"
+  member        = "user:jane@example.com"
 }
 ```
 
@@ -78,7 +78,7 @@ resource "google_bigtable_table_iam_member" "editor" {
 
 The following arguments are supported:
 
-* `instance` - (Required) The name or relative resource id of the instance that owns the table.
+* `instance_name` - (Required) The name or relative resource id of the instance that owns the table.
 
 * `table` - (Required) The name or relative resource id of the table to manage IAM policies for.
 
