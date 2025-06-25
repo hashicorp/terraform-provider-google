@@ -345,6 +345,7 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
     key2 = "value2",
     key3 = "value3"
   }
+  deletion_protection = false
 }
 
 resource "google_secret_manager_regional_secret_iam_member" "foo" {
@@ -372,6 +373,7 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
     key2 = "value2",
     key3 = "value3"
   }
+  deletion_protection = false
 }
 
 data "google_iam_policy" "foo" {
@@ -414,6 +416,7 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
     key2 = "value2",
     key3 = "value3"
   }
+  deletion_protection = false
 }
 
 data "google_iam_policy" "foo" {
@@ -443,6 +446,7 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
     key2 = "value2",
     key3 = "value3"
   }
+  deletion_protection = false
 }
 
 resource "google_secret_manager_regional_secret_iam_binding" "foo" {
@@ -470,6 +474,7 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
     key2 = "value2",
     key3 = "value3"
   }
+  deletion_protection = false
 }
 
 resource "google_secret_manager_regional_secret_iam_binding" "foo" {
@@ -497,6 +502,7 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
     key2 = "value2",
     key3 = "value3"
   }
+  deletion_protection = false
 }
 
 resource "google_secret_manager_regional_secret_iam_binding" "foo" {
@@ -529,6 +535,7 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
     key2 = "value2",
     key3 = "value3"
   }
+  deletion_protection = false
 }
 
 resource "google_secret_manager_regional_secret_iam_binding" "foo" {
@@ -583,6 +590,7 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
     key2 = "value2",
     key3 = "value3"
   }
+  deletion_protection = false
 }
 
 resource "google_secret_manager_regional_secret_iam_member" "foo" {
@@ -615,6 +623,7 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
     key2 = "value2",
     key3 = "value3"
   }
+  deletion_protection = false
 }
 
 resource "google_secret_manager_regional_secret_iam_member" "foo" {
@@ -669,6 +678,7 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
     key2 = "value2",
     key3 = "value3"
   }
+  deletion_protection = false
 }
 
 data "google_iam_policy" "foo" {

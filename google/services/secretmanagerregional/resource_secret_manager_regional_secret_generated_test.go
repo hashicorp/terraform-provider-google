@@ -49,7 +49,7 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretConfigBasicExample
 				ResourceName:            "google_secret_manager_regional_secret.regional-secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "secret_id", "terraform_labels", "ttl"},
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "secret_id", "terraform_labels", "ttl"},
 			},
 		},
 	})
@@ -70,6 +70,7 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
     key2 = "value2",
     key3 = "value3"
   }
+  deletion_protection = false
 }
 `, context)
 }
