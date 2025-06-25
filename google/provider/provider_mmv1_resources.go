@@ -542,9 +542,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 623
+// Generated resources: 624
 // Generated IAM resources: 309
-// Total generated resources: 932
+// Total generated resources: 933
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -603,6 +603,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_apihub_api_hub_instance":                                             apihub.ResourceApihubApiHubInstance(),
 	"google_apihub_curation":                                                     apihub.ResourceApihubCuration(),
 	"google_apihub_host_project_registration":                                    apihub.ResourceApihubHostProjectRegistration(),
+	"google_apihub_plugin":                                                       apihub.ResourceApihubPlugin(),
 	"google_apihub_plugin_instance":                                              apihub.ResourceApihubPluginInstance(),
 	"google_app_engine_application_url_dispatch_rules":                           appengine.ResourceAppEngineApplicationUrlDispatchRules(),
 	"google_app_engine_domain_mapping":                                           appengine.ResourceAppEngineDomainMapping(),
