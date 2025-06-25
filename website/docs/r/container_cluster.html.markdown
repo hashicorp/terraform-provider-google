@@ -1066,6 +1066,9 @@ sole_tenant_config {
 * `enabled` (Required) - Enable Confidential GKE Nodes for this node pool, to
     enforce encryption of data in-use.
 
+* `confidential_instance_type` (Optional) - Defines the type of technology used
+    by the confidential node.
+
 <a name="nested_node_affinity"></a>The `node_affinity` block supports:
 
 * `key` (Required) - The default or custom node affinity label key name.
@@ -1226,6 +1229,9 @@ notification_config {
 
 * `enabled` (Required) - Enable Confidential GKE Nodes for this cluster, to
     enforce encryption of data in-use.
+
+* `confidential_instance_type` (Optional) - Defines the type of technology used
+    by the confidential node.
 
 <a name="nested_pod_security_policy_config"></a>The `pod_security_policy_config` block supports:
 

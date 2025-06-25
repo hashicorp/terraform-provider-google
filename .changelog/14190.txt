@@ -1,0 +1,7 @@
+```release-note:enhancement
+container: added `confidential_nodes.confidential_instance_type` field to `google_container_cluster` resource
+```
+
+```release-note:enhancement
+container: added `node_config.confidential_nodes.confidential_instance_type` field to `google_container_node_pool` resource
+```
