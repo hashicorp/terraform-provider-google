@@ -43,7 +43,8 @@ fun Triggers.runNightly(config: NightlyTriggerConfiguration) {
         enforceCleanCheckout = true
 
         schedulingPolicy = cron {
-            hours = config.startHour.toString()
+            minutes = "18"
+            hours = "*"
             timezone = "SERVER"
 
             dayOfWeek = config.daysOfWeek
