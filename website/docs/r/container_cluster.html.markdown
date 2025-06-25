@@ -344,6 +344,10 @@ field from your config will cause Terraform to stop managing your cluster's
 release channel, but will not unenroll it. Instead, use the `"UNSPECIFIED"`
 channel. Structure is [documented below](#nested_release_channel).
 
+* `gke_auto_upgrade_config` - (Optional)
+Configuration options for the auto-upgrade patch type feature, which provide more control over the speed of automatic upgrades of your GKE clusters.
+Structure is [documented below](#nested_gke_auto_upgrade_config).
+
 * `remove_default_node_pool` - (Optional) If `true`, deletes the default node
     pool upon cluster creation. If you're using `google_container_node_pool`
     resources with no default node pool, this should be set to `true`, alongside
@@ -1348,6 +1352,12 @@ not.
     * REGULAR: Multiple per month upgrade cadence; Production users who need features not yet offered in the Stable channel.
     * STABLE: Every few months upgrade cadence; Production users who need stability above all else, and for whom frequent upgrades are too risky.
     * EXTENDED: GKE provides extended support for Kubernetes minor versions through the Extended channel. With this channel, you can stay on a minor version for up to 24 months.
+
+<a name="nested_gke_auto_upgrade_config"></a>The `gke_auto_upgrade_config` block supports:
+
+* `patch_mode` - (Required) The selected patch mode.
+    Accepted values are:
+    * ACCELERATED: Upgrades to the latest available patch version in a given minor and release channel.
 
 <a name="nested_cost_management_config"></a>The `cost_management_config` block supports:
 

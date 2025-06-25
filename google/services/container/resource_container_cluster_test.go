@@ -1331,6 +1331,31 @@ func TestAccContainerCluster_withInvalidReleaseChannel(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withAcceleratedGkeAutoUpgradeConfig(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withGkeAutoUpgradeConfig(clusterName, "ACCELERATED", networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_gke_auto_upgrade_config",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withMasterAuthorizedNetworksConfig(t *testing.T) {
 	t.Parallel()
 
@@ -7026,6 +7051,24 @@ resource "google_container_cluster" "with_release_channel" {
   deletion_protection = false
 }
 `, clusterName, channel, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withGkeAutoUpgradeConfig(clusterName, patchMode, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_gke_auto_upgrade_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  gke_auto_upgrade_config {
+    patch_mode = "%s"
+  }
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, clusterName, patchMode, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_removeNetworkPolicy(clusterName, networkName, subnetworkName string) string {
