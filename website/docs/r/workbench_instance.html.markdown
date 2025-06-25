@@ -200,7 +200,8 @@ resource "google_workbench_instance" "instance" {
     }
 
     metadata = {
-      terraform = "true"
+      terraform = "true",
+      serial-port-logging-enable = "false"
     }
 
     enable_ip_forwarding = true
