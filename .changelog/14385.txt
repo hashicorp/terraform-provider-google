@@ -1,0 +1,9 @@
+```release-note:bug
+sql: no longer surface persistent warnings recommending write-only field when using `password` on `google_sql_user`
+```
+```release-note:bug
+secretmanager: no longer surface persistent warnings recommending write-only field when using `secret_data` on `google_secret_manager_secret_version`
+```
+```release-note:bug
+bigquerydatatransfer: no longer surface persistent warnings recommending write-only field when using `secret_access_key` on `google_bigquery_data_transfer_config`
+```
