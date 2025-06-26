@@ -27,7 +27,7 @@ Use this data source to get information about a Lustre instance. For more inform
 ```hcl
 data "google_lustre_instance" "instance" {
   name   = "my-instance"
-  location = "us-central1"
+  zone   = "us-central1-a"
 }
 ```
 
