@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `resource_policies.0.workload_policy` to `google_compute_instance_group_manager` resource (ga).
+```
