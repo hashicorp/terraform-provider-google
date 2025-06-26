@@ -83,6 +83,23 @@ resource "google_compute_firewall_policy_rule" "primary" {
     }
   }
 }
+
+resource "google_tags_tag_key" "basic_key" {
+  description = "For keyname resources."
+  parent      = "organizations/123456789"
+  purpose     = "GCE_FIREWALL"
+  short_name  = "tag-key"
+
+  purpose_data = {
+    organization = "auto"
+  }
+}
+
+resource "google_tags_tag_value" "basic_value" {
+  description = "For valuename resources."
+  parent      = google_tags_tag_key.basic_key.id
+  short_name  = "tag-value"
+}
 ```
 ## Example Usage - Firewall Policy Rule Network Scope
 
@@ -132,6 +149,71 @@ resource "google_compute_network" "network" {
   provider = google-beta
   name                    = "network"
   auto_create_subnetworks = false
+}
+```
+## Example Usage - Firewall Policy Rule Secure Tags
+
+
+```hcl
+resource "google_folder" "folder" {
+  display_name        = "folder"
+  parent              = "organizations/123456789"
+  deletion_protection = false
+}
+
+resource "google_compute_firewall_policy" "default" {
+  parent      = google_folder.folder.id
+  short_name  = "fw-policy"
+  description = "Resource created for Terraform acceptance testing"
+}
+
+resource "google_compute_firewall_policy_rule" "primary" {
+  firewall_policy         = google_compute_firewall_policy.default.name
+  description             = "Resource created for Terraform acceptance testing"
+  priority                = 9000
+  enable_logging          = true
+  action                  = "allow"
+  direction               = "INGRESS"
+  disabled                = false
+
+  target_secure_tags {
+    name = google_tags_tag_value.basic_value.id
+  }
+
+  match {
+    src_ip_ranges = ["11.100.0.1/32"]
+
+    src_secure_tags {
+      name = google_tags_tag_value.basic_value.id
+    }
+
+    layer4_configs {
+      ip_protocol = "tcp"
+      ports       = [8080]
+    }
+
+    layer4_configs {
+      ip_protocol = "udp"
+      ports       = [22]
+    }
+  }
+}
+
+resource "google_tags_tag_key" "basic_key" {
+  description = "For keyname resources."
+  parent      = "organizations/123456789"
+  purpose     = "GCE_FIREWALL"
+  short_name  = "tag-key"
+
+  purpose_data = {
+    organization = "auto"
+  }
+}
+
+resource "google_tags_tag_value" "basic_value" {
+  description = "For valuename resources."
+  parent      = google_tags_tag_key.basic_key.id
+  short_name  = "tag-value"
 }
 ```
 
@@ -226,6 +308,11 @@ The following arguments are supported:
   (Optional)
   Names of Network Threat Intelligence lists. The IPs in these lists will be matched against traffic source.
 
+* `src_secure_tags` -
+  (Optional)
+  List of secure tag values, which should be matched at the source of the traffic. For INGRESS rule, if all the srcSecureTag are INEFFECTIVE, and there is no srcIpRange, this rule will be ignored. Maximum number of source tag values allowed is 256.
+  Structure is [documented below](#nested_match_src_secure_tags).
+
 
 <a name="nested_match_layer4_configs"></a>The `layer4_configs` block supports:
 
@@ -238,6 +325,16 @@ The following arguments are supported:
   (Optional)
   An optional list of ports to which this rule applies. This field is only applicable for UDP or TCP protocol. Each entry must be either an integer or a range. If not specified, this rule applies to connections through any port.
   Example inputs include: ["22"], ["80","443"], and ["12345-12349"].
+
+<a name="nested_match_src_secure_tags"></a>The `src_secure_tags` block supports:
+
+* `name` -
+  (Optional)
+  Name of the secure tag, created with TagManager's TagValue API.
+
+* `state` -
+  (Output)
+  State of the secure tag, either EFFECTIVE or INEFFECTIVE. A secure tag is INEFFECTIVE when it is deleted or its network is deleted.
 
 - - -
 
@@ -274,12 +371,29 @@ The following arguments are supported:
   (Optional)
   A list of service accounts indicating the sets of instances that are applied with this rule.
 
+* `target_secure_tags` -
+  (Optional)
+  A list of secure tags that controls which instances the firewall rule applies to.
+  If targetSecureTag are specified, then the firewall rule applies only to instances in the VPC network that have one of those EFFECTIVE secure tags, if all the targetSecureTag are in INEFFECTIVE state, then this rule will be ignored.
+  targetSecureTag may not be set at the same time as targetServiceAccounts. If neither targetServiceAccounts nor targetSecureTag are specified, the firewall rule applies to all instances on the specified network. Maximum number of target secure tags allowed is 256.
+  Structure is [documented below](#nested_target_secure_tags).
+
 * `disabled` -
   (Optional)
   Denotes whether the firewall policy rule is disabled.
   When set to true, the firewall policy rule is not enforced and traffic behaves as if it did not exist.
   If this is unspecified, the firewall policy rule will be enabled.
 
+
+<a name="nested_target_secure_tags"></a>The `target_secure_tags` block supports:
+
+* `name` -
+  (Optional)
+  Name of the secure tag, created with TagManager's TagValue API.
+
+* `state` -
+  (Output)
+  State of the secure tag, either EFFECTIVE or INEFFECTIVE. A secure tag is INEFFECTIVE when it is deleted or its network is deleted.
 
 ## Attributes Reference
 
