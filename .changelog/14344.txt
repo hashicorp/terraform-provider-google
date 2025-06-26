@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: `machine_type` in the `machine_config` block is not yet GA in the API
+```
