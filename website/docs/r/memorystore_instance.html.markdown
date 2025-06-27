@@ -834,6 +834,10 @@ In addition to the arguments listed above, the following computed attributes are
   The backup collection full resource name.
   Example: projects/{project}/locations/{location}/backupCollections/{collection}
 
+* `managed_server_ca` -
+  Instance's Certificate Authority. This field will only be populated if instance's transit_encryption_mode is SERVER_AUTHENTICATION
+  Structure is [documented below](#nested_managed_server_ca).
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -1027,6 +1031,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `port` -
   (Output)
   Output only. Ports of the exposed endpoint.
+
+<a name="nested_managed_server_ca"></a>The `managed_server_ca` block contains:
+
+* `ca_certs` -
+  (Output)
+  The PEM encoded CA certificate chains for managed server authentication
+  Structure is [documented below](#nested_managed_server_ca_ca_certs).
+
+
+<a name="nested_managed_server_ca_ca_certs"></a>The `ca_certs` block contains:
+
+* `certificates` -
+  (Output)
+  The certificates that form the CA chain, from leaf to root order
 
 ## Timeouts
 
