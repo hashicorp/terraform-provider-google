@@ -20,6 +20,7 @@ description: |-
 ---
 
 # google_iap_brand
+~> **Warning:** after July 2025, the `google_iap_brand` Terraform resource will no longer function as intended due to the deprecation of the IAP OAuth Admin API
 
 OAuth brand data. Only "Organization Internal" brands can be created
 programmatically via API. To convert it into an external brands
