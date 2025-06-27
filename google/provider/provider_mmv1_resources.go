@@ -403,6 +403,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_memorystore_instance":                                memorystore.DataSourceMemorystoreInstance(),
 	"google_memcache_instance":                                   memcache.DataSourceMemcacheInstance(),
 	"google_redis_instance":                                      redis.DataSourceGoogleRedisInstance(),
+	"google_redis_cluster":                                       redis.DataSourceRedisCluster(),
 	"google_vertex_ai_index":                                     vertexai.DataSourceVertexAIIndex(),
 	"google_vmwareengine_cluster":                                vmwareengine.DataSourceVmwareengineCluster(),
 	"google_vmwareengine_external_access_rule":                   vmwareengine.DataSourceVmwareengineExternalAccessRule(),
