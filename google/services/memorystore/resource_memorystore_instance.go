@@ -710,6 +710,32 @@ resolution and up to nine fractional digits.`,
 					},
 				},
 			},
+			"managed_server_ca": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Instance's Certificate Authority. This field will only be populated if instance's transit_encryption_mode is SERVER_AUTHENTICATION`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ca_certs": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The PEM encoded CA certificate chains for managed server authentication`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"certificates": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `The certificates that form the CA chain, from leaf to root order`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -1254,6 +1280,9 @@ func resourceMemorystoreInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("kms_key", flattenMemorystoreInstanceKmsKey(res["kmsKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("managed_server_ca", flattenMemorystoreInstanceManagedServerCa(res["managedServerCa"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenMemorystoreInstanceTerraformLabels(res["labels"], d, config)); err != nil {
@@ -2443,6 +2472,41 @@ func flattenMemorystoreInstanceKmsKey(v interface{}, d *schema.ResourceData, con
 	return v
 }
 
+func flattenMemorystoreInstanceManagedServerCa(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ca_certs"] =
+		flattenMemorystoreInstanceManagedServerCaCaCerts(original["caCerts"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMemorystoreInstanceManagedServerCaCaCerts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"certificates": flattenMemorystoreInstanceManagedServerCaCaCertsCertificates(original["certificates"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenMemorystoreInstanceManagedServerCaCaCertsCertificates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenMemorystoreInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -3317,5 +3381,49 @@ func resourceMemorystoreInstanceDecoder(d *schema.ResourceData, meta interface{}
 
 	}
 
+	// Such custom code is necessary as the instance's certificate authority has to be retrieved via a dedicated
+	// getCertificateAuthority API.
+	// See https://cloud.google.com/memorystore/docs/valkey/reference/rest/v1/projects.locations.instances/getCertificateAuthority
+	// for details about this API.
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	// Only instances with SERVER_AUTHENTICATION mode have certificate authority set
+	if v, ok := res["transitEncryptionMode"].(string); ok && v == "SERVER_AUTHENTICATION" {
+		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{region}}/instances/{{instance_id}}/certificateAuthority")
+		if err != nil {
+			return nil, err
+		}
+
+		billingProject := ""
+
+		project, err := tpgresource.GetProject(d, config)
+		if err != nil {
+			return nil, fmt.Errorf("Error fetching project for instance: %s", err)
+		}
+
+		billingProject = project
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		certificateAuthority, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("Error reading certificateAuthority: %s", err)
+		}
+
+		res["managedServerCa"] = certificateAuthority["managedServerCa"]
+	}
 	return res, nil
 }
