@@ -516,6 +516,40 @@ func TestAccComputeNetwork_networkFirewallPolicyEnforcementOrderAndUpdate(t *tes
 	})
 }
 
+func TestAccComputeNetwork_resourceManagerTags(t *testing.T) {
+
+	t.Parallel()
+
+	var network compute.Network
+	org := envvar.GetTestOrgFromEnv(t)
+
+	suffixName := acctest.RandString(t, 10)
+	tagKeyResult := acctest.BootstrapSharedTestTagKeyDetails(t, "crm-networks-tagkey", "organizations/"+org, make(map[string]interface{}))
+	sharedTagkey, _ := tagKeyResult["shared_tag_key"]
+	tagValueResult := acctest.BootstrapSharedTestTagValueDetails(t, "crm-networks-tagvalue", sharedTagkey, org)
+	networkName := fmt.Sprintf("tf-test-network-resource-manager-tags-%s", suffixName)
+	context := map[string]interface{}{
+		"network_name": networkName,
+		"tag_key_id":   tagKeyResult["name"],
+		"tag_value_id": tagValueResult["name"],
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_resourceManagerTags(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.acc_network_with_resource_manager_tags", &network),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeNetworkExists(t *testing.T, n string, network *compute.Network) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -844,4 +878,18 @@ resource "google_compute_network" "acc_network_firewall_policy_enforcement_order
   network_firewall_policy_enforcement_order = "%s"
 }
 `, networkName, order)
+}
+
+func testAccComputeNetwork_resourceManagerTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "acc_network_with_resource_manager_tags" {
+  name                            = "%{network_name}"
+  auto_create_subnetworks         = false
+  params {
+	resource_manager_tags = {
+	  "%{tag_key_id}" = "%{tag_value_id}"
+  	}
+  }
+}
+`, context)
 }
