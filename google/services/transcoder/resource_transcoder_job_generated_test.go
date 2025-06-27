@@ -51,6 +51,13 @@ func TestAccTranscoderJob_transcoderJobBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"end_time", "labels", "location", "state", "template_id", "terraform_labels"},
 			},
+			// this works once we rebase gcp-debug since the changes for this to work are found in main
+			// {
+			// 	ResourceName:       "google_transcoder_job.default",
+			// 	ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			// 	ImportState:        true,
+			// 	ExpectNonEmptyPlan: true,
+			// },
 		},
 	})
 }
