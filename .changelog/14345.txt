@@ -1,0 +1,3 @@
+```release-note:deprecation
+iap: deprecated `google_iap_client` and `google_iap_brand`
+```

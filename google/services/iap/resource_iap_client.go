@@ -48,6 +48,8 @@ func ResourceIapClient() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		DeprecationMessage: "After July 2025, the `google_iap_client` Terraform resource will no longer function as intended due to the deprecation of the IAP OAuth Admin API",
+
 		Schema: map[string]*schema.Schema{
 			"brand": {
 				Type:     schema.TypeString,

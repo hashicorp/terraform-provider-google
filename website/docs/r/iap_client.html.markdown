@@ -20,6 +20,7 @@ description: |-
 ---
 
 # google_iap_client
+~> **Warning:** After July 2025, the `google_iap_client` Terraform resource will no longer function as intended due to the deprecation of the IAP OAuth Admin API
 
 Contains the data that describes an Identity Aware Proxy owned client.
 
