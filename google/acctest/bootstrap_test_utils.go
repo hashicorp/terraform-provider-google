@@ -1757,16 +1757,16 @@ const sharedTagKeyParentErr = "Parent %q is not valid. Should be in format: 'org
 
 func BootstrapSharedTestProjectTagKey(t *testing.T, testId string, obj map[string]interface{}) string {
 	pid := envvar.GetTestProjectFromEnv()
-	return bootstrapSharedTestTagKey(t, testId, "projects/"+pid, obj)
+	return BootstrapSharedTestTagKeyDetails(t, testId, "projects/"+pid, obj)["shared_tag_key"]
 }
 
 func BootstrapSharedTestOrganizationTagKey(t *testing.T, testId string, obj map[string]interface{}) string {
 	org := envvar.GetTestOrgFromEnv(t)
-	return bootstrapSharedTestTagKey(t, testId, "organizations/"+org, obj)
+	return BootstrapSharedTestTagKeyDetails(t, testId, "organizations/"+org, obj)["shared_tag_key"]
 }
 
 // parent should be in format: {"organization" OR "projects"}/{id}
-func bootstrapSharedTestTagKey(t *testing.T, testId, parent string, obj map[string]interface{}) string {
+func BootstrapSharedTestTagKeyDetails(t *testing.T, testId string, parent string, obj map[string]interface{}) map[string]string {
 	sharedTagKey := fmt.Sprintf("%s-%s", sharedTagKeyPrefix, testId)
 
 	parentSplit := strings.Split(parent, "/")
@@ -1780,7 +1780,7 @@ func bootstrapSharedTestTagKey(t *testing.T, testId, parent string, obj map[stri
 
 	config := BootstrapConfig(t)
 	if config == nil {
-		return ""
+		return make(map[string]string)
 	}
 
 	log.Printf("[DEBUG] Getting shared test tag key %q", sharedTagKey)
@@ -1829,7 +1829,7 @@ func bootstrapSharedTestTagKey(t *testing.T, testId, parent string, obj map[stri
 		}
 	}
 
-	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+	getTagKeyResponse, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   config.Project,
@@ -1842,29 +1842,32 @@ func bootstrapSharedTestTagKey(t *testing.T, testId, parent string, obj map[stri
 		t.Fatalf("Error getting shared tag key %q: %s", sharedTagKey, err)
 	}
 
-	return sharedTagKey
+	return map[string]string{
+		"name":           getTagKeyResponse["name"].(string),
+		"shared_tag_key": sharedTagKey,
+	}
 }
 
 const sharedTagValuePrefix = "tf-bootstrap-tagvalue"
 
 func BootstrapSharedTestProjectTagValue(t *testing.T, testId string, tagKey string) string {
 	pid := envvar.GetTestProjectFromEnv()
-	return BootstrapSharedTestTagValue(t, testId, tagKey, pid)
+	return BootstrapSharedTestTagValueDetails(t, testId, tagKey, pid)["shared_tag_value"]
 }
 
 func BootstrapSharedTestOrganizationTagValue(t *testing.T, testId string, tagKey string) string {
 	org := envvar.GetTestOrgFromEnv(t)
-	return BootstrapSharedTestTagValue(t, testId, tagKey, org)
+	return BootstrapSharedTestTagValueDetails(t, testId, tagKey, org)["shared_tag_value"]
 }
 
-func BootstrapSharedTestTagValue(t *testing.T, testId string, tagKey, parentId string) string {
+func BootstrapSharedTestTagValueDetails(t *testing.T, testId string, tagKey, parentId string) map[string]string {
 	sharedTagValue := fmt.Sprintf("%s-%s", sharedTagValuePrefix, testId)
 	tagKeyName := fmt.Sprintf("%s/%s", parentId, tagKey)
 	tagValueName := fmt.Sprintf("%s/%s", tagKeyName, sharedTagValue)
 
 	config := BootstrapConfig(t)
 	if config == nil {
-		return ""
+		return make(map[string]string)
 	}
 
 	log.Printf("[DEBUG] Getting shared test tag value %q", sharedTagValue)
@@ -1923,8 +1926,7 @@ func BootstrapSharedTestTagValue(t *testing.T, testId string, tagKey, parentId s
 			t.Fatalf("Error waiting to create TagValue: %s", err)
 		}
 	}
-
-	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+	getTagValueResponse, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   config.Project,
@@ -1937,7 +1939,10 @@ func BootstrapSharedTestTagValue(t *testing.T, testId string, tagKey, parentId s
 		t.Fatalf("Error getting shared tag value %q: %s", sharedTagValue, err)
 	}
 
-	return sharedTagValue
+	return map[string]string{
+		"name":             getTagValueResponse["name"].(string),
+		"shared_tag_value": sharedTagValue,
+	}
 }
 
 type BootstrapClient struct {
