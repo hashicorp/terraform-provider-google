@@ -1,0 +1,3 @@
+```release-note:bug
+integrationconnectors: remove validation from authConfigs in `google_integration_connectors_connection`
+```
