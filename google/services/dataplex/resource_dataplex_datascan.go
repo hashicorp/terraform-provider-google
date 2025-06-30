@@ -651,6 +651,12 @@ Only relevant if a minValue has been defined. Default = false.`,
 											},
 										},
 									},
+									"suspended": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Whether the Rule is active or suspended. Default = false.`,
+										Default:     false,
+									},
 									"table_condition_expectation": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -1512,6 +1518,7 @@ func flattenDataplexDatascanDataQualitySpecRules(v interface{}, d *schema.Resour
 			"dimension":                   flattenDataplexDatascanDataQualitySpecRulesDimension(original["dimension"], d, config),
 			"threshold":                   flattenDataplexDatascanDataQualitySpecRulesThreshold(original["threshold"], d, config),
 			"name":                        flattenDataplexDatascanDataQualitySpecRulesName(original["name"], d, config),
+			"suspended":                   flattenDataplexDatascanDataQualitySpecRulesSuspended(original["suspended"], d, config),
 			"description":                 flattenDataplexDatascanDataQualitySpecRulesDescription(original["description"], d, config),
 			"range_expectation":           flattenDataplexDatascanDataQualitySpecRulesRangeExpectation(original["rangeExpectation"], d, config),
 			"non_null_expectation":        flattenDataplexDatascanDataQualitySpecRulesNonNullExpectation(original["nonNullExpectation"], d, config),
@@ -1543,6 +1550,10 @@ func flattenDataplexDatascanDataQualitySpecRulesThreshold(v interface{}, d *sche
 }
 
 func flattenDataplexDatascanDataQualitySpecRulesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataQualitySpecRulesSuspended(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2392,6 +2403,13 @@ func expandDataplexDatascanDataQualitySpecRules(v interface{}, d tpgresource.Ter
 			transformed["name"] = transformedName
 		}
 
+		transformedSuspended, err := expandDataplexDatascanDataQualitySpecRulesSuspended(original["suspended"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSuspended); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["suspended"] = transformedSuspended
+		}
+
 		transformedDescription, err := expandDataplexDatascanDataQualitySpecRulesDescription(original["description"], d, config)
 		if err != nil {
 			return nil, err
@@ -2484,6 +2502,10 @@ func expandDataplexDatascanDataQualitySpecRulesThreshold(v interface{}, d tpgres
 }
 
 func expandDataplexDatascanDataQualitySpecRulesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataQualitySpecRulesSuspended(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
