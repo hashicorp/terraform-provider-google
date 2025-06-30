@@ -324,6 +324,7 @@ func findPeeringFromNetwork(network *compute.Network, peeringName string) *compu
 	return nil
 }
 func expandNetworkPeering(d *schema.ResourceData) *compute.NetworkPeering {
+
 	return &compute.NetworkPeering{
 		ExchangeSubnetRoutes:           true,
 		Name:                           d.Get("name").(string),
@@ -335,12 +336,22 @@ func expandNetworkPeering(d *schema.ResourceData) *compute.NetworkPeering {
 		StackType:                      d.Get("stack_type").(string),
 		ForceSendFields:                []string{"ExportSubnetRoutesWithPublicIp", "ImportCustomRoutes", "ExportCustomRoutes"},
 	}
+
 }
 
 func flattenNetworkPeeringStackType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// To prevent the perma-diff caused by the absence of `stack_type` in API responses for older resource
 	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
 		return "IPV4_ONLY"
+	}
+
+	return v
+}
+
+func flattenNetworkPeeringUpdateStrategy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// To prevent the perma-diff caused by the absence of `update_strategy` in API responses for older resource.
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
+		return "INDEPENDENT"
 	}
 
 	return v
