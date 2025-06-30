@@ -82,6 +82,9 @@ Whether subnet routes with public IP range are imported. The default value is fa
 * `stack_type` - (Optional)
 Which IP version(s) of traffic and routes are allowed to be imported or exported between peer networks. The default value is IPV4_ONLY. Possible values: ["IPV4_ONLY", "IPV4_IPV6"].
 
+* `update_strategy` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+The update strategy determines the semantics for updates and deletes to the peering connection configuration. The default value is INDEPENDENT. Possible values: ["INDEPENDENT", "CONSENSUS"]
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
