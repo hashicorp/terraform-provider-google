@@ -24,6 +24,9 @@ description: |-
 A Google Bare Metal User Cluster.
 
 
+To get more information about BareMetalCluster, see:
+
+* [API documentation](https://cloud.google.com/kubernetes-engine/distributed-cloud/reference/on-prem-api/rest/v1/projects.locations.bareMetalClusters)
 
 ## Example Usage - Gkeonprem Bare Metal Cluster Basic
 
