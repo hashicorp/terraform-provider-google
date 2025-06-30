@@ -24,6 +24,9 @@ description: |-
 A Google Bare Metal Node Pool.
 
 
+To get more information about BareMetalNodePool, see:
+
+* [API documentation](https://cloud.google.com/kubernetes-engine/distributed-cloud/reference/on-prem-api/rest/v1/projects.locations.bareMetalClusters.bareMetalNodePools)
 
 ## Example Usage - Gkeonprem Bare Metal Node Pool Basic
 
