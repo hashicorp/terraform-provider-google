@@ -577,6 +577,10 @@ The following arguments are supported:
   Must start with a letter.
   Must end with a number or a letter.
 
+* `suspended` -
+  (Optional)
+  Whether the Rule is active or suspended. Default = false.
+
 * `description` -
   (Optional)
   Description of the rule.

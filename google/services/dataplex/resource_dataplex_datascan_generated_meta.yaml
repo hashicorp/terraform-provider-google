@@ -52,6 +52,7 @@ fields:
   - field: 'data_quality_spec.rules.statistic_range_expectation.statistic'
   - field: 'data_quality_spec.rules.statistic_range_expectation.strict_max_enabled'
   - field: 'data_quality_spec.rules.statistic_range_expectation.strict_min_enabled'
+  - field: 'data_quality_spec.rules.suspended'
   - field: 'data_quality_spec.rules.table_condition_expectation.sql_expression'
   - field: 'data_quality_spec.rules.threshold'
   - field: 'data_quality_spec.rules.uniqueness_expectation'
