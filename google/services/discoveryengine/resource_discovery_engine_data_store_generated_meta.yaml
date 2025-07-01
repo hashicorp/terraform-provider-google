@@ -27,6 +27,7 @@ fields:
   - field: 'document_processing_config.parsing_config_overrides.parsing_config_overrides.layout_parsing_config'
   - field: 'document_processing_config.parsing_config_overrides.parsing_config_overrides.ocr_parsing_config.use_native_text'
   - field: 'industry_vertical'
+  - field: 'kms_key_name'
   - field: 'location'
     provider_only: true
   - field: 'name'
