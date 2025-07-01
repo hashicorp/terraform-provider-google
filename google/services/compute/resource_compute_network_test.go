@@ -223,6 +223,14 @@ func TestAccComputeNetwork_bgpAlwaysCompareMedAndUpdate(t *testing.T) {
 					resource.TestCheckResourceAttr("google_compute_network.acc_network_bgp_always_compare_med", "bgp_always_compare_med", "true"),
 				),
 			},
+			{
+				Config: testAccComputeNetwork_bgp_always_compare_med(networkName, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.acc_network_bgp_always_compare_med", &network),
+					resource.TestCheckResourceAttr("google_compute_network.acc_network_bgp_always_compare_med", "bgp_always_compare_med", "false"),
+				),
+			},
 		},
 	})
 }

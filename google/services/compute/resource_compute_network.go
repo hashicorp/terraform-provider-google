@@ -947,7 +947,16 @@ func resourceComputeNetworkEncoder(d *schema.ResourceData, meta interface{}, obj
 }
 
 func resourceComputeNetworkUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	delete(obj, "numeric_id") // Field doesn't exist in the API
+	//  BGP always-compare-med
+	if d.HasChange("bgp_always_compare_med") {
+		if _, ok := obj["routingConfig"]; !ok {
+			obj["routingConfig"] = make(map[string]interface{})
+		}
+		obj["routingConfig"].(map[string]interface{})["bgpAlwaysCompareMed"] = d.Get("bgp_always_compare_med").(bool)
+	}
+
+	// now clean up the rest
+	delete(obj, "numeric_id")
 	return obj, nil
 }
 
