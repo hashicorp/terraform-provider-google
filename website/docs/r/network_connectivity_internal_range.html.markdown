@@ -208,9 +208,6 @@ The following arguments are supported:
   Possible values are: `FOR_SELF`, `FOR_PEER`, `NOT_SHARED`.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   User-defined labels.
@@ -261,6 +258,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_migration"></a>The `migration` block supports:

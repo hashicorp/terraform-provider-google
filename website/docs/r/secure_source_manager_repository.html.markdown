@@ -117,9 +117,6 @@ The following arguments are supported:
   The ID for the Repository.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Description of the repository, which cannot exceed 500 characters.
@@ -131,6 +128,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_initial_config"></a>The `initial_config` block supports:

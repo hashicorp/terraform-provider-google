@@ -87,20 +87,6 @@ The following arguments are supported:
   The Policy Binding ID.
 
 
-<a name="nested_target"></a>The `target` block supports:
-
-* `principal_set` -
-  (Optional)
-  Required. Immutable. Full Resource Name of the principal set used for principal access boundary policy bindings.
-  Examples for each one of the following supported principal set types:
-  * Organization `//cloudresourcemanager.googleapis.com/organizations/ORGANIZATION_ID`
-  * Workforce Identity: `//iam.googleapis.com/locations/global/workforcePools/WORKFORCE_POOL_ID`
-  * Workspace Identity: `//iam.googleapis.com/locations/global/workspace/WORKSPACE_ID`
-  It must be parent by the policy binding's parent (the organization).
-
-- - -
-
-
 * `display_name` -
   (Optional)
   Optional. The description of the policy binding. Must be less than or equal to 63 characters.
@@ -145,6 +131,18 @@ The following arguments are supported:
   additional information.
   Structure is [documented below](#nested_condition).
 
+
+
+<a name="nested_target"></a>The `target` block supports:
+
+* `principal_set` -
+  (Optional)
+  Required. Immutable. Full Resource Name of the principal set used for principal access boundary policy bindings.
+  Examples for each one of the following supported principal set types:
+  * Organization `//cloudresourcemanager.googleapis.com/organizations/ORGANIZATION_ID`
+  * Workforce Identity: `//iam.googleapis.com/locations/global/workforcePools/WORKFORCE_POOL_ID`
+  * Workspace Identity: `//iam.googleapis.com/locations/global/workspace/WORKSPACE_ID`
+  It must be parent by the policy binding's parent (the organization).
 
 <a name="nested_condition"></a>The `condition` block supports:
 

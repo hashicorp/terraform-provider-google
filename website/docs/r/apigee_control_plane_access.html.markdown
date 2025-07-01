@@ -87,9 +87,6 @@ The following arguments are supported:
   Name of the Apigee organization.
 
 
-- - -
-
-
 * `synchronizer_identities` -
   (Optional)
   Array of service accounts to grant access to control plane resources (for the Synchronizer component), each specified using the following format: `serviceAccount:service-account-name`.
@@ -102,6 +99,7 @@ The following arguments are supported:
   Array of service accounts authorized to publish analytics data to the control plane, each specified using the following format: `serviceAccount:service-account-name`.
   The `service-account-name` is formatted like an email address. For example: serviceAccount@my_project_id.iam.gserviceaccount.com
   You might specify multiple service accounts, for example, if you have multiple environments and wish to assign a unique service account to each one.
+
 
 
 ## Attributes Reference

@@ -407,6 +407,28 @@ The following arguments are supported:
   Name of the LbTrafficExtension resource in the following format: projects/{project}/locations/{location}/lbTrafficExtensions/{lbTrafficExtension}.
 
 
+* `description` -
+  (Optional)
+  A human-readable description of the resource.
+
+* `labels` -
+  (Optional)
+  Set of labels associated with the LbTrafficExtension resource.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `load_balancing_scheme` -
+  (Optional)
+  All backend services and forwarding rules referenced by this extension must share the same load balancing scheme.
+  For more information, refer to [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service) and
+  [Supported application load balancers](https://cloud.google.com/service-extensions/docs/callouts-overview#supported-lbs).
+  Possible values are: `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_extension_chains"></a>The `extension_chains` block supports:
 
 * `name` -
@@ -484,30 +506,6 @@ The following arguments are supported:
   Metadata associated with the extension. This field is used to pass metadata to the extension service.
   You can set up key value pairs for metadata as you like and need.
   f.e. {"key": "value", "key2": "value2"}.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  A human-readable description of the resource.
-
-* `labels` -
-  (Optional)
-  Set of labels associated with the LbTrafficExtension resource.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `load_balancing_scheme` -
-  (Optional)
-  All backend services and forwarding rules referenced by this extension must share the same load balancing scheme.
-  For more information, refer to [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service) and
-  [Supported application load balancers](https://cloud.google.com/service-extensions/docs/callouts-overview#supported-lbs).
-  Possible values are: `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

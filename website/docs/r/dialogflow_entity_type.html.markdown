@@ -74,9 +74,6 @@ The following arguments are supported:
   Possible values are: `KIND_MAP`, `KIND_LIST`, `KIND_REGEXP`.
 
 
-- - -
-
-
 * `enable_fuzzy_extraction` -
   (Optional)
   Enables fuzzy entity extraction during classification.
@@ -88,6 +85,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_entities"></a>The `entities` block supports:

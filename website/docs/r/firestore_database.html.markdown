@@ -223,9 +223,6 @@ The following arguments are supported:
   Possible values are: `FIRESTORE_NATIVE`, `DATASTORE_MODE`.
 
 
-- - -
-
-
 * `database_edition` -
   (Optional)
   The database edition.
@@ -274,6 +271,7 @@ If the deletion policy is `ABANDON`, the database will be removed from Terraform
 If the deletion policy is `DELETE`, the database will both be removed from Terraform state and deleted from Google Cloud upon destruction.
 The default value is `ABANDON`.
 See also `delete_protection`.
+
 
 
 <a name="nested_cmek_config"></a>The `cmek_config` block supports:

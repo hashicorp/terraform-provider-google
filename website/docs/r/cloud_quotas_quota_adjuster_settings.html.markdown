@@ -58,8 +58,6 @@ The following arguments are supported:
   The parent of the quota preference. Allowed parent format is "projects/[project-id / number]".
 
 
-- - -
-
 
 
 ## Attributes Reference

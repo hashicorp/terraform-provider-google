@@ -134,9 +134,6 @@ The following arguments are supported:
   * projects/{project_id}/iap_web/appengine-{app_id}/services/{service_id}/version/{version_id}
 
 
-- - -
-
-
 * `access_settings` -
   (Optional)
   Top level wrapper for all access related setting in IAP.
@@ -146,6 +143,7 @@ The following arguments are supported:
   (Optional)
   Top level wrapper for all application related settings in IAP.
   Structure is [documented below](#nested_application_settings).
+
 
 
 <a name="nested_access_settings"></a>The `access_settings` block supports:

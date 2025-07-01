@@ -98,9 +98,6 @@ The following arguments are supported:
   The name of the volume. Needs to be unique per location.
 
 
-- - -
-
-
 * `export_policy` -
   (Optional)
   Export policy of the volume for NFSV3 and/or NFSV4.1 access.
@@ -187,6 +184,7 @@ The following arguments are supported:
 Volumes may have nested snapshot resources. Deleting such a volume will fail.
 Setting this parameter to FORCE will delete volumes including nested snapshots.
 Possible values: DEFAULT, FORCE.
+
 
 
 <a name="nested_export_policy"></a>The `export_policy` block supports:

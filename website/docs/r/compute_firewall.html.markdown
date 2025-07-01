@@ -111,9 +111,6 @@ The following arguments are supported:
   The name or self_link of the network to attach this firewall to.
 
 
-- - -
-
-
 * `allow` -
   (Optional)
   The list of ALLOW rules specified by this firewall. Each rule
@@ -228,6 +225,7 @@ The following arguments are supported:
 
 * `enable_logging` - (Optional, Deprecated) This field denotes whether to enable logging for a particular firewall rule.
 If logging is enabled, logs will be exported to Stackdriver. Deprecated in favor of `log_config`
+
 
 <a name="nested_allow"></a>The `allow` block supports:
 

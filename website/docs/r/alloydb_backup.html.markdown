@@ -146,9 +146,6 @@ The following arguments are supported:
   The location where the alloydb backup should reside.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   User-settable and human-readable display name for the Backup.
@@ -184,6 +181,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_encryption_config"></a>The `encryption_config` block supports:

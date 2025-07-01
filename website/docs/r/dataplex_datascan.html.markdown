@@ -393,6 +393,41 @@ The following arguments are supported:
   DataScan identifier. Must contain only lowercase letters, numbers and hyphens. Must start with a letter. Must end with a number or a letter.
 
 
+* `description` -
+  (Optional)
+  Description of the scan.
+
+* `display_name` -
+  (Optional)
+  User friendly display name.
+
+* `labels` -
+  (Optional)
+  User-defined labels for the scan. A list of key->value pairs.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `data_quality_spec` -
+  (Optional)
+  DataQualityScan related setting.
+  Structure is [documented below](#nested_data_quality_spec).
+
+* `data_profile_spec` -
+  (Optional)
+  DataProfileScan related setting.
+  Structure is [documented below](#nested_data_profile_spec).
+
+* `data_discovery_spec` -
+  (Optional)
+  DataDiscoveryScan related setting.
+  Structure is [documented below](#nested_data_discovery_spec).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_data"></a>The `data` block supports:
 
 * `entity` -
@@ -433,43 +468,6 @@ The following arguments are supported:
 * `cron` -
   (Required)
   Cron schedule for running scans periodically. This field is required for Schedule scans.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  Description of the scan.
-
-* `display_name` -
-  (Optional)
-  User friendly display name.
-
-* `labels` -
-  (Optional)
-  User-defined labels for the scan. A list of key->value pairs.
-
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `data_quality_spec` -
-  (Optional)
-  DataQualityScan related setting.
-  Structure is [documented below](#nested_data_quality_spec).
-
-* `data_profile_spec` -
-  (Optional)
-  DataProfileScan related setting.
-  Structure is [documented below](#nested_data_profile_spec).
-
-* `data_discovery_spec` -
-  (Optional)
-  DataDiscoveryScan related setting.
-  Structure is [documented below](#nested_data_discovery_spec).
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 <a name="nested_data_quality_spec"></a>The `data_quality_spec` block supports:
 

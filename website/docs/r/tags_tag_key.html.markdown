@@ -56,9 +56,6 @@ The following arguments are supported:
   The short name can have a maximum length of 256 characters. The permitted character set for the shortName includes all UTF-8 encoded Unicode characters except single quotes ('), double quotes ("), backslashes (\\), and forward slashes (/).
 
 
-- - -
-
-
 * `description` -
   (Optional)
   User-assigned description of the TagKey. Must not exceed 256 characters.
@@ -73,6 +70,7 @@ The following arguments are supported:
   (Optional)
   Optional. Purpose data cannot be changed once set.
   Purpose data corresponds to the policy system that the tag is intended for. For example, the GCE_FIREWALL purpose expects data in the following format: `network = "<project-name>/<vpc-name>"`.
+
 
 
 ## Attributes Reference

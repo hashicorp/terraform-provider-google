@@ -68,11 +68,9 @@ The following arguments are supported:
 
 
 
-- - -
-
-
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

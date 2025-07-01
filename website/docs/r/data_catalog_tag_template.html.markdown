@@ -100,6 +100,23 @@ The following arguments are supported:
   The id of the tag template to create.
 
 
+* `display_name` -
+  (Optional)
+  The display name for this template.
+
+* `region` -
+  (Optional)
+  Template location region.
+
+* `force_delete` -
+  (Optional)
+  This confirms the deletion of any possible tags using this template. Must be set to true in order to delete the tag template.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_fields"></a>The `fields` block supports:
 
 * `field_id` - (Required) The identifier for this object. Format specified above.
@@ -164,25 +181,6 @@ The following arguments are supported:
 * `display_name` -
   (Required)
   The display name of the enum value.
-
-- - -
-
-
-* `display_name` -
-  (Optional)
-  The display name for this template.
-
-* `region` -
-  (Optional)
-  Template location region.
-
-* `force_delete` -
-  (Optional)
-  This confirms the deletion of any possible tags using this template. Must be set to true in order to delete the tag template.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

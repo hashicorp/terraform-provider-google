@@ -171,6 +171,12 @@ The following arguments are supported:
   The ID of the external access rule.
 
 
+* `description` -
+  (Optional)
+  User-provided description for the external access rule.
+
+
+
 <a name="nested_source_ip_ranges"></a>The `source_ip_ranges` block supports:
 
 * `ip_address` -
@@ -190,14 +196,6 @@ The following arguments are supported:
 * `external_address` -
   (Optional)
   The name of an `ExternalAddress` resource.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  User-provided description for the external access rule.
-
 
 ## Attributes Reference
 

@@ -128,9 +128,6 @@ The following arguments are supported:
   lowercase letters or the hyphen character.
 
 
-- - -
-
-
 * `address` -
   (Optional)
   IPv4 or IPv6 address of the endpoint.
@@ -150,6 +147,7 @@ The following arguments are supported:
 * `network` -
   (Optional)
   The URL to the network, such as projects/PROJECT_NUMBER/locations/global/networks/NETWORK_NAME.
+
 
 
 ## Attributes Reference

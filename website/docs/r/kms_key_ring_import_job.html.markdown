@@ -89,8 +89,6 @@ The following arguments are supported:
   It must be unique within a KeyRing and match the regular expression [a-zA-Z0-9_-]{1,63}
 
 
-- - -
-
 
 
 ## Attributes Reference

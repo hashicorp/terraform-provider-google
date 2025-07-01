@@ -346,9 +346,6 @@ The following arguments are supported:
   Only networks that are in the distributed mode can have subnetworks.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource. Provide this property when
@@ -474,6 +471,7 @@ the provider will default to the API's value.
 When true, the provider will treat removing secondary_ip_range as sending an
 empty list of secondary IP ranges to the API.
 Defaults to false.
+
 
 
 <a name="nested_secondary_ip_range"></a>The `secondary_ip_range` block supports:

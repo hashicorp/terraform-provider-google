@@ -92,12 +92,10 @@ The following arguments are supported:
   Possible values are: `OWNER`, `READER`.
 
 
-- - -
-
-
 * `object` -
   (Optional)
   The name of the object, if applied to an object.
+
 
 
 ## Attributes Reference

@@ -134,9 +134,6 @@ The following arguments are supported:
   Name of the resource.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional textual description of the resource.
@@ -190,6 +187,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_node_type_flexibility"></a>The `node_type_flexibility` block supports:

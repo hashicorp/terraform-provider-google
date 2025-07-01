@@ -100,9 +100,6 @@ The following arguments are supported:
   The ID of the Network Policy.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   User-provided description for this network policy.
@@ -120,6 +117,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_internet_access"></a>The `internet_access` block supports:

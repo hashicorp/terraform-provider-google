@@ -326,9 +326,6 @@ The following arguments are supported:
   The name of the region of the Redis cluster these endpoints should be added to.
 
 
-- - -
-
-
 * `cluster_endpoints` -
   (Optional)
   A list of cluster endpoints
@@ -336,6 +333,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_cluster_endpoints"></a>The `cluster_endpoints` block supports:

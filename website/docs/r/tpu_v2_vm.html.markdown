@@ -184,9 +184,6 @@ The following arguments are supported:
   Runtime version for the TPU.
 
 
-- - -
-
-
 * `accelerator_type` -
   (Optional)
   TPU accelerator type for the TPU. `accelerator_type` cannot be used at the same time as
@@ -263,6 +260,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_network_config"></a>The `network_config` block supports:

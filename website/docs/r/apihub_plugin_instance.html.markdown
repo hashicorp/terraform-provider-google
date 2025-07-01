@@ -75,6 +75,20 @@ The following arguments are supported:
   are /a-z[0-9]-_/.
 
 
+* `disable` -
+  (Optional)
+  The display name for this plugin instance. Max length is 255 characters.
+
+* `auth_config` -
+  (Optional)
+  AuthConfig represents the authentication information.
+  Structure is [documented below](#nested_auth_config).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_actions"></a>The `actions` block supports:
 
 * `hub_instance_action` -
@@ -175,22 +189,6 @@ The following arguments are supported:
   The unique name of the curation resource. This will be the name of the
   curation resource in the format:
   `projects/{project}/locations/{location}/curations/{curation}`
-
-- - -
-
-
-* `disable` -
-  (Optional)
-  The display name for this plugin instance. Max length is 255 characters.
-
-* `auth_config` -
-  (Optional)
-  AuthConfig represents the authentication information.
-  Structure is [documented below](#nested_auth_config).
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 <a name="nested_auth_config"></a>The `auth_config` block supports:
 

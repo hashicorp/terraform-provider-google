@@ -94,9 +94,6 @@ The following arguments are supported:
   not be specified.
 
 
-- - -
-
-
 * `disabled` -
   (Optional)
   Whether the OauthClient is disabled. You cannot use a disabled OAuth
@@ -124,6 +121,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

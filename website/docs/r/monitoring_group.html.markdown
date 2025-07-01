@@ -85,9 +85,6 @@ The following arguments are supported:
   belong to this group.
 
 
-- - -
-
-
 * `parent_name` -
   (Optional)
   The name of the group's parent, if it has one. The format is
@@ -102,6 +99,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

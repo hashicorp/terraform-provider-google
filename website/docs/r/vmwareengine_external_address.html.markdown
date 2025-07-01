@@ -95,12 +95,10 @@ The following arguments are supported:
   The ID of the external IP Address.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   User-provided description for this resource.
+
 
 
 ## Attributes Reference

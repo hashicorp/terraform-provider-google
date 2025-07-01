@@ -95,9 +95,6 @@ The following arguments are supported:
   [Apple App](https://firebase.google.com/docs/reference/firebase-management/rest/v1beta1/projects.iosApps#IosApp.FIELDS.app_id).
 
 
-- - -
-
-
 * `token_ttl` -
   (Optional)
   Specifies the duration for which App Check tokens exchanged from DeviceCheck artifacts will be valid.
@@ -106,6 +103,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

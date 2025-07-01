@@ -86,9 +86,6 @@ The following arguments are supported:
   User assigned name for this policy.
 
 
-- - -
-
-
 * `alternative_name_server_config` -
   (Optional)
   Sets an alternative name server for the associated networks.
@@ -124,6 +121,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_alternative_name_server_config"></a>The `alternative_name_server_config` block supports:

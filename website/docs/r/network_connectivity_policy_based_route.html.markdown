@@ -117,28 +117,6 @@ The following arguments are supported:
   Structure is [documented below](#nested_filter).
 
 
-<a name="nested_filter"></a>The `filter` block supports:
-
-* `protocol_version` -
-  (Required)
-  Internet protocol versions this policy-based route applies to.
-  Possible values are: `IPV4`, `IPV6`.
-
-* `ip_protocol` -
-  (Optional)
-  The IP protocol that this policy-based route applies to. Valid values are 'TCP', 'UDP', and 'ALL'. Default is 'ALL'.
-
-* `src_range` -
-  (Optional)
-  The source IP range of outgoing packets that this policy-based route applies to. Default is "0.0.0.0/0".
-
-* `dest_range` -
-  (Optional)
-  The destination IP range of outgoing packets that this policy-based route applies to. Default is "0.0.0.0/0".
-
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource.
@@ -176,6 +154,26 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_filter"></a>The `filter` block supports:
+
+* `protocol_version` -
+  (Required)
+  Internet protocol versions this policy-based route applies to.
+  Possible values are: `IPV4`, `IPV6`.
+
+* `ip_protocol` -
+  (Optional)
+  The IP protocol that this policy-based route applies to. Valid values are 'TCP', 'UDP', and 'ALL'. Default is 'ALL'.
+
+* `src_range` -
+  (Optional)
+  The source IP range of outgoing packets that this policy-based route applies to. Default is "0.0.0.0/0".
+
+* `dest_range` -
+  (Optional)
+  The destination IP range of outgoing packets that this policy-based route applies to. Default is "0.0.0.0/0".
 
 <a name="nested_virtual_machine"></a>The `virtual_machine` block supports:
 

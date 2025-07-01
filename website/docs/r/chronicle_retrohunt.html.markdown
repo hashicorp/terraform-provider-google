@@ -81,6 +81,15 @@ The following arguments are supported:
   The Rule ID of the rule.
 
 
+* `retrohunt` -
+  (Optional)
+  The retrohunt ID of the Retrohunt. A retrohunt is an execution of a Rule over a time range in the past.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_process_interval"></a>The `process_interval` block supports:
 
 * `start_time` -
@@ -90,17 +99,6 @@ The following arguments are supported:
 * `end_time` -
   (Required)
   Exclusive end of the interval.
-
-- - -
-
-
-* `retrohunt` -
-  (Optional)
-  The retrohunt ID of the Retrohunt. A retrohunt is an execution of a Rule over a time range in the past.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

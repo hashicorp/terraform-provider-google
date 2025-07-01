@@ -276,9 +276,6 @@ The following arguments are supported:
   The name of the Cloud Router in which this NAT will be configured.
 
 
-- - -
-
-
 * `nat_ip_allocate_option` -
   (Optional)
   How external IPs should be allocated for this NAT. Valid values are
@@ -410,6 +407,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_subnetwork"></a>The `subnetwork` block supports:

@@ -550,9 +550,6 @@ The following arguments are supported:
   The location for the resource
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Optional labels in key:value format. For more information about labels, see [Requirements for labels](https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements).
@@ -594,6 +591,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_linked_vpn_tunnels"></a>The `linked_vpn_tunnels` block supports:

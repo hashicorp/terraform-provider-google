@@ -1219,9 +1219,6 @@ The following arguments are supported:
   For Private Service Connect forwarding rules that forward traffic to managed services, the target must be a service attachment.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource. Provide this property when
@@ -1407,6 +1404,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_metadata_filters"></a>The `metadata_filters` block supports:

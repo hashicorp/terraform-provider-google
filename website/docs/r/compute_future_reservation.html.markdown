@@ -86,35 +86,6 @@ The following arguments are supported:
   character, which cannot be a dash.
 
 
-<a name="nested_time_window"></a>The `time_window` block supports:
-
-* `start_time` -
-  (Required)
-  Start time of the future reservation in RFC3339 format.
-
-* `end_time` -
-  (Optional)
-  End time of the future reservation in RFC3339 format.
-
-* `duration` -
-  (Optional)
-  Duration of the future reservation
-  Structure is [documented below](#nested_time_window_duration).
-
-
-<a name="nested_time_window_duration"></a>The `duration` block supports:
-
-* `seconds` -
-  (Optional)
-  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
-
-* `nanos` -
-  (Optional)
-  Span of time that's a fraction of a second at nanosecond resolution.
-
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource.
@@ -182,6 +153,33 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_time_window"></a>The `time_window` block supports:
+
+* `start_time` -
+  (Required)
+  Start time of the future reservation in RFC3339 format.
+
+* `end_time` -
+  (Optional)
+  End time of the future reservation in RFC3339 format.
+
+* `duration` -
+  (Optional)
+  Duration of the future reservation
+  Structure is [documented below](#nested_time_window_duration).
+
+
+<a name="nested_time_window_duration"></a>The `duration` block supports:
+
+* `seconds` -
+  (Optional)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution.
 
 <a name="nested_share_settings"></a>The `share_settings` block supports:
 

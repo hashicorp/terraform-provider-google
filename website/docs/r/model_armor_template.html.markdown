@@ -184,6 +184,22 @@ The following arguments are supported:
   template_id from the method_signature of Create RPC
 
 
+* `labels` -
+  (Optional)
+  Labels as key value pairs
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `template_metadata` -
+  (Optional)
+  Message describing TemplateMetadata
+  Structure is [documented below](#nested_template_metadata).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_filter_config"></a>The `filter_config` block supports:
 
 * `malicious_uri_filter_settings` -
@@ -303,24 +319,6 @@ The following arguments are supported:
   LOW_AND_ABOVE
   MEDIUM_AND_ABOVE
   HIGH
-
-- - -
-
-
-* `labels` -
-  (Optional)
-  Labels as key value pairs
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `template_metadata` -
-  (Optional)
-  Message describing TemplateMetadata
-  Structure is [documented below](#nested_template_metadata).
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 <a name="nested_template_metadata"></a>The `template_metadata` block supports:
 

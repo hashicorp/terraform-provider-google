@@ -84,6 +84,12 @@ The following arguments are supported:
   The location of the resource.
 
 
+* `document_is_folder` -
+  (Optional)
+  Tells whether the document is a folder or a typical document.
+
+
+
 <a name="nested_property_definitions"></a>The `property_definitions` block supports:
 
 * `name` -
@@ -276,14 +282,6 @@ The following arguments are supported:
 * `validation_check_disabled` -
   (Optional)
   Make sure the enum property value provided in the document is in the possile value list during document creation. The validation check runs by default.
-
-- - -
-
-
-* `document_is_folder` -
-  (Optional)
-  Tells whether the document is a folder or a typical document.
-
 
 ## Attributes Reference
 

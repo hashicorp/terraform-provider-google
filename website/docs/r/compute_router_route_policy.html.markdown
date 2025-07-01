@@ -136,6 +136,20 @@ The following arguments are supported:
   Name of the route policy. This policy's name, which must be a resource ID segment and unique within all policies owned by the Router
 
 
+* `type` -
+  (Optional)
+  This is policy's type, which is one of IMPORT or EXPORT
+  Possible values are: `ROUTE_POLICY_TYPE_IMPORT`, `ROUTE_POLICY_TYPE_EXPORT`.
+
+* `region` -
+  (Optional)
+  Region where the router and NAT reside.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_terms"></a>The `terms` block supports:
 
 * `priority` -
@@ -191,22 +205,6 @@ The following arguments are supported:
   (Optional)
   String indicating the location of the expression for error
   reporting, e.g. a file name and a position in the file
-
-- - -
-
-
-* `type` -
-  (Optional)
-  This is policy's type, which is one of IMPORT or EXPORT
-  Possible values are: `ROUTE_POLICY_TYPE_IMPORT`, `ROUTE_POLICY_TYPE_EXPORT`.
-
-* `region` -
-  (Optional)
-  Region where the router and NAT reside.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

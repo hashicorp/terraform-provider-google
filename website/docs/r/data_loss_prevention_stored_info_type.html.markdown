@@ -123,9 +123,6 @@ The following arguments are supported:
   * `organizations/{{organization_id}}/locations/{{location}}`
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A description of the info type.
@@ -154,6 +151,7 @@ The following arguments are supported:
   (Optional)
   Dictionary which defines the rule.
   Structure is [documented below](#nested_large_custom_dictionary).
+
 
 
 <a name="nested_regex"></a>The `regex` block supports:

@@ -51,9 +51,6 @@ The following arguments are supported:
 
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   A user-assigned display name of the Fleet. When present, it must be between 4 to 30 characters.
@@ -66,6 +63,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_default_cluster_config"></a>The `default_cluster_config` block supports:

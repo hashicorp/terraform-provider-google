@@ -89,18 +89,16 @@ The following arguments are supported:
   - Must be unique.
 
 
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_entries"></a>The `entries` block supports:
 
 * `value` -
   (Required)
   Required. The value of the entry. Maximum length is 512 characters.
-
-- - -
-
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

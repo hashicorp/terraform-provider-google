@@ -74,6 +74,31 @@ The following arguments are supported:
   Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
 
 
+* `description` -
+  (Optional)
+  Optional. Description of the ApiHub instance.
+
+* `labels` -
+  (Optional)
+  Optional. Instance labels to represent user-provided metadata.
+  Refer to cloud documentation on labels for more details.
+  https://cloud.google.com/compute/docs/labeling-resources
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `api_hub_instance_id` -
+  (Optional)
+  Optional. Identifier to assign to the Api Hub instance. Must be unique within
+  scope of the parent resource. If the field is not provided,
+  system generated id will be used.
+  This value should be 4-40 characters, and valid characters
+  are `/a-z[0-9]-_/`.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_config"></a>The `config` block supports:
 
 * `encryption_type` -
@@ -102,33 +127,6 @@ The following arguments are supported:
 * `vertex_location` -
   (Optional)
   Optional. The name of the Vertex AI location where the data store is stored.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  Optional. Description of the ApiHub instance.
-
-* `labels` -
-  (Optional)
-  Optional. Instance labels to represent user-provided metadata.
-  Refer to cloud documentation on labels for more details.
-  https://cloud.google.com/compute/docs/labeling-resources
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `api_hub_instance_id` -
-  (Optional)
-  Optional. Identifier to assign to the Api Hub instance. Must be unique within
-  scope of the parent resource. If the field is not provided,
-  system generated id will be used.
-  This value should be 4-40 characters, and valid characters
-  are `/a-z[0-9]-_/`.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

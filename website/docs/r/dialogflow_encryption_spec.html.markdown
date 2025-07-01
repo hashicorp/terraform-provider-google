@@ -125,6 +125,11 @@ The following arguments are supported:
   The location in which the encryptionSpec is to be initialized.
 
 
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_encryption_spec"></a>The `encryption_spec` block supports:
 
 * `kms_key` -
@@ -133,13 +138,6 @@ The following arguments are supported:
   If empty, the resource is secured by the default Google encryption key.
   Only the key in the same location as this resource is allowed to be used for encryption.
   Format: projects/{project}/locations/{location}/keyRings/{keyRing}/cryptoKeys/{key}
-
-- - -
-
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

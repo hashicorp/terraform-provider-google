@@ -132,14 +132,12 @@ The following arguments are supported:
   The folder for which to retrieve config.
 
 
-- - -
-
-
 * `key_project` -
   (Optional)
   The target key project for a given folder where KMS Autokey will provision a
   CryptoKey for any new KeyHandle the Developer creates. Should have the form
   `projects/<project_id_or_number>`.
+
 
 
 ## Attributes Reference

@@ -142,9 +142,6 @@ The following arguments are supported:
   'projects/{project}/locations/{location}/datasets/{dataset}'
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   User-supplied key-value pairs used to organize DICOM stores.
@@ -169,6 +166,7 @@ The following arguments are supported:
   To enable streaming to BigQuery, configure the streamConfigs object in your DICOM store.
   streamConfigs is an array, so you can specify multiple BigQuery destinations. You can stream metadata from a single DICOM store to up to five BigQuery tables in a BigQuery dataset.
   Structure is [documented below](#nested_stream_configs).
+
 
 
 <a name="nested_notification_config"></a>The `notification_config` block supports:

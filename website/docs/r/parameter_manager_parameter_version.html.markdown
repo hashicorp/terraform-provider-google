@@ -139,12 +139,10 @@ The following arguments are supported:
   Version ID of the Parameter Version Resource. This must be unique within the Parameter.
 
 
-- - -
-
-
 * `disabled` -
   (Optional)
   The current state of Parameter Version. This field is only applicable for updating Parameter Version.
+
 
 
 ## Attributes Reference

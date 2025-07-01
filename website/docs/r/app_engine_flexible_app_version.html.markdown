@@ -176,70 +176,6 @@ The following arguments are supported:
   AppEngine service resource. Can contain numbers, letters, and hyphens.
 
 
-<a name="nested_readiness_check"></a>The `readiness_check` block supports:
-
-* `path` -
-  (Required)
-  The request path.
-
-* `host` -
-  (Optional)
-  Host header to send when performing a HTTP Readiness check. Example: "myapp.appspot.com"
-
-* `failure_threshold` -
-  (Optional)
-  Number of consecutive failed checks required before removing traffic. Default: 2.
-
-* `success_threshold` -
-  (Optional)
-  Number of consecutive successful checks required before receiving traffic. Default: 2.
-
-* `check_interval` -
-  (Optional)
-  Interval between health checks.  Default: "5s".
-
-* `timeout` -
-  (Optional)
-  Time before the check is considered failed. Default: "4s"
-
-* `app_start_timeout` -
-  (Optional)
-  A maximum time limit on application initialization, measured from moment the application successfully
-  replies to a healthcheck until it is ready to serve traffic. Default: "300s"
-
-<a name="nested_liveness_check"></a>The `liveness_check` block supports:
-
-* `path` -
-  (Required)
-  The request path.
-
-* `host` -
-  (Optional)
-  Host header to send when performing a HTTP Readiness check. Example: "myapp.appspot.com"
-
-* `failure_threshold` -
-  (Optional)
-  Number of consecutive failed checks required before considering the VM unhealthy. Default: 4.
-
-* `success_threshold` -
-  (Optional)
-  Number of consecutive successful checks required before considering the VM healthy. Default: 2.
-
-* `check_interval` -
-  (Optional)
-  Interval between health checks.
-
-* `timeout` -
-  (Optional)
-  Time before the check is considered failed. Default: "4s"
-
-* `initial_delay` -
-  (Optional)
-  The initial delay before starting to execute the checks. Default: "300s"
-
-- - -
-
-
 * `version_id` -
   (Optional)
   Relative name of the version within the service. For example, `v1`. Version names can contain only lowercase letters, numbers, or hyphens.
@@ -362,6 +298,68 @@ The following arguments are supported:
 
 * `delete_service_on_destroy` - (Optional) If set to `true`, the service will be deleted if it is the last version.
 
+
+
+<a name="nested_readiness_check"></a>The `readiness_check` block supports:
+
+* `path` -
+  (Required)
+  The request path.
+
+* `host` -
+  (Optional)
+  Host header to send when performing a HTTP Readiness check. Example: "myapp.appspot.com"
+
+* `failure_threshold` -
+  (Optional)
+  Number of consecutive failed checks required before removing traffic. Default: 2.
+
+* `success_threshold` -
+  (Optional)
+  Number of consecutive successful checks required before receiving traffic. Default: 2.
+
+* `check_interval` -
+  (Optional)
+  Interval between health checks.  Default: "5s".
+
+* `timeout` -
+  (Optional)
+  Time before the check is considered failed. Default: "4s"
+
+* `app_start_timeout` -
+  (Optional)
+  A maximum time limit on application initialization, measured from moment the application successfully
+  replies to a healthcheck until it is ready to serve traffic. Default: "300s"
+
+<a name="nested_liveness_check"></a>The `liveness_check` block supports:
+
+* `path` -
+  (Required)
+  The request path.
+
+* `host` -
+  (Optional)
+  Host header to send when performing a HTTP Readiness check. Example: "myapp.appspot.com"
+
+* `failure_threshold` -
+  (Optional)
+  Number of consecutive failed checks required before considering the VM unhealthy. Default: 4.
+
+* `success_threshold` -
+  (Optional)
+  Number of consecutive successful checks required before considering the VM healthy. Default: 2.
+
+* `check_interval` -
+  (Optional)
+  Interval between health checks.
+
+* `timeout` -
+  (Optional)
+  Time before the check is considered failed. Default: "4s"
+
+* `initial_delay` -
+  (Optional)
+  The initial delay before starting to execute the checks. Default: "300s"
 
 <a name="nested_network"></a>The `network` block supports:
 

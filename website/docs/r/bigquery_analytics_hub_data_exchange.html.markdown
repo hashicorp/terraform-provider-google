@@ -101,9 +101,6 @@ The following arguments are supported:
   Human-readable display name of the data exchange. The display name must contain only Unicode letters, numbers (0-9), underscores (_), dashes (-), spaces ( ), and must not start or end with spaces.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Description of the data exchange.
@@ -132,6 +129,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_sharing_environment_config"></a>The `sharing_environment_config` block supports:

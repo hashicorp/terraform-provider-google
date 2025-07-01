@@ -83,8 +83,6 @@ The following arguments are supported:
   `projects/{project_number}/brands/{brand_id}`.
 
 
-- - -
-
 
 
 ## Attributes Reference

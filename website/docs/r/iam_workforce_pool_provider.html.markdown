@@ -291,9 +291,6 @@ The following arguments are supported:
   The prefix `gcp-` is reserved for use by Google, and may not be specified.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   A user-specified display name for the provider. Cannot exceed 32 characters.
@@ -387,6 +384,7 @@ The following arguments are supported:
   in authentication credentials. Currently this configuration is only
   supported with SAML and OIDC protocol.
   Structure is [documented below](#nested_extra_attributes_oauth2_client).
+
 
 
 <a name="nested_saml"></a>The `saml` block supports:

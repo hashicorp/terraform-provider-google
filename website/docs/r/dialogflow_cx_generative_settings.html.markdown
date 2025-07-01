@@ -95,9 +95,6 @@ The following arguments are supported:
   Language for this settings.
 
 
-- - -
-
-
 * `fallback_settings` -
   (Optional)
   Settings for Generative Fallback.
@@ -123,6 +120,7 @@ The following arguments are supported:
   (Optional)
   The agent to create a flow for.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>.
+
 
 
 <a name="nested_fallback_settings"></a>The `fallback_settings` block supports:
