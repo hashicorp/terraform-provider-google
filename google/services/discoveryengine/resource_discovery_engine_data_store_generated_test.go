@@ -258,6 +258,63 @@ resource "google_discovery_engine_data_store" "document_processing_config_layout
 `, context)
 }
 
+func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingConfigLayoutFullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDiscoveryEngineDataStoreDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingConfigLayoutFullExample(context),
+			},
+			{
+				ResourceName:            "google_discovery_engine_data_store.document_processing_config_layout_full",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "kms_key_name", "location", "skip_default_schema_creation"},
+			},
+		},
+	})
+}
+
+func testAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingConfigLayoutFullExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_store" "document_processing_config_layout_full" {
+  location                    = "global"
+  data_store_id               = "tf-test-data-store-id%{random_suffix}"
+  display_name                = "tf-test-structured-datastore"
+  industry_vertical           = "GENERIC"
+  content_config              = "CONTENT_REQUIRED"
+  solution_types              = ["SOLUTION_TYPE_SEARCH"]
+  create_advanced_site_search = false
+  document_processing_config {
+    default_parsing_config {
+      layout_parsing_config {
+        enable_table_annotation  = true
+        enable_image_annotation  = true
+        structured_content_types = ["shareholder-structure"]
+        exclude_html_elements    = ["nav", "footer"]
+        exclude_html_classes     = ["overlay", "screenreader"]
+        exclude_html_ids         = ["cookie-banner"]
+      }
+    }
+    chunking_config {
+      layout_based_chunking_config {
+        chunk_size                = 500
+        include_ancestor_headings = true
+      }
+    }
+  }
+}
+`, context)
+}
+
 func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreAdvancedSiteSearchConfigExample(t *testing.T) {
 	t.Parallel()
 

@@ -279,6 +279,7 @@ The following arguments are supported:
 * `layout_parsing_config` -
   (Optional)
   Configurations applied to layout parser.
+  Structure is [documented below](#nested_document_processing_config_default_parsing_config_layout_parsing_config).
 
 
 <a name="nested_document_processing_config_default_parsing_config_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
@@ -286,6 +287,32 @@ The following arguments are supported:
 * `use_native_text` -
   (Optional)
   If true, will use native text instead of OCR text on pages containing native text.
+
+<a name="nested_document_processing_config_default_parsing_config_layout_parsing_config"></a>The `layout_parsing_config` block supports:
+
+* `enable_table_annotation` -
+  (Optional)
+  If true, the LLM based annotation is added to the table during parsing.
+
+* `enable_image_annotation` -
+  (Optional)
+  If true, the LLM based annotation is added to the image during parsing.
+
+* `structured_content_types` -
+  (Optional)
+  Contains the required structure types to extract from the document. Supported values: `shareholder-structure`.
+
+* `exclude_html_elements` -
+  (Optional)
+  List of HTML elements to exclude from the parsed content.
+
+* `exclude_html_classes` -
+  (Optional)
+  List of HTML classes to exclude from the parsed content.
+
+* `exclude_html_ids` -
+  (Optional)
+  List of HTML ids to exclude from the parsed content.
 
 <a name="nested_document_processing_config_parsing_config_overrides"></a>The `parsing_config_overrides` block supports:
 
@@ -303,6 +330,7 @@ The following arguments are supported:
 * `layout_parsing_config` -
   (Optional)
   Configurations applied to layout parser.
+  Structure is [documented below](#nested_document_processing_config_parsing_config_overrides_parsing_config_overrides_layout_parsing_config).
 
 
 <a name="nested_document_processing_config_parsing_config_overrides_parsing_config_overrides_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
@@ -310,6 +338,32 @@ The following arguments are supported:
 * `use_native_text` -
   (Optional)
   If true, will use native text instead of OCR text on pages containing native text.
+
+<a name="nested_document_processing_config_parsing_config_overrides_parsing_config_overrides_layout_parsing_config"></a>The `layout_parsing_config` block supports:
+
+* `enable_table_annotation` -
+  (Optional)
+  If true, the LLM based annotation is added to the table during parsing.
+
+* `enable_image_annotation` -
+  (Optional)
+  If true, the LLM based annotation is added to the image during parsing.
+
+* `structured_content_types` -
+  (Optional)
+  Contains the required structure types to extract from the document. Supported values: `shareholder-structure`.
+
+* `exclude_html_elements` -
+  (Optional)
+  List of HTML elements to exclude from the parsed content.
+
+* `exclude_html_classes` -
+  (Optional)
+  List of HTML classes to exclude from the parsed content.
+
+* `exclude_html_ids` -
+  (Optional)
+  List of HTML ids to exclude from the parsed content.
 
 ## Attributes Reference
 
