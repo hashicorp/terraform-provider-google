@@ -480,6 +480,33 @@ func TestAccSecretManagerSecret_updateBetweenTtlAndExpireTime(t *testing.T) {
 	})
 }
 
+func TestAccSecretManagerSecret_DeletionProtection(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecretManagerSecret_deletionprotectionTrue(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-deletionprotection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels", "deletion_protection"},
+			},
+			{
+				Config: testAccSecretManagerSecret_deletionprotectionFalse(context),
+			},
+		},
+	})
+}
+
 func testAccSecretManagerSecret_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
@@ -1233,6 +1260,60 @@ resource "google_secret_manager_secret" "secret-basic" {
 
   expire_time = "2122-09-26T10:55:55.163240682Z"
 
+}
+`, context)
+}
+
+func testAccSecretManagerSecret_deletionprotectionTrue(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_secret" "secret-deletionprotection" {
+	secret_id = "tf-test-secret-%{random_suffix}"
+
+	labels = {
+		label = "my-label"
+	}
+
+	replication {
+		user_managed {
+			replicas {
+				location = "us-central1"
+			}
+			replicas {
+				location = "us-east1"
+			}
+		}
+	}
+
+	ttl = "3600s"
+
+	deletion_protection = true
+}
+`, context)
+}
+
+func testAccSecretManagerSecret_deletionprotectionFalse(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_secret" "secret-deletionprotection" {
+	secret_id = "tf-test-secret-%{random_suffix}"
+
+	labels = {
+		label = "my-label"
+	}
+
+	replication {
+		user_managed {
+			replicas {
+				location = "us-central1"
+			}
+			replicas {
+				location = "us-east1"
+			}
+		}
+	}
+
+	ttl = "3600s"
+
+	deletion_protection = false
 }
 `, context)
 }

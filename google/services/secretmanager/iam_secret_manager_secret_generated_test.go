@@ -349,6 +349,7 @@ resource "google_secret_manager_secret" "secret-basic" {
       }
     }
   }
+  deletion_protection = false
 }
 
 resource "google_secret_manager_secret_iam_member" "foo" {
@@ -379,6 +380,7 @@ resource "google_secret_manager_secret" "secret-basic" {
       }
     }
   }
+  deletion_protection = false
 }
 
 data "google_iam_policy" "foo" {
@@ -423,6 +425,7 @@ resource "google_secret_manager_secret" "secret-basic" {
       }
     }
   }
+  deletion_protection = false
 }
 
 data "google_iam_policy" "foo" {
@@ -455,6 +458,7 @@ resource "google_secret_manager_secret" "secret-basic" {
       }
     }
   }
+  deletion_protection = false
 }
 
 resource "google_secret_manager_secret_iam_binding" "foo" {
@@ -485,6 +489,7 @@ resource "google_secret_manager_secret" "secret-basic" {
       }
     }
   }
+  deletion_protection = false
 }
 
 resource "google_secret_manager_secret_iam_binding" "foo" {
@@ -515,6 +520,7 @@ resource "google_secret_manager_secret" "secret-basic" {
       }
     }
   }
+  deletion_protection = false
 }
 
 resource "google_secret_manager_secret_iam_binding" "foo" {
@@ -550,6 +556,7 @@ resource "google_secret_manager_secret" "secret-basic" {
       }
     }
   }
+  deletion_protection = false
 }
 
 resource "google_secret_manager_secret_iam_binding" "foo" {
@@ -605,6 +612,7 @@ resource "google_secret_manager_secret" "secret-basic" {
       }
     }
   }
+  deletion_protection = false
 }
 
 resource "google_secret_manager_secret_iam_member" "foo" {
@@ -640,6 +648,7 @@ resource "google_secret_manager_secret" "secret-basic" {
       }
     }
   }
+  deletion_protection = false
 }
 
 resource "google_secret_manager_secret_iam_member" "foo" {
@@ -695,6 +704,7 @@ resource "google_secret_manager_secret" "secret-basic" {
       }
     }
   }
+  deletion_protection = false
 }
 
 data "google_iam_policy" "foo" {
