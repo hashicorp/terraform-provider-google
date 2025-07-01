@@ -5673,10 +5673,11 @@ func expandSecretManagerConfig(configured interface{}) *container.SecretManagerC
 	}
 
 	config := l[0].(map[string]interface{})
-	return &container.SecretManagerConfig{
+	sc := &container.SecretManagerConfig{
 		Enabled:         config["enabled"].(bool),
 		ForceSendFields: []string{"Enabled"},
 	}
+	return sc
 }
 
 func expandDefaultMaxPodsConstraint(v interface{}) *container.MaxPodsConstraint {
@@ -6606,11 +6607,11 @@ func flattenSecretManagerConfig(c *container.SecretManagerConfig) []map[string]i
 			},
 		}
 	}
-	return []map[string]interface{}{
-		{
-			"enabled": c.Enabled,
-		},
-	}
+
+	result := make(map[string]interface{})
+
+	result["enabled"] = c.Enabled
+	return []map[string]interface{}{result}
 }
 
 func flattenResourceUsageExportConfig(c *container.ResourceUsageExportConfig) []map[string]interface{} {

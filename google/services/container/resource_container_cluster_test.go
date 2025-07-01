@@ -4065,6 +4065,24 @@ func TestAccContainerCluster_withSecretManagerConfig(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
+				Config: testAccContainerCluster_withSecretManagerRotationPeriodUpdated(pid, clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withSecretManagerConfigRotationDisabled(pid, clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
 				Config: testAccContainerCluster_withSecretManagerConfigUpdated(pid, clusterName, networkName, subnetworkName),
 			},
 			{
@@ -10655,6 +10673,50 @@ resource "google_container_cluster" "primary" {
 }
 
 func testAccContainerCluster_withSecretManagerConfigEnabled(projectID, name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  secret_manager_config {
+    enabled = true
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+  workload_identity_config {
+    workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
+  }
+}
+`, projectID, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withSecretManagerRotationPeriodUpdated(projectID, name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  secret_manager_config {
+    enabled = true
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+  workload_identity_config {
+    workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
+  }
+}
+`, projectID, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withSecretManagerConfigRotationDisabled(projectID, name, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {
   project_id = "%s"
