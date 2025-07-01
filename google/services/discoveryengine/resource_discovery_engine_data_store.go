@@ -268,6 +268,16 @@ config will be applied to all file types for Document parsing.`,
 					},
 				},
 			},
+			"kms_key_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `KMS key resource name which will be used to encrypt resources:
+'/{project}/locations/{location}/keyRings/{keyRing}/cryptoKeys/{keyId}'
+The KMS key to be used to protect this DataStore at creation time. Must be
+set for requests that need to comply with CMEK Org Policy protections.
+If this field is set and processed successfully, the DataStore will be
+protected by the KMS key, as indicated in the cmek_config field.`,
+			},
 			"skip_default_schema_creation": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -356,6 +366,12 @@ func resourceDiscoveryEngineDataStoreCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("advanced_site_search_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(advancedSiteSearchConfigProp)) && (ok || !reflect.DeepEqual(v, advancedSiteSearchConfigProp)) {
 		obj["advancedSiteSearchConfig"] = advancedSiteSearchConfigProp
+	}
+	kmsKeyNameProp, err := expandDiscoveryEngineDataStoreKmsKeyName(d.Get("kms_key_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyNameProp)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
+		obj["kmsKeyName"] = kmsKeyNameProp
 	}
 	documentProcessingConfigProp, err := expandDiscoveryEngineDataStoreDocumentProcessingConfig(d.Get("document_processing_config"), d, config)
 	if err != nil {
@@ -515,6 +531,12 @@ func resourceDiscoveryEngineDataStoreUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	kmsKeyNameProp, err := expandDiscoveryEngineDataStoreKmsKeyName(d.Get("kms_key_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
+		obj["kmsKeyName"] = kmsKeyNameProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/collections/default_collection/dataStores/{{data_store_id}}")
 	if err != nil {
@@ -527,6 +549,10 @@ func resourceDiscoveryEngineDataStoreUpdate(d *schema.ResourceData, meta interfa
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("kms_key_name") {
+		updateMask = append(updateMask, "kmsKeyName")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -907,6 +933,10 @@ func expandDiscoveryEngineDataStoreAdvancedSiteSearchConfigDisableInitialIndex(v
 }
 
 func expandDiscoveryEngineDataStoreAdvancedSiteSearchConfigDisableAutomaticRefresh(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

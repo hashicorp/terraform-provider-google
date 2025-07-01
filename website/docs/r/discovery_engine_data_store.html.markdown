@@ -54,6 +54,27 @@ resource "google_discovery_engine_data_store" "basic" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=discoveryengine_datastore_kms_key_name&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Discoveryengine Datastore Kms Key Name
+
+
+```hcl
+resource "google_discovery_engine_data_store" "kms_key_name" {
+  location                     = "us"
+  data_store_id                = "data-store-id"
+  display_name                 = "tf-test-structured-datastore"
+  industry_vertical            = "GENERIC"
+  content_config               = "NO_CONTENT"
+  solution_types               = ["SOLUTION_TYPE_SEARCH"]
+  kms_key_name                 = "kms-key"
+  create_advanced_site_search  = false
+  skip_default_schema_creation = false
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=discoveryengine_datastore_document_processing_config&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -151,6 +172,15 @@ The following arguments are supported:
   (Optional)
   Configuration data for advance site search.
   Structure is [documented below](#nested_advanced_site_search_config).
+
+* `kms_key_name` -
+  (Optional)
+  KMS key resource name which will be used to encrypt resources:
+  `/{project}/locations/{location}/keyRings/{keyRing}/cryptoKeys/{keyId}`
+  The KMS key to be used to protect this DataStore at creation time. Must be
+  set for requests that need to comply with CMEK Org Policy protections.
+  If this field is set and processed successfully, the DataStore will be
+  protected by the KMS key, as indicated in the cmek_config field.
 
 * `document_processing_config` -
   (Optional)
