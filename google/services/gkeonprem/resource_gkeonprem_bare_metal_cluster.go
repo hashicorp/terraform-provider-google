@@ -278,7 +278,7 @@ IngressVIP must be included in the pools.`,
 This avoids buggy consumer devices mistakenly dropping IPv4 traffic for those special IP addresses.`,
 												},
 												"manual_assign": {
-													Type:        schema.TypeString,
+													Type:        schema.TypeBool,
 													Optional:    true,
 													Description: `If true, prevent IP addresses from being automatically assigned.`,
 												},
