@@ -24,14 +24,13 @@ IMPROVEMENTS:
 BUG FIXES:
 * alloydb: removed `machine_config.machine_type` field from `google_alloydb_instance` resource because it is not yet supported in GA ([#23415](https://github.com/hashicorp/terraform-provider-google/pull/23415))
 * bigqueryanalyticshub: supported in-place update for `log_linked_dataset_query_user_email` in `google_bigquery_analytics_hub_listing` and `google_bigquery_analytics_hub_data_exchange` resources. Once enabled, this feature cannot be disabled. ([#23391](https://github.com/hashicorp/terraform-provider-google/pull/23391))
-* bigquerydatatransfer: no longer surface persistent warnings recommending write-only field when using `secret_access_key` on `google_bigquery_data_transfer_config` ([#23417](https://github.com/hashicorp/terraform-provider-google/pull/23417))
+* bigquerydatatransfer: stopped surfacing persistent warnings recommending write-only field when using `secret_access_key` on `google_bigquery_data_transfer_config` ([#23417](https://github.com/hashicorp/terraform-provider-google/pull/23417))
 * memorystore: added the ability to set the `replica_count` field in `google_memorystore_instance` resource to 0 ([#23412](https://github.com/hashicorp/terraform-provider-google/pull/23412))
 * monitoring: made `description` and `displayName` optional and mutable in `google_monitoring_metric_descriptor` resource ([#23381](https://github.com/hashicorp/terraform-provider-google/pull/23381))
 * redis: fixed `reserved_ip_range` field not being populated for `google_redis_instance` data source ([#23384](https://github.com/hashicorp/terraform-provider-google/pull/23384))
-* secretmanager: no longer surface persistent warnings recommending write-only field when using `secret_data` on `google_secret_manager_secret_version` ([#23417](https://github.com/hashicorp/terraform-provider-google/pull/23417))
-* sql: no longer surface persistent warnings recommending write-only field when using `password` on `google_sql_user` ([#23417](https://github.com/hashicorp/terraform-provider-google/pull/23417))
+* secretmanager: stopped surfacing persistent warnings recommending write-only field when using `secret_data` on `google_secret_manager_secret_version` ([#23417](https://github.com/hashicorp/terraform-provider-google/pull/23417))
+* sql: stopped surfacing persistent warnings recommending write-only field when using `password` on `google_sql_user` ([#23417](https://github.com/hashicorp/terraform-provider-google/pull/23417))
 * workbench: added support for setting `serial-port-logging-enable` key in `metadata` field in `google_workbench_instance` resource ([#23406](https://github.com/hashicorp/terraform-provider-google/pull/23406))
-
 ## 6.41.0 (June 24, 2024)
 
 BREAKING CHANGES:
