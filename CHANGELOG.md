@@ -1,4 +1,6 @@
-## 6.42.0 (Unreleased)
+## 6.43.0 (Unreleased)
+
+## 6.42.0 (July 1, 2025)
 
 FEATURES:
 * **New Resource:** `google_apihub_plugin_instance` ([#23346](https://github.com/hashicorp/terraform-provider-google/pull/23346))
@@ -32,7 +34,7 @@ BUG FIXES:
 * sql: stopped surfacing persistent warnings recommending write-only field when using `password` on `google_sql_user` ([#23417](https://github.com/hashicorp/terraform-provider-google/pull/23417))
 * workbench: added support for setting `serial-port-logging-enable` key in `metadata` field in `google_workbench_instance` resource ([#23406](https://github.com/hashicorp/terraform-provider-google/pull/23406))
 
-## 6.41.0 (June 24, 2024)
+## 6.41.0 (June 24, 2025)
 
 BREAKING CHANGES:
 * lustre: added `per_unit_storage_throughput` as a required field to `google_lustre_instance` resource in response to a change in the API surface ([#23319](https://github.com/hashicorp/terraform-provider-google/pull/23319))
