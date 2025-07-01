@@ -31,6 +31,7 @@ BUG FIXES:
 * secretmanager: stopped surfacing persistent warnings recommending write-only field when using `secret_data` on `google_secret_manager_secret_version` ([#23417](https://github.com/hashicorp/terraform-provider-google/pull/23417))
 * sql: stopped surfacing persistent warnings recommending write-only field when using `password` on `google_sql_user` ([#23417](https://github.com/hashicorp/terraform-provider-google/pull/23417))
 * workbench: added support for setting `serial-port-logging-enable` key in `metadata` field in `google_workbench_instance` resource ([#23406](https://github.com/hashicorp/terraform-provider-google/pull/23406))
+
 ## 6.41.0 (June 24, 2024)
 
 BREAKING CHANGES:
