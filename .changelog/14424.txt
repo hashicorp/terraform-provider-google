@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue with `bgp_always_compare_med` in `google_compute_network` where it was unable to be set from `true` to `false`
+```
