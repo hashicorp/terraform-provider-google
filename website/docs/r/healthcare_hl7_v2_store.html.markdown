@@ -213,9 +213,6 @@ The following arguments are supported:
   'projects/{project}/locations/{location}/datasets/{dataset}'
 
 
-- - -
-
-
 * `reject_duplicate_message` -
   (Optional)
   Determines whether duplicate messages are allowed.
@@ -252,6 +249,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_notification_config).
 
   ~> **Warning:** `notification_config` is deprecated and will be removed in a future major release. Use `notification_configs` instead.
+
 
 
 <a name="nested_parser_config"></a>The `parser_config` block supports:

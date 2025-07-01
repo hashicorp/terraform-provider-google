@@ -154,9 +154,6 @@ The following arguments are supported:
   Needs to be compliant with https://google.aip.dev/122
 
 
-- - -
-
-
 * `allowed_data_access_labels` -
   (Optional)
   The allowed labels for the scope. There has to be at
@@ -193,6 +190,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_allowed_data_access_labels"></a>The `allowed_data_access_labels` block supports:

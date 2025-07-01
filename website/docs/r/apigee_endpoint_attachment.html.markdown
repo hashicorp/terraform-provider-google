@@ -53,8 +53,6 @@ The following arguments are supported:
   ID of the endpoint attachment.
 
 
-- - -
-
 
 
 ## Attributes Reference

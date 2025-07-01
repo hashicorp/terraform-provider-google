@@ -360,9 +360,6 @@ The following arguments are supported:
   The location where the alloydb cluster should reside.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   User-defined labels for the alloydb cluster.
@@ -463,6 +460,7 @@ Possible values: DEFAULT, FORCE
 * `skip_await_major_version_upgrade` - (Optional) Set to true to skip awaiting on the major version upgrade of the cluster.
 Possible values: true, false
 Default value: "true"
+
 
 
 <a name="nested_encryption_config"></a>The `encryption_config` block supports:

@@ -199,9 +199,6 @@ The following arguments are supported:
   A reference to the zone where the machine resides.
 
 
-- - -
-
-
 * `post_startup_script` -
   (Optional)
   Path to a Bash script that automatically runs after a
@@ -351,6 +348,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `desired_state` - (Optional) Desired state of the Notebook Instance. Set this field to `ACTIVE` to start the Instance, and `STOPPED` to stop the Instance.
+
 
 
 <a name="nested_accelerator_config"></a>The `accelerator_config` block supports:

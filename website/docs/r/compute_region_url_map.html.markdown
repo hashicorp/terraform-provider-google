@@ -1224,9 +1224,6 @@ The following arguments are supported:
   character, which cannot be a dash.
 
 
-- - -
-
-
 * `default_service` -
   (Optional)
   The full or partial URL of the defaultService resource to which traffic is directed if
@@ -1280,6 +1277,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_host_rule"></a>The `host_rule` block supports:

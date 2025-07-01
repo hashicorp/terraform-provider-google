@@ -101,20 +101,6 @@ The following arguments are supported:
   Id of the scope
 
 
-<a name="nested_role"></a>The `role` block supports:
-
-* `predefined_role` -
-  (Optional)
-  PredefinedRole is an ENUM representation of the default Kubernetes Roles
-  Possible values are: `UNKNOWN`, `ADMIN`, `EDIT`, `VIEW`.
-
-* `custom_role` -
-  (Optional)
-  CustomRole is the custom Kubernetes ClusterRole to be used. The custom role format must be allowlisted in the rbacrolebindingactuation feature and RFC 1123 compliant.
-
-- - -
-
-
 * `user` -
   (Optional)
   Principal that is be authorized in the cluster (at least of one the oneof
@@ -138,6 +124,18 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_role"></a>The `role` block supports:
+
+* `predefined_role` -
+  (Optional)
+  PredefinedRole is an ENUM representation of the default Kubernetes Roles
+  Possible values are: `UNKNOWN`, `ADMIN`, `EDIT`, `VIEW`.
+
+* `custom_role` -
+  (Optional)
+  CustomRole is the custom Kubernetes ClusterRole to be used. The custom role format must be allowlisted in the rbacrolebindingactuation feature and RFC 1123 compliant.
 
 ## Attributes Reference
 

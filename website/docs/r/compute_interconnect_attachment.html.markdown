@@ -167,9 +167,6 @@ The following arguments are supported:
   letter, or digit, except the last character, which cannot be a dash.
 
 
-- - -
-
-
 * `admin_enabled` -
   (Optional)
   Whether the VLAN attachment is enabled or disabled.  When using
@@ -314,6 +311,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

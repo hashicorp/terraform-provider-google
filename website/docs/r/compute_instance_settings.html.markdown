@@ -60,9 +60,6 @@ The following arguments are supported:
   A reference to the zone where the machine resides.
 
 
-- - -
-
-
 * `metadata` -
   (Optional)
   The metadata key/value pairs assigned to all the instances in the corresponding scope.
@@ -70,6 +67,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_metadata"></a>The `metadata` block supports:

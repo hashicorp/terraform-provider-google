@@ -87,9 +87,6 @@ The following arguments are supported:
   The ID to use for the topic, which will become the final component of the topic's name. This value is structured like: `my-topic-name`.
 
 
-- - -
-
-
 * `partition_count` -
   (Optional)
   The number of partitions in a topic. You can increase the partition count for a topic, but you cannot decrease it. Increasing partitions for a topic that uses a key might change how messages are distributed.
@@ -100,6 +97,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

@@ -696,9 +696,6 @@ The following arguments are supported:
   "repo1"
 
 
-- - -
-
-
 * `description` -
   (Optional)
   The user-provided description of the repository.
@@ -778,6 +775,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_docker_config"></a>The `docker_config` block supports:

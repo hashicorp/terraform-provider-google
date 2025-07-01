@@ -237,9 +237,6 @@ The following arguments are supported:
   in the format `organizations/{{org_name}}`.
 
 
-- - -
-
-
 * `peering_cidr_range` -
   (Optional)
   The size of the CIDR block range that will be reserved by the instance. For valid values,
@@ -274,6 +271,7 @@ The following arguments are supported:
   side that can privately connect to the service attachment. It is an optional field
   which the customers can provide during the instance creation. By default, the customer
   project associated with the Apigee organization will be included to the list.
+
 
 
 ## Attributes Reference

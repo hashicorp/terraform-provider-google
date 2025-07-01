@@ -99,6 +99,8 @@ The following arguments are supported:
   The ID to use for the key, which becomes the final component of the resource name. This value must be 4-32 characters, and may contain the characters [a-z0-9-].
 
 
+
+
 <a name="nested_key_data"></a>The `key_data` block supports:
 
 * `format` -
@@ -129,10 +131,6 @@ The following arguments are supported:
   (Required)
   The specifications for the key.
   Possible values are: `RSA_2048`, `RSA_3072`, `RSA_4096`.
-
-- - -
-
-
 
 ## Attributes Reference
 

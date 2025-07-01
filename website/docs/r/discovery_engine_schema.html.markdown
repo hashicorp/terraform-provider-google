@@ -77,15 +77,13 @@ The following arguments are supported:
   The unique id of the schema.
 
 
-- - -
-
-
 * `json_schema` -
   (Optional)
   The JSON representation of the schema.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

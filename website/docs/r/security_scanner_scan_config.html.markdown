@@ -72,9 +72,6 @@ The following arguments are supported:
   The starting URLs from which the scanner finds site pages.
 
 
-- - -
-
-
 * `max_qps` -
   (Optional)
   The maximum QPS during scanning. A valid value ranges from 5 to 20 inclusively.
@@ -115,6 +112,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_authentication"></a>The `authentication` block supports:

@@ -102,6 +102,37 @@ The following arguments are supported:
   * Must be unique within the parent.
 
 
+* `description` -
+  (Optional)
+  Optional. Freeform text describing the purpose of the resource.
+
+* `state` -
+  (Optional)
+  Optional. State of the orchestrator. Can be updated to change orchestrator behaviour.
+  Allowed values:
+  - `ACTIVE` - orchestrator is actively looking for actions to be taken.
+  - `STOPPED` - orchestrator won't make any changes.
+  Note: There might be more states added in the future. We use string here
+  instead of an enum, to avoid the need of propagating new states to all the
+  client code.
+
+* `orchestration_scope` -
+  (Optional)
+  Defines a set of selectors which drive which resources are in scope of policy
+  orchestration.
+  Structure is [documented below](#nested_orchestration_scope).
+
+* `labels` -
+  (Optional)
+  Optional. Labels as key value pairs
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_orchestrated_resource"></a>The `orchestrated_resource` block supports:
 
 * `os_policy_assignment_v1_payload` -
@@ -1080,39 +1111,6 @@ The following arguments are supported:
   (Optional)
   Specifies the relative value defined as a percentage, which will be
   multiplied by a reference value.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  Optional. Freeform text describing the purpose of the resource.
-
-* `state` -
-  (Optional)
-  Optional. State of the orchestrator. Can be updated to change orchestrator behaviour.
-  Allowed values:
-  - `ACTIVE` - orchestrator is actively looking for actions to be taken.
-  - `STOPPED` - orchestrator won't make any changes.
-  Note: There might be more states added in the future. We use string here
-  instead of an enum, to avoid the need of propagating new states to all the
-  client code.
-
-* `orchestration_scope` -
-  (Optional)
-  Defines a set of selectors which drive which resources are in scope of policy
-  orchestration.
-  Structure is [documented below](#nested_orchestration_scope).
-
-* `labels` -
-  (Optional)
-  Optional. Labels as key value pairs
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 <a name="nested_orchestration_scope"></a>The `orchestration_scope` block supports:
 

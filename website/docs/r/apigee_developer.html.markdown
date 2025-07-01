@@ -164,13 +164,11 @@ The following arguments are supported:
   in the format `organizations/{{org_name}}`.
 
 
-- - -
-
-
 * `attributes` -
   (Optional)
   Developer attributes (name/value pairs). The custom attribute limit is 18.
   Structure is [documented below](#nested_attributes).
+
 
 
 <a name="nested_attributes"></a>The `attributes` block supports:

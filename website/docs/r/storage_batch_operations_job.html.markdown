@@ -71,9 +71,6 @@ The following arguments are supported:
 
 
 
-- - -
-
-
 * `bucket_list` -
   (Optional)
   List of buckets and their objects to be transformed. Currently, only one bucket configuration is supported. If multiple buckets are specified, an error will be returned
@@ -107,6 +104,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `delete_protection` - (Optional) If set to `true`, the storage batch operation job will not be deleted and new job will be created.
+
 
 
 <a name="nested_bucket_list"></a>The `bucket_list` block supports:

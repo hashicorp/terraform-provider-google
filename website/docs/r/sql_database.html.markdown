@@ -97,9 +97,6 @@ The following arguments are supported:
   ID.
 
 
-- - -
-
-
 * `charset` -
   (Optional)
   The charset value. See MySQL's
@@ -123,6 +120,7 @@ The following arguments are supported:
 to be abandoned rather than deleted. This is useful for Postgres, where databases cannot be
 deleted from the API if there are users other than cloudsqlsuperuser with access. Possible
 values are: "ABANDON", "DELETE". Defaults to "DELETE".
+
 
 
 ## Attributes Reference

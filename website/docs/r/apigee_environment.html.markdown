@@ -90,9 +90,6 @@ The following arguments are supported:
   in the format `organizations/{{org_name}}`.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   Display name of the environment.
@@ -144,6 +141,7 @@ The following arguments are supported:
   (Optional)
   The algorithm to resolve IP. This will affect Analytics, API Security, and other features that use the client ip. To remove a client ip resolution config, update the field to an empty value. Example: '{ "clientIpResolutionConfig" = {} }' For more information, see: https://cloud.google.com/apigee/docs/api-platform/system-administration/client-ip-resolution
   Structure is [documented below](#nested_client_ip_resolution_config).
+
 
 
 <a name="nested_node_config"></a>The `node_config` block supports:

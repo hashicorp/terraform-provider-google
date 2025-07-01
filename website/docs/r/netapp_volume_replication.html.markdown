@@ -135,9 +135,6 @@ The following arguments are supported:
   The name of the replication. Needs to be unique per location.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Labels as key value pairs. Example: `{ "owner": "Bob", "department": "finance", "purpose": "testing" }`
@@ -178,6 +175,7 @@ volume will remain at the state of the last successful update. Default is false.
 * `wait_for_mirror` - (Optional) Replication resource state is independent of mirror_state. With enough data, it can take many hours
 for mirror_state to reach MIRRORED. If you want Terraform to wait for the mirror to finish on
 create/stop/resume operations, set this parameter to true. Default is false.
+
 
 
 <a name="nested_destination_volume_parameters"></a>The `destination_volume_parameters` block supports:

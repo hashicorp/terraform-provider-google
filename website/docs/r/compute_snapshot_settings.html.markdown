@@ -57,6 +57,11 @@ The following arguments are supported:
   Structure is [documented below](#nested_storage_location).
 
 
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_storage_location"></a>The `storage_location` block supports:
 
 * `policy` -
@@ -80,13 +85,6 @@ The following arguments are supported:
   (Required)
   Name of the location. It should be one of the Cloud Storage buckets.
   Only one location can be specified. (should match location)
-
-- - -
-
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

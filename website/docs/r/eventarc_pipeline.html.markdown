@@ -299,6 +299,65 @@ The following arguments are supported:
   format `^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$`.
 
 
+* `annotations` -
+  (Optional)
+  User-defined annotations. See https://google.aip.dev/128#annotations.
+  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
+* `display_name` -
+  (Optional)
+  Display name of resource.
+
+* `crypto_key_name` -
+  (Optional)
+  Resource name of a KMS crypto key (managed by the user) used to
+  encrypt/decrypt the event data. If not set, an internal Google-owned key
+  will be used to encrypt messages. It must match the pattern
+  "projects/{project}/locations/{location}/keyRings/{keyring}/cryptoKeys/{key}".
+
+* `input_payload_format` -
+  (Optional)
+  Represents the format of message data.
+  Structure is [documented below](#nested_input_payload_format).
+
+* `retry_policy` -
+  (Optional)
+  The retry policy configuration for the Pipeline. The pipeline
+  exponentially backs off in case the destination is non responsive or
+  returns a retryable error code. The default semantics are as follows:
+  The backoff starts with a 5 second delay and doubles the
+  delay after each failed attempt (10 seconds, 20 seconds, 40 seconds, etc.).
+  The delay is capped at 60 seconds by default.
+  Please note that if you set the min_retry_delay and max_retry_delay fields
+  to the same value this will make the duration between retries constant.
+  Structure is [documented below](#nested_retry_policy).
+
+* `labels` -
+  (Optional)
+  User labels attached to the Pipeline that can be used to group
+  resources. An object containing a list of "key": value pairs. Example: {
+  "name": "wrench", "mass": "1.3kg", "count": "3" }.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `mediations` -
+  (Optional)
+  List of mediation operations to be performed on the message. Currently,
+  only one Transformation operation is allowed in each Pipeline.
+  Structure is [documented below](#nested_mediations).
+
+* `logging_config` -
+  (Optional)
+  The configuration for Platform Telemetry logging for Eventarc Advanced
+  resources.
+  Structure is [documented below](#nested_logging_config).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_destinations"></a>The `destinations` block supports:
 
 * `authentication_config` -
@@ -607,67 +666,6 @@ The following arguments are supported:
   The Pipeline expects that the message it receives adheres to the
   standard CloudEvent format. If it doesn't then the outgoing message
   request may fail with a persistent error.
-
-- - -
-
-
-* `annotations` -
-  (Optional)
-  User-defined annotations. See https://google.aip.dev/128#annotations.
-  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
-  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
-
-* `display_name` -
-  (Optional)
-  Display name of resource.
-
-* `crypto_key_name` -
-  (Optional)
-  Resource name of a KMS crypto key (managed by the user) used to
-  encrypt/decrypt the event data. If not set, an internal Google-owned key
-  will be used to encrypt messages. It must match the pattern
-  "projects/{project}/locations/{location}/keyRings/{keyring}/cryptoKeys/{key}".
-
-* `input_payload_format` -
-  (Optional)
-  Represents the format of message data.
-  Structure is [documented below](#nested_input_payload_format).
-
-* `retry_policy` -
-  (Optional)
-  The retry policy configuration for the Pipeline. The pipeline
-  exponentially backs off in case the destination is non responsive or
-  returns a retryable error code. The default semantics are as follows:
-  The backoff starts with a 5 second delay and doubles the
-  delay after each failed attempt (10 seconds, 20 seconds, 40 seconds, etc.).
-  The delay is capped at 60 seconds by default.
-  Please note that if you set the min_retry_delay and max_retry_delay fields
-  to the same value this will make the duration between retries constant.
-  Structure is [documented below](#nested_retry_policy).
-
-* `labels` -
-  (Optional)
-  User labels attached to the Pipeline that can be used to group
-  resources. An object containing a list of "key": value pairs. Example: {
-  "name": "wrench", "mass": "1.3kg", "count": "3" }.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `mediations` -
-  (Optional)
-  List of mediation operations to be performed on the message. Currently,
-  only one Transformation operation is allowed in each Pipeline.
-  Structure is [documented below](#nested_mediations).
-
-* `logging_config` -
-  (Optional)
-  The configuration for Platform Telemetry logging for Eventarc Advanced
-  resources.
-  Structure is [documented below](#nested_logging_config).
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 <a name="nested_input_payload_format"></a>The `input_payload_format` block supports:
 

@@ -191,6 +191,22 @@ The following arguments are supported:
   * `organizations/{{organization_id}}/locations/{{location}}`
 
 
+* `description` -
+  (Optional)
+  A description of the template.
+
+* `display_name` -
+  (Optional)
+  User set display name of the template.
+
+* `template_id` -
+  (Optional)
+  The template id can contain uppercase and lowercase letters, numbers, and hyphens;
+  that is, it must match the regular expression: [a-zA-Z\d-_]+. The maximum length is
+  100 characters. Can be empty to allow the system to generate one.
+
+
+
 <a name="nested_deidentify_config"></a>The `deidentify_config` block supports:
 
 * `image_transformations` -
@@ -3307,24 +3323,6 @@ The following arguments are supported:
 * `day` -
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  A description of the template.
-
-* `display_name` -
-  (Optional)
-  User set display name of the template.
-
-* `template_id` -
-  (Optional)
-  The template id can contain uppercase and lowercase letters, numbers, and hyphens;
-  that is, it must match the regular expression: [a-zA-Z\d-_]+. The maximum length is
-  100 characters. Can be empty to allow the system to generate one.
-
 
 ## Attributes Reference
 

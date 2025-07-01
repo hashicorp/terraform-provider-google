@@ -80,8 +80,6 @@ The following arguments are supported:
   e.g. ['resourcemanager.projects.delete']
 
 
-- - -
-
 
 
 ## Attributes Reference

@@ -202,9 +202,6 @@ The following arguments are supported:
   The location for the resource: https://cloud.google.com/colab/docs/locations
 
 
-- - -
-
-
 * `notebook_runtime_template_ref` -
   (Optional)
   'Runtime specific information used for NotebookRuntime creation.'
@@ -224,6 +221,7 @@ The following arguments are supported:
 * `desired_state` - (Optional) Desired state of the Colab Runtime. Set this field to `RUNNING` to start the runtime, and `STOPPED` to stop it.
 
 * `auto_upgrade` - (Optional) Triggers an upgrade anytime the runtime is started if it is upgradable.
+
 
 
 <a name="nested_notebook_runtime_template_ref"></a>The `notebook_runtime_template_ref` block supports:

@@ -160,9 +160,6 @@ The following arguments are supported:
   The unique id of the data store.
 
 
-- - -
-
-
 * `solution_types` -
   (Optional)
   The solutions that the data store enrolls.
@@ -205,6 +202,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_advanced_site_search_config"></a>The `advanced_site_search_config` block supports:

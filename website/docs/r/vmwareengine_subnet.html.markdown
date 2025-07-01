@@ -87,8 +87,6 @@ The following arguments are supported:
   where n ranges from 1 to 5.
 
 
-- - -
-
 
 
 ## Attributes Reference

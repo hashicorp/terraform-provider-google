@@ -250,9 +250,6 @@ The following arguments are supported:
   The network that this route applies to.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource. Provide this property
@@ -320,6 +317,7 @@ The following arguments are supported:
   specified)  The zone of the instance specified in
   `next_hop_instance`.  Omit if `next_hop_instance` is specified as
   a URL.
+
 
 ## Attributes Reference
 

@@ -117,9 +117,6 @@ The following arguments are supported:
   The repository's name.
 
 
-- - -
-
-
 * `git_remote_settings` -
   (Optional)
   Optional. If set, configures this repository to be linked to a Git remote.
@@ -163,6 +160,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `deletion_policy` - (Optional) Policy to control how the repository and its child resources are deleted. When set to `FORCE`, any child resources of this repository will also be deleted. Possible values: `DELETE`, `FORCE`. Defaults to `DELETE`.
+
 
 
 <a name="nested_git_remote_settings"></a>The `git_remote_settings` block supports:

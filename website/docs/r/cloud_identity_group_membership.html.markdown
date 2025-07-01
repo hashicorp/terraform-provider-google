@@ -131,6 +131,20 @@ The following arguments are supported:
   The name of the Group to create this membership in.
 
 
+* `member_key` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  EntityKey of the member.
+  Structure is [documented below](#nested_member_key).
+
+* `preferred_member_key` -
+  (Optional)
+  EntityKey of the member.
+  Structure is [documented below](#nested_preferred_member_key).
+
+* `create_ignore_already_exists` - (Optional) If set to true, skip group member creation if a membership with the same name already exists. Defaults to false.
+
+
+
 <a name="nested_roles"></a>The `roles` block supports:
 
 * `name` -
@@ -153,22 +167,6 @@ The following arguments are supported:
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
   resolution and up to nine fractional digits.
   Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
-
-- - -
-
-
-* `member_key` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-  EntityKey of the member.
-  Structure is [documented below](#nested_member_key).
-
-* `preferred_member_key` -
-  (Optional)
-  EntityKey of the member.
-  Structure is [documented below](#nested_preferred_member_key).
-
-* `create_ignore_already_exists` - (Optional) If set to true, skip group member creation if a membership with the same name already exists. Defaults to false.
-
 
 <a name="nested_member_key"></a>The `member_key` block supports:
 

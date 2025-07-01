@@ -110,9 +110,6 @@ The following arguments are supported:
   The default value is `global`.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Free-text description of the resource.
@@ -137,6 +134,7 @@ The following arguments are supported:
 * `parent` -
   (Optional)
   The name of the parent this address group belongs to. Format: organizations/{organization_id} or projects/{project_id}.
+
 
 
 ## Attributes Reference

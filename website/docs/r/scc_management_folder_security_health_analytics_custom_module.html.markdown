@@ -120,9 +120,6 @@ The following arguments are supported:
   Numerical ID of the parent folder.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   The display name of the Security Health Analytics custom module. This
@@ -144,6 +141,7 @@ The following arguments are supported:
 * `location` -
   (Optional)
   Location ID of the parent organization. If not provided, 'global' will be used as the default location.
+
 
 
 <a name="nested_custom_config"></a>The `custom_config` block supports:

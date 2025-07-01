@@ -106,9 +106,6 @@ The following arguments are supported:
   The resource name of the Active Directory pool. Needs to be unique per location.
 
 
-- - -
-
-
 * `site` -
   (Optional)
   Specifies an Active Directory site to manage domain controller selection.
@@ -169,6 +166,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

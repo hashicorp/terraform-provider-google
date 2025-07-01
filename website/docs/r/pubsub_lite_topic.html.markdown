@@ -80,9 +80,6 @@ The following arguments are supported:
   Name of the topic.
 
 
-- - -
-
-
 * `partition_config` -
   (Optional)
   The settings for this topic's partitions.
@@ -108,6 +105,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_partition_config"></a>The `partition_config` block supports:

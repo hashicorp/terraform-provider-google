@@ -278,9 +278,6 @@ The following arguments are supported:
   Part of `parent`. See documentation of `projectsId`.
 
 
-- - -
-
-
 * `gce_setup` -
   (Optional)
   The definition of how to configure a VM instance outside of Resources and Identity.
@@ -319,6 +316,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `desired_state` - (Optional) Desired state of the Workbench Instance. Set this field to `ACTIVE` to start the Instance, and `STOPPED` to stop the Instance.
+
 
 
 <a name="nested_gce_setup"></a>The `gce_setup` block supports:

@@ -66,9 +66,6 @@ The following arguments are supported:
 
 
 
-- - -
-
-
 * `app_id` -
   (Optional)
   Optional. The [ID of a Web App](https://firebase.google.com/docs/reference/firebase-management/rest/v1beta1/projects.webApps#WebApp.FIELDS.app_id)
@@ -82,6 +79,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

@@ -154,9 +154,6 @@ The following arguments are supported:
   in the format `organizations/{{org_name}}`.
 
 
-- - -
-
-
 * `channel_uri` -
   (Optional)
   A reference to the associated storefront/marketplace.
@@ -178,6 +175,7 @@ The following arguments are supported:
   (Optional)
   A list of attributes
   Structure is [documented below](#nested_attributes).
+
 
 
 <a name="nested_attributes"></a>The `attributes` block supports:

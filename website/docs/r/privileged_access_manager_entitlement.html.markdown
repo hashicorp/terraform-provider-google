@@ -126,6 +126,19 @@ The following arguments are supported:
   Format: projects/{project-id|project-number} or organizations/{organization-number} or folders/{folder-number}
 
 
+* `approval_workflow` -
+  (Optional)
+  The approvals needed before access will be granted to a requester.
+  No approvals will be needed if this field is null. Different types of approval workflows that can be used to gate privileged access granting.
+  Structure is [documented below](#nested_approval_workflow).
+
+* `additional_notification_targets` -
+  (Optional)
+  AdditionalNotificationTargets includes email addresses to be notified.
+  Structure is [documented below](#nested_additional_notification_targets).
+
+
+
 <a name="nested_eligible_users"></a>The `eligible_users` block supports:
 
 * `principals` -
@@ -176,21 +189,6 @@ The following arguments are supported:
 * `unstructured` -
   (Optional)
   The requester has to provide a justification in the form of free flowing text.
-
-- - -
-
-
-* `approval_workflow` -
-  (Optional)
-  The approvals needed before access will be granted to a requester.
-  No approvals will be needed if this field is null. Different types of approval workflows that can be used to gate privileged access granting.
-  Structure is [documented below](#nested_approval_workflow).
-
-* `additional_notification_targets` -
-  (Optional)
-  AdditionalNotificationTargets includes email addresses to be notified.
-  Structure is [documented below](#nested_additional_notification_targets).
-
 
 <a name="nested_approval_workflow"></a>The `approval_workflow` block supports:
 

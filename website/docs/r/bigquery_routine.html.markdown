@@ -323,9 +323,6 @@ The following arguments are supported:
   If language=SQL, it is the substring inside (but excluding) the parentheses.
 
 
-- - -
-
-
 * `language` -
   (Optional)
   The language of the routine.
@@ -391,6 +388,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_arguments"></a>The `arguments` block supports:

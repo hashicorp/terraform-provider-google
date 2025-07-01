@@ -93,9 +93,6 @@ The following arguments are supported:
   Location in which client needs to be provisioned.
 
 
-- - -
-
-
 * `cloud_kms_config` -
   (Optional)
   Cloud KMS config for AuthModule to encrypt/decrypt credentials.
@@ -113,6 +110,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_cloud_kms_config"></a>The `cloud_kms_config` block supports:

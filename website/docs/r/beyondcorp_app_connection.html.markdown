@@ -128,19 +128,6 @@ The following arguments are supported:
   Structure is [documented below](#nested_application_endpoint).
 
 
-<a name="nested_application_endpoint"></a>The `application_endpoint` block supports:
-
-* `host` -
-  (Required)
-  Hostname or IP address of the remote application endpoint.
-
-* `port` -
-  (Required)
-  Port of the remote application endpoint.
-
-- - -
-
-
 * `region` -
   (Optional)
   The region of the AppConnection.
@@ -174,6 +161,17 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_application_endpoint"></a>The `application_endpoint` block supports:
+
+* `host` -
+  (Required)
+  Hostname or IP address of the remote application endpoint.
+
+* `port` -
+  (Required)
+  Port of the remote application endpoint.
 
 <a name="nested_gateway"></a>The `gateway` block supports:
 

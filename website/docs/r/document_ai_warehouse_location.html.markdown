@@ -71,9 +71,6 @@ The following arguments are supported:
   The location in which the instance is to be provisioned. It takes the form projects/{projectNumber}/locations/{location}.
 
 
-- - -
-
-
 * `kms_key` -
   (Optional)
   The KMS key used for CMEK encryption. It is required that
@@ -86,6 +83,7 @@ The following arguments are supported:
   (Optional)
   The default role for the person who create a document.
   Possible values are: `DOCUMENT_ADMIN`, `DOCUMENT_EDITOR`, `DOCUMENT_VIEWER`.
+
 
 
 ## Attributes Reference

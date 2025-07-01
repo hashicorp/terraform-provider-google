@@ -160,9 +160,6 @@ The following arguments are supported:
 
 
 
-- - -
-
-
 * `name` -
   (Optional)
   Name of the Workflow.
@@ -237,6 +234,7 @@ When the field is set to false, deleting the workflow is allowed.
 
 * `name_prefix` - (Optional) Creates a unique name beginning with the
  specified prefix. If this and name are unspecified, a random value is chosen for the name.
+
 
 ## Attributes Reference
 

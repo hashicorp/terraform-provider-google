@@ -74,9 +74,6 @@ The following arguments are supported:
   The human-readable name of the webhook, unique within the agent.
 
 
-- - -
-
-
 * `timeout` -
   (Optional)
   Webhook execution timeout.
@@ -111,6 +108,7 @@ The following arguments are supported:
   (Optional)
   The agent to create a webhook for.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>.
+
 
 
 <a name="nested_generic_web_service"></a>The `generic_web_service` block supports:

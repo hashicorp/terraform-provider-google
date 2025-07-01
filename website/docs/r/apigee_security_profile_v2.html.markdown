@@ -112,6 +112,12 @@ The following arguments are supported:
   Resource ID of the security profile.
 
 
+* `description` -
+  (Optional)
+  Description of the security profile.
+
+
+
 <a name="nested_profile_assessment_configs"></a>The `profile_assessment_configs` block supports:
 
 * `assessment` - (Required) The identifier for this object. Format specified above.
@@ -120,14 +126,6 @@ The following arguments are supported:
   (Required)
   The weight of the assessment.
   Possible values are: `MINOR`, `MODERATE`, `MAJOR`.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  Description of the security profile.
-
 
 ## Attributes Reference
 
