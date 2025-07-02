@@ -30,8 +30,6 @@ flow of CryptoKeys for CMEK.
 Destroying a Terraform-managed AutokeyConfig will remove it from state but
 *will not delete the resource from the project.*
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about AutokeyConfig, see:
 
