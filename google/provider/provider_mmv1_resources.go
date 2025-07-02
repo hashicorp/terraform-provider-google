@@ -307,6 +307,9 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_kms_crypto_key_versions":                             kms.DataSourceGoogleKmsCryptoKeyVersions(),
 	"google_kms_key_ring":                                        kms.DataSourceGoogleKmsKeyRing(),
 	"google_kms_key_rings":                                       kms.DataSourceGoogleKmsKeyRings(),
+	"google_kms_key_handle":                                      kms.DataSourceGoogleKmsKeyHandle(),
+	"google_kms_autokey_config":                                  kms.DataSourceGoogleKmsAutokeyConfig(),
+	"google_kms_key_handles":                                     kms.DataSourceGoogleKmsKeyHandles(),
 	"google_kms_secret":                                          kms.DataSourceGoogleKmsSecret(),
 	"google_kms_secret_ciphertext":                               kms.DataSourceGoogleKmsSecretCiphertext(),
 	"google_folder":                                              resourcemanager.DataSourceGoogleFolder(),
@@ -544,9 +547,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 626
+// Generated resources: 628
 // Generated IAM resources: 309
-// Total generated resources: 935
+// Total generated resources: 937
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1179,12 +1182,14 @@ var generatedResources = map[string]*schema.Resource{
 	"google_integration_connectors_managed_zone":                                 integrationconnectors.ResourceIntegrationConnectorsManagedZone(),
 	"google_integrations_auth_config":                                            integrations.ResourceIntegrationsAuthConfig(),
 	"google_integrations_client":                                                 integrations.ResourceIntegrationsClient(),
+	"google_kms_autokey_config":                                                  kms.ResourceKMSAutokeyConfig(),
 	"google_kms_crypto_key":                                                      kms.ResourceKMSCryptoKey(),
 	"google_kms_crypto_key_version":                                              kms.ResourceKMSCryptoKeyVersion(),
 	"google_kms_ekm_connection":                                                  kms.ResourceKMSEkmConnection(),
 	"google_kms_ekm_connection_iam_binding":                                      tpgiamresource.ResourceIamBinding(kms.KMSEkmConnectionIamSchema, kms.KMSEkmConnectionIamUpdaterProducer, kms.KMSEkmConnectionIdParseFunc),
 	"google_kms_ekm_connection_iam_member":                                       tpgiamresource.ResourceIamMember(kms.KMSEkmConnectionIamSchema, kms.KMSEkmConnectionIamUpdaterProducer, kms.KMSEkmConnectionIdParseFunc),
 	"google_kms_ekm_connection_iam_policy":                                       tpgiamresource.ResourceIamPolicy(kms.KMSEkmConnectionIamSchema, kms.KMSEkmConnectionIamUpdaterProducer, kms.KMSEkmConnectionIdParseFunc),
+	"google_kms_key_handle":                                                      kms.ResourceKMSKeyHandle(),
 	"google_kms_key_ring":                                                        kms.ResourceKMSKeyRing(),
 	"google_kms_key_ring_import_job":                                             kms.ResourceKMSKeyRingImportJob(),
 	"google_kms_secret_ciphertext":                                               kms.ResourceKMSSecretCiphertext(),
