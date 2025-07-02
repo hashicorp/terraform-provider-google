@@ -23,6 +23,7 @@ fields:
   - field: 'next_hop_origin'
   - field: 'next_hop_peering'
   - field: 'next_hop_vpn_tunnel'
+  - field: 'params.resource_manager_tags'
   - field: 'priority'
   - field: 'route_status'
   - field: 'route_type'
