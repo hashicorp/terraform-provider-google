@@ -437,6 +437,9 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
 * `enterprise_config` - (Optional)
   Configuration for [Enterprise edition].(https://cloud.google.com/kubernetes-engine/enterprise/docs/concepts/gke-editions). Structure is [documented below](#nested_enterprise_config).
 
+* `anonymous_authentication_config` - (Optional)
+  Configuration for [anonymous authentication restrictions](https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster#restrict-anon-access). Structure is [documented below](#anonymous_authentication_config).
+
 
 <a name="nested_default_snat_status"></a>The `default_snat_status` block supports
 
@@ -1557,6 +1560,10 @@ linux_node_config {
 <a name="nested_enterprise_config"></a>The `enterprise_config` block supports:
 
 * `desired_tier` - (Optional) Sets the tier of the cluster. Available options include `STANDARD` and `ENTERPRISE`.
+
+<a name="anonymous_authentication_config"></a>The `anonymous_authentication_config` block supports:
+
+* `mode` - (Optional) Sets or removes authentication restrictions. Available options include `LIMITED` and `ENABLED`.
 
 
 ## Attributes Reference
