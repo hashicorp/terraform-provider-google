@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -472,6 +473,69 @@ resource "google_compute_backend_bucket" "image_backend" {
 resource "google_storage_bucket" "image_bucket" {
   name     = "tf-test-image-store-bucket%{random_suffix}"
   location = "EU"
+}
+`, context)
+}
+
+func TestAccComputeBackendBucket_backendBucketGlobalIlbExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendBucket_backendBucketGlobalIlbExample(context),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.global-ilb-backend",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendBucket_backendBucketGlobalIlbExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_project" "unarmored" {
+  project_id      = "tf-test%{random_suffix}"
+  name            = "tf-test%{random_suffix}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "project" {
+  project = google_project.unarmored.number
+  service = "compute.googleapis.com"
+  disable_on_destroy = true
+}
+
+resource "google_compute_backend_bucket" "global-ilb-backend" {
+  name                  = "tf-test-global-ilb-backend-bucket%{random_suffix}"
+  project               = google_project.unarmored.number
+  bucket_name           = google_storage_bucket.global-ilb-backend.name
+  load_balancing_scheme = "INTERNAL_MANAGED"
+
+  depends_on = [google_project_service.project]
+}
+
+resource "google_storage_bucket" "global-ilb-backend" {
+  name                        = "tf-test-global-ilb-bucket%{random_suffix}"
+  project                     = google_project.unarmored.number
+  location                    = "US-CENTRAL1"
+  force_destroy               = true
+  uniform_bucket_level_access = true
+
+  depends_on = [google_project_service.project]
 }
 `, context)
 }
