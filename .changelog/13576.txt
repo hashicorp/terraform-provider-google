@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `ignore_schema_changes` virtual field to `google_bigquery_table` resource. Only `dataPolicies` field is supported in `ignore_schema_changes` for now.
+```
