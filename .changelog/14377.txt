@@ -1,0 +1,3 @@
+```release-note:bug
+storagetransfer: path validation for GCS path source and sink
+```

@@ -139,3 +139,13 @@ Description of the change and how users should adjust their configuration (if ne
 ### `instance` is now removed
 
 `instance` has been removed in favor of `instance_name`.
+
+## Resource: `google_storage_transfer_job`
+
+### `transfer_spec.gcs_data_sink.path` Implemented validation to prevent strings from starting with a '/' character, while still permitting empty strings."
+
+### `transfer_spec.gcs_data_source.path` Implemented validation to prevent strings from starting with a '/' character, while still permitting empty strings."
+
+### `replication_spec.gcs_data_source.path` Implemented validation to prevent strings from starting with a '/' character, while still permitting empty strings."
+
+### `replication_spec.gcs_data_sink.path` Implemented validation to prevent strings from starting with a '/' character, while still permitting empty strings."
