@@ -1,0 +1,3 @@
+```release-note:bug
+compute: make no replication status in `google_compute_disk_async_replication` a retryable error
+```
