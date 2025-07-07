@@ -17,7 +17,7 @@ FEATURES:
 IMPROVEMENTS:
 * bigquery: added `ignore_schema_changes` virtual field to `google_bigquery_table` resource. Only `dataPolicies` field is supported in `ignore_schema_changes` for now. ([#23495](https://github.com/hashicorp/terraform-provider-google/pull/23495))
 * billing: added `currency_code` to `google_billing_account` data source ([#23474](https://github.com/hashicorp/terraform-provider-google/pull/23474))
-* compute: added `params.resourceManagerTags` field to the `google_compute_network` ([#23421](https://github.com/hashicorp/terraform-provider-google/pull/23421))
+* compute: added `params.resource_manager_tags` field to `google_compute_network` resource ([#23421](https://github.com/hashicorp/terraform-provider-google/pull/23421))
 * compute: added `load_balancing_scheme` field to `google_compute_backend_bucket` resource ([#23499](https://github.com/hashicorp/terraform-provider-google/pull/23499))
 * compute: added `params.resource_manager_tags` field to `google_compute_route` resource ([#23489](https://github.com/hashicorp/terraform-provider-google/pull/23489))
 * container: added `anonymous_authentication_config` field to `google_container_cluster` resource ([#23491](https://github.com/hashicorp/terraform-provider-google/pull/23491))
