@@ -272,7 +272,26 @@ The following arguments are supported:
   which the customers can provide during the instance creation. By default, the customer
   project associated with the Apigee organization will be included to the list.
 
+* `access_logging_config` -
+  (Optional)
+  Access logging configuration enables the access logging feature at the instance.
+  Apigee customers can enable access logging to ship the access logs to their own project's cloud logging.
+  Structure is [documented below](#nested_access_logging_config).
 
+
+
+<a name="nested_access_logging_config"></a>The `access_logging_config` block supports:
+
+* `enabled` -
+  (Required)
+  Boolean flag that specifies whether the customer access log feature is enabled.
+
+* `filter` -
+  (Optional)
+  Ship the access log entries that match the statusCode defined in the filter.
+  The statusCode is the only expected/supported filter field. (Ex: statusCode)
+  The filter will parse it to the Common Expression Language semantics for expression
+  evaluation to build the filter condition. (Ex: "filter": statusCode >= 200 && statusCode < 300 )
 
 ## Attributes Reference
 
