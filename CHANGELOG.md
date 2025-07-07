@@ -24,7 +24,7 @@ IMPROVEMENTS:
 * dataplex: added `suspended` field to `google_dataplex_datascan` resource ([#23456](https://github.com/hashicorp/terraform-provider-google/pull/23456))
 * discoveryengine: Added `enable_table_annotation`, `enable_image_annotation`, `structured_content_types`, `exclude_html_elements`, `exclude_html_classes` and `exclude_html_ids`  to `layout_parsing_config` structure of `google_discovery_engine_data_store` resource ([#23478](https://github.com/hashicorp/terraform-provider-google/pull/23478))
 * discoveryengine: added `kms_key_name` field to `google_discovery_engine_data_store` resource ([#23469](https://github.com/hashicorp/terraform-provider-google/pull/23469))
-* memorystore: added `managed_server_ca` to `google_memorystore_instance` resource ([#23430](https://github.com/hashicorp/terraform-provider-google/pull/23430))
+* memorystore: added `managed_server_ca` field to `google_memorystore_instance` resource ([#23430](https://github.com/hashicorp/terraform-provider-google/pull/23430))
 * secretmanager: added `deletion_protection` field to `google_secret_manager_secret` resource to optionally make deleting them require an explicit intent ([#23480](https://github.com/hashicorp/terraform-provider-google/pull/23480))
 * secretmanager: added `fetch_secret_data` field to `google_secret_manager_secret_version` to optionally skip fetching the secret data ([#23471](https://github.com/hashicorp/terraform-provider-google/pull/23471))
 
