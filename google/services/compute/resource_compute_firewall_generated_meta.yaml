@@ -21,6 +21,7 @@ fields:
   - field: 'log_config.metadata'
   - field: 'name'
   - field: 'network'
+  - field: 'params.resource_manager_tags'
   - field: 'priority'
   - field: 'source_ranges'
   - field: 'source_service_accounts'
