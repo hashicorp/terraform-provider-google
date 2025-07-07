@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_scc_folder_custom_module'
 generation_type: 'mmv1'
 source_file: 'products/securitycenter/FolderCustomModule.yaml'
