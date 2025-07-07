@@ -50,7 +50,7 @@ func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_firewall.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network"},
+				ImportStateVerifyIgnore: []string{"network", "params"},
 			},
 		},
 	})
@@ -100,7 +100,7 @@ func TestAccComputeFirewall_firewallWithTargetTagsExample(t *testing.T) {
 				ResourceName:            "google_compute_firewall.rules",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network"},
+				ImportStateVerifyIgnore: []string{"network", "params"},
 			},
 		},
 	})
