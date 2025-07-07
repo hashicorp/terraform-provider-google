@@ -33,7 +33,7 @@ BUG FIXES:
 * compute: fixed an issue with `bgp_always_compare_med` in `google_compute_network` where it was unable to be set from `true` to `false` ([#23477](https://github.com/hashicorp/terraform-provider-google/pull/23477))
 * compute: make no replication status in `google_compute_disk_async_replication` a retryable error ([#23492](https://github.com/hashicorp/terraform-provider-google/pull/23492))
 * gkeonprem: fixed type of `load_balancer.0.bgp_lb_config.0.address_pools.0.manual_assign` in `google_gkeonprem_bare_metal_cluster`, making it a boolean instead of a string ([#23472](https://github.com/hashicorp/terraform-provider-google/pull/23472))
-* integrationconnectors: remove validation from authConfigs in `google_integration_connectors_connection` ([#23429](https://github.com/hashicorp/terraform-provider-google/pull/23429))
+* integrationconnectors: removed validation from auth configs in `google_integration_connectors_connection` resource ([#23429](https://github.com/hashicorp/terraform-provider-google/pull/23429))
 
 ## 6.42.0 (July 1, 2025)
 
