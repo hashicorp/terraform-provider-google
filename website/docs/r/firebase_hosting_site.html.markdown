@@ -59,6 +59,16 @@ resource "google_firebase_hosting_site" "full" {
   app_id = google_firebase_web_app.default.app_id
 }
 ```
+## Example Usage - Firebasehosting Site Default
+
+
+```hcl
+resource "google_firebase_hosting_site" "default" {
+  provider = google-beta
+  project  = "my-project-name"
+  site_id  = "my-project-name"
+}
+```
 
 ## Argument Reference
 
@@ -99,6 +109,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `default_url` -
   The default URL for the site in the form of https://{name}.web.app
+
+* `type` -
+  The type of Hosting site, either 'DEFAULT_SITE' or `USER_SITE`
 
 
 ## Timeouts
