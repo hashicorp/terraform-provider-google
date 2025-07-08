@@ -22,7 +22,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"math"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -63,7 +62,7 @@ func ResourceStorageBucket() *schema.Resource {
 			Read:   schema.DefaultTimeout(4 * time.Minute),
 		},
 
-		SchemaVersion: 3,
+		SchemaVersion: 4,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceStorageBucketV0().CoreConfigSchema().ImpliedType(),
@@ -79,6 +78,11 @@ func ResourceStorageBucket() *schema.Resource {
 				Type:    resourceStorageBucketV2().CoreConfigSchema().ImpliedType(),
 				Upgrade: ResourceStorageBucketStateUpgradeV2,
 				Version: 2,
+			},
+			{
+				Type:    resourceStorageBucketV3().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceStorageBucketStateUpgradeV3,
+				Version: 3,
 			},
 		},
 
@@ -425,10 +429,9 @@ func ResourceStorageBucket() *schema.Resource {
 							Description: `If set to true, the bucket will be locked and permanently restrict edits to the bucket's retention policy.  Caution: Locking a bucket is an irreversible action.`,
 						},
 						"retention_period": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntBetween(1, math.MaxInt32),
-							Description:  `The period of time, in seconds, that objects in the bucket must be retained and cannot be deleted, overwritten, or archived. The value must be less than 3,155,760,000 seconds.`,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The period of time, in seconds, that objects in the bucket must be retained and cannot be deleted, overwritten, or archived. The value must be less than 3,155,760,000 seconds.`,
 						},
 					},
 				},
@@ -880,7 +883,11 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 			retentionPolicy := retention_policies[0].(map[string]interface{})
 
 			if v, ok := retentionPolicy["retention_period"]; ok {
-				sb.RetentionPolicy.RetentionPeriod = int64(v.(int))
+				value, err := strconv.ParseInt(v.(string), 10, 64)
+				if err != nil {
+					return err
+				}
+				sb.RetentionPolicy.RetentionPeriod = value
 			}
 		}
 	}
@@ -1488,9 +1495,14 @@ func expandBucketRetentionPolicy(configured interface{}) *storage.BucketRetentio
 	}
 	retentionPolicy := retentionPolicies[0].(map[string]interface{})
 
+	var retentionPeriod int64
+	if v, ok := retentionPolicy["retention_period"]; ok {
+		retentionPeriod, _ = strconv.ParseInt(v.(string), 10, 64)
+	}
+
 	bucketRetentionPolicy := &storage.BucketRetentionPolicy{
 		IsLocked:        retentionPolicy["is_locked"].(bool),
-		RetentionPeriod: int64(retentionPolicy["retention_period"].(int)),
+		RetentionPeriod: retentionPeriod,
 	}
 
 	return bucketRetentionPolicy
@@ -1505,7 +1517,7 @@ func flattenBucketRetentionPolicy(bucketRetentionPolicy *storage.BucketRetention
 
 	retentionPolicy := map[string]interface{}{
 		"is_locked":        bucketRetentionPolicy.IsLocked,
-		"retention_period": bucketRetentionPolicy.RetentionPeriod,
+		"retention_period": fmt.Sprintf("%d", bucketRetentionPolicy.RetentionPeriod),
 	}
 
 	bucketRetentionPolicies = append(bucketRetentionPolicies, retentionPolicy)
