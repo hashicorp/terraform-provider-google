@@ -64,7 +64,7 @@ func TestAccDataprocJob_updatable(t *testing.T) {
 
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
-	jobId := fmt.Sprintf("dproc-update-job-id-%s", rnd)
+	jobId := fmt.Sprintf("tf-test-dproc-update-job-id-%s", rnd)
 	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
 	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
 	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
@@ -97,7 +97,7 @@ func TestAccDataprocJob_PySpark(t *testing.T) {
 
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
-	jobId := fmt.Sprintf("dproc-custom-job-id-%s", rnd)
+	jobId := fmt.Sprintf("tf-test-dproc-custom-job-id-%s", rnd)
 	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
 	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
 	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
@@ -675,7 +675,7 @@ func matchError(attr, tf interface{}, gcp interface{}) string {
 
 var singleNodeClusterConfig = `
 resource "google_dataproc_cluster" "basic" {
-  name   = "dproc-job-test-%s"
+  name   = "tf-test-dproc-job-%s"
   region = "us-central1"
 
   cluster_config {
@@ -730,7 +730,7 @@ resource "google_dataproc_job" "pyspark" {
     cluster_name = google_dataproc_cluster.basic.name
   }
   reference {
-    job_id = "dproc-custom-job-id-%s"
+    job_id = "tf-test-dproc-custom-job-id-%s"
   }
 
   region       = google_dataproc_cluster.basic.region
@@ -899,7 +899,7 @@ resource "google_dataproc_job" "sparksql" {
 func testAccDataprocJob_presto(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
-  name   = "dproc-job-test-%s"
+  name   = "tf-test-dproc-job-%s"
   region = "us-central1"
 
   cluster_config {
