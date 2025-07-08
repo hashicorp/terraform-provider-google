@@ -521,7 +521,7 @@ resource "google_project_service" "project" {
 
 resource "google_compute_backend_bucket" "global-ilb-backend" {
   name                  = "tf-test-global-ilb-backend-bucket%{random_suffix}"
-  project               = google_project.unarmored.number
+  project               = google_project.unarmored.name
   bucket_name           = google_storage_bucket.global-ilb-backend.name
   load_balancing_scheme = "INTERNAL_MANAGED"
 
