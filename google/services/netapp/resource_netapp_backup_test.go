@@ -200,6 +200,9 @@ func TestAccNetappBackup_NetappFlexBackup(t *testing.T) {
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNetappBackupDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetappBackup_FlexBackup(context),
@@ -228,6 +231,11 @@ resource "google_netapp_storage_pool" "default" {
   network = data.google_compute_network.default.id
   zone = "us-east4-a"
   replica_zone = "us-east4-b"
+}
+
+resource "time_sleep" "wait_3_minutes" {
+  depends_on = [google_netapp_storage_pool.default]
+  create_duration = "3m"
 }
 
 resource "google_netapp_volume" "default" {
