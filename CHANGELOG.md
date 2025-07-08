@@ -1,4 +1,75 @@
-## 6.42.0 (Unreleased)
+## 6.44.0 (Unreleased)
+
+## 6.43.0 (July 8, 2025)
+
+DEPRECATIONS:
+* iap: deprecated `google_iap_client` and `google_iap_brand` ([#23431](https://github.com/hashicorp/terraform-provider-google/pull/23431))
+
+FEATURES:
+* **New Data Source:** `google_kms_autokey_config` ([#23490](https://github.com/hashicorp/terraform-provider-google/pull/23490))
+* **New Data Source:** `google_kms_key_handle` ([#23490](https://github.com/hashicorp/terraform-provider-google/pull/23490))
+* **New Data Source:** `google_kms_key_handles` ([#23490](https://github.com/hashicorp/terraform-provider-google/pull/23490))
+* **New Data Source:** `google_network_management_connectivity_test_run` ([#23497](https://github.com/hashicorp/terraform-provider-google/pull/23497))
+* **New Data Source:** `google_redis_cluster` ([#23436](https://github.com/hashicorp/terraform-provider-google/pull/23436))
+* **New Resource:** `google_contact_center_insights_analysis_rule` ([#23435](https://github.com/hashicorp/terraform-provider-google/pull/23435))
+* **New Resource:** `google_kms_autokey_config` ([#23490](https://github.com/hashicorp/terraform-provider-google/pull/23490))
+* **New Resource:** `google_kms_key_handle` ([#23490](https://github.com/hashicorp/terraform-provider-google/pull/23490))
+* **New Resource:** `google_model_armor_template` ([#23432](https://github.com/hashicorp/terraform-provider-google/pull/23432))
+
+IMPROVEMENTS:
+* bigquery: added `ignore_schema_changes` virtual field to `google_bigquery_table` resource. Only `dataPolicies` field is supported in `ignore_schema_changes` for now. ([#23495](https://github.com/hashicorp/terraform-provider-google/pull/23495))
+* billing: added `currency_code` to `google_billing_account` data source ([#23474](https://github.com/hashicorp/terraform-provider-google/pull/23474))
+* compute: added `params.resource_manager_tags` field to `google_compute_network` resource ([#23421](https://github.com/hashicorp/terraform-provider-google/pull/23421))
+* compute: added `load_balancing_scheme` field to `google_compute_backend_bucket` resource ([#23499](https://github.com/hashicorp/terraform-provider-google/pull/23499))
+* compute: added `params.resource_manager_tags` field to `google_compute_route` resource ([#23489](https://github.com/hashicorp/terraform-provider-google/pull/23489))
+* container: added `anonymous_authentication_config` field to `google_container_cluster` resource ([#23491](https://github.com/hashicorp/terraform-provider-google/pull/23491))
+* dataplex: added `suspended` field to `google_dataplex_datascan` resource ([#23456](https://github.com/hashicorp/terraform-provider-google/pull/23456))
+* discoveryengine: added `enable_table_annotation`, `enable_image_annotation`, `structured_content_types`, `exclude_html_elements`, `exclude_html_classes` and `exclude_html_ids` fields to `layout_parsing_config` of `google_discovery_engine_data_store` resource ([#23478](https://github.com/hashicorp/terraform-provider-google/pull/23478))
+* discoveryengine: added `kms_key_name` field to `google_discovery_engine_data_store` resource ([#23469](https://github.com/hashicorp/terraform-provider-google/pull/23469))
+* memorystore: added `managed_server_ca` field to `google_memorystore_instance` resource ([#23430](https://github.com/hashicorp/terraform-provider-google/pull/23430))
+* secretmanager: added `deletion_protection` field to `google_secret_manager_secret` resource to optionally make deleting them require an explicit intent ([#23480](https://github.com/hashicorp/terraform-provider-google/pull/23480))
+* secretmanager: added `fetch_secret_data` field to `google_secret_manager_secret_version` to optionally skip fetching the secret data ([#23471](https://github.com/hashicorp/terraform-provider-google/pull/23471))
+
+BUG FIXES:
+* compute: fixed `match` field in `google_compute_router_route_policy` resource to be marked as required ([#23494](https://github.com/hashicorp/terraform-provider-google/pull/23494))
+* compute: fixed an issue with `bgp_always_compare_med` in `google_compute_network` where it was unable to be set from `true` to `false` ([#23477](https://github.com/hashicorp/terraform-provider-google/pull/23477))
+* compute: made no replication status in `google_compute_disk_async_replication` a retryable error ([#23492](https://github.com/hashicorp/terraform-provider-google/pull/23492))
+* gkeonprem: fixed type of `load_balancer.0.bgp_lb_config.0.address_pools.0.manual_assign` in `google_gkeonprem_bare_metal_cluster`, making it a boolean instead of a string ([#23472](https://github.com/hashicorp/terraform-provider-google/pull/23472))
+* integrationconnectors: removed validation from auth configs in `google_integration_connectors_connection` resource ([#23429](https://github.com/hashicorp/terraform-provider-google/pull/23429))
+
+## 6.42.0 (July 1, 2025)
+
+FEATURES:
+* **New Resource:** `google_apihub_plugin_instance` ([#23346](https://github.com/hashicorp/terraform-provider-google/pull/23346))
+* **New Resource:** `google_apihub_plugin` ([#23407](https://github.com/hashicorp/terraform-provider-google/pull/23407))
+* **New Resource:** `google_dialogflow_cx_generative_settings` ([#23394](https://github.com/hashicorp/terraform-provider-google/pull/23394))
+
+IMPROVEMENTS:
+* cloudidentity: added `create_ignore_already_exists` field to `google_cloud_identity_group_membership` resource ([#23376](https://github.com/hashicorp/terraform-provider-google/pull/23376))
+* compute: added `access_mode` field to `google_compute_region_disk` resource ([#23409](https://github.com/hashicorp/terraform-provider-google/pull/23409))
+* compute: added `match.src_secure_tags` and `target_secure_tags` fields to `google_compute_firewall_policy_rule` resource ([#23414](https://github.com/hashicorp/terraform-provider-google/pull/23414))
+* compute: added `params.resource_manager_tags` field to `google_compute_network` resource ([#23421](https://github.com/hashicorp/terraform-provider-google/pull/23421))
+* compute: added `resource_policies.workload_policy` field to `google_compute_instance_group_manager` resource ([#23420](https://github.com/hashicorp/terraform-provider-google/pull/23420))
+* container: added `confidential_nodes.confidential_instance_type` field to `google_container_cluster` resource ([#23410](https://github.com/hashicorp/terraform-provider-google/pull/23410))
+* container: added `gke_auto_upgrade_config` field to `google_container_cluster` resource ([#23411](https://github.com/hashicorp/terraform-provider-google/pull/23411))
+* container: added `node_config.confidential_nodes.confidential_instance_type` field to `google_container_node_pool` resource ([#23410](https://github.com/hashicorp/terraform-provider-google/pull/23410))
+* firestore: revoked deprecation of `deletion_policy` field in `google_firestore_database` resource ([#23403](https://github.com/hashicorp/terraform-provider-google/pull/23403))
+* memorystore: added `kms_key` field to `google_memorystore_instance` resource ([#23396](https://github.com/hashicorp/terraform-provider-google/pull/23396))
+* redis: added `effective_reserved_ip_range` field to `google_redis_instance` resource ([#23384](https://github.com/hashicorp/terraform-provider-google/pull/23384))
+* secretmanager: added `deletion_protection` field to `google_secret_manager_regional_secret` resource ([#23398](https://github.com/hashicorp/terraform-provider-google/pull/23398))
+* spanner: added `encryption_config.kms_key_name` field to `google_spanner_backup_schedule` resource ([#23378](https://github.com/hashicorp/terraform-provider-google/pull/23378))
+* storage: added `allow_cross_org_vpcs` and `allow_all_service_agent_access` fields to `google_storage_bucket` resource ([#23405](https://github.com/hashicorp/terraform-provider-google/pull/23405))
+
+BUG FIXES:
+* alloydb: removed `machine_config.machine_type` field from `google_alloydb_instance` resource because it is not yet supported in GA ([#23415](https://github.com/hashicorp/terraform-provider-google/pull/23415))
+* bigqueryanalyticshub: supported in-place update for `log_linked_dataset_query_user_email` in `google_bigquery_analytics_hub_listing` and `google_bigquery_analytics_hub_data_exchange` resources. Once enabled, this feature cannot be disabled. ([#23391](https://github.com/hashicorp/terraform-provider-google/pull/23391))
+* bigquerydatatransfer: stopped surfacing persistent warnings recommending write-only field when using `secret_access_key` on `google_bigquery_data_transfer_config` ([#23417](https://github.com/hashicorp/terraform-provider-google/pull/23417))
+* memorystore: added the ability to set the `replica_count` field in `google_memorystore_instance` resource to 0 ([#23412](https://github.com/hashicorp/terraform-provider-google/pull/23412))
+* monitoring: made `description` and `displayName` optional and mutable in `google_monitoring_metric_descriptor` resource ([#23381](https://github.com/hashicorp/terraform-provider-google/pull/23381))
+* redis: fixed `reserved_ip_range` field not being populated for `google_redis_instance` data source ([#23384](https://github.com/hashicorp/terraform-provider-google/pull/23384))
+* secretmanager: stopped surfacing persistent warnings recommending write-only field when using `secret_data` on `google_secret_manager_secret_version` ([#23417](https://github.com/hashicorp/terraform-provider-google/pull/23417))
+* sql: stopped surfacing persistent warnings recommending write-only field when using `password` on `google_sql_user` ([#23417](https://github.com/hashicorp/terraform-provider-google/pull/23417))
+* workbench: added support for setting `serial-port-logging-enable` key in `metadata` field in `google_workbench_instance` resource ([#23406](https://github.com/hashicorp/terraform-provider-google/pull/23406))
 
 ## 6.41.0 (June 24, 2024)
 
