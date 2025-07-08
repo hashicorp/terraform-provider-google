@@ -1,0 +1,3 @@
+```release-note:bug
+storage: changed `retention_period` to `string` data type in resource `google_storage_bucket`
+```
