@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `aggregate_reservation.0.vm_family`, `aggregate_reservation.0.reserved_resources.0.accelerator.0.accelerator_count`, `aggregate_reservation.0.reserved_resources.0.accelerator.0.accelerator_type` and `aggregate_reservation.0.workload_type` fields to`google_future_reservation` resource (beta)
+```
