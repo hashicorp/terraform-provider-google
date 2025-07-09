@@ -138,7 +138,7 @@ resource "google_apigee_instance" "apigee_instance" {
   ]
 
   access_logging_config {
-    enabled = false,
+    enabled = false
     filter  = "status_code >= 0 && status_code < 600"
   }
 }
@@ -227,7 +227,7 @@ resource "google_apigee_instance" "apigee_instance" {
   ]
 
   access_logging_config {
-    enabled = true,
+    enabled = true
     filter  = "status_code >= 200 && status_code < 300"
   }
 }
