@@ -29,6 +29,8 @@ fields:
   - field: 'licenses'
   - field: 'name'
   - field: 'physical_block_size_bytes'
+  - field: 'provisioned_iops'
+  - field: 'provisioned_throughput'
   - field: 'region'
   - field: 'replica_zones'
   - field: 'size'
