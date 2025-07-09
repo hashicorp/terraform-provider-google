@@ -23,8 +23,6 @@ description: |-
 
 BackendAuthenticationConfig groups the TrustConfig together with other settings that control how the load balancer authenticates, and expresses its identity to the backend.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about BackendAuthenticationConfig, see:
 * How-to Guides
@@ -40,7 +38,6 @@ To get more information about BackendAuthenticationConfig, see:
 
 ```hcl
 resource "google_network_security_backend_authentication_config" "default" {
-  provider = google-beta
   name             = "my-backend-authentication-config"
   labels           = {
     foo = "bar"
@@ -59,7 +56,6 @@ resource "google_network_security_backend_authentication_config" "default" {
 
 ```hcl
 resource "google_certificate_manager_certificate" "certificate" {
-  provider = google-beta
   name     = "my-certificate"
   labels   = {
     foo = "bar"
@@ -73,7 +69,6 @@ resource "google_certificate_manager_certificate" "certificate" {
 }
 
 resource "google_certificate_manager_trust_config" "trust_config" {
-  provider    = google-beta
   name        = "my-trust-config"
   description = "sample description for the trust config"
   location    = "global"
@@ -93,7 +88,6 @@ resource "google_certificate_manager_trust_config" "trust_config" {
 }
 
 resource "google_network_security_backend_authentication_config" "default" {
-  provider = google-beta
   name     = "my-backend-authentication-config"
   labels   = {
     bar = "foo"
@@ -115,7 +109,6 @@ resource "google_network_security_backend_authentication_config" "default" {
 
 ```hcl
 resource "google_compute_backend_service" "default" {
-  provider = google-beta
   name          = "backend-service"
   health_checks = [google_compute_health_check.default.id]
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -133,7 +126,6 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  provider = google-beta
   name = "health-check"
   http_health_check {
     port = 80
@@ -141,7 +133,6 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_network_security_backend_authentication_config" "default" {
-  provider = google-beta
   name             = "authentication"
   well_known_roots = "PUBLIC_ROOTS"
 }
