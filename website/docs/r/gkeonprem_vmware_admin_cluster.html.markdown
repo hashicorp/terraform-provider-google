@@ -23,8 +23,6 @@ description: |-
 
 A Google VMware Admin Cluster.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about VmwareAdminCluster, see:
 
@@ -35,7 +33,6 @@ To get more information about VmwareAdminCluster, see:
 
 ```hcl
 resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-basic" {
-  provider = google-beta
   name = "basic"
   location = "us-west1"
   description = "test admin cluster"
@@ -85,7 +82,6 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-basic" {
 
 ```hcl
 resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-full" {
-  provider = google-beta
   name = "full"
   location = "us-west1"
   description = "test admin cluster"
@@ -182,7 +178,6 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-full" {
 
 ```hcl
 resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-metallb" {
-  provider = google-beta
   name = "metallb"
   location = "us-west1"
   description = "test admin cluster"
