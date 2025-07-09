@@ -279,6 +279,17 @@ The following arguments are supported:
     * READ_ONLY_SINGLE: The AccessMode means the disk can be attached to multiple instances in RO mode.
   The AccessMode is only valid for Hyperdisk disk types.
 
+* `provisioned_iops` -
+  (Optional)
+  Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second
+  that the disk can handle. Values must be between 10,000 and 120,000.
+  For more details, see the Extreme persistent disk [documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk).
+
+* `provisioned_throughput` -
+  (Optional)
+  Indicates how much throughput to provision for the disk. This sets the number of throughput
+  mb per second that the disk can handle. Values must be greater than or equal to 1.
+
 * `region` -
   (Optional)
   A reference to the region where the disk resides.
