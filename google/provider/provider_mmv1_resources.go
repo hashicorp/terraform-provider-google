@@ -312,6 +312,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_kms_key_handles":                                     kms.DataSourceGoogleKmsKeyHandles(),
 	"google_kms_secret":                                          kms.DataSourceGoogleKmsSecret(),
 	"google_kms_secret_ciphertext":                               kms.DataSourceGoogleKmsSecretCiphertext(),
+	"google_firestore_document":                                  firestore.DataSourceGoogleFirestoreDocument(),
 	"google_folder":                                              resourcemanager.DataSourceGoogleFolder(),
 	"google_folders":                                             resourcemanager.DataSourceGoogleFolders(),
 	"google_folder_organization_policy":                          resourcemanager.DataSourceGoogleFolderOrganizationPolicy(),
