@@ -549,9 +549,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 629
+// Generated resources: 630
 // Generated IAM resources: 309
-// Total generated resources: 938
+// Total generated resources: 939
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1110,6 +1110,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_gkeonprem_bare_metal_admin_cluster":                                  gkeonprem.ResourceGkeonpremBareMetalAdminCluster(),
 	"google_gkeonprem_bare_metal_cluster":                                        gkeonprem.ResourceGkeonpremBareMetalCluster(),
 	"google_gkeonprem_bare_metal_node_pool":                                      gkeonprem.ResourceGkeonpremBareMetalNodePool(),
+	"google_gkeonprem_vmware_admin_cluster":                                      gkeonprem.ResourceGkeonpremVmwareAdminCluster(),
 	"google_gkeonprem_vmware_cluster":                                            gkeonprem.ResourceGkeonpremVmwareCluster(),
 	"google_gkeonprem_vmware_node_pool":                                          gkeonprem.ResourceGkeonpremVmwareNodePool(),
 	"google_healthcare_consent_store":                                            healthcare.ResourceHealthcareConsentStore(),
