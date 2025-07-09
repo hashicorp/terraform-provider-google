@@ -107,6 +107,7 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 										ForceNew:         true,
 										DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 										Description:      `Format: For table: projects/{projectId}/datasets/{datasetId}/tables/{tableId} Example:"projects/test_project/datasets/test_dataset/tables/test_table"`,
+										ExactlyOneOf:     []string{},
 									},
 								},
 							},
