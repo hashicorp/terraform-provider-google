@@ -59,6 +59,150 @@ resource "google_compute_reservation" "gce_reservation" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=reservation_basic_beta&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Reservation Basic Beta
+
+
+```hcl
+resource "google_compute_reservation" "gce_reservation" {
+  provider = google-beta
+  name     = "gce-reservation"
+  zone     = "us-central1-a"
+
+  specific_reservation {
+    count = 1
+    instance_properties {
+      min_cpu_platform     = "Intel Cascade Lake"
+      machine_type         = "n2-standard-2"
+      maintenance_interval = "PERIODIC"
+    }
+  }
+
+  enable_emergent_maintenance = true
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=reservation_source_instance_template&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Reservation Source Instance Template
+
+
+```hcl
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "tf-test-instance-template"
+  machine_type   = "n2-standard-2"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    preemptible       = false
+    automatic_restart = true
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+
+  labels = {
+    my_label = "foobar"
+  }
+}
+
+resource "google_compute_reservation" "gce_reservation_source_instance_template" {
+  name = "gce-reservation-source-instance-template"
+  zone = "us-central1-a"
+
+  specific_reservation {
+    count = 1
+    source_instance_template = google_compute_instance_template.foobar.self_link
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=reservation_sharing_policy&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Reservation Sharing Policy
+
+
+```hcl
+data "google_compute_image" "my_image" {
+  family = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name = "tf-test-instance-template"
+  machine_type = "g2-standard-4"
+  can_ip_forward = false
+  tags = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete = true
+    boot = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    preemptible = false
+    automatic_restart = true
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+  labels = {
+    my_label = "foobar"
+  }
+}
+
+resource "google_compute_reservation" "gce_reservation_sharing_policy" {
+  name = "gce-reservation-sharing-policy"
+  zone = "us-central1-b"
+
+  specific_reservation {
+    count = 2
+    source_instance_template = google_compute_instance_template.foobar.self_link
+  }
+
+  reservation_sharing_policy {
+    service_share_type = "ALLOW_ALL"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -100,6 +244,25 @@ The following arguments are supported:
   The share setting for reservations.
   Structure is [documented below](#nested_share_settings).
 
+* `delete_at_time` -
+  (Optional)
+  Absolute time in future when the reservation will be auto-deleted by Compute Engine. Timestamp is represented in RFC3339 text format.
+  Cannot be used with delete_after_duration.
+
+* `delete_after_duration` -
+  (Optional)
+  Duration after which the reservation will be auto-deleted by Compute Engine. Cannot be used with delete_at_time.
+  Structure is [documented below](#nested_delete_after_duration).
+
+* `reservation_sharing_policy` -
+  (Optional)
+  Sharing policy for reservations with Google Cloud managed services.
+  Structure is [documented below](#nested_reservation_sharing_policy).
+
+* `enable_emergent_maintenance` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Indicates if this group of VMs have emergent maintenance enabled.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -116,9 +279,14 @@ The following arguments are supported:
   How many instances are in use.
 
 * `instance_properties` -
-  (Required)
+  (Optional)
   The instance properties for the reservation.
   Structure is [documented below](#nested_specific_reservation_instance_properties).
+
+* `source_instance_template` -
+  (Optional)
+  Specifies the instance template to create the reservation. If you use this field, you must exclude the
+  instanceProperties field.
 
 
 <a name="nested_specific_reservation_instance_properties"></a>The `instance_properties` block supports:
@@ -144,6 +312,11 @@ The following arguments are supported:
   The amount of local ssd to reserve with each instance. This
   reserves disks of type `local-ssd`.
   Structure is [documented below](#nested_specific_reservation_instance_properties_local_ssds).
+
+* `maintenance_interval` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the frequency of planned maintenance events.
+  Possible values are: `AS_NEEDED`, `PERIODIC`, `RECURRENT`.
 
 
 <a name="nested_specific_reservation_instance_properties_guest_accelerators"></a>The `guest_accelerators` block supports:
@@ -184,6 +357,10 @@ The following arguments are supported:
   A map of project number and project config. This is only valid when shareType's value is SPECIFIC_PROJECTS.
   Structure is [documented below](#nested_share_settings_project_map).
 
+* `projects` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  List of project IDs with which the reservation is shared.
+
 
 <a name="nested_share_settings_project_map"></a>The `project_map` block supports:
 
@@ -192,6 +369,23 @@ The following arguments are supported:
 * `project_id` -
   (Optional)
   The project id/number, should be same as the key of this project config in the project map.
+
+<a name="nested_delete_after_duration"></a>The `delete_after_duration` block supports:
+
+* `seconds` -
+  (Optional)
+  Number of seconds for the auto-delete duration.
+
+* `nanos` -
+  (Optional)
+  Number of nanoseconds for the auto-delete duration.
+
+<a name="nested_reservation_sharing_policy"></a>The `reservation_sharing_policy` block supports:
+
+* `service_share_type` -
+  (Optional)
+  Sharing config for all Google Cloud services.
+  Possible values are: `ALLOW_ALL`, `DISALLOW_ALL`.
 
 ## Attributes Reference
 
