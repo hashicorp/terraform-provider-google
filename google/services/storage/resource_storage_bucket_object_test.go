@@ -145,6 +145,26 @@ func TestAccStorageObject_content(t *testing.T) {
 						"google_storage_bucket_object.object", "storage_class", "STANDARD"),
 				),
 			},
+			{
+				Config: testGoogleStorageBucketsObjectEmptyContentType(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleStorageObject(t, bucketName, objectName, dataMd5),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket_object.object", "content_type", ""),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket_object.object", "storage_class", "STANDARD"),
+				),
+			},
+			{
+				Config: testGoogleStorageBucketsObjectContent(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleStorageObject(t, bucketName, objectName, dataMd5),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket_object.object", "content_type", "text/plain; charset=utf-8"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket_object.object", "storage_class", "STANDARD"),
+				),
+			},
 		},
 	})
 }
@@ -720,6 +740,23 @@ resource "google_storage_bucket_object" "object" {
   name    = "%s"
   bucket  = google_storage_bucket.bucket.name
   content = "%s"
+}
+`, bucketName, objectName, content)
+}
+
+func testGoogleStorageBucketsObjectEmptyContentType(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_storage_bucket_object" "object" {
+  name                     = "%s"
+  bucket                   = google_storage_bucket.bucket.name
+  content                  = "%s"
+  force_empty_content_type = true
 }
 `, bucketName, objectName, content)
 }
