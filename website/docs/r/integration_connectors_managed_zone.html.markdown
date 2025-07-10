@@ -116,9 +116,6 @@ The following arguments are supported:
   Name of Managed Zone needs to be created.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Description of the resource.
@@ -132,6 +129,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

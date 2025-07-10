@@ -198,9 +198,6 @@ The following arguments are supported:
   The unique name of the app profile in the form `[_a-zA-Z0-9][-_.a-zA-Z0-9]*`.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Long form description of the use case for this app profile.
@@ -236,6 +233,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_single_cluster_routing"></a>The `single_cluster_routing` block supports:

@@ -1289,6 +1289,40 @@ The following arguments are supported:
   The name of the location this stream is located in.
 
 
+* `labels` -
+  (Optional)
+  Labels.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `backfill_all` -
+  (Optional)
+  Backfill strategy to automatically backfill the Stream's objects. Specific objects can be excluded.
+  Structure is [documented below](#nested_backfill_all).
+
+* `backfill_none` -
+  (Optional)
+  Backfill strategy to disable automatic backfill for the Stream's objects.
+
+* `customer_managed_encryption_key` -
+  (Optional)
+  A reference to a KMS encryption key. If provided, it will be used to encrypt the data. If left blank, data
+  will be encrypted using an internal Stream-specific encryption key provisioned through KMS.
+
+* `create_without_validation` -
+  (Optional)
+  Create the stream without validating it.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+* `desired_state` - (Optional) Desired state of the Stream. Set this field to `RUNNING` to start the stream,
+`NOT_STARTED` to create the stream without starting and `PAUSED` to pause
+the stream from a `RUNNING` state.
+Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
+
+
+
 <a name="nested_source_config"></a>The `source_config` block supports:
 
 * `source_connection_profile` -
@@ -2191,42 +2225,6 @@ The following arguments are supported:
 * `root_path` -
   (Optional)
   The root path inside the Cloud Storage bucket.
-
-- - -
-
-
-* `labels` -
-  (Optional)
-  Labels.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `backfill_all` -
-  (Optional)
-  Backfill strategy to automatically backfill the Stream's objects. Specific objects can be excluded.
-  Structure is [documented below](#nested_backfill_all).
-
-* `backfill_none` -
-  (Optional)
-  Backfill strategy to disable automatic backfill for the Stream's objects.
-
-* `customer_managed_encryption_key` -
-  (Optional)
-  A reference to a KMS encryption key. If provided, it will be used to encrypt the data. If left blank, data
-  will be encrypted using an internal Stream-specific encryption key provisioned through KMS.
-
-* `create_without_validation` -
-  (Optional)
-  Create the stream without validating it.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
-* `desired_state` - (Optional) Desired state of the Stream. Set this field to `RUNNING` to start the stream,
-`NOT_STARTED` to create the stream without starting and `PAUSED` to pause
-the stream from a `RUNNING` state.
-Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
-
 
 <a name="nested_backfill_all"></a>The `backfill_all` block supports:
 

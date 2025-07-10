@@ -215,9 +215,6 @@ The following arguments are supported:
   The project ID associated with the Apigee organization.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   The display name of the Apigee organization.
@@ -289,6 +286,7 @@ The following arguments are supported:
   After this period, the Organization will no longer be able to be restored.
   Default value is `DELETION_RETENTION_UNSPECIFIED`.
   Possible values are: `DELETION_RETENTION_UNSPECIFIED`, `MINIMUM`.
+
 
 
 <a name="nested_properties"></a>The `properties` block supports:

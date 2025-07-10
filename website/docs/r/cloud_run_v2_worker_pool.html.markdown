@@ -469,6 +469,75 @@ The following arguments are supported:
   The location of the cloud run worker pool
 
 
+* `description` -
+  (Optional)
+  User-provided description of the WorkerPool. This field currently has a 512-character limit.
+
+* `labels` -
+  (Optional)
+  Unstructured key value map that can be used to organize and categorize objects. User-provided labels are shared with Google's billing system, so they can be used to filter, or break down billing charges by team, component,
+  environment, state, etc. For more information, visit https://cloud.google.com/resource-manager/docs/creating-managing-labels or https://cloud.google.com/run/docs/configuring/labels.
+  Cloud Run API v2 does not support labels with  `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected.
+  All system labels in v1 now have a corresponding field in v2 WorkerPool.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `annotations` -
+  (Optional)
+  Unstructured key value map that may be set by external tools to store and arbitrary metadata. They are not queryable and should be preserved when modifying objects.
+  Cloud Run API v2 does not support annotations with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected in new resources.
+  All system annotations in v1 now have a corresponding field in v2 WorkerPool.
+  This field follows Kubernetes annotations' namespacing, limits, and rules.
+  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
+* `client` -
+  (Optional)
+  Arbitrary identifier for the API client.
+
+* `client_version` -
+  (Optional)
+  Arbitrary version identifier for the API client.
+
+* `launch_stage` -
+  (Optional)
+  The launch stage as defined by [Google Cloud Platform Launch Stages](https://cloud.google.com/products#product-launch-stages). Cloud Run supports ALPHA, BETA, and GA.
+  If no value is specified, GA is assumed. Set the launch stage to a preview stage on input to allow use of preview features in that stage. On read (or output), describes whether the resource uses preview features.
+  For example, if ALPHA is provided as input, but only BETA and GA-level features are used, this field will be BETA on output.
+  Possible values are: `UNIMPLEMENTED`, `PRELAUNCH`, `EARLY_ACCESS`, `ALPHA`, `BETA`, `GA`, `DEPRECATED`.
+
+* `binary_authorization` -
+  (Optional)
+  Settings for the Binary Authorization feature.
+  Structure is [documented below](#nested_binary_authorization).
+
+* `custom_audiences` -
+  (Optional)
+  One or more custom audiences that you want this worker pool to support. Specify each custom audience as the full URL in a string. The custom audiences are encoded in the token and used to authenticate requests.
+  For more information, see https://cloud.google.com/run/docs/configuring/custom-audiences.
+
+* `scaling` -
+  (Optional)
+  Scaling settings that apply to the worker pool.
+  Structure is [documented below](#nested_scaling).
+
+* `instance_splits` -
+  (Optional)
+  Specifies how to distribute instances over a collection of Revisions belonging to the WorkerPool. If instance split is empty or not provided, defaults to 100% instances assigned to the latest Ready Revision.
+  Structure is [documented below](#nested_instance_splits).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+* `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the service. Defaults to true.
+When a`terraform destroy` or `terraform apply` would delete the service,
+the command will fail if this field is not set to false in Terraform state.
+When the field is set to true or unset in Terraform state, a `terraform apply`
+or `terraform destroy` that would delete the WorkerPool will fail.
+When the field is set to false, deleting the WorkerPool is allowed.
+
+
+
 <a name="nested_template"></a>The `template` block supports:
 
 * `revision` -
@@ -769,77 +838,6 @@ The following arguments are supported:
 * `accelerator` -
   (Required)
   The GPU to attach to an instance. See https://cloud.google.com/run/docs/configuring/services/gpu for configuring GPU.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  User-provided description of the WorkerPool. This field currently has a 512-character limit.
-
-* `labels` -
-  (Optional)
-  Unstructured key value map that can be used to organize and categorize objects. User-provided labels are shared with Google's billing system, so they can be used to filter, or break down billing charges by team, component,
-  environment, state, etc. For more information, visit https://cloud.google.com/resource-manager/docs/creating-managing-labels or https://cloud.google.com/run/docs/configuring/labels.
-  Cloud Run API v2 does not support labels with  `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected.
-  All system labels in v1 now have a corresponding field in v2 WorkerPool.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `annotations` -
-  (Optional)
-  Unstructured key value map that may be set by external tools to store and arbitrary metadata. They are not queryable and should be preserved when modifying objects.
-  Cloud Run API v2 does not support annotations with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected in new resources.
-  All system annotations in v1 now have a corresponding field in v2 WorkerPool.
-  This field follows Kubernetes annotations' namespacing, limits, and rules.
-  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
-  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
-
-* `client` -
-  (Optional)
-  Arbitrary identifier for the API client.
-
-* `client_version` -
-  (Optional)
-  Arbitrary version identifier for the API client.
-
-* `launch_stage` -
-  (Optional)
-  The launch stage as defined by [Google Cloud Platform Launch Stages](https://cloud.google.com/products#product-launch-stages). Cloud Run supports ALPHA, BETA, and GA.
-  If no value is specified, GA is assumed. Set the launch stage to a preview stage on input to allow use of preview features in that stage. On read (or output), describes whether the resource uses preview features.
-  For example, if ALPHA is provided as input, but only BETA and GA-level features are used, this field will be BETA on output.
-  Possible values are: `UNIMPLEMENTED`, `PRELAUNCH`, `EARLY_ACCESS`, `ALPHA`, `BETA`, `GA`, `DEPRECATED`.
-
-* `binary_authorization` -
-  (Optional)
-  Settings for the Binary Authorization feature.
-  Structure is [documented below](#nested_binary_authorization).
-
-* `custom_audiences` -
-  (Optional)
-  One or more custom audiences that you want this worker pool to support. Specify each custom audience as the full URL in a string. The custom audiences are encoded in the token and used to authenticate requests.
-  For more information, see https://cloud.google.com/run/docs/configuring/custom-audiences.
-
-* `scaling` -
-  (Optional)
-  Scaling settings that apply to the worker pool.
-  Structure is [documented below](#nested_scaling).
-
-* `instance_splits` -
-  (Optional)
-  Specifies how to distribute instances over a collection of Revisions belonging to the WorkerPool. If instance split is empty or not provided, defaults to 100% instances assigned to the latest Ready Revision.
-  Structure is [documented below](#nested_instance_splits).
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
-* `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the service. Defaults to true.
-When a`terraform destroy` or `terraform apply` would delete the service,
-the command will fail if this field is not set to false in Terraform state.
-When the field is set to true or unset in Terraform state, a `terraform apply`
-or `terraform destroy` that would delete the WorkerPool will fail.
-When the field is set to false, deleting the WorkerPool is allowed.
-
 
 <a name="nested_binary_authorization"></a>The `binary_authorization` block supports:
 

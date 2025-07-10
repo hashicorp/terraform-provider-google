@@ -127,6 +127,15 @@ The following arguments are supported:
   The ID of the backup plan
 
 
+* `description` -
+  (Optional)
+  The description allows for additional details about `BackupPlan` and its use cases to be provided.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_backup_rules"></a>The `backup_rules` block supports:
 
 * `rule_id` -
@@ -208,17 +217,6 @@ The following arguments are supported:
   The hour of the day (1-24) when the window ends, for example, if the value of end hour of the day is 10, that means the backup window end time is 10:00.
   The end hour of the day should be greater than the start
 
-- - -
-
-
-* `description` -
-  (Optional)
-  The description allows for additional details about `BackupPlan` and its use cases to be provided.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -248,6 +246,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 60 minutes.
+- `update` - Default is 60 minutes.
 - `delete` - Default is 60 minutes.
 
 ## Import

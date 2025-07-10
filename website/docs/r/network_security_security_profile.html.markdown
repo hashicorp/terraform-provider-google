@@ -166,9 +166,6 @@ The following arguments are supported:
   The name of the security profile resource.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of the security profile. The Max length is 512 characters.
@@ -206,6 +203,7 @@ The following arguments are supported:
   (Optional)
   The name of the parent this security profile belongs to.
   Format: organizations/{organization_id}.
+
 
 
 <a name="nested_threat_prevention_profile"></a>The `threat_prevention_profile` block supports:

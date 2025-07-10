@@ -58,9 +58,6 @@ The following arguments are supported:
   Identifier of the GCP Organization. For GCP org, this field should be organization number.
 
 
-- - -
-
-
 * `edition_config` -
   (Optional)
   Edition configuration of the Storage Intelligence resource. Valid values are INHERIT, DISABLED, TRIAL and STANDARD.
@@ -69,6 +66,7 @@ The following arguments are supported:
   (Optional)
   Filter over location and bucket using include or exclude semantics. Resources that match the include or exclude filter are exclusively included or excluded from the Storage Intelligence plan.
   Structure is [documented below](#nested_filter).
+
 
 
 <a name="nested_filter"></a>The `filter` block supports:

@@ -71,9 +71,6 @@ The following arguments are supported:
   last character, which cannot be a dash.
 
 
-- - -
-
-
 * `check_interval_sec` -
   (Optional)
   How often (in seconds) to send a health check. The default value is 5
@@ -118,6 +115,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

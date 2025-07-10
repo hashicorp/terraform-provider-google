@@ -503,6 +503,46 @@ The following arguments are supported:
   The ID of the job. The ID must contain only letters (a-z, A-Z), numbers (0-9), underscores (_), or dashes (-). The maximum length is 1,024 characters.
 
 
+* `job_timeout_ms` -
+  (Optional)
+  Job timeout in milliseconds. If this time limit is exceeded, BigQuery may attempt to terminate the job.
+
+* `labels` -
+  (Optional)
+  The labels associated with this job. You can use these to organize and group your jobs.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `query` -
+  (Optional)
+  Configures a query job.
+  Structure is [documented below](#nested_configuration_query).
+
+* `load` -
+  (Optional)
+  Configures a load job.
+  Structure is [documented below](#nested_configuration_load).
+
+* `copy` -
+  (Optional)
+  Copies a table.
+  Structure is [documented below](#nested_configuration_copy).
+
+* `extract` -
+  (Optional)
+  Configures an extract job.
+  Structure is [documented below](#nested_configuration_extract).
+
+* `location` -
+  (Optional)
+  The geographic location of the job. The default value is US.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_configuration_query"></a>The `query` block supports:
 
 * `query` -
@@ -1028,48 +1068,6 @@ The following arguments are supported:
 * `model_id` -
   (Required)
   The ID of the model.
-
-- - -
-
-
-* `job_timeout_ms` -
-  (Optional)
-  Job timeout in milliseconds. If this time limit is exceeded, BigQuery may attempt to terminate the job.
-
-* `labels` -
-  (Optional)
-  The labels associated with this job. You can use these to organize and group your jobs.
-
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `query` -
-  (Optional)
-  Configures a query job.
-  Structure is [documented below](#nested_configuration_query).
-
-* `load` -
-  (Optional)
-  Configures a load job.
-  Structure is [documented below](#nested_configuration_load).
-
-* `copy` -
-  (Optional)
-  Copies a table.
-  Structure is [documented below](#nested_configuration_copy).
-
-* `extract` -
-  (Optional)
-  Configures an extract job.
-  Structure is [documented below](#nested_configuration_extract).
-
-* `location` -
-  (Optional)
-  The geographic location of the job. The default value is US.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

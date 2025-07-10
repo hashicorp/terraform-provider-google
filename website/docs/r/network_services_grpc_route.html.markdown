@@ -199,6 +199,33 @@ The following arguments are supported:
   Name of the GrpcRoute resource.
 
 
+* `labels` -
+  (Optional)
+  Set of label tags associated with the GrpcRoute resource.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `description` -
+  (Optional)
+  A free-text description of the resource. Max length 1024 characters.
+
+* `meshes` -
+  (Optional)
+  List of meshes this GrpcRoute is attached to, as one of the routing rules to route the requests served by the mesh.
+
+* `gateways` -
+  (Optional)
+  List of gateways this GrpcRoute is attached to, as one of the routing rules to route the requests served by the gateway.
+
+* `location` -
+  (Optional)
+  Location (region) of the GRPCRoute resource to be created. Only the value 'global' is currently allowed; defaults to 'global' if omitted.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_rules"></a>The `rules` block supports:
 
 * `matches` -
@@ -330,35 +357,6 @@ The following arguments are supported:
 * `num_retries` -
   (Optional)
   Specifies the allowed number of retries.
-
-- - -
-
-
-* `labels` -
-  (Optional)
-  Set of label tags associated with the GrpcRoute resource.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `description` -
-  (Optional)
-  A free-text description of the resource. Max length 1024 characters.
-
-* `meshes` -
-  (Optional)
-  List of meshes this GrpcRoute is attached to, as one of the routing rules to route the requests served by the mesh.
-
-* `gateways` -
-  (Optional)
-  List of gateways this GrpcRoute is attached to, as one of the routing rules to route the requests served by the gateway.
-
-* `location` -
-  (Optional)
-  Location (region) of the GRPCRoute resource to be created. Only the value 'global' is currently allowed; defaults to 'global' if omitted.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

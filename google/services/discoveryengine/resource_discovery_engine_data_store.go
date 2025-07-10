@@ -184,7 +184,50 @@ config will be applied to all file types for Document parsing.`,
 										Description: `Configurations applied to layout parser.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{},
+											Schema: map[string]*schema.Schema{
+												"enable_image_annotation": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `If true, the LLM based annotation is added to the image during parsing.`,
+												},
+												"enable_table_annotation": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `If true, the LLM based annotation is added to the table during parsing.`,
+												},
+												"exclude_html_classes": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `List of HTML classes to exclude from the parsed content.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"exclude_html_elements": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `List of HTML elements to exclude from the parsed content.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"exclude_html_ids": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `List of HTML ids to exclude from the parsed content.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"structured_content_types": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Contains the required structure types to extract from the document. Supported values: 'shareholder-structure'.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
 										},
 										ExactlyOneOf: []string{},
 									},
@@ -236,7 +279,50 @@ config will be applied to all file types for Document parsing.`,
 										Description: `Configurations applied to layout parser.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{},
+											Schema: map[string]*schema.Schema{
+												"enable_image_annotation": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `If true, the LLM based annotation is added to the image during parsing.`,
+												},
+												"enable_table_annotation": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `If true, the LLM based annotation is added to the table during parsing.`,
+												},
+												"exclude_html_classes": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `List of HTML classes to exclude from the parsed content.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"exclude_html_elements": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `List of HTML elements to exclude from the parsed content.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"exclude_html_ids": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `List of HTML ids to exclude from the parsed content.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"structured_content_types": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Contains the required structure types to extract from the document. Supported values: 'shareholder-structure'.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
 										},
 										ExactlyOneOf: []string{},
 									},
@@ -828,8 +914,44 @@ func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfig
 	if v == nil {
 		return nil
 	}
+	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
+	transformed["enable_table_annotation"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigEnableTableAnnotation(original["enableTableAnnotation"], d, config)
+	transformed["enable_image_annotation"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigEnableImageAnnotation(original["enableImageAnnotation"], d, config)
+	transformed["structured_content_types"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigStructuredContentTypes(original["structuredContentTypes"], d, config)
+	transformed["exclude_html_elements"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigExcludeHtmlElements(original["excludeHtmlElements"], d, config)
+	transformed["exclude_html_classes"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigExcludeHtmlClasses(original["excludeHtmlClasses"], d, config)
+	transformed["exclude_html_ids"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigExcludeHtmlIds(original["excludeHtmlIds"], d, config)
 	return []interface{}{transformed}
+}
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigEnableTableAnnotation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigEnableImageAnnotation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigStructuredContentTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigExcludeHtmlElements(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigExcludeHtmlClasses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigExcludeHtmlIds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverrides(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -878,8 +1000,44 @@ func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverrid
 	if v == nil {
 		return nil
 	}
+	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
+	transformed["enable_table_annotation"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigEnableTableAnnotation(original["enableTableAnnotation"], d, config)
+	transformed["enable_image_annotation"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigEnableImageAnnotation(original["enableImageAnnotation"], d, config)
+	transformed["structured_content_types"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigStructuredContentTypes(original["structuredContentTypes"], d, config)
+	transformed["exclude_html_elements"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigExcludeHtmlElements(original["excludeHtmlElements"], d, config)
+	transformed["exclude_html_classes"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigExcludeHtmlClasses(original["excludeHtmlClasses"], d, config)
+	transformed["exclude_html_ids"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigExcludeHtmlIds(original["excludeHtmlIds"], d, config)
 	return []interface{}{transformed}
+}
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigEnableTableAnnotation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigEnableImageAnnotation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigStructuredContentTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigExcludeHtmlElements(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigExcludeHtmlClasses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigExcludeHtmlIds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenDiscoveryEngineDataStoreCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1123,9 +1281,77 @@ func expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigL
 		transformed := make(map[string]interface{})
 		return transformed, nil
 	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedEnableTableAnnotation, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigEnableTableAnnotation(original["enable_table_annotation"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableTableAnnotation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableTableAnnotation"] = transformedEnableTableAnnotation
+	}
+
+	transformedEnableImageAnnotation, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigEnableImageAnnotation(original["enable_image_annotation"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableImageAnnotation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableImageAnnotation"] = transformedEnableImageAnnotation
+	}
+
+	transformedStructuredContentTypes, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigStructuredContentTypes(original["structured_content_types"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStructuredContentTypes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["structuredContentTypes"] = transformedStructuredContentTypes
+	}
+
+	transformedExcludeHtmlElements, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigExcludeHtmlElements(original["exclude_html_elements"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExcludeHtmlElements); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["excludeHtmlElements"] = transformedExcludeHtmlElements
+	}
+
+	transformedExcludeHtmlClasses, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigExcludeHtmlClasses(original["exclude_html_classes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExcludeHtmlClasses); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["excludeHtmlClasses"] = transformedExcludeHtmlClasses
+	}
+
+	transformedExcludeHtmlIds, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigExcludeHtmlIds(original["exclude_html_ids"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExcludeHtmlIds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["excludeHtmlIds"] = transformedExcludeHtmlIds
+	}
+
 	return transformed, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigEnableTableAnnotation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigEnableImageAnnotation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigStructuredContentTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigExcludeHtmlElements(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigExcludeHtmlClasses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfigExcludeHtmlIds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverrides(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
@@ -1215,7 +1441,75 @@ func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverride
 		transformed := make(map[string]interface{})
 		return transformed, nil
 	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedEnableTableAnnotation, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigEnableTableAnnotation(original["enable_table_annotation"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableTableAnnotation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableTableAnnotation"] = transformedEnableTableAnnotation
+	}
+
+	transformedEnableImageAnnotation, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigEnableImageAnnotation(original["enable_image_annotation"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableImageAnnotation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableImageAnnotation"] = transformedEnableImageAnnotation
+	}
+
+	transformedStructuredContentTypes, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigStructuredContentTypes(original["structured_content_types"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStructuredContentTypes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["structuredContentTypes"] = transformedStructuredContentTypes
+	}
+
+	transformedExcludeHtmlElements, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigExcludeHtmlElements(original["exclude_html_elements"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExcludeHtmlElements); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["excludeHtmlElements"] = transformedExcludeHtmlElements
+	}
+
+	transformedExcludeHtmlClasses, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigExcludeHtmlClasses(original["exclude_html_classes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExcludeHtmlClasses); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["excludeHtmlClasses"] = transformedExcludeHtmlClasses
+	}
+
+	transformedExcludeHtmlIds, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigExcludeHtmlIds(original["exclude_html_ids"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExcludeHtmlIds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["excludeHtmlIds"] = transformedExcludeHtmlIds
+	}
+
 	return transformed, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigEnableTableAnnotation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigEnableImageAnnotation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigStructuredContentTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigExcludeHtmlElements(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigExcludeHtmlClasses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfigExcludeHtmlIds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }

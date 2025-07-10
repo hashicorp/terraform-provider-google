@@ -73,8 +73,6 @@ The following arguments are supported:
   Capability Value.
 
 
-- - -
-
 
 
 ## Attributes Reference

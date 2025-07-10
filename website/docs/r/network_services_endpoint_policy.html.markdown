@@ -107,40 +107,6 @@ The following arguments are supported:
   Name of the EndpointPolicy resource.
 
 
-<a name="nested_endpoint_matcher"></a>The `endpoint_matcher` block supports:
-
-* `metadata_label_matcher` -
-  (Required)
-  The matcher is based on node metadata presented by xDS clients.
-  Structure is [documented below](#nested_endpoint_matcher_metadata_label_matcher).
-
-
-<a name="nested_endpoint_matcher_metadata_label_matcher"></a>The `metadata_label_matcher` block supports:
-
-* `metadata_label_match_criteria` -
-  (Required)
-  Specifies how matching should be done.
-  Possible values are: `MATCH_ANY`, `MATCH_ALL`.
-
-* `metadata_labels` -
-  (Optional)
-  The list of label value pairs that must match labels in the provided metadata based on filterMatchCriteria
-  Structure is [documented below](#nested_endpoint_matcher_metadata_label_matcher_metadata_labels).
-
-
-<a name="nested_endpoint_matcher_metadata_label_matcher_metadata_labels"></a>The `metadata_labels` block supports:
-
-* `label_name` -
-  (Required)
-  Required. Label name presented as key in xDS Node Metadata.
-
-* `label_value` -
-  (Required)
-  Required. Label value presented as value corresponding to the above key, in xDS Node Metadata.
-
-- - -
-
-
 * `labels` -
   (Optional)
   Set of label tags associated with the TcpRoute resource.
@@ -171,6 +137,38 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_endpoint_matcher"></a>The `endpoint_matcher` block supports:
+
+* `metadata_label_matcher` -
+  (Required)
+  The matcher is based on node metadata presented by xDS clients.
+  Structure is [documented below](#nested_endpoint_matcher_metadata_label_matcher).
+
+
+<a name="nested_endpoint_matcher_metadata_label_matcher"></a>The `metadata_label_matcher` block supports:
+
+* `metadata_label_match_criteria` -
+  (Required)
+  Specifies how matching should be done.
+  Possible values are: `MATCH_ANY`, `MATCH_ALL`.
+
+* `metadata_labels` -
+  (Optional)
+  The list of label value pairs that must match labels in the provided metadata based on filterMatchCriteria
+  Structure is [documented below](#nested_endpoint_matcher_metadata_label_matcher_metadata_labels).
+
+
+<a name="nested_endpoint_matcher_metadata_label_matcher_metadata_labels"></a>The `metadata_labels` block supports:
+
+* `label_name` -
+  (Required)
+  Required. Label name presented as key in xDS Node Metadata.
+
+* `label_value` -
+  (Required)
+  Required. Label value presented as value corresponding to the above key, in xDS Node Metadata.
 
 <a name="nested_traffic_port_selector"></a>The `traffic_port_selector` block supports:
 

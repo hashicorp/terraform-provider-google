@@ -187,6 +187,57 @@ The following arguments are supported:
   The GDCE cluster name.
 
 
+* `labels` -
+  (Optional)
+  User-defined labels for the edgecloud cluster.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `default_max_pods_per_node` -
+  (Optional)
+  The default maximum number of pods per node used if a maximum value is not
+  specified explicitly for a node pool in this cluster. If unspecified, the
+  Kubernetes default value will be used.
+
+* `maintenance_policy` -
+  (Optional)
+  Cluster-wide maintenance policy configuration.
+  Structure is [documented below](#nested_maintenance_policy).
+
+* `control_plane` -
+  (Optional)
+  The configuration of the cluster control plane.
+  Structure is [documented below](#nested_control_plane).
+
+* `system_addons_config` -
+  (Optional)
+  Config that customers are allowed to define for GDCE system add-ons.
+  Structure is [documented below](#nested_system_addons_config).
+
+* `external_load_balancer_ipv4_address_pools` -
+  (Optional)
+  Address pools for cluster data plane external load balancing.
+
+* `control_plane_encryption` -
+  (Optional)
+  Remote control plane disk encryption options. This field is only used when
+  enabling CMEK support.
+  Structure is [documented below](#nested_control_plane_encryption).
+
+* `target_version` -
+  (Optional)
+  The target cluster version. For example: "1.5.0".
+
+* `release_channel` -
+  (Optional)
+  The release channel a cluster is subscribed to.
+  Possible values are: `RELEASE_CHANNEL_UNSPECIFIED`, `NONE`, `REGULAR`.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_fleet"></a>The `fleet` block supports:
 
 * `project` -
@@ -248,59 +299,6 @@ The following arguments are supported:
 * `username` -
   (Required)
   An active Google username.
-
-- - -
-
-
-* `labels` -
-  (Optional)
-  User-defined labels for the edgecloud cluster.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `default_max_pods_per_node` -
-  (Optional)
-  The default maximum number of pods per node used if a maximum value is not
-  specified explicitly for a node pool in this cluster. If unspecified, the
-  Kubernetes default value will be used.
-
-* `maintenance_policy` -
-  (Optional)
-  Cluster-wide maintenance policy configuration.
-  Structure is [documented below](#nested_maintenance_policy).
-
-* `control_plane` -
-  (Optional)
-  The configuration of the cluster control plane.
-  Structure is [documented below](#nested_control_plane).
-
-* `system_addons_config` -
-  (Optional)
-  Config that customers are allowed to define for GDCE system add-ons.
-  Structure is [documented below](#nested_system_addons_config).
-
-* `external_load_balancer_ipv4_address_pools` -
-  (Optional)
-  Address pools for cluster data plane external load balancing.
-
-* `control_plane_encryption` -
-  (Optional)
-  Remote control plane disk encryption options. This field is only used when
-  enabling CMEK support.
-  Structure is [documented below](#nested_control_plane_encryption).
-
-* `target_version` -
-  (Optional)
-  The target cluster version. For example: "1.5.0".
-
-* `release_channel` -
-  (Optional)
-  The release channel a cluster is subscribed to.
-  Possible values are: `RELEASE_CHANNEL_UNSPECIFIED`, `NONE`, `REGULAR`.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 <a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
 

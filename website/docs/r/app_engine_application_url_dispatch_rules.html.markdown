@@ -96,6 +96,11 @@ The following arguments are supported:
   Structure is [documented below](#nested_dispatch_rules).
 
 
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_dispatch_rules"></a>The `dispatch_rules` block supports:
 
 * `domain` -
@@ -112,13 +117,6 @@ The following arguments are supported:
   (Required)
   Pathname within the host. Must start with a "/". A single "*" can be included at the end of the path.
   The sum of the lengths of the domain and path may not exceed 100 characters.
-
-- - -
-
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

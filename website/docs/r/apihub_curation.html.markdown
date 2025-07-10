@@ -81,6 +81,15 @@ The following arguments are supported:
   are /a-z[0-9]-_/.
 
 
+* `description` -
+  (Optional)
+  The description of the curation.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_endpoint"></a>The `endpoint` block supports:
 
 * `application_integration_endpoint_details` -
@@ -104,17 +113,6 @@ The following arguments are supported:
   `https://integrations.googleapis.com/v1/{name=projects/*/locations/*/integrations/*}:execute`
   or
   `https://{location}-integrations.googleapis.com/v1/{name=projects/*/locations/*/integrations/*}:execute`
-
-- - -
-
-
-* `description` -
-  (Optional)
-  The description of the curation.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

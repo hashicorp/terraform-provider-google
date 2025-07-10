@@ -86,9 +86,6 @@ The following arguments are supported:
   The canonical bundle ID of the Apple app as it would appear in the Apple AppStore.
 
 
-- - -
-
-
 * `app_store_id` -
   (Optional)
   The automatically generated Apple ID assigned to the Apple app by Apple in the Apple App Store.
@@ -109,6 +106,7 @@ The following arguments are supported:
 * `deletion_policy` - (Optional) (Optional) Set to `ABANDON` to allow the Apple to be untracked from terraform state
 rather than deleted upon `terraform destroy`. This is useful because the Apple may be
 serving traffic. Set to `DELETE` to delete the Apple. Defaults to `DELETE`.
+
 
 
 ## Attributes Reference

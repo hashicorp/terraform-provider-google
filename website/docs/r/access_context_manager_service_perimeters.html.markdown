@@ -95,13 +95,11 @@ The following arguments are supported:
   Format: accessPolicies/{policy_id}
 
 
-- - -
-
-
 * `service_perimeters` -
   (Optional)
   The desired Service Perimeters that should replace all existing Service Perimeters in the Access Policy.
   Structure is [documented below](#nested_service_perimeters).
+
 
 
 <a name="nested_service_perimeters"></a>The `service_perimeters` block supports:

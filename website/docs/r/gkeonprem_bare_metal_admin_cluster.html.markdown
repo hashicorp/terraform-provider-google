@@ -202,9 +202,6 @@ The following arguments are supported:
   The location of the resource.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A human readable description of this Bare Metal Admin Cluster.
@@ -279,6 +276,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_network_config"></a>The `network_config` block supports:

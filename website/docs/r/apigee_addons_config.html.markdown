@@ -133,13 +133,11 @@ The following arguments are supported:
   Name of the Apigee organization.
 
 
-- - -
-
-
 * `addons_config` -
   (Optional)
   Addon configurations of the Apigee organization.
   Structure is [documented below](#nested_addons_config).
+
 
 
 <a name="nested_addons_config"></a>The `addons_config` block supports:

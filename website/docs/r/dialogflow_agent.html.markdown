@@ -77,9 +77,6 @@ The following arguments are supported:
   Europe/Paris.
 
 
-- - -
-
-
 * `supported_language_codes` -
   (Optional)
   The list of all languages supported by this agent (except for the defaultLanguageCode).
@@ -137,6 +134,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

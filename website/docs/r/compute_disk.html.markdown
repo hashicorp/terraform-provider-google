@@ -149,9 +149,6 @@ The following arguments are supported:
   character, which cannot be a dash.
 
 
-- - -
-
-
 * `source_image_encryption_key` -
   (Optional)
   The customer-supplied encryption key of the source image. Required if
@@ -357,6 +354,7 @@ If your disk is encrypted with customer managed encryption keys these will be re
 The name of the snapshot by default will be `{{disk-name}}-YYYYMMDD-HHmm`
 
 * `create_snapshot_before_destroy_prefix` - (Optional) This will set a custom name prefix for the snapshot that's created when the disk is deleted.
+
 
 
 <a name="nested_source_image_encryption_key"></a>The `source_image_encryption_key` block supports:

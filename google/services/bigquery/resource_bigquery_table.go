@@ -28,6 +28,8 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/exp/slices"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
@@ -66,7 +68,7 @@ func bigQueryTablecheckNameExists(jsonList []interface{}) error {
 // Compares two json's while optionally taking in a compareMapKeyVal function.
 // This function will override any comparison of a given map[string]interface{}
 // on a specific key value allowing for a separate equality in specific scenarios
-func jsonCompareWithMapKeyOverride(key string, a, b interface{}, compareMapKeyVal func(key string, val1, val2 map[string]interface{}) bool) (bool, error) {
+func jsonCompareWithMapKeyOverride(key string, a, b interface{}, compareMapKeyVal func(key string, val1, val2 map[string]interface{}, d *schema.ResourceData) bool, d *schema.ResourceData) (bool, error) {
 	switch a.(type) {
 	case []interface{}:
 		arrayA := a.([]interface{})
@@ -89,7 +91,7 @@ func jsonCompareWithMapKeyOverride(key string, a, b interface{}, compareMapKeyVa
 			bigQueryTableSortArrayByName(arrayB)
 		}
 		for i := range arrayA {
-			eq, err := jsonCompareWithMapKeyOverride(strconv.Itoa(i), arrayA[i], arrayB[i], compareMapKeyVal)
+			eq, err := jsonCompareWithMapKeyOverride(strconv.Itoa(i), arrayA[i], arrayB[i], compareMapKeyVal, d)
 			if err != nil {
 				return false, err
 			} else if !eq {
@@ -119,14 +121,14 @@ func jsonCompareWithMapKeyOverride(key string, a, b interface{}, compareMapKeyVa
 		}
 
 		for subKey := range unionOfKeys {
-			eq := compareMapKeyVal(subKey, objectA, objectB)
+			eq := compareMapKeyVal(subKey, objectA, objectB, d)
 			if !eq {
 				valA, ok1 := objectA[subKey]
 				valB, ok2 := objectB[subKey]
 				if !ok1 || !ok2 {
 					return false, nil
 				}
-				eq, err := jsonCompareWithMapKeyOverride(subKey, valA, valB, compareMapKeyVal)
+				eq, err := jsonCompareWithMapKeyOverride(subKey, valA, valB, compareMapKeyVal, d)
 				if err != nil || !eq {
 					return false, err
 				}
@@ -152,7 +154,7 @@ func valueIsInArray(value interface{}, array []interface{}) bool {
 	return false
 }
 
-func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interface{}) bool {
+func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interface{}, d *schema.ResourceData) bool {
 	// we rely on the fallback to nil if the object does not have the key
 	valA := objectA[key]
 	valB := objectB[key]
@@ -172,6 +174,14 @@ func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interfa
 	case "policyTags":
 		eq := bigQueryTableNormalizePolicyTags(valA) == nil && bigQueryTableNormalizePolicyTags(valB) == nil
 		return eq
+	case "dataPolicies":
+		if d == nil {
+			return false
+		}
+		// Access the ignore_schema_changes list from the Terraform configuration
+		ignoreSchemaChanges := d.Get("ignore_schema_changes").([]interface{})
+		// Suppress diffs for the "dataPolicies" field if it was present in "ignore_schema_changes"
+		return slices.Contains(ignoreSchemaChanges, "dataPolicies")
 	}
 
 	// otherwise rely on default behavior
@@ -179,7 +189,7 @@ func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interfa
 }
 
 // Compare the JSON strings are equal
-func bigQueryTableSchemaDiffSuppress(name, old, new string, _ *schema.ResourceData) bool {
+func bigQueryTableSchemaDiffSuppress(name, old, new string, d *schema.ResourceData) bool {
 	// The API can return an empty schema which gets encoded to "null" during read.
 	if old == "null" {
 		old = "[]"
@@ -192,7 +202,7 @@ func bigQueryTableSchemaDiffSuppress(name, old, new string, _ *schema.ResourceDa
 		log.Printf("[DEBUG] unable to unmarshal new json - %v", err)
 	}
 
-	eq, err := jsonCompareWithMapKeyOverride(name, a, b, bigQueryTableMapKeyOverride)
+	eq, err := jsonCompareWithMapKeyOverride(name, a, b, bigQueryTableMapKeyOverride, d)
 	if err != nil {
 		log.Printf("[DEBUG] %v", err)
 		log.Printf("[DEBUG] Error comparing JSON: %v, %v", old, new)
@@ -1278,7 +1288,13 @@ func ResourceBigQueryTable() *schema.Resource {
 				Computed:    true,
 				Description: `A hash of the resource.`,
 			},
-
+			"ignore_schema_changes": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    10,
+				Description: `Mention which fields in schema are to be ignored`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			// LastModifiedTime: [Output-only] The time when this table was last
 			// modified, in milliseconds since the epoch.
 			"last_modified_time": {
@@ -2070,7 +2086,7 @@ type TableReference struct {
 
 func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error {
 	// If only client-side fields were modified, short-circuit the Update function to avoid sending an update API request.
-	clientSideFields := map[string]bool{"deletion_protection": true, "table_metadata_view": true}
+	clientSideFields := map[string]bool{"deletion_protection": true, "ignore_schema_changes": true, "table_metadata_view": true}
 	clientSideOnly := true
 	for field := range ResourceBigQueryTable().Schema {
 		if d.HasChange(field) && !clientSideFields[field] {

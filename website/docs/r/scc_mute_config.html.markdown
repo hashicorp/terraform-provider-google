@@ -72,9 +72,6 @@ The following arguments are supported:
   "projects/[project_id]".
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A description of the mute config.
@@ -91,6 +88,7 @@ The following arguments are supported:
   If the expiry is set, when the config expires, it is removed from all findings.
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
   nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
 
 
 ## Attributes Reference

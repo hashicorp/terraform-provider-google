@@ -85,6 +85,26 @@ The following arguments are supported:
   The zone where the reservation is made.
 
 
+* `description` -
+  (Optional)
+  An optional description of this resource.
+
+* `specific_reservation_required` -
+  (Optional)
+  When set to true, only VMs that target this reservation by name can
+  consume this reservation. Otherwise, it can be consumed by VMs with
+  affinity for any reservation. Defaults to false.
+
+* `share_settings` -
+  (Optional)
+  The share setting for reservations.
+  Structure is [documented below](#nested_share_settings).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_specific_reservation"></a>The `specific_reservation` block supports:
 
 * `count` -
@@ -151,28 +171,6 @@ The following arguments are supported:
 * `disk_size_gb` -
   (Required)
   The size of the disk in base-2 GB.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  An optional description of this resource.
-
-* `specific_reservation_required` -
-  (Optional)
-  When set to true, only VMs that target this reservation by name can
-  consume this reservation. Otherwise, it can be consumed by VMs with
-  affinity for any reservation. Defaults to false.
-
-* `share_settings` -
-  (Optional)
-  The share setting for reservations.
-  Structure is [documented below](#nested_share_settings).
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 <a name="nested_share_settings"></a>The `share_settings` block supports:
 

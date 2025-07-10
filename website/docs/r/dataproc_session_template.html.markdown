@@ -211,9 +211,6 @@ The following arguments are supported:
   projects/{project}/locations/{location}/sessionTemplates/{template_id}
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   The labels to associate with this session template.
@@ -246,6 +243,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_runtime_config"></a>The `runtime_config` block supports:

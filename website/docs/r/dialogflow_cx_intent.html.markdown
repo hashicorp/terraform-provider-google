@@ -98,9 +98,6 @@ The following arguments are supported:
   The human-readable name of the intent, unique within the agent.
 
 
-- - -
-
-
 * `training_phrases` -
   (Optional)
   The collection of training phrases the agent is trained on to identify the intent.
@@ -156,6 +153,7 @@ The Default Welcome Intent cannot be deleted; deleting the `google_dialogflow_cx
 The Default Negative Intent cannot be deleted; deleting the `google_dialogflow_cx_intent` resource does nothing to the underlying GCP resources.
 
 ~> Avoid having multiple `google_dialogflow_cx_intent` resources linked to the same agent with `is_default_negative_intent = true` because they will compete to control a single Default Negative Intent resource in GCP.
+
 
 
 <a name="nested_training_phrases"></a>The `training_phrases` block supports:

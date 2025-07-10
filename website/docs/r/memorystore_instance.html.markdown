@@ -407,9 +407,6 @@ The following arguments are supported:
   * Must be unique within a location
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Optional. Labels to represent user-provided metadata. 
@@ -506,6 +503,7 @@ The following arguments are supported:
 
 * `desired_psc_auto_connections` - (Optional) `desired_psc_auto_connections` is deprecated  Use `desired_auto_created_endpoints` instead.
 * `desired_auto_created_endpoints` - (Optional) Immutable. User inputs for the auto-created endpoints connections. 
+
 
 <a name="nested_automated_backup_config"></a>The `automated_backup_config` block supports:
 

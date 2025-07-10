@@ -106,9 +106,6 @@ The following arguments are supported:
   The name of this intent to be displayed on the console.
 
 
-- - -
-
-
 * `webhook_state` -
   (Optional)
   Indicates whether webhooks are enabled for the intent.
@@ -167,6 +164,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

@@ -60,9 +60,6 @@ The following arguments are supported:
   long when encoded in UTF-8.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Description of this taxonomy. It must: contain only unicode characters,
@@ -81,6 +78,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

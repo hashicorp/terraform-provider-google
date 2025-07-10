@@ -93,9 +93,6 @@ The following arguments are supported:
   The IPv4 address and port for the external server, or the the DNS address for the external server. If the external server is hosted on Cloud SQL, the port is 5432.
 
 
-- - -
-
-
 * `region` -
   (Optional)
   The Region in which the created instance should reside.
@@ -133,6 +130,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

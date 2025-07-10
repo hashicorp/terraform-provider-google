@@ -609,9 +609,6 @@ The following arguments are supported:
   projects/{projectId}/locations/{locationId}/clusters/{clusterId}
 
 
-- - -
-
-
 * `gcs_source` -
   (Optional)
   Backups stored in Cloud Storage buckets. The Cloud Storage buckets need to be the same region as the clusters.
@@ -699,6 +696,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_gcs_source"></a>The `gcs_source` block supports:

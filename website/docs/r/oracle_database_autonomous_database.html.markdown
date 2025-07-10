@@ -150,6 +150,27 @@ The following arguments are supported:
   a letter or a number.
 
 
+* `display_name` -
+  (Optional)
+  The display name for the Autonomous Database. The name does not have to
+  be unique within your project.
+
+* `admin_password` -
+  (Optional)
+  The password for the default ADMIN user.
+
+* `labels` -
+  (Optional)
+  The labels or tags associated with the Autonomous Database. 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.
+
+
 <a name="nested_properties"></a>The `properties` block supports:
 
 * `ocid` -
@@ -781,29 +802,6 @@ The following arguments are supported:
 * `nanos` -
   (Output)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
-
-- - -
-
-
-* `display_name` -
-  (Optional)
-  The display name for the Autonomous Database. The name does not have to
-  be unique within your project.
-
-* `admin_password` -
-  (Optional)
-  The password for the default ADMIN user.
-
-* `labels` -
-  (Optional)
-  The labels or tags associated with the Autonomous Database. 
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
-* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.
 
 ## Attributes Reference
 

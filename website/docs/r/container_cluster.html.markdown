@@ -437,6 +437,9 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
 * `enterprise_config` - (Optional)
   Configuration for [Enterprise edition].(https://cloud.google.com/kubernetes-engine/enterprise/docs/concepts/gke-editions). Structure is [documented below](#nested_enterprise_config).
 
+* `anonymous_authentication_config` - (Optional)
+  Configuration for [anonymous authentication restrictions](https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster#restrict-anon-access). Structure is [documented below](#anonymous_authentication_config).
+
 
 <a name="nested_default_snat_status"></a>The `default_snat_status` block supports
 
@@ -1253,6 +1256,12 @@ notification_config {
 <a name="nested_secret_manager_config"></a>The `secret_manager_config` block supports:
 
 * `enabled` (Required) - Enable the Secret Manager add-on for this cluster.
+* `rotation_config` (Optional, Beta) - config for secret manager auto rotation. Structure is [docuemented below](#rotation_config)
+
+<a name="rotation_config"></a>The `rotation_config` block supports:
+
+* `enabled` (Optional) - Enable the roation in Secret Manager add-on for this cluster.
+* `rotation_interval` (Optional) - The interval between two consecutive rotations. Default rotation interval is 2 minutes.
 
 <a name="nested_user_managed_keys_config"></a>The `user_managed_keys_config` block supports:
 
@@ -1551,6 +1560,10 @@ linux_node_config {
 <a name="nested_enterprise_config"></a>The `enterprise_config` block supports:
 
 * `desired_tier` - (Optional) Sets the tier of the cluster. Available options include `STANDARD` and `ENTERPRISE`.
+
+<a name="anonymous_authentication_config"></a>The `anonymous_authentication_config` block supports:
+
+* `mode` - (Optional) Sets or removes authentication restrictions. Available options include `LIMITED` and `ENABLED`.
 
 
 ## Attributes Reference

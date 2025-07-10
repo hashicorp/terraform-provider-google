@@ -4065,6 +4065,24 @@ func TestAccContainerCluster_withSecretManagerConfig(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
+				Config: testAccContainerCluster_withSecretManagerRotationPeriodUpdated(pid, clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withSecretManagerConfigRotationDisabled(pid, clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
 				Config: testAccContainerCluster_withSecretManagerConfigUpdated(pid, clusterName, networkName, subnetworkName),
 			},
 			{
@@ -10676,6 +10694,50 @@ resource "google_container_cluster" "primary" {
 `, projectID, name, networkName, subnetworkName)
 }
 
+func testAccContainerCluster_withSecretManagerRotationPeriodUpdated(projectID, name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  secret_manager_config {
+    enabled = true
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+  workload_identity_config {
+    workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
+  }
+}
+`, projectID, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withSecretManagerConfigRotationDisabled(projectID, name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  secret_manager_config {
+    enabled = true
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+  workload_identity_config {
+    workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
+  }
+}
+`, projectID, name, networkName, subnetworkName)
+}
+
 func testAccContainerCluster_withSecretManagerConfigUpdated(projectID, name, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {
@@ -13031,4 +13093,60 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, name, networkName, subnetworkName, config)
+}
+
+func TestAccContainerCluster_withAnonymousAuthenticationConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAnonymousAuthenticationConfig(clusterName, networkName, subnetworkName, "LIMITED"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "anonymous_authentication_config.0.mode", "LIMITED"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withAnonymousAuthenticationConfig(clusterName, networkName, subnetworkName, "ENABLED"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "anonymous_authentication_config.0.mode", "ENABLED"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withAnonymousAuthenticationConfig(name, networkName, subnetworkName string, mode string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  network             = "%s"
+  subnetwork          = "%s"
+  initial_node_count  = 1
+  deletion_protection = false
+
+  anonymous_authentication_config {
+    mode = "%s"
+  }
+}
+ `, name, networkName, subnetworkName, mode)
 }

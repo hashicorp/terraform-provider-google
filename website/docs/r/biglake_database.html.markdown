@@ -93,6 +93,8 @@ The following arguments are supported:
   The name of the database.
 
 
+
+
 <a name="nested_hive_options"></a>The `hive_options` block supports:
 
 * `location_uri` -
@@ -104,10 +106,6 @@ The following arguments are supported:
   Stores user supplied Hive database parameters. An object containing a
   list of"key": value pairs.
   Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
-
-- - -
-
-
 
 ## Attributes Reference
 

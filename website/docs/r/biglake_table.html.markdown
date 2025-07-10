@@ -113,9 +113,6 @@ The following arguments are supported:
   projects/{project_id_or_number}/locations/{locationId}/catalogs/{catalogId}/databases/{databaseId}/tables/{tableId}
 
 
-- - -
-
-
 * `type` -
   (Optional)
   The database type.
@@ -129,6 +126,7 @@ The following arguments are supported:
 * `database` -
   (Optional)
   The id of the parent database.
+
 
 
 <a name="nested_hive_options"></a>The `hive_options` block supports:

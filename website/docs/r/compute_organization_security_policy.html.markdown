@@ -58,9 +58,6 @@ The following arguments are supported:
   Format: organizations/{organization_id} or folders/{folder_id}
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A textual description for the organization security policy.
@@ -72,6 +69,7 @@ The following arguments are supported:
   is "FIREWALL".
   Default value is `FIREWALL`.
   Possible values are: `FIREWALL`.
+
 
 
 ## Attributes Reference

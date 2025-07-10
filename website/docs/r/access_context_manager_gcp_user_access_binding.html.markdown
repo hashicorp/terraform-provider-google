@@ -95,9 +95,6 @@ The following arguments are supported:
   Required. ID of the parent organization.
 
 
-- - -
-
-
 * `access_levels` -
   (Optional)
   Optional. Access level that a user must have to be granted access. Only one access level is supported, not multiple. This repeated field must have exactly one element. Example: "accessPolicies/9522/accessLevels/device_trusted"
@@ -111,6 +108,7 @@ The following arguments are supported:
   (Optional)
   Optional. A list of scoped access settings that set this binding's restrictions on a subset of applications.
   Structure is [documented below](#nested_scoped_access_settings).
+
 
 
 <a name="nested_session_settings"></a>The `session_settings` block supports:

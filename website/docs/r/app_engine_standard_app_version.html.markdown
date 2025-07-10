@@ -155,51 +155,6 @@ The following arguments are supported:
   AppEngine service resource
 
 
-<a name="nested_deployment"></a>The `deployment` block supports:
-
-* `zip` -
-  (Optional)
-  Zip File
-  Structure is [documented below](#nested_deployment_zip).
-
-* `files` -
-  (Optional)
-  Manifest of the files stored in Google Cloud Storage that are included as part of this version.
-  All files must be readable using the credentials supplied with this call.
-  Structure is [documented below](#nested_deployment_files).
-
-
-<a name="nested_deployment_zip"></a>The `zip` block supports:
-
-* `source_url` -
-  (Required)
-  Source URL
-
-* `files_count` -
-  (Optional)
-  files count
-
-<a name="nested_deployment_files"></a>The `files` block supports:
-
-* `name` - (Required) The identifier for this object. Format specified above.
-
-* `sha1_sum` -
-  (Optional)
-  SHA1 checksum of the file
-
-* `source_url` -
-  (Required)
-  Source URL
-
-<a name="nested_entrypoint"></a>The `entrypoint` block supports:
-
-* `shell` -
-  (Required)
-  The format should be a shell command that can be fed to bash -c.
-
-- - -
-
-
 * `version_id` -
   (Optional)
   Relative name of the version within the service. For example, `v1`. Version names can contain only lowercase letters, numbers, or hyphens. Reserved names,"default", "latest", and any name with the prefix "ah-".
@@ -276,6 +231,49 @@ The following arguments are supported:
 
 * `delete_service_on_destroy` - (Optional) If set to `true`, the service will be deleted if it is the last version.
 
+
+
+<a name="nested_deployment"></a>The `deployment` block supports:
+
+* `zip` -
+  (Optional)
+  Zip File
+  Structure is [documented below](#nested_deployment_zip).
+
+* `files` -
+  (Optional)
+  Manifest of the files stored in Google Cloud Storage that are included as part of this version.
+  All files must be readable using the credentials supplied with this call.
+  Structure is [documented below](#nested_deployment_files).
+
+
+<a name="nested_deployment_zip"></a>The `zip` block supports:
+
+* `source_url` -
+  (Required)
+  Source URL
+
+* `files_count` -
+  (Optional)
+  files count
+
+<a name="nested_deployment_files"></a>The `files` block supports:
+
+* `name` - (Required) The identifier for this object. Format specified above.
+
+* `sha1_sum` -
+  (Optional)
+  SHA1 checksum of the file
+
+* `source_url` -
+  (Required)
+  Source URL
+
+<a name="nested_entrypoint"></a>The `entrypoint` block supports:
+
+* `shell` -
+  (Required)
+  The format should be a shell command that can be fed to bash -c.
 
 <a name="nested_handlers"></a>The `handlers` block supports:
 

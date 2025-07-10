@@ -437,9 +437,6 @@ The following arguments are supported:
   destination servers.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource.
@@ -487,6 +484,7 @@ The following arguments are supported:
 When false, setting propagated_connection_limit to zero causes the provider to use to the API's default value.
 When true, the provider will set propagated_connection_limit to zero.
 Defaults to false.
+
 
 
 <a name="nested_consumer_accept_lists"></a>The `consumer_accept_lists` block supports:
