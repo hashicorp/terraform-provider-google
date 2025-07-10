@@ -1688,10 +1688,9 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 		TimestampFormat: "2006/01/02 15:04:05",
 		LogFormat:       "%time% [%lvl%] %msg% \n",
 	})
+	logger.SetOutput(log.Writer())
 
 	alwaysLoggingDeciderClient := func(ctx context.Context, fullMethodName string) bool { return true }
-	grpc_logrus.ReplaceGrpcLogger(logrus.NewEntry(logger))
-
 	c.gRPCLoggingOptions = append(
 		c.gRPCLoggingOptions, option.WithGRPCDialOption(grpc.WithUnaryInterceptor(
 			grpc_logrus.PayloadUnaryClientInterceptor(logrus.NewEntry(logger), alwaysLoggingDeciderClient))),
