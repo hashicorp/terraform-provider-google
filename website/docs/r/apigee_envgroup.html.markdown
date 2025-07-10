@@ -83,12 +83,10 @@ The following arguments are supported:
   in the format `organizations/{{org_name}}`.
 
 
-- - -
-
-
 * `hostnames` -
   (Optional)
   Hostnames of the environment group.
+
 
 
 ## Attributes Reference

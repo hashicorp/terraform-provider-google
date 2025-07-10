@@ -176,9 +176,6 @@ The following arguments are supported:
   per-project per-location.
 
 
-- - -
-
-
 * `provider_oauth_config` -
   (Optional)
   ProviderOAuthConfig is the OAuth config for a provider.
@@ -198,6 +195,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_provider_oauth_config"></a>The `provider_oauth_config` block supports:

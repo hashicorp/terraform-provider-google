@@ -233,6 +233,29 @@ The following arguments are supported:
   The location of the resource.
 
 
+* `display_name` -
+  (Optional)
+  The display name for the Bare Metal Node Pool.
+
+* `annotations` -
+  (Optional)
+  Annotations on the Bare Metal Node Pool.
+  This field has the same restrictions as Kubernetes annotations.
+  The total size of all keys and values combined is limited to 256k.
+  Key can have 2 segments: prefix (optional) and name (required),
+  separated by a slash (/).
+  Prefix must be a DNS subdomain.
+  Name must be 63 characters or less, begin and end with alphanumerics,
+  with dashes (-), underscores (_), dots (.), and alphanumerics between.
+
+  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_node_pool_config"></a>The `node_pool_config` block supports:
 
 * `node_configs` -
@@ -297,31 +320,6 @@ The following arguments are supported:
   (Optional)
   Specifies the nodes operating system (default: LINUX).
   Possible values are: `EFFECT_UNSPECIFIED`, `PREFER_NO_SCHEDULE`, `NO_EXECUTE`.
-
-- - -
-
-
-* `display_name` -
-  (Optional)
-  The display name for the Bare Metal Node Pool.
-
-* `annotations` -
-  (Optional)
-  Annotations on the Bare Metal Node Pool.
-  This field has the same restrictions as Kubernetes annotations.
-  The total size of all keys and values combined is limited to 256k.
-  Key can have 2 segments: prefix (optional) and name (required),
-  separated by a slash (/).
-  Prefix must be a DNS subdomain.
-  Name must be 63 characters or less, begin and end with alphanumerics,
-  with dashes (-), underscores (_), dots (.), and alphanumerics between.
-
-  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
-  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

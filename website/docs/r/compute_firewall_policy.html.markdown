@@ -59,12 +59,10 @@ The following arguments are supported:
   The parent of the firewall policy.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource. Provide this property when you create the resource.
+
 
 
 ## Attributes Reference

@@ -68,9 +68,6 @@ The following arguments are supported:
   Numerical ID of the parent organization.
 
 
-- - -
-
-
 * `config` -
   (Optional)
   Config for the module. For the resident module, its config value is defined at this level.
@@ -92,6 +89,7 @@ The following arguments are supported:
 * `location` -
   (Optional)
   Location ID of the parent organization. Only global is supported at the moment.
+
 
 
 ## Attributes Reference

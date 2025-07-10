@@ -238,9 +238,6 @@ The following arguments are supported:
   'projects/{{project}}/locations/{{region}}/indexEndpoints/{{indexEndpoint}}'
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   The display name of the Index. The name can be up to 128 characters long and can consist of any UTF-8 characters.
@@ -284,6 +281,7 @@ The following arguments are supported:
 * `region` -
   (Optional)
   The region of the index endpoint deployment. eg us-central1
+
 
 
 <a name="nested_automatic_resources"></a>The `automatic_resources` block supports:

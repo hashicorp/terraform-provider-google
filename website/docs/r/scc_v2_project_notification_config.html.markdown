@@ -66,6 +66,24 @@ The following arguments are supported:
   This must be unique within the project.
 
 
+* `description` -
+  (Optional)
+  The description of the notification config (max of 1024 characters).
+
+* `pubsub_topic` -
+  (Optional)
+  The Pub/Sub topic to send notifications to. Its format is
+  "projects/[project_id]/topics/[topic]".
+
+* `location` -
+  (Optional)
+  Location ID of the parent organization. Only global is supported at the moment.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_streaming_config"></a>The `streaming_config` block supports:
 
 * `filter` -
@@ -89,26 +107,6 @@ The following arguments are supported:
   See
   [Filtering notifications](https://cloud.google.com/security-command-center/docs/how-to-api-filter-notifications)
   for information on how to write a filter.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  The description of the notification config (max of 1024 characters).
-
-* `pubsub_topic` -
-  (Optional)
-  The Pub/Sub topic to send notifications to. Its format is
-  "projects/[project_id]/topics/[topic]".
-
-* `location` -
-  (Optional)
-  Location ID of the parent organization. Only global is supported at the moment.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

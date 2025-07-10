@@ -158,6 +158,9 @@ The following arguments are supported:
     with `external_data_configuration.schema`. Otherwise, schemas must be
     specified with this top-level field.
 
+* `ignore_schema_changes` - (Optional)  A list of fields which should be ignored for each column in schema.
+    **NOTE:** Right now only `dataPolicies` field is supported. We might support others in the future.
+
 * `schema_foreign_type_info` - (Optional) Specifies metadata of the foreign data
     type definition in field schema. Structure is [documented below](#nested_schema_foreign_type_info).
 

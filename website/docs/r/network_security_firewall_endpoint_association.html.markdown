@@ -97,9 +97,6 @@ The following arguments are supported:
   The location (zone) of the firewall endpoint association.
 
 
-- - -
-
-
 * `tls_inspection_policy` -
   (Optional)
   The URL of the TlsInspectionPolicy that is being associated.
@@ -121,6 +118,7 @@ The following arguments are supported:
   (Optional)
   The name of the parent this firewall endpoint association belongs to.
   Format: projects/{project_id}.
+
 
 
 ## Attributes Reference

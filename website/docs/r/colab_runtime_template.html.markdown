@@ -159,9 +159,6 @@ The following arguments are supported:
   The location for the resource: https://cloud.google.com/colab/docs/locations
 
 
-- - -
-
-
 * `name` -
   (Optional)
   The resource name of the Runtime Template
@@ -222,6 +219,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_machine_spec"></a>The `machine_spec` block supports:

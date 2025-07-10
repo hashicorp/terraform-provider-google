@@ -1367,9 +1367,6 @@ The following arguments are supported:
   lowercase letters and numbers and must start with a letter.
 
 
-- - -
-
-
 * `is_mirroring_collector` -
   (Optional)
   Indicates whether or not this load balancer can be used as a collector for
@@ -1633,6 +1630,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `recreate_closed_psc` - (Optional) This is used in PSC consumer ForwardingRule to make terraform recreate the ForwardingRule when the status is closed
+
 
 <a name="nested_service_directory_registrations"></a>The `service_directory_registrations` block supports:
 

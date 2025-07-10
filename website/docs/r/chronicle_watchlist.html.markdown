@@ -97,15 +97,6 @@ The following arguments are supported:
   The unique identifier for the Chronicle instance, which is the same as the customer ID.
 
 
-<a name="nested_entity_population_mechanism"></a>The `entity_population_mechanism` block supports:
-
-* `manual` -
-  (Optional)
-  Entities are added manually.
-
-- - -
-
-
 * `multiplying_factor` -
   (Optional)
   Optional. Weight applied to the risk score for entities
@@ -131,6 +122,13 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_entity_population_mechanism"></a>The `entity_population_mechanism` block supports:
+
+* `manual` -
+  (Optional)
+  Entities are added manually.
 
 <a name="nested_watchlist_user_preferences"></a>The `watchlist_user_preferences` block supports:
 

@@ -115,9 +115,6 @@ The following arguments are supported:
   The immutable name of the Queued Resource.
 
 
-- - -
-
-
 * `tpu` -
   (Optional)
   Defines a TPU resource.
@@ -129,6 +126,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_tpu"></a>The `tpu` block supports:

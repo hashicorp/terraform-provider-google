@@ -54,12 +54,10 @@ The following arguments are supported:
   in the format `organizations/{{org_name}}/environments/{{env_name}}`.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Optional. A human-readable description of this reference.
+
 
 
 ## Attributes Reference

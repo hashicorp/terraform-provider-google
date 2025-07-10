@@ -215,9 +215,6 @@ The following arguments are supported:
   This must be unique within the project.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   The labels assigned to this regional secret.
@@ -302,6 +299,7 @@ The following arguments are supported:
 * `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the regional secret. Defaults to false.
 When the field is set to true in Terraform state, a `terraform apply`
 or `terraform destroy` that would delete the federation will fail.
+
 
 
 <a name="nested_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:

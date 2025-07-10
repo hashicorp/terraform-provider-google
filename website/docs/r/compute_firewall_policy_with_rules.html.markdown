@@ -152,6 +152,12 @@ The following arguments are supported:
   Format: organizations/{organization_id} or folders/{folder_id}
 
 
+* `description` -
+  (Optional)
+  An optional description of this resource.
+
+
+
 <a name="nested_rule"></a>The `rule` block supports:
 
 * `description` -
@@ -316,14 +322,6 @@ The following arguments are supported:
   applies to connections through any port.
   Example inputs include: ["22"], ["80","443"], and
   ["12345-12349"].
-
-- - -
-
-
-* `description` -
-  (Optional)
-  An optional description of this resource.
-
 
 ## Attributes Reference
 

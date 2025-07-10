@@ -131,9 +131,6 @@ The following arguments are supported:
   The ID for the Repository.
 
 
-- - -
-
-
 * `disabled` -
   (Optional)
   Determines if the branch rule is disabled or not.
@@ -164,6 +161,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

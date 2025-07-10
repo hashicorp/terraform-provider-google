@@ -78,8 +78,6 @@ The following arguments are supported:
   The resource to save this contact for. Format: organizations/{organization_id}, folders/{folder_id} or projects/{project_id}
 
 
-- - -
-
 
 
 ## Attributes Reference

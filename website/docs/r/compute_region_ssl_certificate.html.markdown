@@ -189,9 +189,6 @@ The following arguments are supported:
   **Note**: This property is sensitive and will not be displayed in the plan.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource.
@@ -223,6 +220,7 @@ The following arguments are supported:
  `name_prefix` + YYYYmmddHHSSssss + 8 digit incremental counter
  Resulting name for a `name_prefix` 38 - 54 characters:
  `name_prefix` + YYmmdd + 3 digit incremental counter
+
 
 ## Attributes Reference
 

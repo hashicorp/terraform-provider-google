@@ -159,15 +159,13 @@ The following arguments are supported:
   The client-assigned document ID to use for this document during creation.
 
 
-- - -
-
-
 * `database` -
   (Optional)
   The Firestore database id. Defaults to `"(default)"`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

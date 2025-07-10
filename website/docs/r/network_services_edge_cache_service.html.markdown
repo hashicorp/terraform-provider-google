@@ -424,6 +424,56 @@ The following arguments are supported:
   and all following characters must be a dash, underscore, letter or digit.
 
 
+* `description` -
+  (Optional)
+  A human-readable description of the resource.
+
+* `labels` -
+  (Optional)
+  Set of label tags associated with the EdgeCache resource.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `disable_quic` -
+  (Optional)
+  HTTP/3 (IETF QUIC) and Google QUIC are enabled by default.
+
+* `disable_http2` -
+  (Optional)
+  Disables HTTP/2.
+  HTTP/2 (h2) is enabled by default and recommended for performance. HTTP/2 improves connection re-use and reduces connection setup overhead by sending multiple streams over the same connection.
+  Some legacy HTTP clients may have issues with HTTP/2 connections due to broken HTTP/2 implementations. Setting this to true will prevent HTTP/2 from being advertised and negotiated.
+
+* `require_tls` -
+  (Optional)
+  Require TLS (HTTPS) for all clients connecting to this service.
+  Clients who connect over HTTP (port 80) will receive a HTTP 301 to the same URL over HTTPS (port 443).
+  You must have at least one (1) edgeSslCertificate specified to enable this.
+
+* `edge_ssl_certificates` -
+  (Optional)
+  URLs to sslCertificate resources that are used to authenticate connections between users and the EdgeCacheService.
+  Note that only "global" certificates with a "scope" of "EDGE_CACHE" can be attached to an EdgeCacheService.
+
+* `ssl_policy` -
+  (Optional)
+  URL of the SslPolicy resource that will be associated with the EdgeCacheService.
+  If not set, the EdgeCacheService has no SSL policy configured, and will default to the "COMPATIBLE" policy.
+
+* `log_config` -
+  (Optional)
+  Specifies the logging options for the traffic served by this service. If logging is enabled, logs will be exported to Cloud Logging.
+  Structure is [documented below](#nested_log_config).
+
+* `edge_security_policy` -
+  (Optional)
+  Resource URL that points at the Cloud Armor edge security policy that is applied on each request against the EdgeCacheService.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_routing"></a>The `routing` block supports:
 
 * `host_rule` -
@@ -999,58 +1049,6 @@ The following arguments are supported:
 * `strip_query` -
   (Optional)
   If set to true, any accompanying query portion of the original URL is removed prior to redirecting the request. If set to false, the query portion of the original URL is retained.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  A human-readable description of the resource.
-
-* `labels` -
-  (Optional)
-  Set of label tags associated with the EdgeCache resource.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `disable_quic` -
-  (Optional)
-  HTTP/3 (IETF QUIC) and Google QUIC are enabled by default.
-
-* `disable_http2` -
-  (Optional)
-  Disables HTTP/2.
-  HTTP/2 (h2) is enabled by default and recommended for performance. HTTP/2 improves connection re-use and reduces connection setup overhead by sending multiple streams over the same connection.
-  Some legacy HTTP clients may have issues with HTTP/2 connections due to broken HTTP/2 implementations. Setting this to true will prevent HTTP/2 from being advertised and negotiated.
-
-* `require_tls` -
-  (Optional)
-  Require TLS (HTTPS) for all clients connecting to this service.
-  Clients who connect over HTTP (port 80) will receive a HTTP 301 to the same URL over HTTPS (port 443).
-  You must have at least one (1) edgeSslCertificate specified to enable this.
-
-* `edge_ssl_certificates` -
-  (Optional)
-  URLs to sslCertificate resources that are used to authenticate connections between users and the EdgeCacheService.
-  Note that only "global" certificates with a "scope" of "EDGE_CACHE" can be attached to an EdgeCacheService.
-
-* `ssl_policy` -
-  (Optional)
-  URL of the SslPolicy resource that will be associated with the EdgeCacheService.
-  If not set, the EdgeCacheService has no SSL policy configured, and will default to the "COMPATIBLE" policy.
-
-* `log_config` -
-  (Optional)
-  Specifies the logging options for the traffic served by this service. If logging is enabled, logs will be exported to Cloud Logging.
-  Structure is [documented below](#nested_log_config).
-
-* `edge_security_policy` -
-  (Optional)
-  Resource URL that points at the Cloud Armor edge security policy that is applied on each request against the EdgeCacheService.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 <a name="nested_log_config"></a>The `log_config` block supports:
 

@@ -109,19 +109,6 @@ The following arguments are supported:
   Structure is [documented below](#nested_node_config).
 
 
-<a name="nested_node_config"></a>The `node_config` block supports:
-
-* `cpu_count` -
-  (Required)
-  Number of CPUs per node.
-
-* `memory_size_mb` -
-  (Required)
-  Memory size in Mebibytes for each memcache node.
-
-- - -
-
-
 * `display_name` -
   (Optional)
   A user-visible name for the instance.
@@ -174,6 +161,17 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_node_config"></a>The `node_config` block supports:
+
+* `cpu_count` -
+  (Required)
+  Number of CPUs per node.
+
+* `memory_size_mb` -
+  (Required)
+  Memory size in Mebibytes for each memcache node.
 
 <a name="nested_memcache_parameters"></a>The `memcache_parameters` block supports:
 

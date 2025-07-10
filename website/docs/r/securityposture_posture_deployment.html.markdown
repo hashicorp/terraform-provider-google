@@ -68,12 +68,10 @@ The following arguments are supported:
   ID of the posture deployment.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Description of the posture deployment.
+
 
 
 ## Attributes Reference

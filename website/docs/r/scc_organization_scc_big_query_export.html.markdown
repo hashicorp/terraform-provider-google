@@ -81,9 +81,6 @@ The following arguments are supported:
   This must be unique within the organization.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   The description of the notification config (max of 1024 characters).
@@ -115,6 +112,7 @@ The following arguments are supported:
   See
   [Filtering notifications](https://cloud.google.com/security-command-center/docs/how-to-api-filter-notifications)
   for information on how to write a filter.
+
 
 
 ## Attributes Reference

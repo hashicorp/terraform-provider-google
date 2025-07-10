@@ -86,9 +86,6 @@ The following arguments are supported:
   Required. Immutable. A unique ID within the site that identifies the channel.
 
 
-- - -
-
-
 * `retained_release_count` -
   (Optional)
   The number of previous releases to retain on the channel for rollback or other
@@ -111,6 +108,7 @@ The following arguments are supported:
   Input only. A time-to-live for this channel. Sets `expire_time` to the provided
   duration past the time of the request. A duration in seconds with up to nine fractional
   digits, terminated by 's'. Example: "86400s" (one day).
+
 
 
 ## Attributes Reference

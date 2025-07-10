@@ -298,9 +298,6 @@ The following arguments are supported:
   The Service identifier.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   User-defined name for the Service.
@@ -316,6 +313,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_attributes"></a>The `attributes` block supports:

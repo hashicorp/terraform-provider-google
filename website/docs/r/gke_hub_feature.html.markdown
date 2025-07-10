@@ -326,9 +326,6 @@ The following arguments are supported:
   The location for the resource
 
 
-- - -
-
-
 * `name` -
   (Optional)
   The full, unique name of this Feature resource
@@ -351,6 +348,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_spec"></a>The `spec` block supports:

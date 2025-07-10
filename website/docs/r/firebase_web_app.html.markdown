@@ -105,9 +105,6 @@ The following arguments are supported:
   The user-assigned display name of the App.
 
 
-- - -
-
-
 * `api_key_id` -
   (Optional)
   The globally unique, Google-assigned identifier (UID) for the Firebase API key associated with the WebApp.
@@ -120,6 +117,7 @@ The following arguments are supported:
 * `deletion_policy` - (Optional) Set to `ABANDON` to allow the WebApp to be untracked from terraform state
 rather than deleted upon `terraform destroy`. This is useful becaue the WebApp may be
 serving traffic. Set to `DELETE` to delete the WebApp. Default to `DELETE`
+
 
 
 ## Attributes Reference

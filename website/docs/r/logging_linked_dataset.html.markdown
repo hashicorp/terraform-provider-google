@@ -83,9 +83,6 @@ The following arguments are supported:
   The bucket to which the linked dataset is attached.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Describes this link. The maximum length of the description is 8000 characters.
@@ -97,6 +94,7 @@ The following arguments are supported:
 * `location` -
   (Optional)
   The location of the linked dataset.
+
 
 
 ## Attributes Reference

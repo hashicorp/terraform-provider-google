@@ -72,9 +72,6 @@ The following arguments are supported:
   Possible values are: `UNSPECIFIED_ACTION`, `ALLOW`, `DENY`.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional string description of this rule.
@@ -89,6 +86,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

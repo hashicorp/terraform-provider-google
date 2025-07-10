@@ -94,9 +94,6 @@ The following arguments are supported:
   This value must start with a lowercase letter followed by up to 62 lowercase letters, numbers, hyphens, or dots. Pattern, /a-z{2,62}/.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   The description of the principal access boundary policy. Must be less than or equal to 63 characters.
@@ -113,6 +110,7 @@ The following arguments are supported:
   (Optional)
   Principal access boundary policy details
   Structure is [documented below](#nested_details).
+
 
 
 <a name="nested_details"></a>The `details` block supports:

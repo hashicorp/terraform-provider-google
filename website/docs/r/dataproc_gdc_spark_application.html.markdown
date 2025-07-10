@@ -216,9 +216,6 @@ The following arguments are supported:
   The id of the application
 
 
-- - -
-
-
 * `pyspark_application_config` -
   (Optional)
   Represents the PySparkApplicationConfig.
@@ -277,6 +274,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_pyspark_application_config"></a>The `pyspark_application_config` block supports:

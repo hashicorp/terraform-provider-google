@@ -672,9 +672,6 @@ The following arguments are supported:
   character, which cannot be a dash.
 
 
-- - -
-
-
 * `affinity_cookie_ttl_sec` -
   (Optional)
   Lifetime of cookies in seconds if session_affinity is
@@ -957,6 +954,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_backend"></a>The `backend` block supports:

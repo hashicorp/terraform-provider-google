@@ -84,9 +84,6 @@ The following arguments are supported:
   reserved for use by Google, and may not be specified.
 
 
-- - -
-
-
 * `disabled` -
   (Optional)
   Whether the OauthClientCredential is disabled. You cannot use a
@@ -99,6 +96,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

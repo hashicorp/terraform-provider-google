@@ -187,9 +187,6 @@ The following arguments are supported:
   The ID to use for the connector, which will become the final component of the connector's name. This value is structured like: `my-connector-id`.
 
 
-- - -
-
-
 * `configs` -
   (Optional)
   Connector config as keys/values. The keys of the map are connector property names, for example: `connector.class`, `tasks.max`, `key.converter`.
@@ -201,6 +198,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_task_restart_policy"></a>The `task_restart_policy` block supports:

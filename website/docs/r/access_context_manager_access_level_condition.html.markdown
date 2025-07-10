@@ -111,9 +111,6 @@ The following arguments are supported:
   The name of the Access Level to add this condition to.
 
 
-- - -
-
-
 * `ip_subnetworks` -
   (Optional)
   A list of CIDR block IP subnetwork specification. May be IPv4
@@ -168,6 +165,7 @@ The following arguments are supported:
   (Optional)
   The request must originate from one of the provided VPC networks in Google Cloud. Cannot specify this field together with `ip_subnetworks`.
   Structure is [documented below](#nested_vpc_network_sources).
+
 
 
 <a name="nested_device_policy"></a>The `device_policy` block supports:

@@ -76,9 +76,6 @@ The following arguments are supported:
   3 and 50 characters.
 
 
-- - -
-
-
 * `worker_config` -
   (Optional)
   Describes how the autoscaler will operate for primary workers.
@@ -101,6 +98,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_worker_config"></a>The `worker_config` block supports:

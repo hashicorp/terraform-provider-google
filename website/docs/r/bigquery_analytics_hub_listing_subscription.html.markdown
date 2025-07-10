@@ -109,6 +109,11 @@ The following arguments are supported:
   The name of the location of the data exchange. Distinct from the location of the destination data set.
 
 
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_destination_dataset"></a>The `destination_dataset` block supports:
 
 * `location` -
@@ -144,13 +149,6 @@ The following arguments are supported:
 * `project_id` -
   (Required)
   The ID of the project containing this dataset.
-
-- - -
-
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

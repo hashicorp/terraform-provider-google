@@ -74,15 +74,13 @@ The following arguments are supported:
   lowercase letters or the hyphen character.
 
 
-- - -
-
-
 * `metadata` -
   (Optional)
   Metadata for the service. This data can be consumed
   by service clients. The entire metadata dictionary may contain
   up to 2000 characters, spread across all key-value pairs.
   Metadata that goes beyond any these limits will be rejected.
+
 
 
 ## Attributes Reference

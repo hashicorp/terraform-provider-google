@@ -131,9 +131,6 @@ The following arguments are supported:
   The prefix `gcp-` will be reserved for future uses.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A description of the managed identity. Cannot exceed 256 characters.
@@ -152,6 +149,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_attestation_rules"></a>The `attestation_rules` block supports:

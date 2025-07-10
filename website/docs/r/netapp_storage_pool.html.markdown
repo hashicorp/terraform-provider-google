@@ -127,9 +127,6 @@ The following arguments are supported:
   The resource name of the storage pool. Needs to be unique per location/region.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource.
@@ -196,6 +193,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

@@ -118,9 +118,6 @@ The following arguments are supported:
   Must be a valid domain name, such as "foo.com"
 
 
-- - -
-
-
 * `serve` -
   (Optional)
   The serving behavior of the domain. If specified, the domain will
@@ -129,6 +126,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_serve"></a>The `serve` block supports:

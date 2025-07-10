@@ -76,15 +76,13 @@ The following arguments are supported:
   The location for the resource
 
 
-- - -
-
-
 * `crypto_key_name` -
   (Optional)
   Optional. Resource name of a KMS crypto key (managed by the user) used to encrypt/decrypt their event data. It must match the pattern `projects/*/locations/*/keyRings/*/cryptoKeys/*`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

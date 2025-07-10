@@ -498,9 +498,6 @@ The following arguments are supported:
   the topic is in the same project as the subscription.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   A set of key/value label pairs to assign to this Subscription.
@@ -624,6 +621,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_bigquery_config"></a>The `bigquery_config` block supports:

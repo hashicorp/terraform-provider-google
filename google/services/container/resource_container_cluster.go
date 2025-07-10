@@ -2301,6 +2301,26 @@ func ResourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
+			"anonymous_authentication_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Computed:    true,
+				Description: `AnonymousAuthenticationConfig allows users to restrict or enable anonymous access to the cluster.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mode": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"ENABLED", "LIMITED"}, false),
+							Description: `Setting this to LIMITED will restrict authentication of anonymous users to health check endpoints only.
+ Accepted values are:
+* ENABLED: Authentication of anonymous users is enabled for all endpoints.
+* LIMITED: Anonymous access is only allowed for health check endpoints.`,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -2613,6 +2633,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("enterprise_config"); ok {
 		cluster.EnterpriseConfig = expandEnterpriseConfig(v)
+	}
+
+	if v, ok := d.GetOk("anonymous_authentication_config"); ok {
+		cluster.AnonymousAuthenticationConfig = expandAnonymousAuthenticationConfig(v)
 	}
 
 	needUpdateAfterCreate := false
@@ -3165,6 +3189,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("enterprise_config", flattenEnterpriseConfig(cluster.EnterpriseConfig)); err != nil {
+		return err
+	}
+
+	if err := d.Set("anonymous_authentication_config", flattenAnonymousAuthenticationConfig(cluster.AnonymousAuthenticationConfig)); err != nil {
 		return err
 	}
 
@@ -4658,6 +4686,21 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s Enterprise Config has been updated to %#v", d.Id(), req.Update.DesiredSecurityPostureConfig)
 	}
 
+	if d.HasChange("anonymous_authentication_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredAnonymousAuthenticationConfig: expandAnonymousAuthenticationConfig(
+					d.Get("anonymous_authentication_config"),
+				),
+			},
+		}
+		updateF := updateFunc(req, "updating anonymous authentication config")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+	}
+
 	d.Partial(false)
 
 	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
@@ -5287,6 +5330,15 @@ func flattenEnterpriseConfig(ec *container.EnterpriseConfig) []map[string]interf
 	return []map[string]interface{}{result}
 }
 
+func flattenAnonymousAuthenticationConfig(aac *container.AnonymousAuthenticationConfig) []map[string]interface{} {
+	if aac == nil {
+		return nil
+	}
+	result := make(map[string]interface{})
+	result["mode"] = aac.Mode
+	return []map[string]interface{}{result}
+}
+
 func flattenAdditionalPodRangesConfig(ipAllocationPolicy *container.IPAllocationPolicy) []map[string]interface{} {
 	if ipAllocationPolicy == nil {
 		return nil
@@ -5411,6 +5463,23 @@ func expandMasterAuthorizedNetworksConfig(d *schema.ResourceData) *container.Mas
 		result.ForceSendFields = append(result.ForceSendFields, "PrivateEndpointEnforcementEnabled")
 	}
 	return result
+}
+
+func expandAnonymousAuthenticationConfig(configured interface{}) *container.AnonymousAuthenticationConfig {
+	l, ok := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil || !ok {
+		return nil
+	}
+
+	anonAuthConfig := l[0].(map[string]interface{})
+	result := container.AnonymousAuthenticationConfig{}
+
+	if v, ok := anonAuthConfig["mode"]; ok {
+		if mode, ok := v.(string); ok && mode != "" {
+			result.Mode = mode
+		}
+	}
+	return &result
 }
 
 func expandManCidrBlocks(configured interface{}) []*container.CidrBlock {
@@ -5673,10 +5742,11 @@ func expandSecretManagerConfig(configured interface{}) *container.SecretManagerC
 	}
 
 	config := l[0].(map[string]interface{})
-	return &container.SecretManagerConfig{
+	sc := &container.SecretManagerConfig{
 		Enabled:         config["enabled"].(bool),
 		ForceSendFields: []string{"Enabled"},
 	}
+	return sc
 }
 
 func expandDefaultMaxPodsConstraint(v interface{}) *container.MaxPodsConstraint {
@@ -6606,11 +6676,11 @@ func flattenSecretManagerConfig(c *container.SecretManagerConfig) []map[string]i
 			},
 		}
 	}
-	return []map[string]interface{}{
-		{
-			"enabled": c.Enabled,
-		},
-	}
+
+	result := make(map[string]interface{})
+
+	result["enabled"] = c.Enabled
+	return []map[string]interface{}{result}
 }
 
 func flattenResourceUsageExportConfig(c *container.ResourceUsageExportConfig) []map[string]interface{} {

@@ -148,6 +148,22 @@ The following arguments are supported:
   The ID to use for the cluster, which will become the final component of the cluster's name. The ID must be 1-63 characters long, and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?` to comply with RFC 1035. This value is structured like: `my-cluster-id`.
 
 
+* `labels` -
+  (Optional)
+  List of label KEY=VALUE pairs to add. Keys must start with a lowercase character and contain only hyphens (-), underscores ( ), lowercase characters, and numbers. Values must contain only hyphens (-), underscores ( ), lowercase characters, and numbers.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `rebalance_config` -
+  (Optional)
+  Defines rebalancing behavior of a Kafka cluster.
+  Structure is [documented below](#nested_rebalance_config).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_gcp_config"></a>The `gcp_config` block supports:
 
 * `access_config` -
@@ -183,24 +199,6 @@ The following arguments are supported:
 * `memory_bytes` -
   (Required)
   The memory to provision for the cluster in bytes. The value must be between 1 GiB and 8 GiB per vCPU. Ex. 1024Mi, 4Gi.
-
-- - -
-
-
-* `labels` -
-  (Optional)
-  List of label KEY=VALUE pairs to add. Keys must start with a lowercase character and contain only hyphens (-), underscores ( ), lowercase characters, and numbers. Values must contain only hyphens (-), underscores ( ), lowercase characters, and numbers.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `rebalance_config` -
-  (Optional)
-  Defines rebalancing behavior of a Kafka cluster.
-  Structure is [documented below](#nested_rebalance_config).
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 <a name="nested_rebalance_config"></a>The `rebalance_config` block supports:
 

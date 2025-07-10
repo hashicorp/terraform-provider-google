@@ -86,6 +86,12 @@ The following arguments are supported:
   This must be unique within the organization.
 
 
+* `description` -
+  (Optional)
+  The description of the notification config (max of 1024 characters).
+
+
+
 <a name="nested_streaming_config"></a>The `streaming_config` block supports:
 
 * `filter` -
@@ -109,14 +115,6 @@ The following arguments are supported:
   See
   [Filtering notifications](https://cloud.google.com/security-command-center/docs/how-to-api-filter-notifications)
   for information on how to write a filter.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  The description of the notification config (max of 1024 characters).
-
 
 ## Attributes Reference
 

@@ -1514,9 +1514,6 @@ The following arguments are supported:
   except the last character, which cannot be a dash.
 
 
-- - -
-
-
 * `default_service` -
   (Optional)
   The backend service or backend bucket to use when none of the given rules match.
@@ -1580,6 +1577,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_header_action"></a>The `header_action` block supports:

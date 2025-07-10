@@ -109,9 +109,6 @@ The following arguments are supported:
   unique per project and between 4 and 30 characters in length.
 
 
-- - -
-
-
 * `name` -
   (Optional)
   A unique identifier for the instance, which cannot be changed after
@@ -171,6 +168,7 @@ The following arguments are supported:
 
 * `force_destroy` - (Optional) When deleting a spanner instance, this boolean option will delete all backups of this instance.
 This must be set to true if you created a backup manually in the console.
+
 
 
 <a name="nested_autoscaling_config"></a>The `autoscaling_config` block supports:

@@ -552,9 +552,6 @@ The following arguments are supported:
   The human-readable name of the flow.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   The description of the flow. The maximum length is 500 characters. If exceeded, the request is rejected.
@@ -619,6 +616,7 @@ The following arguments are supported:
 The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flow` resource does nothing to the underlying GCP resources.
 
 ~> Avoid having multiple `google_dialogflow_cx_flow` resources linked to the same agent with `is_default_start_flow = true` because they will compete to control a single Default Start Flow resource in GCP.
+
 
 
 <a name="nested_transition_routes"></a>The `transition_routes` block supports:

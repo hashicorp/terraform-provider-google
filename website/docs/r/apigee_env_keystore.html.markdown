@@ -42,12 +42,10 @@ The following arguments are supported:
   in the format `organizations/{{org_name}}/environments/{{env_name}}`.
 
 
-- - -
-
-
 * `name` -
   (Optional)
   The name of the newly created keystore.
+
 
 
 ## Attributes Reference

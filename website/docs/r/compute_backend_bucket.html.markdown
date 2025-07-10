@@ -159,9 +159,6 @@ The following arguments are supported:
   last character, which cannot be a dash.
 
 
-- - -
-
-
 * `cdn_policy` -
   (Optional)
   Cloud CDN configuration for this Backend Bucket.
@@ -189,8 +186,15 @@ The following arguments are supported:
   (Optional)
   If true, enable Cloud CDN for this BackendBucket.
 
+* `load_balancing_scheme` -
+  (Optional)
+  The value can only be INTERNAL_MANAGED for cross-region internal layer 7 load balancer.
+  If loadBalancingScheme is not specified, the backend bucket can be used by classic global external load balancers, or global application external load balancers, or both.
+  Possible values are: `INTERNAL_MANAGED`.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_cdn_policy"></a>The `cdn_policy` block supports:

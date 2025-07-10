@@ -116,9 +116,6 @@ The following arguments are supported:
   character, which cannot be a dash.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource. The resource must be
@@ -201,6 +198,7 @@ The following arguments are supported:
 
 * `delete_default_routes_on_create` - (Optional) If set to `true`, default routes (`0.0.0.0/0`) will be deleted
 immediately after network creation. Defaults to `false`.
+
 
 
 <a name="nested_params"></a>The `params` block supports:

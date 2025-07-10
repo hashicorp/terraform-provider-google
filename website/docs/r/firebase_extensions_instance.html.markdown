@@ -98,6 +98,11 @@ The following arguments are supported:
   component of the instance's name.
 
 
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_config"></a>The `config` block supports:
 
 * `name` -
@@ -143,13 +148,6 @@ The following arguments are supported:
   with actual values. These strings include: ${param:FOO},
   ${function:myFunc.url},
   ${function:myFunc.name}, and ${function:myFunc.location}
-
-- - -
-
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

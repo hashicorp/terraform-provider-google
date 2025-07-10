@@ -193,9 +193,6 @@ The following arguments are supported:
   The ID of the alloydb instance.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   User-defined labels for the alloydb instance.
@@ -276,6 +273,7 @@ The following arguments are supported:
   (Optional)
   Instance level network configuration.
   Structure is [documented below](#nested_network_config).
+
 
 
 <a name="nested_query_insights_config"></a>The `query_insights_config` block supports:

@@ -143,9 +143,6 @@ The following arguments are supported:
   Europe/Paris.
 
 
-- - -
-
-
 * `supported_language_codes` -
   (Optional)
   The list of all languages supported by this agent (except for the default_language_code).
@@ -215,6 +212,7 @@ Data store can be linked to an agent through the `knowledgeConnectorSettings` fi
 or a [page](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.flows.pages#resource:-page)
 or the `dataStoreSpec` field of a [tool](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.tools#resource:-tool).
 The ID of the implicitly created engine is stored in the `genAppBuilderSettings` field of the [agent](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents#resource:-agent).
+
 
 
 <a name="nested_speech_to_text_settings"></a>The `speech_to_text_settings` block supports:

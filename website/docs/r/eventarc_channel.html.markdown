@@ -56,9 +56,6 @@ The following arguments are supported:
   The location for the resource
 
 
-- - -
-
-
 * `third_party_provider` -
   (Optional)
   The name of the event provider (e.g. Eventarc SaaS partner) associated with the channel. This provider will be granted permissions to publish events to the channel. Format: `projects/{project}/locations/{location}/providers/{provider_id}`.
@@ -69,6 +66,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

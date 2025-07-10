@@ -246,9 +246,6 @@ The following arguments are supported:
   Name of the topic.
 
 
-- - -
-
-
 * `kms_key_name` -
   (Optional)
   The resource name of the Cloud KMS CryptoKey to be used to protect access
@@ -300,6 +297,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_message_storage_policy"></a>The `message_storage_policy` block supports:

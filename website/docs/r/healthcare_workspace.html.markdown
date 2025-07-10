@@ -79,15 +79,6 @@ The following arguments are supported:
   'projects/{project}/locations/{location}/datasets/{dataset}'
 
 
-<a name="nested_settings"></a>The `settings` block supports:
-
-* `data_project_ids` -
-  (Required)
-  Project IDs for data projects hosted in a workspace.
-
-- - -
-
-
 * `labels` -
   (Optional)
   The user labels. An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }
@@ -95,6 +86,13 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+
+
+<a name="nested_settings"></a>The `settings` block supports:
+
+* `data_project_ids` -
+  (Required)
+  Project IDs for data projects hosted in a workspace.
 
 ## Attributes Reference
 

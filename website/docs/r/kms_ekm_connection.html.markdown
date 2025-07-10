@@ -72,6 +72,25 @@ The following arguments are supported:
   A full list of valid locations can be found by running `gcloud kms locations list`.
 
 
+* `key_management_mode` -
+  (Optional)
+  Optional. Describes who can perform control plane operations on the EKM. If unset, this defaults to MANUAL
+  Default value is `MANUAL`.
+  Possible values are: `MANUAL`, `CLOUD_KMS`.
+
+* `etag` -
+  (Optional)
+  Optional. Etag of the currently stored EkmConnection.
+
+* `crypto_space_path` -
+  (Optional)
+  Optional. Identifies the EKM Crypto Space that this EkmConnection maps to. Note: This field is required if KeyManagementMode is CLOUD_KMS.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_service_resolvers"></a>The `service_resolvers` block supports:
 
 * `service_directory_service` -
@@ -131,27 +150,6 @@ The following arguments are supported:
 * `subject_alternative_dns_names` -
   (Output)
   Output only. The subject Alternative DNS names. Only present if parsed is true.
-
-- - -
-
-
-* `key_management_mode` -
-  (Optional)
-  Optional. Describes who can perform control plane operations on the EKM. If unset, this defaults to MANUAL
-  Default value is `MANUAL`.
-  Possible values are: `MANUAL`, `CLOUD_KMS`.
-
-* `etag` -
-  (Optional)
-  Optional. Etag of the currently stored EkmConnection.
-
-* `crypto_space_path` -
-  (Optional)
-  Optional. Identifies the EKM Crypto Space that this EkmConnection maps to. Note: This field is required if KeyManagementMode is CLOUD_KMS.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

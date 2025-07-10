@@ -290,21 +290,6 @@ The following arguments are supported:
   The location of the resource.
 
 
-<a name="nested_target"></a>The `target` block supports:
-
-* `load_balancing_scheme` -
-  (Required)
-  All gateways and forwarding rules referenced by this policy and extensions must share the same load balancing scheme.
-  For more information, refer to [Backend services overview](https://cloud.google.com/load-balancing/docs/backend-service).
-  Possible values are: `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`, `INTERNAL_SELF_MANAGED`.
-
-* `resources` -
-  (Optional)
-  A list of references to the Forwarding Rules on which this policy will be applied.
-
-- - -
-
-
 * `description` -
   (Optional)
   A human-readable description of the resource.
@@ -330,6 +315,19 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_target"></a>The `target` block supports:
+
+* `load_balancing_scheme` -
+  (Required)
+  All gateways and forwarding rules referenced by this policy and extensions must share the same load balancing scheme.
+  For more information, refer to [Backend services overview](https://cloud.google.com/load-balancing/docs/backend-service).
+  Possible values are: `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`, `INTERNAL_SELF_MANAGED`.
+
+* `resources` -
+  (Optional)
+  A list of references to the Forwarding Rules on which this policy will be applied.
 
 <a name="nested_http_rules"></a>The `http_rules` block supports:
 

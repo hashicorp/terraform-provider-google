@@ -239,9 +239,6 @@ The following arguments are supported:
   High level description of the Tool and its usage.
 
 
-- - -
-
-
 * `open_api_spec` -
   (Optional)
   OpenAPI specification of the Tool.
@@ -264,6 +261,7 @@ The following arguments are supported:
   (Optional)
   The agent to create a Tool for.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>.
+
 
 
 <a name="nested_open_api_spec"></a>The `open_api_spec` block supports:

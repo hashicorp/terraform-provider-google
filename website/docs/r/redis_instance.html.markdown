@@ -295,9 +295,6 @@ The following arguments are supported:
   Redis memory size in GiB.
 
 
-- - -
-
-
 * `alternative_location_id` -
   (Optional)
   Only applicable to STANDARD_HA tier which protects the instance
@@ -425,6 +422,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_persistence_config"></a>The `persistence_config` block supports:

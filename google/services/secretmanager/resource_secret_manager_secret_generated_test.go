@@ -49,7 +49,7 @@ func TestAccSecretManagerSecret_secretConfigBasicExample(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "labels", "secret_id", "terraform_labels", "ttl"},
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "secret_id", "terraform_labels", "ttl"},
 			},
 		},
 	})
@@ -74,6 +74,7 @@ resource "google_secret_manager_secret" "secret-basic" {
       }
     }
   }
+  deletion_protection = false
 }
 `, context)
 }

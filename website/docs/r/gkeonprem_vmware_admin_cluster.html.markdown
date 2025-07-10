@@ -245,6 +245,87 @@ The following arguments are supported:
   The location of the resource.
 
 
+* `description` -
+  (Optional)
+  A human readable description of this VMware admin cluster.
+
+* `on_prem_version` -
+  (Optional)
+  The Anthos clusters on the VMware version for the admin cluster.
+
+* `image_type` -
+  (Optional)
+  The OS image type for the VMware admin cluster.
+
+* `bootstrap_cluster_membership` -
+  (Optional)
+  The bootstrap cluster this VMware admin cluster belongs to.
+
+* `annotations` -
+  (Optional)
+  Annotations on the VMware Admin Cluster.
+  This field has the same restrictions as Kubernetes annotations.
+  The total size of all keys and values combined is limited to 256k.
+  Key can have 2 segments: prefix (optional) and name (required),
+  separated by a slash (/).
+  Prefix must be a DNS subdomain.
+  Name must be 63 characters or less, begin and end with alphanumerics,
+  with dashes (-), underscores (_), dots (.), and alphanumerics between.
+
+  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
+* `control_plane_node` -
+  (Optional)
+  The VMware admin cluster control plane node configuration.
+  Structure is [documented below](#nested_control_plane_node).
+
+* `addon_node` -
+  (Optional)
+  The VMware admin cluster addon node configuration.
+  Structure is [documented below](#nested_addon_node).
+
+* `load_balancer` -
+  (Optional)
+  Specifies the load balancer configuration for VMware admin cluster.
+  Structure is [documented below](#nested_load_balancer).
+
+* `vcenter` -
+  (Optional)
+  Specifies vCenter config for the admin cluster.
+  Structure is [documented below](#nested_vcenter).
+
+* `anti_affinity_groups` -
+  (Optional)
+  AAGConfig specifies whether to spread VMware Admin Cluster nodes across at
+  least three physical hosts in the datacenter.
+  Structure is [documented below](#nested_anti_affinity_groups).
+
+* `auto_repair_config` -
+  (Optional)
+  Configuration for auto repairing.
+  Structure is [documented below](#nested_auto_repair_config).
+
+* `authorization` -
+  (Optional)
+  The VMware admin cluster authorization configuration.
+  Structure is [documented below](#nested_authorization).
+
+* `platform_config` -
+  (Optional)
+  The VMware platform configuration.
+  Structure is [documented below](#nested_platform_config).
+
+* `private_registry_config` -
+  (Optional)
+  Configuration for private registry.
+  Structure is [documented below](#nested_private_registry_config).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_network_config"></a>The `network_config` block supports:
 
 * `service_address_cidr_blocks` -
@@ -371,89 +452,6 @@ The following arguments are supported:
 * `hostname` -
   (Optional)
   Hostname of the machine. VM's name will be used if this field is empty.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  A human readable description of this VMware admin cluster.
-
-* `on_prem_version` -
-  (Optional)
-  The Anthos clusters on the VMware version for the admin cluster.
-
-* `image_type` -
-  (Optional)
-  The OS image type for the VMware admin cluster.
-
-* `bootstrap_cluster_membership` -
-  (Optional)
-  The bootstrap cluster this VMware admin cluster belongs to.
-
-* `annotations` -
-  (Optional)
-  Annotations on the VMware Admin Cluster.
-  This field has the same restrictions as Kubernetes annotations.
-  The total size of all keys and values combined is limited to 256k.
-  Key can have 2 segments: prefix (optional) and name (required),
-  separated by a slash (/).
-  Prefix must be a DNS subdomain.
-  Name must be 63 characters or less, begin and end with alphanumerics,
-  with dashes (-), underscores (_), dots (.), and alphanumerics between.
-
-  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
-  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
-
-* `control_plane_node` -
-  (Optional)
-  The VMware admin cluster control plane node configuration.
-  Structure is [documented below](#nested_control_plane_node).
-
-* `addon_node` -
-  (Optional)
-  The VMware admin cluster addon node configuration.
-  Structure is [documented below](#nested_addon_node).
-
-* `load_balancer` -
-  (Optional)
-  Specifies the load balancer configuration for VMware admin cluster.
-  Structure is [documented below](#nested_load_balancer).
-
-* `vcenter` -
-  (Optional)
-  Specifies vCenter config for the admin cluster.
-  Structure is [documented below](#nested_vcenter).
-
-* `anti_affinity_groups` -
-  (Optional)
-  AAGConfig specifies whether to spread VMware Admin Cluster nodes across at
-  least three physical hosts in the datacenter.
-  Structure is [documented below](#nested_anti_affinity_groups).
-
-* `auto_repair_config` -
-  (Optional)
-  Configuration for auto repairing.
-  Structure is [documented below](#nested_auto_repair_config).
-
-* `authorization` -
-  (Optional)
-  The VMware admin cluster authorization configuration.
-  Structure is [documented below](#nested_authorization).
-
-* `platform_config` -
-  (Optional)
-  The VMware platform configuration.
-  Structure is [documented below](#nested_platform_config).
-
-* `private_registry_config` -
-  (Optional)
-  Configuration for private registry.
-  Structure is [documented below](#nested_private_registry_config).
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 <a name="nested_control_plane_node"></a>The `control_plane_node` block supports:
 

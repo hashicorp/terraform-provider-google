@@ -56,6 +56,7 @@ resource "google_secret_manager_secret" "secret-basic" {
       }
     }
   }
+  deletion_protection = false
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -154,64 +155,6 @@ The following arguments are supported:
   This must be unique within the project.
 
 
-<a name="nested_replication"></a>The `replication` block supports:
-
-* `auto` -
-  (Optional)
-  The Secret will automatically be replicated without any restrictions.
-  Structure is [documented below](#nested_replication_auto).
-
-* `user_managed` -
-  (Optional)
-  The Secret will be replicated to the regions specified by the user.
-  Structure is [documented below](#nested_replication_user_managed).
-
-
-<a name="nested_replication_auto"></a>The `auto` block supports:
-
-* `customer_managed_encryption` -
-  (Optional)
-  The customer-managed encryption configuration of the Secret.
-  If no configuration is provided, Google-managed default
-  encryption is used.
-  Structure is [documented below](#nested_replication_auto_customer_managed_encryption).
-
-
-<a name="nested_replication_auto_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
-
-* `kms_key_name` -
-  (Required)
-  The resource name of the Cloud KMS CryptoKey used to encrypt secret payloads.
-
-<a name="nested_replication_user_managed"></a>The `user_managed` block supports:
-
-* `replicas` -
-  (Required)
-  The list of Replicas for this Secret. Cannot be empty.
-  Structure is [documented below](#nested_replication_user_managed_replicas).
-
-
-<a name="nested_replication_user_managed_replicas"></a>The `replicas` block supports:
-
-* `location` -
-  (Required)
-  The canonical IDs of the location to replicate data. For example: "us-east1".
-
-* `customer_managed_encryption` -
-  (Optional)
-  Customer Managed Encryption for the secret.
-  Structure is [documented below](#nested_replication_user_managed_replicas_replicas_customer_managed_encryption).
-
-
-<a name="nested_replication_user_managed_replicas_replicas_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
-
-* `kms_key_name` -
-  (Required)
-  Describes the Cloud KMS encryption key that will be used to protect destination secret.
-
-- - -
-
-
 * `labels` -
   (Optional)
   The labels assigned to this Secret.
@@ -285,6 +228,66 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the secret. Defaults to false.
+When the field is set to true in Terraform state, a `terraform apply`
+or `terraform destroy` that would delete the secret will fail.
+
+
+
+<a name="nested_replication"></a>The `replication` block supports:
+
+* `auto` -
+  (Optional)
+  The Secret will automatically be replicated without any restrictions.
+  Structure is [documented below](#nested_replication_auto).
+
+* `user_managed` -
+  (Optional)
+  The Secret will be replicated to the regions specified by the user.
+  Structure is [documented below](#nested_replication_user_managed).
+
+
+<a name="nested_replication_auto"></a>The `auto` block supports:
+
+* `customer_managed_encryption` -
+  (Optional)
+  The customer-managed encryption configuration of the Secret.
+  If no configuration is provided, Google-managed default
+  encryption is used.
+  Structure is [documented below](#nested_replication_auto_customer_managed_encryption).
+
+
+<a name="nested_replication_auto_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
+
+* `kms_key_name` -
+  (Required)
+  The resource name of the Cloud KMS CryptoKey used to encrypt secret payloads.
+
+<a name="nested_replication_user_managed"></a>The `user_managed` block supports:
+
+* `replicas` -
+  (Required)
+  The list of Replicas for this Secret. Cannot be empty.
+  Structure is [documented below](#nested_replication_user_managed_replicas).
+
+
+<a name="nested_replication_user_managed_replicas"></a>The `replicas` block supports:
+
+* `location` -
+  (Required)
+  The canonical IDs of the location to replicate data. For example: "us-east1".
+
+* `customer_managed_encryption` -
+  (Optional)
+  Customer Managed Encryption for the secret.
+  Structure is [documented below](#nested_replication_user_managed_replicas_replicas_customer_managed_encryption).
+
+
+<a name="nested_replication_user_managed_replicas_replicas_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Describes the Cloud KMS encryption key that will be used to protect destination secret.
 
 <a name="nested_topics"></a>The `topics` block supports:
 

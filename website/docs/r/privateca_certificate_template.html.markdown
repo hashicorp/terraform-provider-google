@@ -224,9 +224,6 @@ The following arguments are supported:
   The location for the resource
 
 
-- - -
-
-
 * `predefined_values` -
   (Optional)
   Optional. A set of X.509 values that will be applied to all issued certificates that use this template. If the certificate request includes conflicting values for the same properties, they will be overwritten by the values defined here. If the issuing CaPool's IssuancePolicy defines conflicting baseline_values for the same properties, the certificate issuance request will fail.
@@ -258,6 +255,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_predefined_values"></a>The `predefined_values` block supports:

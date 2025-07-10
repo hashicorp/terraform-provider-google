@@ -225,6 +225,42 @@ The following arguments are supported:
   Structure is [documented below](#nested_destination).
 
 
+* `description` -
+  (Optional)
+  The user-supplied description of the Connectivity Test.
+  Maximum of 512 characters.
+
+* `protocol` -
+  (Optional)
+  IP Protocol of the test. When not provided, "TCP" is assumed.
+
+* `related_projects` -
+  (Optional)
+  Other projects that may be relevant for reachability analysis.
+  This is applicable to scenarios where a test can cross project
+  boundaries.
+
+* `labels` -
+  (Optional)
+  Resource labels to represent user-provided metadata.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `round_trip` -
+  (Optional)
+  Whether run analysis for the return path from destination to source.
+  Default value is false.
+
+* `bypass_firewall_checks` -
+  (Optional)
+  Whether the analysis should skip firewall checking. Default value is false.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_source"></a>The `source` block supports:
 
 * `ip_address` -
@@ -360,44 +396,6 @@ The following arguments are supported:
   2. When you are using Shared VPC and the IP address that you provide is
   from the service project. In this case, the network that the IP address
   resides in is defined in the host project.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  The user-supplied description of the Connectivity Test.
-  Maximum of 512 characters.
-
-* `protocol` -
-  (Optional)
-  IP Protocol of the test. When not provided, "TCP" is assumed.
-
-* `related_projects` -
-  (Optional)
-  Other projects that may be relevant for reachability analysis.
-  This is applicable to scenarios where a test can cross project
-  boundaries.
-
-* `labels` -
-  (Optional)
-  Resource labels to represent user-provided metadata.
-
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `round_trip` -
-  (Optional)
-  Whether run analysis for the return path from destination to source.
-  Default value is false.
-
-* `bypass_firewall_checks` -
-  (Optional)
-  Whether the analysis should skip firewall checking. Default value is false.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 
