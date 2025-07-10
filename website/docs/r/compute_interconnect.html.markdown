@@ -144,6 +144,16 @@ The following arguments are supported:
   does not work with the API, and will be removed in an upcoming major version.
   Each value may be one of: `MACSEC`, `CROSS_SITE_NETWORK`, `IF_MACSEC`.
 
+* `aai_enabled` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Enable or disable the Application Aware Interconnect(AAI) feature on this interconnect.
+
+* `application_aware_interconnect` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Configuration that enables Media Access Control security (MACsec) on the Cloud
+  Interconnect connection between Google and your on-premises router.
+  Structure is [documented below](#nested_application_aware_interconnect).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -195,6 +205,62 @@ The following arguments are supported:
   if the MKA session cannot be established with your router.
 
   ~> **Warning:** `failOpen` is deprecated and will be removed in a future major release. Use other `failOpen` instead.
+
+<a name="nested_application_aware_interconnect"></a>The `application_aware_interconnect` block supports:
+
+* `profile_description` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A description for the AAI profile on this interconnect.
+
+* `strict_priority_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specify configuration for StrictPriorityPolicy.
+
+* `bandwidth_percentage_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Bandwidth Percentage policy allows you to have granular control over how your Interconnect
+  bandwidth is utilized among your workloads mapping to different traffic classes.
+  Structure is [documented below](#nested_application_aware_interconnect_bandwidth_percentage_policy).
+
+* `shape_average_percentage` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Optional field to specify a list of shape average percentages to be
+  applied in conjunction with StrictPriorityPolicy or BandwidthPercentagePolicy
+  Structure is [documented below](#nested_application_aware_interconnect_shape_average_percentage).
+
+
+<a name="nested_application_aware_interconnect_bandwidth_percentage_policy"></a>The `bandwidth_percentage_policy` block supports:
+
+* `bandwidth_percentage` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specify bandwidth percentages for various traffic classes for queuing
+  type Bandwidth Percent.
+  Structure is [documented below](#nested_application_aware_interconnect_bandwidth_percentage_policy_bandwidth_percentage).
+
+
+<a name="nested_application_aware_interconnect_bandwidth_percentage_policy_bandwidth_percentage"></a>The `bandwidth_percentage` block supports:
+
+* `traffic_class` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Enum representing the various traffic classes offered by AAI.
+  Default value is `TC_UNSPECIFIED`.
+  Possible values are: `TC_UNSPECIFIED`, `TC1`, `TC2`, `TC3`, `TC4`, `TC5`, `TC6`.
+
+* `percentage` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Bandwidth percentage for a specific traffic class.
+
+<a name="nested_application_aware_interconnect_shape_average_percentage"></a>The `shape_average_percentage` block supports:
+
+* `traffic_class` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Enum representing the various traffic classes offered by AAI.
+  Default value is `TC_UNSPECIFIED`.
+  Possible values are: `TC_UNSPECIFIED`, `TC1`, `TC2`, `TC3`, `TC4`, `TC5`, `TC6`.
+
+* `percentage` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Bandwidth percentage for a specific traffic class.
 
 ## Attributes Reference
 
