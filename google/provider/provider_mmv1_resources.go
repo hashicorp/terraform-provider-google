@@ -250,6 +250,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_compute_machine_types":                               compute.DataSourceGoogleComputeMachineTypes(),
 	"google_compute_network":                                     compute.DataSourceGoogleComputeNetwork(),
 	"google_compute_networks":                                    compute.DataSourceGoogleComputeNetworks(),
+	"google_compute_network_attachment":                          compute.DataSourceGoogleComputeNetworkAttachment(),
 	"google_compute_network_endpoint_group":                      compute.DataSourceGoogleComputeNetworkEndpointGroup(),
 	"google_compute_network_peering":                             compute.DataSourceComputeNetworkPeering(),
 	"google_compute_node_types":                                  compute.DataSourceGoogleComputeNodeTypes(),
