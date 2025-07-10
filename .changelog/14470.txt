@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: Restored support for the machine_type field in the machine_config block. It is GA.
+```
