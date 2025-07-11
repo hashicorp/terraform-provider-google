@@ -20,3 +20,4 @@ fields:
   - field: 'terraform_labels'
     provider_only: true
   - field: 'update_time'
+  - field: 'web_grounding_type'

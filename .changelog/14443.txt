@@ -1,0 +1,6 @@
+```release-note:enhancement
+gemini: added `web_grounding_type` field to `google_gemini_gemini_gcp_enablement_setting` resource
+```
+```release-note:deprecation
+gemini: deprecated the `disable_web_grounding` field in the `google_gemini_gemini_gcp_enablement_setting` resource 
+```

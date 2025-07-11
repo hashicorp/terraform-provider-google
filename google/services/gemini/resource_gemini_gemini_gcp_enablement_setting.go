@@ -72,6 +72,7 @@ func ResourceGeminiGeminiGcpEnablementSetting() *schema.Resource {
 			"disable_web_grounding": {
 				Type:        schema.TypeBool,
 				Optional:    true,
+				Deprecated:  "`disable_web_grounding` is deprecated. Use `web_grounding_type` instead.",
 				Description: `Whether web grounding should be disabled.`,
 			},
 			"enable_customer_data_sharing": {
@@ -87,6 +88,14 @@ func ResourceGeminiGeminiGcpEnablementSetting() *schema.Resource {
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"web_grounding_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Web grounding type.
+Possible values:
+GROUNDING_WITH_GOOGLE_SEARCH
+WEB_GROUNDING_FOR_ENTERPRISE`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -147,6 +156,12 @@ func resourceGeminiGeminiGcpEnablementSettingCreate(d *schema.ResourceData, meta
 		return err
 	} else if v, ok := d.GetOkExists("disable_web_grounding"); !tpgresource.IsEmptyValue(reflect.ValueOf(disableWebGroundingProp)) && (ok || !reflect.DeepEqual(v, disableWebGroundingProp)) {
 		obj["disableWebGrounding"] = disableWebGroundingProp
+	}
+	webGroundingTypeProp, err := expandGeminiGeminiGcpEnablementSettingWebGroundingType(d.Get("web_grounding_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("web_grounding_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(webGroundingTypeProp)) && (ok || !reflect.DeepEqual(v, webGroundingTypeProp)) {
+		obj["webGroundingType"] = webGroundingTypeProp
 	}
 	labelsProp, err := expandGeminiGeminiGcpEnablementSettingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -268,6 +283,9 @@ func resourceGeminiGeminiGcpEnablementSettingRead(d *schema.ResourceData, meta i
 	if err := d.Set("disable_web_grounding", flattenGeminiGeminiGcpEnablementSettingDisableWebGrounding(res["disableWebGrounding"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
 	}
+	if err := d.Set("web_grounding_type", flattenGeminiGeminiGcpEnablementSettingWebGroundingType(res["webGroundingType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenGeminiGeminiGcpEnablementSettingTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
 	}
@@ -306,6 +324,12 @@ func resourceGeminiGeminiGcpEnablementSettingUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("disable_web_grounding"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableWebGroundingProp)) {
 		obj["disableWebGrounding"] = disableWebGroundingProp
 	}
+	webGroundingTypeProp, err := expandGeminiGeminiGcpEnablementSettingWebGroundingType(d.Get("web_grounding_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("web_grounding_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, webGroundingTypeProp)) {
+		obj["webGroundingType"] = webGroundingTypeProp
+	}
 	labelsProp, err := expandGeminiGeminiGcpEnablementSettingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -335,6 +359,10 @@ func resourceGeminiGeminiGcpEnablementSettingUpdate(d *schema.ResourceData, meta
 
 	if d.HasChange("disable_web_grounding") {
 		updateMask = append(updateMask, "disableWebGrounding")
+	}
+
+	if d.HasChange("web_grounding_type") {
+		updateMask = append(updateMask, "webGroundingType")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -486,6 +514,10 @@ func flattenGeminiGeminiGcpEnablementSettingDisableWebGrounding(v interface{}, d
 	return v
 }
 
+func flattenGeminiGeminiGcpEnablementSettingWebGroundingType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenGeminiGeminiGcpEnablementSettingTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -510,6 +542,10 @@ func expandGeminiGeminiGcpEnablementSettingEnableCustomerDataSharing(v interface
 }
 
 func expandGeminiGeminiGcpEnablementSettingDisableWebGrounding(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiGeminiGcpEnablementSettingWebGroundingType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
