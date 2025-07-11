@@ -30,7 +30,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccDialogflowCXWebhook_dialogflowcxWebhookFullExample(t *testing.T) {
+func TestAccDialogflowCXWebhook_dialogflowcxWebhookStandardExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -43,19 +43,19 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookFullExample(t *testing.T) {
 		CheckDestroy:             testAccCheckDialogflowCXWebhookDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDialogflowCXWebhook_dialogflowcxWebhookFullExample(context),
+				Config: testAccDialogflowCXWebhook_dialogflowcxWebhookStandardExample(context),
 			},
 			{
-				ResourceName:            "google_dialogflow_cx_webhook.basic_webhook",
+				ResourceName:            "google_dialogflow_cx_webhook.standard_webhook",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"generic_web_service.0.oauth_config.0.client_secret", "parent", "service_directory.0.generic_web_service.0.oauth_config.0.client_secret"},
 			},
 		},
 	})
 }
 
-func testAccDialogflowCXWebhook_dialogflowcxWebhookFullExample(context map[string]interface{}) string {
+func testAccDialogflowCXWebhook_dialogflowcxWebhookStandardExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
   display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
@@ -73,12 +73,237 @@ resource "google_dialogflow_cx_agent" "agent" {
 }
 
 
-resource "google_dialogflow_cx_webhook" "basic_webhook" {
+resource "google_dialogflow_cx_webhook" "standard_webhook" {
+  parent       = google_dialogflow_cx_agent.agent.id
+  display_name = "MyFlow"
+  generic_web_service {
+    allowed_ca_certs = ["BQA="]
+		uri = "https://example.com"
+    request_headers = { "example-key": "example-value" }
+    webhook_type = "STANDARD"
+    oauth_config {
+      client_id = "example-client-id"
+      secret_version_for_client_secret = "projects/example-proj/secrets/example-secret/versions/example-version"
+      token_endpoint = "https://example.com"
+      scopes = ["example-scope"]
+    }
+    service_agent_auth = "NONE"
+    secret_version_for_username_password = "projects/example-proj/secrets/example-secret/versions/example-version"
+    secret_versions_for_request_headers {
+      key = "example-key-1"
+      secret_version = "projects/example-proj/secrets/example-secret/versions/example-version"
+    }
+    secret_versions_for_request_headers {
+      key = "example-key-2"
+      secret_version = "projects/example-proj/secrets/example-secret/versions/example-version-2"
+    }
+	}
+}
+`, context)
+}
+
+func TestAccDialogflowCXWebhook_dialogflowcxWebhookFlexibleExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDialogflowCXWebhookDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowCXWebhook_dialogflowcxWebhookFlexibleExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_cx_webhook.flexible_webhook",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"generic_web_service.0.oauth_config.0.client_secret", "parent", "service_directory.0.generic_web_service.0.oauth_config.0.client_secret"},
+			},
+		},
+	})
+}
+
+func testAccDialogflowCXWebhook_dialogflowcxWebhookFlexibleExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
+  location = "global"
+  default_language_code = "en"
+  supported_language_codes = ["it","de","es"]
+  time_zone = "America/New_York"
+  description = "Example description."
+  avatar_uri = "https://cloud.google.com/_static/images/cloud/icons/favicons/onecloud/super_cloud.png"
+  enable_stackdriver_logging = true
+  enable_spell_correction    = true
+  speech_to_text_settings {
+    enable_speech_adaptation = true
+  }
+}
+
+
+resource "google_dialogflow_cx_webhook" "flexible_webhook" {
   parent       = google_dialogflow_cx_agent.agent.id
   display_name = "MyFlow"
   generic_web_service {
 		uri = "https://example.com"
+    request_headers = { "example-key": "example-value" }
+    webhook_type = "FLEXIBLE"
+    oauth_config {
+      client_id = "example-client-id"
+      client_secret = "projects/example-proj/secrets/example-secret/versions/example-version"
+      token_endpoint = "https://example.com"
+    }
+    service_agent_auth = "NONE"
+    http_method = "POST"
+    request_body = "{\"example-key\": \"example-value\"}"
+    parameter_mapping = { "example-parameter": "examplePath" }
 	}
+}
+`, context)
+}
+
+func TestAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryStandardExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDialogflowCXWebhookDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryStandardExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_cx_webhook.standard_webhook",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"generic_web_service.0.oauth_config.0.client_secret", "parent", "service_directory.0.generic_web_service.0.oauth_config.0.client_secret"},
+			},
+		},
+	})
+}
+
+func testAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryStandardExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
+  location = "us-central1"
+  default_language_code = "en"
+  supported_language_codes = ["it","de","es"]
+  time_zone = "America/New_York"
+  description = "Example description."
+  avatar_uri = "https://cloud.google.com/_static/images/cloud/icons/favicons/onecloud/super_cloud.png"
+  enable_stackdriver_logging = true
+  enable_spell_correction    = true
+  speech_to_text_settings {
+    enable_speech_adaptation = true
+  }
+}
+
+
+resource "google_dialogflow_cx_webhook" "standard_webhook" {
+  parent       = google_dialogflow_cx_agent.agent.id
+  display_name = "MyFlow"
+  service_directory {
+    service = "projects/example-proj/locations/us-central1/namespaces/example-namespace/services/example-service"
+    generic_web_service {
+      allowed_ca_certs = ["BQA="]
+      uri = "https://example.com"
+      request_headers = { "example-key": "example-value" }
+      webhook_type = "STANDARD"
+      oauth_config {
+        client_id = "example-client-id"
+        secret_version_for_client_secret = "projects/example-proj/secrets/example-secret/versions/example-version"
+        token_endpoint = "https://example.com"
+        scopes = ["example-scope"]
+      }
+      service_agent_auth = "NONE"
+      secret_version_for_username_password = "projects/example-proj/secrets/example-secret/versions/example-version"
+      secret_versions_for_request_headers {
+        key = "example-key-1"
+        secret_version = "projects/example-proj/secrets/example-secret/versions/example-version"
+      }
+      secret_versions_for_request_headers {
+        key = "example-key-2"
+        secret_version = "projects/example-proj/secrets/example-secret/versions/example-version-2"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryFlexibleExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDialogflowCXWebhookDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryFlexibleExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_cx_webhook.flexible_webhook",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"generic_web_service.0.oauth_config.0.client_secret", "parent", "service_directory.0.generic_web_service.0.oauth_config.0.client_secret"},
+			},
+		},
+	})
+}
+
+func testAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryFlexibleExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
+  location = "us-central1"
+  default_language_code = "en"
+  supported_language_codes = ["it","de","es"]
+  time_zone = "America/New_York"
+  description = "Example description."
+  avatar_uri = "https://cloud.google.com/_static/images/cloud/icons/favicons/onecloud/super_cloud.png"
+  enable_stackdriver_logging = true
+  enable_spell_correction    = true
+  speech_to_text_settings {
+    enable_speech_adaptation = true
+  }
+}
+
+
+resource "google_dialogflow_cx_webhook" "flexible_webhook" {
+  parent       = google_dialogflow_cx_agent.agent.id
+  display_name = "MyFlow"
+  service_directory {
+    service = "projects/example-proj/locations/us-central1/namespaces/example-namespace/services/example-service"
+    generic_web_service {
+      uri = "https://example.com"
+      request_headers = { "example-key": "example-value" }
+      webhook_type = "FLEXIBLE"
+      oauth_config {
+        client_id = "example-client-id"
+        client_secret = "projects/example-proj/secrets/example-secret/versions/example-version"
+        token_endpoint = "https://example.com"
+      }
+      service_agent_auth = "NONE"
+      http_method = "POST"
+      request_body = "{\"example-key\": \"example-value\"}"
+      parameter_mapping = { "example-parameter": "examplePath" }
+    }
+  }
 }
 `, context)
 }
