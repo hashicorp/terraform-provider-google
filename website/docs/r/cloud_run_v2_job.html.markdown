@@ -407,7 +407,6 @@ resource "google_cloud_run_v2_job" "default" {
 
 ```hcl
 resource "google_cloud_run_v2_job" "default" {
-  provider = google-beta
   name     = "cloudrun-job"
   location = "us-central1"
   deletion_protection = false
@@ -575,7 +574,7 @@ When the field is set to false, deleting the job is allowed.
   Number of retries allowed per Task, before marking this Task failed. Defaults to 3. Minimum value is 0.
 
 * `node_selector` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Node Selector describes the hardware requirements of the resources.
   Structure is [documented below](#nested_template_template_node_selector).
 
