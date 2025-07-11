@@ -144,6 +144,12 @@ To reflect the new type explicitly, surround the current integer value in quotes
 
 `instance` has been removed in favor of `instance_name`.
 
+## Resource: `google_gke_hub_membership`
+
+### `description` is now removed
+
+Remove `description` from your configuration after upgrade.
+
 ## Resource: `google_storage_transfer_job`
 
 ### `transfer_spec.gcs_data_sink.path` Implemented validation to prevent strings from starting with a '/' character, while still permitting empty strings."
