@@ -1,0 +1,6 @@
+```release-note:breaking-change
+gkehub: updated beta api endpoint from v1beta1 to v1beta
+```
+```release-note:breaking-change
+gkehub: removed `description` field in `google_gkehub_membership`
+```

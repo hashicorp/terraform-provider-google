@@ -123,12 +123,6 @@ The following arguments are supported:
   The client-provided identifier of the membership.
 
 
-* `description` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Deprecated)
-  The name of this entity type to be displayed on the console. This field is unavailable in v1 of the API.
-
-  ~> **Warning:** `description` is deprecated and will be removed in a future major release.
-
 * `labels` -
   (Optional)
   Labels to apply to this membership.
