@@ -1,0 +1,3 @@
+```release-note:note
+iam: Update service account creation to prevent failures due to eventual consistency (reverted)
+```
