@@ -35,6 +35,7 @@ func TestAccSecureSourceManagerRepositoryIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/securesourcemanager.repoAdmin",
+		"deletion_policy": "DELETE",
 		"prevent_destroy": false,
 	}
 
@@ -71,6 +72,7 @@ func TestAccSecureSourceManagerRepositoryIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/securesourcemanager.repoAdmin",
+		"deletion_policy": "DELETE",
 		"prevent_destroy": false,
 	}
 
@@ -98,6 +100,7 @@ func TestAccSecureSourceManagerRepositoryIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/securesourcemanager.repoAdmin",
+		"deletion_policy": "DELETE",
 		"prevent_destroy": false,
 	}
 
@@ -135,9 +138,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "tf-test-my-instance%{random_suffix}"
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -168,9 +169,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "tf-test-my-instance%{random_suffix}"
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -216,9 +215,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "tf-test-my-instance%{random_suffix}"
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -251,9 +248,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "tf-test-my-instance%{random_suffix}"
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -284,9 +279,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "tf-test-my-instance%{random_suffix}"
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "default" {

@@ -34,7 +34,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceBasicExample(
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"prevent_destroy": false,
+		"deletion_policy": "DELETE",
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 
@@ -66,9 +66,7 @@ resource "google_secure_source_manager_instance" "default" {
     }
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 `, context)
 }
@@ -77,8 +75,8 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceCmekExample(t
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"deletion_policy": "DELETE",
 		"kms_key_name":    acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-secure-source-manager-key1").CryptoKey.Name,
-		"prevent_destroy": false,
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 
@@ -119,9 +117,7 @@ resource "google_secure_source_manager_instance" "default" {
     ]
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 data "google_project" "project" {}
@@ -132,7 +128,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateExampl
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"prevent_destroy": false,
+		"deletion_policy": "DELETE",
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 
@@ -223,9 +219,7 @@ resource "google_secure_source_manager_instance" "default" {
   }
 
   # Prevent accidental deletions.
-  lifecycle {
-    prevent_destroy = "%{prevent_destroy}"
-  }
+  deletion_policy = "%{deletion_policy}"
 
   depends_on = [
     google_privateca_certificate_authority.root_ca,
@@ -248,7 +242,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscBac
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"prevent_destroy": false,
+		"deletion_policy": "DELETE",
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 
@@ -342,9 +336,7 @@ resource "google_secure_source_manager_instance" "default" {
   }
 
   # Prevent accidental deletions.
-  lifecycle {
-    prevent_destroy = "%{prevent_destroy}"
-  }
+  deletion_policy = "%{deletion_policy}"
 
   depends_on = [
     google_privateca_certificate_authority.root_ca,
@@ -466,7 +458,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscEnd
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"prevent_destroy": false,
+		"deletion_policy": "DELETE",
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 
@@ -560,9 +552,7 @@ resource "google_secure_source_manager_instance" "default" {
   }
 
   # Prevent accidental deletions.
-  lifecycle {
-    prevent_destroy = "%{prevent_destroy}"
-  }
+  deletion_policy = "%{deletion_policy}"
 
   depends_on = [
     google_privateca_certificate_authority.root_ca,
@@ -651,7 +641,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceWorkforceIden
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"prevent_destroy": false,
+		"deletion_policy": "DELETE",
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 
@@ -684,9 +674,7 @@ resource "google_secure_source_manager_instance" "default" {
     }
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 `, context)
 }
