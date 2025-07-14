@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `mirrorPercent` field to `requestMirrorPolicy` in `defaultRouteAction`, `pathMatchers[].defaultRouteAction`, `pathMatchers[].pathRules[].routeAction`, and `pathMatchers[].routeRules[].routeAction` to `google_compute_region_url_map` resource (beta)
+```
