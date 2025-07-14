@@ -108,7 +108,7 @@ resource "google_redis_instance" "cache" {
 
   authorized_network = data.google_compute_network.redis-network.id
 
-  redis_version     = "REDIS_4_0"
+  redis_version     = "REDIS_7_2"
   display_name      = "Terraform Test Instance"
   reserved_ip_range = "192.168.0.0/29"
 
@@ -248,7 +248,7 @@ resource "google_redis_instance" "cache" {
   authorized_network = data.google_compute_network.redis-network.id
   connect_mode       = "PRIVATE_SERVICE_ACCESS"
 
-  redis_version     = "REDIS_4_0"
+  redis_version     = "REDIS_7_2"
   display_name      = "Terraform Test Instance"
 
   lifecycle {
@@ -297,9 +297,8 @@ resource "google_redis_instance" "cache" {
 
   authorized_network = data.google_compute_network.redis-network.id
 
-  redis_version     = "REDIS_6_X"
+  redis_version     = "REDIS_7_2"
   display_name      = "Terraform Test Instance"
-  reserved_ip_range = "192.168.0.0/28"
   replica_count     = 5
   read_replicas_mode = "READ_REPLICAS_ENABLED"
 
