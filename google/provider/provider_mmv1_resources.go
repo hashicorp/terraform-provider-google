@@ -548,9 +548,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 629
+// Generated resources: 628
 // Generated IAM resources: 309
-// Total generated resources: 938
+// Total generated resources: 937
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1286,7 +1286,6 @@ var generatedResources = map[string]*schema.Resource{
 	"google_notebooks_instance_iam_binding":                                      tpgiamresource.ResourceIamBinding(notebooks.NotebooksInstanceIamSchema, notebooks.NotebooksInstanceIamUpdaterProducer, notebooks.NotebooksInstanceIdParseFunc),
 	"google_notebooks_instance_iam_member":                                       tpgiamresource.ResourceIamMember(notebooks.NotebooksInstanceIamSchema, notebooks.NotebooksInstanceIamUpdaterProducer, notebooks.NotebooksInstanceIdParseFunc),
 	"google_notebooks_instance_iam_policy":                                       tpgiamresource.ResourceIamPolicy(notebooks.NotebooksInstanceIamSchema, notebooks.NotebooksInstanceIamUpdaterProducer, notebooks.NotebooksInstanceIdParseFunc),
-	"google_notebooks_location":                                                  notebooks.ResourceNotebooksLocation(),
 	"google_notebooks_runtime":                                                   notebooks.ResourceNotebooksRuntime(),
 	"google_notebooks_runtime_iam_binding":                                       tpgiamresource.ResourceIamBinding(notebooks.NotebooksRuntimeIamSchema, notebooks.NotebooksRuntimeIamUpdaterProducer, notebooks.NotebooksRuntimeIdParseFunc),
 	"google_notebooks_runtime_iam_member":                                        tpgiamresource.ResourceIamMember(notebooks.NotebooksRuntimeIamSchema, notebooks.NotebooksRuntimeIamUpdaterProducer, notebooks.NotebooksRuntimeIdParseFunc),
