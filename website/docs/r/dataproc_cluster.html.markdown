@@ -730,11 +730,17 @@ cluster_config {
       kms_key_uri = "projects/projectId/locations/locationId/keyRings/keyRingId/cryptoKeys/keyId"
       root_principal_password_uri = "bucketId/o/objectId"
     }
+    identity_config {
+      user_service_account_mapping = {
+        "user@company.com" = "service-account@iam.gserviceaccounts.com"
+      }
+    }
   }
 }
 ```
 
-* `kerberos_config` (Required) Kerberos Configuration
+* `kerberos_config` (Optional) Kerberos Configuration. At least one of `identity_config`
+       or `kerberos_config` is required.
 
     * `cross_realm_trust_admin_server` - (Optional) The admin server (IP or hostname) for the
        remote trusted realm in a cross realm trust relationship.
@@ -781,6 +787,12 @@ cluster_config {
 
     * `truststore_uri` - (Optional) The Cloud Storage URI of the truststore file used for
        SSL encryption. If not provided, Dataproc will provide a self-signed certificate.
+
+* `identity_config` (Optional) Identity Configuration. At least one of `identity_config`
+       or `kerberos_config` is required.
+
+    * `user_service_account_mapping` - (Required) The end user to service account mappings
+       in a service account based multi-tenant cluster
 
 - - -
 

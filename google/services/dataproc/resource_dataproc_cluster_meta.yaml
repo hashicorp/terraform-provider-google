@@ -85,6 +85,7 @@ fields:
   - field: 'cluster_config.security_config.kerberos_config.tgt_lifetime_hours'
   - field: 'cluster_config.security_config.kerberos_config.truststore_password_uri'
   - field: 'cluster_config.security_config.kerberos_config.truststore_uri'
+  - field: 'cluster_config.security_config.identity_config.user_service_account_mapping'
   - field: 'cluster_config.software_config.image_version'
   - field: 'cluster_config.software_config.optional_components'
   - field: 'cluster_config.software_config.override_properties'
