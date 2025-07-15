@@ -134,11 +134,45 @@ func TestAccNetappStoragePool_autoTieredStoragePoolCreateExample_update(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
 			},
+			{
+				Config: testAccNetappStoragePool_autoTieredStoragePoolCreateExample_update(context),
+			},
+			{
+				ResourceName:            "google_netapp_storage_pool.test_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+			},
 		},
 	})
 }
 
 func testAccNetappStoragePool_autoTieredStoragePoolCreateExample_full(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_network" "default" {
+    name = "%{network_name}"
+}
+
+resource "google_netapp_storage_pool" "test_pool" {
+  name = "tf-test-pool%{random_suffix}"
+  location = "us-east4"
+  service_level = "PREMIUM"
+  capacity_gib = "2048"
+  network = data.google_compute_network.default.id
+  active_directory      = ""
+  description           = "this is a test description"
+  kms_config            = ""
+  labels                = {
+    key= "test"
+    value= "pool"
+  }
+  ldap_enabled          = false
+  allow_auto_tiering    = false
+}
+`, context)
+}
+
+func testAccNetappStoragePool_autoTieredStoragePoolCreateExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_compute_network" "default" {
     name = "%{network_name}"
