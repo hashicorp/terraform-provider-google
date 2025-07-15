@@ -446,7 +446,7 @@ snapshot versions.`,
 													Required:     true,
 													ForceNew:     true,
 													ValidateFunc: verify.ValidateEnum([]string{"DEBIAN", "UBUNTU", "DEBIAN_SNAPSHOT"}),
-													Description:  `A common public repository base for Apt, e.g. '"debian/dists/buster"' Possible values: ["DEBIAN", "UBUNTU", "DEBIAN_SNAPSHOT"]`,
+													Description:  `A common public repository base for Apt, e.g. '"debian/dists/stable"' Possible values: ["DEBIAN", "UBUNTU", "DEBIAN_SNAPSHOT"]`,
 												},
 												"repository_path": {
 													Type:        schema.TypeString,
