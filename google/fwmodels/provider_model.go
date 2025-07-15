@@ -148,6 +148,7 @@ type ProviderModel struct {
 	MigrationCenterCustomEndpoint          types.String `tfsdk:"migration_center_custom_endpoint"`
 	MLEngineCustomEndpoint                 types.String `tfsdk:"ml_engine_custom_endpoint"`
 	ModelArmorCustomEndpoint               types.String `tfsdk:"model_armor_custom_endpoint"`
+	ModelArmorGlobalCustomEndpoint         types.String `tfsdk:"model_armor_global_custom_endpoint"`
 	MonitoringCustomEndpoint               types.String `tfsdk:"monitoring_custom_endpoint"`
 	NetappCustomEndpoint                   types.String `tfsdk:"netapp_custom_endpoint"`
 	NetworkConnectivityCustomEndpoint      types.String `tfsdk:"network_connectivity_custom_endpoint"`

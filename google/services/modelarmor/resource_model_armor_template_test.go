@@ -17,30 +17,14 @@
 package modelarmor_test
 
 import (
-	"bytes"
 	"fmt"
 	"testing"
-	"text/template"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
-
-// Helper function to expand a template
-func expandTemplate(tmplStr string, data map[string]interface{}) (string, error) {
-	tmpl, err := template.New("config").Parse(tmplStr)
-	if err != nil {
-		return "", err
-	}
-	var buf bytes.Buffer
-	err = tmpl.Execute(&buf, data)
-	if err != nil {
-		return "", err
-	}
-	return buf.String(), nil
-}
 
 func TestAccModelArmorTemplate_basic(t *testing.T) {
 	t.Parallel()
@@ -58,13 +42,7 @@ func TestAccModelArmorTemplate_basic(t *testing.T) {
 		CheckDestroy:             testAccCheckModelArmorTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: func() string {
-					cfg, err := testAccModelArmorTemplate_basic_config(basicContext)
-					if err != nil {
-						t.Fatalf("Failed to expand basic config template: %v", err)
-					}
-					return cfg
-				}(),
+				Config: testAccModelArmorTemplate_basic_config(basicContext),
 			},
 			{
 				ResourceName:      "google_model_armor_template.template-basic",
@@ -75,19 +53,18 @@ func TestAccModelArmorTemplate_basic(t *testing.T) {
 	})
 }
 
-func testAccModelArmorTemplate_basic_config(context map[string]interface{}) (string, error) {
-	const basic_template = `
+func testAccModelArmorTemplate_basic_config(context map[string]interface{}) string {
+	return acctest.Nprintf(`
 resource "google_model_armor_template" "template-basic" {
-  location    = "{{.location}}"
-  template_id = "{{.templateId}}"
+  location    = "%{location}"
+  template_id = "%{templateId}"
   filter_config {
   
   }
   template_metadata {
   
   }
-}`
-	return expandTemplate(basic_template, context)
+}`, context)
 }
 
 func TestAccModelArmorTemplate_update(t *testing.T) {
@@ -96,6 +73,7 @@ func TestAccModelArmorTemplate_update(t *testing.T) {
 	templateId := fmt.Sprintf("modelarmor-test-update-%s", acctest.RandString(t, 5))
 
 	context := map[string]interface{}{
+		"location":   "us-central1",
 		"templateId": templateId,
 	}
 
@@ -134,7 +112,7 @@ func TestAccModelArmorTemplate_update(t *testing.T) {
 func testAccModelArmorTemplate_initial(context map[string]interface{}) string {
 	return acctest.Nprintf(`
       resource "google_model_armor_template" "test-resource" {
-        location    = "us-central1"
+        location    = "%{location}"
         template_id = "%{templateId}"
         labels = {
             "test-label" = "env-testing-initial"

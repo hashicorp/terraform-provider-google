@@ -668,6 +668,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"model_armor_global_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"monitoring_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1208,6 +1213,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.MigrationCenterBasePath = d.Get("migration_center_custom_endpoint").(string)
 	config.MLEngineBasePath = d.Get("ml_engine_custom_endpoint").(string)
 	config.ModelArmorBasePath = d.Get("model_armor_custom_endpoint").(string)
+	config.ModelArmorGlobalBasePath = d.Get("model_armor_global_custom_endpoint").(string)
 	config.MonitoringBasePath = d.Get("monitoring_custom_endpoint").(string)
 	config.NetappBasePath = d.Get("netapp_custom_endpoint").(string)
 	config.NetworkConnectivityBasePath = d.Get("network_connectivity_custom_endpoint").(string)

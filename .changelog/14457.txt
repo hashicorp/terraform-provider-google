@@ -1,0 +1,8 @@
+```release-note:new-resource
+`google_model_armor_floorsetting`
+```
+
+
+```release-note:enhancement
+modelarmor: switched to the v1beta API for `google_model_armor_*` resources
+```

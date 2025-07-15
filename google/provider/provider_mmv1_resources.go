@@ -114,6 +114,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/migrationcenter"
 	"github.com/hashicorp/terraform-provider-google/google/services/mlengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/modelarmor"
+	"github.com/hashicorp/terraform-provider-google/google/services/modelarmorglobal"
 	"github.com/hashicorp/terraform-provider-google/google/services/monitoring"
 	"github.com/hashicorp/terraform-provider-google/google/services/netapp"
 	"github.com/hashicorp/terraform-provider-google/google/services/networkconnectivity"
@@ -550,9 +551,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 633
+// Generated resources: 634
 // Generated IAM resources: 309
-// Total generated resources: 942
+// Total generated resources: 943
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1221,6 +1222,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_migration_center_preference_set":                                     migrationcenter.ResourceMigrationCenterPreferenceSet(),
 	"google_ml_engine_model":                                                     mlengine.ResourceMLEngineModel(),
 	"google_model_armor_template":                                                modelarmor.ResourceModelArmorTemplate(),
+	"google_model_armor_floorsetting":                                            modelarmorglobal.ResourceModelArmorGlobalFloorsetting(),
 	"google_monitoring_alert_policy":                                             monitoring.ResourceMonitoringAlertPolicy(),
 	"google_monitoring_service":                                                  monitoring.ResourceMonitoringGenericService(),
 	"google_monitoring_group":                                                    monitoring.ResourceMonitoringGroup(),
@@ -1730,6 +1732,7 @@ func UseGeneratedProducts() {
 	var _ = migrationcenter.ProductName
 	var _ = mlengine.ProductName
 	var _ = modelarmor.ProductName
+	var _ = modelarmorglobal.ProductName
 	var _ = monitoring.ProductName
 	var _ = netapp.ProductName
 	var _ = networkconnectivity.ProductName
