@@ -1,0 +1,7 @@
+```release-note:enhancement
+dataproc: added `cluster_config.security_config.identity_config` field to `google_dataproc_cluster` resource
+```
+
+```release-note:enhancement
+dataproc: updated `cluster_config.gce_cluster_config.metadata` field to be computed in `google_dataproc_cluster` resource
+```
