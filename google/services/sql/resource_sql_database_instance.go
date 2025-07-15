@@ -534,11 +534,6 @@ is set to true. Defaults to ZONAL.`,
 													Set:         schema.HashString,
 													Description: `List of consumer projects that are allow-listed for PSC connections to this instance. This instance can be connected to with PSC from any network in these projects. Each consumer project in this list may be represented by a project number (numeric) or by a project id (alphanumeric).`,
 												},
-												"network_attachment_uri": {
-													Type:        schema.TypeString,
-													Optional:    true,
-													Description: `Name of network attachment resource used to authorize a producer service to connect a PSC interface to the consumer's VPC. For example: "projects/myProject/regions/myRegion/networkAttachments/myNetworkAttachment". This is required to enable outbound connection on a PSC instance.`,
-												},
 												"psc_auto_connections": {
 													Type:     schema.TypeList,
 													Optional: true,
@@ -1598,7 +1593,6 @@ func expandPscConfig(configured []interface{}) *sqladmin.PscConfig {
 		return &sqladmin.PscConfig{
 			PscEnabled:              _entry["psc_enabled"].(bool),
 			AllowedConsumerProjects: tpgresource.ConvertStringArr(_entry["allowed_consumer_projects"].(*schema.Set).List()),
-			NetworkAttachmentUri:    _entry["network_attachment_uri"].(string),
 			PscAutoConnections:      expandPscAutoConnectionConfig(_entry["psc_auto_connections"].([]interface{})),
 		}
 	}
@@ -2640,7 +2634,6 @@ func flattenPscConfigs(pscConfig *sqladmin.PscConfig) interface{} {
 	data := map[string]interface{}{
 		"psc_enabled":               pscConfig.PscEnabled,
 		"allowed_consumer_projects": schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(pscConfig.AllowedConsumerProjects)),
-		"network_attachment_uri":    pscConfig.NetworkAttachmentUri,
 		"psc_auto_connections":      flattenPscAutoConnections(pscConfig.PscAutoConnections),
 	}
 
