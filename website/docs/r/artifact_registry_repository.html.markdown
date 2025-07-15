@@ -188,16 +188,16 @@ resource "google_artifact_registry_repository" "my-repo" {
 ```hcl
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "debian-buster"
+  repository_id = "debian-stable"
   description   = "example remote apt repository"
   format        = "APT"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
-    description = "Debian buster remote repository"
+    description = "Debian stable remote repository"
     apt_repository {
       public_repository {
         repository_base = "DEBIAN"
-        repository_path = "debian/dists/buster"
+        repository_path = "debian/dists/stable"
       }
     }
   }
@@ -944,7 +944,7 @@ The following arguments are supported:
 
 * `repository_base` -
   (Required)
-  A common public repository base for Apt, e.g. `"debian/dists/buster"`
+  A common public repository base for Apt, e.g. `"debian/dists/stable"`
   Possible values are: `DEBIAN`, `UBUNTU`, `DEBIAN_SNAPSHOT`.
 
 * `repository_path` -
