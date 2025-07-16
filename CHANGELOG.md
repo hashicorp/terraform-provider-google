@@ -1,4 +1,32 @@
-## 6.44.0 (Unreleased)
+## 6.45.0 (Unreleased)
+
+## 6.44.0 (July 16, 2025)
+
+FEATURES:
+* **New Data Source:** `google_compute_network_attachment` ([#23570](https://github.com/hashicorp/terraform-provider-google/pull/23570))
+* **New Data Source:** `google_firestore_document` ([#23553](https://github.com/hashicorp/terraform-provider-google/pull/23553))
+* **New Resource:** `google_backup_dr_service_config` ([#23552](https://github.com/hashicorp/terraform-provider-google/pull/23552))
+* **New Resource:** `google_bigquery_analytics_hub_data_exchange_subscription` ([#23560](https://github.com/hashicorp/terraform-provider-google/pull/23560))
+* **New Resource:** `google_gkeonprem_vmware_admin_cluster` ([#23554](https://github.com/hashicorp/terraform-provider-google/pull/23554))
+* **New Resource:** `google_network_security_backend_authentication_config` ([#23555](https://github.com/hashicorp/terraform-provider-google/pull/23555))
+
+IMPROVEMENTS:
+* alloydb: added `machine_config.machine_type` field to `google_alloydb_instance` resource ([#23562](https://github.com/hashicorp/terraform-provider-google/pull/23562))
+* apigee: added `access_logging_config` field to `google_apigee_instance` resource ([#23522](https://github.com/hashicorp/terraform-provider-google/pull/23522))
+* apigee: marked `access_logging_config` field immutable in `google_apigee_instance` resource ([#23571](https://github.com/hashicorp/terraform-provider-google/pull/23571))
+* backupdr: added in-place update support for `google_backup_dr_backup_plan` resource ([#23537](https://github.com/hashicorp/terraform-provider-google/pull/23537))
+* compute: added `params.resource_manager_tags` field to `google_compute_firewall` resource ([#23524](https://github.com/hashicorp/terraform-provider-google/pull/23524))
+* compute: added `application_aware_interconnect` and `aai_enabled` fields to `google_compute_interconnect` resource ([#23567](https://github.com/hashicorp/terraform-provider-google/pull/23567))
+* compute: added `load_balancing_scheme` field to `google_compute_backend_bucket` resource ([#23499](https://github.com/hashicorp/terraform-provider-google/pull/23499))
+* compute: added `provisioned_iops` and `provisioned_throughput` fields to `google_compute_region_disk` resource ([#23551](https://github.com/hashicorp/terraform-provider-google/pull/23551))
+* compute: added `specific_reservation.source_instance_template`, `delete_at_time`, `delete_after_duration.seconds`, `delete_after_duration.nanos` and `reservation_sharing_policy.service_share_type` fields to `google_compute_reservation` resource ([#23561](https://github.com/hashicorp/terraform-provider-google/pull/23561))
+* firestore: added `tags` field to `google_firestore_database` resource ([#23569](https://github.com/hashicorp/terraform-provider-google/pull/23569))
+* securesourcemanager: added in-place update support for `description` field in `google_secure_source_manager_repository` resource ([#23557](https://github.com/hashicorp/terraform-provider-google/pull/23557))
+* storage: added `force_empty_content_type` field to `google_storage_bucket_object` resource ([#23568](https://github.com/hashicorp/terraform-provider-google/pull/23568))
+
+BUG FIXES:
+* artifactregistry: fixed an issue where changes to `cleanup_policies` were not being applied correctly in `google_artifact_registry_repository` resource ([#23556](https://github.com/hashicorp/terraform-provider-google/pull/23556))
+* iambeta: fixed perma-diff for `jwks_json` field when GCP normalizes JSON formatting in `google_iam_workload_identity_pool_provider` resource ([#23526](https://github.com/hashicorp/terraform-provider-google/pull/23526))
 
 ## 6.43.0 (July 8, 2025)
 
