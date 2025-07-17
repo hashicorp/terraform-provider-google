@@ -128,6 +128,32 @@ resource "google_compute_firewall_policy_with_rules" "primary" {
       }
     }
   }
+
+  rule {
+    description             = "secure tags"
+    rule_name               = "secure tags rule"
+    priority                = 4000
+    enable_logging          = false
+    action                  = "allow"
+    direction               = "INGRESS"
+
+    target_secure_tag {
+      name = google_tags_tag_value.basic_value.id
+    }
+
+    match {
+      src_ip_ranges = ["11.100.0.1/32"]
+
+      src_secure_tag {
+        name = google_tags_tag_value.basic_value.id
+      }
+
+      layer4_config {
+        ip_protocol = "tcp"
+        ports       = [8080]
+      }
+    }
+  }
 }
 
 resource "google_network_security_address_group" "address_group_1" {
@@ -157,6 +183,23 @@ resource "google_network_security_security_profile" "security_profile_1" {
 resource "google_compute_network" "network" {
   name                    = "network%{random_suffix}"
   auto_create_subnetworks = false
+}
+
+resource "google_tags_tag_key" "basic_key" {
+  description = "For keyname resources."
+  parent      = "organizations/%{org_id}"
+  purpose     = "GCE_FIREWALL"
+  short_name  = "tf-test-tag-key%{random_suffix}"
+
+  purpose_data = {
+    organization = "auto"
+  }
+}
+
+resource "google_tags_tag_value" "basic_value" {
+  description = "For valuename resources."
+  parent      = google_tags_tag_key.basic_key.id
+  short_name  = "tf-test-tag-value%{random_suffix}"
 }
 `, context)
 }
