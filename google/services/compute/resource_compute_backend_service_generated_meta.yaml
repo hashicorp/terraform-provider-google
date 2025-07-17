@@ -60,7 +60,7 @@ fields:
   - field: 'circuit_breakers.max_requests_per_connection'
   - field: 'circuit_breakers.max_retries'
   - field: 'compression_mode'
-  - field: 'connection_draining.connection_draining_timeout_sec'
+  - field: 'connection_draining_timeout_sec'
     api_field: 'connection_draining.draining_timeout_sec'
   - field: 'consistent_hash.http_cookie.name'
   - field: 'consistent_hash.http_cookie.path'
