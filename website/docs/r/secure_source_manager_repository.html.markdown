@@ -44,9 +44,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "my-instance"
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "true"
-    }
+    deletion_policy = ""PREVENT""
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -73,10 +71,8 @@ resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
     instance_id = "my-instance"
 
-    # For preventing accidental deletions
-    lifecycle {
-      prevent_destroy = "true"
-    }
+    # Prevent accidental deletions.
+    deletion_policy = ""PREVENT""
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -195,6 +191,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import

@@ -681,6 +681,7 @@ func ResourceDataprocCluster() *schema.Resource {
 									"metadata": {
 										Type:         schema.TypeMap,
 										Optional:     true,
+										Computed:     true,
 										AtLeastOneOf: gceClusterConfigKeys,
 										Elem:         &schema.Schema{Type: schema.TypeString},
 										ForceNew:     true,
@@ -1316,9 +1317,13 @@ func ResourceDataprocCluster() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"kerberos_config": {
 										Type:        schema.TypeList,
-										Required:    true,
 										Description: "Kerberos related configuration",
-										MaxItems:    1,
+										Optional:    true,
+										ExactlyOneOf: []string{
+											"cluster_config.0.security_config.0.kerberos_config",
+											"cluster_config.0.security_config.0.identity_config",
+										},
+										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"cross_realm_trust_admin_server": {
@@ -1398,6 +1403,26 @@ by Dataproc`,
 													Type:        schema.TypeString,
 													Optional:    true,
 													Description: `The Cloud Storage URI of the truststore file used for SSL encryption. If not provided, Dataproc will provide a self-signed certificate.`,
+												},
+											},
+										},
+									},
+									"identity_config": {
+										Type:        schema.TypeList,
+										Description: "Identity related configuration",
+										Optional:    true,
+										ExactlyOneOf: []string{
+											"cluster_config.0.security_config.0.kerberos_config",
+											"cluster_config.0.security_config.0.identity_config",
+										},
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"user_service_account_mapping": {
+													Type:        schema.TypeMap,
+													Required:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
+													Description: `User to service account mappings for multi-tenancy.`,
 												},
 											},
 										},
@@ -2302,7 +2327,28 @@ func expandGceClusterConfig(d *schema.ResourceData, config *transport_tpg.Config
 func expandSecurityConfig(cfg map[string]interface{}) *dataproc.SecurityConfig {
 	conf := &dataproc.SecurityConfig{}
 	if kfg, ok := cfg["kerberos_config"]; ok {
-		conf.KerberosConfig = expandKerberosConfig(kfg.([]interface{})[0].(map[string]interface{}))
+		k := kfg.([]interface{})
+		if len(k) > 0 {
+			conf.KerberosConfig = expandKerberosConfig(k[0].(map[string]interface{}))
+		}
+	}
+	if ifg, ok := cfg["identity_config"]; ok {
+		i := ifg.([]interface{})
+		if len(i) > 0 {
+			conf.IdentityConfig = expandIdentityConfig(i[0].(map[string]interface{}))
+		}
+	}
+	return conf
+}
+
+func expandIdentityConfig(cfg map[string]interface{}) *dataproc.IdentityConfig {
+	conf := &dataproc.IdentityConfig{}
+	if v, ok := cfg["user_service_account_mapping"]; ok {
+		m := make(map[string]string)
+		for k, val := range v.(map[string]interface{}) {
+			m[k] = val.(string)
+		}
+		conf.UserServiceAccountMapping = m
 	}
 	return conf
 }
@@ -2982,6 +3028,7 @@ func flattenSecurityConfig(d *schema.ResourceData, sc *dataproc.SecurityConfig) 
 	}
 	data := map[string]interface{}{
 		"kerberos_config": flattenKerberosConfig(d, sc.KerberosConfig),
+		"identity_config": flattenIdentityConfig(d, sc.IdentityConfig),
 	}
 
 	return []map[string]interface{}{data}
@@ -3007,6 +3054,17 @@ func flattenKerberosConfig(d *schema.ResourceData, kfg *dataproc.KerberosConfig)
 		"kdc_db_key_uri":                        kfg.KdcDbKeyUri,
 		"tgt_lifetime_hours":                    kfg.TgtLifetimeHours,
 		"realm":                                 kfg.Realm,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenIdentityConfig(d *schema.ResourceData, ifg *dataproc.IdentityConfig) []map[string]interface{} {
+	if ifg == nil {
+		return nil
+	}
+	data := map[string]interface{}{
+		"user_service_account_mapping": d.Get("cluster_config.0.security_config.0.identity_config.0.user_service_account_mapping").(map[string]interface{}),
 	}
 
 	return []map[string]interface{}{data}

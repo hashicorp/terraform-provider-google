@@ -891,3 +891,72 @@ resource "google_cloud_run_v2_job" "default" {
 }
 `, context)
 }
+
+func TestAccCloudRunV2Job_cloudrunv2JobWithGpuUpdate(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	jobName := fmt.Sprintf("tf-test-cloudrun-job-gpu%s", acctest.RandString(t, 10))
+	context := map[string]interface{}{
+		"job_name": jobName,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2BasicJob(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "launch_stage", "deletion_protection"},
+			},
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobWithGpu(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "launch_stage", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Job_cloudrunv2JobWithGpu(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+  resource "google_cloud_run_v2_job" "default" {
+    name     = "%{job_name}"
+    location = "us-central1"
+    launch_stage = "BETA"
+    deletion_protection = false
+    template {
+      template {
+        containers {
+          image = "us-docker.pkg.dev/cloudrun/container/job"
+          resources {
+            limits = {
+              "cpu" = "4"
+              "memory" = "16Gi"
+              "nvidia.com/gpu" = "1"
+            }
+          }
+        }
+        node_selector {
+          accelerator = "nvidia-l4"
+        }
+      }
+    }
+    lifecycle {
+      ignore_changes = [
+        launch_stage,
+      ]
+    }
+  }
+`, context)
+}

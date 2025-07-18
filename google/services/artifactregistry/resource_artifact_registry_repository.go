@@ -94,23 +94,11 @@ func parseDurationAsSeconds(v string) (int, bool) {
 
 // Like tpgresource.DurationDiffSuppress, but supports 'd'
 func durationDiffSuppress(k, oldr, newr string, d *schema.ResourceData) bool {
-	o, n := d.GetChange(k)
-	old, ok := o.(string)
+	oldSeconds, ok := parseDurationAsSeconds(oldr)
 	if !ok {
 		return false
 	}
-	new, ok := n.(string)
-	if !ok {
-		return false
-	}
-	if old == new {
-		return true
-	}
-	oldSeconds, ok := parseDurationAsSeconds(old)
-	if !ok {
-		return false
-	}
-	newSeconds, ok := parseDurationAsSeconds(new)
+	newSeconds, ok := parseDurationAsSeconds(newr)
 	if !ok {
 		return false
 	}
@@ -118,15 +106,59 @@ func durationDiffSuppress(k, oldr, newr string, d *schema.ResourceData) bool {
 }
 
 func mapHashID(v any) int {
-	obj, ok := v.(map[string]any)
-	if !ok {
-		return 0
+	replaceNestedValue(v, []string{"condition", "older_than"}, expandDuration)
+	replaceNestedValue(v, []string{"condition", "newer_than"}, expandDuration)
+	return schema.HashString(fmt.Sprintf("%v", v))
+}
+
+func expandDuration(v any) (any, bool) {
+	if val, ok := v.(string); ok {
+		if secs, ok := parseDurationAsSeconds(val); ok {
+			return fmt.Sprintf("%ds", secs), true
+		}
 	}
-	s, ok := obj["id"].(string)
-	if !ok {
-		return 0
+	return nil, false
+
+}
+
+// Replace a value in a schema object, if it exists.
+// Nested maps follow the pattern map[string]any -> [1]any -> map[string]any
+func replaceNestedValue(obj any, keys []string, replaceFunc func(any) (any, bool)) {
+	if len(keys) == 0 {
+		return
 	}
-	return schema.HashString(s)
+	next := obj
+	for _, key := range keys[:len(keys)-1] {
+		nextMap, ok := next.(map[string]any)
+		if !ok {
+			return
+		}
+		arrObj, ok := nextMap[key]
+		if !ok {
+			return
+		}
+		arr, ok := arrObj.([]any)
+		if !ok {
+			return
+		}
+		if len(arr) != 1 {
+			return
+		}
+		next = arr[0]
+	}
+	lastMap, ok := next.(map[string]any)
+	if !ok {
+		return
+	}
+	lastKey := keys[len(keys)-1]
+	last, ok := lastMap[lastKey]
+	if !ok {
+		return
+	}
+	result, ok := replaceFunc(last)
+	if ok {
+		lastMap[lastKey] = result
+	}
 }
 
 func isDefaultEnum(val any) bool {
@@ -414,7 +446,7 @@ snapshot versions.`,
 													Required:     true,
 													ForceNew:     true,
 													ValidateFunc: verify.ValidateEnum([]string{"DEBIAN", "UBUNTU", "DEBIAN_SNAPSHOT"}),
-													Description:  `A common public repository base for Apt, e.g. '"debian/dists/buster"' Possible values: ["DEBIAN", "UBUNTU", "DEBIAN_SNAPSHOT"]`,
+													Description:  `A common public repository base for Apt, e.g. '"debian/dists/stable"' Possible values: ["DEBIAN", "UBUNTU", "DEBIAN_SNAPSHOT"]`,
 												},
 												"repository_path": {
 													Type:        schema.TypeString,

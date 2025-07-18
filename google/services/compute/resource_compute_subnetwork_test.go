@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 
 	"google.golang.org/api/compute/v1"
@@ -505,6 +506,63 @@ func TestAccComputeSubnetwork_internal_ipv6(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccComputeSubnetwork_resourceManagerTags(t *testing.T) {
+	t.Parallel()
+
+	var subnetwork compute.Subnetwork
+	org := envvar.GetTestOrgFromEnv(t)
+
+	suffixName := acctest.RandString(t, 10)
+	tagKeyResult := acctest.BootstrapSharedTestTagKeyDetails(t, "crm-subnetworks-tagkey", "organizations/"+org, make(map[string]interface{}))
+	sharedTagkey, _ := tagKeyResult["shared_tag_key"]
+	tagValueResult := acctest.BootstrapSharedTestTagValueDetails(t, "crm-subnetworks-tagvalue", sharedTagkey, org)
+
+	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	subnetworkName := fmt.Sprintf("tf-test-subnetwork-resource-manager-tags-%s", suffixName)
+	context := map[string]interface{}{
+		"subnetwork_name": subnetworkName,
+		"network_name":    cnName,
+		"tag_key_id":      tagKeyResult["name"],
+		"tag_value_id":    tagValueResult["name"],
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_resourceManagerTags(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(
+						t, "google_compute_subnetwork.acc_subnetwork_with_resource_manager_tags", &subnetwork),
+				),
+			},
+		},
+	})
+}
+
+func testAccComputeSubnetwork_resourceManagerTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "custom-test" {
+  name                    = "%{network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "acc_subnetwork_with_resource_manager_tags" {
+  name          = "%{subnetwork_name}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.custom-test.self_link
+  params {
+	resource_manager_tags = {
+	  "%{tag_key_id}" = "%{tag_value_id}"
+  	}
+  }
+}
+`, context)
 }
 
 func testAccCheckComputeSubnetworkExists(t *testing.T, n string, subnetwork *compute.Subnetwork) resource.TestCheckFunc {

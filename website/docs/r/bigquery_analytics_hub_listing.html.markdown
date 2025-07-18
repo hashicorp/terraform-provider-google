@@ -247,6 +247,74 @@ resource "google_bigquery_analytics_hub_listing" "listing" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_analyticshub_listing_dcr_routine&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Analyticshub Listing Dcr Routine
+
+
+```hcl
+resource "google_bigquery_analytics_hub_data_exchange" "dcr_data_exchange_example" {
+  provider = google-beta
+  location         = "us"
+  data_exchange_id = "tf_test_data_exchange"
+  display_name     = "tf_test_data_exchange"
+  description      = "Example for listing with routine"
+  sharing_environment_config {
+    dcr_exchange_config {}
+  }
+}
+
+resource "google_bigquery_dataset" "listing" {
+  provider = google-beta
+  dataset_id    = "tf_test_dataset"
+  friendly_name = "tf_test_dataset"
+  description   = "Example for listing with routine"
+  location      = "us"
+}
+
+resource "google_bigquery_routine" "listing" {
+  provider = google-beta
+  dataset_id      = google_bigquery_dataset.listing.dataset_id
+  routine_id      = "tf_test_routine"
+  routine_type    = "TABLE_VALUED_FUNCTION"
+  language        = "SQL"
+  description     = "A DCR routine example."
+  definition_body = <<-EOS
+    SELECT 1 + value AS value
+  EOS
+  arguments {
+    name          = "value"
+    argument_kind = "FIXED_TYPE"
+    data_type     = jsonencode({ "typeKind" : "INT64" })
+  }
+  return_table_type = jsonencode({
+    "columns" : [
+      { "name" : "value", "type" : { "typeKind" : "INT64" } },
+    ]
+  })
+}
+
+resource "google_bigquery_analytics_hub_listing" "listing" {
+  provider = google-beta
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.dcr_data_exchange_example.data_exchange_id
+  listing_id       = "tf_test_listing_routine"
+  display_name     = "tf_test_listing_routine"
+  description      = "Example for listing with routine"
+  bigquery_dataset {
+    dataset = google_bigquery_dataset.listing.id
+    selected_resources {
+      routine = google_bigquery_routine.listing.id
+    }
+  }
+  restricted_export_config {
+    enabled = true
+  }
+}
+```
 
 ## Argument Reference
 
@@ -365,6 +433,10 @@ The following arguments are supported:
 * `table` -
   (Optional)
   Format: For table: projects/{projectId}/datasets/{datasetId}/tables/{tableId} Example:"projects/test_project/datasets/test_dataset/tables/test_table"
+
+* `routine` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Format: For routine: projects/{projectId}/datasets/{datasetId}/routines/{routineId} Example:"projects/test_project/datasets/test_dataset/routines/test_routine"
 
 <a name="nested_pubsub_topic"></a>The `pubsub_topic` block supports:
 
