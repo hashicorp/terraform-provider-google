@@ -76,6 +76,7 @@ fields:
   - field: 'template.template.containers.working_dir'
   - field: 'template.template.encryption_key'
   - field: 'template.template.execution_environment'
+  - field: 'template.template.gpu_zonal_redundancy_disabled'
   - field: 'template.template.max_retries'
   - field: 'template.template.node_selector.accelerator'
   - field: 'template.template.service_account'
