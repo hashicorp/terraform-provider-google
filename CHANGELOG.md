@@ -1,7 +1,5 @@
 ## 6.45.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* Update CHANGELOG.md on main for 6.44.0 ([#23627](https://github.com/hashicorp/terraform-provider-google/pull/23627))
 NOTES:
 * iam: Update service account creation to prevent failures due to eventual consistency (reverted) ([#23583](https://github.com/hashicorp/terraform-provider-google/pull/23583))
 DEPRECATIONS:
@@ -19,8 +17,7 @@ IMPROVEMENTS:
 * apigee: marked the field `access_logging_config` immutable in `google_apigee_instance` resource ([#23571](https://github.com/hashicorp/terraform-provider-google/pull/23571))
 * bigquery: added `ignore_auto_generated_schema` virtual field to `google_bigquery_table` resource to ignore server-added columns in the `schema` field ([#23633](https://github.com/hashicorp/terraform-provider-google/pull/23633))
 * cloudrunv2: promoted field `node_selector` in `google_cloud_run_v2_job` resource to GA ([#23586](https://github.com/hashicorp/terraform-provider-google/pull/23586))
-* compute: add `params.resourceManagerTags` field to the `google_compute_subnetwork` ([#23618](https://github.com/hashicorp/terraform-provider-google/pull/23618))
-* compute: added `mirrorPercent` field to `requestMirrorPolicy` in `defaultRouteAction`, `pathMatchers[].defaultRouteAction`, `pathMatchers[].pathRules[].routeAction`, and `pathMatchers[].routeRules[].routeAction` to `google_compute_region_url_map` resource (beta) ([#23609](https://github.com/hashicorp/terraform-provider-google/pull/23609))
+* compute: added `params.resourceManagerTags` field to the `google_compute_subnetwork` ([#23618](https://github.com/hashicorp/terraform-provider-google/pull/23618))
 * compute: added `rule.match.src_secure_tags`, `rule.target_secure_tags`, `predefined_rules.match.src_secure_tags` and `predefined_rules.target_secure_tags` fields to `google_compute_firewall_policy_with_rules` resource ([#23635](https://github.com/hashicorp/terraform-provider-google/pull/23635))
 * dataproc: added `cluster_config.security_config.identity_config` field to `google_dataproc_cluster` resource ([#23613](https://github.com/hashicorp/terraform-provider-google/pull/23613))
 * dataproc: updated `cluster_config.gce_cluster_config.metadata` field to be computed in `google_dataproc_cluster` resource ([#23613](https://github.com/hashicorp/terraform-provider-google/pull/23613))
