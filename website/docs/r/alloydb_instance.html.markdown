@@ -345,7 +345,7 @@ The following arguments are supported:
   The number of CPU's in the VM instance.
 
 * `machine_type` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Machine type of the VM instance.
   E.g. "n2-highmem-4", "n2-highmem-8", "c4a-highmem-4-lssd".
   `cpu_count` must match the number of vCPUs in the machine type.

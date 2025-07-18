@@ -99,11 +99,20 @@ func ResourceStorageBucketObject() *schema.Resource {
 			},
 
 			"content_type": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Computed:    true,
-				Description: `Content-Type of the object data. Defaults to "application/octet-stream" or "text/plain; charset=utf-8".`,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				Computed:      true,
+				ConflictsWith: []string{"force_empty_content_type"},
+				Description:   `Content-Type of the object data. Defaults to "application/octet-stream" or "text/plain; charset=utf-8".`,
+			},
+
+			"force_empty_content_type": {
+				Type:          schema.TypeBool,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"content_type"},
+				Description:   `Flag to set empty Content-Type.`,
 			},
 
 			"content": {
@@ -395,7 +404,11 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 
 	insertCall := objectsService.Insert(bucket, object)
 	insertCall.Name(name)
-	insertCall.Media(media)
+	if v, ok := d.GetOk("force_empty_content_type"); ok && v.(bool) {
+		insertCall.Media(media, googleapi.ContentType(""))
+	} else {
+		insertCall.Media(media)
+	}
 
 	// This is done late as we need to add headers to enable customer encryption
 	if v, ok := d.GetOk("customer_encryption"); ok {

@@ -63,6 +63,22 @@ resource "google_firestore_database" "database" {
   deletion_policy                   = "DELETE"
 }
 ```
+## Example Usage - Firestore Database With Tags
+
+
+```hcl
+resource "google_firestore_database" "database" {
+  project                           = "my-project-name"
+  name                              = "database-with-tags-id"
+  location_id                       = "nam5"
+  type                              = "FIRESTORE_NATIVE"
+  delete_protection_state           = "DELETE_PROTECTION_ENABLED"
+  deletion_policy                   = "DELETE"
+  tags = {
+    "keyname" = "valuename"
+  }
+}
+```
 ## Example Usage - Firestore Cmek Database
 
 
@@ -262,6 +278,15 @@ The following arguments are supported:
   database. If not present, the database is secured by the default Google
   encryption key.
   Structure is [documented below](#nested_cmek_config).
+
+* `tags` -
+  (Optional)
+  Input only. A map of resource manager tags. Resource manager tag keys
+  and values have the same definition as resource manager tags.
+  Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456.
+  The field is ignored when empty. The field is immutable and causes
+  resource replacement when mutated. To apply tags to an existing resource, see
+  the `google_tags_tag_value` resource.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

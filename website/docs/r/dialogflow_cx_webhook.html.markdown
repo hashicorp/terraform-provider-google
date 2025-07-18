@@ -31,11 +31,11 @@ To get more information about Webhook, see:
     * [Official Documentation](https://cloud.google.com/dialogflow/cx/docs)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dialogflowcx_webhook_full&open_in_editor=main.tf" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dialogflowcx_webhook_standard&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Dialogflowcx Webhook Full
+## Example Usage - Dialogflowcx Webhook Standard
 
 
 ```hcl
@@ -55,12 +55,177 @@ resource "google_dialogflow_cx_agent" "agent" {
 }
 
 
-resource "google_dialogflow_cx_webhook" "basic_webhook" {
+resource "google_dialogflow_cx_webhook" "standard_webhook" {
+  parent       = google_dialogflow_cx_agent.agent.id
+  display_name = "MyFlow"
+  generic_web_service {
+    allowed_ca_certs = ["BQA="]
+		uri = "https://example.com"
+    request_headers = { "example-key": "example-value" }
+    webhook_type = "STANDARD"
+    oauth_config {
+      client_id = "example-client-id"
+      secret_version_for_client_secret = "projects/example-proj/secrets/example-secret/versions/example-version"
+      token_endpoint = "https://example.com"
+      scopes = ["example-scope"]
+    }
+    service_agent_auth = "NONE"
+    secret_version_for_username_password = "projects/example-proj/secrets/example-secret/versions/example-version"
+    secret_versions_for_request_headers {
+      key = "example-key-1"
+      secret_version = "projects/example-proj/secrets/example-secret/versions/example-version"
+    }
+    secret_versions_for_request_headers {
+      key = "example-key-2"
+      secret_version = "projects/example-proj/secrets/example-secret/versions/example-version-2"
+    }
+	}
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dialogflowcx_webhook_flexible&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dialogflowcx Webhook Flexible
+
+
+```hcl
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name = "dialogflowcx-agent"
+  location = "global"
+  default_language_code = "en"
+  supported_language_codes = ["it","de","es"]
+  time_zone = "America/New_York"
+  description = "Example description."
+  avatar_uri = "https://cloud.google.com/_static/images/cloud/icons/favicons/onecloud/super_cloud.png"
+  enable_stackdriver_logging = true
+  enable_spell_correction    = true
+  speech_to_text_settings {
+    enable_speech_adaptation = true
+  }
+}
+
+
+resource "google_dialogflow_cx_webhook" "flexible_webhook" {
   parent       = google_dialogflow_cx_agent.agent.id
   display_name = "MyFlow"
   generic_web_service {
 		uri = "https://example.com"
+    request_headers = { "example-key": "example-value" }
+    webhook_type = "FLEXIBLE"
+    oauth_config {
+      client_id = "example-client-id"
+      client_secret = "projects/example-proj/secrets/example-secret/versions/example-version"
+      token_endpoint = "https://example.com"
+    }
+    service_agent_auth = "NONE"
+    http_method = "POST"
+    request_body = "{\"example-key\": \"example-value\"}"
+    parameter_mapping = { "example-parameter": "examplePath" }
 	}
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dialogflowcx_webhook_service_directory_standard&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dialogflowcx Webhook Service Directory Standard
+
+
+```hcl
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name = "dialogflowcx-agent"
+  location = "us-central1"
+  default_language_code = "en"
+  supported_language_codes = ["it","de","es"]
+  time_zone = "America/New_York"
+  description = "Example description."
+  avatar_uri = "https://cloud.google.com/_static/images/cloud/icons/favicons/onecloud/super_cloud.png"
+  enable_stackdriver_logging = true
+  enable_spell_correction    = true
+  speech_to_text_settings {
+    enable_speech_adaptation = true
+  }
+}
+
+
+resource "google_dialogflow_cx_webhook" "standard_webhook" {
+  parent       = google_dialogflow_cx_agent.agent.id
+  display_name = "MyFlow"
+  service_directory {
+    service = "projects/example-proj/locations/us-central1/namespaces/example-namespace/services/example-service"
+    generic_web_service {
+      allowed_ca_certs = ["BQA="]
+      uri = "https://example.com"
+      request_headers = { "example-key": "example-value" }
+      webhook_type = "STANDARD"
+      oauth_config {
+        client_id = "example-client-id"
+        secret_version_for_client_secret = "projects/example-proj/secrets/example-secret/versions/example-version"
+        token_endpoint = "https://example.com"
+        scopes = ["example-scope"]
+      }
+      service_agent_auth = "NONE"
+      secret_version_for_username_password = "projects/example-proj/secrets/example-secret/versions/example-version"
+      secret_versions_for_request_headers {
+        key = "example-key-1"
+        secret_version = "projects/example-proj/secrets/example-secret/versions/example-version"
+      }
+      secret_versions_for_request_headers {
+        key = "example-key-2"
+        secret_version = "projects/example-proj/secrets/example-secret/versions/example-version-2"
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dialogflowcx_webhook_service_directory_flexible&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dialogflowcx Webhook Service Directory Flexible
+
+
+```hcl
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name = "dialogflowcx-agent"
+  location = "us-central1"
+  default_language_code = "en"
+  supported_language_codes = ["it","de","es"]
+  time_zone = "America/New_York"
+  description = "Example description."
+  avatar_uri = "https://cloud.google.com/_static/images/cloud/icons/favicons/onecloud/super_cloud.png"
+  enable_stackdriver_logging = true
+  enable_spell_correction    = true
+  speech_to_text_settings {
+    enable_speech_adaptation = true
+  }
+}
+
+
+resource "google_dialogflow_cx_webhook" "flexible_webhook" {
+  parent       = google_dialogflow_cx_agent.agent.id
+  display_name = "MyFlow"
+  service_directory {
+    service = "projects/example-proj/locations/us-central1/namespaces/example-namespace/services/example-service"
+    generic_web_service {
+      uri = "https://example.com"
+      request_headers = { "example-key": "example-value" }
+      webhook_type = "FLEXIBLE"
+      oauth_config {
+        client_id = "example-client-id"
+        client_secret = "projects/example-proj/secrets/example-secret/versions/example-version"
+        token_endpoint = "https://example.com"
+      }
+      service_agent_auth = "NONE"
+      http_method = "POST"
+      request_body = "{\"example-key\": \"example-value\"}"
+      parameter_mapping = { "example-parameter": "examplePath" }
+    }
+  }
 }
 ```
 
@@ -84,7 +249,7 @@ The following arguments are supported:
 
 * `generic_web_service` -
   (Optional)
-  Configuration for a generic web service.
+  Represents configuration for a generic web service.
   Structure is [documented below](#nested_generic_web_service).
 
 * `service_directory` -
@@ -94,15 +259,15 @@ The following arguments are supported:
 
 * `security_settings` -
   (Optional)
-  Name of the SecuritySettings reference for the agent. Format: projects/<Project ID>/locations/<Location ID>/securitySettings/<Security Settings ID>.
+  Deprecated. Name of the SecuritySettings reference for the agent. Format: projects/<Project ID>/locations/<Location ID>/securitySettings/<Security Settings ID>.
 
 * `enable_stackdriver_logging` -
   (Optional)
-  Determines whether this agent should log conversation queries.
+  Deprecated. Determines whether this agent should log conversation queries.
 
 * `enable_spell_correction` -
   (Optional)
-  Indicates if automatic spell correction is enabled in detect intent requests.
+  Deprecated. Indicates if automatic spell correction is enabled in detect intent requests.
 
 * `parent` -
   (Optional)
@@ -113,17 +278,115 @@ The following arguments are supported:
 
 <a name="nested_generic_web_service"></a>The `generic_web_service` block supports:
 
-* `uri` -
-  (Required)
-  Whether to use speech adaptation for speech recognition.
+* `allowed_ca_certs` -
+  (Optional)
+  Specifies a list of allowed custom CA certificates (in DER format) for
+  HTTPS verification. This overrides the default SSL trust store. If this
+  is empty or unspecified, Dialogflow will use Google's default trust store
+  to verify certificates.
+  N.B. Make sure the HTTPS server certificates are signed with "subject alt
+  name". For instance a certificate can be self-signed using the following
+  command,
+  openssl x509 -req -days 200 -in example.com.csr \
+  -signkey example.com.key \
+  -out example.com.crt \
+  -extfile <(printf "\nsubjectAltName='DNS:www.example.com'")
+
+* `http_method` -
+  (Optional)
+  HTTP method for the flexible webhook calls. Standard webhook always uses
+  POST.
+  Possible values are: `POST`, `GET`, `HEAD`, `PUT`, `DELETE`, `PATCH`, `OPTIONS`.
+
+* `oauth_config` -
+  (Optional)
+  Represents configuration of OAuth client credential flow for 3rd party
+  API authentication.
+  Structure is [documented below](#nested_generic_web_service_oauth_config).
+
+* `parameter_mapping` -
+  (Optional)
+  Maps the values extracted from specific fields of the flexible webhook
+  response into session parameters.
+  - Key: session parameter name
+  - Value: field path in the webhook response
+
+* `request_body` -
+  (Optional)
+  Defines a custom JSON object as request body to send to flexible webhook.
 
 * `request_headers` -
   (Optional)
   The HTTP request headers to send together with webhook requests.
 
-* `allowed_ca_certs` -
+* `secret_version_for_username_password` -
   (Optional)
-  Specifies a list of allowed custom CA certificates (in DER format) for HTTPS verification.
+  The SecretManager secret version resource storing the username:password
+  pair for HTTP Basic authentication.
+  Format: `projects/{project}/secrets/{secret}/versions/{version}`
+
+* `secret_versions_for_request_headers` -
+  (Optional)
+  The HTTP request headers to send together with webhook requests. Header
+  values are stored in SecretManager secret versions.
+  When the same header name is specified in both `request_headers` and
+  `secret_versions_for_request_headers`, the value in
+  `secret_versions_for_request_headers` will be used.
+  Structure is [documented below](#nested_generic_web_service_secret_versions_for_request_headers).
+
+* `service_agent_auth` -
+  (Optional)
+  Indicate the auth token type generated from the [Diglogflow service
+  agent](https://cloud.google.com/iam/docs/service-agents#dialogflow-service-agent).
+  The generated token is sent in the Authorization header.
+  Possible values are: `NONE`, `ID_TOKEN`, `ACCESS_TOKEN`.
+
+* `uri` -
+  (Required)
+  The webhook URI for receiving POST requests. It must use https protocol.
+
+* `webhook_type` -
+  (Optional)
+  Type of the webhook.
+  Possible values are: `STANDARD`, `FLEXIBLE`.
+
+
+<a name="nested_generic_web_service_oauth_config"></a>The `oauth_config` block supports:
+
+* `client_id` -
+  (Required)
+  The client ID provided by the 3rd party platform.
+
+* `client_secret` -
+  (Optional)
+  The client secret provided by the 3rd party platform.  If the
+  `secret_version_for_client_secret` field is set, this field will be
+  ignored.
+
+* `scopes` -
+  (Optional)
+  The OAuth scopes to grant.
+
+* `secret_version_for_client_secret` -
+  (Optional)
+  The name of the SecretManager secret version resource storing the
+  client secret. If this field is set, the `client_secret` field will be
+  ignored.
+  Format: `projects/{project}/secrets/{secret}/versions/{version}`
+
+* `token_endpoint` -
+  (Required)
+  The token endpoint provided by the 3rd party platform to exchange an
+  access token.
+
+<a name="nested_generic_web_service_secret_versions_for_request_headers"></a>The `secret_versions_for_request_headers` block supports:
+
+* `key` - (Required) The identifier for this object. Format specified above.
+
+* `secret_version` -
+  (Required)
+  The SecretManager secret version resource storing the header value.
+  Format: `projects/{project}/secrets/{secret}/versions/{version}`
 
 <a name="nested_service_directory"></a>The `service_directory` block supports:
 
@@ -132,24 +395,122 @@ The following arguments are supported:
   The name of Service Directory service.
 
 * `generic_web_service` -
-  (Required)
-  The name of Service Directory service.
+  (Optional)
+  Represents configuration for a generic web service.
   Structure is [documented below](#nested_service_directory_generic_web_service).
 
 
 <a name="nested_service_directory_generic_web_service"></a>The `generic_web_service` block supports:
 
-* `uri` -
-  (Required)
-  Whether to use speech adaptation for speech recognition.
+* `allowed_ca_certs` -
+  (Optional)
+  Specifies a list of allowed custom CA certificates (in DER format) for
+  HTTPS verification. This overrides the default SSL trust store. If this
+  is empty or unspecified, Dialogflow will use Google's default trust store
+  to verify certificates.
+  N.B. Make sure the HTTPS server certificates are signed with "subject alt
+  name". For instance a certificate can be self-signed using the following
+  command,
+  openssl x509 -req -days 200 -in example.com.csr \
+  -signkey example.com.key \
+  -out example.com.crt \
+  -extfile <(printf "\nsubjectAltName='DNS:www.example.com'")
+
+* `http_method` -
+  (Optional)
+  HTTP method for the flexible webhook calls. Standard webhook always uses
+  POST.
+  Possible values are: `POST`, `GET`, `HEAD`, `PUT`, `DELETE`, `PATCH`, `OPTIONS`.
+
+* `oauth_config` -
+  (Optional)
+  Represents configuration of OAuth client credential flow for 3rd party
+  API authentication.
+  Structure is [documented below](#nested_service_directory_generic_web_service_oauth_config).
+
+* `parameter_mapping` -
+  (Optional)
+  Maps the values extracted from specific fields of the flexible webhook
+  response into session parameters.
+  - Key: session parameter name
+  - Value: field path in the webhook response
+
+* `request_body` -
+  (Optional)
+  Defines a custom JSON object as request body to send to flexible webhook.
 
 * `request_headers` -
   (Optional)
   The HTTP request headers to send together with webhook requests.
 
-* `allowed_ca_certs` -
+* `secret_version_for_username_password` -
   (Optional)
-  Specifies a list of allowed custom CA certificates (in DER format) for HTTPS verification.
+  The SecretManager secret version resource storing the username:password
+  pair for HTTP Basic authentication.
+  Format: `projects/{project}/secrets/{secret}/versions/{version}`
+
+* `secret_versions_for_request_headers` -
+  (Optional)
+  The HTTP request headers to send together with webhook requests. Header
+  values are stored in SecretManager secret versions.
+  When the same header name is specified in both `request_headers` and
+  `secret_versions_for_request_headers`, the value in
+  `secret_versions_for_request_headers` will be used.
+  Structure is [documented below](#nested_service_directory_generic_web_service_secret_versions_for_request_headers).
+
+* `service_agent_auth` -
+  (Optional)
+  Indicate the auth token type generated from the [Diglogflow service
+  agent](https://cloud.google.com/iam/docs/service-agents#dialogflow-service-agent).
+  The generated token is sent in the Authorization header.
+  Possible values are: `NONE`, `ID_TOKEN`, `ACCESS_TOKEN`.
+
+* `uri` -
+  (Required)
+  The webhook URI for receiving POST requests. It must use https protocol.
+
+* `webhook_type` -
+  (Optional)
+  Type of the webhook.
+  Possible values are: `STANDARD`, `FLEXIBLE`.
+
+
+<a name="nested_service_directory_generic_web_service_oauth_config"></a>The `oauth_config` block supports:
+
+* `client_id` -
+  (Required)
+  The client ID provided by the 3rd party platform.
+
+* `client_secret` -
+  (Optional)
+  The client secret provided by the 3rd party platform.  If the
+  `secret_version_for_client_secret` field is set, this field will be
+  ignored.
+
+* `scopes` -
+  (Optional)
+  The OAuth scopes to grant.
+
+* `secret_version_for_client_secret` -
+  (Optional)
+  The name of the SecretManager secret version resource storing the
+  client secret. If this field is set, the `client_secret` field will be
+  ignored.
+  Format: `projects/{project}/secrets/{secret}/versions/{version}`
+
+* `token_endpoint` -
+  (Required)
+  The token endpoint provided by the 3rd party platform to exchange an
+  access token.
+
+<a name="nested_service_directory_generic_web_service_secret_versions_for_request_headers"></a>The `secret_versions_for_request_headers` block supports:
+
+* `key` - (Required) The identifier for this object. Format specified above.
+
+* `secret_version` -
+  (Required)
+  The SecretManager secret version resource storing the header value.
+  Format: `projects/{project}/secrets/{secret}/versions/{version}`
 
 ## Attributes Reference
 
@@ -162,7 +523,7 @@ In addition to the arguments listed above, the following computed attributes are
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/webhooks/<Webhook ID>.
 
 * `start_flow` -
-  Name of the start flow in this agent. A start flow will be automatically created when the agent is created, and can only be deleted by deleting the agent. Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
+  Deprecated. Name of the start flow in this agent. A start flow will be automatically created when the agent is created, and can only be deleted by deleting the agent. Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
 
 
 ## Timeouts

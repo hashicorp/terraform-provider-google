@@ -98,7 +98,6 @@ The policy needs to be in the same location as the storage pool.`,
 			"allow_auto_tiering": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: true,
 				Description: `Optional. True if the storage pool supports Auto Tiering enabled volumes. Default is false.
 Auto-tiering can be enabled after storage pool creation but it can't be disabled once enabled.`,
 			},
@@ -498,6 +497,12 @@ func resourceNetappStoragePoolUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("replica_zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, replicaZoneProp)) {
 		obj["replicaZone"] = replicaZoneProp
 	}
+	allowAutoTieringProp, err := expandNetappStoragePoolAllowAutoTiering(d.Get("allow_auto_tiering"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("allow_auto_tiering"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, allowAutoTieringProp)) {
+		obj["allowAutoTiering"] = allowAutoTieringProp
+	}
 	totalThroughputMibpsProp, err := expandNetappStoragePoolTotalThroughputMibps(d.Get("total_throughput_mibps"), d, config)
 	if err != nil {
 		return err
@@ -544,6 +549,10 @@ func resourceNetappStoragePoolUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("replica_zone") {
 		updateMask = append(updateMask, "replicaZone")
+	}
+
+	if d.HasChange("allow_auto_tiering") {
+		updateMask = append(updateMask, "allowAutoTiering")
 	}
 
 	if d.HasChange("total_throughput_mibps") {

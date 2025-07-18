@@ -225,6 +225,12 @@ The following arguments are supported:
   The rotation time and period for a Secret. At `next_rotation_time`, Secret Manager will send a Pub/Sub notification to the topics configured on the Secret. `topics` must be set to configure rotation.
   Structure is [documented below](#nested_rotation).
 
+* `tags` -
+  (Optional)
+  A map of resource manager tags.
+  Resource manager tag keys and values have the same definition as resource manager tags.
+  Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/{tag_value_id}.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

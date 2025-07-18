@@ -164,7 +164,7 @@ resource "google_dialogflow_cx_tool" "data_store_tool" {
 
 resource "google_discovery_engine_data_store" "my_datastore" {
   location          = "global"
-  data_store_id     = "datastore-tool-test-%{random_suffix}"
+  data_store_id     = "datastore-tool"
   display_name      = "datastore for Tool test"
   industry_vertical = "GENERIC"
   content_config    = "NO_CONTENT"

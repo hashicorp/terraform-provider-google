@@ -98,6 +98,7 @@ in the format 'organizations/{{org_name}}'.`,
 			"access_logging_config": {
 				Type:     schema.TypeList,
 				Optional: true,
+				ForceNew: true,
 				Description: `Access logging configuration enables the access logging feature at the instance.
 Apigee customers can enable access logging to ship the access logs to their own project's cloud logging.`,
 				MaxItems: 1,
@@ -106,11 +107,13 @@ Apigee customers can enable access logging to ship the access logs to their own 
 						"enabled": {
 							Type:        schema.TypeBool,
 							Required:    true,
+							ForceNew:    true,
 							Description: `Boolean flag that specifies whether the customer access log feature is enabled.`,
 						},
 						"filter": {
 							Type:     schema.TypeString,
 							Optional: true,
+							ForceNew: true,
 							Description: `Ship the access log entries that match the statusCode defined in the filter.
 The statusCode is the only expected/supported filter field. (Ex: statusCode)
 The filter will parse it to the Common Expression Language semantics for expression
@@ -400,12 +403,6 @@ func resourceApigeeInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("consumer_accept_list"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, consumerAcceptListProp)) {
 		obj["consumerAcceptList"] = consumerAcceptListProp
 	}
-	accessLoggingConfigProp, err := expandApigeeInstanceAccessLoggingConfig(d.Get("access_logging_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("access_logging_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessLoggingConfigProp)) {
-		obj["accessLoggingConfig"] = accessLoggingConfigProp
-	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "{{org_id}}/apigeeInstances")
 	if err != nil {
@@ -425,10 +422,6 @@ func resourceApigeeInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("consumer_accept_list") {
 		updateMask = append(updateMask, "consumerAcceptList")
-	}
-
-	if d.HasChange("access_logging_config") {
-		updateMask = append(updateMask, "accessLoggingConfig")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
