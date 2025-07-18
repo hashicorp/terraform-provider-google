@@ -75,6 +75,9 @@ resource "google_dataproc_session_template" "example_session_templates_jupyter" 
         subnetwork_uri = "%{subnetwork_name}"
         ttl            = "3600s"
         network_tags   = ["tag1"]
+        authentication_config {
+          user_workload_authentication_type = "END_USER_CREDENTIALS"
+        }
       }
     }
 
@@ -142,6 +145,9 @@ resource "google_dataproc_session_template" "dataproc_session_templates_jupyter_
 	subnetwork_uri = "%{subnetwork_name}"
         service_account = "${data.google_project.project.number}-compute@developer.gserviceaccount.com"
         staging_bucket = google_storage_bucket.bucket.name
+        authentication_config {
+          user_workload_authentication_type = "SERVICE_ACCOUNT"
+        }
       }
       peripherals_config {
         metastore_service = google_dataproc_metastore_service.ms.name
