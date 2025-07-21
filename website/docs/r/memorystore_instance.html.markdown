@@ -799,11 +799,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `discovery_endpoints` -
   (Deprecated)
-  Output only. Endpoints clients can connect to the instance through. Currently only one
-  discovery endpoint is supported.
+  Deprecated. Output only. Endpoints clients can connect to the instance through.
   Structure is [documented below](#nested_discovery_endpoints).
 
-  ~> **Warning:** `discovery_endpoints` is deprecated  Use `endpoints` instead.
+  ~> **Warning:** This field is deprecated. As a result it will not be populated if the connections are created using `desired_auto_created_endpoints` parameter or `google_memorystore_instance_desired_user_created_endpoints` resource. Instead of this parameter, for discovery, use `endpoints.connections.pscConnection` and `endpoints.connections.pscAutoConnection` with `connectionType` CONNECTION_TYPE_DISCOVERY.
 
 * `maintenance_schedule` -
   Upcoming maintenance schedule.
