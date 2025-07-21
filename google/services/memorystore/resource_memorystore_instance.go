@@ -3393,7 +3393,7 @@ func resourceMemorystoreInstanceDecoder(d *schema.ResourceData, meta interface{}
 
 	// Only instances with SERVER_AUTHENTICATION mode have certificate authority set
 	if v, ok := res["transitEncryptionMode"].(string); ok && v == "SERVER_AUTHENTICATION" {
-		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{region}}/instances/{{instance_id}}/certificateAuthority")
+		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}/certificateAuthority")
 		if err != nil {
 			return nil, err
 		}
