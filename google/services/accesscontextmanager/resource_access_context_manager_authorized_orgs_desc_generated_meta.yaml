@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_access_context_manager_authorized_orgs_desc'
 generation_type: 'mmv1'
 source_file: 'products/accesscontextmanager/AuthorizedOrgsDesc.yaml'
