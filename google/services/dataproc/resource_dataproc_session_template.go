@@ -94,6 +94,15 @@ projects/{project}/locations/{location}/sessionTemplates/{template_id}`,
 											},
 										},
 									},
+									"idle_ttl": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `The duration to keep the session alive while it's idling.
+Exceeding this threshold causes the session to terminate. Minimum value is 10 minutes; maximum value is 14 day.
+Defaults to 1 hour if not set. If both ttl and idleTtl are specified for an interactive session, the conditions
+are treated as OR conditions: the workload will be terminated when it has been idle for idleTtl or when ttl has
+been exceeded, whichever occurs first.`,
+									},
 									"kms_key": {
 										Type:        schema.TypeString,
 										Optional:    true,
@@ -718,6 +727,8 @@ func flattenDataprocSessionTemplateEnvironmentConfigExecutionConfig(v interface{
 		flattenDataprocSessionTemplateEnvironmentConfigExecutionConfigNetworkTags(original["networkTags"], d, config)
 	transformed["kms_key"] =
 		flattenDataprocSessionTemplateEnvironmentConfigExecutionConfigKmsKey(original["kmsKey"], d, config)
+	transformed["idle_ttl"] =
+		flattenDataprocSessionTemplateEnvironmentConfigExecutionConfigIdleTtl(original["idleTtl"], d, config)
 	transformed["ttl"] =
 		flattenDataprocSessionTemplateEnvironmentConfigExecutionConfigTtl(original["ttl"], d, config)
 	transformed["staging_bucket"] =
@@ -737,6 +748,10 @@ func flattenDataprocSessionTemplateEnvironmentConfigExecutionConfigNetworkTags(v
 }
 
 func flattenDataprocSessionTemplateEnvironmentConfigExecutionConfigKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataprocSessionTemplateEnvironmentConfigExecutionConfigIdleTtl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -982,6 +997,13 @@ func expandDataprocSessionTemplateEnvironmentConfigExecutionConfig(v interface{}
 		transformed["kmsKey"] = transformedKmsKey
 	}
 
+	transformedIdleTtl, err := expandDataprocSessionTemplateEnvironmentConfigExecutionConfigIdleTtl(original["idle_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdleTtl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["idleTtl"] = transformedIdleTtl
+	}
+
 	transformedTtl, err := expandDataprocSessionTemplateEnvironmentConfigExecutionConfigTtl(original["ttl"], d, config)
 	if err != nil {
 		return nil, err
@@ -1022,6 +1044,10 @@ func expandDataprocSessionTemplateEnvironmentConfigExecutionConfigNetworkTags(v 
 }
 
 func expandDataprocSessionTemplateEnvironmentConfigExecutionConfigKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataprocSessionTemplateEnvironmentConfigExecutionConfigIdleTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
