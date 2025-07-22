@@ -48,7 +48,7 @@ resource "google_dataproc_session_template" "example_session_templates_jupyter" 
     environment_config {
       execution_config {
         subnetwork_uri = "default"
-        ttl            = "3600s"
+        idle_ttl       = "3600s"
         network_tags   = ["tag1"]
         authentication_config {
           user_workload_authentication_type = "END_USER_CREDENTIALS"
@@ -296,6 +296,14 @@ The following arguments are supported:
 * `kms_key` -
   (Optional)
   The Cloud KMS key to use for encryption.
+
+* `idle_ttl` -
+  (Optional)
+  The duration to keep the session alive while it's idling.
+  Exceeding this threshold causes the session to terminate. Minimum value is 10 minutes; maximum value is 14 day.
+  Defaults to 1 hour if not set. If both ttl and idleTtl are specified for an interactive session, the conditions
+  are treated as OR conditions: the workload will be terminated when it has been idle for idleTtl or when ttl has
+  been exceeded, whichever occurs first.
 
 * `ttl` -
   (Optional)

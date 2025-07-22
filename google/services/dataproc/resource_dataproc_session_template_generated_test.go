@@ -73,7 +73,7 @@ resource "google_dataproc_session_template" "example_session_templates_jupyter" 
     environment_config {
       execution_config {
         subnetwork_uri = "%{subnetwork_name}"
-        ttl            = "3600s"
+        idle_ttl       = "3600s"
         network_tags   = ["tag1"]
         authentication_config {
           user_workload_authentication_type = "END_USER_CREDENTIALS"
