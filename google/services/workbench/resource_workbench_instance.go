@@ -66,6 +66,21 @@ var WorkbenchInstanceSettableUnmodifiableDefaultMetadata = []string{
 	"serial-port-logging-enable",
 }
 
+var WorkbenchInstanceEUCProvidedAdditionalMetadata = []string{
+	"enable-oslogin",
+	"disable-ssh",
+	"ssh-keys",
+	"block-project-ssh-keys",
+	"post-startup-script",
+	"post-startup-script-behavior",
+	"startup-script",
+	"startup-script-url",
+	"gce-container-declaration",
+	"gce-software-declaration",
+	"serial-port-enable",
+	"euc-enabled",
+}
+
 var WorkbenchInstanceProvidedMetadata = []string{
 	"agent-health-check-interval-seconds",
 	"agent-health-check-path",
@@ -84,6 +99,7 @@ var WorkbenchInstanceProvidedMetadata = []string{
 	"dataproc-region",
 	"dataproc-service-account",
 	"disable-check-xsrf",
+	"enable-euc",
 	"framework",
 	"generate-diagnostics-bucket",
 	"generate-diagnostics-file",
@@ -133,6 +149,14 @@ func WorkbenchInstanceMetadataDiffSuppress(k, old, new string, d *schema.Resourc
 	for _, metadata := range WorkbenchInstanceProvidedMetadata {
 		if key == metadata {
 			return true
+		}
+	}
+
+	if d.Get("enable_managed_euc").(bool) {
+		for _, metadata := range WorkbenchInstanceEUCProvidedAdditionalMetadata {
+			if key == metadata {
+				return true
+			}
 		}
 	}
 
@@ -378,6 +402,11 @@ func ResourceWorkbenchInstance() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Optional. If true, the workbench instance will not register with the proxy.`,
+			},
+			"enable_managed_euc": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Flag to enable managed end user credentials for the instance.`,
 			},
 			"enable_third_party_identity": {
 				Type:     schema.TypeBool,
@@ -975,6 +1004,12 @@ func resourceWorkbenchInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("enable_third_party_identity"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableThirdPartyIdentityProp)) && (ok || !reflect.DeepEqual(v, enableThirdPartyIdentityProp)) {
 		obj["enableThirdPartyIdentity"] = enableThirdPartyIdentityProp
 	}
+	enableManagedEucProp, err := expandWorkbenchInstanceEnableManagedEuc(d.Get("enable_managed_euc"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_managed_euc"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableManagedEucProp)) && (ok || !reflect.DeepEqual(v, enableManagedEucProp)) {
+		obj["enableManagedEuc"] = enableManagedEucProp
+	}
 	labelsProp, err := expandWorkbenchInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1136,6 +1171,9 @@ func resourceWorkbenchInstanceRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("enable_third_party_identity", flattenWorkbenchInstanceEnableThirdPartyIdentity(res["enableThirdPartyIdentity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("enable_managed_euc", flattenWorkbenchInstanceEnableManagedEuc(res["enableManagedEuc"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenWorkbenchInstanceTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -1174,6 +1212,12 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("enable_third_party_identity"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableThirdPartyIdentityProp)) {
 		obj["enableThirdPartyIdentity"] = enableThirdPartyIdentityProp
 	}
+	enableManagedEucProp, err := expandWorkbenchInstanceEnableManagedEuc(d.Get("enable_managed_euc"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_managed_euc"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableManagedEucProp)) {
+		obj["enableManagedEuc"] = enableManagedEucProp
+	}
 	labelsProp, err := expandWorkbenchInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1196,6 +1240,10 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("enable_third_party_identity") {
 		updateMask = append(updateMask, "enableThirdPartyIdentity")
+	}
+
+	if d.HasChange("enable_managed_euc") {
+		updateMask = append(updateMask, "enableManagedEuc")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -1904,6 +1952,10 @@ func flattenWorkbenchInstanceEnableThirdPartyIdentity(v interface{}, d *schema.R
 	return v
 }
 
+func flattenWorkbenchInstanceEnableManagedEuc(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenWorkbenchInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2543,6 +2595,10 @@ func expandWorkbenchInstanceDisableProxyAccess(v interface{}, d tpgresource.Terr
 }
 
 func expandWorkbenchInstanceEnableThirdPartyIdentity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkbenchInstanceEnableManagedEuc(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
