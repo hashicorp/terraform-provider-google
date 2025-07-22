@@ -8,6 +8,7 @@
 // Provider name that matches the name in the Registry
 const val ProviderNameGa = "google"
 const val ProviderNameBeta = "google-beta"
+const val ProviderNameBetaDiffTest = "google-beta-diff-test"
 
 // specifies the default hour (UTC) at which tests should be triggered, if enabled
 const val DefaultStartHour = 4
@@ -42,6 +43,7 @@ const val ServiceSweeperCronName = "$ServiceSweeperName - Cron"
 const val ServiceSweeperManualName = "$ServiceSweeperName - Manual"
 const val ProjectSweeperName = "Project Sweeper"
 const val NightlyTestsProjectId = "NightlyTests"
+const val WeeklyDiffTestsProjectId = "WeeklyDiffTests"
 const val MMUpstreamProjectId = "MMUpstreamTests"
 const val VcrRecordingProjectId = "VCRRecording"
 

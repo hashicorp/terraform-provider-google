@@ -8,9 +8,8 @@
 package projects.reused
 
 import NightlyTestsProjectId
-import ProviderNameBeta
 import ProviderNameGa
-import ProviderNameBetaDiffTest
+import ProviderNameBeta
 import ServiceSweeperName
 import SharedResourceNameBeta
 import SharedResourceNameGa
@@ -21,9 +20,8 @@ import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 import replaceCharsId
 
-fun nightlyTests(parentProject:String, providerName: String, vcsRoot: GitVcsRoot, config: AccTestConfiguration, cron: NightlyTriggerConfiguration): Project {
+fun weeklyDiffTests(parentProject:String, providerName: String, vcsRoot: GitVcsRoot, config: AccTestConfiguration, cron: NightlyTriggerConfiguration): Project {
 
-    // Create unique ID for the dynamically-created project
     var projectId = "${parentProject}_${NightlyTestsProjectId}"
     projectId = replaceCharsId(projectId)
 
@@ -33,14 +31,13 @@ fun nightlyTests(parentProject:String, providerName: String, vcsRoot: GitVcsRoot
     when(providerName) {
         ProviderNameGa -> sharedResources = arrayListOf(SharedResourceNameGa)
         ProviderNameBeta -> sharedResources = arrayListOf(SharedResourceNameBeta)
-        ProviderNameBetaDiffTest -> sharedResources = arrayListOf(SharedResourceNameBeta)
-        else -> throw Exception("Provider name not supplied when generating a nightly test subproject")
+        else -> throw Exception("Provider name not supplied when generating a weekly diff test subproject")
     }
 
     // Create build configs to run acceptance tests for each package defined in packages.kt and services.kt files
     // and add cron trigger to them all
     val allPackages = getAllPackageInProviderVersion(providerName)
-    val packageBuildConfigs = BuildConfigurationsForPackages(allPackages, providerName, projectId, vcsRoot, sharedResources, config)
+    val packageBuildConfigs = BuildConfigurationsForPackages(allPackages, providerName, projectId, vcsRoot, sharedResources, config, releaseDiffTest = "true")
     packageBuildConfigs.forEach { buildConfiguration ->
         buildConfiguration.addTrigger(cron)
     }
@@ -50,8 +47,7 @@ fun nightlyTests(parentProject:String, providerName: String, vcsRoot: GitVcsRoot
     when(providerName) {
         ProviderNameGa -> sweepersList = SweepersListGa
         ProviderNameBeta -> sweepersList = SweepersListBeta
-        ProviderNameBetaDiffTest -> sweepersList = SweepersListBeta
-        else -> throw Exception("Provider name not supplied when generating a nightly test subproject")
+        else -> throw Exception("Provider name not supplied when generating a weekly diff test subproject")
     }
     val serviceSweeperConfig = BuildConfigurationForServiceSweeper(providerName, ServiceSweeperName, sweepersList, projectId, vcsRoot, sharedResources, config)
     val sweeperCron = cron.clone()
@@ -60,8 +56,8 @@ fun nightlyTests(parentProject:String, providerName: String, vcsRoot: GitVcsRoot
 
     return Project {
         id(projectId)
-        name = "Nightly Tests"
-        description = "A project connected to the hashicorp/terraform-provider-${providerName} repository, where scheduled nightly tests run and users can trigger ad-hoc builds"
+        name = "Weekly Diff Tests"
+        description = "A project connected to the hashicorp/terraform-provider-${providerName} repository, where scheduled weekly diff tests run and users can trigger ad-hoc builds"
 
         // Register build configs in the project
         packageBuildConfigs.forEach { buildConfiguration ->
