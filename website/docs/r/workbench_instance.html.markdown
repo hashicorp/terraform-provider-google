@@ -318,6 +318,27 @@ resource "google_workbench_instance" "instance" {
   }
 }
 ```
+## Example Usage - Workbench Instance Euc
+
+
+```hcl
+resource "google_workbench_instance" "instance" {
+  name = "workbench-instance"
+  location = "us-central1-a"
+
+  gce_setup {
+    machine_type = "e2-standard-4"
+    
+    metadata = {
+      terraform = "true"
+    }
+  }
+
+  instance_owners  = ["example@example.com"]
+
+  enable_managed_euc = "true"
+}
+```
 
 ## Argument Reference
 
@@ -362,6 +383,10 @@ The following arguments are supported:
   (Optional)
   Flag that specifies that a notebook can be accessed with third party
   identity provider.
+
+* `enable_managed_euc` -
+  (Optional)
+  Flag to enable managed end user credentials for the instance.
 
 * `instance_id` -
   (Optional)

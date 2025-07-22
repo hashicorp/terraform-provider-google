@@ -12,6 +12,7 @@ fields:
   - field: 'disable_proxy_access'
   - field: 'effective_labels'
     provider_only: true
+  - field: 'enable_managed_euc'
   - field: 'enable_third_party_identity'
   - field: 'gce_setup.accelerator_configs.core_count'
   - field: 'gce_setup.accelerator_configs.type'
