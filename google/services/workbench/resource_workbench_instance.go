@@ -632,6 +632,47 @@ may be gVNIC or VirtioNet. Possible values: ["VIRTIO_NET", "GVNIC"]`,
 								},
 							},
 						},
+						"reservation_affinity": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Reservations that this instance can consume from.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"consume_reservation_type": {
+										Type:         schema.TypeString,
+										Computed:     true,
+										Optional:     true,
+										ForceNew:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"RESERVATION_NONE", "RESERVATION_ANY", "RESERVATION_SPECIFIC", ""}),
+										Description: `Specifies the type of reservation from which this instance can consume resources:
+RESERVATION_ANY (default), RESERVATION_SPECIFIC, or RESERVATION_NONE. Possible values: ["RESERVATION_NONE", "RESERVATION_ANY", "RESERVATION_SPECIFIC"]`,
+									},
+									"key": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Description: `Corresponds to the label key of a reservation resource. To target a
+RESERVATION_SPECIFIC by name, use compute.googleapis.com/reservation-name
+as the key and specify the name of your reservation as its value.`,
+									},
+									"values": {
+										Type:     schema.TypeList,
+										Optional: true,
+										ForceNew: true,
+										Description: `Corresponds to the label values of a reservation resource. This can be
+either a name to a reservation in the same project or
+"projects/different-project/reservations/some-reservation-name"
+to target a shared reservation in the same zone but in a different project.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
 						"service_accounts": {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -1435,6 +1476,8 @@ func flattenWorkbenchInstanceGceSetup(v interface{}, d *schema.ResourceData, con
 		flattenWorkbenchInstanceGceSetupEnableIpForwarding(original["enableIpForwarding"], d, config)
 	transformed["confidential_instance_config"] =
 		flattenWorkbenchInstanceGceSetupConfidentialInstanceConfig(original["confidentialInstanceConfig"], d, config)
+	transformed["reservation_affinity"] =
+		flattenWorkbenchInstanceGceSetupReservationAffinity(original["reservationAffinity"], d, config)
 	return []interface{}{transformed}
 }
 func flattenWorkbenchInstanceGceSetupMachineType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1711,6 +1754,35 @@ func flattenWorkbenchInstanceGceSetupConfidentialInstanceConfigConfidentialInsta
 	return v
 }
 
+func flattenWorkbenchInstanceGceSetupReservationAffinity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["consume_reservation_type"] =
+		flattenWorkbenchInstanceGceSetupReservationAffinityConsumeReservationType(original["consumeReservationType"], d, config)
+	transformed["key"] =
+		flattenWorkbenchInstanceGceSetupReservationAffinityKey(original["key"], d, config)
+	transformed["values"] =
+		flattenWorkbenchInstanceGceSetupReservationAffinityValues(original["values"], d, config)
+	return []interface{}{transformed}
+}
+func flattenWorkbenchInstanceGceSetupReservationAffinityConsumeReservationType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenWorkbenchInstanceGceSetupReservationAffinityKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenWorkbenchInstanceGceSetupReservationAffinityValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenWorkbenchInstanceProxyUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1956,6 +2028,13 @@ func expandWorkbenchInstanceGceSetup(v interface{}, d tpgresource.TerraformResou
 		return nil, err
 	} else if val := reflect.ValueOf(transformedConfidentialInstanceConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["confidentialInstanceConfig"] = transformedConfidentialInstanceConfig
+	}
+
+	transformedReservationAffinity, err := expandWorkbenchInstanceGceSetupReservationAffinity(original["reservation_affinity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReservationAffinity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["reservationAffinity"] = transformedReservationAffinity
 	}
 
 	return transformed, nil
@@ -2407,6 +2486,51 @@ func expandWorkbenchInstanceGceSetupConfidentialInstanceConfig(v interface{}, d 
 }
 
 func expandWorkbenchInstanceGceSetupConfidentialInstanceConfigConfidentialInstanceType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkbenchInstanceGceSetupReservationAffinity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedConsumeReservationType, err := expandWorkbenchInstanceGceSetupReservationAffinityConsumeReservationType(original["consume_reservation_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConsumeReservationType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["consumeReservationType"] = transformedConsumeReservationType
+	}
+
+	transformedKey, err := expandWorkbenchInstanceGceSetupReservationAffinityKey(original["key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["key"] = transformedKey
+	}
+
+	transformedValues, err := expandWorkbenchInstanceGceSetupReservationAffinityValues(original["values"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["values"] = transformedValues
+	}
+
+	return transformed, nil
+}
+
+func expandWorkbenchInstanceGceSetupReservationAffinityConsumeReservationType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkbenchInstanceGceSetupReservationAffinityKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkbenchInstanceGceSetupReservationAffinityValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
