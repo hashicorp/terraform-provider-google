@@ -1,0 +1,3 @@
+```release-note:note
+compute: update docs regarding API bundles for `google_compute_forwarding_rule`
+```
