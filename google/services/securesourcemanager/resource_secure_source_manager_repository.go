@@ -165,6 +165,19 @@ Valid values can be viewed at https://cloud.google.com/secure-source-manager/doc
 					},
 				},
 			},
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The deletion policy for the repository. Setting 'ABANDON' allows the resource
+to be abandoned, rather than deleted. Setting 'DELETE' deletes the resource
+and all its contents. Setting 'PREVENT' prevents the resource from accidental deletion
+by erroring out during plan.
+Default is 'DELETE'.  Possible values are:
+  * DELETE
+  * PREVENT
+  * ABANDON`,
+				Default: "DELETE",
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -297,6 +310,12 @@ func resourceSecureSourceManagerRepositoryRead(d *schema.ResourceData, meta inte
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecureSourceManagerRepository %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
@@ -432,6 +451,13 @@ func resourceSecureSourceManagerRepositoryDelete(d *schema.ResourceData, meta in
 	}
 
 	headers := make(http.Header)
+	deletionPolicy := d.Get("deletion_policy")
+
+	if deletionPolicy == "ABANDON" {
+		return nil
+	} else if deletionPolicy == "PREVENT" {
+		return fmt.Errorf(`cannot destroy resource without setting deletion_policy="DELETE"`)
+	}
 
 	log.Printf("[DEBUG] Deleting Repository %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -477,6 +503,11 @@ func resourceSecureSourceManagerRepositoryImport(d *schema.ResourceData, meta in
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_policy", "DELETE"); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
