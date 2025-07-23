@@ -1,0 +1,3 @@
+```release-note:enhancement
+oracledatabase: added `odb_network`, `odb_subnet` and `backup_odb_subnet` fields, and make `network`, `cidr` and `backup_subnet_cidr` fields optional in `google_oracle_database_cloud_vm_cluster` resource
+```
