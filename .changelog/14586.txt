@@ -1,0 +1,3 @@
+```release-note:enhancement
+oracledatabase: added `odb_network` and `odb_subnet` fields, and make `network` and `cidr` fields optional in `google_oracle_database_autonomous_database` resource
+```
