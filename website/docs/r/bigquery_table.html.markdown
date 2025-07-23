@@ -440,6 +440,8 @@ The following arguments are supported:
 
 * `use_legacy_sql` - (Optional) Specifies whether to use BigQuery's legacy SQL for this view.
     The default value is true. If set to false, the view will use BigQuery's standard SQL.
+    -> **Note**: Starting in provider version `7.0.0`, no default value is
+    provided for this field unless explicitly set in the configuration.
 
 <a name="nested_materialized_view"></a>The `materialized_view` block supports:
 
