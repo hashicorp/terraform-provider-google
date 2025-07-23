@@ -585,7 +585,8 @@ The following arguments are supported:
 
 * `deletion_policy` - (Optional) The deletion policy for the instance. Setting `ABANDON` allows the resource
 to be abandoned, rather than deleted. Setting `DELETE` deletes the resource
-and all its contents. Setting `PREVENT` prevents the resource from being deleted.
+and all its contents. Setting `PREVENT` prevents the resource from accidental
+deletion by erroring out during plan.
 Default is `DELETE`.  Possible values are:
   * DELETE
   * PREVENT
