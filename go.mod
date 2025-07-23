@@ -46,7 +46,7 @@ replace github.com/hashicorp/terraform-plugin-mux => github.com/hashicorp/terraf
 
 replace github.com/hashicorp/terraform-plugin-framework => github.com/hashicorp/terraform-plugin-framework v1.15.0-beta.1
 
-replace github.com/hashicorp/terraform-plugin-testing => github.com/hashicorp/terraform-plugin-testing v1.13.2-0.20250722223913-e6cadf4c5ca2
+replace github.com/hashicorp/terraform-plugin-testing => github.com/hashicorp/terraform-plugin-testing v1.13.2-0.20250717125659-e6cadf4c5ca2
 
 require (
 	bitbucket.org/creachadair/stringset v0.0.8 // indirect
