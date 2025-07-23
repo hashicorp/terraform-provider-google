@@ -1,0 +1,26 @@
+resource: 'google_oracle_database_odb_subnet'
+generation_type: 'mmv1'
+source_file: 'products/oracledatabase/OdbSubnet.yaml'
+api_service_name: 'oracledatabase.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'OdbSubnet'
+autogen_status: true
+fields:
+  - field: 'cidr_range'
+  - field: 'create_time'
+  - field: 'deletion_protection'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'odb_subnet_id'
+    provider_only: true
+  - field: 'odbnetwork'
+    provider_only: true
+  - field: 'purpose'
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
