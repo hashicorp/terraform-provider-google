@@ -134,6 +134,12 @@ Description of the change and how users should adjust their configuration (if ne
 
 `instance` has been removed in favor of `instance_name`.
 
+## Resource: `google_compute_subnetwork`
+
+### `enable_flow_logs`is now removed
+
+`enable_flow_logs` has been removed in favor of `log_config`.
+
 ## Resource: `google_notebooks_location` is now removed
 
 This resource is not functional.
