@@ -397,6 +397,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_storage_control_folder_intelligence_config":          storagecontrol.DataSourceGoogleStorageControlFolderIntelligenceConfig(),
 	"google_storage_control_organization_intelligence_config":    storagecontrol.DataSourceGoogleStorageControlOrganizationIntelligenceConfig(),
 	"google_storage_control_project_intelligence_config":         storagecontrol.DataSourceGoogleStorageControlProjectIntelligenceConfig(),
+	"google_storage_insights_dataset_config":                     storageinsights.DataSourceGoogleStorageInsightsDatasetConfig(),
 	"google_storage_object_signed_url":                           storage.DataSourceGoogleSignedUrl(),
 	"google_storage_project_service_account":                     storage.DataSourceGoogleStorageProjectServiceAccount(),
 	"google_storage_transfer_project_service_account":            storagetransfer.DataSourceGoogleStorageTransferProjectServiceAccount(),
