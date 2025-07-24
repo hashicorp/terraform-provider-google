@@ -314,7 +314,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated_withCondition(t *testing.T) {
 			{
 				Config: testAccIapAppEngineVersionIamPolicy_withConditionGenerated(context),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// TODO(SarahFrench) - uncomment once https://github.com/GoogleCloudPlatform/magic-modules/pull/6466 merged
+					// TODO - uncomment once https://github.com/GoogleCloudPlatform/magic-modules/pull/6466 merged
 					// resource.TestCheckResourceAttr("data.google_iam_policy.foo", "policy_data", expectedPolicyData),
 					resource.TestCheckResourceAttr("google_iap_app_engine_version_iam_policy.foo", "policy_data", expectedPolicyData),
 					resource.TestCheckResourceAttrWith("data.google_iam_policy.foo", "policy_data", tpgresource.CheckGoogleIamPolicy),

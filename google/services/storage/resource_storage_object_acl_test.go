@@ -353,7 +353,7 @@ func TestAccStorageObjectAcl_noOwner(t *testing.T) {
 		t.Errorf("error writing file: %v", err)
 	}
 
-	// TODO (mbang) we can leave this one using the SDK provider as we need to overwrite the configure function,
+	// TODO we can leave this one using the SDK provider as we need to overwrite the configure function,
 	// which we can't do in the plugin-framework version of the provider. When this resource does get updated to
 	// use plugin-framework, best I can guess we'll want to do something similar to NewFrameworkTestProvider where
 	// we have a nested production version of the provider, we re-write configure to call the production version and
