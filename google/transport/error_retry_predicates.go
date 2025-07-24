@@ -499,7 +499,7 @@ func PubsubTopicProjectNotReady(err error) (bool, string) {
 }
 
 // Retry on comon googleapi error codes for retryable errors.
-// TODO(#5609): This may not need to be applied globally - figure out
+// TODO: #5609 This may not need to be applied globally - figure out
 // what retryable error codes apply to which API.
 func isCommonRetryableErrorCode(err error) (bool, string) {
 	gerr, ok := err.(*googleapi.Error)

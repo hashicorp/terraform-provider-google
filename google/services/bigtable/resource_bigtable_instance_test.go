@@ -212,7 +212,7 @@ func TestAccBigtableInstance_kms(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
 			},
-			// TODO(kevinsi4508): Verify that the instance can be recreated due to `kms_key_name` change.
+			// TODO: Verify that the instance can be recreated due to `kms_key_name` change.
 			{
 				Config:             testAccBigtableInstance_kms(pid, instanceName, kms2.CryptoKey.Name, 3),
 				PlanOnly:           true,

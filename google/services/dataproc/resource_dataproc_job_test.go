@@ -42,7 +42,7 @@ type jobTestField struct {
 	gcp_attr interface{}
 }
 
-// TODO (mbang): Test `ExactlyOneOf` here
+// TODO: Test `ExactlyOneOf` here
 // func TestAccDataprocJob_failForMissingJobConfig(t *testing.T) {
 // 	t.Parallel()
 
@@ -661,7 +661,7 @@ func matchError(attr, tf interface{}, gcp interface{}) string {
 	return fmt.Sprintf("Cluster has mismatched %s.\nTF State: %+v\nGCP State: %+v", attr, tf, gcp)
 }
 
-// TODO (mbang): Test `ExactlyOneOf` here
+// TODO: Test `ExactlyOneOf` here
 // func testAccDataprocJob_missingJobConf() string {
 // 	return `
 // resource "google_dataproc_job" "missing_config" {
