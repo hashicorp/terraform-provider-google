@@ -551,9 +551,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 639
+// Generated resources: 640
 // Generated IAM resources: 309
-// Total generated resources: 948
+// Total generated resources: 949
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1430,6 +1430,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_storage_control_folder_intelligence_config":                          storagecontrol.ResourceStorageControlFolderIntelligenceConfig(),
 	"google_storage_control_organization_intelligence_config":                    storagecontrol.ResourceStorageControlOrganizationIntelligenceConfig(),
 	"google_storage_control_project_intelligence_config":                         storagecontrol.ResourceStorageControlProjectIntelligenceConfig(),
+	"google_storage_insights_dataset_config":                                     storageinsights.ResourceStorageInsightsDatasetConfig(),
 	"google_storage_insights_report_config":                                      storageinsights.ResourceStorageInsightsReportConfig(),
 	"google_storage_transfer_agent_pool":                                         storagetransfer.ResourceStorageTransferAgentPool(),
 	"google_tags_tag_binding":                                                    tags.ResourceTagsTagBinding(),
