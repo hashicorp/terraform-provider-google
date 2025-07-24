@@ -189,20 +189,17 @@ The only allowed value for now is "ALL_IPV4_RANGES".`,
 						"instances": {
 							Type:        schema.TypeList,
 							Required:    true,
-							ForceNew:    true,
 							Description: `The list of router appliance instances`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"ip_address": {
 										Type:        schema.TypeString,
 										Required:    true,
-										ForceNew:    true,
 										Description: `The IP address on the VM to use for peering.`,
 									},
 									"virtual_machine": {
 										Type:             schema.TypeString,
 										Required:         true,
-										ForceNew:         true,
 										DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 										Description:      `The URI of the virtual machine resource`,
 									},
