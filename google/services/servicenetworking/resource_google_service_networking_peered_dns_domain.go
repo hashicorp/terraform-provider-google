@@ -256,7 +256,7 @@ func resourceGoogleServiceNetworkingPeeredDNSDomainDelete(d *schema.ResourceData
 	return nil
 }
 
-// NOTE(deviavir): An out of band aspect of this API is that it uses a unique formatting of network
+// TODO: An out of band aspect of this API is that it uses a unique formatting of network
 // different from the standard self_link URI. It requires a call to the resource manager to get the project
 // number for the current project.
 func getProjectNumber(d *schema.ResourceData, config *transport_tpg.Config, project, userAgent string) (string, error) {

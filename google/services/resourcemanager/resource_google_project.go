@@ -790,7 +790,7 @@ func doEnableServicesRequest(services []string, project, billingProject, userAge
 // Handle errors that are retryable at call time for serviceusage
 // Specifically, errors in https://cloud.google.com/service-usage/docs/reference/rest/v1/services/batchEnable#response-body
 // Errors in operations are handled separately.
-// NOTE(rileykarson): This should probably be turned into a retry predicate
+// TODO: This should probably be turned into a retry predicate
 func handleServiceUsageRetryablePreconditionError(err error) error {
 	if err == nil {
 		return nil
