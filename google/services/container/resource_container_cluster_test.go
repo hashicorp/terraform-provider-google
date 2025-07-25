@@ -6467,6 +6467,9 @@ resource "google_container_cluster" "primary" {
 	parallelstore_csi_driver_config {
       enabled = false
     }
+    lustre_csi_driver_config {
+      enabled = false
+    }
   }
   network    = "%s"
   subnetwork = "%s"
@@ -6533,8 +6536,12 @@ resource "google_container_cluster" "primary" {
         enabled = true
       }
     }
-	parallelstore_csi_driver_config {
+    parallelstore_csi_driver_config {
       enabled = true
+    }
+    lustre_csi_driver_config {
+      enabled = true
+      enable_legacy_lustre_port=true
     }
 	}
   network    = "%s"

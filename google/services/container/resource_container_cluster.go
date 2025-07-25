@@ -109,6 +109,7 @@ var (
 		"addons_config.0.stateful_ha_config",
 		"addons_config.0.ray_operator_config",
 		"addons_config.0.parallelstore_csi_driver_config",
+		"addons_config.0.lustre_csi_driver_config",
 	}
 
 	privateClusterConfigKeys = []string{
@@ -495,6 +496,29 @@ func ResourceContainerCluster() *schema.Resource {
 									"enabled": {
 										Type:     schema.TypeBool,
 										Required: true,
+									},
+								},
+							},
+						},
+						"lustre_csi_driver_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     1,
+							Description:  `Configuration for the Lustre CSI driver. Defaults to disabled; set enabled = true to enable.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether the Lustre CSI driver is enabled for this cluster.`,
+									},
+									"enable_legacy_lustre_port": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `If set to true, the Lustre CSI driver will initialize LNet (the virtual network layer for Lustre kernel module) using port 6988.
+										This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.`,
 									},
 								},
 							},
@@ -4947,6 +4971,20 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 		}
 	}
 
+	if v, ok := config["lustre_csi_driver_config"]; ok && len(v.([]interface{})) > 0 {
+		lustreConfig := v.([]interface{})[0].(map[string]interface{})
+		ac.LustreCsiDriverConfig = &container.LustreCsiDriverConfig{
+			Enabled:         lustreConfig["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+
+		// Check for enable_legacy_lustre_port
+		if val, ok := lustreConfig["enable_legacy_lustre_port"]; ok {
+			ac.LustreCsiDriverConfig.EnableLegacyLustrePort = val.(bool)
+			ac.LustreCsiDriverConfig.ForceSendFields = append(ac.LustreCsiDriverConfig.ForceSendFields, "EnableLegacyLustrePort")
+		}
+	}
+
 	return ac
 }
 
@@ -6225,6 +6263,15 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 		result["parallelstore_csi_driver_config"] = []map[string]interface{}{
 			{
 				"enabled": c.ParallelstoreCsiDriverConfig.Enabled,
+			},
+		}
+	}
+	if c.LustreCsiDriverConfig != nil {
+		lustreConfig := c.LustreCsiDriverConfig
+		result["lustre_csi_driver_config"] = []map[string]interface{}{
+			{
+				"enabled":                   lustreConfig.Enabled,
+				"enable_legacy_lustre_port": lustreConfig.EnableLegacyLustrePort,
 			},
 		}
 	}
