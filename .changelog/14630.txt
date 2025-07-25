@@ -1,0 +1,3 @@
+```release-note:bug
+iap: fixed an issue where deleting `google_iap_settings` without setting `GOOGLE_PROJECT` incorrectly failed
+```
