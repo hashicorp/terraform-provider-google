@@ -8,10 +8,14 @@ fields:
   - field: 'bigquery_dataset.dataset'
   - field: 'bigquery_dataset.selected_resources.table'
   - field: 'categories'
+  - field: 'commercial_info.cloud_marketplace.commercial_state'
+  - field: 'commercial_info.cloud_marketplace.service'
   - field: 'data_exchange_id'
     provider_only: true
   - field: 'data_provider.name'
   - field: 'data_provider.primary_contact'
+  - field: 'delete_commercial'
+    provider_only: true
   - field: 'description'
   - field: 'display_name'
   - field: 'documentation'

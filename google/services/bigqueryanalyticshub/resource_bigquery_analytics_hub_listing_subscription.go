@@ -136,6 +136,29 @@ organize and group your datasets.`,
 				DiffSuppressFunc: tpgresource.CaseDiffSuppress,
 				Description:      `The name of the location of the data exchange. Distinct from the location of the destination data set.`,
 			},
+			"commercial_info": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Commercial info metadata for this subscription. This is set if this is a commercial subscription i.e. if this subscription was created from subscribing to a commercial listing.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cloud_marketplace": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Cloud Marketplace commercial metadata for this subscription.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"order": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Resource name of the Marketplace Order.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"creation_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -412,6 +435,9 @@ func resourceBigqueryAnalyticsHubListingSubscriptionRead(d *schema.ResourceData,
 	if err := d.Set("log_linked_dataset_query_user_email", flattenBigqueryAnalyticsHubListingSubscriptionLogLinkedDatasetQueryUserEmail(res["logLinkedDatasetQueryUserEmail"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ListingSubscription: %s", err)
 	}
+	if err := d.Set("commercial_info", flattenBigqueryAnalyticsHubListingSubscriptionCommercialInfo(res["commercialInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ListingSubscription: %s", err)
+	}
 
 	return nil
 }
@@ -610,6 +636,36 @@ func flattenBigqueryAnalyticsHubListingSubscriptionLinkedResourcesLinkedDataset(
 }
 
 func flattenBigqueryAnalyticsHubListingSubscriptionLogLinkedDatasetQueryUserEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingSubscriptionCommercialInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["cloud_marketplace"] =
+		flattenBigqueryAnalyticsHubListingSubscriptionCommercialInfoCloudMarketplace(original["cloudMarketplace"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryAnalyticsHubListingSubscriptionCommercialInfoCloudMarketplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["order"] =
+		flattenBigqueryAnalyticsHubListingSubscriptionCommercialInfoCloudMarketplaceOrder(original["order"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryAnalyticsHubListingSubscriptionCommercialInfoCloudMarketplaceOrder(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
