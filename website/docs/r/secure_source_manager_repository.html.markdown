@@ -44,7 +44,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "my-instance"
 
     # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
+    deletion_policy = "PREVENT"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -53,7 +53,7 @@ resource "google_secure_source_manager_repository" "default" {
     instance = google_secure_source_manager_instance.instance.name
 
     # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
+    deletion_policy = "PREVENT"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -70,7 +70,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "my-instance"
 
     # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
+    deletion_policy = "PREVENT"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -87,7 +87,7 @@ resource "google_secure_source_manager_repository" "default" {
     }
 
     # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
+    deletion_policy = "PREVENT"
 }
 ```
 

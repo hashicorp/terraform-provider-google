@@ -47,7 +47,7 @@ resource "google_secure_source_manager_instance" "default" {
     }
 
     # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
+    deletion_policy = "PREVENT"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -76,7 +76,7 @@ resource "google_secure_source_manager_instance" "default" {
     ]
 
     # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
+    deletion_policy = "PREVENT"
 }
 
 data "google_project" "project" {}
@@ -154,7 +154,7 @@ resource "google_secure_source_manager_instance" "default" {
   }
 
   # Prevent accidental deletions.
-  deletion_policy = ""PREVENT""
+  deletion_policy = "PREVENT"
 
   depends_on = [
     google_privateca_certificate_authority.root_ca,
@@ -247,7 +247,7 @@ resource "google_secure_source_manager_instance" "default" {
   }
 
   # Prevent accidental deletions.
-  deletion_policy = ""PREVENT""
+  deletion_policy = "PREVENT"
 
   depends_on = [
     google_privateca_certificate_authority.root_ca,
@@ -439,7 +439,7 @@ resource "google_secure_source_manager_instance" "default" {
   }
 
   # Prevent accidental deletions.
-  deletion_policy = ""PREVENT""
+  deletion_policy = "PREVENT"
 
   depends_on = [
     google_privateca_certificate_authority.root_ca,
@@ -540,7 +540,7 @@ resource "google_secure_source_manager_instance" "default" {
     }
 
     # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
+    deletion_policy = "PREVENT"
 }
 ```
 
