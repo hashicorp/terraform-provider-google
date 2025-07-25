@@ -572,12 +572,11 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   description = "description creating"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "ALPHA"
+  launch_stage = "BETA"
   annotations = {
     generated-by = "magic-modules"
   }
   scaling {
-    scaling_mode = "MANUAL"
     manual_instance_count = 5
   }
   
@@ -612,9 +611,8 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   }
   client = "client-1"
   client_version = "client-version-1"
-  launch_stage = "ALPHA"
+  launch_stage = "BETA"
   scaling {
-    scaling_mode = "MANUAL"
     manual_instance_count = 2
   }
   template {
