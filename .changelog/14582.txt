@@ -1,0 +1,3 @@
+```release-note:bug
+storage: remove bucket name validations for `google_storage_bucket` as the same validations being performed on API
+```

@@ -24,8 +24,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-
-	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func resourceStorageBucketV1() *schema.Resource {
@@ -40,11 +38,10 @@ func resourceStorageBucketV1() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				Description:  `The name of the bucket.`,
-				ValidateFunc: verify.ValidateGCSName,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the bucket.`,
 			},
 
 			"encryption": {
@@ -560,11 +557,10 @@ func resourceStorageBucketV2() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				Description:  `The name of the bucket.`,
-				ValidateFunc: verify.ValidateGCSName,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the bucket.`,
 			},
 
 			"encryption": {
