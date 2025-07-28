@@ -1,0 +1,7 @@
+```release-note:enhancement
+compute: added `network_name` field to `google_compute_subnetworks` data source
+```
+
+```release-note:deprecation
+compute: deprecated `network_self_link` field in `google_compute_subnetworks` data source. Use ``network_name` instead.
+```
