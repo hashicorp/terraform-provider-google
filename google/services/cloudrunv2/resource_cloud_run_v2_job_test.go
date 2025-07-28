@@ -950,7 +950,6 @@ func testAccCloudRunV2Job_cloudrunv2JobWithGpu(context map[string]interface{}) s
         node_selector {
           accelerator = "nvidia-l4"
         }
-        gpu_zonal_redundancy_disabled = true
       }
     }
     lifecycle {
