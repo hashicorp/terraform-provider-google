@@ -160,6 +160,12 @@ To reflect the new type explicitly, surround the current integer value in quotes
 
 Remove `description` from your configuration after upgrade.
 
+## Resource: `google_network_services_lb_traffic_extension`
+
+### `load_balancing_scheme` is now required
+
+`load_balancing_scheme` is now a required field.
+
 ## Resource: `google_storage_transfer_job`
 
 ### `transfer_spec.gcs_data_sink.path` Implemented validation to prevent strings from starting with a '/' character, while still permitting empty strings."

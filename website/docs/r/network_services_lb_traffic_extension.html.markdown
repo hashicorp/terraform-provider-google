@@ -398,6 +398,13 @@ The following arguments are supported:
   Further information can be found at https://cloud.google.com/service-extensions/docs/reference/rest/v1/ExtensionChain
   Structure is [documented below](#nested_extension_chains).
 
+* `load_balancing_scheme` -
+  (Required)
+  All backend services and forwarding rules referenced by this extension must share the same load balancing scheme.
+  For more information, refer to [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service) and
+  [Supported application load balancers](https://cloud.google.com/service-extensions/docs/callouts-overview#supported-lbs).
+  Possible values are: `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`.
+
 * `location` -
   (Required)
   The location of the traffic extension
@@ -416,13 +423,6 @@ The following arguments are supported:
   Set of labels associated with the LbTrafficExtension resource.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `load_balancing_scheme` -
-  (Optional)
-  All backend services and forwarding rules referenced by this extension must share the same load balancing scheme.
-  For more information, refer to [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service) and
-  [Supported application load balancers](https://cloud.google.com/service-extensions/docs/callouts-overview#supported-lbs).
-  Possible values are: `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
