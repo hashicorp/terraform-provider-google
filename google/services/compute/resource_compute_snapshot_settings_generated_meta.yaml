@@ -1,0 +1,9 @@
+resource: 'google_compute_snapshot_settings'
+generation_type: 'mmv1'
+source_file: 'products/compute/SnapshotSettings.yaml'
+api_service_name: 'compute.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'SnapshotSettings'
+fields:
+  - field: 'storage_location.locations.location.name'
+  - field: 'storage_location.policy'

@@ -123,9 +123,6 @@ The following arguments are supported:
   The display name of the Index. The name can be up to 128 characters long and can consist of any UTF-8 characters.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   The description of the Index.
@@ -158,6 +155,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_private_service_connect_config"></a>The `private_service_connect_config` block supports:

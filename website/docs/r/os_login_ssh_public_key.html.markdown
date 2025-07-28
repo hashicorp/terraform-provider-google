@@ -62,9 +62,6 @@ The following arguments are supported:
   The user email.
 
 
-- - -
-
-
 * `expiration_time_usec` -
   (Optional)
   An expiration time in microseconds since epoch.
@@ -72,6 +69,7 @@ The following arguments are supported:
 * `project` -
   (Optional)
   The project ID of the Google Cloud Platform project.
+
 
 
 ## Attributes Reference

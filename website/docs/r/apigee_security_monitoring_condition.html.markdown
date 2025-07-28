@@ -112,12 +112,10 @@ The following arguments are supported:
   Resource ID of the security monitoring condition.
 
 
-- - -
-
-
 * `include_all_resources` -
   (Optional)
   A nested object resource.
+
 
 
 ## Attributes Reference

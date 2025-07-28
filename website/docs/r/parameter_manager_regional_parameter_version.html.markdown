@@ -144,12 +144,10 @@ The following arguments are supported:
   Version ID of the Regional Parameter Version Resource. This must be unique within the Regional Parameter.
 
 
-- - -
-
-
 * `disabled` -
   (Optional)
   The current state of Regional Parameter Version. This field is only applicable for updating Regional Parameter Version.
+
 
 
 ## Attributes Reference

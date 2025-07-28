@@ -82,9 +82,6 @@ The following arguments are supported:
   This must be unique within the organization.
 
 
-- - -
-
-
 * `name` -
   (Optional)
   The resource name of this export, in the format
@@ -126,6 +123,7 @@ The following arguments are supported:
 * `location` -
   (Optional)
   location Id is provided by organization. If not provided, Use global as default.
+
 
 
 ## Attributes Reference

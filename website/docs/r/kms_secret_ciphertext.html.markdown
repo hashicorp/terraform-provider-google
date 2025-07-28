@@ -104,13 +104,11 @@ The following arguments are supported:
   Format: `'projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}/cryptoKeys/{{cryptoKey}}'`
 
 
-- - -
-
-
 * `additional_authenticated_data` -
   (Optional)
   The additional authenticated data used for integrity checks during encryption and decryption.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
 
 
 ## Attributes Reference

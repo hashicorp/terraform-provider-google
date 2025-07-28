@@ -84,9 +84,6 @@ The following arguments are supported:
   The name of the resource (Max 25 characters).
 
 
-- - -
-
-
 * `network` -
   (Optional)
   Name or self_link of the VPC network. Required if `ip_cidr_range` is set.
@@ -132,6 +129,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_subnet"></a>The `subnet` block supports:

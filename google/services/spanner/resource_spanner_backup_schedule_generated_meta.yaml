@@ -9,6 +9,7 @@ fields:
     provider_only: true
   - field: 'encryption_config.encryption_type'
   - field: 'encryption_config.kms_key_name'
+  - field: 'encryption_config.kms_key_names'
   - field: 'full_backup_spec'
   - field: 'incremental_backup_spec'
   - field: 'instance'

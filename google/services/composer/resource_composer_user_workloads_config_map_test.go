@@ -31,7 +31,8 @@ func TestAccComposerUserWorkloadsConfigMap_composerUserWorkloadsConfigMapBasicEx
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix":   acctest.RandString(t, 10),
+		"service_account": fmt.Sprintf("tf-test-%d", acctest.RandInt(t)),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -67,7 +68,8 @@ func TestAccComposerUserWorkloadsConfigMap_composerUserWorkloadsConfigMapBasicEx
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix":   acctest.RandString(t, 10),
+		"service_account": fmt.Sprintf("tf-test-%d", acctest.RandInt(t)),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -95,14 +97,30 @@ func TestAccComposerUserWorkloadsConfigMap_composerUserWorkloadsConfigMapBasicEx
 
 func testAccComposerUserWorkloadsConfigMap_composerUserWorkloadsConfigMapBasicExample_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "test" {
+  account_id   = "%{service_account}"
+  display_name = "Test Service Account for Composer Environment"
+}
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+
 resource "google_composer_environment" "environment" {
   name   = "tf-test-test-environment%{random_suffix}"
   region = "us-central1"
   config {
+    node_config {
+      service_account  = google_service_account.test.name
+    }
     software_config {
       image_version = "composer-3-airflow-2"
     }
   }
+  depends_on = [google_project_iam_member.composer-worker]
 }
 
 resource "google_composer_user_workloads_config_map" "config_map" {
@@ -118,14 +136,30 @@ resource "google_composer_user_workloads_config_map" "config_map" {
 
 func testAccComposerUserWorkloadsConfigMap_composerUserWorkloadsConfigMapBasicExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "test" {
+  account_id   = "%{service_account}"
+  display_name = "Test Service Account for Composer Environment"
+}
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+
 resource "google_composer_environment" "environment" {
   name   = "tf-test-test-environment%{random_suffix}"
   region = "us-central1"
   config {
+    node_config {
+      service_account  = google_service_account.test.name
+    }
     software_config {
       image_version = "composer-3-airflow-2"
     }
   }
+  depends_on = [google_project_iam_member.composer-worker]
 }
 
 resource "google_composer_user_workloads_config_map" "config_map" {
@@ -141,14 +175,30 @@ resource "google_composer_user_workloads_config_map" "config_map" {
 
 func testAccComposerUserWorkloadsConfigMap_composerUserWorkloadsConfigMapBasicExample_delete(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "test" {
+  account_id   = "%{service_account}"
+  display_name = "Test Service Account for Composer Environment"
+}
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+
 resource "google_composer_environment" "environment" {
   name   = "tf-test-test-environment%{random_suffix}"
   region = "us-central1"
   config {
+    node_config {
+      service_account  = google_service_account.test.name
+    }
     software_config {
       image_version = "composer-3-airflow-2"
     }
   }
+  depends_on = [google_project_iam_member.composer-worker]
 }
 `, context)
 }

@@ -63,9 +63,6 @@ The following arguments are supported:
   of https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locations.global.domains.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Resource labels that can contain user-provided metadata
@@ -91,6 +88,7 @@ the command will fail if this field is not set to false in Terraform state.
 When the field is set to true or unset in Terraform state, a `terraform apply`
 or `terraform destroy` that would delete the domain will fail.
 When the field is set to false, deleting the domain is allowed.
+
 
 
 ## Attributes Reference

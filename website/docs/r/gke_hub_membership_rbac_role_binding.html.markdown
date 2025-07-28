@@ -105,19 +105,17 @@ The following arguments are supported:
   Location of the Membership
 
 
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_role"></a>The `role` block supports:
 
 * `predefined_role` -
   (Required)
   PredefinedRole is an ENUM representation of the default Kubernetes Roles
   Possible values are: `UNKNOWN`, `ADMIN`, `EDIT`, `VIEW`, `ANTHOS_SUPPORT`.
-
-- - -
-
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

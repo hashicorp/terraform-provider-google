@@ -95,22 +95,6 @@ The following arguments are supported:
   Structure is [documented below](#nested_entities).
 
 
-<a name="nested_entities"></a>The `entities` block supports:
-
-* `value` -
-  (Optional)
-  The primary value associated with this entity entry. For example, if the entity type is vegetable, the value could be scallions.
-  For KIND_MAP entity types: A canonical value to be used in place of synonyms.
-  For KIND_LIST entity types: A string that can contain references to other entity types (with or without aliases).
-
-* `synonyms` -
-  (Optional)
-  A collection of value synonyms. For example, if the entity type is vegetable, and value is scallions, a synonym could be green onions.
-  For KIND_LIST entity types: This collection must contain exactly one synonym equal to value.
-
-- - -
-
-
 * `auto_expansion_mode` -
   (Optional)
   Represents kinds of entities.
@@ -145,6 +129,20 @@ The following arguments are supported:
   EntityType.excluded_phrases.value
   If not specified, the agent's default language is used. Many languages are supported. Note: languages must be enabled in the agent before they can be used.
 
+
+
+<a name="nested_entities"></a>The `entities` block supports:
+
+* `value` -
+  (Optional)
+  The primary value associated with this entity entry. For example, if the entity type is vegetable, the value could be scallions.
+  For KIND_MAP entity types: A canonical value to be used in place of synonyms.
+  For KIND_LIST entity types: A string that can contain references to other entity types (with or without aliases).
+
+* `synonyms` -
+  (Optional)
+  A collection of value synonyms. For example, if the entity type is vegetable, and value is scallions, a synonym could be green onions.
+  For KIND_LIST entity types: This collection must contain exactly one synonym equal to value.
 
 <a name="nested_excluded_phrases"></a>The `excluded_phrases` block supports:
 

@@ -640,6 +640,24 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 								},
 							},
 						},
+						"rbacrolebindingactuation": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `RBACRolebinding Actuation feature spec.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allowed_custom_roles": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `The list of allowed custom roles (ClusterRoles). If a custom role is not part of this list, it cannot be used in a fleet scope RBACRoleBinding. If a custom role in this list is in use, it cannot be removed from the list until the scope RBACRolebindings using it are deleted.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -781,6 +799,31 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	headers := make(http.Header)
+	// Check if the fleet feature already exists. Do an update if so.
+
+	getUrl, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features/{{name}}")
+	if err != nil {
+		return err
+	}
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   billingProject,
+		RawURL:    getUrl,
+		UserAgent: userAgent,
+		Headers:   headers,
+	})
+
+	if err == nil {
+		// Fleet feature already exists
+		log.Printf("[DEBUG] Fleet feature already exists %s", d.Get("name"))
+		id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/features/{{name}}")
+		if err != nil {
+			return fmt.Errorf("Error constructing id: %s", err)
+		}
+		d.SetId(id)
+		return resourceGKEHub2FeatureUpdate(d, meta)
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -1019,6 +1062,61 @@ func resourceGKEHub2FeatureDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	headers := make(http.Header)
+	// Special handling for the mandatory 'rbacrolebindingactuation' feature.
+	// Instead of deleting it, we reset it to a default state by sending a PATCH request.
+	if d.Get("name").(string) == "rbacrolebindingactuation" {
+		log.Printf("[DEBUG] Mandatory feature 'rbacrolebindingactuation' detected. Resetting instead of deleting.")
+
+		patchUrl, err := tpgresource.ReplaceVarsForId(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		// Construct the request body to clear the desired field.
+		obj := map[string]interface{}{
+			"spec": map[string]interface{}{
+				"rbacrolebindingactuation": map[string]interface{}{
+					"allowedCustomRoles": []string{},
+				},
+			},
+		}
+
+		// A specific updateMask is required for a PATCH request.
+		updateMask := "spec.rbacrolebindingactuation.allowedCustomRoles"
+		url, err := transport_tpg.AddQueryParams(patchUrl, map[string]string{"updateMask": updateMask})
+		if err != nil {
+			return err
+		}
+
+		log.Printf("[DEBUG] Sending PATCH to reset Feature %q: %#v", d.Id(), obj)
+
+		// Send the raw PATCH request.
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutDelete), // Use the delete timeout for this reset operation.
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("error resetting Feature %q: %s", d.Id(), err)
+		}
+
+		// Wait for the long-running operation to complete.
+		err = GKEHub2OperationWaitTime(
+			config, res, tpgresource.GetResourceNameFromSelfLink(project), "Resetting Feature", userAgent,
+			d.Timeout(schema.TimeoutDelete))
+
+		if err != nil {
+			return fmt.Errorf("error waiting to reset Feature %q: %s", d.Id(), err)
+		}
+
+		log.Printf("[DEBUG] Finished resetting Feature %q", d.Id())
+		return nil
+	}
 
 	log.Printf("[DEBUG] Deleting Feature %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -1120,6 +1218,8 @@ func flattenGKEHub2FeatureSpec(v interface{}, d *schema.ResourceData, config *tr
 		flattenGKEHub2FeatureSpecFleetobservability(original["fleetobservability"], d, config)
 	transformed["clusterupgrade"] =
 		flattenGKEHub2FeatureSpecClusterupgrade(original["clusterupgrade"], d, config)
+	transformed["rbacrolebindingactuation"] =
+		flattenGKEHub2FeatureSpecRbacrolebindingactuation(original["rbacrolebindingactuation"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGKEHub2FeatureSpecMulticlusteringress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1295,6 +1395,23 @@ func flattenGKEHub2FeatureSpecClusterupgradeGkeUpgradeOverridesPostConditions(v 
 	return []interface{}{transformed}
 }
 func flattenGKEHub2FeatureSpecClusterupgradeGkeUpgradeOverridesPostConditionsSoaking(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureSpecRbacrolebindingactuation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["allowed_custom_roles"] =
+		flattenGKEHub2FeatureSpecRbacrolebindingactuationAllowedCustomRoles(original["allowedCustomRoles"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureSpecRbacrolebindingactuationAllowedCustomRoles(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1914,6 +2031,13 @@ func expandGKEHub2FeatureSpec(v interface{}, d tpgresource.TerraformResourceData
 		transformed["clusterupgrade"] = transformedClusterupgrade
 	}
 
+	transformedRbacrolebindingactuation, err := expandGKEHub2FeatureSpecRbacrolebindingactuation(original["rbacrolebindingactuation"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRbacrolebindingactuation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rbacrolebindingactuation"] = transformedRbacrolebindingactuation
+	}
+
 	return transformed, nil
 }
 
@@ -2174,6 +2298,29 @@ func expandGKEHub2FeatureSpecClusterupgradeGkeUpgradeOverridesPostConditions(v i
 }
 
 func expandGKEHub2FeatureSpecClusterupgradeGkeUpgradeOverridesPostConditionsSoaking(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureSpecRbacrolebindingactuation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAllowedCustomRoles, err := expandGKEHub2FeatureSpecRbacrolebindingactuationAllowedCustomRoles(original["allowed_custom_roles"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowedCustomRoles); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allowedCustomRoles"] = transformedAllowedCustomRoles
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureSpecRbacrolebindingactuationAllowedCustomRoles(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

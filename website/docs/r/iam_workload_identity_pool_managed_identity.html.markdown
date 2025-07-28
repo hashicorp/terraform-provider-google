@@ -64,11 +64,6 @@ resource "google_iam_workload_identity_pool_managed_identity" "example" {
   workload_identity_pool_managed_identity_id = "example-managed-identity"
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=iam_workload_identity_pool_managed_identity_full&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Iam Workload Identity Pool Managed Identity Full
 
 
@@ -95,6 +90,12 @@ resource "google_iam_workload_identity_pool_managed_identity" "example" {
   workload_identity_pool_managed_identity_id = "example-managed-identity"
   description                                = "Example Managed Identity in a Workload Identity Pool Namespace"
   disabled                                   = true
+  attestation_rules {
+    google_cloud_resource = "//compute.googleapis.com/projects/1111111111111/uid/zones/us-central1-a/instances/12345678"
+  }
+  attestation_rules {
+    google_cloud_resource = "//run.googleapis.com/projects/1111111111111/name/locations/us-east1/services/my-service"
+  }
 }
 ```
 
@@ -130,9 +131,6 @@ The following arguments are supported:
   The prefix `gcp-` will be reserved for future uses.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A description of the managed identity. Cannot exceed 256 characters.
@@ -142,9 +140,24 @@ The following arguments are supported:
   Whether the managed identity is disabled. If disabled, credentials may no longer be issued for
   the identity, however existing credentials will still be accepted until they expire.
 
+* `attestation_rules` -
+  (Optional)
+  Defines which workloads can receive an identity within a pool. When an AttestationRule is
+  defined under a managed identity, matching workloads may receive that identity. A maximum of
+  50 AttestationRules can be set.
+  Structure is [documented below](#nested_attestation_rules).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_attestation_rules"></a>The `attestation_rules` block supports:
+
+* `google_cloud_resource` -
+  (Required)
+  A single workload operating on Google Cloud. For example:
+  `//compute.googleapis.com/projects/123/uid/zones/us-central1-a/instances/12345678`.
 
 ## Attributes Reference
 

@@ -1116,6 +1116,64 @@ func TestAccDataprocCluster_withKerberos(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withIdentityConfig(t *testing.T) {
+	t.Parallel()
+
+	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
+	var cluster dataproc.Cluster
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withIdentityConfig(rnd, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.identity_config", &cluster),
+				),
+			},
+		},
+	})
+}
+
+// Test updating identity_config.user_service_account_mapping field
+func TestAccDataprocCluster_updateIdentityConfigUserMapping(t *testing.T) {
+	t.Parallel()
+
+	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
+	var cluster dataproc.Cluster
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_updateIdentityConfig(rnd, subnetworkName, "bob@company.com", "bob-sa@iam.gserviceaccount.com"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.identity_config_user_mapping", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.identity_config_user_mapping", "cluster_config.0.security_config.0.identity_config.0.user_service_account_mapping.bob@company.com", "bob-sa@iam.gserviceaccount.com"),
+				),
+			},
+			{
+				Config: testAccDataprocCluster_updateIdentityConfig(rnd, subnetworkName, "alice@company.com", "alice-sa@iam.gserviceaccount.com"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.identity_config_user_mapping", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.identity_config_user_mapping", "cluster_config.0.security_config.0.identity_config.0.user_service_account_mapping.alice@company.com", "alice-sa@iam.gserviceaccount.com"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withAutoscalingPolicy(t *testing.T) {
 	t.Parallel()
 
@@ -2655,6 +2713,57 @@ resource "google_dataproc_cluster" "kerb" {
   }
 }
 `, rnd, rnd, rnd, subnetworkName, kmsKey)
+}
+
+func testAccDataprocCluster_withIdentityConfig(rnd, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "identity_config" {
+  name   = "tf-test-dataproc-identity-%s"
+  region = "us-central1"
+  cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+    security_config {
+      identity_config {
+        user_service_account_mapping = {
+          "bob@company.com" = "bob-sa@iam.gserviceaccouts.com"
+        }
+      }
+    }
+  }
+}
+`, rnd, subnetworkName)
+}
+
+func testAccDataprocCluster_updateIdentityConfig(rnd, subnetworkName, user, sa string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "identity_config_user_mapping" {
+  name   = "tf-test-dataproc-update-identity-%s"
+  region = "us-central1"
+
+  cluster_config {
+	gce_cluster_config {
+	  subnetwork = "%s"
+	}
+	security_config {
+	  identity_config {
+		user_service_account_mapping = {
+		  "%s" = "%s"
+		}
+	  }
+	}
+	master_config {
+	  num_instances = 1
+	  machine_type  = "n1-standard-2"
+	}
+	worker_config {
+	  num_instances = 2
+	  machine_type  = "n1-standard-2"
+	}
+  }
+}
+`, rnd, subnetworkName, user, sa)
 }
 
 func testAccDataprocCluster_withAutoscalingPolicy(rnd, subnetworkName string) string {

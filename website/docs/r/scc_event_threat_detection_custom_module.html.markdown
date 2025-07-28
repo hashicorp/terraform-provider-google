@@ -81,12 +81,10 @@ The following arguments are supported:
   Numerical ID of the parent organization.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   The human readable name to be displayed for the module.
+
 
 
 ## Attributes Reference

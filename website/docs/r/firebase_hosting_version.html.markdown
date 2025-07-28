@@ -280,13 +280,11 @@ The following arguments are supported:
   Required. The ID of the site in which to create this Version.
 
 
-- - -
-
-
 * `config` -
   (Optional)
   The configuration for the behavior of the site. This configuration exists in the `firebase.json` file.
   Structure is [documented below](#nested_config).
+
 
 
 <a name="nested_config"></a>The `config` block supports:

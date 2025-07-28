@@ -35,9 +35,8 @@ func TestAccEventarcPipeline_eventarcPipelineWithTopicDestinationExample(t *test
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_id":              envvar.GetTestProjectFromEnv(),
-		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
-		"random_suffix":           acctest.RandString(t, 10),
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -69,9 +68,6 @@ resource "google_eventarc_pipeline" "primary" {
   pipeline_id = "tf-test-some-pipeline%{random_suffix}"
   destinations {
     topic = google_pubsub_topic.topic.id
-    network_config {
-      network_attachment = "projects/%{project_id}/regions/us-central1/networkAttachments/%{network_attachment_name}"
-    }
   }
   labels = {
     test_label = "test-eventarc-label"
@@ -132,9 +128,8 @@ func TestAccEventarcPipeline_eventarcPipelineWithWorkflowDestinationExample(t *t
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_id":              envvar.GetTestProjectFromEnv(),
-		"network_attachment_name": acctest.BootstrapNetworkAttachment(t, "tf-bootstrap-eventarc-pipeline-na", acctest.BootstrapSubnet(t, "tf-bootstrap-eventarc-pipeline-subnet", acctest.BootstrapSharedTestNetwork(t, "tf-bootstrap-eventarc-pipeline-network"))),
-		"random_suffix":           acctest.RandString(t, 10),
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -195,9 +190,6 @@ resource "google_eventarc_pipeline" "primary" {
   pipeline_id = "tf-test-some-pipeline%{random_suffix}"
   destinations {
     workflow = google_workflows_workflow.workflow.id
-    network_config {
-      network_attachment = "projects/%{project_id}/regions/us-central1/networkAttachments/%{network_attachment_name}"
-    }
   }
 }
 `, context)

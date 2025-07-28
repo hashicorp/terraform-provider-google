@@ -17,9 +17,11 @@
 package secretmanagerregional_test
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
@@ -562,6 +564,70 @@ func TestAccSecretManagerRegionalRegionalSecret_versionAliasesUpdate(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "secret_id", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func TestAccSecretManagerRegionalRegionalSecret_deletionprotection(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerRegionalRegionalSecretDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecretManagerRegionalSecretDeletionProtectionL1(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_regional_secret.regional-secret-deletion-protection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "secret_id", "terraform_labels", "deletion_protection"},
+			},
+			{
+				Config:      testAccSecretManagerRegionalSecretDeletionProtectionL2(context),
+				ExpectError: regexp.MustCompile("deletion_protection"),
+			},
+			{
+				Config: testAccSecretManagerRegionalSecretDeletionProtectionFalse(context),
+			},
+		},
+	})
+}
+
+func TestAccSecretManagerRegionalRegionalSecret_tags(t *testing.T) {
+	t.Parallel()
+
+	tagKey := acctest.BootstrapSharedTestOrganizationTagKey(t, "secretmanager_regional_regionalsecret-tagkey", map[string]interface{}{})
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"org":           envvar.GetTestOrgFromEnv(t),
+		"tagKey":        tagKey,
+		"tagValue":      acctest.BootstrapSharedTestOrganizationTagValue(t, "secretmanager_regional_regionalsecret-tagvalue", tagKey),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerRegionalRegionalSecretDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecretManagerRegionalSecretTags(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_regional_secret.regional-secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "secret_id", "terraform_labels", "deletion_protection", "tags"},
+			},
+			{
+				Config: testAccSecretManagerRegionalSecretTagsDeletionProtection(context),
 			},
 		},
 	})
@@ -1320,6 +1386,61 @@ resource "google_secret_manager_regional_secret_version" "reg-secret-version-4" 
   secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
 
   secret_data = "very secret data keep it down %{random_suffix}-4"
+}
+`, context)
+}
+
+func testAccSecretManagerRegionalSecretDeletionProtectionL1(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_regional_secret" "regional-secret-deletion-protection" {
+  secret_id = "tf-test-reg-secret%{random_suffix}"
+  location = "us-central1"
+  deletion_protection = true
+}
+`, context)
+}
+
+func testAccSecretManagerRegionalSecretDeletionProtectionL2(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_regional_secret" "regional-secret-deletion-protection" {
+  secret_id = "tf-test-reg-secret%{random_suffix}"
+  location = "us-west2"
+  deletion_protection = true
+}
+`, context)
+}
+
+func testAccSecretManagerRegionalSecretDeletionProtectionFalse(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_regional_secret" "regional-secret-deletion-protection" {
+  secret_id = "tf-test-reg-secret%{random_suffix}"
+  location = "us-central1"
+  deletion_protection = false
+}
+`, context)
+}
+
+func testAccSecretManagerRegionalSecretTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_regional_secret" "regional-secret-basic" {
+  secret_id = "tf-test-reg-secret-%{random_suffix}"
+  location = "us-central1"
+  tags = {
+	"%{org}/%{tagKey}" = "%{tagValue}"
+  }
+}
+`, context)
+}
+
+func testAccSecretManagerRegionalSecretTagsDeletionProtection(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_regional_secret" "regional-secret-basic" {
+  secret_id = "tf-test-reg-secret-%{random_suffix}"
+  location = "us-central1"
+  tags = {
+	"%{org}/%{tagKey}" = "%{tagValue}"
+  }
+  deletion_protection = false  
 }
 `, context)
 }

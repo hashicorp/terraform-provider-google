@@ -34,11 +34,6 @@ import (
 	"google.golang.org/api/serviceusage/v1"
 )
 
-// These services can only be enabled as a side-effect of enabling other services,
-// so don't bother storing them in the config or using them for diffing.
-var ignoredProjectServices = []string{"dataproc-control.googleapis.com", "source.googleapis.com", "stackdriverprovisioning.googleapis.com"}
-var ignoredProjectServicesSet = tpgresource.GolangSetFromStringSlice(ignoredProjectServices)
-
 // Services that can't be user-specified but are otherwise valid. Renamed
 // services should be added to this set during major releases.
 var bannedProjectServices = []string{"bigquery-json.googleapis.com"}
@@ -78,7 +73,7 @@ var renamedServicesByOldAndNewServiceNames = tpgresource.MergeStringMaps(Renamed
 const maxServiceUsageBatchSize = 20
 
 func validateProjectServiceService(val interface{}, key string) (warns []string, errs []error) {
-	bannedServicesFunc := verify.StringNotInSlice(append(ignoredProjectServices, bannedProjectServices...), false)
+	bannedServicesFunc := verify.StringNotInSlice(bannedProjectServices, false)
 	warns, errs = bannedServicesFunc(val, key)
 	if len(errs) > 0 {
 		return

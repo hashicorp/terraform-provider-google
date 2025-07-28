@@ -21,6 +21,7 @@ fields:
   - field: 'mount_point'
   - field: 'name'
   - field: 'network'
+  - field: 'per_unit_storage_throughput'
   - field: 'state'
   - field: 'terraform_labels'
     provider_only: true

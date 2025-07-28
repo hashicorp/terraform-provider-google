@@ -92,9 +92,6 @@ The following arguments are supported:
   Developer Console.
 
 
-- - -
-
-
 * `sha1_hashes` -
   (Optional)
   The SHA1 certificate hashes for the AndroidApp.
@@ -115,6 +112,7 @@ The following arguments are supported:
 * `deletion_policy` - (Optional) (Optional) Set to `ABANDON` to allow the AndroidApp to be untracked from terraform state
 rather than deleted upon `terraform destroy`. This is useful because the AndroidApp may be
 serving traffic. Set to `DELETE` to delete the AndroidApp. Defaults to `DELETE`.
+
 
 
 ## Attributes Reference

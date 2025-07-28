@@ -250,9 +250,6 @@ The following arguments are supported:
   The network that this route applies to.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource. Provide this property
@@ -313,6 +310,11 @@ The following arguments are supported:
   Note that this can only be used when the destinationRange is
   a public (non-RFC 1918) IP CIDR range.
 
+* `params` -
+  (Optional)
+  Additional params passed with the request, but not persisted as part of resource payload
+  Structure is [documented below](#nested_params).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -320,6 +322,18 @@ The following arguments are supported:
   specified)  The zone of the instance specified in
   `next_hop_instance`.  Omit if `next_hop_instance` is specified as
   a URL.
+
+
+<a name="nested_params"></a>The `params` block supports:
+
+* `resource_manager_tags` -
+  (Optional)
+  Resource manager tags to be bound to the route. Tag keys and values have the
+  same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+  and values are in the format tagValues/456. The field is ignored when empty.
+  The field is immutable and causes resource replacement when mutated. This field is only
+  set at create time and modifying this field after creation will trigger recreation.
+  To apply tags to an existing resource, see the google_tags_tag_binding resource.
 
 ## Attributes Reference
 

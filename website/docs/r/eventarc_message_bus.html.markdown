@@ -77,9 +77,6 @@ The following arguments are supported:
   format `^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$`.
 
 
-- - -
-
-
 * `logging_config` -
   (Optional)
   The configuration for Platform Telemetry logging for Eventarc Advanced
@@ -111,6 +108,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_logging_config"></a>The `logging_config` block supports:

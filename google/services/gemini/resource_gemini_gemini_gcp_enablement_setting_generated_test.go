@@ -62,6 +62,7 @@ resource "google_gemini_gemini_gcp_enablement_setting" "example" {
     location = "global"
     labels = {"my_key": "my_value"}
     enable_customer_data_sharing = true
+    web_grounding_type = "WEB_GROUNDING_FOR_ENTERPRISE"
 }
 `, context)
 }

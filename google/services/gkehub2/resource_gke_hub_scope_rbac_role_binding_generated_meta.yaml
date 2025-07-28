@@ -12,6 +12,7 @@ fields:
   - field: 'group'
   - field: 'labels'
   - field: 'name'
+  - field: 'role.custom_role'
   - field: 'role.predefined_role'
   - field: 'scope_id'
     provider_only: true

@@ -213,6 +213,14 @@ E.g. "n2-highmem-4", "n2-highmem-8", "c4a-highmem-4-lssd".
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"allocated_ip_range_override": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Name of the allocated IP range for the private IP AlloyDB instance, for example: "google-managed-services-default".
+If set, the instance IPs will be created from this allocated range and will override the IP range used by the parent cluster.
+The range name must comply with RFC 1035. Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])?.`,
+						},
 						"authorized_external_networks": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -1353,6 +1361,8 @@ func flattenAlloydbInstanceNetworkConfig(v interface{}, d *schema.ResourceData, 
 		flattenAlloydbInstanceNetworkConfigEnablePublicIp(original["enablePublicIp"], d, config)
 	transformed["enable_outbound_public_ip"] =
 		flattenAlloydbInstanceNetworkConfigEnableOutboundPublicIp(original["enableOutboundPublicIp"], d, config)
+	transformed["allocated_ip_range_override"] =
+		flattenAlloydbInstanceNetworkConfigAllocatedIpRangeOverride(original["allocatedIpRangeOverride"], d, config)
 	return []interface{}{transformed}
 }
 func flattenAlloydbInstanceNetworkConfigAuthorizedExternalNetworks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1382,6 +1392,10 @@ func flattenAlloydbInstanceNetworkConfigEnablePublicIp(v interface{}, d *schema.
 }
 
 func flattenAlloydbInstanceNetworkConfigEnableOutboundPublicIp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbInstanceNetworkConfigAllocatedIpRangeOverride(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1798,6 +1812,13 @@ func expandAlloydbInstanceNetworkConfig(v interface{}, d tpgresource.TerraformRe
 		transformed["enableOutboundPublicIp"] = transformedEnableOutboundPublicIp
 	}
 
+	transformedAllocatedIpRangeOverride, err := expandAlloydbInstanceNetworkConfigAllocatedIpRangeOverride(original["allocated_ip_range_override"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllocatedIpRangeOverride); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allocatedIpRangeOverride"] = transformedAllocatedIpRangeOverride
+	}
+
 	return transformed, nil
 }
 
@@ -1832,6 +1853,10 @@ func expandAlloydbInstanceNetworkConfigEnablePublicIp(v interface{}, d tpgresour
 }
 
 func expandAlloydbInstanceNetworkConfigEnableOutboundPublicIp(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbInstanceNetworkConfigAllocatedIpRangeOverride(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

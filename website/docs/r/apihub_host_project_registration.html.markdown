@@ -85,11 +85,9 @@ The following arguments are supported:
   host_project_registration.gcp_project field.
 
 
-- - -
-
-
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

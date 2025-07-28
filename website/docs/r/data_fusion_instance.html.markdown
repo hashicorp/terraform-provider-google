@@ -268,9 +268,6 @@ The following arguments are supported:
   Possible values are: `BASIC`, `ENTERPRISE`, `DEVELOPER`.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of the instance.
@@ -356,6 +353,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_network_config"></a>The `network_config` block supports:

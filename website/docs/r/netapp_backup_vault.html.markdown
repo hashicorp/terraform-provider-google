@@ -59,9 +59,6 @@ The following arguments are supported:
   The resource name of the backup vault. Needs to be unique per location.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource.
@@ -89,6 +86,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_backup_retention_policy"></a>The `backup_retention_policy` block supports:

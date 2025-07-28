@@ -144,9 +144,6 @@ The following arguments are supported:
   The ID of the Cluster.
 
 
-- - -
-
-
 * `node_type_configs` -
   (Optional)
   The map of cluster node types in this cluster,
@@ -157,6 +154,7 @@ The following arguments are supported:
   (Optional)
   Configuration of the autoscaling applied to this cluster
   Structure is [documented below](#nested_autoscaling_settings).
+
 
 
 <a name="nested_node_type_configs"></a>The `node_type_configs` block supports:

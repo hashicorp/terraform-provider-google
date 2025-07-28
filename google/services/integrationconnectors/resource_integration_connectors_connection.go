@@ -228,7 +228,6 @@ format as: projects/*/secrets/*/versions/*.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"auth_config.0.user_password", "auth_config.0.oauth2_jwt_bearer", "auth_config.0.oauth2_client_credentials", "auth_config.0.ssh_public_key", "auth_config.0.oauth2_auth_code_flow"},
 						},
 						"oauth2_client_credentials": {
 							Type:        schema.TypeList,
@@ -260,7 +259,6 @@ format as: projects/*/secrets/*/versions/*.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"auth_config.0.user_password", "auth_config.0.oauth2_jwt_bearer", "auth_config.0.oauth2_client_credentials", "auth_config.0.ssh_public_key", "auth_config.0.oauth2_auth_code_flow"},
 						},
 						"oauth2_jwt_bearer": {
 							Type:        schema.TypeList,
@@ -314,7 +312,6 @@ format as: projects/*/secrets/*/versions/*.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"auth_config.0.user_password", "auth_config.0.oauth2_jwt_bearer", "auth_config.0.oauth2_client_credentials", "auth_config.0.ssh_public_key", "auth_config.0.oauth2_auth_code_flow"},
 						},
 						"ssh_public_key": {
 							Type:        schema.TypeList,
@@ -367,7 +364,6 @@ format as: projects/*/secrets/*/versions/*.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"auth_config.0.user_password", "auth_config.0.oauth2_jwt_bearer", "auth_config.0.oauth2_client_credentials", "auth_config.0.ssh_public_key", "auth_config.0.oauth2_auth_code_flow"},
 						},
 						"user_password": {
 							Type:        schema.TypeList,
@@ -399,7 +395,6 @@ format as: projects/*/secrets/*/versions/*.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"auth_config.0.user_password", "auth_config.0.oauth2_jwt_bearer", "auth_config.0.oauth2_client_credentials", "auth_config.0.ssh_public_key", "auth_config.0.oauth2_auth_code_flow"},
 						},
 					},
 				},
@@ -801,6 +796,13 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 							Type:        schema.TypeBool,
 							Required:    true,
 							Description: `Enabled represents whether logging is enabled or not for a connection.`,
+						},
+						"level": {
+							Type:         schema.TypeString,
+							Computed:     true,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"LOG_LEVEL_UNSPECIFIED", "ERROR", "INFO", "DEBUG", ""}),
+							Description:  `Log configuration level. Possible values: ["LOG_LEVEL_UNSPECIFIED", "ERROR", "INFO", "DEBUG"]`,
 						},
 					},
 				},
@@ -2386,9 +2388,15 @@ func flattenIntegrationConnectorsConnectionLogConfig(v interface{}, d *schema.Re
 	transformed := make(map[string]interface{})
 	transformed["enabled"] =
 		flattenIntegrationConnectorsConnectionLogConfigEnabled(original["enabled"], d, config)
+	transformed["level"] =
+		flattenIntegrationConnectorsConnectionLogConfigLevel(original["level"], d, config)
 	return []interface{}{transformed}
 }
 func flattenIntegrationConnectorsConnectionLogConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIntegrationConnectorsConnectionLogConfigLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3928,10 +3936,21 @@ func expandIntegrationConnectorsConnectionLogConfig(v interface{}, d tpgresource
 		transformed["enabled"] = transformedEnabled
 	}
 
+	transformedLevel, err := expandIntegrationConnectorsConnectionLogConfigLevel(original["level"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLevel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["level"] = transformedLevel
+	}
+
 	return transformed, nil
 }
 
 func expandIntegrationConnectorsConnectionLogConfigEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIntegrationConnectorsConnectionLogConfigLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

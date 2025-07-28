@@ -544,9 +544,6 @@ The following arguments are supported:
   running `gcloud privateca locations list`.
 
 
-- - -
-
-
 * `lifetime` -
   (Optional)
   The desired lifetime of the CA certificate. Used to create the "notBeforeTime" and
@@ -586,6 +583,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_config"></a>The `config` block supports:

@@ -27,4 +27,6 @@ fields:
   - field: 'private_endpoints.psc_automated_endpoints.network'
   - field: 'private_endpoints.psc_automated_endpoints.project_id'
   - field: 'private_endpoints.service_attachment'
+  - field: 'region'
+    provider_only: true
   - field: 'reserved_ip_ranges'

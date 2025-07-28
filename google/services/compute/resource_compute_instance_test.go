@@ -1922,10 +1922,6 @@ func TestAccComputeInstance_performanceMonitoringUnit(t *testing.T) {
 		"instance_name":               fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"performance_monitoring_unit": "STANDARD",
 	}
-	context_2 := map[string]interface{}{
-		"instance_name":               context_1["instance_name"].(string),
-		"performance_monitoring_unit": "ENHANCED",
-	}
 	context_3 := map[string]interface{}{
 		"instance_name":               context_1["instance_name"].(string),
 		"performance_monitoring_unit": "ARCHITECTURAL",
@@ -1945,15 +1941,6 @@ func TestAccComputeInstance_performanceMonitoringUnit(t *testing.T) {
 				),
 			},
 			computeInstanceImportStep("us-central1-a", context_1["instance_name"].(string), []string{"allow_stopping_for_update"}),
-			{
-				Config: testAccComputeInstance_performanceMonitoringUnit(context_2),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						t, "google_compute_instance.foobar", &instance),
-					resource.TestCheckResourceAttr("google_compute_instance.foobar", "advanced_machine_features.0.performance_monitoring_unit", "ENHANCED"),
-				),
-			},
-			computeInstanceImportStep("us-central1-a", context_2["instance_name"].(string), []string{"allow_stopping_for_update"}),
 			{
 				Config: testAccComputeInstance_performanceMonitoringUnit(context_3),
 				Check: resource.ComposeTestCheckFunc(
@@ -8909,7 +8896,7 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstanceConfidentialInstanceConfigEnable(instance string, confidentialInstanceType string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family    = "ubuntu-2004-lts"
+  family    = "ubuntu-2204-lts"
   project   = "ubuntu-os-cloud"
 }
 
@@ -8971,7 +8958,7 @@ resource "google_compute_instance" "foobar2" {
 func testAccComputeInstanceConfidentialInstanceConfigNoEnable(instance string, minCpuPlatform, confidentialInstanceType string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image2" {
-  family    = "ubuntu-2004-lts"
+  family    = "ubuntu-2204-lts"
   project   = "ubuntu-os-cloud"
 }
 
@@ -9870,7 +9857,7 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_spotVM(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family    = "ubuntu-2004-lts"
+  family    = "ubuntu-2204-lts"
   project   = "ubuntu-os-cloud"
 }
 
@@ -9902,7 +9889,7 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_standardVM_maxRunDuration(instance string, instanceTerminationAction string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family    = "ubuntu-2004-lts"
+  family    = "ubuntu-2204-lts"
   project   = "ubuntu-os-cloud"
 }
 
@@ -9937,7 +9924,7 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_standardVM_maxRunDurationUpdated(instance string, instanceTerminationAction string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family    = "ubuntu-2004-lts"
+  family    = "ubuntu-2204-lts"
   project   = "ubuntu-os-cloud"
 }
 
@@ -10013,7 +10000,7 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_spotVM_maxRunDuration(instance string, instanceTerminationAction string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family    = "ubuntu-2004-lts"
+  family    = "ubuntu-2204-lts"
   project   = "ubuntu-os-cloud"
 }
 
@@ -10049,7 +10036,7 @@ resource "google_compute_instance" "foobar" {
 func testAccComputeInstance_localSsdRecoveryTimeout(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family    = "ubuntu-2004-lts"
+  family    = "ubuntu-2204-lts"
   project   = "ubuntu-os-cloud"
 }
 

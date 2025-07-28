@@ -223,6 +223,14 @@ func TestAccComputeNetwork_bgpAlwaysCompareMedAndUpdate(t *testing.T) {
 					resource.TestCheckResourceAttr("google_compute_network.acc_network_bgp_always_compare_med", "bgp_always_compare_med", "true"),
 				),
 			},
+			{
+				Config: testAccComputeNetwork_bgp_always_compare_med(networkName, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.acc_network_bgp_always_compare_med", &network),
+					resource.TestCheckResourceAttr("google_compute_network.acc_network_bgp_always_compare_med", "bgp_always_compare_med", "false"),
+				),
+			},
 		},
 	})
 }
@@ -286,6 +294,49 @@ func TestAccComputeNetwork_networkProfile(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestComputeNetworkProfileDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"old: no previous profile, new: partial profile URL": {
+			Old:                "",
+			New:                "projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			ExpectDiffSuppress: false,
+		},
+		"old: no previous profile, new: full profile URL": {
+			Old:                "",
+			New:                "https://www.googleapis.com/compute/v1/projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			ExpectDiffSuppress: false,
+		},
+		"old: beta profile URL, new: partial profile URL": {
+			Old:                "https://www.googleapis.com/compute/beta/projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			New:                "projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			ExpectDiffSuppress: true,
+		},
+		"old: v1 profile URL, new: partial profile URL": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			New:                "projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			ExpectDiffSuppress: true,
+		},
+		"old: beta profile URL, new: v1 profile URL": {
+			Old:                "https://www.googleapis.com/compute/beta/projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			New:                "https://www.googleapis.com/compute/v1/projects/dummy-project/global/networkProfiles/europe-west1-b-vpc-roce",
+			ExpectDiffSuppress: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		tc := tc
+		t.Run(tn, func(t *testing.T) {
+			t.Parallel()
+			if tpgresource.CompareSelfLinkRelativePaths("", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+				t.Errorf("%q => %q expected DiffSuppress to return %t", tc.Old, tc.New, tc.ExpectDiffSuppress)
+			}
+		})
+	}
 }
 
 func TestAccComputeNetwork_numericId(t *testing.T) {
@@ -468,6 +519,40 @@ func TestAccComputeNetwork_networkFirewallPolicyEnforcementOrderAndUpdate(t *tes
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+		},
+	})
+}
+
+func TestAccComputeNetwork_resourceManagerTags(t *testing.T) {
+
+	t.Parallel()
+
+	var network compute.Network
+	org := envvar.GetTestOrgFromEnv(t)
+
+	suffixName := acctest.RandString(t, 10)
+	tagKeyResult := acctest.BootstrapSharedTestTagKeyDetails(t, "crm-networks-tagkey", "organizations/"+org, make(map[string]interface{}))
+	sharedTagkey, _ := tagKeyResult["shared_tag_key"]
+	tagValueResult := acctest.BootstrapSharedTestTagValueDetails(t, "crm-networks-tagvalue", sharedTagkey, org)
+	networkName := fmt.Sprintf("tf-test-network-resource-manager-tags-%s", suffixName)
+	context := map[string]interface{}{
+		"network_name": networkName,
+		"tag_key_id":   tagKeyResult["name"],
+		"tag_value_id": tagValueResult["name"],
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_resourceManagerTags(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.acc_network_with_resource_manager_tags", &network),
+				),
 			},
 		},
 	})
@@ -801,4 +886,18 @@ resource "google_compute_network" "acc_network_firewall_policy_enforcement_order
   network_firewall_policy_enforcement_order = "%s"
 }
 `, networkName, order)
+}
+
+func testAccComputeNetwork_resourceManagerTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "acc_network_with_resource_manager_tags" {
+  name                            = "%{network_name}"
+  auto_create_subnetworks         = false
+  params {
+	resource_manager_tags = {
+	  "%{tag_key_id}" = "%{tag_value_id}"
+  	}
+  }
+}
+`, context)
 }

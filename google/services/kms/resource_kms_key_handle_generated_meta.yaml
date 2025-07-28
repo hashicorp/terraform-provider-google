@@ -1,0 +1,12 @@
+resource: 'google_kms_key_handle'
+generation_type: 'mmv1'
+source_file: 'products/kms/KeyHandle.yaml'
+api_service_name: 'cloudkms.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'KeyHandle'
+fields:
+  - field: 'kms_key'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'resource_type_selector'

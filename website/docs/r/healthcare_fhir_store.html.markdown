@@ -181,9 +181,6 @@ The following arguments are supported:
   'projects/{project}/locations/{location}/datasets/{dataset}'
 
 
-- - -
-
-
 * `version` -
   (Optional)
   The FHIR specification version.
@@ -277,6 +274,7 @@ The following arguments are supported:
   (Optional)
   A list of notifcation configs that configure the notification for every resource mutation in this FHIR store.
   Structure is [documented below](#nested_notification_configs).
+
 
 
 <a name="nested_notification_config"></a>The `notification_config` block supports:

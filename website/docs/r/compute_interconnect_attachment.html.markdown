@@ -167,9 +167,6 @@ The following arguments are supported:
   letter, or digit, except the last character, which cannot be a dash.
 
 
-- - -
-
-
 * `admin_enabled` -
   (Optional)
   Whether the VLAN attachment is enabled or disabled.  When using
@@ -316,6 +313,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -369,6 +367,9 @@ In addition to the arguments listed above, the following computed attributes are
   Compute Engine and changes after every request to modify or update labels.
   You must always provide an up-to-date fingerprint hash in order to update or change labels,
   otherwise the request will fail with error 412 conditionNotMet.
+
+* `attachment_group` -
+  URL of the AttachmentGroup that includes this Attachment.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

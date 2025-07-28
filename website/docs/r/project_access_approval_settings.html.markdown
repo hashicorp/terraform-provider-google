@@ -106,6 +106,26 @@ The following arguments are supported:
   ID of the project of the access approval settings.
 
 
+* `notification_emails` -
+  (Optional)
+  A list of email addresses to which notifications relating to approval requests should be sent.
+  Notifications relating to a resource will be sent to all emails in the settings of ancestor
+  resources of that resource. A maximum of 50 email addresses are allowed.
+
+* `active_key_version` -
+  (Optional)
+  The asymmetric crypto key version to use for signing approval requests.
+  Empty active_key_version indicates that a Google-managed key should be used for signing.
+  This property will be ignored if set by an ancestor of the resource, and new non-empty values may not be set.
+
+* `project` -
+  (Optional, Deprecated)
+  Project id.
+
+  ~> **Warning:** `project` is deprecated and will be removed in a future major release. Use `project_id` instead.
+
+
+
 <a name="nested_enrolled_services"></a>The `enrolled_services` block supports:
 
 * `cloud_product` -
@@ -127,28 +147,6 @@ The following arguments are supported:
   The enrollment level of the service.
   Default value is `BLOCK_ALL`.
   Possible values are: `BLOCK_ALL`.
-
-- - -
-
-
-* `notification_emails` -
-  (Optional)
-  A list of email addresses to which notifications relating to approval requests should be sent.
-  Notifications relating to a resource will be sent to all emails in the settings of ancestor
-  resources of that resource. A maximum of 50 email addresses are allowed.
-
-* `active_key_version` -
-  (Optional)
-  The asymmetric crypto key version to use for signing approval requests.
-  Empty active_key_version indicates that a Google-managed key should be used for signing.
-  This property will be ignored if set by an ancestor of the resource, and new non-empty values may not be set.
-
-* `project` -
-  (Optional, Deprecated)
-  Project id.
-
-  ~> **Warning:** `project` is deprecated and will be removed in a future major release. Use `project_id` instead.
-
 
 ## Attributes Reference
 

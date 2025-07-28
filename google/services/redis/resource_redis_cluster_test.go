@@ -1266,3 +1266,94 @@ func createRedisClusterResourceConfig(params *ClusterParams, isSecondaryCluster 
 		crossClusterReplicationConfigBlock,
 		dependsOnBlock)
 }
+
+func TestAccRedisCluster_redisClusterTlsEnabled(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection_enabled": false,
+		"random_suffix":               acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRedisClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRedisCluster_redisClusterTlsEnabled(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_redis_cluster.cluster-tls", "managed_server_ca.0.ca_certs.0.certificates.0"),
+				),
+			},
+			{
+				ResourceName:            "google_redis_cluster.cluster-tls",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"gcs_source", "managed_backup_source", "name", "psc_configs", "region"},
+			},
+		},
+	})
+}
+
+func testAccRedisCluster_redisClusterTlsEnabled(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_redis_cluster" "cluster-tls" {
+  name           = "tf-test-tls-cluster%{random_suffix}"
+  shard_count    = 3
+  psc_configs {
+    network = google_compute_network.consumer_net.id
+  }
+  region = "us-central1"
+  replica_count = 1
+  node_type = "REDIS_SHARED_CORE_NANO"
+  transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION"
+  authorization_mode = "AUTH_MODE_DISABLED"
+  redis_configs = {
+    maxmemory-policy	= "volatile-ttl"
+  }
+  deletion_protection_enabled = %{deletion_protection_enabled}
+
+  zone_distribution_config {
+    mode = "MULTI_ZONE"
+  }
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
+  depends_on = [
+    google_network_connectivity_service_connection_policy.default
+  ]
+}
+
+resource "google_network_connectivity_service_connection_policy" "default" {
+  name = "tf-test-my-policy%{random_suffix}"
+  location = "us-central1"
+  service_class = "gcp-memorystore-redis"
+  description   = "my basic service connection policy"
+  network = google_compute_network.consumer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.consumer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "tf-test-my-subnet%{random_suffix}"
+  ip_cidr_range = "10.0.0.248/29"
+  region        = "us-central1"
+  network       = google_compute_network.consumer_net.id
+}
+
+resource "google_compute_network" "consumer_net" {
+  name                    = "tf-test-my-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}

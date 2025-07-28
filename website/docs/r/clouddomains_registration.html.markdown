@@ -125,6 +125,35 @@ The following arguments are supported:
   Required. The domain name. Unicode domain names must be expressed in Punycode format.
 
 
+* `labels` -
+  (Optional)
+  Set of labels associated with the Registration.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `domain_notices` -
+  (Optional)
+  The list of domain notices that you acknowledge. Possible value is HSTS_PRELOADED
+
+* `contact_notices` -
+  (Optional)
+  The list of contact notices that the caller acknowledges. Possible value is PUBLIC_CONTACT_DATA_ACKNOWLEDGEMENT
+
+* `management_settings` -
+  (Optional)
+  Settings for management of the Registration, including renewal, billing, and transfer
+  Structure is [documented below](#nested_management_settings).
+
+* `dns_settings` -
+  (Optional)
+  Settings controlling the DNS configuration of the Registration.
+  Structure is [documented below](#nested_dns_settings).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_yearly_price"></a>The `yearly_price` block supports:
 
 * `currency_code` -
@@ -352,37 +381,6 @@ The following arguments are supported:
   (Optional)
   The recipient at the address. This field may, under certain circumstances, contain multiline information. For example,
   it might contain "care of" information.
-
-- - -
-
-
-* `labels` -
-  (Optional)
-  Set of labels associated with the Registration.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `domain_notices` -
-  (Optional)
-  The list of domain notices that you acknowledge. Possible value is HSTS_PRELOADED
-
-* `contact_notices` -
-  (Optional)
-  The list of contact notices that the caller acknowledges. Possible value is PUBLIC_CONTACT_DATA_ACKNOWLEDGEMENT
-
-* `management_settings` -
-  (Optional)
-  Settings for management of the Registration, including renewal, billing, and transfer
-  Structure is [documented below](#nested_management_settings).
-
-* `dns_settings` -
-  (Optional)
-  Settings controlling the DNS configuration of the Registration.
-  Structure is [documented below](#nested_dns_settings).
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 <a name="nested_management_settings"></a>The `management_settings` block supports:
 

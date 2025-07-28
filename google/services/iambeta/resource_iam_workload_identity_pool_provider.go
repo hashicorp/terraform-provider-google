@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -254,8 +255,9 @@ https://iam.googleapis.com/projects/<project-number>/locations/<location>/worklo
 							},
 						},
 						"jwks_json": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:      schema.TypeString,
+							Optional:  true,
+							StateFunc: func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 							Description: `OIDC JWKs in JSON String format. For details on definition of a
 JWK, see https:tools.ietf.org/html/rfc7517. If not set, then we
 use the 'jwks_uri' from the discovery document fetched from the

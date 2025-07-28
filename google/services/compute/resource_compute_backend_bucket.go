@@ -244,6 +244,13 @@ client when the resource is created.`,
 				Optional:    true,
 				Description: `If true, enable Cloud CDN for this BackendBucket.`,
 			},
+			"load_balancing_scheme": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"INTERNAL_MANAGED", ""}),
+				Description: `The value can only be INTERNAL_MANAGED for cross-region internal layer 7 load balancer.
+If loadBalancingScheme is not specified, the backend bucket can be used by classic global external load balancers, or global application external load balancers, or both. Possible values: ["INTERNAL_MANAGED"]`,
+			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -319,6 +326,12 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
+	}
+	loadBalancingSchemeProp, err := expandComputeBackendBucketLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("load_balancing_scheme"); ok || !reflect.DeepEqual(v, loadBalancingSchemeProp) {
+		obj["loadBalancingScheme"] = loadBalancingSchemeProp
 	}
 
 	obj, err = resourceComputeBackendBucketEncoder(d, meta, obj)
@@ -471,6 +484,9 @@ func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("name", flattenComputeBackendBucketName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
+	if err := d.Set("load_balancing_scheme", flattenComputeBackendBucketLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
@@ -541,6 +557,12 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
+	}
+	loadBalancingSchemeProp, err := expandComputeBackendBucketLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("load_balancing_scheme"); ok || !reflect.DeepEqual(v, loadBalancingSchemeProp) {
+		obj["loadBalancingScheme"] = loadBalancingSchemeProp
 	}
 
 	obj, err = resourceComputeBackendBucketEncoder(d, meta, obj)
@@ -944,6 +966,10 @@ func flattenComputeBackendBucketName(v interface{}, d *schema.ResourceData, conf
 	return v
 }
 
+func flattenComputeBackendBucketLoadBalancingScheme(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandComputeBackendBucketBucketName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1187,6 +1213,10 @@ func expandComputeBackendBucketEnableCdn(v interface{}, d tpgresource.TerraformR
 }
 
 func expandComputeBackendBucketName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendBucketLoadBalancingScheme(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

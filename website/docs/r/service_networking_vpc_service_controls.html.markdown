@@ -124,12 +124,10 @@ The following arguments are supported:
   functionality, this value is `servicenetworking.googleapis.com`.
 
 
-- - -
-
-
 * `project` -
   (Optional)
   The id of the Google Cloud project containing the consumer network.
+
 
 
 ## Attributes Reference

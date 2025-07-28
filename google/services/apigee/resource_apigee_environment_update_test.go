@@ -145,6 +145,12 @@ resource "google_apigee_environment" "apigee_environment" {
         value = "property-1-value"
 	}
   }
+  client_ip_resolution_config {
+    header_index_algorithm {
+      ip_header_name = "X-Forwarded-For"
+      ip_header_index = 1
+    }
+  }
 }
 `, context)
 }

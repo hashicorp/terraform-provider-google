@@ -101,9 +101,6 @@ The following arguments are supported:
   The cloud location of the association, currently restricted to `global`.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Labels are key/value pairs that help to organize and filter resources.
@@ -118,6 +115,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

@@ -289,19 +289,6 @@ The following arguments are supported:
   Structure is [documented below](#nested_oauth_config).
 
 
-<a name="nested_oauth_config"></a>The `oauth_config` block supports:
-
-* `client_id` -
-  (Required)
-  The client ID for the Oauth config.
-
-* `client_secret` -
-  (Required)
-  The client secret for the Oauth config.
-
-- - -
-
-
 * `admin_settings` -
   (Optional)
   Looker instance Admin settings.
@@ -401,6 +388,17 @@ If setting deletion_policy = "FORCE", the Looker instance will be deleted regard
 of its nested resources. If set to "DEFAULT", Looker instances that still have
 nested resources will return an error. Possible values: DEFAULT, FORCE
 
+
+
+<a name="nested_oauth_config"></a>The `oauth_config` block supports:
+
+* `client_id` -
+  (Required)
+  The client ID for the Oauth config.
+
+* `client_secret` -
+  (Required)
+  The client secret for the Oauth config.
 
 <a name="nested_admin_settings"></a>The `admin_settings` block supports:
 

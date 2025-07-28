@@ -99,6 +99,11 @@ The following arguments are supported:
   For acls on all resources of a given type (i.e. the wildcard literal '*''): `allTopics` (represents `topic/*`) `allConsumerGroups` (represents `consumerGroup/*`) `allTransactionalIds` (represents `transactionalId/*`).
 
 
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_acl_entries"></a>The `acl_entries` block supports:
 
 * `principal` -
@@ -119,13 +124,6 @@ The following arguments are supported:
 * `host` -
   (Optional)
   The host. Must be set to "*" for Managed Service for Apache Kafka.
-
-- - -
-
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

@@ -43,6 +43,8 @@ fields:
     api_field: 'config.boot_disk_kms_key'
   - field: 'node_config.confidential_nodes.enabled'
     api_field: 'config.confidential_nodes.enabled'
+  - field: 'node_config.confidential_nodes.confidential_instance_type'
+    api_field: 'config.confidential_nodes.confidential_instance_type'
   - field: 'node_config.containerd_config.private_registry_access_config.certificate_authority_domain_config.fqdns'
     api_field: 'config.containerd_config.private_registry_access_config.certificate_authority_domain_config.fqdns'
   - field: 'node_config.containerd_config.private_registry_access_config.certificate_authority_domain_config.gcp_secret_manager_certificate_config.secret_uri'

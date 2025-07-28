@@ -23,6 +23,7 @@ fields:
   - field: 'log_config.metadata_fields'
   - field: 'name'
   - field: 'network'
+  - field: 'params.resource_manager_tags'
   - field: 'private_ip_google_access'
   - field: 'private_ipv6_google_access'
   - field: 'purpose'

@@ -89,23 +89,6 @@ The following arguments are supported:
   Structure is [documented below](#nested_feed_output_config).
 
 
-<a name="nested_feed_output_config"></a>The `feed_output_config` block supports:
-
-* `pubsub_destination` -
-  (Required)
-  Destination on Cloud Pubsub.
-  Structure is [documented below](#nested_feed_output_config_pubsub_destination).
-
-
-<a name="nested_feed_output_config_pubsub_destination"></a>The `pubsub_destination` block supports:
-
-* `topic` -
-  (Required)
-  Destination on Cloud Pubsub topic.
-
-- - -
-
-
 * `billing_project` -
   (Optional)
   The project whose identity will be used when sending messages to the
@@ -145,6 +128,21 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_feed_output_config"></a>The `feed_output_config` block supports:
+
+* `pubsub_destination` -
+  (Required)
+  Destination on Cloud Pubsub.
+  Structure is [documented below](#nested_feed_output_config_pubsub_destination).
+
+
+<a name="nested_feed_output_config_pubsub_destination"></a>The `pubsub_destination` block supports:
+
+* `topic` -
+  (Required)
+  Destination on Cloud Pubsub topic.
 
 <a name="nested_condition"></a>The `condition` block supports:
 

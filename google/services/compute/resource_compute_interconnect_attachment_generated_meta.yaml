@@ -6,6 +6,7 @@ api_version: 'v1'
 api_resource_type_kind: 'InterconnectAttachment'
 fields:
   - field: 'admin_enabled'
+  - field: 'attachment_group'
   - field: 'bandwidth'
   - field: 'candidate_subnets'
   - field: 'cloud_router_ip_address'

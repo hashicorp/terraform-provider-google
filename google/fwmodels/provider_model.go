@@ -93,6 +93,7 @@ type ProviderModel struct {
 	ColabCustomEndpoint                    types.String `tfsdk:"colab_custom_endpoint"`
 	ComposerCustomEndpoint                 types.String `tfsdk:"composer_custom_endpoint"`
 	ComputeCustomEndpoint                  types.String `tfsdk:"compute_custom_endpoint"`
+	ContactCenterInsightsCustomEndpoint    types.String `tfsdk:"contact_center_insights_custom_endpoint"`
 	ContainerAnalysisCustomEndpoint        types.String `tfsdk:"container_analysis_custom_endpoint"`
 	ContainerAttachedCustomEndpoint        types.String `tfsdk:"container_attached_custom_endpoint"`
 	CoreBillingCustomEndpoint              types.String `tfsdk:"core_billing_custom_endpoint"`
@@ -146,6 +147,8 @@ type ProviderModel struct {
 	MemorystoreCustomEndpoint              types.String `tfsdk:"memorystore_custom_endpoint"`
 	MigrationCenterCustomEndpoint          types.String `tfsdk:"migration_center_custom_endpoint"`
 	MLEngineCustomEndpoint                 types.String `tfsdk:"ml_engine_custom_endpoint"`
+	ModelArmorCustomEndpoint               types.String `tfsdk:"model_armor_custom_endpoint"`
+	ModelArmorGlobalCustomEndpoint         types.String `tfsdk:"model_armor_global_custom_endpoint"`
 	MonitoringCustomEndpoint               types.String `tfsdk:"monitoring_custom_endpoint"`
 	NetappCustomEndpoint                   types.String `tfsdk:"netapp_custom_endpoint"`
 	NetworkConnectivityCustomEndpoint      types.String `tfsdk:"network_connectivity_custom_endpoint"`

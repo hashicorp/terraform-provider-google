@@ -37,80 +37,86 @@ To get more information about IndexEndpointDeployedIndex, see:
 
 
 ```hcl
-resource "google_service_account" "sa" {
-  account_id   = "vertex-sa"
-}
-
 resource "google_vertex_ai_index_endpoint_deployed_index" "basic_deployed_index" {
-  depends_on = [ google_vertex_ai_index_endpoint.vertex_index_endpoint_deployed, google_service_account.sa ]
-  index_endpoint = google_vertex_ai_index_endpoint.vertex_index_endpoint_deployed.id
-  index = google_vertex_ai_index.index.id // this is the index that will be deployed onto an endpoint
-  deployed_index_id = "deployed_index_id"
-  reserved_ip_ranges = ["vertex-ai-range"]
+  deployed_index_id     = "deployed_index_id"
+  display_name          = "vertex-deployed-index"
+  region                = "us-central1"
+  index                 = google_vertex_ai_index.index.id
+  index_endpoint        = google_vertex_ai_index_endpoint.vertex_index_endpoint_deployed.id
   enable_access_logging = false
-  display_name = "vertex-deployed-index"
-  deployed_index_auth_config{
-    auth_provider{
-      audiences = ["123456-my-app"]
+  reserved_ip_ranges    = ["vertex-ai-range"]
+
+  deployed_index_auth_config {
+
+    auth_provider {
+      audiences       = ["123456-my-app"]
       allowed_issuers = ["${google_service_account.sa.email}"]
     }
   }
 }
 
-resource "google_storage_bucket" "bucket" {
-  name     = "bucket-name"
-  location = "us-central1"
-  uniform_bucket_level_access = true
-}
-
-# The sample data comes from the following link:
-# https://cloud.google.com/vertex-ai/docs/matching-engine/filtering#specify-namespaces-tokens
-resource "google_storage_bucket_object" "data" {
-  name   = "contents/data.json"
-  bucket = google_storage_bucket.bucket.name
-  content = <<EOF
-{"id": "42", "embedding": [0.5, 1.0], "restricts": [{"namespace": "class", "allow": ["cat", "pet"]},{"namespace": "category", "allow": ["feline"]}]}
-{"id": "43", "embedding": [0.6, 1.0], "restricts": [{"namespace": "class", "allow": ["dog", "pet"]},{"namespace": "category", "allow": ["canine"]}]}
-EOF
-}
-
 resource "google_vertex_ai_index" "index" {
+  region              = "us-central1"
+  display_name        = "test-index"
+  description         = "index for test"
+  index_update_method = "BATCH_UPDATE"
   labels = {
     foo = "bar"
   }
-  region   = "us-central1"
-  display_name = "test-index"
-  description = "index for test"
+
   metadata {
     contents_delta_uri = "gs://${google_storage_bucket.bucket.name}/contents"
+
     config {
-      dimensions = 2
+      dimensions                  = 2
       approximate_neighbors_count = 150
-      shard_size = "SHARD_SIZE_SMALL"
-      distance_measure_type = "DOT_PRODUCT_DISTANCE"
+      shard_size                  = "SHARD_SIZE_SMALL"
+      distance_measure_type       = "DOT_PRODUCT_DISTANCE"
+
       algorithm_config {
+
         tree_ah_config {
-          leaf_node_embedding_count = 500
+          leaf_node_embedding_count    = 500
           leaf_nodes_to_search_percent = 7
         }
       }
     }
   }
-  index_update_method = "BATCH_UPDATE"
 }
 
 resource "google_vertex_ai_index_endpoint" "vertex_index_endpoint_deployed" {
   display_name = "sample-endpoint"
   description  = "A sample vertex endpoint"
   region       = "us-central1"
-  labels       = {
+  network      = "projects/${data.google_project.project.number}/global/networks/${data.google_compute_network.vertex_network.name}"
+  labels = {
     label-one = "value-one"
   }
-  network      = "projects/${data.google_project.project.number}/global/networks/${data.google_compute_network.vertex_network.name}"
+}
+
+resource "google_service_account" "sa" {
+  account_id = "vertex-sa"
+}
+
+resource "google_storage_bucket" "bucket" {
+  name                        = "bucket-name"
+  location                    = "us-central1"
+  uniform_bucket_level_access = true
+}
+
+# The sample data comes from the following link:
+# https://cloud.google.com/vertex-ai/docs/matching-engine/filtering#specify-namespaces-tokens
+resource "google_storage_bucket_object" "data" {
+  name    = "contents/data.json"
+  bucket  = google_storage_bucket.bucket.name
+  content = <<EOF
+{"id": "42", "embedding": [0.5, 1.0], "restricts": [{"namespace": "class", "allow": ["cat", "pet"]},{"namespace": "category", "allow": ["feline"]}]}
+{"id": "43", "embedding": [0.6, 1.0], "restricts": [{"namespace": "class", "allow": ["dog", "pet"]},{"namespace": "category", "allow": ["canine"]}]}
+EOF
 }
 
 data "google_compute_network" "vertex_network" {
-  name       = "network-name"
+  name = "network-name"
 }
 
 data "google_project" "project" {}
@@ -124,26 +130,68 @@ data "google_project" "project" {}
 
 
 ```hcl
+resource "google_vertex_ai_index_endpoint_deployed_index" "basic_deployed_index" {
+  deployed_index_id     = "deployed_index_id"
+  display_name          = "vertex-deployed-index"
+  region                = "us-central1"
+  index                 = google_vertex_ai_index.index.id
+  index_endpoint        = google_vertex_ai_index_endpoint.vertex_index_endpoint_deployed.id
+  reserved_ip_ranges    = ["vertex-ai-range"]
+  enable_access_logging = false
+
+  deployed_index_auth_config {
+
+    auth_provider {
+      audiences       = ["123456-my-app"]
+      allowed_issuers = ["${google_service_account.sa.email}"]
+    }
+  }
+
+  automatic_resources {
+    max_replica_count = 4
+  }
+}
+
 resource "google_service_account" "sa" {
   account_id   = "vertex-sa"
 }
 
-resource "google_vertex_ai_index_endpoint_deployed_index" "basic_deployed_index" {
-  depends_on = [ google_vertex_ai_index_endpoint.vertex_index_endpoint_deployed, google_service_account.sa ]
-  index_endpoint = google_vertex_ai_index_endpoint.vertex_index_endpoint_deployed.id
-  index = google_vertex_ai_index.index.id // this is the index that will be deployed onto an endpoint
-  deployed_index_id = "deployed_index_id"
-  reserved_ip_ranges = ["vertex-ai-range"]
-  enable_access_logging = false
-  display_name = "vertex-deployed-index"
-  deployed_index_auth_config{
-    auth_provider{
-      audiences = ["123456-my-app"]
-      allowed_issuers = ["${google_service_account.sa.email}"]
+resource "google_vertex_ai_index" "index" {
+  region              = "us-central1"
+  display_name        = "test-index"
+  description         = "index for test"
+  index_update_method = "BATCH_UPDATE"
+  labels = {
+    foo = "bar"
+  }
+
+  metadata {
+    contents_delta_uri = "gs://${google_storage_bucket.bucket.name}/contents"
+
+    config {
+      dimensions                  = 2
+      approximate_neighbors_count = 150
+      shard_size                  = "SHARD_SIZE_SMALL"
+      distance_measure_type       = "DOT_PRODUCT_DISTANCE"
+
+      algorithm_config {
+
+        tree_ah_config {
+          leaf_node_embedding_count    = 500
+          leaf_nodes_to_search_percent = 7
+        }
+      }
     }
   }
-  automatic_resources{
-    max_replica_count = 4
+}
+
+resource "google_vertex_ai_index_endpoint" "vertex_index_endpoint_deployed" {
+  display_name = "sample-endpoint"
+  description  = "A sample vertex endpoint"
+  region       = "us-central1"
+  network      = "projects/${data.google_project.project.number}/global/networks/${data.google_compute_network.vertex_network.name}"
+  labels       = {
+    label-one = "value-one"
   }
 }
 
@@ -164,43 +212,8 @@ resource "google_storage_bucket_object" "data" {
 EOF
 }
 
-resource "google_vertex_ai_index" "index" {
-  labels = {
-    foo = "bar"
-  }
-  region   = "us-central1"
-  display_name = "test-index"
-  description = "index for test"
-  metadata {
-    contents_delta_uri = "gs://${google_storage_bucket.bucket.name}/contents"
-    config {
-      dimensions = 2
-      approximate_neighbors_count = 150
-      shard_size = "SHARD_SIZE_SMALL"
-      distance_measure_type = "DOT_PRODUCT_DISTANCE"
-      algorithm_config {
-        tree_ah_config {
-          leaf_node_embedding_count = 500
-          leaf_nodes_to_search_percent = 7
-        }
-      }
-    }
-  }
-  index_update_method = "BATCH_UPDATE"
-}
-
-resource "google_vertex_ai_index_endpoint" "vertex_index_endpoint_deployed" {
-  display_name = "sample-endpoint"
-  description  = "A sample vertex endpoint"
-  region       = "us-central1"
-  labels       = {
-    label-one = "value-one"
-  }
-  network      = "projects/${data.google_project.project.number}/global/networks/${data.google_compute_network.vertex_network.name}"
-}
-
 data "google_compute_network" "vertex_network" {
-  name       = "network-name"
+  name = "network-name"
 }
 
 data "google_project" "project" {}
@@ -223,9 +236,6 @@ The following arguments are supported:
   (Required)
   Identifies the index endpoint. Must be in the format
   'projects/{{project}}/locations/{{region}}/indexEndpoints/{{indexEndpoint}}'
-
-
-- - -
 
 
 * `display_name` -
@@ -267,6 +277,11 @@ The following arguments are supported:
   The deployment group can be no longer than 64 characters (eg: 'test', 'prod'). If not set, we will use the 'default' deployment group.
   Creating deployment_groups with reserved_ip_ranges is a recommended practice when the peered network has multiple peering ranges. This creates your deployments from predictable IP spaces for easier traffic administration. Also, one deployment_group (except 'default') can only be used with the same reserved_ip_ranges which means if the deployment_group has been used with reserved_ip_ranges: [a, b, c], using it with [a, b] or [d, e] is disallowed. [See the official documentation here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints#DeployedIndex.FIELDS.deployment_group).
   Note: we only support up to 5 deployment groups (not including 'default').
+
+* `region` -
+  (Optional)
+  The region of the index endpoint deployment. eg us-central1
+
 
 
 <a name="nested_automatic_resources"></a>The `automatic_resources` block supports:

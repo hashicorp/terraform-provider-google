@@ -83,15 +83,13 @@ The following arguments are supported:
   of https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locations.global.domains.
 
 
-- - -
-
-
 * `selective_authentication` -
   (Optional)
   Whether the trusted side has forest/domain wide access or selective access to an approved set of resources.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

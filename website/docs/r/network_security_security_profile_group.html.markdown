@@ -152,9 +152,6 @@ The following arguments are supported:
   The name of the security profile group resource.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of the profile. The Max length is 512 characters.
@@ -187,6 +184,7 @@ The following arguments are supported:
   (Optional)
   The name of the parent this security profile group belongs to.
   Format: organizations/{organization_id}.
+
 
 
 ## Attributes Reference

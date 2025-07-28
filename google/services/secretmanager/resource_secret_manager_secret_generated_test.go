@@ -49,7 +49,7 @@ func TestAccSecretManagerSecret_secretConfigBasicExample(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "labels", "secret_id", "terraform_labels", "ttl"},
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "secret_id", "tags", "terraform_labels", "ttl"},
 			},
 		},
 	})
@@ -74,6 +74,7 @@ resource "google_secret_manager_secret" "secret-basic" {
       }
     }
   }
+  deletion_protection = false
 }
 `, context)
 }
@@ -97,7 +98,7 @@ func TestAccSecretManagerSecret_secretWithAnnotationsExample(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-with-annotations",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "labels", "secret_id", "terraform_labels", "ttl"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "secret_id", "tags", "terraform_labels", "ttl"},
 			},
 		},
 	})
@@ -146,7 +147,7 @@ func TestAccSecretManagerSecret_secretWithVersionDestroyTtlExample(t *testing.T)
 				ResourceName:            "google_secret_manager_secret.secret-with-version-destroy-ttl",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "labels", "secret_id", "terraform_labels", "ttl"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "secret_id", "tags", "terraform_labels", "ttl"},
 			},
 		},
 	})
@@ -186,7 +187,7 @@ func TestAccSecretManagerSecret_secretWithAutomaticCmekExample(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-with-automatic-cmek",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "labels", "secret_id", "terraform_labels", "ttl"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "secret_id", "tags", "terraform_labels", "ttl"},
 			},
 		},
 	})

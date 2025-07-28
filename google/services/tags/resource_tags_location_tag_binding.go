@@ -48,10 +48,11 @@ func ResourceTagsLocationTagBinding() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"parent": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The full resource name of the resource the TagValue is bound to. E.g. //cloudresourcemanager.googleapis.com/projects/123`,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
+				Description:      `The full resource name of the resource the TagValue is bound to. E.g. //cloudresourcemanager.googleapis.com/projects/123`,
 			},
 			"tag_value": {
 				Type:        schema.TypeString,

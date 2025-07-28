@@ -169,6 +169,22 @@ The following arguments are supported:
   Structure is [documented below](#nested_rule).
 
 
+* `description` -
+  (Optional)
+  An optional description of this resource.
+
+* `policy_type` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Policy type is used to determine which resources (networks) the policy can be associated with.
+  A policy can be associated with a network only if the network has the matching policyType in its network profile.
+  Different policy types may support some of the Firewall Rules features.
+  Possible values are: `VPC_POLICY`.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_rule"></a>The `rule` block supports:
 
 * `description` -
@@ -376,17 +392,6 @@ The following arguments are supported:
   [Output Only] State of the secure tag, either `EFFECTIVE` or
   `INEFFECTIVE`. A secure tag is `INEFFECTIVE` when it is deleted
   or its network is deleted.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  An optional description of this resource.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

@@ -32,7 +32,6 @@ import (
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -135,9 +134,6 @@ func ResourceBigqueryDataTransferConfig() *schema.Resource {
 			paramsCustomizeDiff,
 			tpgresource.DefaultProviderProject,
 		),
-		ValidateRawResourceConfigFuncs: []schema.ValidateRawResourceConfigFunc{
-			validation.PreferWriteOnlyAttribute(cty.GetAttrPath("sensitive_params").IndexInt(0).GetAttr("secret_access_key"), cty.GetAttrPath("sensitive_params").IndexInt(0).GetAttr("secret_access_key_wo")),
-		},
 
 		Schema: map[string]*schema.Schema{
 			"data_source_id": {
@@ -699,6 +695,15 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
+	}
+
+	// Primarily added to fix b/421406404
+	// This field is immutable, so it should be safe to set it.
+	dataSourceIdProp, err := expandBigqueryDataTransferConfigDataSourceId(d.Get("data_source_id"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("data_source_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(dataSourceIdProp)) && (ok || !reflect.DeepEqual(v, dataSourceIdProp)) {
+		obj["dataSourceId"] = dataSourceIdProp
 	}
 
 	// err == nil indicates that the billing_project value was found

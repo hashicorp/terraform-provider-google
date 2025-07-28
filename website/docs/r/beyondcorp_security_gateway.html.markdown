@@ -54,9 +54,6 @@ The following arguments are supported:
   * Must end with a number or letter.
 
 
-- - -
-
-
 * `hubs` -
   (Optional)
   Optional. Map of Hubs that represents regional data path deployment with GCP region
@@ -76,6 +73,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_hubs"></a>The `hubs` block supports:
@@ -123,6 +121,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   Identifier. Name of the resource.
+
+* `delegating_service_account` -
+  Service account used for operations that involve resources in consumer projects.
 
 
 ## Timeouts

@@ -95,9 +95,6 @@ The following arguments are supported:
   The type of the notification channel. This field matches the value of the NotificationChannelDescriptor.type field. See https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.notificationChannelDescriptors/list to get the list of valid values such as "email", "slack", etc...
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Configuration fields that define the channel and its behavior. The
@@ -141,6 +138,7 @@ of its use in alert policies (the policies will be updated
 to remove the channel). If false, channels that are still
 referenced by an existing alerting policy will fail to be
 deleted in a delete operation.
+
 
 
 <a name="nested_sensitive_labels"></a>The `sensitive_labels` block supports:

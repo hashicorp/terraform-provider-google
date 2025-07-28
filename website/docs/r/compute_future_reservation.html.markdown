@@ -64,6 +64,39 @@ resource "google_compute_future_reservation" "gce_future_reservation" {
   }
 }
 ```
+## Example Usage - Future Reservation Aggregate Reservation
+
+
+```hcl
+resource "google_compute_future_reservation" "gce_future_reservation" {
+  provider = google-beta
+  name     = "gce-future-reservation-aggregate-reservation"
+  project  = "my-project-name"
+  auto_delete_auto_created_reservations = true
+  planning_status = "DRAFT"
+  name_prefix = "fr-basic"
+  time_window {
+    start_time = "2025-11-01T00:00:00Z"
+    end_time   = "2025-11-02T00:00:00Z"
+  }
+  aggregate_reservation {
+    vm_family = "VM_FAMILY_CLOUD_TPU_DEVICE_CT3"
+    workload_type = "UNSPECIFIED"
+    reserved_resources {
+      accelerator {
+        accelerator_count = 32
+        accelerator_type  = "projects/my-project-name/zones/us-central1-a/acceleratorTypes/ct3"
+      }
+    }
+    reserved_resources {
+      accelerator {
+        accelerator_count = 2
+        accelerator_type  = "projects/my-project-name/zones/us-central1-a/acceleratorTypes/ct3"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -84,35 +117,6 @@ The following arguments are supported:
   first character must be a lowercase letter, and all following
   characters must be a dash, lowercase letter, or digit, except the las
   character, which cannot be a dash.
-
-
-<a name="nested_time_window"></a>The `time_window` block supports:
-
-* `start_time` -
-  (Required)
-  Start time of the future reservation in RFC3339 format.
-
-* `end_time` -
-  (Optional)
-  End time of the future reservation in RFC3339 format.
-
-* `duration` -
-  (Optional)
-  Duration of the future reservation
-  Structure is [documented below](#nested_time_window_duration).
-
-
-<a name="nested_time_window_duration"></a>The `duration` block supports:
-
-* `seconds` -
-  (Optional)
-  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
-
-* `nanos` -
-  (Optional)
-  Span of time that's a fraction of a second at nanosecond resolution.
-
-- - -
 
 
 * `description` -
@@ -179,9 +183,41 @@ The following arguments are supported:
   Specifies the duration of auto-created reservations. It represents relative time to future reservation startTime when auto-created reservations will be automatically deleted by Compute Engine. Duration time unit is represented as a count of seconds and fractions of seconds at nanosecond resolution.
   Structure is [documented below](#nested_auto_created_reservations_duration).
 
+* `aggregate_reservation` -
+  (Optional)
+  Aggregate reservation details for the future reservation.
+  Structure is [documented below](#nested_aggregate_reservation).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_time_window"></a>The `time_window` block supports:
+
+* `start_time` -
+  (Required)
+  Start time of the future reservation in RFC3339 format.
+
+* `end_time` -
+  (Optional)
+  End time of the future reservation in RFC3339 format.
+
+* `duration` -
+  (Optional)
+  Duration of the future reservation
+  Structure is [documented below](#nested_time_window_duration).
+
+
+<a name="nested_time_window_duration"></a>The `duration` block supports:
+
+* `seconds` -
+  (Optional)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution.
 
 <a name="nested_share_settings"></a>The `share_settings` block supports:
 
@@ -304,6 +340,42 @@ The following arguments are supported:
 * `nanos` -
   (Optional)
   Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are represented with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
+
+<a name="nested_aggregate_reservation"></a>The `aggregate_reservation` block supports:
+
+* `vm_family` -
+  (Optional)
+  The VM family that all instances scheduled against this reservation must belong to.
+  Possible values are: `VM_FAMILY_CLOUD_TPU_DEVICE_CT3`, `VM_FAMILY_CLOUD_TPU_LITE_DEVICE_CT5L`, `VM_FAMILY_CLOUD_TPU_LITE_POD_SLICE_CT5LP`, `VM_FAMILY_CLOUD_TPU_LITE_POD_SLICE_CT6E`, `VM_FAMILY_CLOUD_TPU_POD_SLICE_CT3P`, `VM_FAMILY_CLOUD_TPU_POD_SLICE_CT4P`, `VM_FAMILY_CLOUD_TPU_POD_SLICE_CT5P`.
+
+* `reserved_resources` -
+  (Required)
+  futureReservations.list of reserved resources (CPUs, memory, accelerators).
+  Structure is [documented below](#nested_aggregate_reservation_reserved_resources).
+
+* `workload_type` -
+  (Optional)
+  The workload type of the instances that will target this reservation.
+  Possible values are: `BATCH`, `SERVING`, `UNSPECIFIED`.
+
+
+<a name="nested_aggregate_reservation_reserved_resources"></a>The `reserved_resources` block supports:
+
+* `accelerator` -
+  (Optional)
+  Properties of accelerator resources in this reservation.
+  Structure is [documented below](#nested_aggregate_reservation_reserved_resources_reserved_resources_accelerator).
+
+
+<a name="nested_aggregate_reservation_reserved_resources_reserved_resources_accelerator"></a>The `accelerator` block supports:
+
+* `accelerator_count` -
+  (Optional)
+  Number of accelerators of specified type.
+
+* `accelerator_type` -
+  (Optional)
+  Full or partial URL to accelerator type. e.g. "projects/{PROJECT}/zones/{ZONE}/acceleratorTypes/ct4l"
 
 ## Attributes Reference
 

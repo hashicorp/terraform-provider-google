@@ -557,9 +557,9 @@ func resourceIapSettingsDelete(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Settings: %s", err)
+	billingProject := ""
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
 	}
 
 	headers := make(http.Header)
@@ -571,7 +571,7 @@ func resourceIapSettingsDelete(d *schema.ResourceData, meta interface{}) error {
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",
-		Project:   project,
+		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
 		Body:      obj,

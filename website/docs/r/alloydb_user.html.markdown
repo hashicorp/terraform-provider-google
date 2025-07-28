@@ -161,9 +161,6 @@ The following arguments are supported:
   Possible values are: `ALLOYDB_BUILT_IN`, `ALLOYDB_IAM_USER`.
 
 
-- - -
-
-
 * `password` -
   (Optional)
   Password for this database user.
@@ -172,6 +169,7 @@ The following arguments are supported:
 * `database_roles` -
   (Optional)
   List of database roles this database user has.
+
 
 
 ## Attributes Reference

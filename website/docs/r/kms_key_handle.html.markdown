@@ -28,8 +28,6 @@ A `KeyHandle` is a resource used to auto-provision CryptoKeys for CMEK.
 Destroying a Terraform-managed KeyHandle will remove it from state but
 *will not delete the resource from the project.*
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about KeyHandle, see:
 
@@ -159,11 +157,9 @@ The following arguments are supported:
   A full list of valid locations can be found by running `gcloud kms locations list`.
 
 
-- - -
-
-
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

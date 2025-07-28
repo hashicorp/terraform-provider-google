@@ -86,7 +86,7 @@ func (ld *LocationDescription) GetLocation() (types.String, error) {
 }
 
 func (ld *LocationDescription) GetRegion() (types.String, error) {
-	// TODO(SarahFrench): Make empty strings not ignored, see https://github.com/hashicorp/terraform-provider-google/issues/14447
+	// TODO: Make empty strings not ignored, see https://github.com/hashicorp/terraform-provider-google/issues/14447
 	// For all checks in this function body
 
 	// Region from resource config
@@ -120,7 +120,7 @@ func (ld *LocationDescription) GetRegion() (types.String, error) {
 }
 
 func (ld *LocationDescription) GetZone() (types.String, error) {
-	// TODO(SarahFrench): Make empty strings not ignored, see https://github.com/hashicorp/terraform-provider-google/issues/14447
+	// TODO: Make empty strings not ignored, see https://github.com/hashicorp/terraform-provider-google/issues/14447
 	// For all checks in this function body
 
 	if !ld.ResourceZone.IsNull() && !ld.ResourceZone.IsUnknown() && !ld.ResourceZone.Equal(types.StringValue("")) {

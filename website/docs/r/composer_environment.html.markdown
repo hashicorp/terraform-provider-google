@@ -1436,6 +1436,8 @@ The following arguments are supported:
   note that the service account must have `roles/composer.worker`
   for any GCP resources created under the Cloud Composer Environment.
 
+  This field is required for newly created environments.
+
 * `tags` -
   (Optional)
   The list of instance tags applied to all node VMs. Tags are

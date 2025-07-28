@@ -23,6 +23,8 @@ fields:
     provider_only: true
   - field: 'name'
   - field: 'network'
+  - field: 'odb_network'
+  - field: 'odb_subnet'
   - field: 'properties.actual_used_data_storage_size_tb'
   - field: 'properties.allocated_storage_size_tb'
   - field: 'properties.apex_details.apex_version'

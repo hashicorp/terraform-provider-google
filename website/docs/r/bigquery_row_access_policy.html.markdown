@@ -90,9 +90,6 @@ The following arguments are supported:
   numeric_field BETWEEN 1.0 AND 5.0
 
 
-- - -
-
-
 * `grantees` -
   (Optional)
   Input only. The optional list of iam_member users or groups that specifies the initial
@@ -119,6 +116,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

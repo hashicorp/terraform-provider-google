@@ -247,9 +247,6 @@ The following arguments are supported:
   of the default domain name.
 
 
-- - -
-
-
 * `annotations` -
   (Optional)
   Unstructured key value map that may be set by external tools to
@@ -282,6 +279,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_codebase"></a>The `codebase` block supports:

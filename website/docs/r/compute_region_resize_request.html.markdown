@@ -143,9 +143,6 @@ The following arguments are supported:
   The reference of the regional instance group manager this ResizeRequest is a part of.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resize-request.
@@ -161,6 +158,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_requested_run_duration"></a>The `requested_run_duration` block supports:

@@ -331,9 +331,6 @@ The following arguments are supported:
   Must be unique within the project.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A textual description field. Defaults to 'Managed by Terraform'.
@@ -396,6 +393,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `force_destroy` - (Optional) Set this true to delete all records in the zone.
+
 
 <a name="nested_dnssec_config"></a>The `dnssec_config` block supports:
 
@@ -498,7 +496,7 @@ The following arguments are supported:
   IPv4 address of a target name server.
 
 * `domain_name` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Fully qualified domain name for the forwarding target.
 
 * `forwarding_path` -

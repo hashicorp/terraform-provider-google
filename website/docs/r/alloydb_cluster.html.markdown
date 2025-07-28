@@ -86,14 +86,13 @@ resource "google_alloydb_instance" "default" {
     cpu_count = 2
   }
 
-  depends_on = [google_service_networking_connection.vpc_connection]
 }
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "alloydb-cluster"
   location   = "us-central1"
   network_config {
-    network = google_compute_network.default.id
+    network = data.google_compute_network.default.id
   }
   database_version = "POSTGRES_14"
 
@@ -102,24 +101,8 @@ resource "google_alloydb_cluster" "default" {
   }
 }
 
-data "google_project" "project" {}
-
-resource "google_compute_network" "default" {
+data "google_compute_network" "default" {
   name = "alloydb-network"
-}
-
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          =  "alloydb-cluster"
-  address_type  = "INTERNAL"
-  purpose       = "VPC_PEERING"
-  prefix_length = 16
-  network       = google_compute_network.default.id
-}
-
-resource "google_service_networking_connection" "vpc_connection" {
-  network                 = google_compute_network.default.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -140,14 +123,13 @@ resource "google_alloydb_instance" "default" {
     cpu_count = 2
   }
 
-  depends_on = [google_service_networking_connection.vpc_connection]
 }
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "alloydb-cluster"
   location   = "us-central1"
   network_config {
-    network = google_compute_network.default.id
+    network = data.google_compute_network.default.id
   }
   database_version = "POSTGRES_15"
 
@@ -156,24 +138,8 @@ resource "google_alloydb_cluster" "default" {
   }
 }
 
-data "google_project" "project" {}
-
-resource "google_compute_network" "default" {
+data "google_compute_network" "default" {
   name = "alloydb-network"
-}
-
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          =  "alloydb-cluster"
-  address_type  = "INTERNAL"
-  purpose       = "VPC_PEERING"
-  prefix_length = 16
-  network       = google_compute_network.default.id
-}
-
-resource "google_service_networking_connection" "vpc_connection" {
-  network                 = google_compute_network.default.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -394,9 +360,6 @@ The following arguments are supported:
   The location where the alloydb cluster should reside.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   User-defined labels for the alloydb cluster.
@@ -497,6 +460,7 @@ Possible values: DEFAULT, FORCE
 * `skip_await_major_version_upgrade` - (Optional) Set to true to skip awaiting on the major version upgrade of the cluster.
 Possible values: true, false
 Default value: "true"
+
 
 
 <a name="nested_encryption_config"></a>The `encryption_config` block supports:

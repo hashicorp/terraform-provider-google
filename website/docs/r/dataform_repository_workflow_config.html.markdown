@@ -158,9 +158,6 @@ The following arguments are supported:
   The name of the release config whose releaseCompilationResult should be executed. Must be in the format projects/*/locations/*/repositories/*/releaseConfigs/*.
 
 
-- - -
-
-
 * `invocation_config` -
   (Optional)
   Optional. If left unset, a default InvocationConfig will be used.
@@ -184,6 +181,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_invocation_config"></a>The `invocation_config` block supports:

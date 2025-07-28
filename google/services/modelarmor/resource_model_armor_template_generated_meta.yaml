@@ -1,0 +1,37 @@
+resource: 'google_model_armor_template'
+generation_type: 'mmv1'
+source_file: 'products/modelarmor/Template.yaml'
+api_service_name: 'modelarmor.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Template'
+autogen_status: true
+fields:
+  - field: 'create_time'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'filter_config.malicious_uri_filter_settings.filter_enforcement'
+  - field: 'filter_config.pi_and_jailbreak_filter_settings.confidence_level'
+  - field: 'filter_config.pi_and_jailbreak_filter_settings.filter_enforcement'
+  - field: 'filter_config.rai_settings.rai_filters.confidence_level'
+  - field: 'filter_config.rai_settings.rai_filters.filter_type'
+  - field: 'filter_config.sdp_settings.advanced_config.deidentify_template'
+  - field: 'filter_config.sdp_settings.advanced_config.inspect_template'
+  - field: 'filter_config.sdp_settings.basic_config.filter_enforcement'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'template_id'
+    provider_only: true
+  - field: 'template_metadata.custom_llm_response_safety_error_code'
+  - field: 'template_metadata.custom_llm_response_safety_error_message'
+  - field: 'template_metadata.custom_prompt_safety_error_code'
+  - field: 'template_metadata.custom_prompt_safety_error_message'
+  - field: 'template_metadata.enforcement_type'
+  - field: 'template_metadata.ignore_partial_invocation_failures'
+  - field: 'template_metadata.log_sanitize_operations'
+  - field: 'template_metadata.log_template_operations'
+  - field: 'template_metadata.multi_language_detection.enable_multi_language_detection'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

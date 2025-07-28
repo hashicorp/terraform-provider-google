@@ -260,7 +260,7 @@ resource "google_compute_instance_template" "confidential_instance_template" {
   }
 
   disk {
-    source_image = "ubuntu-os-cloud/ubuntu-2004-lts"
+    source_image = "ubuntu-os-cloud/ubuntu-2204-lts"
   }
 
   network_interface {

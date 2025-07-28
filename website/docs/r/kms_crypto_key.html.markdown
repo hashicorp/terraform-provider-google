@@ -98,9 +98,6 @@ The following arguments are supported:
   Format: `'projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}'`.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Labels with user-defined metadata to apply to this resource.
@@ -158,6 +155,7 @@ The following arguments are supported:
   If set to true, the request will create a CryptoKey without any CryptoKeyVersions.
   You must use the `google_kms_crypto_key_version` resource to create a new CryptoKeyVersion
   or `google_kms_key_ring_import_job` resource to import the CryptoKeyVersion.
+
 
 
 <a name="nested_version_template"></a>The `version_template` block supports:

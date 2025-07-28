@@ -32,7 +32,6 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceGeminiGeminiGcpEnablementSettingBinding() *schema.Resource {
@@ -91,11 +90,10 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description: `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
 			},
 			"product": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"GEMINI_IN_BIGQUERY", ""}),
-				Description:  `Product type of the setting binding. Possible values: ["GEMINI_IN_BIGQUERY"]`,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: `Product type of the setting binding. Values include GEMINI_IN_BIGQUERY, GEMINI_CLOUD_ASSIST, etc. See [product reference](https://cloud.google.com/gemini/docs/api/reference/rest/v1/projects.locations.dataSharingWithGoogleSettings.settingBindings) for a complete list.`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,

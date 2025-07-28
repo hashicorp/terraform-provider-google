@@ -31,7 +31,6 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"github.com/gammazero/workerpool"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -84,11 +83,10 @@ func ResourceStorageBucket() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				Description:  `The name of the bucket.`,
-				ValidateFunc: verify.ValidateGCSName,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the bucket.`,
 			},
 
 			"encryption": {
@@ -647,6 +645,17 @@ func ResourceStorageBucket() *schema.Resource {
 								},
 							},
 						},
+						"allow_cross_org_vpcs": {
+							Type:         schema.TypeBool,
+							Optional:     true,
+							Description:  `Whether to allow cross-org VPCs in the bucket's IP filter configuration.`,
+							RequiredWith: []string{"ip_filter.0.vpc_network_sources"},
+						},
+						"allow_all_service_agent_access": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Whether to allow all service agents to access the bucket regardless of the IP filter configuration.`,
+						},
 					},
 				},
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
@@ -726,71 +735,63 @@ func getAnywhereCacheListResult(d *schema.ResourceData, config *transport_tpg.Co
 }
 
 func deleteAnywhereCacheIfAny(d *schema.ResourceData, config *transport_tpg.Config) error {
-	// Get the initial list of Anywhere Caches
-	cacheList, err := getAnywhereCacheListResult(d, config)
-	if err != nil {
-		return err
-	}
-
-	// If no cache exists initially, return early
-	if len(cacheList) == 0 {
-		return nil
-	}
-
-	// Iterate over each object in the resource list
-	for _, item := range cacheList {
-		// Ensure the item is a map
-		obj, ok := item.(map[string]interface{})
-		if !ok {
-			return fmt.Errorf("unexpected type for resource list item: %T", item)
-		}
-
-		// Check the state of the object
-		state, ok := obj["state"].(string)
-		if !ok {
-			continue // If state is not a string, skip this item
-		}
-		if !strings.EqualFold(state, "running") && !strings.EqualFold(state, "paused") {
-			continue
-		}
-
-		// Disable the cache if state is running or paused
-		anywhereCacheId, ok := obj["anywhereCacheId"].(string)
-		if !ok {
-			return fmt.Errorf("missing or invalid anywhereCacheId: %v", obj)
-		}
-		anywhereCacheUrl, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}b/{{name}}/anywhereCaches/")
+	for {
+		// Get the list of Anywhere Caches
+		cacheList, err := getAnywhereCacheListResult(d, config)
 		if err != nil {
 			return err
 		}
-		disableUrl := anywhereCacheUrl + fmt.Sprintf("%s/disable", anywhereCacheId)
 
-		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "POST",
-			Project:   config.Project,
-			RawURL:    disableUrl,
-			UserAgent: config.UserAgent,
-		})
-		if err != nil {
-			return err
+		// Check if the cache list is empty
+		if len(cacheList) == 0 {
+			break
 		}
-	}
-	time.Sleep(80 * time.Minute) // It takes around 70 minutes of time for cache to finally delete post it disable time.
 
-	// Post this time, we check again!
-	// Get the list of Anywhere Caches after the sleep
-	cacheList, err = getAnywhereCacheListResult(d, config)
-	if err != nil {
-		return err
+		// Iterate over each object in the resource list
+		for _, item := range cacheList {
+			// Ensure the item is a map
+			obj, ok := item.(map[string]interface{})
+			if !ok {
+				return fmt.Errorf("unexpected type for resource list item: %T", item)
+			}
+
+			// Check the state of the object
+			state, ok := obj["state"].(string)
+			if !ok {
+				continue // If state is not a string, skip this item
+			}
+			if !strings.EqualFold(state, "running") && !strings.EqualFold(state, "paused") {
+				continue
+			}
+
+			// Disable the cache if state is running or paused
+			anywhereCacheId, ok := obj["anywhereCacheId"].(string)
+			if !ok {
+				return fmt.Errorf("missing or invalid anywhereCacheId: %v", obj)
+			}
+			anywhereCacheUrl, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}b/{{name}}/anywhereCaches/")
+			if err != nil {
+				return err
+			}
+			disableUrl := anywhereCacheUrl + fmt.Sprintf("%s/disable", anywhereCacheId)
+
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "POST",
+				Project:   config.Project,
+				RawURL:    disableUrl,
+				UserAgent: config.UserAgent,
+			})
+			if err != nil {
+				return err
+			}
+		}
+
+		// Sleep for 1 minute
+		time.Sleep(1 * time.Minute)
 	}
 
-	// Check if the cache list is now empty
-	if len(cacheList) == 0 {
-		return nil
-	}
-
-	return fmt.Errorf("Error while deleting the cache: caches still exists post 80mins of their disable time")
+	return nil
 }
 
 func resourceDataplexLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
@@ -1195,7 +1196,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	// Get the bucket
 	bucket := d.Get("name").(string)
 
-	var listError, deleteObjectError error
+	var listError, deleteObjectError, deleteCacheError error
 	for deleteObjectError == nil {
 		res, err := config.NewStorageClient(userAgent).Objects.List(bucket).Versions(true).Do()
 		if err != nil {
@@ -1255,7 +1256,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		wp.Submit(func() {
 			err = deleteAnywhereCacheIfAny(d, config)
 			if err != nil {
-				deleteObjectError = fmt.Errorf("error deleting the caches on the bucket %s : %w", bucket, err)
+				deleteCacheError = fmt.Errorf("error deleting the caches on the bucket %s : %w", bucket, err)
 			}
 		})
 
@@ -1294,6 +1295,9 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	}
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && deleteObjectError != nil {
 		return fmt.Errorf("could not delete non-empty bucket due to error when deleting contents: %v", deleteObjectError)
+	}
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "Anywhere Caches") && deleteCacheError != nil {
+		return fmt.Errorf("could not delete bucket due to error when deleting anywhere caches on it: %v", deleteCacheError)
 	}
 	if err != nil {
 		log.Printf("Error deleting bucket %s: %v", bucket, err)
@@ -2056,7 +2060,9 @@ func flattenBucketIpFilter(ipFilter *storage.BucketIpFilter) []map[string]interf
 	}
 
 	filterItem := map[string]interface{}{
-		"mode": ipFilter.Mode,
+		"mode":                           ipFilter.Mode,
+		"allow_cross_org_vpcs":           ipFilter.AllowCrossOrgVpcs,
+		"allow_all_service_agent_access": ipFilter.AllowAllServiceAgentAccess,
 	}
 
 	if publicSrc := flattenBucketIpFilterPublicNetworkSource(ipFilter.PublicNetworkSource); publicSrc != nil {
@@ -2105,10 +2111,12 @@ func expandBucketIpFilter(v interface{}) *storage.BucketIpFilter {
 	}
 	ipFilter := ipFilterList[0].(map[string]interface{})
 	return &storage.BucketIpFilter{
-		Mode:                ipFilter["mode"].(string),
-		PublicNetworkSource: expandBucketIpFilterPublicNetworkSource(ipFilter["public_network_source"]),
-		VpcNetworkSources:   expandBucketIpFilterVpcNetworkSources(ipFilter["vpc_network_sources"]),
-		ForceSendFields:     []string{"PublicNetworkSource", "VpcNetworkSources"},
+		Mode:                       ipFilter["mode"].(string),
+		PublicNetworkSource:        expandBucketIpFilterPublicNetworkSource(ipFilter["public_network_source"]),
+		VpcNetworkSources:          expandBucketIpFilterVpcNetworkSources(ipFilter["vpc_network_sources"]),
+		AllowCrossOrgVpcs:          ipFilter["allow_cross_org_vpcs"].(bool),
+		AllowAllServiceAgentAccess: ipFilter["allow_all_service_agent_access"].(bool),
+		ForceSendFields:            []string{"PublicNetworkSource", "VpcNetworkSources", "AllowCrossOrgVpcs", "AllowAllServiceAgentAccess"},
 	}
 }
 

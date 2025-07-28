@@ -81,15 +81,13 @@ The following arguments are supported:
   The location of the url lists.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Free-text description of the resource.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

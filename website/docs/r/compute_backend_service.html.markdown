@@ -491,7 +491,6 @@ resource "google_compute_health_check" "default" {
 
 ```hcl
 resource "google_compute_backend_service" "default" {
-  provider = google-beta
   name          = "backend-service"
   health_checks = [google_compute_health_check.default.id]
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -509,7 +508,6 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  provider = google-beta
   name = "health-check"
   http_health_check {
     port = 80
@@ -517,7 +515,6 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_network_security_backend_authentication_config" "default" {
-  provider = google-beta
   name             = "authentication"
   well_known_roots = "PUBLIC_ROOTS"
 }
@@ -670,9 +667,6 @@ The following arguments are supported:
   first character must be a lowercase letter, and all following
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
-
-
-- - -
 
 
 * `affinity_cookie_ttl_sec` -
@@ -930,7 +924,7 @@ The following arguments are supported:
   Can only be set if load balancing scheme is EXTERNAL, EXTERNAL_MANAGED, INTERNAL_MANAGED or INTERNAL_SELF_MANAGED and the scope is global.
 
 * `tls_settings` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Configuration for Backend Authenticated TLS and mTLS. May only be specified when the backend protocol is SSL, HTTPS or HTTP2.
   Structure is [documented below](#nested_tls_settings).
 
@@ -957,6 +951,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_backend"></a>The `backend` block supports:

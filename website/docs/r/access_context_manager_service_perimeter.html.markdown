@@ -299,9 +299,6 @@ The following arguments are supported:
   Format: accessPolicies/{policy_id}/servicePerimeters/{short_name}
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Description of the ServicePerimeter and its use. Does not affect
@@ -352,6 +349,7 @@ The following arguments are supported:
   actually enforcing them. This testing is done through analyzing the differences
   between currently enforced and suggested restrictions. useExplicitDryRunSpec must
   bet set to True if any of the fields in the spec are set to non-default values.
+
 
 
 <a name="nested_status"></a>The `status` block supports:

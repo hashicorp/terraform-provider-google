@@ -87,15 +87,6 @@ The following arguments are supported:
   Structure is [documented below](#nested_version_configs).
 
 
-<a name="nested_version_configs"></a>The `version_configs` block supports:
-
-* `version` -
-  (Required)
-  Format: projects/{{project}}/locations/{{location}}/agents/{{agent}}/flows/{{flow}}/versions/{{version}}.
-
-- - -
-
-
 * `description` -
   (Optional)
   The human-readable description of the environment. The maximum length is 500 characters. If exceeded, the request is rejected.
@@ -105,6 +96,13 @@ The following arguments are supported:
   The Agent to create an Environment for.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>.
 
+
+
+<a name="nested_version_configs"></a>The `version_configs` block supports:
+
+* `version` -
+  (Required)
+  Format: projects/{{project}}/locations/{{location}}/agents/{{agent}}/flows/{{flow}}/versions/{{version}}.
 
 ## Attributes Reference
 
