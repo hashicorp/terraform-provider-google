@@ -419,7 +419,6 @@ resource "google_cloud_run_v2_job" "default" {
       node_selector {
         accelerator = "nvidia-l4"
       }
-      gpu_zonal_redundancy_disabled = true
     }
   }
 }
@@ -578,10 +577,6 @@ When the field is set to false, deleting the job is allowed.
   (Optional)
   Node Selector describes the hardware requirements of the resources.
   Structure is [documented below](#nested_template_template_node_selector).
-
-* `gpu_zonal_redundancy_disabled` -
-  (Optional)
-  True if GPU zonal redundancy is disabled on this execution.
 
 
 <a name="nested_template_template_containers"></a>The `containers` block supports:

@@ -338,12 +338,6 @@ Must be smaller than periodSeconds.`,
 										ValidateFunc: verify.ValidateEnum([]string{"EXECUTION_ENVIRONMENT_GEN1", "EXECUTION_ENVIRONMENT_GEN2", ""}),
 										Description:  `The execution environment being used to host this Task. Possible values: ["EXECUTION_ENVIRONMENT_GEN1", "EXECUTION_ENVIRONMENT_GEN2"]`,
 									},
-									"gpu_zonal_redundancy_disabled": {
-										Type:        schema.TypeBool,
-										Computed:    true,
-										Optional:    true,
-										Description: `True if GPU zonal redundancy is disabled on this execution.`,
-									},
 									"max_retries": {
 										Type:        schema.TypeInt,
 										Optional:    true,
@@ -1587,8 +1581,6 @@ func flattenCloudRunV2JobTemplateTemplate(v interface{}, d *schema.ResourceData,
 		flattenCloudRunV2JobTemplateTemplateMaxRetries(original["maxRetries"], d, config)
 	transformed["node_selector"] =
 		flattenCloudRunV2JobTemplateTemplateNodeSelector(original["nodeSelector"], d, config)
-	transformed["gpu_zonal_redundancy_disabled"] =
-		flattenCloudRunV2JobTemplateTemplateGpuZonalRedundancyDisabled(original["gpuZonalRedundancyDisabled"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2JobTemplateTemplateContainers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2315,10 +2307,6 @@ func flattenCloudRunV2JobTemplateTemplateNodeSelectorAccelerator(v interface{}, 
 	return v
 }
 
-func flattenCloudRunV2JobTemplateTemplateGpuZonalRedundancyDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenCloudRunV2JobObservedGeneration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -2720,13 +2708,6 @@ func expandCloudRunV2JobTemplateTemplate(v interface{}, d tpgresource.TerraformR
 		return nil, err
 	} else if val := reflect.ValueOf(transformedNodeSelector); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["nodeSelector"] = transformedNodeSelector
-	}
-
-	transformedGpuZonalRedundancyDisabled, err := expandCloudRunV2JobTemplateTemplateGpuZonalRedundancyDisabled(original["gpu_zonal_redundancy_disabled"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["gpuZonalRedundancyDisabled"] = transformedGpuZonalRedundancyDisabled
 	}
 
 	return transformed, nil
@@ -3692,10 +3673,6 @@ func expandCloudRunV2JobTemplateTemplateNodeSelector(v interface{}, d tpgresourc
 }
 
 func expandCloudRunV2JobTemplateTemplateNodeSelectorAccelerator(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateGpuZonalRedundancyDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
