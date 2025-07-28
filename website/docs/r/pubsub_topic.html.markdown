@@ -246,9 +246,6 @@ The following arguments are supported:
   Name of the topic.
 
 
-- - -
-
-
 * `kms_key_name` -
   (Optional)
   The resource name of the Cloud KMS CryptoKey to be used to protect access
@@ -292,8 +289,15 @@ The following arguments are supported:
   Settings for ingestion from a data source into this topic.
   Structure is [documented below](#nested_ingestion_data_source_settings).
 
+* `message_transforms` -
+  (Optional)
+  Transforms to be applied to messages published to the topic. Transforms are applied in the
+  order specified.
+  Structure is [documented below](#nested_message_transforms).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_message_storage_policy"></a>The `message_storage_policy` block supports:
@@ -522,6 +526,57 @@ The following arguments are supported:
   (Required)
   The GCP service account to be used for Federated Identity authentication
   with Confluent Cloud.
+
+<a name="nested_message_transforms"></a>The `message_transforms` block supports:
+
+* `javascript_udf` -
+  (Optional)
+  Javascript User Defined Function. If multiple Javascript UDFs are specified on a resource,
+  each one must have a unique `function_name`.
+  Structure is [documented below](#nested_message_transforms_message_transforms_javascript_udf).
+
+* `disabled` -
+  (Optional)
+  Controls whether or not to use this transform. If not set or `false`,
+  the transform will be applied to messages. Default: `true`.
+
+
+<a name="nested_message_transforms_message_transforms_javascript_udf"></a>The `javascript_udf` block supports:
+
+* `function_name` -
+  (Required)
+  Name of the JavaScript function that should be applied to Pub/Sub messages.
+
+* `code` -
+  (Required)
+  JavaScript code that contains a function `function_name` with the
+  following signature:
+  ```
+    /**
+    * Transforms a Pub/Sub message.
+    *
+    * @return {(Object<string, (string | Object<string, string>)>|null)} - To
+    * filter a message, return `null`. To transform a message return a map
+    * with the following keys:
+    *   - (required) 'data' : {string}
+    *   - (optional) 'attributes' : {Object<string, string>}
+    * Returning empty `attributes` will remove all attributes from the
+    * message.
+    *
+    * @param  {(Object<string, (string | Object<string, string>)>} Pub/Sub
+    * message. Keys:
+    *   - (required) 'data' : {string}
+    *   - (required) 'attributes' : {Object<string, string>}
+    *
+    * @param  {Object<string, any>} metadata - Pub/Sub message metadata.
+    * Keys:
+    *   - (required) 'message_id'  : {string}
+    *   - (optional) 'publish_time': {string} YYYY-MM-DDTHH:MM:SSZ format
+    *   - (optional) 'ordering_key': {string}
+    */
+    function <function_name>(message, metadata) {
+    }
+  ```
 
 ## Attributes Reference
 

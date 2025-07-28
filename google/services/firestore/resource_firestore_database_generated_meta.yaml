@@ -20,6 +20,7 @@ fields:
   - field: 'location_id'
   - field: 'name'
   - field: 'point_in_time_recovery_enablement'
+  - field: 'tags'
   - field: 'type'
   - field: 'uid'
   - field: 'update_time'

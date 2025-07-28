@@ -52,7 +52,7 @@ func TestAccFirestoreDatabase_firestoreDatabaseExample(t *testing.T) {
 				ResourceName:            "google_firestore_database.database",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project", "tags"},
 			},
 		},
 	})
@@ -95,7 +95,7 @@ func TestAccFirestoreDatabase_firestoreCmekDatabaseExample(t *testing.T) {
 				ResourceName:            "google_firestore_database.database",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project", "tags"},
 			},
 		},
 	})
@@ -168,7 +168,7 @@ func TestAccFirestoreDatabase_firestoreDatabaseInDatastoreModeExample(t *testing
 				ResourceName:            "google_firestore_database.datastore_mode_database",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project", "tags"},
 			},
 		},
 	})
@@ -211,7 +211,7 @@ func TestAccFirestoreDatabase_firestoreCmekDatabaseInDatastoreModeExample(t *tes
 				ResourceName:            "google_firestore_database.database",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project", "tags"},
 			},
 		},
 	})
@@ -283,7 +283,7 @@ func TestAccFirestoreDatabase_firestoreDatabaseEnterpriseExample(t *testing.T) {
 				ResourceName:            "google_firestore_database.enterprise-db",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project", "tags"},
 			},
 		},
 	})

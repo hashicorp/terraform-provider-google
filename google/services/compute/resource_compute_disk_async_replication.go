@@ -167,7 +167,7 @@ func resourceDiskAsyncReplicationCreate(d *schema.ResourceData, meta interface{}
 			return retry.NonRetryableError(err)
 		}
 		if diskStatus.ResourceStatus == nil {
-			return retry.NonRetryableError(fmt.Errorf("no resource status for disk: %s", resourceId))
+			return retry.RetryableError(fmt.Errorf("no resource status for disk: %s", resourceId))
 		}
 		if secondaryState, ok := diskStatus.ResourceStatus.AsyncSecondaryDisks[secondaryDisk]; ok {
 			if secondaryState.State != "ACTIVE" {

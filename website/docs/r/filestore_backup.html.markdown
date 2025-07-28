@@ -99,9 +99,6 @@ The following arguments are supported:
   The name of the location of the instance. This can be a region for ENTERPRISE tier instances.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A description of the backup with 2048 characters or less. Requests with longer descriptions will be rejected.
@@ -122,6 +119,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

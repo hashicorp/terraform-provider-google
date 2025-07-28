@@ -901,6 +901,219 @@ resource "google_compute_health_check" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_test_headers&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Test Headers
+
+
+```hcl
+resource "google_compute_health_check" "health-check" {
+  name               = "health-check"
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_backend_service" "backend" {
+  name        = "backend"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_health_check.health-check.id]
+}
+
+resource "google_compute_url_map" "urlmap" {
+  name            = "urlmap"
+  description     = "URL map with test headers"
+  default_service = google_compute_backend_service.backend.id
+
+  test {
+    description = "Test with custom headers"
+    host        = "example.com"
+    path        = "/"
+    service     = google_compute_backend_service.backend.id
+    
+    headers {
+      name  = "User-Agent"
+      value = "TestBot/1.0"
+    }
+    
+    headers {
+      name  = "X-Custom-Header"
+      value = "test-value"
+    }
+  }
+
+  test {
+    description = "Test with authorization headers"
+    host        = "api.example.com"
+    path        = "/v1/test"
+    service     = google_compute_backend_service.backend.id
+    
+    headers {
+      name  = "Authorization"
+      value = "Bearer token123"
+    }
+    
+    headers {
+      name  = "Content-Type"
+      value = "application/json"
+    }
+  }
+} 
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_test_expected_output_url&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Test Expected Output Url
+
+
+```hcl
+resource "google_compute_health_check" "health-check" {
+  name               = "health-check"
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_backend_service" "backend" {
+  name        = "backend"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_health_check.health-check.id]
+}
+
+resource "google_compute_url_map" "urlmap" {
+  name            = "urlmap"
+  description     = "URL map with expected output URL tests"
+  default_service = google_compute_backend_service.backend.id
+
+  test {
+    description = "Test with expected output URL"
+    host        = "example.com"
+    path        = "/"
+    service     = google_compute_backend_service.backend.id
+    
+    headers {
+      name  = "User-Agent"
+      value = "TestBot/1.0"
+    }
+    
+    expected_output_url = "http://example.com/"
+  }
+
+  test {
+    description = "Test API routing with expected output URL"
+    host        = "api.example.com"
+    path        = "/v1/users"
+    service     = google_compute_backend_service.backend.id
+    
+    headers {
+      name  = "Authorization"
+      value = "Bearer token123"
+    }
+    
+    expected_output_url = "http://api.example.com/v1/users"
+  }
+} 
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_test_redirect_response_code&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Test Redirect Response Code
+
+
+```hcl
+resource "google_compute_health_check" "health-check" {
+  name               = "health-check"
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_backend_service" "backend" {
+  name        = "backend"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_health_check.health-check.id]
+}
+
+resource "google_compute_url_map" "urlmap" {
+  name            = "urlmap"
+  description     = "URL map with redirect response code tests"
+  default_service = google_compute_backend_service.backend.id
+
+  host_rule {
+    hosts        = ["example.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.backend.id
+
+    path_rule {
+      paths = ["/redirect/*"]
+      url_redirect {
+        host_redirect          = "newsite.com"
+        path_redirect          = "/new-path/"
+        https_redirect         = true
+        redirect_response_code = "MOVED_PERMANENTLY_DEFAULT"
+        strip_query           = false
+      }
+    }
+  }
+
+  test {
+    description = "Test redirect with expected response code"
+    host        = "example.com"
+    path        = "/redirect/old-page"
+    
+    headers {
+      name  = "Referer"
+      value = "https://oldsite.com"
+    }
+    
+    expected_output_url              = "https://newsite.com/new-path/"
+    expected_redirect_response_code  = 301
+  }
+
+  test {
+    description = "Test another redirect scenario"
+    host        = "example.com"
+    path        = "/redirect/another-page"
+    
+    headers {
+      name  = "User-Agent"
+      value = "TestBot/1.0"
+    }
+    
+    expected_output_url              = "https://newsite.com/new-path/"
+    expected_redirect_response_code  = 301
+  }
+} 
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_path_template_match&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -995,7 +1208,6 @@ resource "google_storage_bucket" "static" {
 
 ```hcl
 resource "google_compute_url_map" "urlmap" {
-  provider    = google-beta
   name        = "urlmap"
   description = "a description"
 
@@ -1050,7 +1262,6 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "example" {
-  provider    = google-beta
   name        = "login"
   port_name   = "http"
   protocol    = "HTTP"
@@ -1061,7 +1272,6 @@ resource "google_compute_backend_service" "example" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  provider           = google-beta
   name               = "health-check"
   request_path       = "/"
   check_interval_sec = 1
@@ -1069,14 +1279,12 @@ resource "google_compute_http_health_check" "default" {
 }
 
 resource "google_compute_backend_bucket" "error" {
-  provider    = google-beta
   name        = "error-backend-bucket"
   bucket_name = google_storage_bucket.error.name
   enable_cdn  = true
 }
 
 resource "google_storage_bucket" "error" {
-  provider    = google-beta
   name        = "static-asset-bucket"
   location    = "US"
 }
@@ -1306,9 +1514,6 @@ The following arguments are supported:
   except the last character, which cannot be a dash.
 
 
-- - -
-
-
 * `default_service` -
   (Optional)
   The backend service or backend bucket to use when none of the given rules match.
@@ -1336,7 +1541,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_path_matcher).
 
 * `default_custom_error_response_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   defaultCustomErrorResponsePolicy specifies how the Load Balancer returns error responses when BackendService or BackendBucket responds with an error.
   This policy takes effect at the PathMatcher level and applies only when no policy has been defined for the error code at lower levels like RouteRule and PathRule within this PathMatcher. If an error code does not have a policy defined in defaultCustomErrorResponsePolicy, then a policy defined for the error code in UrlMap.defaultCustomErrorResponsePolicy takes effect.
   For example, consider a UrlMap with the following configuration:
@@ -1372,6 +1577,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_header_action"></a>The `header_action` block supports:
@@ -1460,7 +1666,7 @@ The following arguments are supported:
   the resource.
 
 * `default_custom_error_response_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   defaultCustomErrorResponsePolicy specifies how the Load Balancer returns error responses when BackendService or BackendBucket responds with an error.
   This policy takes effect at the PathMatcher level and applies only when no policy has been defined for the error code at lower levels like RouteRule and PathRule within this PathMatcher. If an error code does not have a policy defined in defaultCustomErrorResponsePolicy, then a policy defined for the error code in UrlMap.defaultCustomErrorResponsePolicy takes effect.
   For example, consider a UrlMap with the following configuration:
@@ -1631,7 +1837,7 @@ The following arguments are supported:
   allowed here.
 
 * `custom_error_response_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   customErrorResponsePolicy specifies how the Load Balancer returns error responses when BackendService or BackendBucket responds with an error.
   If a policy for an error code is not configured for the PathRule, a policy for the error code configured in pathMatcher.defaultCustomErrorResponsePolicy is applied. If one is not specified in pathMatcher.defaultCustomErrorResponsePolicy, the policy configured in UrlMap.defaultCustomErrorResponsePolicy takes effect.
   For example, consider a UrlMap with the following configuration:
@@ -2155,7 +2361,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_url_redirect).
 
 * `custom_error_response_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   customErrorResponsePolicy specifies how the Load Balancer returns error responses when BackendService or BackendBucket responds with an error.
   Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_custom_error_response_policy).
 
@@ -3331,9 +3537,37 @@ The following arguments are supported:
   (Required)
   Path portion of the URL.
 
+* `headers` -
+  (Optional)
+  HTTP headers for this request.
+  Structure is [documented below](#nested_test_test_headers).
+
 * `service` -
-  (Required)
+  (Optional)
   The backend service or backend bucket link that should be matched by this test.
+
+* `expected_output_url` -
+  (Optional)
+  The expected output URL evaluated by the load balancer containing the scheme, host, path and query parameters.
+  For rules that forward requests to backends, the test passes only when expectedOutputUrl matches the request forwarded by the load balancer to backends. For rules with urlRewrite, the test verifies that the forwarded request matches hostRewrite and pathPrefixRewrite in the urlRewrite action. When service is specified, expectedOutputUrl`s scheme is ignored.
+  For rules with urlRedirect, the test passes only if expectedOutputUrl matches the URL in the load balancer's redirect response. If urlRedirect specifies httpsRedirect, the test passes only if the scheme in expectedOutputUrl is also set to HTTPS. If urlRedirect specifies stripQuery, the test passes only if expectedOutputUrl does not contain any query parameters.
+  expectedOutputUrl is optional when service is specified.
+
+* `expected_redirect_response_code` -
+  (Optional)
+  For rules with urlRedirect, the test passes only if expectedRedirectResponseCode matches the HTTP status code in load balancer's redirect response.
+  expectedRedirectResponseCode cannot be set when service is set.
+
+
+<a name="nested_test_test_headers"></a>The `headers` block supports:
+
+* `name` -
+  (Required)
+  Header name.
+
+* `value` -
+  (Required)
+  Header value.
 
 <a name="nested_default_url_redirect"></a>The `default_url_redirect` block supports:
 

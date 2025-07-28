@@ -54,7 +54,7 @@ resource "google_iam_workload_identity_pool_namespace" "example" {
   provider = google-beta
 
   workload_identity_pool_id           = google_iam_workload_identity_pool.pool.workload_identity_pool_id
-  workload_identity_pool_namespace_id = "example-nmspc"
+  workload_identity_pool_namespace_id = "example-namespace"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -77,7 +77,7 @@ resource "google_iam_workload_identity_pool_namespace" "example" {
   provider = google-beta
 
   workload_identity_pool_id           = google_iam_workload_identity_pool.pool.workload_identity_pool_id
-  workload_identity_pool_namespace_id = "example-nmspc"
+  workload_identity_pool_namespace_id = "example-namespace"
   description                         = "Example Namespace in a Workload Identity Pool"
   disabled                            = true
 }
@@ -105,9 +105,6 @@ The following arguments are supported:
   The prefix `gcp-` will be reserved for future uses.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A description of the namespace. Cannot exceed 256 characters.
@@ -120,6 +117,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

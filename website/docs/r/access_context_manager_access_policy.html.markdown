@@ -84,13 +84,11 @@ The following arguments are supported:
   Human readable title. Does not affect behavior.
 
 
-- - -
-
-
 * `scopes` -
   (Optional)
   Folder or project on which this policy is applicable.
   Format: 'folders/{{folder_id}}' or 'projects/{{project_number}}'
+
 
 
 ## Attributes Reference

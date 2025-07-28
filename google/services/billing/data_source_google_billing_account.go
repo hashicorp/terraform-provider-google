@@ -63,6 +63,10 @@ func DataSourceGoogleBillingAccount() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
+			"currency_code": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -140,6 +144,9 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	if err := d.Set("open", billingAccount.Open); err != nil {
 		return fmt.Errorf("Error setting open: %s", err)
+	}
+	if err := d.Set("currency_code", billingAccount.CurrencyCode); err != nil {
+		return fmt.Errorf("Error setting currency_code: %s", err)
 	}
 
 	return nil

@@ -48,6 +48,27 @@ func TestAccDatasourceSecretManagerSecretVersion_basic(t *testing.T) {
 	})
 }
 
+func TestAccDatasourceSecretManagerSecretVersion_fetchSecretDataFalse(t *testing.T) {
+	t.Parallel()
+
+	randomString := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerSecretVersionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDatasourceSecretManagerSecretVersion_fetchSecretDataFalse(randomString),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDatasourceSecretManagerSecretVersion("data.google_secret_manager_secret_version.basic", "1"),
+					resource.TestCheckNoResourceAttr("data.google_secret_manager_secret_version.basic", "secret_data"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDatasourceSecretManagerSecretVersion_latest(t *testing.T) {
 	t.Parallel()
 
@@ -201,6 +222,31 @@ resource "google_secret_manager_secret_version" "secret-version-basic" {
 data "google_secret_manager_secret_version" "basic" {
   secret = google_secret_manager_secret_version.secret-version-basic.secret
   version = 1
+}
+`, randomString, randomString)
+}
+
+func testAccDatasourceSecretManagerSecretVersion_fetchSecretDataFalse(randomString string) string {
+	return fmt.Sprintf(`
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-version-%s"
+  labels = {
+    label = "my-label"
+  }
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-basic" {
+  secret = google_secret_manager_secret.secret-basic.name
+  secret_data = "my-tf-test-secret-%s"
+}
+
+data "google_secret_manager_secret_version" "basic" {
+  secret 			= google_secret_manager_secret_version.secret-version-basic.secret
+  version 			= 1
+  fetch_secret_data = false
 }
 `, randomString, randomString)
 }

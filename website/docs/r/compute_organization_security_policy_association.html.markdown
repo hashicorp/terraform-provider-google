@@ -97,8 +97,6 @@ The following arguments are supported:
   The security policy ID of the association.
 
 
-- - -
-
 
 
 ## Attributes Reference

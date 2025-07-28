@@ -29,6 +29,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -81,6 +82,32 @@ func ResourceNetworkConnectivityInternalRange() *schema.Resource {
 				Required:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"FOR_VPC", "EXTERNAL_TO_VPC", "FOR_MIGRATION"}),
 				Description:  `The type of usage set for this InternalRange. Possible values: ["FOR_VPC", "EXTERNAL_TO_VPC", "FOR_MIGRATION"]`,
+			},
+			"allocation_options": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Options for automatically allocating a free range with a size given by prefixLength.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"allocation_strategy": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"RANDOM", "FIRST_AVAILABLE", "RANDOM_FIRST_N_AVAILABLE", "FIRST_SMALLEST_FITTING", ""}),
+							Description:  `Optional. Sets the strategy used to automatically find a free range of a size given by prefixLength. Can be set only when trying to create a reservation that automatically finds the free range to reserve. Possible values: ["RANDOM", "FIRST_AVAILABLE", "RANDOM_FIRST_N_AVAILABLE", "FIRST_SMALLEST_FITTING"]`,
+						},
+						"first_available_ranges_lookup_size": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.IntAtLeast(1),
+							Description: `Must be set when allocation_strategy is RANDOM_FIRST_N_AVAILABLE, otherwise must remain unset. Defines the size of the set of free ranges from which RANDOM_FIRST_N_AVAILABLE strategy randomy selects one,
+in other words it sets the N in the RANDOM_FIRST_N_AVAILABLE.`,
+						},
+					},
+				},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -263,6 +290,12 @@ func resourceNetworkConnectivityInternalRangeCreate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("exclude_cidr_ranges"); !tpgresource.IsEmptyValue(reflect.ValueOf(excludeCidrRangesProp)) && (ok || !reflect.DeepEqual(v, excludeCidrRangesProp)) {
 		obj["excludeCidrRanges"] = excludeCidrRangesProp
 	}
+	allocationOptionsProp, err := expandNetworkConnectivityInternalRangeAllocationOptions(d.Get("allocation_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("allocation_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(allocationOptionsProp)) && (ok || !reflect.DeepEqual(v, allocationOptionsProp)) {
+		obj["allocationOptions"] = allocationOptionsProp
+	}
 	overlapsProp, err := expandNetworkConnectivityInternalRangeOverlaps(d.Get("overlaps"), d, config)
 	if err != nil {
 		return err
@@ -411,6 +444,9 @@ func resourceNetworkConnectivityInternalRangeRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
 	if err := d.Set("exclude_cidr_ranges", flattenNetworkConnectivityInternalRangeExcludeCidrRanges(res["excludeCidrRanges"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err := d.Set("allocation_options", flattenNetworkConnectivityInternalRangeAllocationOptions(res["allocationOptions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
 	if err := d.Set("users", flattenNetworkConnectivityInternalRangeUsers(res["users"], d, config)); err != nil {
@@ -742,6 +778,42 @@ func flattenNetworkConnectivityInternalRangeExcludeCidrRanges(v interface{}, d *
 	return v
 }
 
+func flattenNetworkConnectivityInternalRangeAllocationOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["allocation_strategy"] =
+		flattenNetworkConnectivityInternalRangeAllocationOptionsAllocationStrategy(original["allocationStrategy"], d, config)
+	transformed["first_available_ranges_lookup_size"] =
+		flattenNetworkConnectivityInternalRangeAllocationOptionsFirstAvailableRangesLookupSize(original["firstAvailableRangesLookupSize"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkConnectivityInternalRangeAllocationOptionsAllocationStrategy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityInternalRangeAllocationOptionsFirstAvailableRangesLookupSize(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenNetworkConnectivityInternalRangeUsers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -825,6 +897,40 @@ func expandNetworkConnectivityInternalRangeTargetCidrRange(v interface{}, d tpgr
 }
 
 func expandNetworkConnectivityInternalRangeExcludeCidrRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivityInternalRangeAllocationOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAllocationStrategy, err := expandNetworkConnectivityInternalRangeAllocationOptionsAllocationStrategy(original["allocation_strategy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllocationStrategy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allocationStrategy"] = transformedAllocationStrategy
+	}
+
+	transformedFirstAvailableRangesLookupSize, err := expandNetworkConnectivityInternalRangeAllocationOptionsFirstAvailableRangesLookupSize(original["first_available_ranges_lookup_size"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFirstAvailableRangesLookupSize); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["firstAvailableRangesLookupSize"] = transformedFirstAvailableRangesLookupSize
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkConnectivityInternalRangeAllocationOptionsAllocationStrategy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivityInternalRangeAllocationOptionsFirstAvailableRangesLookupSize(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -164,24 +164,6 @@ The following arguments are supported:
   The location of this bitbucket server config.
 
 
-<a name="nested_secrets"></a>The `secrets` block supports:
-
-* `admin_access_token_version_name` -
-  (Required)
-  The resource name for the admin access token's secret version.
-
-* `read_access_token_version_name` -
-  (Required)
-  The resource name for the read access token's secret version.
-
-* `webhook_secret_version_name` -
-  (Required)
-  Immutable. The resource name for the webhook secret's secret version. Once this field has been set, it cannot be changed.
-  Changing this field will result in deleting/ recreating the resource.
-
-- - -
-
-
 * `connected_repositories` -
   (Optional)
   Connected Bitbucket Server repositories for this config.
@@ -201,6 +183,22 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_secrets"></a>The `secrets` block supports:
+
+* `admin_access_token_version_name` -
+  (Required)
+  The resource name for the admin access token's secret version.
+
+* `read_access_token_version_name` -
+  (Required)
+  The resource name for the read access token's secret version.
+
+* `webhook_secret_version_name` -
+  (Required)
+  Immutable. The resource name for the webhook secret's secret version. Once this field has been set, it cannot be changed.
+  Changing this field will result in deleting/ recreating the resource.
 
 <a name="nested_connected_repositories"></a>The `connected_repositories` block supports:
 

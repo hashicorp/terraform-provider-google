@@ -52,6 +52,7 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
     key2 = "value2",
     key3 = "value3"
   }
+  deletion_protection = false
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -214,9 +215,6 @@ The following arguments are supported:
   This must be unique within the project.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   The labels assigned to this regional secret.
@@ -295,8 +293,19 @@ The following arguments are supported:
   on calling destroy instead the version goes to a disabled state and
   the actual destruction happens after this TTL expires. It must be atleast 24h.
 
+* `tags` -
+  (Optional)
+  A map of resource manager tags.
+  Resource manager tag keys and values have the same definition as resource manager tags.
+  Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/{tag_value_id}.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the regional secret. Defaults to false.
+When the field is set to true in Terraform state, a `terraform apply`
+or `terraform destroy` that would delete the federation will fail.
+
 
 
 <a name="nested_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:

@@ -355,6 +355,25 @@ These settings affect:
 				Computed:    true,
 				Description: `Name of the start flow in this agent. A start flow will be automatically created when the agent is created, and can only be deleted by deleting the agent. Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.`,
 			},
+			"delete_chat_engine_on_destroy": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `If set to 'true', Terraform will delete the chat engine associated with the agent when the agent is destroyed.
+Otherwise, the chat engine will persist.
+
+This virtual field addresses a critical dependency chain: 'agent' -> 'engine' -> 'data store'. The chat engine is automatically
+provisioned when a data store is linked to the agent, meaning Terraform doesn't have direct control over its lifecycle as a managed
+resource. This creates a problem when both the agent and data store are managed by Terraform and need to be destroyed. Without
+delete_chat_engine_on_destroy set to true, the data store's deletion would fail because the unmanaged chat engine would still be
+using it. This setting ensures that the entire dependency chain can be properly torn down.
+See 'mmv1/templates/terraform/examples/dialogflowcx_tool_data_store.tf.tmpl' as an example.
+
+Data store can be linked to an agent through the 'knowledgeConnectorSettings' field of a [flow](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.flows#resource:-flow)
+or a [page](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.flows.pages#resource:-page)
+or the 'dataStoreSpec' field of a [tool](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.tools#resource:-tool).
+The ID of the implicitly created engine is stored in the 'genAppBuilderSettings' field of the [agent](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents#resource:-agent).`,
+				Default: false,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -549,6 +568,12 @@ func resourceDialogflowCXAgentRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXAgent %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("delete_chat_engine_on_destroy"); !ok {
+		if err := d.Set("delete_chat_engine_on_destroy", false); err != nil {
+			return fmt.Errorf("Error setting delete_chat_engine_on_destroy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
@@ -821,6 +846,26 @@ func resourceDialogflowCXAgentDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	headers := make(http.Header)
+	// Extract engine ID from the gen_app_builder_settings field of the Agent
+	s := d.Get("gen_app_builder_settings")
+	log.Printf("[DEBUG] gen_app_builder_settings: %v", s)
+	settings, ok := s.([]interface{})
+	if !ok {
+		return fmt.Errorf("Error converting gen_app_builder_settings %s to  []interface{}", s)
+	}
+
+	engineID := ""
+	if len(settings) > 0 {
+		// An engine is linked to the Agent. Delete it.
+		engineIDIntf, ok := settings[0].(map[string]interface{})["engine"]
+		if !ok {
+			return fmt.Errorf("Expected key 'engine' in map %+v", settings[0])
+		}
+		engineID, ok = engineIDIntf.(string)
+		if !ok {
+			return fmt.Errorf("Can convert engine ID %s to string", engineIDIntf)
+		}
+	}
 
 	log.Printf("[DEBUG] Deleting Agent %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -835,6 +880,41 @@ func resourceDialogflowCXAgentDelete(d *schema.ResourceData, meta interface{}) e
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Agent")
+	}
+
+	if d.Get("delete_chat_engine_on_destroy").(bool) && engineID != "" {
+		// Check if the engine exist.
+		baseUrl, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}")
+		if err != nil {
+			return err
+		}
+		engineUrl := baseUrl + engineID
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    engineUrl,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			log.Printf("[DEBUG] engine %s doesn't exist. No need to delete", engineID)
+			return nil
+		}
+
+		// delete the engine
+		log.Printf("[DEBUG] Deleting engine %v", engineID)
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "DELETE",
+			Project:   project,
+			RawURL:    engineUrl,
+			UserAgent: userAgent,
+			Timeout:   d.Timeout(schema.TimeoutDelete),
+		})
+		if err != nil {
+			return fmt.Errorf("Error deleting engine %s: %s", engineID, err)
+		}
+		log.Printf("[DEBUG] Finished deleting engine %s", engineID)
 	}
 
 	log.Printf("[DEBUG] Finished deleting Agent %q: %#v", d.Id(), res)
@@ -857,6 +937,11 @@ func resourceDialogflowCXAgentImport(d *schema.ResourceData, meta interface{}) (
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("delete_chat_engine_on_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting delete_chat_engine_on_destroy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

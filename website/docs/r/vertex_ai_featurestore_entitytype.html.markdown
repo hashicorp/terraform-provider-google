@@ -128,9 +128,6 @@ The following arguments are supported:
   The name of the Featurestore to use, in the format projects/{project}/locations/{location}/featurestores/{featurestore}.
 
 
-- - -
-
-
 * `name` -
   (Optional)
   The name of the EntityType. This value may be up to 60 characters, and valid characters are [a-z0-9_]. The first character cannot be a number.
@@ -155,6 +152,7 @@ The following arguments are supported:
 * `offline_storage_ttl_days` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Config for data retention policy in offline storage. TTL in days for feature values that will be stored in offline storage. The Feature Store offline storage periodically removes obsolete feature values older than offlineStorageTtlDays since the feature generation time. If unset (or explicitly set to 0), default to 4000 days TTL.
+
 
 
 <a name="nested_monitoring_config"></a>The `monitoring_config` block supports:

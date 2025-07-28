@@ -61,6 +61,21 @@ The following arguments are supported:
   Id of the Code Tools Setting.
 
 
+* `labels` -
+  (Optional)
+  Labels as key value pairs.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `location` -
+  (Optional)
+  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_enabled_tool"></a>The `enabled_tool` block supports:
 
 * `account_connector` -
@@ -95,23 +110,6 @@ The following arguments are supported:
 * `value` -
   (Required)
   Value of the configuration item.
-
-- - -
-
-
-* `labels` -
-  (Optional)
-  Labels as key value pairs.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `location` -
-  (Optional)
-  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

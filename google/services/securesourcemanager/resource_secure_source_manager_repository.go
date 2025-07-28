@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -37,6 +38,7 @@ func ResourceSecureSourceManagerRepository() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSecureSourceManagerRepositoryCreate,
 		Read:   resourceSecureSourceManagerRepositoryRead,
+		Update: resourceSecureSourceManagerRepositoryUpdate,
 		Delete: resourceSecureSourceManagerRepositoryDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -45,6 +47,7 @@ func ResourceSecureSourceManagerRepository() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -75,7 +78,6 @@ func ResourceSecureSourceManagerRepository() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Description of the repository, which cannot exceed 500 characters.`,
 			},
 			"initial_config": {
@@ -162,6 +164,19 @@ Valid values can be viewed at https://cloud.google.com/secure-source-manager/doc
 						},
 					},
 				},
+			},
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The deletion policy for the repository. Setting 'ABANDON' allows the resource
+to be abandoned, rather than deleted. Setting 'DELETE' deletes the resource
+and all its contents. Setting 'PREVENT' prevents the resource from accidental deletion
+by erroring out during plan.
+Default is 'DELETE'.  Possible values are:
+  * DELETE
+  * PREVENT
+  * ABANDON`,
+				Default: "DELETE",
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -295,6 +310,12 @@ func resourceSecureSourceManagerRepositoryRead(d *schema.ResourceData, meta inte
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecureSourceManagerRepository %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
@@ -322,6 +343,84 @@ func resourceSecureSourceManagerRepositoryRead(d *schema.ResourceData, meta inte
 	}
 
 	return nil
+}
+
+func resourceSecureSourceManagerRepositoryUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Repository: %s", err)
+	}
+	billingProject = project
+
+	obj := make(map[string]interface{})
+	descriptionProp, err := expandSecureSourceManagerRepositoryDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{SecureSourceManagerBasePath}}projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating Repository %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+	updateMask := []string{}
+
+	if d.HasChange("description") {
+		updateMask = append(updateMask, "description")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error updating Repository %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Repository %q: %#v", d.Id(), res)
+		}
+
+		err = SecureSourceManagerOperationWaitTime(
+			config, res, project, "Updating Repository", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return resourceSecureSourceManagerRepositoryRead(d, meta)
 }
 
 func resourceSecureSourceManagerRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
@@ -352,6 +451,13 @@ func resourceSecureSourceManagerRepositoryDelete(d *schema.ResourceData, meta in
 	}
 
 	headers := make(http.Header)
+	deletionPolicy := d.Get("deletion_policy")
+
+	if deletionPolicy == "ABANDON" {
+		return nil
+	} else if deletionPolicy == "PREVENT" {
+		return fmt.Errorf(`cannot destroy resource without setting deletion_policy="DELETE"`)
+	}
 
 	log.Printf("[DEBUG] Deleting Repository %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -397,6 +503,11 @@ func resourceSecureSourceManagerRepositoryImport(d *schema.ResourceData, meta in
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_policy", "DELETE"); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

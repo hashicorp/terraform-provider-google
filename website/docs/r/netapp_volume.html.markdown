@@ -98,9 +98,6 @@ The following arguments are supported:
   The name of the volume. Needs to be unique per location.
 
 
-- - -
-
-
 * `export_policy` -
   (Optional)
   Export policy of the volume for NFSV3 and/or NFSV4.1 access.
@@ -187,6 +184,7 @@ The following arguments are supported:
 Volumes may have nested snapshot resources. Deleting such a volume will fail.
 Setting this parameter to FORCE will delete volumes including nested snapshots.
 Possible values: DEFAULT, FORCE.
+
 
 
 <a name="nested_export_policy"></a>The `export_policy` block supports:
@@ -373,6 +371,11 @@ Possible values: DEFAULT, FORCE.
   Optional. Flag indicating if the volume has tiering policy enable/pause. Default is PAUSED.
   Default value is `PAUSED`.
   Possible values are: `ENABLED`, `PAUSED`.
+
+* `hot_tier_bypass_mode_enabled` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Optional. Flag indicating that the hot tier bypass mode is enabled. Default is false.
+  Only applicable to Flex service level.
 
 <a name="nested_hybrid_replication_parameters"></a>The `hybrid_replication_parameters` block supports:
 

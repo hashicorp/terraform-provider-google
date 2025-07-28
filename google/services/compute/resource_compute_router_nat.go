@@ -973,9 +973,6 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("type", flattenNestedComputeRouterNatType(res["type"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
-	if err := d.Set("auto_network_tier", flattenNestedComputeRouterNatAutoNetworkTier(res["autoNetworkTier"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
 
 	return nil
 }
@@ -1613,10 +1610,6 @@ func flattenNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}
 }
 
 func flattenNestedComputeRouterNatType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenNestedComputeRouterNatAutoNetworkTier(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

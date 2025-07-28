@@ -131,9 +131,6 @@ The following arguments are supported:
   in the format `organizations/{{org_name}}/environments/{{env_name}}`.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A human-readable description of this TargetServer.
@@ -151,6 +148,7 @@ The following arguments are supported:
   (Optional)
   Immutable. The protocol used by this TargetServer.
   Possible values are: `HTTP`, `HTTP2`, `GRPC_TARGET`, `GRPC`, `EXTERNAL_CALLOUT`.
+
 
 
 <a name="nested_s_sl_info"></a>The `s_sl_info` block supports:

@@ -245,9 +245,6 @@ The following arguments are supported:
   ID to use for the workstation cluster.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Client-specified labels that are applied to the resource and that are also propagated to the underlying Compute Engine resources.
@@ -287,6 +284,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_private_cluster_config"></a>The `private_cluster_config` block supports:

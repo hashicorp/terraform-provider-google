@@ -79,6 +79,8 @@ func ResourceNotebooksRuntime() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		DeprecationMessage: "`google_notebook_runtime` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.",
+
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:             schema.TypeString,

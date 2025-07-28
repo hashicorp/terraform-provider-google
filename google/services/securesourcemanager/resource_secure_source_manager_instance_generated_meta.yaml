@@ -6,6 +6,8 @@ api_version: 'v1'
 api_resource_type_kind: 'Instance'
 fields:
   - field: 'create_time'
+  - field: 'deletion_policy'
+    provider_only: true
   - field: 'effective_labels'
     provider_only: true
   - field: 'host_config.api'

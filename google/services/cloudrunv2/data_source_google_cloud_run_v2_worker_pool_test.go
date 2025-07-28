@@ -56,7 +56,7 @@ resource "google_cloud_run_v2_worker_pool" "hello" {
   name     = "%s"
   location = "%s"
   deletion_protection = false
-  launch_stage = "ALPHA"
+  launch_stage = "BETA"
   
   template {
     containers {

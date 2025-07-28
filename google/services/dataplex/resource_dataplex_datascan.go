@@ -78,7 +78,7 @@ func ResourceDataplexDatascan() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 							Description: `The service-qualified full resource name of the cloud resource for a DataScan job to scan against. The field could be:
-(Cloud Storage bucket for DataDiscoveryScan)BigQuery table of type "TABLE" for DataProfileScan/DataQualityScan.`,
+Cloud Storage bucket (//storage.googleapis.com/projects/PROJECT_ID/buckets/BUCKET_ID) for DataDiscoveryScan OR BigQuery table of type "TABLE" (/bigquery.googleapis.com/projects/PROJECT_ID/datasets/DATASET_ID/tables/TABLE_ID) for DataProfileScan/DataQualityScan.`,
 							ExactlyOneOf: []string{"data.0.entity", "data.0.resource"},
 						},
 					},
@@ -147,6 +147,129 @@ func ResourceDataplexDatascan() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `The location where the data scan should reside.`,
+			},
+			"data_discovery_spec": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `DataDiscoveryScan related setting.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"bigquery_publishing_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Configuration for metadata publishing.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"connection": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The BigQuery connection used to create BigLake tables. Must be in the form 'projects/{projectId}/locations/{locationId}/connections/{connection_id}'.`,
+									},
+									"location": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The location of the BigQuery dataset to publish BigLake external or non-BigLake external tables to.`,
+									},
+									"project": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The project of the BigQuery dataset to publish BigLake external or non-BigLake external tables to. If not specified, the project of the Cloud Storage bucket will be used. The format is "projects/{project_id_or_number}".`,
+									},
+									"table_type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"TABLE_TYPE_UNSPECIFIED", "EXTERNAL", "BIGLAKE", ""}),
+										Description:  `Determines whether to publish discovered tables as BigLake external tables or non-BigLake external tables. Possible values: ["TABLE_TYPE_UNSPECIFIED", "EXTERNAL", "BIGLAKE"]`,
+									},
+								},
+							},
+						},
+						"storage_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Configurations related to Cloud Storage as the data source.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"csv_options": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration for CSV data.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"delimiter": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The delimiter that is used to separate values. The default is ',' (comma).`,
+												},
+												"encoding": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The character encoding of the data. The default is UTF-8.`,
+												},
+												"header_rows": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `The number of rows to interpret as header rows that should be skipped when reading data rows.`,
+												},
+												"quote": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The character used to quote column values. Accepts '"' (double quotation mark) or ''' (single quotation mark). If unspecified, defaults to '"' (double quotation mark).`,
+												},
+												"type_inference_disabled": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Whether to disable the inference of data types for CSV data. If true, all columns are registered as strings.`,
+												},
+											},
+										},
+									},
+									"exclude_patterns": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Defines the data to exclude during discovery. Provide a list of patterns that identify the data to exclude. For Cloud Storage bucket assets, these patterns are interpreted as glob patterns used to match object names. For BigQuery dataset assets, these patterns are interpreted as patterns to match table names.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"include_patterns": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Defines the data to include during discovery when only a subset of the data should be considered. Provide a list of patterns that identify the data to include. For Cloud Storage bucket assets, these patterns are interpreted as glob patterns used to match object names. For BigQuery dataset assets, these patterns are interpreted as patterns to match table names.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"json_options": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration for JSON data.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"encoding": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The character encoding of the data. The default is UTF-8.`,
+												},
+												"type_inference_disabled": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Whether to disable the inference of data types for JSON data. If true, all columns are registered as their primitive types (strings, number, or boolean).`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec"},
 			},
 			"data_profile_spec": {
 				Type:        schema.TypeList,
@@ -237,7 +360,7 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec"},
+				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec"},
 			},
 			"data_quality_spec": {
 				Type:        schema.TypeList,
@@ -246,6 +369,11 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"catalog_publishing_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If set, the latest DataScan job result will be published to Dataplex Catalog.`,
+						},
 						"post_scan_actions": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -348,7 +476,7 @@ Format://bigquery.googleapis.com/projects/PROJECT_ID/datasets/DATASET_ID/tables/
 									"dimension": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: `The dimension a rule belongs to. Results are also aggregated at the dimension level. Supported dimensions are ["COMPLETENESS", "ACCURACY", "CONSISTENCY", "VALIDITY", "UNIQUENESS", "INTEGRITY"]`,
+										Description: `The dimension name a rule belongs to. Custom dimension name is supported with all uppercase letters and maximum length of 30 characters.`,
 									},
 									"column": {
 										Type:        schema.TypeString,
@@ -523,6 +651,12 @@ Only relevant if a minValue has been defined. Default = false.`,
 											},
 										},
 									},
+									"suspended": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Whether the Rule is active or suspended. Default = false.`,
+										Default:     false,
+									},
 									"table_condition_expectation": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -564,7 +698,7 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec"},
+				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec"},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -702,6 +836,12 @@ func resourceDataplexDatascanCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("data_profile_spec"); ok || !reflect.DeepEqual(v, dataProfileSpecProp) {
 		obj["dataProfileSpec"] = dataProfileSpecProp
+	}
+	dataDiscoverySpecProp, err := expandDataplexDatascanDataDiscoverySpec(d.Get("data_discovery_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("data_discovery_spec"); ok || !reflect.DeepEqual(v, dataDiscoverySpecProp) {
+		obj["dataDiscoverySpec"] = dataDiscoverySpecProp
 	}
 	labelsProp, err := expandDataplexDatascanEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -850,6 +990,9 @@ func resourceDataplexDatascanRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("data_profile_spec", flattenDataplexDatascanDataProfileSpec(res["dataProfileSpec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Datascan: %s", err)
 	}
+	if err := d.Set("data_discovery_spec", flattenDataplexDatascanDataDiscoverySpec(res["dataDiscoverySpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenDataplexDatascanTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Datascan: %s", err)
 	}
@@ -906,6 +1049,12 @@ func resourceDataplexDatascanUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("data_profile_spec"); ok || !reflect.DeepEqual(v, dataProfileSpecProp) {
 		obj["dataProfileSpec"] = dataProfileSpecProp
 	}
+	dataDiscoverySpecProp, err := expandDataplexDatascanDataDiscoverySpec(d.Get("data_discovery_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("data_discovery_spec"); ok || !reflect.DeepEqual(v, dataDiscoverySpecProp) {
+		obj["dataDiscoverySpec"] = dataDiscoverySpecProp
+	}
 	labelsProp, err := expandDataplexDatascanEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -940,6 +1089,10 @@ func resourceDataplexDatascanUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("data_profile_spec") {
 		updateMask = append(updateMask, "dataProfileSpec")
+	}
+
+	if d.HasChange("data_discovery_spec") {
+		updateMask = append(updateMask, "dataDiscoverySpec")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -1234,6 +1387,8 @@ func flattenDataplexDatascanDataQualitySpec(v interface{}, d *schema.ResourceDat
 		flattenDataplexDatascanDataQualitySpecPostScanActions(original["postScanActions"], d, config)
 	transformed["rules"] =
 		flattenDataplexDatascanDataQualitySpecRules(original["rules"], d, config)
+	transformed["catalog_publishing_enabled"] =
+		flattenDataplexDatascanDataQualitySpecCatalogPublishingEnabled(original["catalogPublishingEnabled"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataplexDatascanDataQualitySpecSamplingPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1363,6 +1518,7 @@ func flattenDataplexDatascanDataQualitySpecRules(v interface{}, d *schema.Resour
 			"dimension":                   flattenDataplexDatascanDataQualitySpecRulesDimension(original["dimension"], d, config),
 			"threshold":                   flattenDataplexDatascanDataQualitySpecRulesThreshold(original["threshold"], d, config),
 			"name":                        flattenDataplexDatascanDataQualitySpecRulesName(original["name"], d, config),
+			"suspended":                   flattenDataplexDatascanDataQualitySpecRulesSuspended(original["suspended"], d, config),
 			"description":                 flattenDataplexDatascanDataQualitySpecRulesDescription(original["description"], d, config),
 			"range_expectation":           flattenDataplexDatascanDataQualitySpecRulesRangeExpectation(original["rangeExpectation"], d, config),
 			"non_null_expectation":        flattenDataplexDatascanDataQualitySpecRulesNonNullExpectation(original["nonNullExpectation"], d, config),
@@ -1394,6 +1550,10 @@ func flattenDataplexDatascanDataQualitySpecRulesThreshold(v interface{}, d *sche
 }
 
 func flattenDataplexDatascanDataQualitySpecRulesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataQualitySpecRulesSuspended(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1578,6 +1738,10 @@ func flattenDataplexDatascanDataQualitySpecRulesSqlAssertionSqlStatement(v inter
 	return v
 }
 
+func flattenDataplexDatascanDataQualitySpecCatalogPublishingEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDataplexDatascanDataProfileSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1665,6 +1829,157 @@ func flattenDataplexDatascanDataProfileSpecExcludeFields(v interface{}, d *schem
 	return []interface{}{transformed}
 }
 func flattenDataplexDatascanDataProfileSpecExcludeFieldsFieldNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataDiscoverySpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["bigquery_publishing_config"] =
+		flattenDataplexDatascanDataDiscoverySpecBigqueryPublishingConfig(original["bigqueryPublishingConfig"], d, config)
+	transformed["storage_config"] =
+		flattenDataplexDatascanDataDiscoverySpecStorageConfig(original["storageConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataDiscoverySpecBigqueryPublishingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["table_type"] =
+		flattenDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigTableType(original["tableType"], d, config)
+	transformed["connection"] =
+		flattenDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigConnection(original["connection"], d, config)
+	transformed["location"] =
+		flattenDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigLocation(original["location"], d, config)
+	transformed["project"] =
+		flattenDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigProject(original["project"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigTableType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigConnection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataDiscoverySpecStorageConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["include_patterns"] =
+		flattenDataplexDatascanDataDiscoverySpecStorageConfigIncludePatterns(original["includePatterns"], d, config)
+	transformed["exclude_patterns"] =
+		flattenDataplexDatascanDataDiscoverySpecStorageConfigExcludePatterns(original["excludePatterns"], d, config)
+	transformed["csv_options"] =
+		flattenDataplexDatascanDataDiscoverySpecStorageConfigCsvOptions(original["csvOptions"], d, config)
+	transformed["json_options"] =
+		flattenDataplexDatascanDataDiscoverySpecStorageConfigJsonOptions(original["jsonOptions"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataDiscoverySpecStorageConfigIncludePatterns(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataDiscoverySpecStorageConfigExcludePatterns(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataDiscoverySpecStorageConfigCsvOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["header_rows"] =
+		flattenDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsHeaderRows(original["headerRows"], d, config)
+	transformed["delimiter"] =
+		flattenDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsDelimiter(original["delimiter"], d, config)
+	transformed["encoding"] =
+		flattenDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsEncoding(original["encoding"], d, config)
+	transformed["type_inference_disabled"] =
+		flattenDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsTypeInferenceDisabled(original["typeInferenceDisabled"], d, config)
+	transformed["quote"] =
+		flattenDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsQuote(original["quote"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsHeaderRows(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsDelimiter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsEncoding(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsTypeInferenceDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsQuote(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataDiscoverySpecStorageConfigJsonOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["encoding"] =
+		flattenDataplexDatascanDataDiscoverySpecStorageConfigJsonOptionsEncoding(original["encoding"], d, config)
+	transformed["type_inference_disabled"] =
+		flattenDataplexDatascanDataDiscoverySpecStorageConfigJsonOptionsTypeInferenceDisabled(original["typeInferenceDisabled"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataDiscoverySpecStorageConfigJsonOptionsEncoding(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataDiscoverySpecStorageConfigJsonOptionsTypeInferenceDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1858,6 +2173,13 @@ func expandDataplexDatascanDataQualitySpec(v interface{}, d tpgresource.Terrafor
 		return nil, err
 	} else if val := reflect.ValueOf(transformedRules); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["rules"] = transformedRules
+	}
+
+	transformedCatalogPublishingEnabled, err := expandDataplexDatascanDataQualitySpecCatalogPublishingEnabled(original["catalog_publishing_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCatalogPublishingEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["catalogPublishingEnabled"] = transformedCatalogPublishingEnabled
 	}
 
 	return transformed, nil
@@ -2081,6 +2403,13 @@ func expandDataplexDatascanDataQualitySpecRules(v interface{}, d tpgresource.Ter
 			transformed["name"] = transformedName
 		}
 
+		transformedSuspended, err := expandDataplexDatascanDataQualitySpecRulesSuspended(original["suspended"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSuspended); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["suspended"] = transformedSuspended
+		}
+
 		transformedDescription, err := expandDataplexDatascanDataQualitySpecRulesDescription(original["description"], d, config)
 		if err != nil {
 			return nil, err
@@ -2173,6 +2502,10 @@ func expandDataplexDatascanDataQualitySpecRulesThreshold(v interface{}, d tpgres
 }
 
 func expandDataplexDatascanDataQualitySpecRulesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataQualitySpecRulesSuspended(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2448,6 +2781,10 @@ func expandDataplexDatascanDataQualitySpecRulesSqlAssertionSqlStatement(v interf
 	return v, nil
 }
 
+func expandDataplexDatascanDataQualitySpecCatalogPublishingEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandDataplexDatascanDataProfileSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
@@ -2593,6 +2930,242 @@ func expandDataplexDatascanDataProfileSpecExcludeFields(v interface{}, d tpgreso
 }
 
 func expandDataplexDatascanDataProfileSpecExcludeFieldsFieldNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBigqueryPublishingConfig, err := expandDataplexDatascanDataDiscoverySpecBigqueryPublishingConfig(original["bigquery_publishing_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBigqueryPublishingConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bigqueryPublishingConfig"] = transformedBigqueryPublishingConfig
+	}
+
+	transformedStorageConfig, err := expandDataplexDatascanDataDiscoverySpecStorageConfig(original["storage_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStorageConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["storageConfig"] = transformedStorageConfig
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecBigqueryPublishingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTableType, err := expandDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigTableType(original["table_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTableType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tableType"] = transformedTableType
+	}
+
+	transformedConnection, err := expandDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigConnection(original["connection"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConnection); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["connection"] = transformedConnection
+	}
+
+	transformedLocation, err := expandDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigLocation(original["location"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLocation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["location"] = transformedLocation
+	}
+
+	transformedProject, err := expandDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigProject(original["project"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProject); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["project"] = transformedProject
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigTableType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigConnection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecBigqueryPublishingConfigProject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecStorageConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIncludePatterns, err := expandDataplexDatascanDataDiscoverySpecStorageConfigIncludePatterns(original["include_patterns"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIncludePatterns); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["includePatterns"] = transformedIncludePatterns
+	}
+
+	transformedExcludePatterns, err := expandDataplexDatascanDataDiscoverySpecStorageConfigExcludePatterns(original["exclude_patterns"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExcludePatterns); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["excludePatterns"] = transformedExcludePatterns
+	}
+
+	transformedCsvOptions, err := expandDataplexDatascanDataDiscoverySpecStorageConfigCsvOptions(original["csv_options"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCsvOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["csvOptions"] = transformedCsvOptions
+	}
+
+	transformedJsonOptions, err := expandDataplexDatascanDataDiscoverySpecStorageConfigJsonOptions(original["json_options"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJsonOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["jsonOptions"] = transformedJsonOptions
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecStorageConfigIncludePatterns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecStorageConfigExcludePatterns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecStorageConfigCsvOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHeaderRows, err := expandDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsHeaderRows(original["header_rows"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHeaderRows); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["headerRows"] = transformedHeaderRows
+	}
+
+	transformedDelimiter, err := expandDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsDelimiter(original["delimiter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDelimiter); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["delimiter"] = transformedDelimiter
+	}
+
+	transformedEncoding, err := expandDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsEncoding(original["encoding"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEncoding); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["encoding"] = transformedEncoding
+	}
+
+	transformedTypeInferenceDisabled, err := expandDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsTypeInferenceDisabled(original["type_inference_disabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTypeInferenceDisabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["typeInferenceDisabled"] = transformedTypeInferenceDisabled
+	}
+
+	transformedQuote, err := expandDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsQuote(original["quote"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedQuote); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["quote"] = transformedQuote
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsHeaderRows(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsDelimiter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsEncoding(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsTypeInferenceDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecStorageConfigCsvOptionsQuote(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecStorageConfigJsonOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEncoding, err := expandDataplexDatascanDataDiscoverySpecStorageConfigJsonOptionsEncoding(original["encoding"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEncoding); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["encoding"] = transformedEncoding
+	}
+
+	transformedTypeInferenceDisabled, err := expandDataplexDatascanDataDiscoverySpecStorageConfigJsonOptionsTypeInferenceDisabled(original["type_inference_disabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTypeInferenceDisabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["typeInferenceDisabled"] = transformedTypeInferenceDisabled
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecStorageConfigJsonOptionsEncoding(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDiscoverySpecStorageConfigJsonOptionsTypeInferenceDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

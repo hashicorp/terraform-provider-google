@@ -30,7 +30,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-// Validate that replica count is updated for the instance
+// Validate that replica count is updated for the instance: 1->2->0
 func TestAccMemorystoreInstance_updateReplicaCount(t *testing.T) {
 	t.Parallel()
 
@@ -60,8 +60,17 @@ func TestAccMemorystoreInstance_updateReplicaCount(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				// update the replica count to 0
+				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 0, shardCount: 3, preventDestroy: true, zoneDistributionMode: "MULTI_ZONE", deletionProtectionEnabled: false, maintenanceDay: "MONDAY", maintenanceHours: 1, maintenanceMinutes: 0, maintenanceSeconds: 0, maintenanceNanos: 0}),
+			},
+			{
+				ResourceName:      "google_memorystore_instance.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				// clean up the resource
-				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 2, shardCount: 3, preventDestroy: false, zoneDistributionMode: "MULTI_ZONE", deletionProtectionEnabled: false, maintenanceDay: "MONDAY", maintenanceHours: 1, maintenanceMinutes: 0, maintenanceSeconds: 0, maintenanceNanos: 0}),
+				Config: createOrUpdateMemorystoreInstance(&InstanceParams{name: name, replicaCount: 0, shardCount: 3, preventDestroy: false, zoneDistributionMode: "MULTI_ZONE", deletionProtectionEnabled: false, maintenanceDay: "MONDAY", maintenanceHours: 1, maintenanceMinutes: 0, maintenanceSeconds: 0, maintenanceNanos: 0}),
 			},
 		},
 	})
@@ -1459,4 +1468,88 @@ resource "google_compute_network" "producer_net" {
 data "google_project" "project" {
 }
 `, params.name, params.replicaCount, params.shardCount, params.nodeType, params.deletionProtectionEnabled, params.engineVersion, strBuilder.String(), zoneDistributionConfigBlock, maintenancePolicyBlock, persistenceBlock, lifecycleBlock, secondaryInstanceBlock, params.name, params.name, params.name)
+}
+
+func TestAccMemorystoreInstance_memorystoreInstanceTlsEnabled(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		// Until https://github.com/hashicorp/terraform-provider-google/issues/23619 is fixed, use regions other than us-central1 to prevent issues like https://github.com/hashicorp/terraform-provider-google/issues/23543
+		"location": "us-east1",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMemorystoreInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMemorystoreInstance_memorystoreInstanceTlsEnabled(context),
+				Check:  resource.TestCheckResourceAttrSet("google_memorystore_instance.instance-tls", "managed_server_ca.0.ca_certs.0.certificates.0"),
+			},
+			{
+				ResourceName:            "google_memorystore_instance.instance-tls",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccMemorystoreInstance_memorystoreInstanceTlsEnabled(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_memorystore_instance" "instance-tls" {
+  instance_id = "tf-test-tls-instance%{random_suffix}"
+  shard_count = 1
+  desired_auto_created_endpoints {
+    network    = google_compute_network.producer_net.id
+    project_id = data.google_project.project.project_id
+  }
+  location                    = "%{location}"
+  deletion_protection_enabled = false
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
+  depends_on = [
+    google_network_connectivity_service_connection_policy.default
+  ]
+  transit_encryption_mode = "SERVER_AUTHENTICATION"
+}
+
+resource "google_network_connectivity_service_connection_policy" "default" {
+  name          = "tf-test-my-policy%{random_suffix}"
+  location      = "%{location}"
+  service_class = "gcp-memorystore"
+  description   = "my basic service connection policy"
+  network       = google_compute_network.producer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "producer_subnet" {
+  name          = "tf-test-my-subnet%{random_suffix}"
+  ip_cidr_range = "10.0.0.248/29"
+  region        = "%{location}"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_network" "producer_net" {
+  name                    = "tf-test-my-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+data "google_project" "project" {
+}
+`, context)
 }

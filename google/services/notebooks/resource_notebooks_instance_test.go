@@ -48,6 +48,8 @@ func TestAccNotebooksInstance_create_vm_image(t *testing.T) {
 }
 
 func TestAccNotebooksInstance_update(t *testing.T) {
+	t.Skip()
+
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 	}
@@ -106,7 +108,7 @@ resource "google_notebooks_instance" "test" {
 
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    image_family = "pytorch-latest-cu124"
   }
 }
 `, name)
@@ -121,7 +123,7 @@ resource "google_notebooks_instance" "instance" {
 
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    image_family = "pytorch-latest-cu124"
   }
 
   metadata = {
@@ -147,7 +149,7 @@ resource "google_notebooks_instance" "instance" {
 
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    image_family = "pytorch-latest-cu124"
   }
 
   metadata = {

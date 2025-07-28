@@ -10,6 +10,7 @@ package projects.reused
 import NightlyTestsProjectId
 import ProviderNameBeta
 import ProviderNameGa
+import ProviderNameBetaDiffTest
 import ServiceSweeperName
 import SharedResourceNameBeta
 import SharedResourceNameGa
@@ -32,6 +33,7 @@ fun nightlyTests(parentProject:String, providerName: String, vcsRoot: GitVcsRoot
     when(providerName) {
         ProviderNameGa -> sharedResources = arrayListOf(SharedResourceNameGa)
         ProviderNameBeta -> sharedResources = arrayListOf(SharedResourceNameBeta)
+        ProviderNameBetaDiffTest -> sharedResources = arrayListOf(SharedResourceNameBeta)
         else -> throw Exception("Provider name not supplied when generating a nightly test subproject")
     }
 
@@ -48,6 +50,7 @@ fun nightlyTests(parentProject:String, providerName: String, vcsRoot: GitVcsRoot
     when(providerName) {
         ProviderNameGa -> sweepersList = SweepersListGa
         ProviderNameBeta -> sweepersList = SweepersListBeta
+        ProviderNameBetaDiffTest -> sweepersList = SweepersListBeta
         else -> throw Exception("Provider name not supplied when generating a nightly test subproject")
     }
     val serviceSweeperConfig = BuildConfigurationForServiceSweeper(providerName, ServiceSweeperName, sweepersList, projectId, vcsRoot, sharedResources, config)

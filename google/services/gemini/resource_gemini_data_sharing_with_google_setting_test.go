@@ -66,6 +66,7 @@ resource "google_gemini_data_sharing_with_google_setting" "example" {
     data_sharing_with_google_setting_id = "%{setting_id}"
     location = "global"
     enable_preview_data_sharing = true
+    enable_data_sharing = true
 }
 `, context)
 }
@@ -76,6 +77,7 @@ resource "google_gemini_data_sharing_with_google_setting" "example" {
     location = "global"
     labels = {"my_key" = "my_value"}
     enable_preview_data_sharing = false
+    enable_data_sharing = false
 }
 `, context)
 }

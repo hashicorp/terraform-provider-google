@@ -61,8 +61,6 @@ The following arguments are supported:
   Required. The resource name of the existing Metrics Scope that will monitor this project. Example: locations/global/metricsScopes/{SCOPING_PROJECT_ID_OR_NUMBER}
 
 
-- - -
-
 
 
 ## Attributes Reference

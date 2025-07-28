@@ -59,3 +59,4 @@ The following additional attributes are exported:
 * `name` - The resource name of the billing account in the form `billingAccounts/{billing_account_id}`.
 * `project_ids` - The IDs of any projects associated with the billing account. `lookup_projects` must not be false
 for this to be populated.
+* `currency_code` - The currency code of the billing account, e.g. `USD`.

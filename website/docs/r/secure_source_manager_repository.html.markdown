@@ -44,9 +44,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "my-instance"
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "true"
-    }
+    deletion_policy = "PREVENT"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -55,9 +53,7 @@ resource "google_secure_source_manager_repository" "default" {
     instance = google_secure_source_manager_instance.instance.name
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "true"
-    }
+    deletion_policy = "PREVENT"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -73,10 +69,8 @@ resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
     instance_id = "my-instance"
 
-    # For preventing accidental deletions
-    lifecycle {
-      prevent_destroy = "true"
-    }
+    # Prevent accidental deletions.
+    deletion_policy = "PREVENT"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -93,9 +87,7 @@ resource "google_secure_source_manager_repository" "default" {
     }
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "true"
-    }
+    deletion_policy = "PREVENT"
 }
 ```
 
@@ -117,9 +109,6 @@ The following arguments are supported:
   The ID for the Repository.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Description of the repository, which cannot exceed 500 characters.
@@ -131,6 +120,16 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_policy` - (Optional) The deletion policy for the repository. Setting `ABANDON` allows the resource
+to be abandoned, rather than deleted. Setting `DELETE` deletes the resource
+and all its contents. Setting `PREVENT` prevents the resource from accidental deletion
+by erroring out during plan.
+Default is `DELETE`.  Possible values are:
+  * DELETE
+  * PREVENT
+  * ABANDON
+
 
 
 <a name="nested_initial_config"></a>The `initial_config` block supports:
@@ -197,6 +196,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import

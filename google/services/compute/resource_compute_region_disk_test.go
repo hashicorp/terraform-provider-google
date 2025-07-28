@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -61,6 +62,56 @@ func TestAccComputeRegionDisk_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
 						t, "google_compute_region_disk.regiondisk", &disk),
+				),
+			},
+			{
+				ResourceName:            "google_compute_region_disk.regiondisk",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func TestAccComputeRegionDisk_hyperdisk(t *testing.T) {
+	t.Parallel()
+
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	var disk compute.Disk
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionDisk_hyperdisk(diskName, "self_link"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionDiskExists(
+						t, "google_compute_region_disk.regiondisk", &disk),
+				),
+			},
+			{
+				ResourceName:            "google_compute_region_disk.regiondisk",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccComputeRegionDisk_hyperdiskUpdated(diskName, "name"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						// Check that the update is done in-place
+						plancheck.ExpectResourceAction("google_compute_region_disk.regiondisk", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_region_disk.regiondisk", "access_mode", "READ_WRITE_SINGLE"),
+					resource.TestCheckResourceAttr("google_compute_region_disk.regiondisk", "provisioned_iops", "20000"),
+					resource.TestCheckResourceAttr("google_compute_region_disk.regiondisk", "provisioned_throughput", "250"),
+					testAccCheckComputeRegionDiskExists(t, "google_compute_region_disk.regiondisk", &disk),
 				),
 			},
 			{
@@ -408,6 +459,68 @@ func testAccCheckComputeRegionDiskInstances(n string, disk *compute.Disk) resour
 		}
 		return nil
 	}
+}
+
+func testAccComputeRegionDisk_hyperdisk(diskName, refSelector string) string {
+	return fmt.Sprintf(`
+resource "google_compute_disk" "disk" {
+	name  = "%s"
+	image = "debian-cloud/debian-11"
+	size  = 50
+	type  = "pd-ssd"
+	zone  = "us-central1-a"
+}
+
+resource "google_compute_snapshot" "snapdisk" {
+	name        = "%s"
+	source_disk = google_compute_disk.disk.name
+	zone        = "us-central1-a"
+}
+
+resource "google_compute_region_disk" "regiondisk" {
+	name     = "%s"
+	snapshot = google_compute_snapshot.snapdisk.%s
+	type     = "hyperdisk-balanced-high-availability"
+	size     = 50
+	replica_zones = ["us-central1-a", "us-central1-f"]
+
+	access_mode            = "READ_WRITE_MANY"
+	provisioned_iops       = 10000
+	provisioned_throughput = 190
+}
+`, diskName, diskName, diskName, refSelector)
+}
+
+func testAccComputeRegionDisk_hyperdiskUpdated(diskName, refSelector string) string {
+	return fmt.Sprintf(`
+resource "google_compute_disk" "disk" {
+	name  = "%s"
+	image = "debian-cloud/debian-11"
+	size  = 50
+	type  = "pd-ssd"
+	zone  = "us-central1-a"
+}
+
+resource "google_compute_snapshot" "snapdisk" {
+	name        = "%s"
+	source_disk = google_compute_disk.disk.name
+	zone        = "us-central1-a"
+}
+
+resource "google_compute_region_disk" "regiondisk" {
+	name     = "%s"
+	snapshot = google_compute_snapshot.snapdisk.%s
+	type     = "hyperdisk-balanced-high-availability"
+	region   = "us-central1"
+
+	replica_zones = ["us-central1-a", "us-central1-f"]
+
+	size = 100
+	access_mode            = "READ_WRITE_SINGLE"
+	provisioned_iops       = 20000
+	provisioned_throughput = 250
+}
+`, diskName, diskName, diskName, refSelector)
 }
 
 func testAccComputeRegionDisk_basic(diskName, refSelector string) string {

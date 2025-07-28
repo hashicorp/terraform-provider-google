@@ -115,6 +115,38 @@ resource "google_tags_tag_value" "secure_tag_value_1" {
   short_name  = "tag-value"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=compute_region_network_firewall_policy_with_rules_roce&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Compute Region Network Firewall Policy With Rules Roce
+
+
+```hcl
+resource "google_compute_region_network_firewall_policy_with_rules" "policy" {
+  provider = google-beta
+  name        = "rnf-policy"
+  description = "Terraform test"
+  policy_type = "RDMA_ROCE_POLICY"
+
+  rule {
+    description    = "deny all rule"
+    priority       = 1000
+    enable_logging = true
+    action         = "deny"
+    direction      = "INGRESS"
+
+    match {
+      src_ip_ranges            = ["0.0.0.0/0"]
+
+      layer4_config {
+        ip_protocol = "all"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -134,6 +166,26 @@ The following arguments are supported:
   (Required)
   A list of firewall policy rules.
   Structure is [documented below](#nested_rule).
+
+
+* `description` -
+  (Optional)
+  An optional description of this resource.
+
+* `policy_type` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Policy type is used to determine which resources (networks) the policy can be associated with.
+  A policy can be associated with a network only if the network has the matching policyType in its network profile.
+  Different policy types may support some of the Firewall Rules features.
+  Possible values are: `VPC_POLICY`, `RDMA_ROCE_POLICY`.
+
+* `region` -
+  (Optional)
+  The region of this resource.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
 
 
 <a name="nested_rule"></a>The `rule` block supports:
@@ -343,21 +395,6 @@ The following arguments are supported:
   [Output Only] State of the secure tag, either `EFFECTIVE` or
   `INEFFECTIVE`. A secure tag is `INEFFECTIVE` when it is deleted
   or its network is deleted.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  An optional description of this resource.
-
-* `region` -
-  (Optional)
-  The region of this resource.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

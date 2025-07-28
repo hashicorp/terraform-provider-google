@@ -109,6 +109,7 @@ var (
 		"addons_config.0.stateful_ha_config",
 		"addons_config.0.ray_operator_config",
 		"addons_config.0.parallelstore_csi_driver_config",
+		"addons_config.0.lustre_csi_driver_config",
 	}
 
 	privateClusterConfigKeys = []string{
@@ -148,6 +149,14 @@ var (
 				log.Printf("[DEBUG] Suppressing diff for 'fleet.#' (0 -> 1) because fleet.0.project is null or empty in config.\n")
 				return true
 			}
+		}
+		return false
+	})
+
+	suppressDiffForConfidentialNodes = schema.SchemaDiffSuppressFunc(func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+		k = strings.Replace(k, "confidential_instance_type", "enabled", 1)
+		if v, _ := d.Get(k).(bool); v {
+			return oldValue == "SEV" && newValue == ""
 		}
 		return false
 	})
@@ -487,6 +496,29 @@ func ResourceContainerCluster() *schema.Resource {
 									"enabled": {
 										Type:     schema.TypeBool,
 										Required: true,
+									},
+								},
+							},
+						},
+						"lustre_csi_driver_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     1,
+							Description:  `Configuration for the Lustre CSI driver. Defaults to disabled; set enabled = true to enable.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether the Lustre CSI driver is enabled for this cluster.`,
+									},
+									"enable_legacy_lustre_port": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `If set to true, the Lustre CSI driver will initialize LNet (the virtual network layer for Lustre kernel module) using port 6988.
+										This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.`,
 									},
 								},
 							},
@@ -1287,6 +1319,14 @@ func ResourceContainerCluster() *schema.Resource {
 							ForceNew:    true,
 							Description: `Whether Confidential Nodes feature is enabled for all nodes in this cluster.`,
 						},
+						"confidential_instance_type": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: suppressDiffForConfidentialNodes,
+							Description:      `Defines the type of technology used by the confidential node.`,
+							ValidateFunc:     validation.StringInSlice([]string{"SEV", "SEV_SNP", "TDX"}, false),
+						},
 					},
 				},
 			},
@@ -1947,6 +1987,24 @@ func ResourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"gke_auto_upgrade_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Description: `Configuration options for the auto-upgrade patch type feature, which provide more control over the speed of automatic upgrades of your GKE clusters.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"patch_mode": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The selected auto-upgrade patch type. Accepted values are:
+* ACCELERATED: Upgrades to the latest available patch version in a given minor and release channel.`,
+						},
+					},
+				},
+			},
+
 			"tpu_ipv4_cidr_block": {
 				Computed:    true,
 				Type:        schema.TypeString,
@@ -2252,6 +2310,41 @@ func ResourceContainerCluster() *schema.Resource {
 				Description:  `Defines the config of in-transit encryption`,
 				ValidateFunc: validation.StringInSlice([]string{"IN_TRANSIT_ENCRYPTION_CONFIG_UNSPECIFIED", "IN_TRANSIT_ENCRYPTION_DISABLED", "IN_TRANSIT_ENCRYPTION_INTER_NODE_TRANSPARENT"}, false),
 			},
+			"network_performance_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `Network bandwidth tier configuration.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"total_egress_bandwidth_tier": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Specifies the total network bandwidth tier for NodePools in the cluster.`,
+						},
+					},
+				},
+			},
+			"anonymous_authentication_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Computed:    true,
+				Description: `AnonymousAuthenticationConfig allows users to restrict or enable anonymous access to the cluster.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mode": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"ENABLED", "LIMITED"}, false),
+							Description: `Setting this to LIMITED will restrict authentication of anonymous users to health check endpoints only.
+ Accepted values are:
+* ENABLED: Authentication of anonymous users is enabled for all endpoints.
+* LIMITED: Anonymous access is only allowed for health check endpoints.`,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -2396,8 +2489,9 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			WorkloadPolicyConfig: workloadPolicyConfig,
 			ForceSendFields:      []string{"Enabled"},
 		},
-		ReleaseChannel: expandReleaseChannel(d.Get("release_channel")),
-		EnableTpu:      d.Get("enable_tpu").(bool),
+		ReleaseChannel:       expandReleaseChannel(d.Get("release_channel")),
+		GkeAutoUpgradeConfig: expandGkeAutoUpgradeConfig(d.Get("gke_auto_upgrade_config")),
+		EnableTpu:            d.Get("enable_tpu").(bool),
 		NetworkConfig: &container.NetworkConfig{
 			EnableIntraNodeVisibility:            d.Get("enable_intranode_visibility").(bool),
 			DefaultSnatStatus:                    expandDefaultSnatStatus(d.Get("default_snat_status")),
@@ -2412,6 +2506,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			EnableMultiNetworking:                d.Get("enable_multi_networking").(bool),
 			DefaultEnablePrivateNodes:            expandDefaultEnablePrivateNodes(d),
 			EnableFqdnNetworkPolicy:              d.Get("enable_fqdn_network_policy").(bool),
+			NetworkPerformanceConfig:             expandNetworkPerformanceConfig(d.Get("network_performance_config")),
 		},
 		MasterAuth:           expandMasterAuth(d.Get("master_auth")),
 		NotificationConfig:   expandNotificationConfig(d.Get("notification_config")),
@@ -2562,6 +2657,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("enterprise_config"); ok {
 		cluster.EnterpriseConfig = expandEnterpriseConfig(v)
+	}
+
+	if v, ok := d.GetOk("anonymous_authentication_config"); ok {
+		cluster.AnonymousAuthenticationConfig = expandAnonymousAuthenticationConfig(v)
 	}
 
 	needUpdateAfterCreate := false
@@ -2938,6 +3037,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("release_channel", flattenReleaseChannel(cluster.ReleaseChannel)); err != nil {
 		return err
 	}
+	if err := d.Set("gke_auto_upgrade_config", flattenGkeAutoUpgradeConfig(cluster.GkeAutoUpgradeConfig)); err != nil {
+		return err
+	}
 	if err := d.Set("notification_config", flattenNotificationConfig(cluster.NotificationConfig)); err != nil {
 		return err
 	}
@@ -3078,6 +3180,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("gateway_api_config", flattenGatewayApiConfig(cluster.NetworkConfig.GatewayApiConfig)); err != nil {
 		return err
 	}
+	if err := d.Set("network_performance_config", flattenNetworkPerformanceConfig(cluster.NetworkConfig.NetworkPerformanceConfig)); err != nil {
+		return err
+	}
 	if err := d.Set("fleet", flattenFleet(cluster.Fleet)); err != nil {
 		return err
 	}
@@ -3108,6 +3213,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("enterprise_config", flattenEnterpriseConfig(cluster.EnterpriseConfig)); err != nil {
+		return err
+	}
+
+	if err := d.Set("anonymous_authentication_config", flattenAnonymousAuthenticationConfig(cluster.AnonymousAuthenticationConfig)); err != nil {
 		return err
 	}
 
@@ -3347,6 +3456,38 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s Release Channel has been updated to %#v", d.Id(), req.Update.DesiredReleaseChannel)
+	}
+
+	if d.HasChange("gke_auto_upgrade_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				GkeAutoUpgradeConfig: expandGkeAutoUpgradeConfig(d.Get("gke_auto_upgrade_config")),
+			},
+		}
+		updateF := func() error {
+			log.Println("[DEBUG] updating gke_auto_upgrade_config")
+			name := containerClusterFullName(project, location, clusterName)
+			clusterUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Update(name, req)
+			if config.UserProjectOverride {
+				clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
+			}
+			op, err := clusterUpdateCall.Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			err = ContainerOperationWait(config, op, project, location, "updating GKE Auto Upgrade Config", userAgent, d.Timeout(schema.TimeoutUpdate))
+			log.Println("[DEBUG] done updating gke_auto_upgrade_config")
+			return err
+		}
+
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s GKE Auto Upgrade Config has been updated to %#v", d.Id(), req.Update.GkeAutoUpgradeConfig)
 	}
 
 	if d.HasChange("enable_intranode_visibility") {
@@ -4284,6 +4425,24 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s resource usage export config has been updated", d.Id())
 	}
 
+	if d.HasChange("network_performance_config") {
+		if npc, ok := d.GetOk("network_performance_config"); ok {
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredNetworkPerformanceConfig: expandNetworkPerformanceConfig(npc),
+				},
+			}
+
+			updateF := updateFunc(req, "updating GKE Network Performance Config")
+			// Call update serially.
+			if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] GKE cluster %s Network Performance Config has been updated", d.Id())
+		}
+	}
+
 	if d.HasChange("gateway_api_config") {
 		if gac, ok := d.GetOk("gateway_api_config"); ok {
 			req := &container.UpdateClusterRequest{
@@ -4551,6 +4710,21 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s Enterprise Config has been updated to %#v", d.Id(), req.Update.DesiredSecurityPostureConfig)
 	}
 
+	if d.HasChange("anonymous_authentication_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredAnonymousAuthenticationConfig: expandAnonymousAuthenticationConfig(
+					d.Get("anonymous_authentication_config"),
+				),
+			},
+		}
+		updateF := updateFunc(req, "updating anonymous authentication config")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+	}
+
 	d.Partial(false)
 
 	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
@@ -4794,6 +4968,20 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 		ac.ParallelstoreCsiDriverConfig = &container.ParallelstoreCsiDriverConfig{
 			Enabled:         addon["enabled"].(bool),
 			ForceSendFields: []string{"Enabled"},
+		}
+	}
+
+	if v, ok := config["lustre_csi_driver_config"]; ok && len(v.([]interface{})) > 0 {
+		lustreConfig := v.([]interface{})[0].(map[string]interface{})
+		ac.LustreCsiDriverConfig = &container.LustreCsiDriverConfig{
+			Enabled:         lustreConfig["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+
+		// Check for enable_legacy_lustre_port
+		if val, ok := lustreConfig["enable_legacy_lustre_port"]; ok {
+			ac.LustreCsiDriverConfig.EnableLegacyLustrePort = val.(bool)
+			ac.LustreCsiDriverConfig.ForceSendFields = append(ac.LustreCsiDriverConfig.ForceSendFields, "EnableLegacyLustrePort")
 		}
 	}
 
@@ -5180,6 +5368,15 @@ func flattenEnterpriseConfig(ec *container.EnterpriseConfig) []map[string]interf
 	return []map[string]interface{}{result}
 }
 
+func flattenAnonymousAuthenticationConfig(aac *container.AnonymousAuthenticationConfig) []map[string]interface{} {
+	if aac == nil {
+		return nil
+	}
+	result := make(map[string]interface{})
+	result["mode"] = aac.Mode
+	return []map[string]interface{}{result}
+}
+
 func flattenAdditionalPodRangesConfig(ipAllocationPolicy *container.IPAllocationPolicy) []map[string]interface{} {
 	if ipAllocationPolicy == nil {
 		return nil
@@ -5304,6 +5501,23 @@ func expandMasterAuthorizedNetworksConfig(d *schema.ResourceData) *container.Mas
 		result.ForceSendFields = append(result.ForceSendFields, "PrivateEndpointEnforcementEnabled")
 	}
 	return result
+}
+
+func expandAnonymousAuthenticationConfig(configured interface{}) *container.AnonymousAuthenticationConfig {
+	l, ok := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil || !ok {
+		return nil
+	}
+
+	anonAuthConfig := l[0].(map[string]interface{})
+	result := container.AnonymousAuthenticationConfig{}
+
+	if v, ok := anonAuthConfig["mode"]; ok {
+		if mode, ok := v.(string); ok && mode != "" {
+			result.Mode = mode
+		}
+	}
+	return &result
 }
 
 func expandManCidrBlocks(configured interface{}) []*container.CidrBlock {
@@ -5486,6 +5700,17 @@ func expandReleaseChannel(configured interface{}) *container.ReleaseChannel {
 	}
 }
 
+func expandGkeAutoUpgradeConfig(configured interface{}) *container.GkeAutoUpgradeConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &container.GkeAutoUpgradeConfig{
+		PatchMode: config["patch_mode"].(string),
+	}
+}
+
 func expandDefaultSnatStatus(configured interface{}) *container.DefaultSnatStatus {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -5555,10 +5780,11 @@ func expandSecretManagerConfig(configured interface{}) *container.SecretManagerC
 	}
 
 	config := l[0].(map[string]interface{})
-	return &container.SecretManagerConfig{
+	sc := &container.SecretManagerConfig{
 		Enabled:         config["enabled"].(bool),
 		ForceSendFields: []string{"Enabled"},
 	}
+	return sc
 }
 
 func expandDefaultMaxPodsConstraint(v interface{}) *container.MaxPodsConstraint {
@@ -5626,6 +5852,18 @@ func expandDnsConfig(configured interface{}) *container.DNSConfig {
 		ClusterDns:                config["cluster_dns"].(string),
 		ClusterDnsScope:           config["cluster_dns_scope"].(string),
 		ClusterDnsDomain:          config["cluster_dns_domain"].(string),
+	}
+}
+
+func expandNetworkPerformanceConfig(configured interface{}) *container.ClusterNetworkPerformanceConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	config := l[0].(map[string]interface{})
+	return &container.ClusterNetworkPerformanceConfig{
+		TotalEgressBandwidthTier: config["total_egress_bandwidth_tier"].(string),
 	}
 }
 
@@ -6028,6 +6266,15 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 			},
 		}
 	}
+	if c.LustreCsiDriverConfig != nil {
+		lustreConfig := c.LustreCsiDriverConfig
+		result["lustre_csi_driver_config"] = []map[string]interface{}{
+			{
+				"enabled":                   lustreConfig.Enabled,
+				"enable_legacy_lustre_port": lustreConfig.EnableLegacyLustrePort,
+			},
+		}
+	}
 
 	return []map[string]interface{}{result}
 }
@@ -6146,6 +6393,21 @@ func flattenReleaseChannel(c *container.ReleaseChannel) []map[string]interface{}
 			"channel": "UNSPECIFIED",
 		})
 	}
+	return result
+}
+
+func flattenGkeAutoUpgradeConfig(c *container.GkeAutoUpgradeConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+
+	result := []map[string]interface{}{}
+	if c.PatchMode != "" {
+		result = append(result, map[string]interface{}{
+			"patch_mode": c.PatchMode,
+		})
+	}
+
 	return result
 }
 
@@ -6461,11 +6723,11 @@ func flattenSecretManagerConfig(c *container.SecretManagerConfig) []map[string]i
 			},
 		}
 	}
-	return []map[string]interface{}{
-		{
-			"enabled": c.Enabled,
-		},
-	}
+
+	result := make(map[string]interface{})
+
+	result["enabled"] = c.Enabled
+	return []map[string]interface{}{result}
 }
 
 func flattenResourceUsageExportConfig(c *container.ResourceUsageExportConfig) []map[string]interface{} {
@@ -6544,6 +6806,17 @@ func flattenDnsConfig(c *container.DNSConfig) []map[string]interface{} {
 			"cluster_dns":                   c.ClusterDns,
 			"cluster_dns_scope":             c.ClusterDnsScope,
 			"cluster_dns_domain":            c.ClusterDnsDomain,
+		},
+	}
+}
+
+func flattenNetworkPerformanceConfig(c *container.ClusterNetworkPerformanceConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"total_egress_bandwidth_tier": c.TotalEgressBandwidthTier,
 		},
 	}
 }

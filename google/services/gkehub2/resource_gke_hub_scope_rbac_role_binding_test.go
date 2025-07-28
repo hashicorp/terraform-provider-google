@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
@@ -29,13 +28,16 @@ func TestAccGKEHub2ScopeRBACRoleBinding_gkehubScopeRbacRoleBindingBasicExample_u
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":         envvar.GetTestProjectFromEnv(),
+		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEHub2ScopeRBACRoleBindingDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGKEHub2ScopeRBACRoleBinding_gkehubScopeRbacRoleBindingBasicExample_basic(context),
@@ -67,7 +69,7 @@ resource "google_gke_hub_scope" "scoperbacrolebinding" {
 
 resource "google_gke_hub_scope_rbac_role_binding" "scoperbacrolebinding" {
   scope_rbac_role_binding_id = "tf-test-scope-rbac-role-binding%{random_suffix}"
-  scope_id = "tf-test-scope%{random_suffix}"
+  scope_id = google_gke_hub_scope.scoperbacrolebinding.scope_id
   user = "test-email@gmail.com"
   role {
     predefined_role = "ADMIN"
@@ -75,7 +77,6 @@ resource "google_gke_hub_scope_rbac_role_binding" "scoperbacrolebinding" {
   labels = {
       key = "value" 
   }
-  depends_on = [google_gke_hub_scope.scoperbacrolebinding]
 }
 `, context)
 }
@@ -88,7 +89,7 @@ resource "google_gke_hub_scope" "scoperbacrolebinding" {
 
 resource "google_gke_hub_scope_rbac_role_binding" "scoperbacrolebinding" {
   scope_rbac_role_binding_id = "tf-test-scope-rbac-role-binding%{random_suffix}"
-  scope_id = "tf-test-scope%{random_suffix}"
+  scope_id = google_gke_hub_scope.scoperbacrolebinding.scope_id
   group = "test-email2@gmail.com"
   role {
     predefined_role = "VIEW"
@@ -96,7 +97,133 @@ resource "google_gke_hub_scope_rbac_role_binding" "scoperbacrolebinding" {
   labels = {
       key = "updated_value" 
   }
-  depends_on = [google_gke_hub_scope.scoperbacrolebinding]
+}
+`, context)
+}
+
+func TestAccGKEHub2ScopeRBACRoleBinding_gkehubScopeRbacCustomRoleBindingBasicExample_update(t *testing.T) {
+	// VCR fails to handle batched project services
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":         envvar.GetTestProjectFromEnv(),
+		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEHub2ScopeRBACRoleBindingDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEHub2ScopeRBACRoleBinding_gkehubScopeRbacCustomRoleBindingBasicExample_basic(context),
+			},
+			{
+				ResourceName:            "google_gke_hub_scope_rbac_role_binding.scope_rbac_custom_role_binding",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "scope_id", "scope_rbac_role_binding_id", "terraform_labels"},
+			},
+			{
+				Config: testAccGKEHub2ScopeRBACRoleBinding_gkehubScopeRbacCustomRoleBindingBasicExample_update(context),
+			},
+			{
+				ResourceName:            "google_gke_hub_scope_rbac_role_binding.scope_rbac_custom_role_binding",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"scope_rbac_role_binding_id", "scope_id", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccGKEHub2ScopeRBACRoleBinding_gkehubScopeRbacCustomRoleBindingBasicExample_basic(context map[string]interface{}) string {
+	return gkeHubRRBActuationProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_scope" "scope" {
+  scope_id = "tf-test-scope%{random_suffix}"
+  depends_on = [google_project_service.anthos, google_project_service.gkehub]
+}
+
+resource "google_gke_hub_feature" "rbacrolebindingactuation" {
+  name = "rbacrolebindingactuation"
+  location = "global"
+  spec {
+    rbacrolebindingactuation {
+      allowed_custom_roles = ["my-custom-role", "my-custom-role-2"]
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub]
+}
+
+resource "google_gke_hub_scope_rbac_role_binding" "scope_rbac_custom_role_binding" {
+  scope_rbac_role_binding_id = "tf-test-scope-rbac-role-binding%{random_suffix}"
+  scope_id = google_gke_hub_scope.scope.scope_id
+  user = "test-email@gmail.com"
+  role {
+    custom_role = "my-custom-role"
+  }
+  labels = {
+      key = "value" 
+  }
+  depends_on = [google_gke_hub_feature.rbacrolebindingactuation]
+}
+`, context)
+}
+
+func testAccGKEHub2ScopeRBACRoleBinding_gkehubScopeRbacCustomRoleBindingBasicExample_update(context map[string]interface{}) string {
+	return gkeHubRRBActuationProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_scope" "scope" {
+  scope_id = "tf-test-scope%{random_suffix}"
+}
+
+resource "google_gke_hub_feature" "rbacrolebindingactuation" {
+  name = "rbacrolebindingactuation"
+  location = "global"
+  spec {
+    rbacrolebindingactuation {
+      allowed_custom_roles = ["my-custom-role", "my-custom-role-2"]
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub]
+}
+
+resource "google_gke_hub_scope_rbac_role_binding" "scope_rbac_custom_role_binding" {
+  scope_rbac_role_binding_id = "tf-test-scope-rbac-role-binding%{random_suffix}"
+  scope_id = google_gke_hub_scope.scope.scope_id
+  user = "test-email@gmail.com"
+  role {
+    custom_role = "my-custom-role-2"
+  }
+  labels = {
+      key = "value" 
+  }
+  depends_on = [google_gke_hub_feature.rbacrolebindingactuation]
+}
+`, context)
+}
+
+func gkeHubRRBActuationProjectSetupForGA(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_project" "project" {
+  name            = "tf-test-gkehub%{random_suffix}"
+  project_id      = "tf-test-gkehub%{random_suffix}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "anthos" {
+  project = google_project.project.project_id
+  service = "anthos.googleapis.com"
+}
+
+resource "google_project_service" "gkehub" {
+  project = google_project.project.project_id
+  service = "gkehub.googleapis.com"
+  disable_on_destroy = false
 }
 `, context)
 }

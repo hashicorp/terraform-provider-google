@@ -82,20 +82,6 @@ The following arguments are supported:
   The name of the location this private connection is located in.
 
 
-<a name="nested_vpc_peering_config"></a>The `vpc_peering_config` block supports:
-
-* `vpc_name` -
-  (Required)
-  Fully qualified name of the VPC that Database Migration Service will peer to.
-  Format: projects/{project}/global/{networks}/{name}
-
-* `subnet` -
-  (Required)
-  A free subnet for peering. (CIDR of /29)
-
-- - -
-
-
 * `labels` -
   (Optional)
   Labels.
@@ -113,6 +99,18 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_vpc_peering_config"></a>The `vpc_peering_config` block supports:
+
+* `vpc_name` -
+  (Required)
+  Fully qualified name of the VPC that Database Migration Service will peer to.
+  Format: projects/{project}/global/{networks}/{name}
+
+* `subnet` -
+  (Required)
+  A free subnet for peering. (CIDR of /29)
 
 ## Attributes Reference
 

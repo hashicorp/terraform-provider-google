@@ -85,9 +85,6 @@ The following arguments are supported:
   Immutable. The resource name of the parent. Format: `organizations/{org-id}`.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   A user-specified display name of the pool in Google Cloud Console. Cannot exceed 32 characters.
@@ -114,6 +111,7 @@ The following arguments are supported:
   Configure access restrictions on the workforce pool users. This is an optional field. If specified web
   sign-in can be restricted to given set of services or programmatic sign-in can be disabled for pool users.
   Structure is [documented below](#nested_access_restrictions).
+
 
 
 <a name="nested_access_restrictions"></a>The `access_restrictions` block supports:

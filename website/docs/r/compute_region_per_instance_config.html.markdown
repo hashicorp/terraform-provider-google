@@ -126,9 +126,6 @@ The following arguments are supported:
   The region instance group manager this instance config is part of.
 
 
-- - -
-
-
 * `preserved_state` -
   (Optional)
   The preserved state for this instance.
@@ -161,6 +158,7 @@ When false, deleting this config will use the behavior as determined by remove_i
 * `remove_instance_state_on_destroy` - (Optional) When true, deleting this config will immediately remove any specified state from the underlying instance.
 When false, deleting this config will *not* immediately remove any state from the underlying instance.
 State will be removed on the next instance recreation or update.
+
 
 
 <a name="nested_preserved_state"></a>The `preserved_state` block supports:

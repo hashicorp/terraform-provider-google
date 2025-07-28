@@ -95,9 +95,6 @@ The following arguments are supported:
   Required. ID of the parent organization.
 
 
-- - -
-
-
 * `access_levels` -
   (Optional)
   Optional. Access level that a user must have to be granted access. Only one access level is supported, not multiple. This repeated field must have exactly one element. Example: "accessPolicies/9522/accessLevels/device_trusted"
@@ -111,6 +108,7 @@ The following arguments are supported:
   (Optional)
   Optional. A list of scoped access settings that set this binding's restrictions on a subset of applications.
   Structure is [documented below](#nested_scoped_access_settings).
+
 
 
 <a name="nested_session_settings"></a>The `session_settings` block supports:
@@ -166,7 +164,7 @@ The following arguments are supported:
 
 * `restricted_client_application` -
   (Optional)
-  Optional. The application that is subject to this binding's scope.
+  Optional. The application that is subject to this binding's scope. Only one of clientId or name should be specified.
   Structure is [documented below](#nested_scoped_access_settings_scoped_access_settings_scope_client_scope_restricted_client_application).
 
 
@@ -175,6 +173,10 @@ The following arguments are supported:
 * `client_id` -
   (Optional)
   The OAuth client ID of the application.
+
+* `name` -
+  (Optional)
+  The name of the application. Example: "Cloud Console"
 
 <a name="nested_scoped_access_settings_scoped_access_settings_active_settings"></a>The `active_settings` block supports:
 

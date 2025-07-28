@@ -95,6 +95,33 @@ func ResourceApigeeInstance() *schema.Resource {
 				Description: `The Apigee Organization associated with the Apigee instance,
 in the format 'organizations/{{org_name}}'.`,
 			},
+			"access_logging_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `Access logging configuration enables the access logging feature at the instance.
+Apigee customers can enable access logging to ship the access logs to their own project's cloud logging.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Boolean flag that specifies whether the customer access log feature is enabled.`,
+						},
+						"filter": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Ship the access log entries that match the statusCode defined in the filter.
+The statusCode is the only expected/supported filter field. (Ex: statusCode)
+The filter will parse it to the Common Expression Language semantics for expression
+evaluation to build the filter condition. (Ex: "filter": statusCode >= 200 && statusCode < 300 )`,
+						},
+					},
+				},
+			},
 			"consumer_accept_list": {
 				Type:             schema.TypeList,
 				Computed:         true,
@@ -225,6 +252,12 @@ func resourceApigeeInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("consumer_accept_list"); !tpgresource.IsEmptyValue(reflect.ValueOf(consumerAcceptListProp)) && (ok || !reflect.DeepEqual(v, consumerAcceptListProp)) {
 		obj["consumerAcceptList"] = consumerAcceptListProp
 	}
+	accessLoggingConfigProp, err := expandApigeeInstanceAccessLoggingConfig(d.Get("access_logging_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("access_logging_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(accessLoggingConfigProp)) && (ok || !reflect.DeepEqual(v, accessLoggingConfigProp)) {
+		obj["accessLoggingConfig"] = accessLoggingConfigProp
+	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "{{org_id}}/apigeeInstances")
 	if err != nil {
@@ -345,6 +378,9 @@ func resourceApigeeInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("service_attachment", flattenApigeeInstanceServiceAttachment(res["serviceAttachment"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("access_logging_config", flattenApigeeInstanceAccessLoggingConfig(res["accessLoggingConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
@@ -574,6 +610,29 @@ func flattenApigeeInstanceServiceAttachment(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenApigeeInstanceAccessLoggingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenApigeeInstanceAccessLoggingConfigEnabled(original["enabled"], d, config)
+	transformed["filter"] =
+		flattenApigeeInstanceAccessLoggingConfigFilter(original["filter"], d, config)
+	return []interface{}{transformed}
+}
+func flattenApigeeInstanceAccessLoggingConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApigeeInstanceAccessLoggingConfigFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandApigeeInstanceName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -603,5 +662,39 @@ func expandApigeeInstanceDiskEncryptionKeyName(v interface{}, d tpgresource.Terr
 }
 
 func expandApigeeInstanceConsumerAcceptList(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeInstanceAccessLoggingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandApigeeInstanceAccessLoggingConfigEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	transformedFilter, err := expandApigeeInstanceAccessLoggingConfigFilter(original["filter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFilter); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["filter"] = transformedFilter
+	}
+
+	return transformed, nil
+}
+
+func expandApigeeInstanceAccessLoggingConfigEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeInstanceAccessLoggingConfigFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

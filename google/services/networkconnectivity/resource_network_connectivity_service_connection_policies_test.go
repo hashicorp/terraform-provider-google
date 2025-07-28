@@ -22,12 +22,14 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccNetworkConnectivityServiceConnectionPolicy_update(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"org_id":                      envvar.GetTestOrgFromEnv(t),
 		"networkProducerName":         fmt.Sprintf("tf-test-network-%s", acctest.RandString(t, 10)),
 		"subnetworkProducerName1":     fmt.Sprintf("tf-test-subnet-producer-%s", acctest.RandString(t, 10)),
 		"subnetworkProducerName2":     fmt.Sprintf("tf-test-subnet-producer-%s", acctest.RandString(t, 10)),
@@ -117,8 +119,12 @@ resource "google_network_connectivity_service_connection_policy" "default" {
   service_class = "gcp-memorystore-redis"
   network = google_compute_network.producer_net.id
   psc_config {
-    subnetworks = [google_compute_subnetwork.producer_subnet1.id]
-    limit = 4
+    producer_instance_location                        = "CUSTOM_RESOURCE_HIERARCHY_LEVELS"
+    subnetworks                                       = [google_compute_subnetwork.producer_subnet1.id]
+    limit                                             = 4
+    allowed_google_producers_resource_hierarchy_level = [
+		"organizations/%{org_id}",
+    ]
   }
   labels      = {
     foo = "bar"

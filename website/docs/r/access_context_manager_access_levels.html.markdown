@@ -102,13 +102,11 @@ The following arguments are supported:
   Format: accessPolicies/{policy_id}
 
 
-- - -
-
-
 * `access_levels` -
   (Optional)
   The desired Access Levels that should replace all existing Access Levels in the Access Policy.
   Structure is [documented below](#nested_access_levels).
+
 
 
 <a name="nested_access_levels"></a>The `access_levels` block supports:

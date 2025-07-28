@@ -484,9 +484,6 @@ The following arguments are supported:
   The region for the resource. It should be the same as the featureonlinestore region.
 
 
-- - -
-
-
 * `name` -
   (Optional)
   Name of the FeatureView. This value may be up to 60 characters, and valid characters are [a-z0-9_]. The first character cannot be a number.
@@ -520,6 +517,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_sync_config"></a>The `sync_config` block supports:

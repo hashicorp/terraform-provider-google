@@ -1530,7 +1530,9 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 				patchObj.Config.RecoveryConfig = config.RecoveryConfig
 			}
 			err = resourceComposerEnvironmentPatchField("config.RecoveryConfig.ScheduledSnapshotsConfig", userAgent, patchObj, d, tfConfig)
-			if err != nil {
+			// Empty ScheduledSnapshotsConfig and config with scheduled snapshots explicitly disabled (and nothing else configured) represent in fact the same configuration.
+			// If applying a change fails specifically because it does not bring any actual modification, this error should be silently ignored.
+			if err != nil && !strings.Contains(err.Error(), "No change in configuration.") {
 				return err
 			}
 		}

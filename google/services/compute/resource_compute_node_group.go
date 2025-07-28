@@ -59,6 +59,11 @@ func ResourceComputeNodeGroup() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Name of the resource.`,
+			},
 			"node_template": {
 				Type:             schema.TypeString,
 				Required:         true,
@@ -135,11 +140,6 @@ than or equal to max-nodes. The default value is 0.`,
 						},
 					},
 				},
-			},
-			"name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Name of the resource.`,
 			},
 			"share_settings": {
 				Type:        schema.TypeList,

@@ -99,8 +99,6 @@ The following arguments are supported:
   on your exisiting firewall policy so as to prevent a situation where your attachment target has no associated policy.
 
 
-- - -
-
 
 
 ## Attributes Reference

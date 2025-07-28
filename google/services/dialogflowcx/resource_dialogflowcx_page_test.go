@@ -656,7 +656,7 @@ func testAccDialogflowCXPage_full(context map[string]interface{}) string {
 
   resource "google_discovery_engine_data_store" "my_datastore" {
     location          = "global"
-    data_store_id     = "datastore-page-update"
+    data_store_id     = "tf-test-datastore-page-update%{random_suffix}"
     display_name      = "datastore-page-update"
     industry_vertical = "GENERIC"
     content_config    = "NO_CONTENT"

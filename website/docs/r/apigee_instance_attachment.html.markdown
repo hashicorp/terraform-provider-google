@@ -123,8 +123,6 @@ The following arguments are supported:
   in the format `organizations/{{org_name}}/instances/{{instance_name}}`.
 
 
-- - -
-
 
 
 ## Attributes Reference

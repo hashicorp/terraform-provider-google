@@ -115,6 +115,7 @@ resource "google_memorystore_instance" "instance-full" {
   node_type               = "SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_DISABLED"
   authorization_mode      = "AUTH_DISABLED"
+  kms_key                 = "my-key"
   engine_configs = {
     maxmemory-policy = "volatile-ttl"
   }
@@ -406,9 +407,6 @@ The following arguments are supported:
   * Must be unique within a location
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Optional. Labels to represent user-provided metadata. 
@@ -496,11 +494,16 @@ The following arguments are supported:
   Managed backup source for the instance.
   Structure is [documented below](#nested_managed_backup_source).
 
+* `kms_key` -
+  (Optional)
+  The KMS key used to encrypt the at-rest data of the cluster
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 * `desired_psc_auto_connections` - (Optional) `desired_psc_auto_connections` is deprecated  Use `desired_auto_created_endpoints` instead.
 * `desired_auto_created_endpoints` - (Optional) Immutable. User inputs for the auto-created endpoints connections. 
+
 
 <a name="nested_automated_backup_config"></a>The `automated_backup_config` block supports:
 
@@ -796,11 +799,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `discovery_endpoints` -
   (Deprecated)
-  Output only. Endpoints clients can connect to the instance through. Currently only one
-  discovery endpoint is supported.
+  Deprecated. Output only. Endpoints clients can connect to the instance through.
   Structure is [documented below](#nested_discovery_endpoints).
 
-  ~> **Warning:** `discovery_endpoints` is deprecated  Use `endpoints` instead.
+  ~> **Warning:** This field is deprecated. As a result it will not be populated if the connections are created using `desired_auto_created_endpoints` parameter or `google_memorystore_instance_desired_user_created_endpoints` resource. Instead of this parameter, for discovery, use `endpoints.connections.pscConnection` and `endpoints.connections.pscAutoConnection` with `connectionType` CONNECTION_TYPE_DISCOVERY.
 
 * `maintenance_schedule` -
   Upcoming maintenance schedule.
@@ -828,6 +830,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `backup_collection` -
   The backup collection full resource name.
   Example: projects/{project}/locations/{location}/backupCollections/{collection}
+
+* `managed_server_ca` -
+  Instance's Certificate Authority. This field will only be populated if instance's transit_encryption_mode is SERVER_AUTHENTICATION
+  Structure is [documented below](#nested_managed_server_ca).
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
@@ -1022,6 +1028,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `port` -
   (Output)
   Output only. Ports of the exposed endpoint.
+
+<a name="nested_managed_server_ca"></a>The `managed_server_ca` block contains:
+
+* `ca_certs` -
+  (Output)
+  The PEM encoded CA certificate chains for managed server authentication
+  Structure is [documented below](#nested_managed_server_ca_ca_certs).
+
+
+<a name="nested_managed_server_ca_ca_certs"></a>The `ca_certs` block contains:
+
+* `certificates` -
+  (Output)
+  The certificates that form the CA chain, from leaf to root order
 
 ## Timeouts
 

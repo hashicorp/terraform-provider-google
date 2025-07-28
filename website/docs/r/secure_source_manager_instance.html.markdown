@@ -47,9 +47,7 @@ resource "google_secure_source_manager_instance" "default" {
     }
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "true"
-    }
+    deletion_policy = "PREVENT"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -78,9 +76,7 @@ resource "google_secure_source_manager_instance" "default" {
     ]
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "true"
-    }
+    deletion_policy = "PREVENT"
 }
 
 data "google_project" "project" {}
@@ -158,9 +154,7 @@ resource "google_secure_source_manager_instance" "default" {
   }
 
   # Prevent accidental deletions.
-  lifecycle {
-    prevent_destroy = "true"
-  }
+  deletion_policy = "PREVENT"
 
   depends_on = [
     google_privateca_certificate_authority.root_ca,
@@ -253,9 +247,7 @@ resource "google_secure_source_manager_instance" "default" {
   }
 
   # Prevent accidental deletions.
-  lifecycle {
-    prevent_destroy = "true"
-  }
+  deletion_policy = "PREVENT"
 
   depends_on = [
     google_privateca_certificate_authority.root_ca,
@@ -447,9 +439,7 @@ resource "google_secure_source_manager_instance" "default" {
   }
 
   # Prevent accidental deletions.
-  lifecycle {
-    prevent_destroy = "true"
-  }
+  deletion_policy = "PREVENT"
 
   depends_on = [
     google_privateca_certificate_authority.root_ca,
@@ -550,9 +540,7 @@ resource "google_secure_source_manager_instance" "default" {
     }
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "true"
-    }
+    deletion_policy = "PREVENT"
 }
 ```
 
@@ -568,9 +556,6 @@ The following arguments are supported:
 * `instance_id` -
   (Required)
   The name for the Instance.
-
-
-- - -
 
 
 * `labels` -
@@ -597,6 +582,16 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_policy` - (Optional) The deletion policy for the instance. Setting `ABANDON` allows the resource
+to be abandoned, rather than deleted. Setting `DELETE` deletes the resource
+and all its contents. Setting `PREVENT` prevents the resource from accidental
+deletion by erroring out during plan.
+Default is `DELETE`.  Possible values are:
+  * DELETE
+  * PREVENT
+  * ABANDON
+
 
 
 <a name="nested_private_config"></a>The `private_config` block supports:

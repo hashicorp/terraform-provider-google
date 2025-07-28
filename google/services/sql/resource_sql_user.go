@@ -78,10 +78,6 @@ func ResourceSqlUser() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
-		ValidateRawResourceConfigFuncs: []schema.ValidateRawResourceConfigFunc{
-			validation.PreferWriteOnlyAttribute(cty.GetAttrPath("password"), cty.GetAttrPath("password_wo")),
-		},
-
 		SchemaVersion: 1,
 		MigrateState:  resourceSqlUserMigrateState,
 

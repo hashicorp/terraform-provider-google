@@ -7,6 +7,7 @@ api_resource_type_kind: 'GeminiGcpEnablementSetting'
 autogen_status: true
 fields:
   - field: 'create_time'
+  - field: 'disable_web_grounding'
   - field: 'effective_labels'
     provider_only: true
   - field: 'enable_customer_data_sharing'
@@ -19,3 +20,4 @@ fields:
   - field: 'terraform_labels'
     provider_only: true
   - field: 'update_time'
+  - field: 'web_grounding_type'

@@ -42,8 +42,6 @@ The following arguments are supported:
   The name of the Service Perimeter to add this resource to.
 
 
-- - -
-
 
 
 ## Attributes Reference

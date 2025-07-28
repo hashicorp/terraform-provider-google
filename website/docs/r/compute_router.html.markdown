@@ -103,9 +103,6 @@ The following arguments are supported:
   A reference to the network to which this router belongs.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource.
@@ -125,12 +122,18 @@ The following arguments are supported:
   Keys used for MD5 authentication.
   Structure is [documented below](#nested_md5_authentication_keys).
 
+* `params` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Additional params passed with the request, but not persisted as part of resource payload
+  Structure is [documented below](#nested_params).
+
 * `region` -
   (Optional)
   Region where the router resides.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_bgp"></a>The `bgp` block supports:
@@ -208,6 +211,14 @@ The following arguments are supported:
 * `key` -
   (Required)
   Value of the key used for MD5 authentication.
+
+<a name="nested_params"></a>The `params` block supports:
+
+* `resource_manager_tags` -
+  (Optional)
+  Resource manager tags to be bound to the router. Tag keys and values have the
+  same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+  and values are in the format tagValues/456.
 
 ## Attributes Reference
 

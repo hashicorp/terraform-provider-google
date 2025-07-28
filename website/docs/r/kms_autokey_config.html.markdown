@@ -30,8 +30,6 @@ flow of CryptoKeys for CMEK.
 Destroying a Terraform-managed AutokeyConfig will remove it from state but
 *will not delete the resource from the project.*
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about AutokeyConfig, see:
 
@@ -132,9 +130,6 @@ The following arguments are supported:
   The folder for which to retrieve config.
 
 
-- - -
-
-
 * `key_project` -
   (Optional)
   The target key project for a given folder where KMS Autokey will provision a
@@ -142,11 +137,15 @@ The following arguments are supported:
   `projects/<project_id_or_number>`.
 
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `folders/{{folder}}/autokeyConfig`
+
+* `etag` -
+  The etag of the AutokeyConfig for optimistic concurrency control.
 
 
 ## Timeouts

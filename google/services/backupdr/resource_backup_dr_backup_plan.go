@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -38,6 +39,7 @@ func ResourceBackupDRBackupPlan() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBackupDRBackupPlanCreate,
 		Read:   resourceBackupDRBackupPlanRead,
+		Update: resourceBackupDRBackupPlanUpdate,
 		Delete: resourceBackupDRBackupPlanDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -46,6 +48,7 @@ func ResourceBackupDRBackupPlan() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
@@ -57,26 +60,22 @@ func ResourceBackupDRBackupPlan() *schema.Resource {
 			"backup_rules": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The backup rules for this 'BackupPlan'. There must be at least one 'BackupRule' message.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"backup_retention_days": {
 							Type:        schema.TypeInt,
 							Required:    true,
-							ForceNew:    true,
 							Description: `Configures the duration for which backup data will be kept. The value should be greater than or equal to minimum enforced retention of the backup vault.`,
 						},
 						"rule_id": {
 							Type:        schema.TypeString,
 							Required:    true,
-							ForceNew:    true,
 							Description: `The unique ID of this 'BackupRule'. The 'rule_id' is unique per 'BackupPlan'.`,
 						},
 						"standard_schedule": {
 							Type:        schema.TypeList,
 							Required:    true,
-							ForceNew:    true,
 							Description: `StandardSchedule defines a schedule that runs within the confines of a defined window of days.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -84,20 +83,17 @@ func ResourceBackupDRBackupPlan() *schema.Resource {
 									"recurrence_type": {
 										Type:         schema.TypeString,
 										Required:     true,
-										ForceNew:     true,
 										ValidateFunc: verify.ValidateEnum([]string{"HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"}),
 										Description:  `RecurrenceType enumerates the applicable periodicity for the schedule. Possible values: ["HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"]`,
 									},
 									"time_zone": {
 										Type:        schema.TypeString,
 										Required:    true,
-										ForceNew:    true,
 										Description: `The time zone to be used when interpreting the schedule.`,
 									},
 									"backup_window": {
 										Type:     schema.TypeList,
 										Optional: true,
-										ForceNew: true,
 										Description: `A BackupWindow defines the window of the day during which backup jobs will run. Jobs are queued at the beginning of the window and will be marked as
 'NOT_RUN' if they do not start by the end of the window.`,
 										MaxItems: 1,
@@ -106,13 +102,11 @@ func ResourceBackupDRBackupPlan() *schema.Resource {
 												"start_hour_of_day": {
 													Type:        schema.TypeInt,
 													Required:    true,
-													ForceNew:    true,
 													Description: `The hour of the day (0-23) when the window starts, for example, if the value of the start hour of the day is 6, that means the backup window starts at 6:00.`,
 												},
 												"end_hour_of_day": {
 													Type:     schema.TypeInt,
 													Optional: true,
-													ForceNew: true,
 													Description: `The hour of the day (1-24) when the window ends, for example, if the value of end hour of the day is 10, that means the backup window end time is 10:00.
 The end hour of the day should be greater than the start`,
 												},
@@ -122,7 +116,6 @@ The end hour of the day should be greater than the start`,
 									"days_of_month": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `Specifies days of months like 1, 5, or 14 on which jobs will run.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeInt,
@@ -131,7 +124,6 @@ The end hour of the day should be greater than the start`,
 									"days_of_week": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `Specifies days of week like MONDAY or TUESDAY, on which jobs will run. This is required for 'recurrence_type', 'WEEKLY' and is not applicable otherwise. Possible values: ["DAY_OF_WEEK_UNSPECIFIED", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 										Elem: &schema.Schema{
 											Type:         schema.TypeString,
@@ -141,14 +133,12 @@ The end hour of the day should be greater than the start`,
 									"hourly_frequency": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										ForceNew: true,
 										Description: `Specifies frequency for hourly backups. An hourly frequency of 2 means jobs will run every 2 hours from start time till end time defined.
 This is required for 'recurrence_type', 'HOURLY' and is not applicable otherwise.`,
 									},
 									"months": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `Specifies values of months Possible values: ["MONTH_UNSPECIFIED", "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"]`,
 										Elem: &schema.Schema{
 											Type:         schema.TypeString,
@@ -158,7 +148,6 @@ This is required for 'recurrence_type', 'HOURLY' and is not applicable otherwise
 									"week_day_of_month": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `Specifies a week day of the month like FIRST SUNDAY or LAST MONDAY, on which jobs will run.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
@@ -166,14 +155,12 @@ This is required for 'recurrence_type', 'HOURLY' and is not applicable otherwise
 												"day_of_week": {
 													Type:         schema.TypeString,
 													Required:     true,
-													ForceNew:     true,
 													ValidateFunc: verify.ValidateEnum([]string{"DAY_OF_WEEK_UNSPECIFIED", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}),
 													Description:  `Specifies the day of the week. Possible values: ["DAY_OF_WEEK_UNSPECIFIED", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 												},
 												"week_of_month": {
 													Type:         schema.TypeString,
 													Required:     true,
-													ForceNew:     true,
 													ValidateFunc: verify.ValidateEnum([]string{"WEEK_OF_MONTH_UNSPECIFIED", "FIRST", "SECOND", "THIRD", "FOURTH", "LAST"}),
 													Description:  `WeekOfMonth enumerates possible weeks in the month, e.g. the first, third, or last week of the month. Possible values: ["WEEK_OF_MONTH_UNSPECIFIED", "FIRST", "SECOND", "THIRD", "FOURTH", "LAST"]`,
 												},
@@ -206,15 +193,14 @@ This is required for 'recurrence_type', 'HOURLY' and is not applicable otherwise
 				Description: `The location for the backup plan`,
 			},
 			"resource_type": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The resource type to which the 'BackupPlan' will be applied. Examples include, "compute.googleapis.com/Instance" and "storage.googleapis.com/Bucket".`,
+				Type:     schema.TypeString,
+				Required: true,
+				Description: `The resource type to which the 'BackupPlan' will be applied.
+Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", and "storage.googleapis.com/Bucket".`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `The description allows for additional details about 'BackupPlan' and its use cases to be provided.`,
 				Default:     "",
 			},
@@ -406,6 +392,104 @@ func resourceBackupDRBackupPlanRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	return nil
+}
+
+func resourceBackupDRBackupPlanUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for BackupPlan: %s", err)
+	}
+	billingProject = project
+
+	obj := make(map[string]interface{})
+	descriptionProp, err := expandBackupDRBackupPlanDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); ok || !reflect.DeepEqual(v, descriptionProp) {
+		obj["description"] = descriptionProp
+	}
+	resourceTypeProp, err := expandBackupDRBackupPlanResourceType(d.Get("resource_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("resource_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, resourceTypeProp)) {
+		obj["resourceType"] = resourceTypeProp
+	}
+	backupRulesProp, err := expandBackupDRBackupPlanBackupRules(d.Get("backup_rules"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("backup_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backupRulesProp)) {
+		obj["backupRules"] = backupRulesProp
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupPlans/{{backup_plan_id}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating BackupPlan %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+	updateMask := []string{}
+
+	if d.HasChange("description") {
+		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("resource_type") {
+		updateMask = append(updateMask, "resourceType")
+	}
+
+	if d.HasChange("backup_rules") {
+		updateMask = append(updateMask, "backupRules")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error updating BackupPlan %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating BackupPlan %q: %#v", d.Id(), res)
+		}
+
+		err = BackupDROperationWaitTime(
+			config, res, project, "Updating BackupPlan", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return resourceBackupDRBackupPlanRead(d, meta)
 }
 
 func resourceBackupDRBackupPlanDelete(d *schema.ResourceData, meta interface{}) error {

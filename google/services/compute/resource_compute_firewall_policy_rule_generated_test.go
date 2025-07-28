@@ -111,6 +111,114 @@ resource "google_compute_firewall_policy_rule" "primary" {
     }
   }
 }
+
+resource "google_tags_tag_key" "basic_key" {
+  description = "For keyname resources."
+  parent      = "organizations/%{org_id}"
+  purpose     = "GCE_FIREWALL"
+  short_name  = "tf-test-tag-key%{random_suffix}"
+
+  purpose_data = {
+    organization = "auto"
+  }
+}
+
+resource "google_tags_tag_value" "basic_value" {
+  description = "For valuename resources."
+  parent      = google_tags_tag_key.basic_key.id
+  short_name  = "tf-test-tag-value%{random_suffix}"
+}
+`, context)
+}
+
+func TestAccComputeFirewallPolicyRule_firewallPolicyRuleSecureTagsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeFirewallPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeFirewallPolicyRule_firewallPolicyRuleSecureTagsExample(context),
+			},
+			{
+				ResourceName:            "google_compute_firewall_policy_rule.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"firewall_policy"},
+			},
+		},
+	})
+}
+
+func testAccComputeFirewallPolicyRule_firewallPolicyRuleSecureTagsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "folder" {
+  display_name        = "folder%{random_suffix}"
+  parent              = "organizations/%{org_id}"
+  deletion_protection = false
+}
+
+resource "google_compute_firewall_policy" "default" {
+  parent      = google_folder.folder.id
+  short_name  = "tf-test-fw-policy%{random_suffix}"
+  description = "Resource created for Terraform acceptance testing"
+}
+
+resource "google_compute_firewall_policy_rule" "primary" {
+  firewall_policy         = google_compute_firewall_policy.default.name
+  description             = "Resource created for Terraform acceptance testing"
+  priority                = 9000
+  enable_logging          = true
+  action                  = "allow"
+  direction               = "INGRESS"
+  disabled                = false
+
+  target_secure_tags {
+    name = google_tags_tag_value.basic_value.id
+  }
+
+  match {
+    src_ip_ranges = ["11.100.0.1/32"]
+
+    src_secure_tags {
+      name = google_tags_tag_value.basic_value.id
+    }
+
+    layer4_configs {
+      ip_protocol = "tcp"
+      ports       = [8080]
+    }
+
+    layer4_configs {
+      ip_protocol = "udp"
+      ports       = [22]
+    }
+  }
+}
+
+resource "google_tags_tag_key" "basic_key" {
+  description = "For keyname resources."
+  parent      = "organizations/%{org_id}"
+  purpose     = "GCE_FIREWALL"
+  short_name  = "tf-test-tag-key%{random_suffix}"
+
+  purpose_data = {
+    organization = "auto"
+  }
+}
+
+resource "google_tags_tag_value" "basic_value" {
+  description = "For valuename resources."
+  parent      = google_tags_tag_key.basic_key.id
+  short_name  = "tf-test-tag-value%{random_suffix}"
+}
 `, context)
 }
 

@@ -76,10 +76,8 @@ The following arguments are supported:
   trailing '/'. For example, `example_dir/example_dir2/`, `example@#/`, `a-b/d-f/`.
 
 
-- - -
-
-
 * `force_destroy` - (Optional) If set to true, items within folder if any will be force destroyed.
+
 
 ## Attributes Reference
 

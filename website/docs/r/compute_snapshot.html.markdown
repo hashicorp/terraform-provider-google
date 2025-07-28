@@ -131,9 +131,6 @@ The following arguments are supported:
   A reference to the disk used to create this snapshot.
 
 
-- - -
-
-
 * `chain_name` -
   (Optional)
   Creates the new snapshot in the snapshot chain labeled with the
@@ -184,6 +181,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_snapshot_encryption_key"></a>The `snapshot_encryption_key` block supports:

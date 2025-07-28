@@ -117,9 +117,6 @@ The following arguments are supported:
   * `hyperdisk-throughput`
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A description of this resource. Provide this property when you create the resource.
@@ -150,6 +147,7 @@ The following arguments are supported:
 When the field is set to true or unset in Terraform state, a `terraform apply`
 or `terraform destroy` that would delete the StoragePool will fail.
 When the field is set to false, deleting the StoragePool is allowed.
+
 
 
 ## Attributes Reference

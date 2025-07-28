@@ -134,25 +134,6 @@ The following arguments are supported:
   CertificateIssuanceConfig names must be unique globally.
 
 
-<a name="nested_certificate_authority_config"></a>The `certificate_authority_config` block supports:
-
-* `certificate_authority_service_config` -
-  (Optional)
-  Defines a CertificateAuthorityServiceConfig.
-  Structure is [documented below](#nested_certificate_authority_config_certificate_authority_service_config).
-
-
-<a name="nested_certificate_authority_config_certificate_authority_service_config"></a>The `certificate_authority_service_config` block supports:
-
-* `ca_pool` -
-  (Required)
-  A CA pool resource used to issue a certificate.
-  The CA pool string has a relative resource path following the form
-  "projects/{project}/locations/{location}/caPools/{caPool}".
-
-- - -
-
-
 * `description` -
   (Optional)
   One or more paragraphs of text description of a CertificateIssuanceConfig.
@@ -172,6 +153,23 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_certificate_authority_config"></a>The `certificate_authority_config` block supports:
+
+* `certificate_authority_service_config` -
+  (Optional)
+  Defines a CertificateAuthorityServiceConfig.
+  Structure is [documented below](#nested_certificate_authority_config_certificate_authority_service_config).
+
+
+<a name="nested_certificate_authority_config_certificate_authority_service_config"></a>The `certificate_authority_service_config` block supports:
+
+* `ca_pool` -
+  (Required)
+  A CA pool resource used to issue a certificate.
+  The CA pool string has a relative resource path following the form
+  "projects/{project}/locations/{location}/caPools/{caPool}".
 
 ## Attributes Reference
 

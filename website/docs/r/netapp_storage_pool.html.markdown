@@ -127,9 +127,6 @@ The following arguments are supported:
   The resource name of the storage pool. Needs to be unique per location/region.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource.
@@ -184,8 +181,19 @@ The following arguments are supported:
   (Optional)
   Optional. Custom Performance Total IOPS of the pool If not provided, it will be calculated based on the totalThroughputMibps
 
+* `hot_tier_size_gib` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Total hot tier capacity for the Storage Pool. It is applicable only to Flex service level.
+  It should be less than the minimum storage pool size and cannot be more than the current storage pool size. It cannot be decreased once set.
+
+* `enable_hot_tier_auto_resize` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Flag indicating that the hot-tier threshold will be auto-increased by 10% of the hot-tier when it hits 100%. Default is true.
+  The increment will kick in only if the new size after increment is still less than or equal to storage pool size.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

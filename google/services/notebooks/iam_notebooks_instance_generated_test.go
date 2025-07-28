@@ -133,7 +133,7 @@ resource "google_notebooks_instance" "instance" {
   machine_type = "e2-medium"
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    image_family = "pytorch-latest-cu124"
   }
 }
 
@@ -155,7 +155,7 @@ resource "google_notebooks_instance" "instance" {
   machine_type = "e2-medium"
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    image_family = "pytorch-latest-cu124"
   }
 }
 
@@ -192,7 +192,7 @@ resource "google_notebooks_instance" "instance" {
   machine_type = "e2-medium"
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    image_family = "pytorch-latest-cu124"
   }
 }
 
@@ -216,7 +216,7 @@ resource "google_notebooks_instance" "instance" {
   machine_type = "e2-medium"
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    image_family = "pytorch-latest-cu124"
   }
 }
 
@@ -238,7 +238,7 @@ resource "google_notebooks_instance" "instance" {
   machine_type = "e2-medium"
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    image_family = "pytorch-latest-cu124"
   }
 }
 

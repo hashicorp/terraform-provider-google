@@ -154,6 +154,74 @@ func TestAccArtifactRegistryRepository_kfp(t *testing.T) {
 	})
 }
 
+func TestAccArtifactRegistryRepository_cleanup(t *testing.T) {
+	t.Parallel()
+
+	repositoryID := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArtifactRegistryRepository_cleanup(repositoryID),
+			},
+			{
+				ResourceName:      "google_artifact_registry_repository.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config:             testAccArtifactRegistryRepository_cleanup2(repositoryID),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: testAccArtifactRegistryRepository_cleanup2(repositoryID),
+			},
+		},
+	})
+}
+
+func testAccArtifactRegistryRepository_cleanup(repositoryID string) string {
+	return fmt.Sprintf(`
+resource "google_artifact_registry_repository" "test" {
+  repository_id = "%s"
+  location = "us-central1"
+  description = "cleanup with non-second time"
+  format = "DOCKER"
+
+  cleanup_policies {
+    id = "delete"
+    action = "DELETE"
+    condition {
+      older_than = "7d"
+    }
+  }
+}
+`, repositoryID)
+}
+
+func testAccArtifactRegistryRepository_cleanup2(repositoryID string) string {
+	return fmt.Sprintf(`
+resource "google_artifact_registry_repository" "test" {
+  repository_id = "%s"
+  location = "us-central1"
+  description = "cleanup with non-second time"
+  format = "DOCKER"
+
+  cleanup_policies {
+    id = "delete"
+    action = "DELETE"
+    condition {
+      older_than = "10d"
+    }
+  }
+}
+`, repositoryID)
+}
+
 func testAccArtifactRegistryRepository_update(repositoryID string) string {
 	return fmt.Sprintf(`
 resource "google_artifact_registry_repository" "test" {

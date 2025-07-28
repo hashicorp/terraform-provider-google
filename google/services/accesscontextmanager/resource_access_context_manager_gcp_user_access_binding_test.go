@@ -57,6 +57,15 @@ func testAccAccessContextManagerGcpUserAccessBinding_basicTest(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"organization_id"},
 			},
+			{
+				Config: testAccAccessContextManagerGcpUserAccessBinding_accessContextManagerGcpUserAccessBindingNamedExample(context),
+			},
+			{
+				ResourceName:            "google_access_context_manager_gcp_user_access_binding.gcp_user_access_binding",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"organization_id"},
+			},
 		},
 	})
 }
@@ -108,7 +117,6 @@ resource "google_access_context_manager_gcp_user_access_binding" "gcp_user_acces
     google_access_context_manager_access_level.tf_test_access_level_id_for_user_access_binding%{random_suffix}.name,
   ]
   session_settings {
-    max_inactivity = "300s"
     session_length = "1800s"
     session_length_enabled = true
     session_reauth_method = "LOGIN"
@@ -127,7 +135,88 @@ resource "google_access_context_manager_gcp_user_access_binding" "gcp_user_acces
   		  google_access_context_manager_access_level.tf_test_access_level_id_for_user_access_binding%{random_suffix}.name,
   	  ]
   	  session_settings {
-  		  max_inactivity = "300s"
+  		  session_length = "1800s"
+  		  session_length_enabled = true
+  		  session_reauth_method = "LOGIN"
+  		  use_oidc_max_age = false
+  	  }
+  	}
+  	dry_run_settings {
+  	  access_levels = [
+  		  google_access_context_manager_access_level.tf_test_access_level_id_for_user_access_binding%{random_suffix}.name,
+  	  ]
+  	}
+  }
+}
+`, context)
+}
+
+func testAccAccessContextManagerGcpUserAccessBinding_accessContextManagerGcpUserAccessBindingNamedExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_identity_group" "group" {
+  display_name = "tf-test-my-identity-group%{random_suffix}"
+
+  parent = "customers/%{cust_id}"
+
+  group_key {
+    id = "tf-test-my-identity-group%{random_suffix}@%{org_domain}"
+  }
+
+  labels = {
+    "cloudidentity.googleapis.com/groups.discussion_forum" = ""
+  }
+}
+
+resource "google_access_context_manager_access_level" "tf_test_access_level_id_for_user_access_binding%{random_suffix}" {
+  parent = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}"
+  name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/accessLevels/tf_test_chromeos_no_lock%{random_suffix}"
+  title  = "tf_test_chromeos_no_lock%{random_suffix}"
+  basic {
+    conditions {
+      device_policy {
+        require_screen_lock = true
+        os_constraints {
+          os_type = "DESKTOP_CHROME_OS"
+        }
+      }
+      regions = [
+  "US",
+      ]
+    }
+  }
+}
+
+resource "google_access_context_manager_access_policy" "access-policy" {
+  parent = "organizations/%{org_id}"
+  title  = "my policy"
+}
+
+resource "google_access_context_manager_gcp_user_access_binding" "gcp_user_access_binding" {
+  organization_id = "%{org_id}"
+  group_key       = trimprefix(google_cloud_identity_group.group.id, "groups/")
+  access_levels   = [
+    google_access_context_manager_access_level.tf_test_access_level_id_for_user_access_binding%{random_suffix}.name,
+  ]
+  session_settings {
+    session_length = "1800s"
+    session_length_enabled = true
+    session_reauth_method = "LOGIN"
+    use_oidc_max_age = false
+  }
+  scoped_access_settings {
+    scope {
+      client_scope {
+        restricted_client_application {
+	        name = "Cloud Console"
+         }
+      }
+    }
+    active_settings {
+  	  access_levels = [
+  		  google_access_context_manager_access_level.tf_test_access_level_id_for_user_access_binding%{random_suffix}.name,
+  	  ]
+  	  session_settings {
+  		  max_inactivity = "400s"
   		  session_length = "1800s"
   		  session_length_enabled = true
   		  session_reauth_method = "LOGIN"

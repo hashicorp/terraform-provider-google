@@ -143,9 +143,6 @@ The following arguments are supported:
   Europe/Paris.
 
 
-- - -
-
-
 * `supported_language_codes` -
   (Optional)
   The list of all languages supported by this agent (except for the default_language_code).
@@ -200,6 +197,22 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `delete_chat_engine_on_destroy` - (Optional) If set to `true`, Terraform will delete the chat engine associated with the agent when the agent is destroyed.
+Otherwise, the chat engine will persist.
+
+This virtual field addresses a critical dependency chain: `agent` -> `engine` -> `data store`. The chat engine is automatically
+provisioned when a data store is linked to the agent, meaning Terraform doesn't have direct control over its lifecycle as a managed
+resource. This creates a problem when both the agent and data store are managed by Terraform and need to be destroyed. Without
+delete_chat_engine_on_destroy set to true, the data store's deletion would fail because the unmanaged chat engine would still be
+using it. This setting ensures that the entire dependency chain can be properly torn down.
+See `mmv1/templates/terraform/examples/dialogflowcx_tool_data_store.tf.tmpl` as an example.
+
+Data store can be linked to an agent through the `knowledgeConnectorSettings` field of a [flow](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.flows#resource:-flow)
+or a [page](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.flows.pages#resource:-page)
+or the `dataStoreSpec` field of a [tool](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.tools#resource:-tool).
+The ID of the implicitly created engine is stored in the `genAppBuilderSettings` field of the [agent](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents#resource:-agent).
+
 
 
 <a name="nested_speech_to_text_settings"></a>The `speech_to_text_settings` block supports:

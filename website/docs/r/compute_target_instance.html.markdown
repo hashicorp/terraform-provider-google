@@ -229,9 +229,6 @@ The following arguments are supported:
   provider-level project.
 
 
-- - -
-
-
 * `network` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The URL of the network this target instance uses to forward traffic. If not specified, the traffic will be forwarded to the network that the default network interface belongs to.
@@ -257,6 +254,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

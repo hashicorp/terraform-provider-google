@@ -92,8 +92,6 @@ The following arguments are supported:
   Name of the Apigee organization.
 
 
-- - -
-
 
 
 ## Attributes Reference

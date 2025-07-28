@@ -112,6 +112,59 @@ data "google_compute_network" "default" {
   project = "my-project"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=oracledatabase_autonomous_database_odbnetwork&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Oracledatabase Autonomous Database Odbnetwork
+
+
+```hcl
+resource "google_oracle_database_autonomous_database" "myADB"{
+  autonomous_database_id = "my-instance"
+  location = "europe-west2"
+  project = "my-project"
+  database = "mydatabase"
+  admin_password = "123Abpassword"
+  odb_network = "projects/my-project/locations/europe-west2/odbNetworks/my-odbnetwork"
+  odb_subnet = "projects/my-project/locations/europe-west2/odbNetworks/my-odbnetwork/odbSubnets/my-odbsubnet"
+  properties {
+    compute_count = "2"
+    data_storage_size_tb="1"
+    db_version = "19c"
+    db_workload = "OLTP"
+    license_type = "LICENSE_INCLUDED"
+    }
+  deletion_protection = "true"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=oracledatabase_autonomous_database_publicip&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Oracledatabase Autonomous Database Publicip
+
+
+```hcl
+resource "google_oracle_database_autonomous_database" "myADB"{
+  autonomous_database_id = "my-instance"
+  location = "europe-west2"
+  project = "my-project"
+  database = "mydatabase"
+  admin_password = "123Abpassword"
+  properties {
+    compute_count = "2"
+    data_storage_size_tb="1"
+    db_version = "19c"
+    db_workload = "OLTP"
+    license_type = "LICENSE_INCLUDED"
+    mtls_connection_required = "true"
+    }
+  deletion_protection = "true"
+}
+```
 
 ## Argument Reference
 
@@ -129,15 +182,6 @@ The following arguments are supported:
   The properties of an Autonomous Database.
   Structure is [documented below](#nested_properties).
 
-* `network` -
-  (Required)
-  The name of the VPC network used by the Autonomous Database.
-  Format: projects/{project}/global/networks/{network}
-
-* `cidr` -
-  (Required)
-  The subnet CIDR range for the Autonmous Database.
-
 * `location` -
   (Required)
   Resource ID segment making up resource `name`. See documentation for resource type `oracledatabase.googleapis.com/AutonomousDatabaseBackup`.
@@ -148,6 +192,50 @@ The following arguments are supported:
   to (^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$) and must be a maximum of 63
   characters in length. The value must start with a letter and end with
   a letter or a number.
+
+
+* `display_name` -
+  (Optional)
+  The display name for the Autonomous Database. The name does not have to
+  be unique within your project.
+
+* `admin_password` -
+  (Optional)
+  The password for the default ADMIN user.
+
+* `labels` -
+  (Optional)
+  The labels or tags associated with the Autonomous Database. 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `network` -
+  (Optional)
+  The name of the VPC network used by the Autonomous Database.
+  Format: projects/{project}/global/networks/{network}
+
+* `cidr` -
+  (Optional)
+  The subnet CIDR range for the Autonmous Database.
+
+* `odb_network` -
+  (Optional)
+  The name of the OdbNetwork associated with the Autonomous Database.
+  Format:
+  projects/{project}/locations/{location}/odbNetworks/{odb_network}
+  It is optional but if specified, this should match the parent ODBNetwork of
+  the odb_subnet and backup_odb_subnet.
+
+* `odb_subnet` -
+  (Optional)
+  The name of the OdbSubnet associated with the Autonomous Database for
+  IP allocation. Format:
+  projects/{project}/locations/{location}/odbNetworks/{odb_network}/odbSubnets/{odb_subnet}
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.
 
 
 <a name="nested_properties"></a>The `properties` block supports:
@@ -781,29 +869,6 @@ The following arguments are supported:
 * `nanos` -
   (Output)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
-
-- - -
-
-
-* `display_name` -
-  (Optional)
-  The display name for the Autonomous Database. The name does not have to
-  be unique within your project.
-
-* `admin_password` -
-  (Optional)
-  The password for the default ADMIN user.
-
-* `labels` -
-  (Optional)
-  The labels or tags associated with the Autonomous Database. 
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
-* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.
 
 ## Attributes Reference
 

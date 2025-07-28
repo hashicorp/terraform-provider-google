@@ -117,8 +117,15 @@ data "google_project" "project" {
 
 func TestAccMemorystoreInstance_memorystoreInstanceFullExample(t *testing.T) {
 	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-memorystore.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	context := map[string]interface{}{
+		"kms_key_name":    acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"prevent_destroy": false,
 		"random_suffix":   acctest.RandString(t, 10),
 	}
@@ -135,7 +142,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceFullExample(t *testing.T) {
 				ResourceName:            "google_memorystore_instance.instance-full",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -155,6 +162,7 @@ resource "google_memorystore_instance" "instance-full" {
   node_type               = "SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_DISABLED"
   authorization_mode      = "AUTH_DISABLED"
+  kms_key                 = "%{kms_key_name}"
   engine_configs = {
     maxmemory-policy = "volatile-ttl"
   }

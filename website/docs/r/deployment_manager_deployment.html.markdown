@@ -110,41 +110,6 @@ The following arguments are supported:
   Structure is [documented below](#nested_target).
 
 
-<a name="nested_target"></a>The `target` block supports:
-
-* `config` -
-  (Required)
-  The root configuration file to use for this deployment.
-  Structure is [documented below](#nested_target_config).
-
-* `imports` -
-  (Optional)
-  Specifies import files for this configuration. This can be
-  used to import templates or other files. For example, you might
-  import a text file in order to use the file in a template.
-  Structure is [documented below](#nested_target_imports).
-
-
-<a name="nested_target_config"></a>The `config` block supports:
-
-* `content` -
-  (Required)
-  The full YAML contents of your configuration file.
-
-<a name="nested_target_imports"></a>The `imports` block supports:
-
-* `content` -
-  (Optional)
-  The full contents of the template that you want to import.
-
-* `name` -
-  (Optional)
-  The name of the template to import, as declared in the YAML
-  configuration.
-
-- - -
-
-
 * `description` -
   (Optional)
   Optional user-provided description of deployment.
@@ -189,6 +154,39 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_target"></a>The `target` block supports:
+
+* `config` -
+  (Required)
+  The root configuration file to use for this deployment.
+  Structure is [documented below](#nested_target_config).
+
+* `imports` -
+  (Optional)
+  Specifies import files for this configuration. This can be
+  used to import templates or other files. For example, you might
+  import a text file in order to use the file in a template.
+  Structure is [documented below](#nested_target_imports).
+
+
+<a name="nested_target_config"></a>The `config` block supports:
+
+* `content` -
+  (Required)
+  The full YAML contents of your configuration file.
+
+<a name="nested_target_imports"></a>The `imports` block supports:
+
+* `content` -
+  (Optional)
+  The full contents of the template that you want to import.
+
+* `name` -
+  (Optional)
+  The name of the template to import, as declared in the YAML
+  configuration.
 
 <a name="nested_labels"></a>The `labels` block supports:
 

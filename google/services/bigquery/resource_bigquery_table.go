@@ -28,6 +28,8 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/exp/slices"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
@@ -66,7 +68,7 @@ func bigQueryTablecheckNameExists(jsonList []interface{}) error {
 // Compares two json's while optionally taking in a compareMapKeyVal function.
 // This function will override any comparison of a given map[string]interface{}
 // on a specific key value allowing for a separate equality in specific scenarios
-func jsonCompareWithMapKeyOverride(key string, a, b interface{}, compareMapKeyVal func(key string, val1, val2 map[string]interface{}) bool) (bool, error) {
+func jsonCompareWithMapKeyOverride(key string, a, b interface{}, compareMapKeyVal func(key string, val1, val2 map[string]interface{}, d *schema.ResourceData) bool, d *schema.ResourceData) (bool, error) {
 	switch a.(type) {
 	case []interface{}:
 		arrayA := a.([]interface{})
@@ -89,7 +91,7 @@ func jsonCompareWithMapKeyOverride(key string, a, b interface{}, compareMapKeyVa
 			bigQueryTableSortArrayByName(arrayB)
 		}
 		for i := range arrayA {
-			eq, err := jsonCompareWithMapKeyOverride(strconv.Itoa(i), arrayA[i], arrayB[i], compareMapKeyVal)
+			eq, err := jsonCompareWithMapKeyOverride(strconv.Itoa(i), arrayA[i], arrayB[i], compareMapKeyVal, d)
 			if err != nil {
 				return false, err
 			} else if !eq {
@@ -119,14 +121,14 @@ func jsonCompareWithMapKeyOverride(key string, a, b interface{}, compareMapKeyVa
 		}
 
 		for subKey := range unionOfKeys {
-			eq := compareMapKeyVal(subKey, objectA, objectB)
+			eq := compareMapKeyVal(subKey, objectA, objectB, d)
 			if !eq {
 				valA, ok1 := objectA[subKey]
 				valB, ok2 := objectB[subKey]
 				if !ok1 || !ok2 {
 					return false, nil
 				}
-				eq, err := jsonCompareWithMapKeyOverride(subKey, valA, valB, compareMapKeyVal)
+				eq, err := jsonCompareWithMapKeyOverride(subKey, valA, valB, compareMapKeyVal, d)
 				if err != nil || !eq {
 					return false, err
 				}
@@ -152,7 +154,7 @@ func valueIsInArray(value interface{}, array []interface{}) bool {
 	return false
 }
 
-func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interface{}) bool {
+func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interface{}, d *schema.ResourceData) bool {
 	// we rely on the fallback to nil if the object does not have the key
 	valA := objectA[key]
 	valB := objectB[key]
@@ -172,6 +174,14 @@ func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interfa
 	case "policyTags":
 		eq := bigQueryTableNormalizePolicyTags(valA) == nil && bigQueryTableNormalizePolicyTags(valB) == nil
 		return eq
+	case "dataPolicies":
+		if d == nil {
+			return false
+		}
+		// Access the ignore_schema_changes list from the Terraform configuration
+		ignoreSchemaChanges := d.Get("ignore_schema_changes").([]interface{})
+		// Suppress diffs for the "dataPolicies" field if it was present in "ignore_schema_changes"
+		return slices.Contains(ignoreSchemaChanges, "dataPolicies")
 	}
 
 	// otherwise rely on default behavior
@@ -179,7 +189,7 @@ func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interfa
 }
 
 // Compare the JSON strings are equal
-func bigQueryTableSchemaDiffSuppress(name, old, new string, _ *schema.ResourceData) bool {
+func bigQueryTableSchemaDiffSuppress(name, old, new string, d *schema.ResourceData) bool {
 	// The API can return an empty schema which gets encoded to "null" during read.
 	if old == "null" {
 		old = "[]"
@@ -192,7 +202,7 @@ func bigQueryTableSchemaDiffSuppress(name, old, new string, _ *schema.ResourceDa
 		log.Printf("[DEBUG] unable to unmarshal new json - %v", err)
 	}
 
-	eq, err := jsonCompareWithMapKeyOverride(name, a, b, bigQueryTableMapKeyOverride)
+	eq, err := jsonCompareWithMapKeyOverride(name, a, b, bigQueryTableMapKeyOverride, d)
 	if err != nil {
 		log.Printf("[DEBUG] %v", err)
 		log.Printf("[DEBUG] Error comparing JSON: %v, %v", old, new)
@@ -1278,7 +1288,13 @@ func ResourceBigQueryTable() *schema.Resource {
 				Computed:    true,
 				Description: `A hash of the resource.`,
 			},
-
+			"ignore_schema_changes": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    10,
+				Description: `Mention which fields in schema are to be ignored`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			// LastModifiedTime: [Output-only] The time when this table was last
 			// modified, in milliseconds since the epoch.
 			"last_modified_time": {
@@ -1343,6 +1359,13 @@ func ResourceBigQueryTable() *schema.Resource {
 				Optional:    true,
 				Default:     true,
 				Description: `Whether Terraform will be prevented from destroying the instance. When the field is set to true or unset in Terraform state, a terraform apply or terraform destroy that would delete the table will fail. When the field is set to false, deleting the table is allowed.`,
+			},
+
+			"ignore_auto_generated_schema": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `Whether Terraform will prevent implicitly added columns in schema from showing diff.`,
 			},
 
 			// TableConstraints: [Optional] Defines the primary key and foreign keys.
@@ -1591,6 +1614,49 @@ func ResourceBigQueryTable() *schema.Resource {
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+// filterLiveSchemaByConfig compares a live schema from the BQ API with a schema from
+// the Terraform config. It returns a new schema containing only the fields
+// that are defined in the config, effectively removing any columns that were
+// auto-generated by the service (e.g., hive partitioning keys).
+//
+// Parameters:
+//   - liveSchema: The schema returned from a BigQuery API Read/Get call. This may contain extra columns.
+//   - configSchema: The schema built from the user's Terraform configuration (`d.Get("schema")`). This is the source of truth.
+//
+// Returns:
+//
+//	A new *bigquery.TableSchema containing a filtered list of fields.
+func filterLiveSchemaByConfig(liveSchema *bigquery.TableSchema, configSchema *bigquery.TableSchema) *bigquery.TableSchema {
+	if liveSchema == nil || configSchema == nil {
+		// If either schema is nil, there's nothing to compare, so return an empty schema.
+		return &bigquery.TableSchema{Fields: []*bigquery.TableFieldSchema{}}
+	}
+
+	// 1. Create a lookup map of all column names defined in the configuration.
+	//    This provides fast O(1) average time complexity for lookups.
+	configFieldsMap := make(map[string]bool)
+	for _, field := range configSchema.Fields {
+		configFieldsMap[field.Name] = true
+	}
+
+	// 2. Iterate through the fields in the live schema and keep only the ones
+	//    that exist in our configuration map.
+	var filteredFields []*bigquery.TableFieldSchema
+	for _, liveField := range liveSchema.Fields {
+		// If the live field's name is present in the map of configured fields...
+		if _, ok := configFieldsMap[liveField.Name]; ok {
+			// ...then it's a field we care about. Add it to our filtered list.
+			filteredFields = append(filteredFields, liveField)
+		} else {
+			log.Printf("[DEBUG] auto-generated column `%s` dropped during Table read.", liveField.Name)
+		}
+	}
+
+	return &bigquery.TableSchema{
+		Fields: filteredFields,
 	}
 }
 
@@ -1983,7 +2049,17 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if res.Schema != nil {
-		schema, err := flattenSchema(res.Schema)
+		table, err := resourceTable(d, meta)
+		if err != nil {
+			return err
+		}
+
+		schemaFiltered := res.Schema
+		ignore, ok := d.Get("ignore_auto_generated_schema").(bool)
+		if ok && ignore {
+			schemaFiltered = filterLiveSchemaByConfig(res.Schema, table.Schema)
+		}
+		schema, err := flattenSchema(schemaFiltered)
 		if err != nil {
 			return err
 		}
@@ -2070,7 +2146,7 @@ type TableReference struct {
 
 func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error {
 	// If only client-side fields were modified, short-circuit the Update function to avoid sending an update API request.
-	clientSideFields := map[string]bool{"deletion_protection": true, "table_metadata_view": true}
+	clientSideFields := map[string]bool{"deletion_protection": true, "ignore_schema_changes": true, "ignore_auto_generated_schema": true, "table_metadata_view": true}
 	clientSideOnly := true
 	for field := range ResourceBigQueryTable().Schema {
 		if d.HasChange(field) && !clientSideFields[field] {
@@ -2118,8 +2194,11 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 		tableID:   tableID,
 	}
 
-	if err = resourceBigQueryTableColumnDrop(config, userAgent, table, tableReference, tableMetadataView); err != nil {
-		return err
+	// If we are supposed to ignore server generated schema columns, we don't need to drop them
+	if !d.Get("ignore_auto_generated_schema").(bool) {
+		if err = resourceBigQueryTableColumnDrop(config, userAgent, table, tableReference, tableMetadataView); err != nil {
+			return err
+		}
 	}
 
 	if _, err = config.NewBigQueryClient(userAgent).Tables.Update(project, datasetID, tableID, table).Do(); err != nil {

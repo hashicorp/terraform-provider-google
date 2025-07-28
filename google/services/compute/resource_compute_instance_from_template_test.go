@@ -1241,7 +1241,7 @@ resource "google_compute_instance_from_template" "inst" {
 func testAccComputeInstanceFromTemplate_confidentialInstanceConfigEnable(templateDisk string, image string, template string, instance string, template2 string, instance2 string, confidentialInstanceType string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image1" {
-  family  = "ubuntu-2004-lts"
+  family  = "ubuntu-2204-lts"
   project = "ubuntu-os-cloud"
 }
 
@@ -1334,7 +1334,7 @@ resource "google_compute_instance_from_template" "inst2" {
 func testAccComputeInstanceFromTemplate_confidentialInstanceConfigNoConfigSevSnp(templateDisk string, image string, template string, instance string, template2 string, instance2 string, confidentialInstanceType string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image1" {
-  family  = "ubuntu-2004-lts"
+  family  = "ubuntu-2204-lts"
   project = "ubuntu-os-cloud"
 }
 

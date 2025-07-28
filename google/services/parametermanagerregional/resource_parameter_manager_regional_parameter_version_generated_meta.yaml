@@ -13,8 +13,8 @@ fields:
   - field: 'name'
   - field: 'parameter'
     provider_only: true
+  - field: 'parameter_data'
+    api_field: 'payload.data'
   - field: 'parameter_version_id'
     provider_only: true
-  - field: 'payload.parameter_data'
-    api_field: 'payload.data'
   - field: 'update_time'

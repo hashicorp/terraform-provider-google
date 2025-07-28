@@ -28,7 +28,7 @@ func TestAccAlloydbInstance_update(t *testing.T) {
 
 	random_suffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-instance-update-1"),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
 		"random_suffix": random_suffix,
 	}
 
@@ -129,7 +129,7 @@ func TestAccAlloydbInstance_createInstanceWithMandatoryFields(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-instance-mandatory-1"),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -149,7 +149,7 @@ func TestAccAlloydbInstance_stopstart(t *testing.T) {
 	t.Parallel()
 
 	suffix := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydbinstance-clientconnectionconfig")
+	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1")
 
 	context := map[string]interface{}{
 		"random_suffix": suffix,
@@ -267,7 +267,7 @@ data "google_compute_network" "default" {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-instance-maximum-1"),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -339,7 +339,7 @@ func TestAccAlloydbInstance_createPrimaryAndReadPoolInstance(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-instance-readpool-1"),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -394,7 +394,7 @@ data "google_compute_network" "default" {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-instance-updatedb-1"),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -475,7 +475,7 @@ data "google_compute_network" "default" {
 func TestAccAlloydbInstance_createInstanceWithNetworkConfigAndAllocatedIPRange(t *testing.T) {
 	t.Parallel()
 
-	testId := "alloydbinstance-network-config-1"
+	testId := "alloydb-1"
 	addressName := acctest.BootstrapSharedTestGlobalAddress(t, testId)
 	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, testId)
 
@@ -533,7 +533,7 @@ func TestAccAlloydbInstance_clientConnectionConfig(t *testing.T) {
 	t.Parallel()
 
 	suffix := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydbinstance-clientconnectionconfig")
+	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1")
 
 	context := map[string]interface{}{
 		"random_suffix":      suffix,
@@ -698,7 +698,7 @@ func TestAccAlloydbInstance_networkConfig(t *testing.T) {
 	t.Parallel()
 
 	suffix := acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydbinstance-networkconfig")
+	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1")
 
 	context1 := map[string]interface{}{
 		"random_suffix":                suffix,
@@ -1096,5 +1096,68 @@ resource "google_alloydb_cluster" "default" {
   }
 }
 data "google_project" "project" {}
+`, context)
+}
+
+func TestAccAlloydbInstance_createPrimaryAndReadPoolInstanceWithAllocatedIpRangeOverride(t *testing.T) {
+	t.Parallel()
+
+	testId := "alloydb-1"
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"address_name":  acctest.BootstrapSharedTestGlobalAddress(t, testId),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, testId),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbInstance_createPrimaryAndReadPoolInstanceWithAllocatedIpRangeOverride(context),
+			},
+		},
+	})
+}
+
+func testAccAlloydbInstance_createPrimaryAndReadPoolInstanceWithAllocatedIpRangeOverride(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "primary" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+}
+
+resource "google_alloydb_instance" "read_pool" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}-read"
+  instance_type = "READ_POOL"
+  read_pool_config {
+    node_count = 4
+  }
+  network_config {
+	allocated_ip_range_override = data.google_compute_global_address.private_ip_alloc.name
+  }
+  depends_on = [google_alloydb_instance.primary]
+}
+
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+}
+
+data "google_project" "project" {}
+
+data "google_compute_network" "default" {
+  name = "%{network_name}"
+}
+
+data "google_compute_global_address" "private_ip_alloc" {
+  name =  "%{address_name}"
+}
 `, context)
 }

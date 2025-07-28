@@ -81,9 +81,6 @@ The following arguments are supported:
   The instance to create the database on.
 
 
-- - -
-
-
 * `version_retention_period` -
   (Optional)
   The retention period for the database. The retention period must be between 1 hour
@@ -136,6 +133,7 @@ When the field is set to false, deleting the database is allowed.
 
 * `default_time_zone` - (Optional) The default time zone for the database. The default time zone must be a valid name
 from the tz database. Default value is "America/Los_angeles".
+
 
 
 <a name="nested_encryption_config"></a>The `encryption_config` block supports:

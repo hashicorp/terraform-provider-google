@@ -61,9 +61,6 @@ The following arguments are supported:
   Names of one or more parent resources : *  \`projects/[PROJECT_ID]\` May alternatively be one or more views : * \`projects/[PROJECT_ID]/locations/[LOCATION_ID]/buckets/[BUCKET_ID]/views/[VIEW_ID]\` A log scope can include a maximum of 50 projects and a maximum of 100 resources in total.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Describes this log scopes.
@@ -75,6 +72,7 @@ The following arguments are supported:
 * `location` -
   (Optional)
   The location of the resource. The only supported location is global so far.
+
 
 
 ## Attributes Reference

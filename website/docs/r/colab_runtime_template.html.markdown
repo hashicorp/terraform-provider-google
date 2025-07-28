@@ -130,30 +130,17 @@ resource "google_colab_runtime_template" "runtime-template" {
   }
 
   euc_config {
-    euc_disabled = true
+    euc_disabled = false
   }
 
   shielded_vm_config {
-    enable_secure_boot = true
+    enable_secure_boot = false
   }
 
   network_tags = ["abc", "def"]
 
   encryption_spec {
     kms_key_name = "my-crypto-key"
-  }
-
-  software_config {
-    env {
-      name         = "TEST"
-      value   = 1
-    }
-
-    post_startup_script_config {
-      post_startup_script = "echo 'hello world'"
-      post_startup_script_url = "gs://colab-enterprise-pss-secure/secure_pss.sh"
-      post_startup_script_behavior = "RUN_ONCE"
-    }
   }
 }
 ```
@@ -170,9 +157,6 @@ The following arguments are supported:
 * `location` -
   (Required)
   The location for the resource: https://cloud.google.com/colab/docs/locations
-
-
-- - -
 
 
 * `name` -
@@ -235,6 +219,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_machine_spec"></a>The `machine_spec` block supports:

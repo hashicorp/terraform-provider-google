@@ -231,10 +231,10 @@ of Google's network that the interconnect is connected to.`,
 If specified then the connection is created on MACsec capable hardware ports. If not
 specified, the default value is false, which allocates non-MACsec capable ports first if
 available). Note that MACSEC is still technically allowed for compatibility reasons, but it
-does not work with the API, and will be removed in an upcoming major version. Possible values: ["MACSEC", "IF_MACSEC"]`,
+does not work with the API, and will be removed in an upcoming major version. Possible values: ["MACSEC", "CROSS_SITE_NETWORK", "IF_MACSEC"]`,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: verify.ValidateEnum([]string{"MACSEC", "IF_MACSEC"}),
+					ValidateFunc: verify.ValidateEnum([]string{"MACSEC", "CROSS_SITE_NETWORK", "IF_MACSEC"}),
 				},
 			},
 			"available_features": {
@@ -370,6 +370,16 @@ backend connectivity issues.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"interconnect_groups": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Description: `URLs of InterconnectGroups that include this Interconnect.
+Order is arbitrary and items are unique.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Set: schema.HashString,
 			},
 			"label_fingerprint": {
 				Type:     schema.TypeString,
@@ -773,6 +783,9 @@ func resourceComputeInterconnectRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Interconnect: %s", err)
 	}
 	if err := d.Set("available_features", flattenComputeInterconnectAvailableFeatures(res["availableFeatures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err := d.Set("interconnect_groups", flattenComputeInterconnectInterconnectGroups(res["interconnectGroups"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Interconnect: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenComputeInterconnectTerraformLabels(res["labels"], d, config)); err != nil {
@@ -1278,6 +1291,13 @@ func flattenComputeInterconnectRequestedFeatures(v interface{}, d *schema.Resour
 
 func flattenComputeInterconnectAvailableFeatures(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenComputeInterconnectInterconnectGroups(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenComputeInterconnectTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

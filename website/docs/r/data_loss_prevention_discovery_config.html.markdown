@@ -525,9 +525,6 @@ The following arguments are supported:
   Location to create the discovery config in.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   Display Name (max 1000 Chars)
@@ -555,6 +552,7 @@ The following arguments are supported:
   (Optional)
   Required. A status for this configuration
   Possible values are: `RUNNING`, `PAUSED`.
+
 
 
 <a name="nested_org_config"></a>The `org_config` block supports:

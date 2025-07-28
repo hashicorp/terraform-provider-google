@@ -48,6 +48,7 @@ fields:
   - field: 'gcs_source.uris'
   - field: 'instance_id'
     provider_only: true
+  - field: 'kms_key'
   - field: 'labels'
   - field: 'location'
     provider_only: true
@@ -63,6 +64,7 @@ fields:
   - field: 'maintenance_schedule.schedule_deadline_time'
   - field: 'maintenance_schedule.start_time'
   - field: 'managed_backup_source.backup'
+  - field: 'managed_server_ca.ca_certs.certificates'
   - field: 'mode'
   - field: 'name'
   - field: 'node_config.size_gb'

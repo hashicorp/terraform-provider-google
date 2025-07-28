@@ -66,6 +66,12 @@ resource "google_apigee_environment" "env" {
   description  = "Apigee Environment"
   display_name = "environment-1"
   org_id       = google_apigee_organization.apigee_org.id
+  client_ip_resolution_config {
+    header_index_algorithm {
+      ip_header_name = "X-Forwarded-For"
+      ip_header_index = 1
+    }
+  }
 }
 ```
 
@@ -82,9 +88,6 @@ The following arguments are supported:
   (Required)
   The Apigee Organization associated with the Apigee environment,
   in the format `organizations/{{org_name}}`.
-
-
-- - -
 
 
 * `display_name` -
@@ -134,6 +137,12 @@ The following arguments are supported:
   Key-value pairs that may be used for customizing the environment.
   Structure is [documented below](#nested_properties).
 
+* `client_ip_resolution_config` -
+  (Optional)
+  The algorithm to resolve IP. This will affect Analytics, API Security, and other features that use the client ip. To remove a client ip resolution config, update the field to an empty value. Example: '{ "clientIpResolutionConfig" = {} }' For more information, see: https://cloud.google.com/apigee/docs/api-platform/system-administration/client-ip-resolution
+  Structure is [documented below](#nested_client_ip_resolution_config).
+
+
 
 <a name="nested_node_config"></a>The `node_config` block supports:
 
@@ -171,6 +180,24 @@ The following arguments are supported:
 * `value` -
   (Optional)
   The property value.
+
+<a name="nested_client_ip_resolution_config"></a>The `client_ip_resolution_config` block supports:
+
+* `header_index_algorithm` -
+  (Optional)
+  Resolves the client ip based on a custom header.
+  Structure is [documented below](#nested_client_ip_resolution_config_header_index_algorithm).
+
+
+<a name="nested_client_ip_resolution_config_header_index_algorithm"></a>The `header_index_algorithm` block supports:
+
+* `ip_header_name` -
+  (Required)
+  The name of the header to extract the client ip from. We are currently only supporting the X-Forwarded-For header.
+
+* `ip_header_index` -
+  (Required)
+  The index of the ip in the header. Positive indices 0, 1, 2, 3 chooses indices from the left (first ips). Negative indices -1, -2, -3 chooses indices from the right (last ips).
 
 ## Attributes Reference
 

@@ -176,9 +176,6 @@ The following arguments are supported:
   The human-readable name of the test case, unique within the agent. Limit of 200 characters.
 
 
-- - -
-
-
 * `tags` -
   (Optional)
   Tags are short descriptions that users may apply to test cases for organizational and filtering purposes.
@@ -202,6 +199,7 @@ The following arguments are supported:
   (Optional)
   The agent to create the test case for.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>.
+
 
 
 <a name="nested_test_config"></a>The `test_config` block supports:

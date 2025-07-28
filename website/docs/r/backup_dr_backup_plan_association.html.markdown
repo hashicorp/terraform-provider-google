@@ -117,10 +117,14 @@ The following arguments are supported:
 * `backup_plan` -
   (Required)
   The BP with which resource needs to be created
+  Note:
+  - A Backup Plan configured for 'compute.googleapis.com/Instance', can only protect instance type resources.
+  - A Backup Plan configured for 'compute.googleapis.com/Disk' can be used to protect both standard Disks and Regional Disks resources.
 
 * `resource_type` -
   (Required)
-  The resource type of workload on which backupplan is applied
+  The resource type of workload on which backupplan is applied.
+  Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", and "compute.googleapis.com/RegionDisk"
 
 * `location` -
   (Required)
@@ -131,11 +135,9 @@ The following arguments are supported:
   The id of backupplan association
 
 
-- - -
-
-
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference
@@ -196,6 +198,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 60 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 60 minutes.
 
 ## Import
