@@ -53,6 +53,15 @@ func TestAccManagedKafkaCluster_update(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cluster_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				Config: testAccManagedKafkaCluster_updateTlsConfigToEmpty(context),
+			},
+			{
+				ResourceName:            "google_managed_kafka_cluster.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster_id", "labels", "location", "terraform_labels"},
+			},
 		},
 	})
 }
@@ -104,6 +113,57 @@ resource "google_managed_kafka_cluster" "example" {
   }
   rebalance_config {
     mode = "AUTO_REBALANCE_ON_SCALE_UP"
+  }
+  tls_config {
+    trust_config {
+      cas_configs {
+        ca_pool = google_privateca_ca_pool.ca_pool.id
+      }
+    }
+    ssl_principal_mapping_rules = "RULE:pattern/replacement/L,DEFAULT"
+  }
+  labels = {
+    key = "new-value"
+  }
+}
+
+resource "google_privateca_ca_pool" "ca_pool" {
+  name = "tf-test-pool-%{random_suffix}"
+  location = "us-central1"
+  tier = "ENTERPRISE"
+  publishing_options {
+    publish_ca_cert = true
+    publish_crl = true
+  }
+}
+
+data "google_project" "project" {
+}
+`, context)
+}
+
+func testAccManagedKafkaCluster_updateTlsConfigToEmpty(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_managed_kafka_cluster" "example" {
+  cluster_id = "tf-test-my-cluster%{random_suffix}"
+  location = "us-central1"
+  capacity_config {
+    vcpu_count = 4
+    memory_bytes = 4512135122
+  }
+  gcp_config {
+    access_config {
+      network_configs {
+        subnet = "projects/${data.google_project.project.number}/regions/us-central1/subnetworks/default"
+      }
+    }
+  }
+  rebalance_config {
+    mode = "AUTO_REBALANCE_ON_SCALE_UP"
+  }
+  tls_config {
+    trust_config {
+    }
   }
   labels = {
     key = "new-value"
