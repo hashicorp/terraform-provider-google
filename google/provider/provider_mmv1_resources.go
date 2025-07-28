@@ -184,6 +184,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_alloydb_supported_database_flags":                    alloydb.DataSourceAlloydbSupportedDatabaseFlags(),
 	"google_alloydb_instance":                                    alloydb.DataSourceAlloydbDatabaseInstance(),
 	"google_artifact_registry_docker_image":                      artifactregistry.DataSourceArtifactRegistryDockerImage(),
+	"google_artifact_registry_docker_images":                     artifactregistry.DataSourceArtifactRegistryDockerImages(),
 	"google_artifact_registry_locations":                         artifactregistry.DataSourceGoogleArtifactRegistryLocations(),
 	"google_artifact_registry_repository":                        artifactregistry.DataSourceArtifactRegistryRepository(),
 	"google_apphub_discovered_workload":                          apphub.DataSourceApphubDiscoveredWorkload(),
