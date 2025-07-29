@@ -135,7 +135,7 @@ resource "google_storage_bucket" "hns-enabled" {
 
 The following arguments are supported:
 
-* `name` - (Required) The name of the bucket.
+* `name` - (Required) The name of the bucket. Bucket names must be in lowercase and no more than 63 characters long. You can find the complete list of bucket naming rules [here](https://cloud.google.com/storage/docs/buckets#naming).
 
 * `location` - (Required) The [GCS location](https://cloud.google.com/storage/docs/bucket-locations).
 

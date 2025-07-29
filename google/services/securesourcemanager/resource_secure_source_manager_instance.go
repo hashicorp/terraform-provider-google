@@ -208,7 +208,8 @@ If unset, defaults to the Google OIDC IdP.`,
 				Optional: true,
 				Description: `The deletion policy for the instance. Setting 'ABANDON' allows the resource
 to be abandoned, rather than deleted. Setting 'DELETE' deletes the resource
-and all its contents. Setting 'PREVENT' prevents the resource from being deleted.
+and all its contents. Setting 'PREVENT' prevents the resource from accidental
+deletion by erroring out during plan.
 Default is 'DELETE'.  Possible values are:
   * DELETE
   * PREVENT
@@ -441,7 +442,7 @@ func resourceSecureSourceManagerInstanceDelete(d *schema.ResourceData, meta inte
 	if deletionPolicy == "ABANDON" {
 		return nil
 	} else if deletionPolicy == "PREVENT" {
-		return fmt.Errorf(`cannot destroy instance without setting deletion_policy="DELETE"`)
+		return fmt.Errorf(`cannot destroy resource without setting deletion_policy="DELETE"`)
 	}
 
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())

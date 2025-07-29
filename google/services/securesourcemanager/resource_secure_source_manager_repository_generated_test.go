@@ -35,7 +35,6 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryBasicExam
 
 	context := map[string]interface{}{
 		"deletion_policy": "DELETE",
-		"prevent_destroy": false,
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 
@@ -73,9 +72,7 @@ resource "google_secure_source_manager_repository" "default" {
     instance = google_secure_source_manager_instance.instance.name
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 `, context)
 }
@@ -85,7 +82,6 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryInitialCo
 
 	context := map[string]interface{}{
 		"deletion_policy": "DELETE",
-		"prevent_destroy": false,
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 
@@ -131,9 +127,7 @@ resource "google_secure_source_manager_repository" "default" {
     }
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 `, context)
 }

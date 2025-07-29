@@ -247,10 +247,44 @@ See https://cloud.google.com/about/locations for full listing of possible Cloud 
 					},
 				},
 			},
+			"commercial_info": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Commercial info contains the information about the commercial data products associated with the listing.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cloud_marketplace": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Details of the Marketplace Data Product associated with the Listing.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"commercial_state": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: `Commercial state of the Marketplace Data Product.
+Possible values: COMMERCIAL_STATE_UNSPECIFIED, ONBOARDING, ACTIVE`,
+									},
+									"service": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Resource name of the commercial service associated with the Marketplace Data Product. e.g. example.com`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The resource name of the listing. e.g. "projects/myproject/locations/US/dataExchanges/123/listings/456"`,
+			},
+			"delete_commercial": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If the listing is commercial then this field must be set to true, otherwise a failure is thrown. This acts as a safety guard to avoid deleting commercial listings accidentally.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -434,6 +468,7 @@ func resourceBigqueryAnalyticsHubListingRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigqueryAnalyticsHubListing %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Listing: %s", err)
 	}
@@ -478,6 +513,9 @@ func resourceBigqueryAnalyticsHubListingRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading Listing: %s", err)
 	}
 	if err := d.Set("log_linked_dataset_query_user_email", flattenBigqueryAnalyticsHubListingLogLinkedDatasetQueryUserEmail(res["logLinkedDatasetQueryUserEmail"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err := d.Set("commercial_info", flattenBigqueryAnalyticsHubListingCommercialInfo(res["commercialInfo"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Listing: %s", err)
 	}
 
@@ -712,6 +750,10 @@ func resourceBigqueryAnalyticsHubListingDelete(d *schema.ResourceData, meta inte
 	}
 
 	headers := make(http.Header)
+	deleteCommercial := d.Get("delete_commercial")
+	if deleteCommercial != nil {
+		url = url + "?deleteCommercial=" + fmt.Sprintf("%v", deleteCommercial)
+	}
 
 	log.Printf("[DEBUG] Deleting Listing %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -748,6 +790,8 @@ func resourceBigqueryAnalyticsHubListingImport(d *schema.ResourceData, meta inte
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -927,6 +971,42 @@ func flattenBigqueryAnalyticsHubListingRestrictedExportConfigRestrictQueryResult
 }
 
 func flattenBigqueryAnalyticsHubListingLogLinkedDatasetQueryUserEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingCommercialInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["cloud_marketplace"] =
+		flattenBigqueryAnalyticsHubListingCommercialInfoCloudMarketplace(original["cloudMarketplace"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryAnalyticsHubListingCommercialInfoCloudMarketplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service"] =
+		flattenBigqueryAnalyticsHubListingCommercialInfoCloudMarketplaceService(original["service"], d, config)
+	transformed["commercial_state"] =
+		flattenBigqueryAnalyticsHubListingCommercialInfoCloudMarketplaceCommercialState(original["commercialState"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryAnalyticsHubListingCommercialInfoCloudMarketplaceService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingCommercialInfoCloudMarketplaceCommercialState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

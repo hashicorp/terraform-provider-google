@@ -570,11 +570,10 @@ Example: projects/{project}/locations/{location}/backupCollections/{collection}`
 				Description: `Output only. Creation timestamp of the instance.`,
 			},
 			"discovery_endpoints": {
-				Type:       schema.TypeList,
-				Computed:   true,
-				Deprecated: "`discovery_endpoints` is deprecated  Use `endpoints` instead.",
-				Description: `Output only. Endpoints clients can connect to the instance through. Currently only one
-discovery endpoint is supported.`,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Deprecated:  "This field is deprecated. As a result it will not be populated if the connections are created using `desired_auto_created_endpoints` parameter or `google_memorystore_instance_desired_user_created_endpoints` resource. Instead of this parameter, for discovery, use `endpoints.connections.pscConnection` and `endpoints.connections.pscAutoConnection` with `connectionType` CONNECTION_TYPE_DISCOVERY.",
+				Description: `Deprecated. Output only. Endpoints clients can connect to the instance through.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"address": {
@@ -3393,7 +3392,7 @@ func resourceMemorystoreInstanceDecoder(d *schema.ResourceData, meta interface{}
 
 	// Only instances with SERVER_AUTHENTICATION mode have certificate authority set
 	if v, ok := res["transitEncryptionMode"].(string); ok && v == "SERVER_AUTHENTICATION" {
-		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{region}}/instances/{{instance_id}}/certificateAuthority")
+		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}/certificateAuthority")
 		if err != nil {
 			return nil, err
 		}

@@ -44,17 +44,16 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "my-basic-instance"
     
     # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
+    deletion_policy = "PREVENT"
 }
 
 resource "google_secure_source_manager_repository" "repository" {
     repository_id = "my-basic-repository"
     location = google_secure_source_manager_instance.instance.location
     instance = google_secure_source_manager_instance.instance.name
+
     # Prevent accidental deletions.
-    lifecycle {
-        prevent_destroy = "true"
-    }
+    deletion_policy = "PREVENT"
 }
 
 resource "google_secure_source_manager_branch_rule" "basic" {
@@ -79,17 +78,16 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "my-initial-instance"
 
     # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
+    deletion_policy = "PREVENT"
 }
 
 resource "google_secure_source_manager_repository" "repository" {
     repository_id = "my-initial-repository"
     instance = google_secure_source_manager_instance.instance.name
     location = google_secure_source_manager_instance.instance.location
+
     # Prevent accidental deletions.
-    lifecycle {
-        prevent_destroy = "true"
-    }
+    deletion_policy = "PREVENT"
 }
 
 resource "google_secure_source_manager_branch_rule" "default" {

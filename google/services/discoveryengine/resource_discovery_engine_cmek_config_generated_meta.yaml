@@ -1,0 +1,21 @@
+resource: 'google_discovery_engine_cmek_config'
+generation_type: 'mmv1'
+source_file: 'products/discoveryengine/CmekConfig.yaml'
+api_service_name: 'discoveryengine.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'CmekConfig'
+fields:
+  - field: 'cmek_config_id'
+    provider_only: true
+  - field: 'is_default'
+  - field: 'kms_key'
+  - field: 'kms_key_version'
+  - field: 'last_rotation_timestamp_micros'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'notebooklm_state'
+  - field: 'set_default'
+    provider_only: true
+  - field: 'single_region_keys.kms_key'
+  - field: 'state'

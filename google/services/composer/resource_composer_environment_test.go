@@ -132,7 +132,7 @@ func TestAccComposerEnvironment_withEncryptionConfigComposer2(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -166,7 +166,7 @@ func TestAccComposerEnvironment_withMaintenanceWindow(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -237,7 +237,7 @@ func TestAccComposerEnvironment_ComposerV2(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -274,7 +274,7 @@ func TestAccComposerEnvironment_UpdateComposerV2ImageVersion(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -311,7 +311,7 @@ func TestAccComposerEnvironment_UpdateComposerV2ResilienceMode(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -345,7 +345,7 @@ func TestAccComposerEnvironment_ComposerV2HighResilience(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -382,7 +382,7 @@ func TestAccComposerEnvironment_UpdateComposerV2WithTriggerer(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -419,7 +419,7 @@ func TestAccComposerEnvironment_UpdateComposerV2(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -453,7 +453,7 @@ func TestAccComposerEnvironment_composerV2PrivateServiceConnect(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -487,7 +487,7 @@ func TestAccComposerEnvironment_composerV2MasterAuthNetworks(t *testing.T) {
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -524,7 +524,7 @@ func TestAccComposerEnvironment_composerV2MasterAuthNetworksUpdate(t *testing.T)
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
-			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,

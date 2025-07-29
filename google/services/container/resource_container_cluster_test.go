@@ -258,15 +258,6 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
-			{
-				Config: testAccContainerCluster_withInternalLoadBalancer(pid, clusterName, networkName, subnetworkName),
-			},
-			{
-				ResourceName:            "google_container_cluster.primary",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
-			},
 		},
 	})
 }
@@ -6452,9 +6443,6 @@ resource "google_container_cluster" "primary" {
     gcp_filestore_csi_driver_config {
       enabled = false
     }
-    cloudrun_config {
-      disabled = true
-    }
     dns_cache_config {
       enabled = false
     }
@@ -6477,6 +6465,9 @@ resource "google_container_cluster" "primary" {
       enabled = false
     }
 	parallelstore_csi_driver_config {
+      enabled = false
+    }
+    lustre_csi_driver_config {
       enabled = false
     }
   }
@@ -6518,9 +6509,6 @@ resource "google_container_cluster" "primary" {
     gcp_filestore_csi_driver_config {
       enabled = true
     }
-    cloudrun_config {
-      disabled = false
-    }
     dns_cache_config {
       enabled = true
     }
@@ -6548,50 +6536,14 @@ resource "google_container_cluster" "primary" {
         enabled = true
       }
     }
-	parallelstore_csi_driver_config {
+    parallelstore_csi_driver_config {
       enabled = true
     }
+    lustre_csi_driver_config {
+      enabled = true
+      enable_legacy_lustre_port=true
+    }
 	}
-  network    = "%s"
-  subnetwork = "%s"
-
-  deletion_protection = false
-}
-`, projectID, clusterName, networkName, subnetworkName)
-}
-
-func testAccContainerCluster_withInternalLoadBalancer(projectID string, clusterName, networkName, subnetworkName string) string {
-	return fmt.Sprintf(`
-data "google_project" "project" {
-  project_id = "%s"
-}
-
-resource "google_container_cluster" "primary" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 1
-
-  min_master_version = "latest"
-
-  workload_identity_config {
-    workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
-  }
-
-  addons_config {
-    http_load_balancing {
-      disabled = false
-    }
-    horizontal_pod_autoscaling {
-      disabled = false
-    }
-    network_policy_config {
-      disabled = false
-    }
-    cloudrun_config {
-      disabled           = false
-      load_balancer_type = "LOAD_BALANCER_TYPE_INTERNAL"
-    }
-  }
   network    = "%s"
   subnetwork = "%s"
 

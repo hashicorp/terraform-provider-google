@@ -241,7 +241,7 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	if databaseInstance.Settings.ActivationPolicy != "ALWAYS" {
+	if databaseInstance.Settings != nil && databaseInstance.Settings.ActivationPolicy != "ALWAYS" {
 		return nil
 	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -449,7 +449,6 @@ func resourceSQLDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*sch
 		"^instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)$",
 		"^(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)$",
 		"^(?P<instance>[^/]+)/(?P<name>[^/]+)$",
-		"^(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
