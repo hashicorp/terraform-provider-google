@@ -1,0 +1,3 @@
+```release-note:enhancement
+looker: Added `LOOKER_CORE_TRIAL_STANDARD`, `LOOKER_CORE_TRIAL_ENTERPRISE`,  and `LOOKER_CORE_TRIAL_EMBED` editions to  `google_looker_instance` resource.
+```
