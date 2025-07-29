@@ -482,6 +482,14 @@ func TestAccWorkbenchInstance_workbenchInstanceEucExample(t *testing.T) {
 
 func testAccWorkbenchInstance_workbenchInstanceEucExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_service_account_iam_binding" "act_as_permission" {
+  service_account_id = "projects/%{project_id}/serviceAccounts/%{project_number}-compute@developer.gserviceaccount.com"
+  role               = "roles/iam.serviceAccountUser"
+  members = [
+    "user:example@example.com",
+  ]
+}
+
 resource "google_workbench_instance" "instance" {
   name = "tf-test-workbench-instance%{random_suffix}"
   location = "us-central1-a"
@@ -497,6 +505,10 @@ resource "google_workbench_instance" "instance" {
   instance_owners  = ["example@example.com"]
 
   enable_managed_euc = "true"
+
+  depends_on = [
+       google_service_account_iam_binding.act_as_permission,
+  ]
 }
 `, context)
 }
