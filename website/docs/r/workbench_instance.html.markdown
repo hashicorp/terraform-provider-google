@@ -322,6 +322,14 @@ resource "google_workbench_instance" "instance" {
 
 
 ```hcl
+resource "google_service_account_iam_binding" "act_as_permission" {
+  service_account_id = "projects/my-project-name/serviceAccounts/1111111111111-compute@developer.gserviceaccount.com"
+  role               = "roles/iam.serviceAccountUser"
+  members = [
+    "user:example@example.com",
+  ]
+}
+
 resource "google_workbench_instance" "instance" {
   name = "workbench-instance"
   location = "us-central1-a"
@@ -337,6 +345,10 @@ resource "google_workbench_instance" "instance" {
   instance_owners  = ["example@example.com"]
 
   enable_managed_euc = "true"
+
+  depends_on = [
+       google_service_account_iam_binding.act_as_permission,
+  ]
 }
 ```
 
