@@ -1,0 +1,11 @@
+```release-note:new-resource
+`google_iam_workforce_pool_iam_member`
+```
+
+```release-note:new-resource
+`google_iam_workforce_pool_iam_policy`
+```
+
+```release-note:new-resource
+`google_iam_workforce_pool_iam_binding`
+```
