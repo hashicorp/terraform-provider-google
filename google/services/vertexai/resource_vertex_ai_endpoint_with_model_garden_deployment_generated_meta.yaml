@@ -22,6 +22,8 @@ fields:
   - field: 'deploy_config.dedicated_resources.spot'
   - field: 'deploy_config.fast_tryout_enabled'
   - field: 'deploy_config.system_labels'
+  - field: 'deployed_model_display_name'
+  - field: 'deployed_model_id'
   - field: 'endpoint'
     provider_only: true
   - field: 'endpoint_config.dedicated_endpoint_enabled'
