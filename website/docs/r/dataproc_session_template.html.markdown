@@ -48,8 +48,11 @@ resource "google_dataproc_session_template" "example_session_templates_jupyter" 
     environment_config {
       execution_config {
         subnetwork_uri = "default"
-        ttl            = "3600s"
+        idle_ttl       = "3600s"
         network_tags   = ["tag1"]
+        authentication_config {
+          user_workload_authentication_type = "END_USER_CREDENTIALS"
+        }
       }
     }
 
@@ -88,6 +91,9 @@ resource "google_dataproc_session_template" "dataproc_session_templates_jupyter_
 	subnetwork_uri = "default"
         service_account = "${data.google_project.project.number}-compute@developer.gserviceaccount.com"
         staging_bucket = google_storage_bucket.bucket.name
+        authentication_config {
+          user_workload_authentication_type = "SERVICE_ACCOUNT"
+        }
       }
       peripherals_config {
         metastore_service = google_dataproc_metastore_service.ms.name
@@ -291,6 +297,14 @@ The following arguments are supported:
   (Optional)
   The Cloud KMS key to use for encryption.
 
+* `idle_ttl` -
+  (Optional)
+  The duration to keep the session alive while it's idling.
+  Exceeding this threshold causes the session to terminate. Minimum value is 10 minutes; maximum value is 14 day.
+  Defaults to 1 hour if not set. If both ttl and idleTtl are specified for an interactive session, the conditions
+  are treated as OR conditions: the workload will be terminated when it has been idle for idleTtl or when ttl has
+  been exceeded, whichever occurs first.
+
 * `ttl` -
   (Optional)
   The duration after which the workload will be terminated.
@@ -313,6 +327,19 @@ The following arguments are supported:
 * `subnetwork_uri` -
   (Optional)
   Subnetwork configuration for workload execution.
+
+* `authentication_config` -
+  (Optional)
+  Authentication configuration for a workload is used to set the default identity for the workload execution.
+  Structure is [documented below](#nested_environment_config_execution_config_authentication_config).
+
+
+<a name="nested_environment_config_execution_config_authentication_config"></a>The `authentication_config` block supports:
+
+* `user_workload_authentication_type` -
+  (Optional)
+  Authentication type for the user workload running in containers.
+  Possible values are: `SERVICE_ACCOUNT`, `END_USER_CREDENTIALS`.
 
 <a name="nested_environment_config_peripherals_config"></a>The `peripherals_config` block supports:
 

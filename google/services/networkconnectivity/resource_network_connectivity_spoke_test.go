@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
@@ -130,6 +131,11 @@ func TestAccNetworkConnectivitySpoke_RouterApplianceHandWritten(t *testing.T) {
 			},
 			{
 				Config: testAccNetworkConnectivitySpoke_RouterApplianceHandWrittenUpdate1(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_connectivity_spoke.primary", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_network_connectivity_spoke.primary",
@@ -372,6 +378,27 @@ resource "google_compute_instance" "router-instance1" {
   }
 }
 
+resource "google_compute_instance" "router-instance2" {
+  name         = "tf-test-router-instance2%{random_suffix}"
+  machine_type = "e2-medium"
+  can_ip_forward = true
+  zone         = "%{zone}"
+
+  boot_disk {
+    initialize_params {
+      image = "projects/debian-cloud/global/images/debian-10-buster-v20210817"
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.subnetwork.name
+    network_ip = "10.0.0.3"
+    access_config {
+        network_tier = "PREMIUM"
+    }
+  }
+}
+
 resource "google_network_connectivity_hub" "basic_hub" {
   name        = "tf-test-hub%{random_suffix}"
   description = "A sample hub"
@@ -435,6 +462,27 @@ resource "google_compute_instance" "router-instance1" {
   }
 }
 
+resource "google_compute_instance" "router-instance2" {
+  name         = "tf-test-router-instance2%{random_suffix}"
+  machine_type = "e2-medium"
+  can_ip_forward = true
+  zone         = "%{zone}"
+
+  boot_disk {
+    initialize_params {
+      image = "projects/debian-cloud/global/images/debian-10-buster-v20210817"
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.subnetwork.name
+    network_ip = "10.0.0.3"
+    access_config {
+        network_tier = "PREMIUM"
+    }
+  }
+}
+
 resource "google_network_connectivity_hub" "basic_hub" {
   name        = "tf-test-hub%{random_suffix}"
   description = "A sample hub"
@@ -456,6 +504,7 @@ resource "google_network_connectivity_spoke" "primary" {
         virtual_machine = google_compute_instance.router-instance1.self_link
         ip_address = "10.0.0.2"
     }
+    include_import_ranges = ["ALL_IPV4_RANGES"]
     site_to_site_data_transfer = true
   }
 }
@@ -532,7 +581,7 @@ resource "google_network_connectivity_spoke" "primary" {
   location = "%{region}"
   description = "An UPDATED sample spoke with two linked routher appliance instances"
   labels = {
-    label-two = "value-two"
+    label-two = "value-three"
   }
   hub = google_network_connectivity_hub.basic_hub.id
   linked_router_appliance_instances {

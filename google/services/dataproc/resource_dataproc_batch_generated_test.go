@@ -142,6 +142,9 @@ resource "google_dataproc_batch" "example_batch_spark" {
         network_uri = "default"
         service_account = "${data.google_project.project.number}-compute@developer.gserviceaccount.com"
         staging_bucket = google_storage_bucket.bucket.name
+        authentication_config {
+          user_workload_authentication_type = "SERVICE_ACCOUNT"
+        }
       }
       peripherals_config {
         metastore_service = google_dataproc_metastore_service.ms.name

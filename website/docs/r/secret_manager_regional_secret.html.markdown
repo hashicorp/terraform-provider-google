@@ -293,6 +293,12 @@ The following arguments are supported:
   on calling destroy instead the version goes to a disabled state and
   the actual destruction happens after this TTL expires. It must be atleast 24h.
 
+* `tags` -
+  (Optional)
+  A map of resource manager tags.
+  Resource manager tag keys and values have the same definition as resource manager tags.
+  Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/{tag_value_id}.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

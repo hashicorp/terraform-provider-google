@@ -11,6 +11,8 @@ fields:
   - field: 'creator'
   - field: 'effective_labels'
     provider_only: true
+  - field: 'environment_config.execution_config.authentication_config.user_workload_authentication_type'
+  - field: 'environment_config.execution_config.idle_ttl'
   - field: 'environment_config.execution_config.kms_key'
   - field: 'environment_config.execution_config.network_tags'
   - field: 'environment_config.execution_config.service_account'

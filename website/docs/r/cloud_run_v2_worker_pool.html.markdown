@@ -225,6 +225,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
     node_selector {
       accelerator = "nvidia-l4"
     }
+    gpu_zonal_redundancy_disabled = true
   }
 }
 ```

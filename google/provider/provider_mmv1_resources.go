@@ -397,6 +397,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_storage_control_folder_intelligence_config":          storagecontrol.DataSourceGoogleStorageControlFolderIntelligenceConfig(),
 	"google_storage_control_organization_intelligence_config":    storagecontrol.DataSourceGoogleStorageControlOrganizationIntelligenceConfig(),
 	"google_storage_control_project_intelligence_config":         storagecontrol.DataSourceGoogleStorageControlProjectIntelligenceConfig(),
+	"google_storage_insights_dataset_config":                     storageinsights.DataSourceGoogleStorageInsightsDatasetConfig(),
 	"google_storage_object_signed_url":                           storage.DataSourceGoogleSignedUrl(),
 	"google_storage_project_service_account":                     storage.DataSourceGoogleStorageProjectServiceAccount(),
 	"google_storage_transfer_project_service_account":            storagetransfer.DataSourceGoogleStorageTransferProjectServiceAccount(),
@@ -551,9 +552,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 634
+// Generated resources: 641
 // Generated IAM resources: 309
-// Total generated resources: 943
+// Total generated resources: 950
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -584,6 +585,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_alloydb_instance":                                                    alloydb.ResourceAlloydbInstance(),
 	"google_alloydb_user":                                                        alloydb.ResourceAlloydbUser(),
 	"google_apigee_addons_config":                                                apigee.ResourceApigeeAddonsConfig(),
+	"google_apigee_api_product":                                                  apigee.ResourceApigeeApiProduct(),
 	"google_apigee_app_group":                                                    apigee.ResourceApigeeAppGroup(),
 	"google_apigee_control_plane_access":                                         apigee.ResourceApigeeControlPlaneAccess(),
 	"google_apigee_developer":                                                    apigee.ResourceApigeeDeveloper(),
@@ -605,6 +607,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_apigee_keystores_aliases_self_signed_cert":                           apigee.ResourceApigeeKeystoresAliasesSelfSignedCert(),
 	"google_apigee_nat_address":                                                  apigee.ResourceApigeeNatAddress(),
 	"google_apigee_organization":                                                 apigee.ResourceApigeeOrganization(),
+	"google_apigee_security_action":                                              apigee.ResourceApigeeSecurityAction(),
 	"google_apigee_security_monitoring_condition":                                apigee.ResourceApigeeSecurityMonitoringCondition(),
 	"google_apigee_security_profile_v2":                                          apigee.ResourceApigeeSecurityProfileV2(),
 	"google_apigee_sync_authorization":                                           apigee.ResourceApigeeSyncAuthorization(),
@@ -1019,7 +1022,9 @@ var generatedResources = map[string]*schema.Resource{
 	"google_dialogflow_cx_version":                                               dialogflowcx.ResourceDialogflowCXVersion(),
 	"google_dialogflow_cx_webhook":                                               dialogflowcx.ResourceDialogflowCXWebhook(),
 	"google_discovery_engine_chat_engine":                                        discoveryengine.ResourceDiscoveryEngineChatEngine(),
+	"google_discovery_engine_cmek_config":                                        discoveryengine.ResourceDiscoveryEngineCmekConfig(),
 	"google_discovery_engine_data_store":                                         discoveryengine.ResourceDiscoveryEngineDataStore(),
+	"google_discovery_engine_recommendation_engine":                              discoveryengine.ResourceDiscoveryEngineRecommendationEngine(),
 	"google_discovery_engine_schema":                                             discoveryengine.ResourceDiscoveryEngineSchema(),
 	"google_discovery_engine_search_engine":                                      discoveryengine.ResourceDiscoveryEngineSearchEngine(),
 	"google_discovery_engine_sitemap":                                            discoveryengine.ResourceDiscoveryEngineSitemap(),
@@ -1301,6 +1306,8 @@ var generatedResources = map[string]*schema.Resource{
 	"google_oracle_database_autonomous_database":                                 oracledatabase.ResourceOracleDatabaseAutonomousDatabase(),
 	"google_oracle_database_cloud_exadata_infrastructure":                        oracledatabase.ResourceOracleDatabaseCloudExadataInfrastructure(),
 	"google_oracle_database_cloud_vm_cluster":                                    oracledatabase.ResourceOracleDatabaseCloudVmCluster(),
+	"google_oracle_database_odb_network":                                         oracledatabase.ResourceOracleDatabaseOdbNetwork(),
+	"google_oracle_database_odb_subnet":                                          oracledatabase.ResourceOracleDatabaseOdbSubnet(),
 	"google_org_policy_custom_constraint":                                        orgpolicy.ResourceOrgPolicyCustomConstraint(),
 	"google_org_policy_policy":                                                   orgpolicy.ResourceOrgPolicyPolicy(),
 	"google_os_config_patch_deployment":                                          osconfig.ResourceOSConfigPatchDeployment(),
@@ -1425,6 +1432,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_storage_control_folder_intelligence_config":                          storagecontrol.ResourceStorageControlFolderIntelligenceConfig(),
 	"google_storage_control_organization_intelligence_config":                    storagecontrol.ResourceStorageControlOrganizationIntelligenceConfig(),
 	"google_storage_control_project_intelligence_config":                         storagecontrol.ResourceStorageControlProjectIntelligenceConfig(),
+	"google_storage_insights_dataset_config":                                     storageinsights.ResourceStorageInsightsDatasetConfig(),
 	"google_storage_insights_report_config":                                      storageinsights.ResourceStorageInsightsReportConfig(),
 	"google_storage_transfer_agent_pool":                                         storagetransfer.ResourceStorageTransferAgentPool(),
 	"google_tags_tag_binding":                                                    tags.ResourceTagsTagBinding(),

@@ -34,6 +34,17 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
+func resourceDataStreamStreamCreateWithoutValidationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// If the old value was "false" and the new value is now unset (empty string),
+	// return true to suppress the diff.
+	if (old == "" && new == "false") || (old == "false" && new == "") {
+		return true
+	}
+
+	// Otherwise, do not suppress the diff.
+	return false
+}
+
 func ResourceDatastreamConnectionProfile() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDatastreamConnectionProfileCreate,
@@ -85,11 +96,12 @@ func ResourceDatastreamConnectionProfile() *schema.Resource {
 				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile", "sql_server_profile"},
 			},
 			"create_without_validation": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Create the connection profile without validating it.`,
-				Default:     false,
+				Type:             schema.TypeBool,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: resourceDataStreamStreamCreateWithoutValidationDiffSuppress,
+				Description:      `Create the connection profile without validating it.`,
+				Default:          false,
 			},
 			"forward_ssh_connectivity": {
 				Type:        schema.TypeList,
@@ -502,7 +514,7 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 		obj["labels"] = labelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles?connectionProfileId={{connection_profile_id}}&force={{create_without_validation}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles?connectionProfileId={{connection_profile_id}}")
 	if err != nil {
 		return err
 	}
@@ -522,6 +534,11 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 	}
 
 	headers := make(http.Header)
+	if d.Get("create_without_validation").(bool) {
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"force": "true"})
+	} else {
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"force": "false"})
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",

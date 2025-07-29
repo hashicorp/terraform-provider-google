@@ -52,7 +52,7 @@ func TestAccDatastreamConnectionProfile_update(t *testing.T) {
 				ResourceName:            "google_datastream_connection_profile.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"connection_profile_id", "location"},
+				ImportStateVerifyIgnore: []string{"create_without_validation", "connection_profile_id", "location"},
 			},
 			{
 				Config: testAccDatastreamConnectionProfile_update2(context, true),
@@ -61,7 +61,7 @@ func TestAccDatastreamConnectionProfile_update(t *testing.T) {
 				ResourceName:            "google_datastream_connection_profile.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"connection_profile_id", "location", "postgresql_profile.0.password"},
+				ImportStateVerifyIgnore: []string{"create_without_validation", "connection_profile_id", "location", "postgresql_profile.0.password"},
 			},
 			{
 				// Disable prevent_destroy
@@ -74,7 +74,7 @@ func TestAccDatastreamConnectionProfile_update(t *testing.T) {
 				ResourceName:            "google_datastream_connection_profile.mysql_con_profile",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"connection_profile_id", "location", "mysql_profile.0.password"},
+				ImportStateVerifyIgnore: []string{"create_without_validation", "connection_profile_id", "location", "mysql_profile.0.password"},
 			},
 			{
 				// run once more to update the password. it should update it in-place
@@ -84,7 +84,7 @@ func TestAccDatastreamConnectionProfile_update(t *testing.T) {
 				ResourceName:            "google_datastream_connection_profile.mysql_con_profile",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"connection_profile_id", "location", "mysql_profile.0.password"},
+				ImportStateVerifyIgnore: []string{"create_without_validation", "connection_profile_id", "location", "mysql_profile.0.password"},
 			},
 			{
 				// Disable prevent_destroy

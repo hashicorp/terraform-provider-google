@@ -401,7 +401,7 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 		t.Fatalf("Unable to bootstrap KMS key. CryptoKey is nil!")
 	}
 
-	// TODO(b/372305432): Use the pagination properly.
+	// TODO: b/372305432 Use the pagination properly.
 	ckvResp, err := kmsClient.Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions.List(keyName).Do()
 	if err != nil {
 		t.Fatalf("Unable to list cryptoKeyVersions: %v", err)

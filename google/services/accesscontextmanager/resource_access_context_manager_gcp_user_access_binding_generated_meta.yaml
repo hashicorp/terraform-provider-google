@@ -18,6 +18,7 @@ fields:
   - field: 'scoped_access_settings.active_settings.session_settings.use_oidc_max_age'
   - field: 'scoped_access_settings.dry_run_settings.access_levels'
   - field: 'scoped_access_settings.scope.client_scope.restricted_client_application.client_id'
+  - field: 'scoped_access_settings.scope.client_scope.restricted_client_application.name'
   - field: 'session_settings.max_inactivity'
   - field: 'session_settings.session_length'
   - field: 'session_settings.session_length_enabled'

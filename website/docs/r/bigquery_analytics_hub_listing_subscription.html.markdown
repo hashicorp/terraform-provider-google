@@ -195,6 +195,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `log_linked_dataset_query_user_email` -
   Output only. By default, false. If true, the Subscriber agreed to the email sharing mandate that is enabled for Listing.
 
+* `commercial_info` -
+  Commercial info metadata for this subscription. This is set if this is a commercial subscription i.e. if this subscription was created from subscribing to a commercial listing.
+  Structure is [documented below](#nested_commercial_info).
+
 
 <a name="nested_linked_dataset_map"></a>The `linked_dataset_map` block contains:
 
@@ -217,6 +221,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `linked_dataset` -
   (Output)
   Output only. Name of the linked dataset, e.g. projects/subscriberproject/datasets/linkedDataset
+
+<a name="nested_commercial_info"></a>The `commercial_info` block contains:
+
+* `cloud_marketplace` -
+  (Output)
+  Cloud Marketplace commercial metadata for this subscription.
+  Structure is [documented below](#nested_commercial_info_cloud_marketplace).
+
+
+<a name="nested_commercial_info_cloud_marketplace"></a>The `cloud_marketplace` block contains:
+
+* `order` -
+  (Output)
+  Resource name of the Marketplace Order.
 
 ## Timeouts
 

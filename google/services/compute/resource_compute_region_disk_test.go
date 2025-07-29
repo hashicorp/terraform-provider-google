@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -100,6 +101,12 @@ func TestAccComputeRegionDisk_hyperdisk(t *testing.T) {
 			},
 			{
 				Config: testAccComputeRegionDisk_hyperdiskUpdated(diskName, "name"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						// Check that the update is done in-place
+						plancheck.ExpectResourceAction("google_compute_region_disk.regiondisk", plancheck.ResourceActionUpdate),
+					},
+				},
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_compute_region_disk.regiondisk", "access_mode", "READ_WRITE_SINGLE"),
 					resource.TestCheckResourceAttr("google_compute_region_disk.regiondisk", "provisioned_iops", "20000"),

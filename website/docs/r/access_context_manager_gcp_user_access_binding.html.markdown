@@ -164,7 +164,7 @@ The following arguments are supported:
 
 * `restricted_client_application` -
   (Optional)
-  Optional. The application that is subject to this binding's scope.
+  Optional. The application that is subject to this binding's scope. Only one of clientId or name should be specified.
   Structure is [documented below](#nested_scoped_access_settings_scoped_access_settings_scope_client_scope_restricted_client_application).
 
 
@@ -173,6 +173,10 @@ The following arguments are supported:
 * `client_id` -
   (Optional)
   The OAuth client ID of the application.
+
+* `name` -
+  (Optional)
+  The name of the application. Example: "Cloud Console"
 
 <a name="nested_scoped_access_settings_scoped_access_settings_active_settings"></a>The `active_settings` block supports:
 

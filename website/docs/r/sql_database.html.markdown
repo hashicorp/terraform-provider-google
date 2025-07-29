@@ -149,7 +149,6 @@ Database can be imported using any of these accepted formats:
 * `instances/{{instance}}/databases/{{name}}`
 * `{{project}}/{{instance}}/{{name}}`
 * `{{instance}}/{{name}}`
-* `{{name}}`
 
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Database using one of the formats above. For example:
@@ -168,7 +167,6 @@ $ terraform import google_sql_database.default projects/{{project}}/instances/{{
 $ terraform import google_sql_database.default instances/{{instance}}/databases/{{name}}
 $ terraform import google_sql_database.default {{project}}/{{instance}}/{{name}}
 $ terraform import google_sql_database.default {{instance}}/{{name}}
-$ terraform import google_sql_database.default {{name}}
 ```
 
 ## User Project Overrides
