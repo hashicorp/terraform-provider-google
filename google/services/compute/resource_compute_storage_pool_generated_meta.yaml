@@ -10,9 +10,12 @@ fields:
   - field: 'deletion_protection'
     provider_only: true
   - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
   - field: 'id'
   - field: 'kind'
   - field: 'label_fingerprint'
+  - field: 'labels'
   - field: 'name'
   - field: 'performance_provisioning_type'
   - field: 'pool_provisioned_capacity_gb'
@@ -39,4 +42,6 @@ fields:
   - field: 'status.total_provisioned_disk_iops'
   - field: 'status.total_provisioned_disk_throughput'
   - field: 'storage_pool_type'
+  - field: 'terraform_labels'
+    provider_only: true
   - field: 'zone'
