@@ -1165,7 +1165,7 @@ The following arguments are supported:
 <a name="nested_service_config"></a>The `service_config` block supports:
 
 * `service` -
-  (Optional)
+  (Output)
   Name of the service associated with a Function.
 
 * `timeout_seconds` -

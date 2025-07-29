@@ -175,3 +175,9 @@ Remove `description` from your configuration after upgrade.
 ### `replication_spec.gcs_data_source.path` Implemented validation to prevent strings from starting with a '/' character, while still permitting empty strings."
 
 ### `replication_spec.gcs_data_sink.path` Implemented validation to prevent strings from starting with a '/' character, while still permitting empty strings."
+
+## Resource: `google_cloudfunctions2_function`
+
+### `service_config.service` is changed from `Argument` to `Attribute`
+
+Remove `service_config.service` from your configuration after upgrade.

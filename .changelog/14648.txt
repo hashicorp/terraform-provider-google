@@ -1,0 +1,3 @@
+```release-note:bug
+cloudfunctions2: changed `service_config.service` of `google_cloudfunctions2_function` resource to be output-only
+```
