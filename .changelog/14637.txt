@@ -1,0 +1,7 @@
+```release-note:enhancement
+bigqueryanalyticshub: added `discovery_type` field to `google_bigquery_analytics_hub_data_exchange` resource
+```
+
+```release-note:enhancement
+bigqueryanalyticshub: added `state`, `discovery_type`, and `allow_only_metadata_sharing` fields to `google_bigquery_analytics_hub_listing` resource
+```

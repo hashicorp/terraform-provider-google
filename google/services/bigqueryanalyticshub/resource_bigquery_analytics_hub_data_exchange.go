@@ -32,6 +32,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceBigqueryAnalyticsHubDataExchange() *schema.Resource {
@@ -77,6 +78,13 @@ func ResourceBigqueryAnalyticsHubDataExchange() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Description of the data exchange.`,
+			},
+			"discovery_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"DISCOVERY_TYPE_PRIVATE", "DISCOVERY_TYPE_PUBLIC", ""}),
+				Description:  `Type of discovery on the discovery page for all the listings under this exchange. Cannot be set for a Data Clean Room. Updating this field also updates (overwrites) the discoveryType field for all the listings under this exchange. Possible values: ["DISCOVERY_TYPE_PRIVATE", "DISCOVERY_TYPE_PUBLIC"]`,
 			},
 			"documentation": {
 				Type:        schema.TypeString,
@@ -199,6 +207,12 @@ func resourceBigqueryAnalyticsHubDataExchangeCreate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("sharing_environment_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(sharingEnvironmentConfigProp)) && (ok || !reflect.DeepEqual(v, sharingEnvironmentConfigProp)) {
 		obj["sharingEnvironmentConfig"] = sharingEnvironmentConfigProp
 	}
+	discoveryTypeProp, err := expandBigqueryAnalyticsHubDataExchangeDiscoveryType(d.Get("discovery_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("discovery_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(discoveryTypeProp)) && (ok || !reflect.DeepEqual(v, discoveryTypeProp)) {
+		obj["discoveryType"] = discoveryTypeProp
+	}
 	logLinkedDatasetQueryUserEmailProp, err := expandBigqueryAnalyticsHubDataExchangeLogLinkedDatasetQueryUserEmail(d.Get("log_linked_dataset_query_user_email"), d, config)
 	if err != nil {
 		return err
@@ -318,6 +332,9 @@ func resourceBigqueryAnalyticsHubDataExchangeRead(d *schema.ResourceData, meta i
 	if err := d.Set("sharing_environment_config", flattenBigqueryAnalyticsHubDataExchangeSharingEnvironmentConfig(res["sharingEnvironmentConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataExchange: %s", err)
 	}
+	if err := d.Set("discovery_type", flattenBigqueryAnalyticsHubDataExchangeDiscoveryType(res["discoveryType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataExchange: %s", err)
+	}
 	if err := d.Set("log_linked_dataset_query_user_email", flattenBigqueryAnalyticsHubDataExchangeLogLinkedDatasetQueryUserEmail(res["logLinkedDatasetQueryUserEmail"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataExchange: %s", err)
 	}
@@ -371,6 +388,12 @@ func resourceBigqueryAnalyticsHubDataExchangeUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("icon"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, iconProp)) {
 		obj["icon"] = iconProp
 	}
+	discoveryTypeProp, err := expandBigqueryAnalyticsHubDataExchangeDiscoveryType(d.Get("discovery_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("discovery_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, discoveryTypeProp)) {
+		obj["discoveryType"] = discoveryTypeProp
+	}
 	logLinkedDatasetQueryUserEmailProp, err := expandBigqueryAnalyticsHubDataExchangeLogLinkedDatasetQueryUserEmail(d.Get("log_linked_dataset_query_user_email"), d, config)
 	if err != nil {
 		return err
@@ -405,6 +428,10 @@ func resourceBigqueryAnalyticsHubDataExchangeUpdate(d *schema.ResourceData, meta
 
 	if d.HasChange("icon") {
 		updateMask = append(updateMask, "icon")
+	}
+
+	if d.HasChange("discovery_type") {
+		updateMask = append(updateMask, "discoveryType")
 	}
 
 	if d.HasChange("log_linked_dataset_query_user_email") {
@@ -587,6 +614,10 @@ func flattenBigqueryAnalyticsHubDataExchangeSharingEnvironmentConfigDcrExchangeC
 	return []interface{}{transformed}
 }
 
+func flattenBigqueryAnalyticsHubDataExchangeDiscoveryType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenBigqueryAnalyticsHubDataExchangeLogLinkedDatasetQueryUserEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -665,6 +696,10 @@ func expandBigqueryAnalyticsHubDataExchangeSharingEnvironmentConfigDcrExchangeCo
 	transformed := make(map[string]interface{})
 
 	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubDataExchangeDiscoveryType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandBigqueryAnalyticsHubDataExchangeLogLinkedDatasetQueryUserEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
