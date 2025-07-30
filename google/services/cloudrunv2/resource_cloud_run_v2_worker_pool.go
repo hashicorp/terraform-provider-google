@@ -2378,7 +2378,7 @@ func expandCloudRunV2WorkerPoolScaling(v interface{}, d tpgresource.TerraformRes
 	transformedManualInstanceCount, err := expandCloudRunV2WorkerPoolScalingManualInstanceCount(original["manual_instance_count"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedManualInstanceCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["manualInstanceCount"] = transformedManualInstanceCount
 	}
 
