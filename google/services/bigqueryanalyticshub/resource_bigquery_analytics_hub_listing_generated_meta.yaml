@@ -5,6 +5,7 @@ api_service_name: 'analyticshub.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Listing'
 fields:
+  - field: 'allow_only_metadata_sharing'
   - field: 'bigquery_dataset.dataset'
   - field: 'bigquery_dataset.selected_resources.table'
   - field: 'categories'
@@ -17,6 +18,7 @@ fields:
   - field: 'delete_commercial'
     provider_only: true
   - field: 'description'
+  - field: 'discovery_type'
   - field: 'display_name'
   - field: 'documentation'
   - field: 'icon'
@@ -35,3 +37,4 @@ fields:
   - field: 'restricted_export_config.enabled'
   - field: 'restricted_export_config.restrict_direct_table_access'
   - field: 'restricted_export_config.restrict_query_result'
+  - field: 'state'

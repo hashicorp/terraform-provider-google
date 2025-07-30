@@ -316,6 +316,44 @@ resource "google_bigquery_analytics_hub_listing" "listing" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_analyticshub_public_listing&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Analyticshub Public Listing
+
+
+```hcl
+resource "google_bigquery_analytics_hub_data_exchange" "listing" {
+  location         = "US"
+  data_exchange_id = "my_data_exchange"
+  display_name     = "my_data_exchange"
+  description      = "example public listing"
+  discovery_type   = "DISCOVERY_TYPE_PUBLIC"
+}
+
+resource "google_bigquery_analytics_hub_listing" "listing" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
+  listing_id       = "my_listing"
+  display_name     = "my_listing"
+  description      = "example public listing"
+  discovery_type   = "DISCOVERY_TYPE_PUBLIC"
+  allow_only_metadata_sharing= false
+
+  bigquery_dataset {
+    dataset = google_bigquery_dataset.listing.id
+  }
+}
+
+resource "google_bigquery_dataset" "listing" {
+  dataset_id                  = "my_listing"
+  friendly_name               = "my_listing"
+  description                 = "example public listing"
+  location                    = "US"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_analyticshub_listing_marketplace&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -428,6 +466,15 @@ The following arguments are supported:
   (Optional)
   If true, subscriber email logging is enabled and all queries on the linked dataset will log the email address of the querying user. Once enabled, this setting cannot be turned off.
 
+* `discovery_type` -
+  (Optional)
+  Specifies the type of discovery on the discovery page. Cannot be set for a restricted listing. Note that this does not control the visibility of the exchange/listing which is defined by IAM permission.
+  Possible values are: `DISCOVERY_TYPE_PRIVATE`, `DISCOVERY_TYPE_PUBLIC`.
+
+* `allow_only_metadata_sharing` -
+  (Optional)
+  If true, the listing is only available to get the resource metadata. Listing is non subscribable.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -509,6 +556,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   The resource name of the listing. e.g. "projects/myproject/locations/US/dataExchanges/123/listings/456"
+
+* `state` -
+  Current state of the listing.
 
 * `commercial_info` -
   Commercial info contains the information about the commercial data products associated with the listing.
