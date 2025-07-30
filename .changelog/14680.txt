@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrunv2: added support for setting `manual_instance_count` to 0 in `google_cloud_run_v2_worker_pool`.
+```
