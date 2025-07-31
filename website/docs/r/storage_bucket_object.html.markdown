@@ -105,6 +105,8 @@ One of the following is required:
 
 * `force_empty_content_type` - (Optional) When set to true, it ensure the object's Content-Type is empty.
 
+* `deletion_policy` - (Optional) When set to ABANDON, the object won't be deleted from storage bucket. Instead, it will only be removed from terraform's state file.
+
 ---
 
 <a name="nested_customer_encryption"></a>The `customer_encryption` block supports:
