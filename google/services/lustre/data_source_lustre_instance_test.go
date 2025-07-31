@@ -53,7 +53,7 @@ func TestAccLustreInstanceDatasource_basic(t *testing.T) {
 func testAccLustreInstanceDatasource_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_lustre_instance" "instance" {
-  instance_id                 = "my-instance-%{random_suffix}"
+  instance_id                 = "tf-test-%{random_suffix}"
   location                    = "us-central1-a"
   filesystem                  = "testfs"
   capacity_gib                = 18000
