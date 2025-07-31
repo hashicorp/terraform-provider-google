@@ -1664,6 +1664,27 @@ func ResourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
+						"additional_ip_ranges_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `AdditionalIPRangesConfig is the configuration for individual additional subnetworks attached to the cluster`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"subnetwork": {
+										Type:             schema.TypeString,
+										Required:         true,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+										Description:      `Name of the subnetwork. This can be the full path of the subnetwork or just the name.`,
+									},
+									"pod_ipv4_range_names": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `List of secondary ranges names within this subnetwork that can be used for pod IPs.`,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -2471,7 +2492,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	ipAllocationBlock, err := expandIPAllocationPolicy(d.Get("ip_allocation_policy"), d.Get("networking_mode").(string), d.Get("enable_autopilot").(bool))
+	ipAllocationBlock, aircs, err := expandIPAllocationPolicy(d.Get("ip_allocation_policy"), d, d.Get("networking_mode").(string), d.Get("enable_autopilot").(bool), config)
 	if err != nil {
 		return err
 	}
@@ -2690,6 +2711,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	needUpdateAfterCreate := false
 
+	if len(aircs) > 0 {
+		needUpdateAfterCreate = true
+	}
+
 	// For now PSC based cluster don't support `enable_private_endpoint` on `create`, but only on `update` API call.
 	// If cluster is PSC based and enable_private_endpoint is set to true we will ignore it on `create` call and update cluster right after creation.
 	enablePrivateEndpointPSCCluster := isEnablePrivateEndpointPSCCluster(cluster)
@@ -2811,6 +2836,13 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			}
 			update.ForceSendFields = append(update.ForceSendFields, "DesiredAddonsConfig.GcePersistentDiskCsiDriverConfig.Enabled")
 		}
+
+		if len(aircs) > 0 {
+			update.DesiredAdditionalIpRangesConfig = &container.DesiredAdditionalIPRangesConfig{
+				AdditionalIpRangesConfigs: aircs,
+			}
+		}
+
 		req := &container.UpdateClusterRequest{Update: update}
 
 		err = transport_tpg.Retry(transport_tpg.RetryOptions{
@@ -3996,6 +4028,30 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s's AdditionalPodRangesConfig has been updated", d.Id())
 	}
 
+	if d.HasChange("ip_allocation_policy.0.additional_ip_ranges_config") {
+		c := d.Get("ip_allocation_policy.0.additional_ip_ranges_config")
+		aircs, err := expandAdditionalIpRangesConfigs(c, d, config)
+		if err != nil {
+			return err
+		}
+
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredAdditionalIpRangesConfig: &container.DesiredAdditionalIPRangesConfig{
+					AdditionalIpRangesConfigs: aircs,
+				},
+			},
+		}
+
+		updateF := updateFunc(req, "updating AdditionalIpRangesConfig")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's AdditionalIpRangesConfig has been updated", d.Id())
+	}
+
 	if n, ok := d.GetOk("node_pool.#"); ok {
 		for i := 0; i < n.(int); i++ {
 			nodePoolInfo, err := extractNodePoolInformationFromCluster(d, config, clusterName)
@@ -5045,22 +5101,65 @@ func expandPodCidrOverprovisionConfig(configured interface{}) *container.PodCIDR
 	}
 }
 
-func expandIPAllocationPolicy(configured interface{}, networkingMode string, autopilot bool) (*container.IPAllocationPolicy, error) {
+func expandPodIpv4RangeNames(configured interface{}) []string {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	var ranges []string
+	for _, rawRange := range l {
+		ranges = append(ranges, rawRange.(string))
+	}
+	return ranges
+}
+
+func expandAdditionalIpRangesConfigs(configured interface{}, d *schema.ResourceData, c *transport_tpg.Config) ([]*container.AdditionalIPRangesConfig, error) {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	var additionalIpRangesConfig []*container.AdditionalIPRangesConfig
+	for _, rawConfig := range l {
+		config := rawConfig.(map[string]interface{})
+		subnetwork, err := tpgresource.ParseSubnetworkFieldValue(config["subnetwork"].(string), d, c)
+		if err != nil {
+			return nil, err
+		}
+		additionalIpRangesConfig = append(additionalIpRangesConfig, &container.AdditionalIPRangesConfig{
+			Subnetwork:        subnetwork.RelativeLink(),
+			PodIpv4RangeNames: expandPodIpv4RangeNames(config["pod_ipv4_range_names"]),
+		})
+	}
+
+	return additionalIpRangesConfig, nil
+}
+
+func expandIPAllocationPolicy(configured interface{}, d *schema.ResourceData, networkingMode string, autopilot bool, c *transport_tpg.Config) (*container.IPAllocationPolicy, []*container.AdditionalIPRangesConfig, error) {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		if networkingMode == "VPC_NATIVE" {
-			return nil, nil
+			return nil, nil, nil
 		}
 		return &container.IPAllocationPolicy{
 			UseIpAliases:    false,
 			UseRoutes:       true,
 			StackType:       "IPV4",
 			ForceSendFields: []string{"UseIpAliases"},
-		}, nil
+		}, nil, nil
 	}
 
 	config := l[0].(map[string]interface{})
 	stackType := config["stack_type"].(string)
+
+	// We expand and return additional_ip_ranges_config separately because
+	// this field is OUTPUT_ONLY for ClusterCreate RPCs. Instead, during the
+	// Terraform Create flow, we follow the CreateCluster (without
+	// additional_ip_ranges_config populated) with an UpdateCluster (_with_
+	// additional_ip_ranges_config populated).
+	additionalIpRangesConfigs, err := expandAdditionalIpRangesConfigs(config["additional_ip_ranges_config"], d, c)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	return &container.IPAllocationPolicy{
 		UseIpAliases:               networkingMode == "VPC_NATIVE" || networkingMode == "",
@@ -5072,7 +5171,7 @@ func expandIPAllocationPolicy(configured interface{}, networkingMode string, aut
 		UseRoutes:                  networkingMode == "ROUTES",
 		StackType:                  stackType,
 		PodCidrOverprovisionConfig: expandPodCidrOverprovisionConfig(config["pod_cidr_overprovision_config"]),
-	}, nil
+	}, additionalIpRangesConfigs, nil
 }
 
 func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *container.MaintenancePolicy {
@@ -6516,6 +6615,23 @@ func flattenPodCidrOverprovisionConfig(c *container.PodCIDROverprovisionConfig) 
 	}
 }
 
+func flattenAdditionalIpRangesConfigs(c []*container.AdditionalIPRangesConfig) []map[string]interface{} {
+	if len(c) == 0 {
+		return nil
+	}
+
+	var outRanges []map[string]interface{}
+	for _, rangeConfig := range c {
+		outRangeConfig := map[string]interface{}{
+			"subnetwork":           rangeConfig.Subnetwork,
+			"pod_ipv4_range_names": rangeConfig.PodIpv4RangeNames,
+		}
+		outRanges = append(outRanges, outRangeConfig)
+	}
+
+	return outRanges
+}
+
 func flattenIPAllocationPolicy(c *container.Cluster, d *schema.ResourceData, config *transport_tpg.Config) ([]map[string]interface{}, error) {
 	// If IP aliasing isn't enabled, none of the values in this block can be set.
 	if c == nil || c.IpAllocationPolicy == nil || !c.IpAllocationPolicy.UseIpAliases {
@@ -6546,6 +6662,7 @@ func flattenIPAllocationPolicy(c *container.Cluster, d *schema.ResourceData, con
 			"stack_type":                    p.StackType,
 			"pod_cidr_overprovision_config": flattenPodCidrOverprovisionConfig(p.PodCidrOverprovisionConfig),
 			"additional_pod_ranges_config":  flattenAdditionalPodRangesConfig(c.IpAllocationPolicy),
+			"additional_ip_ranges_config":   flattenAdditionalIpRangesConfigs(p.AdditionalIpRangesConfigs),
 		},
 	}, nil
 }

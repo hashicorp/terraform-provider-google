@@ -35,6 +35,7 @@ fields:
     api_field: 'network_config.pod_cidr_overprovision_config.disable'
   - field: 'network_config.pod_ipv4_cidr_block'
   - field: 'network_config.pod_range'
+  - field: 'network_config.subnetwork'
   - field: 'node_config.advanced_machine_features.enable_nested_virtualization'
     api_field: 'config.advanced_machine_features.enable_nested_virtualization'
   - field: 'node_config.advanced_machine_features.threads_per_core'
