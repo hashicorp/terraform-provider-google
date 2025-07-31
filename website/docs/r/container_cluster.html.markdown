@@ -838,10 +838,20 @@ Possible values are `IPV4` and `IPV4_IPV6`.
 the cluster level. Used for Autopilot clusters and Standard clusters with which control of the
 secondary Pod IP address assignment to node pools isn't needed. Structure is [documented below](#nested_additional_pod_ranges_config).
 
+* `additional_ip_ranges_config` - (Optional) The configuration for individual additional subnetworks attached to the cluster.
+Structure is [documented below](#nested_additional_ip_ranges_config).
+
 
 <a name="nested_additional_pod_ranges_config"></a>The `additional_pod_ranges_config` block supports:
 
 * `pod_range_names` - (Required) The names of the Pod ranges to add to the cluster.
+
+
+<a name="nested_additional_ip_ranges_config"></a>The `additional_ip_ranges_config` block supports:
+
+* `subnetwork` - (Required) Name of the subnetwork. This can be the full path of the subnetwork or just the name.
+
+* `pod_ipv4_range_names`- (Required) List of secondary ranges names within this subnetwork that can be used for pod IPs.
 
 
 <a name="nested_master_auth"></a>The `master_auth` block supports:
