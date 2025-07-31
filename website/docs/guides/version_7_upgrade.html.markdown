@@ -181,3 +181,9 @@ Remove `description` from your configuration after upgrade.
 ### `service_config.service` is changed from `Argument` to `Attribute`
 
 Remove `service_config.service` from your configuration after upgrade.
+
+## Resource: `google_cloud_run_v2_worker_pool`
+
+### `template.containers.depends_on` is reomved as it is not supported.
+
+Remove `template.containers.depends_on` from your configuration after upgrade.

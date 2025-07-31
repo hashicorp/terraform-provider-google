@@ -670,10 +670,6 @@ When the field is set to false, deleting the WorkerPool is allowed.
   (Optional)
   Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image.
 
-* `depends_on` -
-  (Optional)
-  Containers which should be started before this container. If specified the container will wait to start until all containers with the listed names are healthy.
-
 
 <a name="nested_template_containers_containers_env"></a>The `env` block supports:
 
