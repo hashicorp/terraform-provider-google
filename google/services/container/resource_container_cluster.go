@@ -2345,6 +2345,27 @@ func ResourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
+			"rbac_binding_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Computed:    true,
+				Description: `RBACBindingConfig allows user to restrict ClusterRoleBindings an RoleBindings that can be created.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_insecure_binding_system_unauthenticated": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Setting this to true will allow any ClusterRoleBinding and RoleBinding with subjects system:anonymous or system:unauthenticated.`,
+						},
+						"enable_insecure_binding_system_authenticated": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Setting this to true will allow any ClusterRoleBinding and RoleBinding with subjects system:authenticated.`,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -2661,6 +2682,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("anonymous_authentication_config"); ok {
 		cluster.AnonymousAuthenticationConfig = expandAnonymousAuthenticationConfig(v)
+	}
+
+	if v, ok := d.GetOk("rbac_binding_config"); ok {
+		cluster.RbacBindingConfig = expandRBACBindingConfig(v)
 	}
 
 	needUpdateAfterCreate := false
@@ -3217,6 +3242,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("anonymous_authentication_config", flattenAnonymousAuthenticationConfig(cluster.AnonymousAuthenticationConfig)); err != nil {
+		return err
+	}
+
+	if err := d.Set("rbac_binding_config", flattenRBACBindingConfig(cluster.RbacBindingConfig)); err != nil {
 		return err
 	}
 
@@ -4725,6 +4754,22 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
+	if d.HasChange("rbac_binding_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredRbacBindingConfig: expandRBACBindingConfig(d.Get("rbac_binding_config")),
+				ForceSendFields:          []string{"DesiredRbacBindingConfig"},
+			}}
+
+		updateF := updateFunc(req, "updating GKE cluster RBAC binding config")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's RBAC binding config has been updated", d.Id())
+	}
+
 	d.Partial(false)
 
 	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
@@ -6086,6 +6131,20 @@ func expandNodePoolAutoConfigNetworkTags(configured interface{}) *container.Netw
 	return nt
 }
 
+func expandRBACBindingConfig(configured interface{}) *container.RBACBindingConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	config := l[0].(map[string]interface{})
+	return &container.RBACBindingConfig{
+		EnableInsecureBindingSystemUnauthenticated: config["enable_insecure_binding_system_unauthenticated"].(bool),
+		EnableInsecureBindingSystemAuthenticated:   config["enable_insecure_binding_system_authenticated"].(bool),
+		ForceSendFields:                            []string{"EnableInsecureBindingSystemUnauthenticated", "EnableInsecureBindingSystemAuthenticated"},
+	}
+}
+
 func flattenNotificationConfig(c *container.NotificationConfig) []map[string]interface{} {
 	if c == nil {
 		return nil
@@ -6998,6 +7057,18 @@ func flattenNodePoolAutoConfigNetworkTags(c *container.NetworkTags) []map[string
 		result["tags"] = c.Tags
 	}
 	return []map[string]interface{}{result}
+}
+
+func flattenRBACBindingConfig(c *container.RBACBindingConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"enable_insecure_binding_system_authenticated":   c.EnableInsecureBindingSystemAuthenticated,
+			"enable_insecure_binding_system_unauthenticated": c.EnableInsecureBindingSystemUnauthenticated,
+		},
+	}
 }
 
 func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
