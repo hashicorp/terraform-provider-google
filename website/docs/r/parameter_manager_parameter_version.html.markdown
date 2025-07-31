@@ -119,6 +119,46 @@ resource "google_parameter_manager_parameter_version" "parameter-version-with-ya
   })
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=parameter_version_with_json_format_with_file&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Parameter Version With Json Format With File
+
+
+```hcl
+resource "google_parameter_manager_parameter" "parameter-basic" {
+  parameter_id = "parameter"
+  format = "JSON"
+}
+
+resource "google_parameter_manager_parameter_version" "parameter-version-with-json-format-with-file" {
+  parameter = google_parameter_manager_parameter.parameter-basic.id
+  parameter_version_id = "parameter_version"
+  parameter_data = file("parameter-json-data.json") 
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=parameter_version_with_yaml_format_with_file&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Parameter Version With Yaml Format With File
+
+
+```hcl
+resource "google_parameter_manager_parameter" "parameter-basic" {
+  parameter_id = "parameter"
+  format = "YAML"
+}
+
+resource "google_parameter_manager_parameter_version" "parameter-version-with-yaml-format-with-file" {
+  parameter = google_parameter_manager_parameter.parameter-basic.id
+  parameter_version_id = "parameter_version"
+  parameter_data = file("parameter-yaml-data.yaml")
+}
+```
 
 ## Argument Reference
 

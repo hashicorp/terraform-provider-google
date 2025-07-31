@@ -1,0 +1,6 @@
+{
+  "db_host": "localhost",
+  "db_name": "testdb",
+  "db_user": "testuser",
+  "db_port": 5432
+}
