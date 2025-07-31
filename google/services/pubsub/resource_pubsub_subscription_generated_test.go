@@ -696,6 +696,135 @@ resource "google_storage_bucket_iam_member" "admin" {
 `, context)
 }
 
+func TestAccPubsubSubscription_pubsubSubscriptionSingleSmtExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_pubsubSubscriptionSingleSmtExample(context),
+			},
+			{
+				ResourceName:            "google_pubsub_subscription.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+			},
+		},
+	})
+}
+
+func testAccPubsubSubscription_pubsubSubscriptionSingleSmtExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_pubsub_topic" "example" {
+  name = "tf-test-example-topic%{random_suffix}"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "tf-test-example-subscription%{random_suffix}"
+  topic = google_pubsub_topic.example.id
+
+  message_transforms {
+    javascript_udf {
+      function_name = "isYearEven"
+      code = <<EOF
+function isYearEven(message, metadata) {
+  const data = JSON.parse(message.data);
+  return message.year %2 === 0;
+}
+EOF
+    }
+  }
+}
+`, context)
+}
+
+func TestAccPubsubSubscription_pubsubSubscriptionMultipleSmtsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_pubsubSubscriptionMultipleSmtsExample(context),
+			},
+			{
+				ResourceName:            "google_pubsub_subscription.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+			},
+		},
+	})
+}
+
+func testAccPubsubSubscription_pubsubSubscriptionMultipleSmtsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_pubsub_topic" "example" {
+  name = "tf-test-example-topic%{random_suffix}"
+}
+
+locals {
+  smts = [
+    {
+      function_name = "redactSSN"
+      code = <<EOF
+function redactSSN(message, metadata) {
+  const data = JSON.parse(message.data);
+  delete data['ssn'];
+  message.data = JSON.stringify(data);
+  return message;
+}
+EOF
+    },
+    {
+      function_name = "otherFunc",
+      code = <<EOF
+function otherFunc(message, metadata) {
+  return null;
+}
+EOF
+    },
+    {
+      function_name = "someSMTWeDisabled",
+      code = "..."
+      disabled = true
+    }
+  ]
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "tf-test-example-subscription%{random_suffix}"
+  topic = google_pubsub_topic.example.id
+
+  dynamic "message_transforms" {
+    for_each = local.smts
+
+    content {
+      disabled = lookup(message_transforms.value, "disabled", null)
+      javascript_udf {
+        function_name = message_transforms.value.function_name
+        code = message_transforms.value.code
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckPubsubSubscriptionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
