@@ -13102,3 +13102,67 @@ resource "google_container_cluster" "primary" {
 }
  `, name, networkName, subnetworkName, mode)
 }
+
+func TestAccContainerCluster_RbacBindingConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_RbacBindingConfig(clusterName, networkName, subnetworkName, true, true),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "rbac_binding_config.#", "1"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "rbac_binding_config.0.enable_insecure_binding_system_unauthenticated", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "rbac_binding_config.0.enable_insecure_binding_system_authenticated", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_RbacBindingConfig(clusterName, networkName, subnetworkName, false, false),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "rbac_binding_config.#", "1"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "rbac_binding_config.0.enable_insecure_binding_system_unauthenticated", "false"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "rbac_binding_config.0.enable_insecure_binding_system_authenticated", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_RbacBindingConfig(clusterName, networkName, subnetworkName string, unauthenticated, authenticated bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  network    = "%s"
+  subnetwork = "%s"
+
+  rbac_binding_config {
+	enable_insecure_binding_system_unauthenticated = %t
+	enable_insecure_binding_system_authenticated   = %t
+  }
+
+  deletion_protection = false
+}
+`, clusterName, networkName, subnetworkName, unauthenticated, authenticated)
+}
