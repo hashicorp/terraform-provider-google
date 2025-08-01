@@ -13,11 +13,13 @@ fields:
   - field: 'custom_domain_status.host_state'
   - field: 'custom_domain_status.issues.code'
   - field: 'custom_domain_status.issues.details'
+    json: true
   - field: 'custom_domain_status.issues.message'
   - field: 'custom_domain_status.ownership_state'
   - field: 'custom_domain_status.required_dns_updates.check_time'
   - field: 'custom_domain_status.required_dns_updates.desired.check_error.code'
   - field: 'custom_domain_status.required_dns_updates.desired.check_error.details'
+    json: true
   - field: 'custom_domain_status.required_dns_updates.desired.check_error.message'
   - field: 'custom_domain_status.required_dns_updates.desired.domain_name'
   - field: 'custom_domain_status.required_dns_updates.desired.records.domain_name'
@@ -27,6 +29,7 @@ fields:
   - field: 'custom_domain_status.required_dns_updates.desired.records.type'
   - field: 'custom_domain_status.required_dns_updates.discovered.check_error.code'
   - field: 'custom_domain_status.required_dns_updates.discovered.check_error.details'
+    json: true
   - field: 'custom_domain_status.required_dns_updates.discovered.check_error.message'
   - field: 'custom_domain_status.required_dns_updates.discovered.domain_name'
   - field: 'custom_domain_status.required_dns_updates.discovered.records.domain_name'
