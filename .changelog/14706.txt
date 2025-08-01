@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed an issue causing errors during updates to `node_config` to be suppressed in `google_container_cluster` and `google_container_node_pool`
+```

@@ -4167,7 +4167,9 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 
-		nodePoolNodeConfigUpdate(d, config, nodePoolInfo, "", defaultPool, d.Timeout(schema.TimeoutUpdate))
+		if err = nodePoolNodeConfigUpdate(d, config, nodePoolInfo, "", defaultPool, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return err
+		}
 	}
 
 	if d.HasChange("notification_config") {
