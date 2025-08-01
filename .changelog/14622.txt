@@ -1,0 +1,3 @@
+```release-note:enhancement
+backupdr: added `log_retention_days` field to `google_backup_dr_backup_plan` resource
+```
