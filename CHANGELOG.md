@@ -14,11 +14,11 @@ FEATURES:
 * **New Resource:** `google_iam_workforce_pool_iam_policy` ([#23784](https://github.com/hashicorp/terraform-provider-google/pull/23784))
 
 IMPROVEMENTS:
-* backupdr: added `backup_retention_inheritance` field to`google_backup_dr_backup_vault` resource ([#23817](https://github.com/hashicorp/terraform-provider-google/pull/23817))
-* bigqueryanalyticshub: added 'commercial_info' and 'delete_commercial' fields in 'google_bigquery_analytics_hub_listing' resource ([#23731](https://github.com/hashicorp/terraform-provider-google/pull/23731))
+* backupdr: added `backup_retention_inheritance` field to `google_backup_dr_backup_vault` resource ([#23817](https://github.com/hashicorp/terraform-provider-google/pull/23817))
+* bigqueryanalyticshub: added `commercial_info` and `delete_commercial` fields in `google_bigquery_analytics_hub_listing` resource ([#23731](https://github.com/hashicorp/terraform-provider-google/pull/23731))
 * bigqueryanalyticshub: added `discovery_type` field to `google_bigquery_analytics_hub_data_exchange` resource ([#23801](https://github.com/hashicorp/terraform-provider-google/pull/23801))
 * bigqueryanalyticshub: added `state`, `discovery_type`, and `allow_only_metadata_sharing` fields to `google_bigquery_analytics_hub_listing` resource ([#23801](https://github.com/hashicorp/terraform-provider-google/pull/23801))
-* cloudfunction: added `automatic_update_policy` and `on_deploy_update_policy` to google_cloudfunctions_function resource ([#23819](https://github.com/hashicorp/terraform-provider-google/pull/23819))
+* cloudfunction: added `automatic_update_policy` and `on_deploy_update_policy` to `google_cloudfunctions_function` resource ([#23819](https://github.com/hashicorp/terraform-provider-google/pull/23819))
 * cloudrunv2: added `gpu_zonal_redundancy_disabled` field to `google_cloud_run_v2_job` resource. ([#23811](https://github.com/hashicorp/terraform-provider-google/pull/23811))
 * compute: added `labels` field to `google_compute_storage_pool` resource ([#23783](https://github.com/hashicorp/terraform-provider-google/pull/23783))
 * compute: added `network_name` field to `google_compute_subnetworks` data source ([#23753](https://github.com/hashicorp/terraform-provider-google/pull/23753))
@@ -26,7 +26,7 @@ IMPROVEMENTS:
 * container: added `addons_config.lustre_csi_driver_config` field to `google_container_cluster` resource ([#23729](https://github.com/hashicorp/terraform-provider-google/pull/23729))
 * container: added support for `rbac_binding_config` in `google_container_cluster` ([#23812](https://github.com/hashicorp/terraform-provider-google/pull/23812))
 * dataproc: added `cluster_config.cluster_tier` field to `google_dataproc_cluster` resource ([#23830](https://github.com/hashicorp/terraform-provider-google/pull/23830))
-* looker: Added `LOOKER_CORE_TRIAL_STANDARD`, `LOOKER_CORE_TRIAL_ENTERPRISE`,  and `LOOKER_CORE_TRIAL_EMBED` editions to  `google_looker_instance` resource. ([#23785](https://github.com/hashicorp/terraform-provider-google/pull/23785))
+* looker: added `LOOKER_CORE_TRIAL_STANDARD`, `LOOKER_CORE_TRIAL_ENTERPRISE`,  and `LOOKER_CORE_TRIAL_EMBED` editions to  `google_looker_instance` resource. ([#23785](https://github.com/hashicorp/terraform-provider-google/pull/23785))
 * managedkafka: added `tls_config` field to `google_managed_kafka_cluster` resource (beta) ([#23749](https://github.com/hashicorp/terraform-provider-google/pull/23749))
 * memorystore: added `allow_fewer_zones_deployment` field to `google_redis_cluster` resource ([#23800](https://github.com/hashicorp/terraform-provider-google/pull/23800))
 * storage: added `deletion_policy` field to `google_storage_bucket_object` resource ([#23816](https://github.com/hashicorp/terraform-provider-google/pull/23816))
