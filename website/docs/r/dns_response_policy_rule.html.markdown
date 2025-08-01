@@ -93,9 +93,6 @@ The following arguments are supported:
   Identifies the response policy addressed by this request.
 
 
-- - -
-
-
 * `local_data` -
   (Optional)
   Answer this query directly with DNS data. These ResourceRecordSets override any other DNS behavior for the matched name;
@@ -108,6 +105,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_local_data"></a>The `local_data` block supports:

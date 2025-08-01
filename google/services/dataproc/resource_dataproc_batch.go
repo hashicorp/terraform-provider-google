@@ -97,6 +97,24 @@ This value must be 4-63 characters. Valid characters are /[a-z][0-9]-/.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"authentication_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Authentication configuration for a workload is used to set the default identity for the workload execution.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"user_workload_authentication_type": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ForceNew:     true,
+													ValidateFunc: verify.ValidateEnum([]string{"SERVICE_ACCOUNT", "END_USER_CREDENTIALS", ""}),
+													Description:  `Authentication type for the user workload running in containers. Possible values: ["SERVICE_ACCOUNT", "END_USER_CREDENTIALS"]`,
+												},
+											},
+										},
+									},
 									"kms_key": {
 										Type:        schema.TypeString,
 										Optional:    true,
@@ -1244,6 +1262,8 @@ func flattenDataprocBatchEnvironmentConfigExecutionConfig(v interface{}, d *sche
 		flattenDataprocBatchEnvironmentConfigExecutionConfigNetworkUri(original["networkUri"], d, config)
 	transformed["subnetwork_uri"] =
 		flattenDataprocBatchEnvironmentConfigExecutionConfigSubnetworkUri(original["subnetworkUri"], d, config)
+	transformed["authentication_config"] =
+		flattenDataprocBatchEnvironmentConfigExecutionConfigAuthenticationConfig(original["authenticationConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataprocBatchEnvironmentConfigExecutionConfigServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1271,6 +1291,23 @@ func flattenDataprocBatchEnvironmentConfigExecutionConfigNetworkUri(v interface{
 }
 
 func flattenDataprocBatchEnvironmentConfigExecutionConfigSubnetworkUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataprocBatchEnvironmentConfigExecutionConfigAuthenticationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["user_workload_authentication_type"] =
+		flattenDataprocBatchEnvironmentConfigExecutionConfigAuthenticationConfigUserWorkloadAuthenticationType(original["userWorkloadAuthenticationType"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataprocBatchEnvironmentConfigExecutionConfigAuthenticationConfigUserWorkloadAuthenticationType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1715,6 +1752,13 @@ func expandDataprocBatchEnvironmentConfigExecutionConfig(v interface{}, d tpgres
 		transformed["subnetworkUri"] = transformedSubnetworkUri
 	}
 
+	transformedAuthenticationConfig, err := expandDataprocBatchEnvironmentConfigExecutionConfigAuthenticationConfig(original["authentication_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAuthenticationConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["authenticationConfig"] = transformedAuthenticationConfig
+	}
+
 	return transformed, nil
 }
 
@@ -1743,6 +1787,29 @@ func expandDataprocBatchEnvironmentConfigExecutionConfigNetworkUri(v interface{}
 }
 
 func expandDataprocBatchEnvironmentConfigExecutionConfigSubnetworkUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataprocBatchEnvironmentConfigExecutionConfigAuthenticationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedUserWorkloadAuthenticationType, err := expandDataprocBatchEnvironmentConfigExecutionConfigAuthenticationConfigUserWorkloadAuthenticationType(original["user_workload_authentication_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUserWorkloadAuthenticationType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["userWorkloadAuthenticationType"] = transformedUserWorkloadAuthenticationType
+	}
+
+	return transformed, nil
+}
+
+func expandDataprocBatchEnvironmentConfigExecutionConfigAuthenticationConfigUserWorkloadAuthenticationType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -48,6 +48,8 @@ func ResourceIapClient() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		DeprecationMessage: "After July 2025, the `google_iap_client` Terraform resource will no longer function as intended due to the deprecation of the IAP OAuth Admin API",
+
 		Schema: map[string]*schema.Schema{
 			"brand": {
 				Type:     schema.TypeString,
@@ -135,14 +137,6 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-
-	brand := d.Get("brand")
-	clientId := flattenIapClientClientId(res["name"], d, config)
-
-	if err := d.Set("client_id", clientId); err != nil {
-		return fmt.Errorf("Error setting client_id: %s", err)
-	}
-	d.SetId(fmt.Sprintf("%s/identityAwareProxyClients/%s", brand, clientId))
 
 	log.Printf("[DEBUG] Finished creating Client %q: %#v", d.Id(), res)
 
@@ -276,7 +270,7 @@ func flattenIapClientClientId(v interface{}, d *schema.ResourceData, config *tra
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func expandIapClientDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

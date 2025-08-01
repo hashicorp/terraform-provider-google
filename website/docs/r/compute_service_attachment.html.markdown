@@ -437,9 +437,6 @@ The following arguments are supported:
   destination servers.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource.
@@ -474,7 +471,7 @@ The following arguments are supported:
   This limit lets the service producer limit how many propagated Private Service Connect connections can be established to this service attachment from a single consumer.
   If the connection preference of the service attachment is ACCEPT_MANUAL, the limit applies to each project or network that is listed in the consumer accept list.
   If the connection preference of the service attachment is ACCEPT_AUTOMATIC, the limit applies to each project that contains a connected endpoint.
-  If unspecified, the default propagated connection limit is 250.
+  If unspecified, the default propagated connection limit is 250. To explicitly send a zero value, set `send_propagated_connection_limit_if_zero = true`.
 
 * `region` -
   (Optional)
@@ -482,6 +479,12 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `send_propagated_connection_limit_if_zero` - (Optional) Controls the behavior of propagated_connection_limit.
+When false, setting propagated_connection_limit to zero causes the provider to use to the API's default value.
+When true, the provider will set propagated_connection_limit to zero.
+Defaults to false.
+
 
 
 <a name="nested_consumer_accept_lists"></a>The `consumer_accept_lists` block supports:

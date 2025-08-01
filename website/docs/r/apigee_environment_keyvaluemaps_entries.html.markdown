@@ -123,8 +123,6 @@ The following arguments are supported:
   in the format `organizations/{{org_name}}/environments/{{env_name}}/keyvaluemaps/{{keyvaluemap_name}}`.
 
 
-- - -
-
 
 
 ## Attributes Reference

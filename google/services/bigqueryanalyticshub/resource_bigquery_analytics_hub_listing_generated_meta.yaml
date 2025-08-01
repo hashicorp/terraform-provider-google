@@ -8,10 +8,14 @@ fields:
   - field: 'bigquery_dataset.dataset'
   - field: 'bigquery_dataset.selected_resources.table'
   - field: 'categories'
+  - field: 'commercial_info.cloud_marketplace.commercial_state'
+  - field: 'commercial_info.cloud_marketplace.service'
   - field: 'data_exchange_id'
     provider_only: true
   - field: 'data_provider.name'
   - field: 'data_provider.primary_contact'
+  - field: 'delete_commercial'
+    provider_only: true
   - field: 'description'
   - field: 'display_name'
   - field: 'documentation'
@@ -20,10 +24,13 @@ fields:
     provider_only: true
   - field: 'location'
     provider_only: true
+  - field: 'log_linked_dataset_query_user_email'
   - field: 'name'
   - field: 'primary_contact'
   - field: 'publisher.name'
   - field: 'publisher.primary_contact'
+  - field: 'pubsub_topic.data_affinity_regions'
+  - field: 'pubsub_topic.topic'
   - field: 'request_access'
   - field: 'restricted_export_config.enabled'
   - field: 'restricted_export_config.restrict_direct_table_access'

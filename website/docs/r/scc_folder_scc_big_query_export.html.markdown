@@ -120,8 +120,6 @@ The following arguments are supported:
   This must be unique within the organization.
 
 
-- - -
-
 
 
 ## Attributes Reference

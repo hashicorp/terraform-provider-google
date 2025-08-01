@@ -67,7 +67,7 @@ resource "google_redis_instance" "cache" {
 
   authorized_network = data.google_compute_network.redis-network.id
 
-  redis_version     = "REDIS_4_0"
+  redis_version     = "REDIS_7_2"
   display_name      = "Terraform Test Instance"
   reserved_ip_range = "192.168.0.0/29"
 
@@ -172,7 +172,7 @@ resource "google_redis_instance" "cache" {
   authorized_network = google_compute_network.redis-network.id
   connect_mode       = "PRIVATE_SERVICE_ACCESS"
 
-  redis_version     = "REDIS_4_0"
+  redis_version     = "REDIS_7_2"
   display_name      = "Terraform Test Instance"
 
   depends_on = [google_service_networking_connection.private_service_connection]
@@ -201,9 +201,8 @@ resource "google_redis_instance" "cache" {
 
   authorized_network = data.google_compute_network.redis-network.id
 
-  redis_version     = "REDIS_6_X"
+  redis_version     = "REDIS_7_2"
   display_name      = "Terraform Test Instance"
-  reserved_ip_range = "192.168.0.0/28"
   replica_count     = 5
   read_replicas_mode = "READ_REPLICAS_ENABLED"
 
@@ -243,9 +242,8 @@ resource "google_redis_instance" "cache" {
 
   authorized_network = data.google_compute_network.redis-network.id
 
-  redis_version     = "REDIS_6_X"
+  redis_version     = "REDIS_7_2"
   display_name      = "Terraform Test Instance"
-  reserved_ip_range = "192.168.0.0/29"
 
   labels = {
     my_key    = "my_val"
@@ -293,9 +291,6 @@ The following arguments are supported:
 * `memory_size_gb` -
   (Required)
   Redis memory size in GiB.
-
-
-- - -
 
 
 * `alternative_location_id` -
@@ -425,6 +420,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_persistence_config"></a>The `persistence_config` block supports:
@@ -570,6 +566,13 @@ In addition to the arguments listed above, the following computed attributes are
   to transfer data to/from Cloud Storage. Format is "serviceAccount:".
   The value may change over time for a given instance so should be
   checked before each import/export operation.
+
+* `effective_reserved_ip_range` -
+  The CIDR range of internal addresses that are reserved for this
+  instance. If not provided, the service will choose an unused /29
+  block, for example, 10.0.0.0/29 or 192.168.0.0/29. Ranges must be
+  unique and non-overlapping with existing subnets in an authorized
+  network.
 
 * `server_ca_certs` -
   List of server CA certificates for the instance.

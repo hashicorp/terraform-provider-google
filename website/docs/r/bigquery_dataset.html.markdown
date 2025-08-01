@@ -257,9 +257,6 @@ The following arguments are supported:
   underscores (_). The maximum length is 1,024 characters.
 
 
-- - -
-
-
 * `max_time_travel_hours` -
   (Optional)
   Defines the time travel window in hours. The value can be from 48 to 168 hours (2 to 7 days).
@@ -383,6 +380,7 @@ The following arguments are supported:
 * `delete_contents_on_destroy` - (Optional) If set to `true`, delete all the tables in the
 dataset when destroying the resource; otherwise,
 destroying the resource will fail if tables are present.
+
 
 
 <a name="nested_access"></a>The `access` block supports:

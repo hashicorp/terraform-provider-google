@@ -101,6 +101,17 @@ If your backup type is incremental-backup, the encryption type must be GOOGLE_DE
 							Optional: true,
 							Description: `The resource name of the Cloud KMS key to use for encryption.
 Format: 'projects/{project}/locations/{location}/keyRings/{keyRing}/cryptoKeys/{cryptoKey}'`,
+							ConflictsWith: []string{"encryption_config.0.kms_key_names"},
+						},
+						"kms_key_names": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Fully qualified name of the KMS keys to use to encrypt this database. The keys must exist
+in the same locations as the Spanner Database.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							ConflictsWith: []string{"encryption_config.0.kms_key_name"},
 						},
 					},
 				},
@@ -538,7 +549,7 @@ func flattenSpannerBackupScheduleName(v interface{}, d *schema.ResourceData, con
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenSpannerBackupScheduleRetentionDuration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -601,6 +612,8 @@ func flattenSpannerBackupScheduleEncryptionConfig(v interface{}, d *schema.Resou
 		flattenSpannerBackupScheduleEncryptionConfigEncryptionType(original["encryptionType"], d, config)
 	transformed["kms_key_name"] =
 		flattenSpannerBackupScheduleEncryptionConfigKmsKeyName(original["kmsKeyName"], d, config)
+	transformed["kms_key_names"] =
+		flattenSpannerBackupScheduleEncryptionConfigKmsKeyNames(original["kmsKeyNames"], d, config)
 	return []interface{}{transformed}
 }
 func flattenSpannerBackupScheduleEncryptionConfigEncryptionType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -608,6 +621,10 @@ func flattenSpannerBackupScheduleEncryptionConfigEncryptionType(v interface{}, d
 }
 
 func flattenSpannerBackupScheduleEncryptionConfigKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSpannerBackupScheduleEncryptionConfigKmsKeyNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -719,6 +736,13 @@ func expandSpannerBackupScheduleEncryptionConfig(v interface{}, d tpgresource.Te
 		transformed["kmsKeyName"] = transformedKmsKeyName
 	}
 
+	transformedKmsKeyNames, err := expandSpannerBackupScheduleEncryptionConfigKmsKeyNames(original["kms_key_names"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyNames); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyNames"] = transformedKmsKeyNames
+	}
+
 	return transformed, nil
 }
 
@@ -727,6 +751,10 @@ func expandSpannerBackupScheduleEncryptionConfigEncryptionType(v interface{}, d 
 }
 
 func expandSpannerBackupScheduleEncryptionConfigKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSpannerBackupScheduleEncryptionConfigKmsKeyNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

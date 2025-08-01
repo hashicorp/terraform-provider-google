@@ -205,12 +205,10 @@ The following arguments are supported:
   in the format `organizations/{{org_name}}/instances/{{instance_name}}`.
 
 
-- - -
-
-
 * `activate` -
   (Optional)
   Flag that specifies whether the reserved NAT address should be activate.
+
 
 
 ## Attributes Reference

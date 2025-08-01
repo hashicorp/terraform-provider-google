@@ -130,9 +130,6 @@ The following arguments are supported:
   E.g. use `/project/user` instead of `1/{project}/{user}`.
 
 
-- - -
-
-
 * `dimensions` -
   (Optional)
   If this map is nonempty, then this override applies only to specific values for dimensions defined in the limit unit.
@@ -144,6 +141,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

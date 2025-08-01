@@ -178,7 +178,7 @@ This limit lets the service producer limit how many propagated Private Service C
 If the connection preference of the service attachment is ACCEPT_MANUAL, the limit applies to each project or network that is listed in the consumer accept list.
 If the connection preference of the service attachment is ACCEPT_AUTOMATIC, the limit applies to each project that contains a connected endpoint.
 
-If unspecified, the default propagated connection limit is 250.`,
+If unspecified, the default propagated connection limit is 250. To explicitly send a zero value, set 'send_propagated_connection_limit_if_zero = true'.`,
 			},
 			"reconcile_connections": {
 				Type:     schema.TypeBool,
@@ -238,6 +238,15 @@ this service attachment.`,
 				Computed: true,
 				Description: `Fingerprint of this resource. This field is used internally during
 updates of this resource.`,
+			},
+			"send_propagated_connection_limit_if_zero": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Controls the behavior of propagated_connection_limit.
+When false, setting propagated_connection_limit to zero causes the provider to use to the API's default value.
+When true, the provider will set propagated_connection_limit to zero.
+Defaults to false.`,
+				Default: false,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -367,6 +376,11 @@ func resourceComputeServiceAttachmentCreate(d *schema.ResourceData, meta interfa
 		obj["region"] = regionProp
 	}
 
+	obj, err = resourceComputeServiceAttachmentEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/serviceAttachments")
 	if err != nil {
 		return err
@@ -461,6 +475,12 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeServiceAttachment %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("send_propagated_connection_limit_if_zero"); !ok {
+		if err := d.Set("send_propagated_connection_limit_if_zero", false); err != nil {
+			return fmt.Errorf("Error setting send_propagated_connection_limit_if_zero: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
@@ -710,6 +730,11 @@ func resourceComputeServiceAttachmentImport(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("send_propagated_connection_limit_if_zero", false); err != nil {
+		return nil, fmt.Errorf("Error setting send_propagated_connection_limit_if_zero: %s", err)
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -891,11 +916,12 @@ func expandComputeServiceAttachmentConnectionPreference(v interface{}, d tpgreso
 
 func expandComputeServiceAttachmentTargetService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	resource := strings.Split(v.(string), "/")
-	resourceKind := resource[len(resource)-2]
-	resourceBound := resource[len(resource)-4]
 	if len(resource) < 4 {
 		return nil, fmt.Errorf("invalid value for target_service")
 	}
+
+	resourceKind := resource[len(resource)-2]
+	resourceBound := resource[len(resource)-4]
 
 	_, err := tpgresource.ParseRegionalFieldValue(resourceKind, v.(string), "project", resourceBound, "zone", d, config, true)
 	if err != nil {
@@ -998,6 +1024,17 @@ func expandComputeServiceAttachmentRegion(v interface{}, d tpgresource.Terraform
 	return f.RelativeLink(), nil
 }
 
+func resourceComputeServiceAttachmentEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	propagatedConnectionLimitProp := d.Get("propagated_connection_limit")
+	if sv, ok := d.GetOk("send_propagated_connection_limit_if_zero"); ok && sv.(bool) {
+		if v, ok := d.GetOkExists("propagated_connection_limit"); ok || !reflect.DeepEqual(v, propagatedConnectionLimitProp) {
+			obj["propagatedConnectionLimit"] = propagatedConnectionLimitProp
+		}
+	}
+
+	return obj, nil
+}
+
 func resourceComputeServiceAttachmentUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// need to send value in PATCH due to validation bug on api b/198329756
 	nameProp := d.Get("name")
@@ -1009,6 +1046,13 @@ func resourceComputeServiceAttachmentUpdateEncoder(d *schema.ResourceData, meta 
 	enableProxyProtocolProp := d.Get("enable_proxy_protocol")
 	if v, ok := d.GetOkExists("enable_proxy_protocol"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableProxyProtocolProp)) {
 		obj["enableProxyProtocol"] = enableProxyProtocolProp
+	}
+
+	propagatedConnectionLimitProp := d.Get("propagated_connection_limit")
+	if sv, ok := d.GetOk("send_propagated_connection_limit_if_zero"); ok && sv.(bool) {
+		if v, ok := d.GetOkExists("propagated_connection_limit"); ok || !reflect.DeepEqual(v, propagatedConnectionLimitProp) {
+			obj["propagatedConnectionLimit"] = propagatedConnectionLimitProp
+		}
 	}
 
 	return obj, nil

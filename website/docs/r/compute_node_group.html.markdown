@@ -154,21 +154,18 @@ resource "google_compute_node_group" "nodes" {
 The following arguments are supported:
 
 
+* `name` -
+  (Required)
+  Name of the resource.
+
 * `node_template` -
   (Required)
   The URL of the node template to which this node group belongs.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional textual description of the resource.
-
-* `name` -
-  (Optional)
-  Name of the resource.
 
 * `initial_size` -
   (Optional)
@@ -208,6 +205,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_maintenance_window"></a>The `maintenance_window` block supports:

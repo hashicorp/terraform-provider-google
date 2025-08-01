@@ -102,9 +102,6 @@ The following arguments are supported:
 
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   The display name of the Security Health Analytics custom module. This
@@ -129,6 +126,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_custom_config"></a>The `custom_config` block supports:

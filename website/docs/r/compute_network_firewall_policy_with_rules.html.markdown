@@ -23,8 +23,6 @@ description: |-
 
 The Compute NetworkFirewallPolicy with rules resource
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Compute Network Firewall Policy With Rules Full
@@ -32,11 +30,9 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_compute_network_firewall_policy_with_rules" "primary" {
-  provider = google-beta
   name = "fw-policy"
   description = "Terraform test"
 
@@ -109,48 +105,9 @@ resource "google_compute_network_firewall_policy_with_rules" "primary" {
       }
     }
   }
-
-  rule {
-    description    = "network scope rule 1"
-    rule_name      = "network scope 1"
-    priority       = 4000
-    enable_logging = false
-    action         = "allow"
-    direction      = "INGRESS"
-
-    match {
-      src_ip_ranges     = ["11.100.0.1/32"]
-      src_network_scope = "VPC_NETWORKS"
-      src_networks      = [google_compute_network.network.id]
-
-      layer4_config {
-        ip_protocol = "tcp"
-        ports       = [8080]
-      }
-    }
-  }
-
-  rule {
-    description    = "network scope rule 2"
-    rule_name      = "network scope 2"
-    priority       = 5000
-    enable_logging = false
-    action         = "allow"
-    direction      = "EGRESS"
-    match {
-      dest_ip_ranges     = ["0.0.0.0/0"]
-      dest_network_scope = "INTERNET"
-
-      layer4_config {
-        ip_protocol = "tcp"
-        ports       = [8080]
-      }
-    }
-  }
 }
 
 resource "google_network_security_address_group" "address_group_1" {
-  provider    = google-beta
   name        = "address-group"
   parent      = data.google_project.project.id
   description = "Global address group"
@@ -161,7 +118,6 @@ resource "google_network_security_address_group" "address_group_1" {
 }
 
 resource "google_tags_tag_key" "secure_tag_key_1" {
-  provider    = google-beta
   description = "Tag key"
   parent      = data.google_project.project.id
   purpose     = "GCE_FIREWALL"
@@ -173,14 +129,12 @@ resource "google_tags_tag_key" "secure_tag_key_1" {
 }
 
 resource "google_tags_tag_value" "secure_tag_value_1" {
-  provider    = google-beta
   description = "Tag value"
   parent      = google_tags_tag_key.secure_tag_key_1.id
   short_name  = "tag-value"
 }
 
 resource "google_network_security_security_profile_group" "security_profile_group_1" {
-  provider                  = google-beta
   name                      = "spg"
   parent                    = "organizations/123456789"
   description               = "my description"
@@ -188,17 +142,10 @@ resource "google_network_security_security_profile_group" "security_profile_grou
 }
 
 resource "google_network_security_security_profile" "security_profile_1" {
-  provider    = google-beta
   name        = "sp"
   type        = "THREAT_PREVENTION"
   parent      = "organizations/123456789"
   location    = "global"
-}
-
-resource "google_compute_network" "network" {
-  provider                = google-beta
-  name                    = "network"
-  auto_create_subnetworks = false
 }
 ```
 
@@ -220,6 +167,22 @@ The following arguments are supported:
   (Required)
   A list of firewall policy rules.
   Structure is [documented below](#nested_rule).
+
+
+* `description` -
+  (Optional)
+  An optional description of this resource.
+
+* `policy_type` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Policy type is used to determine which resources (networks) the policy can be associated with.
+  A policy can be associated with a network only if the network has the matching policyType in its network profile.
+  Different policy types may support some of the Firewall Rules features.
+  Possible values are: `VPC_POLICY`.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
 
 
 <a name="nested_rule"></a>The `rule` block supports:
@@ -347,16 +310,16 @@ The following arguments are supported:
   Maximum number of destination region codes allowed is 5000.
 
 * `src_network_scope` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Network scope of the traffic source.
   Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
 
 * `src_networks` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Networks of the traffic source. It can be either a full or partial url.
 
 * `dest_network_scope` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Network scope of the traffic destination.
   Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
 
@@ -429,17 +392,6 @@ The following arguments are supported:
   [Output Only] State of the secure tag, either `EFFECTIVE` or
   `INEFFECTIVE`. A secure tag is `INEFFECTIVE` when it is deleted
   or its network is deleted.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  An optional description of this resource.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

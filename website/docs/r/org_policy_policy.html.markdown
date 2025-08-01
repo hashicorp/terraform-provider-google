@@ -197,9 +197,6 @@ The following arguments are supported:
   The parent of the resource.
 
 
-- - -
-
-
 * `spec` -
   (Optional)
   Basic information about the Organization Policy.
@@ -209,6 +206,7 @@ The following arguments are supported:
   (Optional)
   Dry-run policy. Audit-only policy, can be used to monitor how the policy would have impacted the existing and future resources if it's enforced.
   Structure is [documented below](#nested_dry_run_spec).
+
 
 
 <a name="nested_spec"></a>The `spec` block supports:

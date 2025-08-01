@@ -162,6 +162,12 @@ The following arguments are supported:
   Id of the posture. It is an immutable field.
 
 
+* `description` -
+  (Optional)
+  Description of the posture.
+
+
+
 <a name="nested_policy_sets"></a>The `policy_sets` block supports:
 
 * `policy_set_id` -
@@ -535,14 +541,6 @@ The following arguments are supported:
 * `resource_types` -
   (Required)
   The resource types to run the detector on.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  Description of the posture.
-
 
 ## Attributes Reference
 

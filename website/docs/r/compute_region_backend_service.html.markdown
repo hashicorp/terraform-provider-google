@@ -535,6 +535,27 @@ resource "google_compute_instance_group" "s1" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_backend_service_dynamic_forwarding&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Backend Service Dynamic Forwarding
+
+
+```hcl
+resource "google_compute_region_backend_service" "default" {
+  provider                        = google-beta
+  name                            = "region-service"
+  region                          = "us-central1"
+  load_balancing_scheme           = "EXTERNAL_MANAGED"
+  dynamic_forwarding {
+    ip_port_selection {
+      enabled = true
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -550,9 +571,6 @@ The following arguments are supported:
   first character must be a lowercase letter, and all following
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
-
-
-- - -
 
 
 * `affinity_cookie_ttl_sec` -
@@ -770,6 +788,12 @@ The following arguments are supported:
   Subsetting configuration for this BackendService. Currently this is applicable only for Internal TCP/UDP load balancing and Internal HTTP(S) load balancing.
   Structure is [documented below](#nested_subsetting).
 
+* `dynamic_forwarding` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
+  feature which together with Service Extension allows customized and complex routing logic.
+  Structure is [documented below](#nested_dynamic_forwarding).
+
 * `region` -
   (Optional)
   The Region in which the created backend service should reside.
@@ -777,6 +801,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_backend"></a>The `backend` block supports:
@@ -1397,6 +1422,30 @@ The following arguments are supported:
   (Required)
   The algorithm used for subsetting.
   Possible values are: `CONSISTENT_HASH_SUBSETTING`.
+
+* `subset_size` -
+  (Optional)
+  The number of backends per backend group assigned to each proxy instance or each service mesh client.
+  An input parameter to the CONSISTENT_HASH_SUBSETTING algorithm. Can only be set if policy is set to
+  CONSISTENT_HASH_SUBSETTING. Can only be set if load balancing scheme is INTERNAL_MANAGED or INTERNAL_SELF_MANAGED.
+  subsetSize is optional for Internal HTTP(S) load balancing and required for Traffic Director.
+  If you do not provide this value, Cloud Load Balancing will calculate it dynamically to optimize the number
+  of proxies/clients visible to each backend and vice versa.
+  Must be greater than 0. If subsetSize is larger than the number of backends/endpoints, then subsetting is disabled.
+
+<a name="nested_dynamic_forwarding"></a>The `dynamic_forwarding` block supports:
+
+* `ip_port_selection` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  IP:PORT based dynamic forwarding configuration.
+  Structure is [documented below](#nested_dynamic_forwarding_ip_port_selection).
+
+
+<a name="nested_dynamic_forwarding_ip_port_selection"></a>The `ip_port_selection` block supports:
+
+* `enabled` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A boolean flag enabling IP:PORT based dynamic forwarding.
 
 ## Attributes Reference
 

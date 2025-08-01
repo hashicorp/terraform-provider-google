@@ -147,15 +147,13 @@ The following arguments are supported:
   Id of the domain. For default domain, it should be {{backend}}--{{project_id}}.{{location}}.hosted.app
 
 
-- - -
-
-
 * `disabled` -
   (Optional)
   Whether the domain is disabled. Defaults to false.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

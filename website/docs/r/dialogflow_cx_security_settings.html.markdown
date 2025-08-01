@@ -121,9 +121,6 @@ The following arguments are supported:
   The human-readable name of the security settings, unique within the location.
 
 
-- - -
-
-
 * `redaction_strategy` -
   (Optional)
   Defines how we redact data. If not set, defaults to not redacting.
@@ -180,6 +177,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_audio_export_settings"></a>The `audio_export_settings` block supports:

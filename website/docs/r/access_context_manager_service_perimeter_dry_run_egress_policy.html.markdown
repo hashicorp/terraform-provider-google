@@ -136,9 +136,6 @@ The following arguments are supported:
   The name of the Service Perimeter to add this resource to.
 
 
-- - -
-
-
 * `egress_from` -
   (Optional)
   Defines conditions on the source of a request causing this `EgressPolicy` to apply.
@@ -153,6 +150,7 @@ The following arguments are supported:
 * `title` -
   (Optional)
   Human readable title. Must be unique within the perimeter. Does not affect behavior.
+
 
 
 <a name="nested_egress_from"></a>The `egress_from` block supports:

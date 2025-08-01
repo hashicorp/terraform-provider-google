@@ -32,7 +32,6 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceGeminiDataSharingWithGoogleSettingBinding() *schema.Resource {
@@ -91,11 +90,10 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description: `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
 			},
 			"product": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"GEMINI_CLOUD_ASSIST", ""}),
-				Description:  `Product type of the setting binding. Possible values: ["GEMINI_CLOUD_ASSIST"]`,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: `Product type of the setting binding. Values include GEMINI_IN_BIGQUERY, GEMINI_CLOUD_ASSIST, etc. See [product reference](https://cloud.google.com/gemini/docs/api/reference/rest/v1/projects.locations.dataSharingWithGoogleSettings.settingBindings) for a complete list.`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -212,29 +210,15 @@ func resourceGeminiDataSharingWithGoogleSettingBindingCreate(d *schema.ResourceD
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = GeminiOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating DataSharingWithGoogleSettingBinding", userAgent,
+	err = GeminiOperationWaitTime(
+		config, res, project, "Creating DataSharingWithGoogleSettingBinding", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create DataSharingWithGoogleSettingBinding: %s", err)
 	}
-
-	if err := d.Set("name", flattenGeminiDataSharingWithGoogleSettingBindingName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/dataSharingWithGoogleSettings/{{data_sharing_with_google_setting_id}}/settingBindings/{{setting_binding_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating DataSharingWithGoogleSettingBinding %q: %#v", d.Id(), res)
 

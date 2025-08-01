@@ -184,6 +184,83 @@ The following arguments are supported:
   Structure is [documented below](#nested_networks).
 
 
+* `description` -
+  (Optional)
+  A description of the instance.
+
+* `protocol` -
+  (Optional)
+  Either NFSv3, for using NFS version 3 as file sharing protocol,
+  or NFSv4.1, for using NFS version 4.1 as file sharing protocol.
+  NFSv4.1 can be used with HIGH_SCALE_SSD, ZONAL, REGIONAL and ENTERPRISE.
+  The default is NFSv3.
+  Default value is `NFS_V3`.
+  Possible values are: `NFS_V3`, `NFS_V4_1`.
+
+* `labels` -
+  (Optional)
+  Resource labels to represent user-provided metadata.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `kms_key_name` -
+  (Optional)
+  KMS key name used for data encryption.
+
+* `deletion_protection_enabled` -
+  (Optional)
+  Indicates whether the instance is protected against deletion.
+
+* `deletion_protection_reason` -
+  (Optional)
+  The reason for enabling deletion protection.
+
+* `performance_config` -
+  (Optional)
+  Performance configuration for the instance. If not provided,
+  the default performance settings will be used.
+  Structure is [documented below](#nested_performance_config).
+
+* `tags` -
+  (Optional)
+  A map of resource manager tags. Resource manager tag keys
+  and values have the same definition as resource manager
+  tags. Keys must be in the format tagKeys/{tag_key_id},
+  and values are in the format tagValues/456. The field is
+  ignored when empty. The field is immutable and causes
+  resource replacement when mutated. This field is only set
+  at create time and modifying this field after creation
+  will trigger recreation. To apply tags to an existing
+  resource, see the `google_tags_tag_value` resource.
+
+* `initial_replication` -
+  (Optional)
+  Replication configuration, once set, this cannot be updated.
+  Additionally this should be specified on the replica instance only, indicating the active as the peer_instance
+  Structure is [documented below](#nested_initial_replication).
+
+* `directory_services` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Directory Services configuration.
+  Should only be set if protocol is "NFS_V4_1".
+  Structure is [documented below](#nested_directory_services).
+
+* `zone` -
+  (Optional, Deprecated)
+  The name of the Filestore zone of the instance.
+
+  ~> **Warning:** `zone` is deprecated and will be removed in a future major release. Use `location` instead.
+
+* `location` -
+  (Optional)
+  The name of the location of the instance. This can be a region for ENTERPRISE tier instances.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_file_shares"></a>The `file_shares` block supports:
 
 * `name` -
@@ -241,6 +318,11 @@ The following arguments are supported:
   Anon_gid may only be set with squashMode of ROOT_SQUASH. An error will be returned
   if this field is specified for other squashMode settings.
 
+* `network` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The source VPC network for `ip_ranges`.
+  Required for instances using Private Service Connect, optional otherwise.
+
 <a name="nested_networks"></a>The `networks` block supports:
 
 * `network` -
@@ -269,86 +351,23 @@ The following arguments are supported:
   If not provided, the connect mode defaults to
   DIRECT_PEERING.
   Default value is `DIRECT_PEERING`.
-  Possible values are: `DIRECT_PEERING`, `PRIVATE_SERVICE_ACCESS`.
+  Possible values are: `DIRECT_PEERING`, `PRIVATE_SERVICE_ACCESS`, `PRIVATE_SERVICE_CONNECT`.
 
-- - -
-
-
-* `description` -
-  (Optional)
-  A description of the instance.
-
-* `protocol` -
-  (Optional)
-  Either NFSv3, for using NFS version 3 as file sharing protocol,
-  or NFSv4.1, for using NFS version 4.1 as file sharing protocol.
-  NFSv4.1 can be used with HIGH_SCALE_SSD, ZONAL, REGIONAL and ENTERPRISE.
-  The default is NFSv3.
-  Default value is `NFS_V3`.
-  Possible values are: `NFS_V3`, `NFS_V4_1`.
-
-* `labels` -
-  (Optional)
-  Resource labels to represent user-provided metadata.
-
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `kms_key_name` -
-  (Optional)
-  KMS key name used for data encryption.
-
-* `deletion_protection_enabled` -
-  (Optional)
-  Indicates whether the instance is protected against deletion.
-
-* `deletion_protection_reason` -
-  (Optional)
-  The reason for enabling deletion protection.
-
-* `performance_config` -
-  (Optional)
-  Performance configuration for the instance. If not provided,
-  the default performance settings will be used.
-  Structure is [documented below](#nested_performance_config).
-
-* `tags` -
-  (Optional)
-  A map of resource manager tags. Resource manager tag keys
-  and values have the same definition as resource manager
-  tags. Keys must be in the format tagKeys/{tag_key_id},
-  and values are in the format tagValues/456. The field is
-  ignored when empty. The field is immutable and causes
-  resource replacement when mutated. This field is only set
-  at create time and modifying this field after creation
-  will trigger recreation. To apply tags to an existing
-  resource, see the `google_tags_tag_value` resource.
-
-* `initial_replication` -
-  (Optional)
-  Replication configuration, once set, this cannot be updated.
-  Addtionally this should be specified on the replica instance only, indicating the active as the peer_instance
-  Structure is [documented below](#nested_initial_replication).
-
-* `directory_services` -
+* `psc_config` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-  Directory Services configuration.
-  Should only be set if protocol is "NFS_V4_1".
-  Structure is [documented below](#nested_directory_services).
+  Private Service Connect configuration.
+  Should only be set when connect_mode is PRIVATE_SERVICE_CONNECT.
+  Structure is [documented below](#nested_networks_networks_psc_config).
 
-* `zone` -
-  (Optional, Deprecated)
-  The name of the Filestore zone of the instance.
 
-  ~> **Warning:** `zone` is deprecated and will be removed in a future major release. Use `location` instead.
+<a name="nested_networks_networks_psc_config"></a>The `psc_config` block supports:
 
-* `location` -
+* `endpoint_project` -
   (Optional)
-  The name of the location of the instance. This can be a region for ENTERPRISE tier instances.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
+  Consumer service project in which the Private Service Connect endpoint
+  would be set up. This is optional, and only relevant in case the network
+  is a shared VPC. If this is not specified, the endpoint would be set up
+  in the VPC host project.
 
 <a name="nested_performance_config"></a>The `performance_config` block supports:
 
@@ -465,6 +484,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 <a name="nested_effective_replication"></a>The `effective_replication` block contains:
 
+* `role` -
+  (Output)
+  The replication role.
+
 * `replicas` -
   (Optional)
   The replication role.
@@ -472,6 +495,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 
 <a name="nested_effective_replication_replicas"></a>The `replicas` block supports:
+
+* `peer_instance` -
+  (Output)
+  The peer instance.
 
 * `state` -
   (Output)

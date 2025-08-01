@@ -42,6 +42,7 @@ func init() {
 	// Add dependencies
 	s.Dependencies = []string{
 		"google_compute_region_target_https_proxy",
+		"google_network_security_backend_authentication_config",
 		"google_network_services_gateway",
 		"google_compute_target_https_proxy",
 		"google_compute_network",

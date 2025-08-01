@@ -74,8 +74,6 @@ The following arguments are supported:
   The TagValue of the TagBinding. Must be of the form tagValues/456.
 
 
-- - -
-
 
 
 ## Attributes Reference

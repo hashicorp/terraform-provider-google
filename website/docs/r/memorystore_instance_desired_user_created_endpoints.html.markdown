@@ -327,9 +327,6 @@ The following arguments are supported:
   The name of the region of the Memorystore instance these endpoints should be added to.
 
 
-- - -
-
-
 * `desired_user_created_endpoints` -
   (Optional)
   A list of desired user endpoints
@@ -337,6 +334,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_desired_user_created_endpoints"></a>The `desired_user_created_endpoints` block supports:

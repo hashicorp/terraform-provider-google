@@ -107,9 +107,6 @@ The following arguments are supported:
   The parent of the resource, an organization. Format should be `organizations/{organization_id}`.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   A human-friendly name for the constraint.
@@ -117,6 +114,7 @@ The following arguments are supported:
 * `description` -
   (Optional)
   A human-friendly description of the constraint to display as an error message when the policy is violated.
+
 
 
 ## Attributes Reference

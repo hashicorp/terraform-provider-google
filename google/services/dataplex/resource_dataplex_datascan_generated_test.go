@@ -220,7 +220,7 @@ resource "google_dataplex_datascan" "basic_quality" {
 `, context)
 }
 
-func TestAccDataplexDatascan_dataplexDatascanFullQualityExample(t *testing.T) {
+func TestAccDataplexDatascan_dataplexDatascanFullQualityTestExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -234,10 +234,10 @@ func TestAccDataplexDatascan_dataplexDatascanFullQualityExample(t *testing.T) {
 		CheckDestroy:             testAccCheckDataplexDatascanDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataplexDatascan_dataplexDatascanFullQualityExample(context),
+				Config: testAccDataplexDatascan_dataplexDatascanFullQualityTestExample(context),
 			},
 			{
-				ResourceName:            "google_dataplex_datascan.full_quality",
+				ResourceName:            "google_dataplex_datascan.full_quality_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_scan_id", "labels", "location", "terraform_labels"},
@@ -246,19 +246,82 @@ func TestAccDataplexDatascan_dataplexDatascanFullQualityExample(t *testing.T) {
 	})
 }
 
-func testAccDataplexDatascan_dataplexDatascanFullQualityExample(context map[string]interface{}) string {
+func testAccDataplexDatascan_dataplexDatascanFullQualityTestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_dataplex_datascan" "full_quality" {
+resource "google_bigquery_dataset" "tf_test_dataset" {
+  dataset_id = "tf_test_dataset_id_%{random_suffix}"
+  default_table_expiration_ms = 3600000
+}
+
+resource "google_bigquery_table" "tf_test_table" {
+  dataset_id          = google_bigquery_dataset.tf_test_dataset.dataset_id
+  table_id            = "tf_test_table_id_%{random_suffix}"
+  deletion_protection = false
+  schema              = <<EOF
+    [
+    {
+      "name": "name",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "station_id",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The id of the bike station"
+    },
+    {
+      "name": "address",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The address of the bike station"
+    },
+    {
+      "name": "power_type",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The powert type of the bike station"
+    },
+    {
+      "name": "property_type",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The type of the property"
+    },
+    {
+      "name": "number_of_docks",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The number of docks the property have"
+    },
+    {
+      "name": "footprint_length",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The footpring lenght of the property"
+    },
+    {
+      "name": "council_district",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The council district the property is in"
+    }
+    ]
+  EOF
+}
+
+
+resource "google_dataplex_datascan" "full_quality_test" {
   location = "us-central1"
-  display_name = "Full Datascan Quality"
-  data_scan_id = "tf-test-dataquality-full%{random_suffix}"
-  description = "Example resource - Full Datascan Quality"
+  display_name = "Full Datascan Quality Publishing"
+  data_scan_id = "tf-test-dataquality-full-test%{random_suffix}"
+  description = "Example resource - Full Datascan Quality with Publishing enabled"
   labels = {
     author = "billing"
   }
 
   data {
-    resource = "//bigquery.googleapis.com/projects/bigquery-public-data/datasets/austin_bikeshare/tables/bikeshare_stations"
+    resource = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_test_table.table_id}"
   }
 
   execution_spec {
@@ -267,12 +330,12 @@ resource "google_dataplex_datascan" "full_quality" {
         cron = "TZ=America/New_York 1 1 * * *"
       }
     }
-    field = "modified_date"
   }
 
   data_quality_spec {
     sampling_percent = 5
     row_filter = "station_id > 1000"
+    catalog_publishing_enabled = true
     post_scan_actions {
       notification_report {
         recipients {
@@ -359,13 +422,169 @@ resource "google_dataplex_datascan" "full_quality" {
     rules {
       dimension = "VALIDITY"
       sql_assertion {
-        sql_statement = "select * from bigquery-public-data.austin_bikeshare.bikeshare_stations where station_id is null"
+        sql_statement = "select * from %{project_name}.${google_bigquery_dataset.tf_test_dataset.dataset_id}.${google_bigquery_table.tf_test_table.table_id} where address is null"
       }
     }
   }
 
 
   project = "%{project_name}"
+}
+`, context)
+}
+
+func TestAccDataplexDatascan_dataplexDatascanBasicDiscoveryExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"location":      envvar.GetTestRegionFromEnv(),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexDatascanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataplexDatascan_dataplexDatascanBasicDiscoveryExample(context),
+			},
+			{
+				ResourceName:            "google_dataplex_datascan.basic_discovery",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_scan_id", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDataplexDatascan_dataplexDatascanBasicDiscoveryExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataplex_datascan" "basic_discovery" {
+  location     = "us-central1"
+  data_scan_id = "tf-test-datadiscovery-basic%{random_suffix}"
+
+  data {
+    resource = "//storage.googleapis.com/projects/${google_storage_bucket.tf_test_bucket.project}/buckets/${google_storage_bucket.tf_test_bucket.name}"
+  }
+
+  execution_spec {
+    trigger {
+      on_demand {}
+    }
+  }
+
+  data_discovery_spec {}
+
+  project = "%{project_name}"
+}
+
+resource "google_storage_bucket" "tf_test_bucket" {
+  name     = "tf-test-bucket-name-%{random_suffix}"
+  location = "%{location}"
+  uniform_bucket_level_access = true
+}
+`, context)
+}
+
+func TestAccDataplexDatascan_dataplexDatascanFullDiscoveryExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"location":      envvar.GetTestRegionFromEnv(),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexDatascanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataplexDatascan_dataplexDatascanFullDiscoveryExample(context),
+			},
+			{
+				ResourceName:            "google_dataplex_datascan.full_discovery",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_scan_id", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDataplexDatascan_dataplexDatascanFullDiscoveryExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataplex_datascan" "full_discovery" {
+  location     = "us-central1"
+  display_name = "Full Datascan Discovery"
+  data_scan_id = "tf-test-datadiscovery-full%{random_suffix}"
+  description  = "Example resource - Full Datascan Discovery"
+  labels = {
+    author = "billing"
+  }
+
+  data {
+    resource = "//storage.googleapis.com/projects/${google_storage_bucket.tf_test_bucket.project}/buckets/${google_storage_bucket.tf_test_bucket.name}"
+  }
+
+  execution_spec {
+    trigger {
+      schedule {
+        cron = "TZ=America/New_York 1 1 * * *"
+      }
+    }
+  }
+  
+  data_discovery_spec {
+    bigquery_publishing_config {
+      table_type = "BIGLAKE"
+      connection = "projects/${google_bigquery_connection.tf_test_connection.project}/locations/${google_bigquery_connection.tf_test_connection.location}/connections/${google_bigquery_connection.tf_test_connection.connection_id}"
+      location = "${google_storage_bucket.tf_test_bucket.location}"
+      project = "projects/${google_storage_bucket.tf_test_bucket.project}"
+    }
+
+    storage_config {
+      include_patterns = [
+        "ai*",
+        "ml*",
+      ]
+      exclude_patterns = [
+        "doc*",
+        "gen*",
+      ]
+      csv_options {
+        header_rows = 5
+        delimiter = ","
+        encoding = "UTF-8"
+        type_inference_disabled = false
+        quote = "'"
+      }
+      json_options {
+        encoding = "UTF-8"
+        type_inference_disabled = false
+      }
+    }
+  }
+
+  project = "%{project_name}"
+}
+
+resource "google_storage_bucket" "tf_test_bucket" {
+  name     = "tf-test-bucket-name-%{random_suffix}"
+  location = "%{location}"
+  uniform_bucket_level_access = true
+}
+
+resource "google_bigquery_connection" "tf_test_connection" {
+   connection_id = "tf-test-connection-%{random_suffix}"
+   location      = "us-central1"
+   friendly_name = "tf-test-connection-%{random_suffix}"
+   description   = "a bigquery connection for tf test"
+   cloud_resource {}
 }
 `, context)
 }

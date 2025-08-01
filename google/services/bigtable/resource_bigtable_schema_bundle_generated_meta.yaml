@@ -1,0 +1,17 @@
+resource: 'google_bigtable_schema_bundle'
+generation_type: 'mmv1'
+source_file: 'products/bigtable/SchemaBundle.yaml'
+api_service_name: 'bigtableadmin.googleapis.com'
+api_version: 'v2'
+api_resource_type_kind: 'SchemaBundle'
+fields:
+  - field: 'ignore_warnings'
+    provider_only: true
+  - field: 'instance'
+    provider_only: true
+  - field: 'name'
+  - field: 'proto_schema.proto_descriptors'
+  - field: 'schema_bundle_id'
+    provider_only: true
+  - field: 'table'
+    provider_only: true

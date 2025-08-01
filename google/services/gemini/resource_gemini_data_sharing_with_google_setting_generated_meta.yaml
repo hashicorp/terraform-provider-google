@@ -11,6 +11,7 @@ fields:
     provider_only: true
   - field: 'effective_labels'
     provider_only: true
+  - field: 'enable_data_sharing'
   - field: 'enable_preview_data_sharing'
   - field: 'labels'
   - field: 'location'

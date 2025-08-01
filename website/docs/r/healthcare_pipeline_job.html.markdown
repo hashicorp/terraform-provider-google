@@ -310,9 +310,6 @@ The following arguments are supported:
   Healthcare Dataset under which the Pipeline Job is to run
 
 
-- - -
-
-
 * `disable_lineage` -
   (Optional)
   If true, disables writing lineage for the pipeline.
@@ -347,6 +344,7 @@ The following arguments are supported:
   (Optional)
   Specifies the backfill configuration.
   Structure is [documented below](#nested_backfill_pipeline_job).
+
 
 
 <a name="nested_mapping_pipeline_job"></a>The `mapping_pipeline_job` block supports:

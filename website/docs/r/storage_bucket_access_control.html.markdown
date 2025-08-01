@@ -96,13 +96,11 @@ The following arguments are supported:
     example.com, the entity would be domain-example.com.
 
 
-- - -
-
-
 * `role` -
   (Optional)
   The access permission for the entity.
   Possible values are: `OWNER`, `READER`, `WRITER`.
+
 
 
 ## Attributes Reference

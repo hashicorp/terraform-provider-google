@@ -79,6 +79,8 @@ func ResourceNotebooksRuntime() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		DeprecationMessage: "`google_notebook_runtime` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.",
+
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:             schema.TypeString,
@@ -740,25 +742,15 @@ func resourceNotebooksRuntimeCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = NotebooksOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Runtime", userAgent,
+	err = NotebooksOperationWaitTime(
+		config, res, project, "Creating Runtime", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Runtime: %s", err)
 	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Runtime %q: %#v", d.Id(), res)
 

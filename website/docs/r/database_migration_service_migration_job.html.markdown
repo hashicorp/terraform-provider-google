@@ -399,9 +399,6 @@ The following arguments are supported:
   The ID of the migration job.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   The migration job display name.
@@ -458,6 +455,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_dump_flags"></a>The `dump_flags` block supports:

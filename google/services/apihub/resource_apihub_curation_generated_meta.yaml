@@ -1,0 +1,24 @@
+resource: 'google_apihub_curation'
+generation_type: 'mmv1'
+source_file: 'products/apihub/Curation.yaml'
+api_service_name: 'apihub.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Curation'
+autogen_status: true
+fields:
+  - field: 'create_time'
+  - field: 'curation_id'
+    provider_only: true
+  - field: 'description'
+  - field: 'display_name'
+  - field: 'endpoint.application_integration_endpoint_details.trigger_id'
+  - field: 'endpoint.application_integration_endpoint_details.uri'
+  - field: 'last_execution_error_code'
+  - field: 'last_execution_error_message'
+  - field: 'last_execution_state'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'plugin_instance_actions.action_id'
+  - field: 'plugin_instance_actions.plugin_instance'
+  - field: 'update_time'

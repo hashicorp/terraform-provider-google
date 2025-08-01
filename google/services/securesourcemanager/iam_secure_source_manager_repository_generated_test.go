@@ -35,7 +35,7 @@ func TestAccSecureSourceManagerRepositoryIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/securesourcemanager.repoAdmin",
-		"prevent_destroy": false,
+		"deletion_policy": "DELETE",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -71,7 +71,7 @@ func TestAccSecureSourceManagerRepositoryIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/securesourcemanager.repoAdmin",
-		"prevent_destroy": false,
+		"deletion_policy": "DELETE",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -98,7 +98,7 @@ func TestAccSecureSourceManagerRepositoryIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/securesourcemanager.repoAdmin",
-		"prevent_destroy": false,
+		"deletion_policy": "DELETE",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -135,9 +135,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "tf-test-my-instance%{random_suffix}"
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -146,9 +144,7 @@ resource "google_secure_source_manager_repository" "default" {
     instance = google_secure_source_manager_instance.instance.name
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository_iam_member" "foo" {
@@ -168,9 +164,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "tf-test-my-instance%{random_suffix}"
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -179,9 +173,7 @@ resource "google_secure_source_manager_repository" "default" {
     instance = google_secure_source_manager_instance.instance.name
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 data "google_iam_policy" "foo" {
@@ -216,9 +208,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "tf-test-my-instance%{random_suffix}"
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -227,9 +217,7 @@ resource "google_secure_source_manager_repository" "default" {
     instance = google_secure_source_manager_instance.instance.name
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 data "google_iam_policy" "foo" {
@@ -251,9 +239,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "tf-test-my-instance%{random_suffix}"
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -262,9 +248,7 @@ resource "google_secure_source_manager_repository" "default" {
     instance = google_secure_source_manager_instance.instance.name
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository_iam_binding" "foo" {
@@ -284,9 +268,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "tf-test-my-instance%{random_suffix}"
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -295,9 +277,7 @@ resource "google_secure_source_manager_repository" "default" {
     instance = google_secure_source_manager_instance.instance.name
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository_iam_binding" "foo" {

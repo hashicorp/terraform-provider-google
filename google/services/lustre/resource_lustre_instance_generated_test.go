@@ -59,13 +59,14 @@ func TestAccLustreInstance_lustreInstanceBasicExample(t *testing.T) {
 func testAccLustreInstance_lustreInstanceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_lustre_instance" "instance" {
-  instance_id  = "tf-test-my-instance%{random_suffix}"
-  location     = "us-central1-a"
-  description  = "test lustre instance"
-  filesystem   = "testfs"
-  capacity_gib = 18000
-  network      = data.google_compute_network.lustre-network.id
-  labels       = {
+  instance_id                 = "tf-test-my-instance%{random_suffix}"
+  location                    = "us-central1-a"
+  description                 = "test lustre instance"
+  filesystem                  = "testfs"
+  capacity_gib                = 18000
+  network                     = data.google_compute_network.lustre-network.id
+  per_unit_storage_throughput = 1000
+  labels                      = {
     test = "value"
   }
   timeouts {

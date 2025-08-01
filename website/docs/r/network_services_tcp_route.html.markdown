@@ -239,6 +239,32 @@ The following arguments are supported:
   Name of the TcpRoute resource.
 
 
+* `labels` -
+  (Optional)
+  Set of label tags associated with the TcpRoute resource.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `description` -
+  (Optional)
+  A free-text description of the resource. Max length 1024 characters.
+
+* `meshes` -
+  (Optional)
+  Meshes defines a list of meshes this TcpRoute is attached to, as one of the routing rules to route the requests served by the mesh.
+  Each mesh reference should match the pattern: projects/*/locations/global/meshes/<mesh_name>
+  The attached Mesh should be of a type SIDECAR
+
+* `gateways` -
+  (Optional)
+  Gateways defines a list of gateways this TcpRoute is attached to, as one of the routing rules to route the requests served by the gateway.
+  Each gateway reference should match the pattern: projects/*/locations/global/gateways/<gateway_name>
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_rules"></a>The `rules` block supports:
 
 * `matches` -
@@ -293,34 +319,6 @@ The following arguments are supported:
   If only one serviceName is specified and it has a weight greater than 0, 100% of the traffic is forwarded to that backend.
   If weights are specified for any one service name, they need to be specified for all of them.
   If weights are unspecified for all services, then, traffic is distributed in equal proportions to all of them.
-
-- - -
-
-
-* `labels` -
-  (Optional)
-  Set of label tags associated with the TcpRoute resource.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `description` -
-  (Optional)
-  A free-text description of the resource. Max length 1024 characters.
-
-* `meshes` -
-  (Optional)
-  Meshes defines a list of meshes this TcpRoute is attached to, as one of the routing rules to route the requests served by the mesh.
-  Each mesh reference should match the pattern: projects/*/locations/global/meshes/<mesh_name>
-  The attached Mesh should be of a type SIDECAR
-
-* `gateways` -
-  (Optional)
-  Gateways defines a list of gateways this TcpRoute is attached to, as one of the routing rules to route the requests served by the gateway.
-  Each gateway reference should match the pattern: projects/*/locations/global/gateways/<gateway_name>
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

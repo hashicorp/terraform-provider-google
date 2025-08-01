@@ -63,9 +63,6 @@ The following arguments are supported:
   The bucket of the resource
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Describes this view.
@@ -81,6 +78,7 @@ The following arguments are supported:
 * `location` -
   (Optional)
   The location of the resource. The supported locations are: global, us-central1, us-east1, us-west1, asia-east1, europe-west1.
+
 
 
 ## Attributes Reference

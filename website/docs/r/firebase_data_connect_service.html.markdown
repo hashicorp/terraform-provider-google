@@ -97,9 +97,6 @@ The following arguments are supported:
   service's resource name.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   Optional. Mutable human-readable name. 63 character limit.
@@ -124,6 +121,7 @@ Service to be deleted even if a Schema or Connector is present. By default,
 the Service deletion will only succeed when no Schema or Connectors are
 present.
 Possible values: DEFAULT, FORCE
+
 
 ## Attributes Reference
 

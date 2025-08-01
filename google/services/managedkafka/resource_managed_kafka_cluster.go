@@ -155,6 +155,47 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 					},
 				},
 			},
+			"tls_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `TLS configuration for the Kafka cluster. This is used to configure mTLS authentication. To clear our a TLS configuration that has been previously set, please explicitly add an empty 'tls_config' block.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ssl_principal_mapping_rules": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The rules for mapping mTLS certificate Distinguished Names (DNs) to shortened principal names for Kafka ACLs. This field corresponds exactly to the ssl.principal.mapping.rules broker config and matches the format and syntax defined in the Apache Kafka documentation. Setting or modifying this field will trigger a rolling restart of the Kafka brokers to apply the change. An empty string means that the default Kafka behavior is used. Example: 'RULE:^CN=(.?),OU=ServiceUsers.$/$1@example.com/,DEFAULT'`,
+						},
+						"trust_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The configuration of the broker truststore. If specified, clients can use mTLS for authentication.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"cas_configs": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration for the Google Certificate Authority Service. To support mTLS, you must specify at least one 'cas_configs' block. A maximum of 10 CA pools can be specified. Additional CA pools may be specified with additional 'cas_configs' blocks.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"ca_pool": {
+													Type:             schema.TypeString,
+													Required:         true,
+													DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
+													Description:      `The name of the CA pool to pull CA certificates from. The CA pool does not need to be in the same project or location as the Kafka cluster. Must be in the format 'projects/PROJECT_ID/locations/LOCATION/caPools/CA_POOL_ID.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -225,6 +266,12 @@ func resourceManagedKafkaClusterCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("rebalance_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(rebalanceConfigProp)) && (ok || !reflect.DeepEqual(v, rebalanceConfigProp)) {
 		obj["rebalanceConfig"] = rebalanceConfigProp
 	}
+	tlsConfigProp, err := expandManagedKafkaClusterTlsConfig(d.Get("tls_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tls_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(tlsConfigProp)) && (ok || !reflect.DeepEqual(v, tlsConfigProp)) {
+		obj["tlsConfig"] = tlsConfigProp
+	}
 	labelsProp, err := expandManagedKafkaClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -273,29 +320,15 @@ func resourceManagedKafkaClusterCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = ManagedKafkaOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Cluster", userAgent,
+	err = ManagedKafkaOperationWaitTime(
+		config, res, project, "Creating Cluster", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Cluster: %s", err)
 	}
-
-	if err := d.Set("name", flattenManagedKafkaClusterName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Cluster %q: %#v", d.Id(), res)
 
@@ -368,6 +401,9 @@ func resourceManagedKafkaClusterRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("state", flattenManagedKafkaClusterState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("tls_config", flattenManagedKafkaClusterTlsConfig(res["tlsConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenManagedKafkaClusterTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -412,6 +448,12 @@ func resourceManagedKafkaClusterUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("rebalance_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rebalanceConfigProp)) {
 		obj["rebalanceConfig"] = rebalanceConfigProp
 	}
+	tlsConfigProp, err := expandManagedKafkaClusterTlsConfig(d.Get("tls_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tls_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tlsConfigProp)) {
+		obj["tlsConfig"] = tlsConfigProp
+	}
 	labelsProp, err := expandManagedKafkaClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -438,6 +480,10 @@ func resourceManagedKafkaClusterUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("rebalance_config") {
 		updateMask = append(updateMask, "rebalanceConfig")
+	}
+
+	if d.HasChange("tls_config") {
+		updateMask = append(updateMask, "tlsConfig")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -687,6 +733,57 @@ func flattenManagedKafkaClusterState(v interface{}, d *schema.ResourceData, conf
 	return v
 }
 
+func flattenManagedKafkaClusterTlsConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["trust_config"] =
+		flattenManagedKafkaClusterTlsConfigTrustConfig(original["trustConfig"], d, config)
+	transformed["ssl_principal_mapping_rules"] =
+		flattenManagedKafkaClusterTlsConfigSslPrincipalMappingRules(original["sslPrincipalMappingRules"], d, config)
+	return []interface{}{transformed}
+}
+func flattenManagedKafkaClusterTlsConfigTrustConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["cas_configs"] =
+		flattenManagedKafkaClusterTlsConfigTrustConfigCasConfigs(original["casConfigs"], d, config)
+	return []interface{}{transformed}
+}
+func flattenManagedKafkaClusterTlsConfigTrustConfigCasConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"ca_pool": flattenManagedKafkaClusterTlsConfigTrustConfigCasConfigsCaPool(original["caPool"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenManagedKafkaClusterTlsConfigTrustConfigCasConfigsCaPool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenManagedKafkaClusterTlsConfigSslPrincipalMappingRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenManagedKafkaClusterTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -835,6 +932,86 @@ func expandManagedKafkaClusterRebalanceConfig(v interface{}, d tpgresource.Terra
 }
 
 func expandManagedKafkaClusterRebalanceConfigMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandManagedKafkaClusterTlsConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTrustConfig, err := expandManagedKafkaClusterTlsConfigTrustConfig(original["trust_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTrustConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["trustConfig"] = transformedTrustConfig
+	}
+
+	transformedSslPrincipalMappingRules, err := expandManagedKafkaClusterTlsConfigSslPrincipalMappingRules(original["ssl_principal_mapping_rules"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSslPrincipalMappingRules); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sslPrincipalMappingRules"] = transformedSslPrincipalMappingRules
+	}
+
+	return transformed, nil
+}
+
+func expandManagedKafkaClusterTlsConfigTrustConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCasConfigs, err := expandManagedKafkaClusterTlsConfigTrustConfigCasConfigs(original["cas_configs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCasConfigs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["casConfigs"] = transformedCasConfigs
+	}
+
+	return transformed, nil
+}
+
+func expandManagedKafkaClusterTlsConfigTrustConfigCasConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedCaPool, err := expandManagedKafkaClusterTlsConfigTrustConfigCasConfigsCaPool(original["ca_pool"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedCaPool); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["caPool"] = transformedCaPool
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandManagedKafkaClusterTlsConfigTrustConfigCasConfigsCaPool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandManagedKafkaClusterTlsConfigSslPrincipalMappingRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

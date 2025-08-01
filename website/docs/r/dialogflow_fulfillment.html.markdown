@@ -65,9 +65,6 @@ The following arguments are supported:
   The human-readable name of the fulfillment, unique within the agent.
 
 
-- - -
-
-
 * `enabled` -
   (Optional)
   Whether fulfillment is enabled.
@@ -84,6 +81,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_features"></a>The `features` block supports:

@@ -68,15 +68,13 @@ The following arguments are supported:
   https://google.aip.dev/122#resource-id-segments
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Optional. A description of the data access label for a human reader.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

@@ -84,6 +84,8 @@ The following arguments are supported:
   Possible values are: `ANALYTICS`, `DNS_CNAME`, `DNS_TXT`, `FILE`, `META`, `TAG_MANAGER`.
 
 
+
+
 <a name="nested_site"></a>The `site` block supports:
 
 * `type` -
@@ -95,10 +97,6 @@ The following arguments are supported:
   (Required)
   The site identifier. If the type is set to SITE, the identifier is a URL. If the type is
   set to INET_DOMAIN, the identifier is a domain name.
-
-- - -
-
-
 
 ## Attributes Reference
 

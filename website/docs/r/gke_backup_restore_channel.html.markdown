@@ -66,9 +66,6 @@ The following arguments are supported:
   The region of the Restore Channel.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   User specified descriptive string for this RestoreChannel.
@@ -84,6 +81,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

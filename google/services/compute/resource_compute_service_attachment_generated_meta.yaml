@@ -24,4 +24,6 @@ fields:
   - field: 'propagated_connection_limit'
   - field: 'reconcile_connections'
   - field: 'region'
+  - field: 'send_propagated_connection_limit_if_zero'
+    provider_only: true
   - field: 'target_service'

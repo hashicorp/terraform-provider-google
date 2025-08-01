@@ -125,9 +125,6 @@ The following arguments are supported:
   Instance IDs cannot be reused after deletion.
 
 
-- - -
-
-
 * `type` -
   (Optional)
   The database type.
@@ -141,6 +138,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `desired_state` - (Optional) The intended database state. Possible values: ACTIVE, DISABLED.
+
 
 
 ## Attributes Reference

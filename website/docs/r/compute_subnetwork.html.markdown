@@ -346,9 +346,6 @@ The following arguments are supported:
   Only networks that are in the distributed mode can have subnetworks.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource. Provide this property when
@@ -465,6 +462,11 @@ The following arguments are supported:
 
   ~> **Warning:** This field is being removed in favor of log_config. If log_config is present, flow logs are enabled.
 
+* `params` -
+  (Optional)
+  Additional params passed with the request, but not persisted as part of resource payload
+  Structure is [documented below](#nested_params).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -474,6 +476,7 @@ the provider will default to the API's value.
 When true, the provider will treat removing secondary_ip_range as sending an
 empty list of secondary IP ranges to the API.
 Defaults to false.
+
 
 
 <a name="nested_secondary_ip_range"></a>The `secondary_ip_range` block supports:
@@ -535,6 +538,17 @@ Defaults to false.
   Export filter used to define which VPC flow logs should be logged, as as CEL expression. See
   https://cloud.google.com/vpc/docs/flow-logs#filtering for details on how to format this field.
   The default value is 'true', which evaluates to include everything.
+
+<a name="nested_params"></a>The `params` block supports:
+
+* `resource_manager_tags` -
+  (Optional)
+  Resource manager tags to be bound to the subnetwork. Tag keys and values have the
+  same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+  and values are in the format tagValues/456. The field is ignored when empty.
+  The field is immutable and causes resource replacement when mutated. This field is only
+  set at create time and modifying this field after creation will trigger recreation.
+  To apply tags to an existing resource, see the google_tags_tag_binding resource.
 
 ## Attributes Reference
 

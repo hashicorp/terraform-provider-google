@@ -77,6 +77,36 @@ func ResourceComputeRouterRoutePolicy() *schema.Resource {
 				Description: `List of terms (the order in the list is not important, they are evaluated in order of priority).`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"match": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `CEL expression evaluated against a route to determine if this term applies (see Policy Language).`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"expression": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Textual representation of an expression in Common Expression Language syntax.`,
+									},
+									"description": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Description of the expression`,
+									},
+									"location": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `String indicating the location of the expression for error reporting, e.g. a file name and a position in the file`,
+									},
+									"title": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Title for the expression, i.e. a short string describing its purpose.`,
+									},
+								},
+							},
+						},
 						"priority": {
 							Type:        schema.TypeInt,
 							Required:    true,
@@ -110,36 +140,6 @@ reporting, e.g. a file name and a position in the file`,
 										Optional: true,
 										Description: `Title for the expression, i.e. a short string describing its
 purpose.`,
-									},
-								},
-							},
-						},
-						"match": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							Description: `CEL expression evaluated against a route to determine if this term applies (see Policy Language). When not set, the term applies to all routes.`,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"expression": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `Textual representation of an expression in Common Expression Language syntax.`,
-									},
-									"description": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Description of the expression`,
-									},
-									"location": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `String indicating the location of the expression for error reporting, e.g. a file name and a position in the file`,
-									},
-									"title": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Title for the expression, i.e. a short string describing its purpose.`,
 									},
 								},
 							},

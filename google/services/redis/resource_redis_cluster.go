@@ -378,11 +378,10 @@ resolution and up to nine fractional digits.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"backup": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-							Description: `Example: //redis.googleapis.com/projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup} A shorter version (without the prefix) of the backup name is also supported,
-like projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backupId}. In this case, it assumes the backup is under redis.googleapis.com.`,
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Example: 'projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup}'.`,
 						},
 					},
 				},
@@ -622,6 +621,32 @@ resolution and up to nine fractional digits.`,
 							Description: `Output only. The start time of any upcoming scheduled maintenance for this cluster.
 A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
 resolution and up to nine fractional digits.`,
+						},
+					},
+				},
+			},
+			"managed_server_ca": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Cluster's Certificate Authority. This field will only be populated if Redis Cluster's transit_encryption_mode is TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ca_certs": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The PEM encoded CA certificate chains for redis managed server authentication`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"certificates": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `The certificates that form the CA chain, from leaf to root order`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
 						},
 					},
 				},
@@ -943,6 +968,18 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("RedisCluster %q", d.Id()))
 	}
 
+	res, err = resourceRedisClusterDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing RedisCluster because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -1025,6 +1062,9 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("kms_key", flattenRedisClusterKmsKey(res["kmsKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("managed_server_ca", flattenRedisClusterManagedServerCa(res["managedServerCa"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 
@@ -2035,6 +2075,41 @@ func flattenRedisClusterKmsKey(v interface{}, d *schema.ResourceData, config *tr
 	return v
 }
 
+func flattenRedisClusterManagedServerCa(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ca_certs"] =
+		flattenRedisClusterManagedServerCaCaCerts(original["caCerts"], d, config)
+	return []interface{}{transformed}
+}
+func flattenRedisClusterManagedServerCaCaCerts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"certificates": flattenRedisClusterManagedServerCaCaCertsCertificates(original["certificates"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenRedisClusterManagedServerCaCaCertsCertificates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandRedisClusterGcsSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -2733,4 +2808,55 @@ func resourceRedisClusterEncoder(d *schema.ResourceData, meta interface{}, obj m
 	}
 
 	return obj, nil
+}
+
+func resourceRedisClusterDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	// Such custom code is necessary as the Cluster's certificate authority has to be retrieved via a dedicated
+	// getCertificateAuthority API.
+	// See https://cloud.google.com/memorystore/docs/cluster/reference/rest/v1/projects.locations.clusters/getCertificateAuthority#http-request
+	// for details about this API.
+	config := meta.(*transport_tpg.Config)
+
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	// Only clusters with TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION mode have certificate authority set
+	if v, ok := res["transitEncryptionMode"].(string); !ok || v != "TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION" {
+		return res, nil
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/clusters/{{name}}/certificateAuthority")
+	if err != nil {
+		return nil, err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return nil, fmt.Errorf("Error fetching project for Cluster: %s", err)
+	}
+
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	certificateAuthority, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("Error reading certificateAuthority: %s", err)
+	}
+
+	res["managedServerCa"] = certificateAuthority["managedServerCa"]
+	return res, nil
 }

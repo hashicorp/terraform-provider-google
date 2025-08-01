@@ -94,9 +94,6 @@ The following arguments are supported:
   The unique identifier for the Chronicle instance, which is the same as the customer ID.
 
 
-- - -
-
-
 * `text` -
   (Optional)
   The YARA-L content of the rule.
@@ -130,6 +127,7 @@ rule has no associated retrohunts, including completed retrohunts, and no
 associated detections. Regardless of this field's value, the rule
 deployment associated with this rule will also be deleted.
 Possible values: DEFAULT, FORCE
+
 
 
 ## Attributes Reference

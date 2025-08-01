@@ -12,6 +12,7 @@ import builds.*
 import jetbrains.buildServer.configs.kotlin.Project
 import projects.reused.mmUpstream
 import projects.reused.nightlyTests
+import projects.reused.weeklyDiffTests
 import projects.reused.vcrRecording
 import replaceCharsId
 import vcs_roots.HashiCorpVCSRootBeta
@@ -40,6 +41,9 @@ fun googleSubProjectBeta(allConfig: AllContextParameters): Project {
         // VCR recording project that allows VCR recordings to be made using hashicorp/terraform-provider-google-beta OR modular-magician/terraform-provider-google-beta
         // This is only present for the Beta provider, as only TPGB VCR recordings are used.
         subProject(vcrRecording(betaId, ProviderNameBeta, HashiCorpVCSRootBeta, ModularMagicianVCSRootBeta, vcrConfig))
+
+        // Beta Diff Test project that uses hashicorp/terraform-provider-google-beta-diff-test
+        subProject(weeklyDiffTests(betaId + "_DIFF_TEST", ProviderNameBeta, HashiCorpVCSRootBeta, betaConfig, NightlyTriggerConfiguration(daysOfWeek = "SAT", nightlyTestsEnabled = false)))
 
         params {
             readOnlySettings()

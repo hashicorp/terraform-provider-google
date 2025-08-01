@@ -110,9 +110,6 @@ The following arguments are supported:
   The network endpoint group this endpoint is part of.
 
 
-- - -
-
-
 * `instance` -
   (Optional)
   The name for a specific VM instance that the IP address belongs to.
@@ -131,6 +128,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

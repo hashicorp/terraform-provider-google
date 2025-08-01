@@ -327,16 +327,16 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteAptExampl
 	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-debian-buster%{random_suffix}"
+  repository_id = "tf-test-debian-stable%{random_suffix}"
   description   = "example remote apt repository%{random_suffix}"
   format        = "APT"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
-    description = "Debian buster remote repository"
+    description = "Debian stable remote repository"
     apt_repository {
       public_repository {
         repository_base = "DEBIAN"
-        repository_path = "debian/dists/buster"
+        repository_path = "debian/dists/stable"
       }
     }
   }

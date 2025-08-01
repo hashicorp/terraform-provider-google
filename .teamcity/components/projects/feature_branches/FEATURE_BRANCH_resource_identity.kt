@@ -32,6 +32,7 @@ fun featureBranchResourceIdentitySubProject(allConfig: AllContextParameters): Pr
     val trigger  = NightlyTriggerConfiguration(
         branch = "refs/heads/$featureBranchResourceIdentity", // triggered builds must test the feature branch
         startHour = DefaultStartHour + 6,
+        nightlyTestsEnabled = false
     )
     val vcrConfig = getVcrAcceptanceTestConfig(allConfig) // Reused below for both MM testing build configs
     val servicesToTest = arrayOf("secretmanager", "resourcemanager")

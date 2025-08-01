@@ -213,29 +213,15 @@ func resourceGKEBackupBackupChannelCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = GKEBackupOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating BackupChannel", userAgent,
+	err = GKEBackupOperationWaitTime(
+		config, res, project, "Creating BackupChannel", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create BackupChannel: %s", err)
 	}
-
-	if err := d.Set("name", flattenGKEBackupBackupChannelName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backupChannels/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating BackupChannel %q: %#v", d.Id(), res)
 
@@ -483,7 +469,7 @@ func flattenGKEBackupBackupChannelName(v interface{}, d *schema.ResourceData, co
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenGKEBackupBackupChannelUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

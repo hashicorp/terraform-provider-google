@@ -42,7 +42,7 @@ resource "google_compute_interconnect" "example-interconnect" {
   customer_name        = "example_customer"
   interconnect_type    = "DEDICATED"
   link_type            = "LINK_TYPE_ETHERNET_10G_LR"
-  location             = "https://www.googleapis.com/compute/v1/projects/${data.google_project.project.name}/global/interconnectLocations/iad-zone1-1"
+  location             = "https://www.googleapis.com/compute/v1/${data.google_project.project.id}/global/interconnectLocations/iad-zone1-1"
   requested_link_count = 1
 }
 ```
@@ -85,9 +85,6 @@ The following arguments are supported:
     - PARTNER: A partner-managed interconnection shared between customers though a partner.
     - DEDICATED: A dedicated physical interconnection with the customer.
   Possible values are: `DEDICATED`, `PARTNER`, `IT_PRIVATE`.
-
-
-- - -
 
 
 * `description` -
@@ -145,10 +142,21 @@ The following arguments are supported:
   specified, the default value is false, which allocates non-MACsec capable ports first if
   available). Note that MACSEC is still technically allowed for compatibility reasons, but it
   does not work with the API, and will be removed in an upcoming major version.
-  Each value may be one of: `MACSEC`, `IF_MACSEC`.
+  Each value may be one of: `MACSEC`, `CROSS_SITE_NETWORK`, `IF_MACSEC`.
+
+* `aai_enabled` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Enable or disable the Application Aware Interconnect(AAI) feature on this interconnect.
+
+* `application_aware_interconnect` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Configuration that enables Media Access Control security (MACsec) on the Cloud
+  Interconnect connection between Google and your on-premises router.
+  Structure is [documented below](#nested_application_aware_interconnect).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_macsec"></a>The `macsec` block supports:
@@ -197,6 +205,62 @@ The following arguments are supported:
   if the MKA session cannot be established with your router.
 
   ~> **Warning:** `failOpen` is deprecated and will be removed in a future major release. Use other `failOpen` instead.
+
+<a name="nested_application_aware_interconnect"></a>The `application_aware_interconnect` block supports:
+
+* `profile_description` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A description for the AAI profile on this interconnect.
+
+* `strict_priority_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specify configuration for StrictPriorityPolicy.
+
+* `bandwidth_percentage_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Bandwidth Percentage policy allows you to have granular control over how your Interconnect
+  bandwidth is utilized among your workloads mapping to different traffic classes.
+  Structure is [documented below](#nested_application_aware_interconnect_bandwidth_percentage_policy).
+
+* `shape_average_percentage` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Optional field to specify a list of shape average percentages to be
+  applied in conjunction with StrictPriorityPolicy or BandwidthPercentagePolicy
+  Structure is [documented below](#nested_application_aware_interconnect_shape_average_percentage).
+
+
+<a name="nested_application_aware_interconnect_bandwidth_percentage_policy"></a>The `bandwidth_percentage_policy` block supports:
+
+* `bandwidth_percentage` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specify bandwidth percentages for various traffic classes for queuing
+  type Bandwidth Percent.
+  Structure is [documented below](#nested_application_aware_interconnect_bandwidth_percentage_policy_bandwidth_percentage).
+
+
+<a name="nested_application_aware_interconnect_bandwidth_percentage_policy_bandwidth_percentage"></a>The `bandwidth_percentage` block supports:
+
+* `traffic_class` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Enum representing the various traffic classes offered by AAI.
+  Default value is `TC_UNSPECIFIED`.
+  Possible values are: `TC_UNSPECIFIED`, `TC1`, `TC2`, `TC3`, `TC4`, `TC5`, `TC6`.
+
+* `percentage` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Bandwidth percentage for a specific traffic class.
+
+<a name="nested_application_aware_interconnect_shape_average_percentage"></a>The `shape_average_percentage` block supports:
+
+* `traffic_class` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Enum representing the various traffic classes offered by AAI.
+  Default value is `TC_UNSPECIFIED`.
+  Possible values are: `TC_UNSPECIFIED`, `TC1`, `TC2`, `TC3`, `TC4`, `TC5`, `TC6`.
+
+* `percentage` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Bandwidth percentage for a specific traffic class.
 
 ## Attributes Reference
 
@@ -267,6 +331,14 @@ In addition to the arguments listed above, the following computed attributes are
   MACSEC. If present then the Interconnect connection is provisioned on MACsec capable hardware
   ports. If not present then the Interconnect connection is provisioned on non-MACsec capable
   ports and MACsec isn't supported and enabling MACsec fails).
+
+* `wire_groups` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A list of the URLs of all CrossSiteNetwork WireGroups configured to use this Interconnect. The Interconnect cannot be deleted if this list is non-empty.
+
+* `interconnect_groups` -
+  URLs of InterconnectGroups that include this Interconnect.
+  Order is arbitrary and items are unique.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

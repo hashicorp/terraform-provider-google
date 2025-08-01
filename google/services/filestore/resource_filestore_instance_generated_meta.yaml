@@ -13,10 +13,14 @@ fields:
     provider_only: true
   - field: 'effective_replication.replicas.last_active_sync_time'
     api_field: 'replication.replicas.last_active_sync_time'
+  - field: 'effective_replication.replicas.peer_instance'
+    api_field: 'replication.replicas.peer_instance'
   - field: 'effective_replication.replicas.state'
     api_field: 'replication.replicas.state'
   - field: 'effective_replication.replicas.state_reasons'
     api_field: 'replication.replicas.state_reasons'
+  - field: 'effective_replication.role'
+    api_field: 'replication.role'
   - field: 'etag'
   - field: 'file_shares.capacity_gb'
   - field: 'file_shares.name'
@@ -27,9 +31,9 @@ fields:
   - field: 'file_shares.nfs_export_options.squash_mode'
   - field: 'file_shares.source_backup'
   - field: 'initial_replication.replicas.peer_instance'
-    provider_only: true
+    api_field: 'replication.replicas.peer_instance'
   - field: 'initial_replication.role'
-    provider_only: true
+    api_field: 'replication.role'
   - field: 'kms_key_name'
   - field: 'labels'
   - field: 'location'

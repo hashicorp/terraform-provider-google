@@ -170,6 +170,7 @@ resource "google_dataplex_datascan" "full_quality" {
   data_quality_spec {
     sampling_percent = 5
     row_filter = "station_id > 1000"
+    catalog_publishing_enabled = true
     post_scan_actions {
       notification_report {
         recipients {
@@ -265,6 +266,108 @@ resource "google_dataplex_datascan" "full_quality" {
   project = "my-project-name"
 }
 ```
+## Example Usage - Dataplex Datascan Basic Discovery
+
+
+```hcl
+resource "google_dataplex_datascan" "basic_discovery" {
+  location     = "us-central1"
+  data_scan_id = "datadiscovery-basic"
+
+  data {
+    resource = "//storage.googleapis.com/projects/${google_storage_bucket.tf_test_bucket.project}/buckets/${google_storage_bucket.tf_test_bucket.name}"
+  }
+
+  execution_spec {
+    trigger {
+      on_demand {}
+    }
+  }
+
+  data_discovery_spec {}
+
+  project = "my-project-name"
+}
+
+resource "google_storage_bucket" "tf_test_bucket" {
+  name     = "tf-test-bucket-name-%{random_suffix}"
+  location = "us-west1"
+  uniform_bucket_level_access = true
+}
+```
+## Example Usage - Dataplex Datascan Full Discovery
+
+
+```hcl
+resource "google_dataplex_datascan" "full_discovery" {
+  location     = "us-central1"
+  display_name = "Full Datascan Discovery"
+  data_scan_id = "datadiscovery-full"
+  description  = "Example resource - Full Datascan Discovery"
+  labels = {
+    author = "billing"
+  }
+
+  data {
+    resource = "//storage.googleapis.com/projects/${google_storage_bucket.tf_test_bucket.project}/buckets/${google_storage_bucket.tf_test_bucket.name}"
+  }
+
+  execution_spec {
+    trigger {
+      schedule {
+        cron = "TZ=America/New_York 1 1 * * *"
+      }
+    }
+  }
+  
+  data_discovery_spec {
+    bigquery_publishing_config {
+      table_type = "BIGLAKE"
+      connection = "projects/${google_bigquery_connection.tf_test_connection.project}/locations/${google_bigquery_connection.tf_test_connection.location}/connections/${google_bigquery_connection.tf_test_connection.connection_id}"
+      location = "${google_storage_bucket.tf_test_bucket.location}"
+      project = "projects/${google_storage_bucket.tf_test_bucket.project}"
+    }
+
+    storage_config {
+      include_patterns = [
+        "ai*",
+        "ml*",
+      ]
+      exclude_patterns = [
+        "doc*",
+        "gen*",
+      ]
+      csv_options {
+        header_rows = 5
+        delimiter = ","
+        encoding = "UTF-8"
+        type_inference_disabled = false
+        quote = "'"
+      }
+      json_options {
+        encoding = "UTF-8"
+        type_inference_disabled = false
+      }
+    }
+  }
+
+  project = "my-project-name"
+}
+
+resource "google_storage_bucket" "tf_test_bucket" {
+  name     = "tf-test-bucket-name-%{random_suffix}"
+  location = "us-west1"
+  uniform_bucket_level_access = true
+}
+
+resource "google_bigquery_connection" "tf_test_connection" {
+   connection_id = "tf-test-connection-%{random_suffix}"
+   location      = "us-central1"
+   friendly_name = "tf-test-connection-%{random_suffix}"
+   description   = "a bigquery connection for tf test"
+   cloud_resource {}
+}
+```
 
 ## Argument Reference
 
@@ -290,6 +393,41 @@ The following arguments are supported:
   DataScan identifier. Must contain only lowercase letters, numbers and hyphens. Must start with a letter. Must end with a number or a letter.
 
 
+* `description` -
+  (Optional)
+  Description of the scan.
+
+* `display_name` -
+  (Optional)
+  User friendly display name.
+
+* `labels` -
+  (Optional)
+  User-defined labels for the scan. A list of key->value pairs.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `data_quality_spec` -
+  (Optional)
+  DataQualityScan related setting.
+  Structure is [documented below](#nested_data_quality_spec).
+
+* `data_profile_spec` -
+  (Optional)
+  DataProfileScan related setting.
+  Structure is [documented below](#nested_data_profile_spec).
+
+* `data_discovery_spec` -
+  (Optional)
+  DataDiscoveryScan related setting.
+  Structure is [documented below](#nested_data_discovery_spec).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_data"></a>The `data` block supports:
 
 * `entity` -
@@ -299,7 +437,7 @@ The following arguments are supported:
 * `resource` -
   (Optional)
   The service-qualified full resource name of the cloud resource for a DataScan job to scan against. The field could be:
-  (Cloud Storage bucket for DataDiscoveryScan)BigQuery table of type "TABLE" for DataProfileScan/DataQualityScan.
+  Cloud Storage bucket (//storage.googleapis.com/projects/PROJECT_ID/buckets/BUCKET_ID) for DataDiscoveryScan OR BigQuery table of type "TABLE" (/bigquery.googleapis.com/projects/PROJECT_ID/datasets/DATASET_ID/tables/TABLE_ID) for DataProfileScan/DataQualityScan.
 
 <a name="nested_execution_spec"></a>The `execution_spec` block supports:
 
@@ -331,38 +469,6 @@ The following arguments are supported:
   (Required)
   Cron schedule for running scans periodically. This field is required for Schedule scans.
 
-- - -
-
-
-* `description` -
-  (Optional)
-  Description of the scan.
-
-* `display_name` -
-  (Optional)
-  User friendly display name.
-
-* `labels` -
-  (Optional)
-  User-defined labels for the scan. A list of key->value pairs.
-
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `data_quality_spec` -
-  (Optional)
-  DataQualityScan related setting.
-  Structure is [documented below](#nested_data_quality_spec).
-
-* `data_profile_spec` -
-  (Optional)
-  DataProfileScan related setting.
-  Structure is [documented below](#nested_data_profile_spec).
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
-
 <a name="nested_data_quality_spec"></a>The `data_quality_spec` block supports:
 
 * `sampling_percent` -
@@ -384,6 +490,10 @@ The following arguments are supported:
   (Optional)
   The list of rules to evaluate against a data source. At least one rule is required.
   Structure is [documented below](#nested_data_quality_spec_rules).
+
+* `catalog_publishing_enabled` -
+  (Optional)
+  If set, the latest DataScan job result will be published to Dataplex Catalog.
 
 
 <a name="nested_data_quality_spec_post_scan_actions"></a>The `post_scan_actions` block supports:
@@ -451,7 +561,7 @@ The following arguments are supported:
 
 * `dimension` -
   (Required)
-  The dimension a rule belongs to. Results are also aggregated at the dimension level. Supported dimensions are ["COMPLETENESS", "ACCURACY", "CONSISTENCY", "VALIDITY", "UNIQUENESS", "INTEGRITY"]
+  The dimension name a rule belongs to. Custom dimension name is supported with all uppercase letters and maximum length of 30 characters.
 
 * `threshold` -
   (Optional)
@@ -464,6 +574,10 @@ The following arguments are supported:
   The maximum length is 63 characters.
   Must start with a letter.
   Must end with a number or a letter.
+
+* `suspended` -
+  (Optional)
+  Whether the Rule is active or suspended. Default = false.
 
 * `description` -
   (Optional)
@@ -651,6 +765,91 @@ The following arguments are supported:
   Expected input is a list of fully qualified names of fields as in the schema.
   Only top-level field names for nested fields are supported.
   For instance, if 'x' is of nested field type, listing 'x' is supported but 'x.y.z' is not supported. Here 'y' and 'y.z' are nested fields of 'x'.
+
+<a name="nested_data_discovery_spec"></a>The `data_discovery_spec` block supports:
+
+* `bigquery_publishing_config` -
+  (Optional)
+  Configuration for metadata publishing.
+  Structure is [documented below](#nested_data_discovery_spec_bigquery_publishing_config).
+
+* `storage_config` -
+  (Optional)
+  Configurations related to Cloud Storage as the data source.
+  Structure is [documented below](#nested_data_discovery_spec_storage_config).
+
+
+<a name="nested_data_discovery_spec_bigquery_publishing_config"></a>The `bigquery_publishing_config` block supports:
+
+* `table_type` -
+  (Optional)
+  Determines whether to publish discovered tables as BigLake external tables or non-BigLake external tables.
+  Possible values are: `TABLE_TYPE_UNSPECIFIED`, `EXTERNAL`, `BIGLAKE`.
+
+* `connection` -
+  (Optional)
+  The BigQuery connection used to create BigLake tables. Must be in the form `projects/{projectId}/locations/{locationId}/connections/{connection_id}`.
+
+* `location` -
+  (Optional)
+  The location of the BigQuery dataset to publish BigLake external or non-BigLake external tables to.
+
+* `project` -
+  (Optional)
+  The project of the BigQuery dataset to publish BigLake external or non-BigLake external tables to. If not specified, the project of the Cloud Storage bucket will be used. The format is "projects/{project_id_or_number}".
+
+<a name="nested_data_discovery_spec_storage_config"></a>The `storage_config` block supports:
+
+* `include_patterns` -
+  (Optional)
+  Defines the data to include during discovery when only a subset of the data should be considered. Provide a list of patterns that identify the data to include. For Cloud Storage bucket assets, these patterns are interpreted as glob patterns used to match object names. For BigQuery dataset assets, these patterns are interpreted as patterns to match table names.
+
+* `exclude_patterns` -
+  (Optional)
+  Defines the data to exclude during discovery. Provide a list of patterns that identify the data to exclude. For Cloud Storage bucket assets, these patterns are interpreted as glob patterns used to match object names. For BigQuery dataset assets, these patterns are interpreted as patterns to match table names.
+
+* `csv_options` -
+  (Optional)
+  Configuration for CSV data.
+  Structure is [documented below](#nested_data_discovery_spec_storage_config_csv_options).
+
+* `json_options` -
+  (Optional)
+  Configuration for JSON data.
+  Structure is [documented below](#nested_data_discovery_spec_storage_config_json_options).
+
+
+<a name="nested_data_discovery_spec_storage_config_csv_options"></a>The `csv_options` block supports:
+
+* `header_rows` -
+  (Optional)
+  The number of rows to interpret as header rows that should be skipped when reading data rows.
+
+* `delimiter` -
+  (Optional)
+  The delimiter that is used to separate values. The default is `,` (comma).
+
+* `encoding` -
+  (Optional)
+  The character encoding of the data. The default is UTF-8.
+
+* `type_inference_disabled` -
+  (Optional)
+  Whether to disable the inference of data types for CSV data. If true, all columns are registered as strings.
+
+* `quote` -
+  (Optional)
+  The character used to quote column values. Accepts `"` (double quotation mark) or `'` (single quotation mark). If unspecified, defaults to `"` (double quotation mark).
+
+<a name="nested_data_discovery_spec_storage_config_json_options"></a>The `json_options` block supports:
+
+* `encoding` -
+  (Optional)
+  The character encoding of the data. The default is UTF-8.
+
+* `type_inference_disabled` -
+  (Optional)
+  Whether to disable the inference of data types for JSON data. If true, all columns are registered as their primitive types (strings, number, or boolean).
 
 ## Attributes Reference
 

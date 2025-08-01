@@ -73,7 +73,6 @@ resource "google_gke_hub_scope_rbac_role_binding" "scope_rbac_role_binding" {
   labels = {
       key = "value" 
   }
-  depends_on = [google_gke_hub_scope.scope]
 }
 `, context)
 }

@@ -264,29 +264,15 @@ func resourceEventarcMessageBusCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = EventarcOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating MessageBus", userAgent,
+	err = EventarcOperationWaitTime(
+		config, res, project, "Creating MessageBus", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create MessageBus: %s", err)
 	}
-
-	if err := d.Set("name", flattenEventarcMessageBusName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/messageBuses/{{message_bus_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating MessageBus %q: %#v", d.Id(), res)
 

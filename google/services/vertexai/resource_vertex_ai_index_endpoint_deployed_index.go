@@ -211,6 +211,12 @@ Note: we only support up to 5 deployment groups (not including 'default').`,
 				Description: `If true, private endpoint's access logs are sent to Cloud Logging.`,
 				Default:     false,
 			},
+			"region": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The region of the index endpoint deployment. eg us-central1`,
+			},
 			"reserved_ip_ranges": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -394,37 +400,15 @@ func resourceVertexAIIndexEndpointDeployedIndexCreate(d *schema.ResourceData, me
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = VertexAIOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating IndexEndpointDeployedIndex", userAgent,
+	err = VertexAIOperationWaitTime(
+		config, res, project, "Creating IndexEndpointDeployedIndex", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create IndexEndpointDeployedIndex: %s", err)
 	}
-
-	opRes, err = resourceVertexAIIndexEndpointDeployedIndexDecoder(d, meta, opRes)
-	if err != nil {
-		return fmt.Errorf("Error decoding response from operation: %s", err)
-	}
-	if opRes == nil {
-		return fmt.Errorf("Error decoding response from operation, could not find object")
-	}
-
-	if err := d.Set("name", flattenVertexAIIndexEndpointDeployedIndexName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{index_endpoint}}/deployedIndex/{{deployed_index_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating IndexEndpointDeployedIndex %q: %#v", d.Id(), res)
 
