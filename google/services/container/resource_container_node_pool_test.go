@@ -928,7 +928,7 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "100ms", networkName, subnetworkName, "TRUE", "100Mi", "1m", "10m", true, 2048, 10, 10, 85),
+				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "100ms", networkName, subnetworkName, "TRUE", "100Mi", "1m", "10m", true, true, 2048, 10, 10, 85),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						acctest.ExpectNoDelete(),
@@ -937,6 +937,8 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 						"node_config.0.kubelet_config.0.cpu_cfs_quota", "true"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.single_process_oom_kill", "true"),
 					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 						"node_config.0.kubelet_config.0.insecure_kubelet_readonly_port_enabled", "TRUE"),
 					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
@@ -963,7 +965,7 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "", "", networkName, subnetworkName, "FALSE", "200Mi", "30s", "", false, 1024, 5, 50, 80),
+				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "", "", networkName, subnetworkName, "FALSE", "200Mi", "30s", "", false, true, 1024, 5, 50, 80),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						acctest.ExpectNoDelete(),
@@ -1001,7 +1003,7 @@ func TestAccContainerNodePool_withInvalidKubeletCpuManagerPolicy(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccContainerNodePool_withKubeletConfig(cluster, np, "dontexist", "100us", networkName, subnetworkName, "TRUE", "", "", "", false, 1024, 2, 70, 75),
+				Config:      testAccContainerNodePool_withKubeletConfig(cluster, np, "dontexist", "100us", networkName, subnetworkName, "TRUE", "", "", "", false, true, 1024, 2, 70, 75),
 				ExpectError: regexp.MustCompile(`.*to be one of \["?static"? "?none"? "?"?\].*`),
 			},
 		},
@@ -3694,7 +3696,7 @@ resource "google_container_node_pool" "with_workload_metadata_config" {
 `, projectID, cluster, networkName, subnetworkName, np)
 }
 
-func testAccContainerNodePool_withKubeletConfig(cluster, np, policy, period, networkName, subnetworkName, insecureKubeletReadonlyPortEnabled, containerLogMaxSize, imageMinimumGcAge, imageMaximumGcAge string, quota bool, podPidsLimit, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent int) string {
+func testAccContainerNodePool_withKubeletConfig(cluster, np, policy, period, networkName, subnetworkName, insecureKubeletReadonlyPortEnabled, containerLogMaxSize, imageMinimumGcAge, imageMaximumGcAge string, quota, singleProcessOomKill bool, podPidsLimit, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent int) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
   location = "us-central1-a"
@@ -3732,6 +3734,7 @@ resource "google_container_node_pool" "with_kubelet_config" {
       image_minimum_gc_age                   = %q
       image_maximum_gc_age                   = %q
       allowed_unsafe_sysctls               = ["kernel.shm*", "kernel.msg*", "kernel.sem", "fs.mqueue.*", "net.*"]
+      single_process_oom_kill                = %v
     }
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
@@ -3740,7 +3743,7 @@ resource "google_container_node_pool" "with_kubelet_config" {
     logging_variant = "DEFAULT"
   }
 }
-`, cluster, networkName, subnetworkName, np, policy, quota, period, insecureKubeletReadonlyPortEnabled, podPidsLimit, containerLogMaxSize, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent, imageMinimumGcAge, imageMaximumGcAge)
+`, cluster, networkName, subnetworkName, np, policy, quota, period, insecureKubeletReadonlyPortEnabled, podPidsLimit, containerLogMaxSize, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent, imageMinimumGcAge, imageMaximumGcAge, singleProcessOomKill)
 }
 
 func testAccContainerNodePool_withLinuxNodeConfig(cluster, np, tcpMem, networkName, subnetworkName string) string {

@@ -1497,6 +1497,8 @@ such as `"300ms"`. Valid time units are "ns", "us" (or "µs"), "ms", "s", "m",
 
 * `allowed_unsafe_sysctls` - (Optional) Defines a comma-separated allowlist of unsafe sysctls or sysctl patterns which can be set on the Pods. The allowed sysctl groups are `kernel.shm*`, `kernel.msg*`, `kernel.sem`, `fs.mqueue.*`, and `net.*`.
 
+* `single_process_oom_kill` - (Optional) Defines whether to enable single process OOM killer. If true, the processes in the container will be OOM killed individually instead of as a group.
+
 <a name="nested_linux_node_config"></a>The `linux_node_config` block supports:
 
 * `sysctls` - (Optional) The Linux kernel parameters to be applied to the nodes

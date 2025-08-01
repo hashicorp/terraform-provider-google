@@ -637,6 +637,11 @@ func schemaNodeConfig() *schema.Schema {
 								Description: `Defines a comma-separated allowlist of unsafe sysctls or sysctl patterns which can be set on the Pods.`,
 								Elem:        &schema.Schema{Type: schema.TypeString},
 							},
+							"single_process_oom_kill": {
+								Type:        schema.TypeBool,
+								Optional:    true,
+								Description: `Defines whether to enable single process OOM killer.`,
+							},
 						},
 					},
 				},
@@ -1425,6 +1430,9 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 			kConfig.AllowedUnsafeSysctls[i] = s.(string)
 		}
 	}
+	if singleProcessOomKill, ok := cfg["single_process_oom_kill"]; ok {
+		kConfig.SingleProcessOomKill = singleProcessOomKill.(bool)
+	}
 	return kConfig
 }
 
@@ -1982,6 +1990,7 @@ func flattenKubeletConfig(c *container.NodeKubeletConfig) []map[string]interface
 			"image_minimum_gc_age":                   c.ImageMinimumGcAge,
 			"image_maximum_gc_age":                   c.ImageMaximumGcAge,
 			"allowed_unsafe_sysctls":                 c.AllowedUnsafeSysctls,
+			"single_process_oom_kill":                c.SingleProcessOomKill,
 		})
 	}
 	return result
