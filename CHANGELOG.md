@@ -1,7 +1,7 @@
 ## 6.47.0 (Unreleased)
 
 DEPRECATIONS:
-* compute: deprecated `network_self_link` field in `google_compute_subnetworks` data source. Use ``network_name` instead. ([#23753](https://github.com/hashicorp/terraform-provider-google/pull/23753))
+* compute: deprecated `network_self_link` field in `google_compute_subnetworks` data source. Use `network_name` instead. ([#23753](https://github.com/hashicorp/terraform-provider-google/pull/23753))
 * resourcemanager: `project` field in `google_service_account_key` data source has been deprecated. The field is non functional and can safely be removed from your configuration. ([#23813](https://github.com/hashicorp/terraform-provider-google/pull/23813))
 
 FEATURES:
