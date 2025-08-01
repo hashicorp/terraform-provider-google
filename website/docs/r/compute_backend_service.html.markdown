@@ -464,6 +464,11 @@ resource "google_compute_backend_service" "default" {
       dry_run = false
     }
   }
+  log_config {
+    enable          = true
+    optional_mode   = "CUSTOM"
+    optional_fields = [ "orca_load_report", "tls.protocol" ]
+  }  
 }
 
 resource "google_compute_health_check" "default" {
@@ -486,7 +491,6 @@ resource "google_compute_health_check" "default" {
 
 ```hcl
 resource "google_compute_backend_service" "default" {
-  provider = google-beta
   name          = "backend-service"
   health_checks = [google_compute_health_check.default.id]
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -504,7 +508,6 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  provider = google-beta
   name = "health-check"
   http_health_check {
     port = 80
@@ -512,7 +515,6 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_network_security_backend_authentication_config" "default" {
-  provider = google-beta
   name             = "authentication"
   well_known_roots = "PUBLIC_ROOTS"
 }
@@ -630,6 +632,26 @@ resource "google_compute_url_map" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=backend_service_dynamic_forwarding&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Dynamic Forwarding
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  provider              = google-beta
+  name                  = "backend-service"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  dynamic_forwarding {
+    ip_port_selection {
+      enabled = true
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -645,9 +667,6 @@ The following arguments are supported:
   first character must be a lowercase letter, and all following
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
-
-
-- - -
 
 
 * `affinity_cookie_ttl_sec` -
@@ -905,7 +924,7 @@ The following arguments are supported:
   Can only be set if load balancing scheme is EXTERNAL, EXTERNAL_MANAGED, INTERNAL_MANAGED or INTERNAL_SELF_MANAGED and the scope is global.
 
 * `tls_settings` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Configuration for Backend Authenticated TLS and mTLS. May only be specified when the backend protocol is SSL, HTTPS or HTTP2.
   Structure is [documented below](#nested_tls_settings).
 
@@ -919,8 +938,20 @@ The following arguments are supported:
   This field is only allowed when the loadBalancingScheme of the backend service is INTERNAL_SELF_MANAGED.
   Structure is [documented below](#nested_max_stream_duration).
 
+* `network_pass_through_lb_traffic_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Configures traffic steering properties of internal passthrough Network Load Balancers.
+  Structure is [documented below](#nested_network_pass_through_lb_traffic_policy).
+
+* `dynamic_forwarding` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
+  feature which together with Service Extension allows customized and complex routing logic.
+  Structure is [documented below](#nested_dynamic_forwarding).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_backend"></a>The `backend` block supports:
@@ -1588,6 +1619,7 @@ The following arguments are supported:
   This field can only be specified if logging is enabled for this backend service and "logConfig.optionalMode"
   was set to CUSTOM. Contains a list of optional fields you want to include in the logs.
   For example: serverInstance, serverGkeDetails.cluster, serverGkeDetails.pod.podNamespace
+  For example: orca_load_report, tls.protocol
 
 <a name="nested_tls_settings"></a>The `tls_settings` block supports:
 
@@ -1635,6 +1667,44 @@ The following arguments are supported:
   Span of time that's a fraction of a second at nanosecond resolution.
   Durations less than one second are represented with a 0 seconds field and a positive nanos field.
   Must be from 0 to 999,999,999 inclusive.
+
+<a name="nested_network_pass_through_lb_traffic_policy"></a>The `network_pass_through_lb_traffic_policy` block supports:
+
+* `zonal_affinity` -
+  (Optional)
+  When configured, new connections are load balanced across healthy backend endpoints in the local zone.
+  Structure is [documented below](#nested_network_pass_through_lb_traffic_policy_zonal_affinity).
+
+
+<a name="nested_network_pass_through_lb_traffic_policy_zonal_affinity"></a>The `zonal_affinity` block supports:
+
+* `spillover` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  This field indicates whether zonal affinity is enabled or not.
+  Default value is `ZONAL_AFFINITY_DISABLED`.
+  Possible values are: `ZONAL_AFFINITY_DISABLED`, `ZONAL_AFFINITY_SPILL_CROSS_ZONE`, `ZONAL_AFFINITY_STAY_WITHIN_ZONE`.
+
+* `spillover_ratio` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The value of the field must be in [0, 1]. When the ratio of the count of healthy backend endpoints in a zone
+  to the count of backend endpoints in that same zone is equal to or above this threshold, the load balancer
+  distributes new connections to all healthy endpoints in the local zone only. When the ratio of the count
+  of healthy backend endpoints in a zone to the count of backend endpoints in that same zone is below this
+  threshold, the load balancer distributes all new connections to all healthy endpoints across all zones.
+
+<a name="nested_dynamic_forwarding"></a>The `dynamic_forwarding` block supports:
+
+* `ip_port_selection` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  IP:PORT based dynamic forwarding configuration.
+  Structure is [documented below](#nested_dynamic_forwarding_ip_port_selection).
+
+
+<a name="nested_dynamic_forwarding_ip_port_selection"></a>The `ip_port_selection` block supports:
+
+* `enabled` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A boolean flag enabling IP:PORT based dynamic forwarding.
 
 ## Attributes Reference
 

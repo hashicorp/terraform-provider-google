@@ -281,7 +281,7 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 							Required: true,
 							ForceNew: true,
 							Description: `URIs of the GCS objects to import.
-Example: gs://bucket1/object1, gs//bucket2/folder2/object2`,
+Example: gs://bucket1/object1, gs://bucket2/folder2/object2`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -290,6 +290,12 @@ Example: gs://bucket1/object1, gs//bucket2/folder2/object2`,
 					},
 				},
 				ConflictsWith: []string{"managed_backup_source"},
+			},
+			"kms_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The KMS key used to encrypt the at-rest data of the cluster`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -406,7 +412,7 @@ resolution and up to nine fractional digits.`,
 							Type:        schema.TypeString,
 							Required:    true,
 							ForceNew:    true,
-							Description: `Example: //memorystore.googleapis.com/projects/{project}/locations/{location}/backups/{backupId}. In this case, it assumes the backup is under memorystore.googleapis.com.`,
+							Description: `Example: 'projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup}'.`,
 						},
 					},
 				},
@@ -564,11 +570,10 @@ Example: projects/{project}/locations/{location}/backupCollections/{collection}`
 				Description: `Output only. Creation timestamp of the instance.`,
 			},
 			"discovery_endpoints": {
-				Type:       schema.TypeList,
-				Computed:   true,
-				Deprecated: "`discovery_endpoints` is deprecated  Use `endpoints` instead.",
-				Description: `Output only. Endpoints clients can connect to the instance through. Currently only one
-discovery endpoint is supported.`,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Deprecated:  "This field is deprecated. As a result it will not be populated if the connections are created using `desired_auto_created_endpoints` parameter or `google_memorystore_instance_desired_user_created_endpoints` resource. Instead of this parameter, for discovery, use `endpoints.connections.pscConnection` and `endpoints.connections.pscAutoConnection` with `connectionType` CONNECTION_TYPE_DISCOVERY.",
+				Description: `Deprecated. Output only. Endpoints clients can connect to the instance through.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"address": {
@@ -700,6 +705,32 @@ resolution and up to nine fractional digits.`,
 							Description: `The start time of any upcoming scheduled maintenance for this cluster.
 A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
 resolution and up to nine fractional digits.`,
+						},
+					},
+				},
+			},
+			"managed_server_ca": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Instance's Certificate Authority. This field will only be populated if instance's transit_encryption_mode is SERVER_AUTHENTICATION`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ca_certs": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The PEM encoded CA certificate chains for managed server authentication`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"certificates": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `The certificates that form the CA chain, from leaf to root order`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
 						},
 					},
 				},
@@ -947,7 +978,7 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 	replicaCountProp, err := expandMemorystoreInstanceReplicaCount(d.Get("replica_count"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("replica_count"); !tpgresource.IsEmptyValue(reflect.ValueOf(replicaCountProp)) && (ok || !reflect.DeepEqual(v, replicaCountProp)) {
+	} else if v, ok := d.GetOkExists("replica_count"); ok || !reflect.DeepEqual(v, replicaCountProp) {
 		obj["replicaCount"] = replicaCountProp
 	}
 	authorizationModeProp, err := expandMemorystoreInstanceAuthorizationMode(d.Get("authorization_mode"), d, config)
@@ -1034,6 +1065,12 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("managed_backup_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(managedBackupSourceProp)) && (ok || !reflect.DeepEqual(v, managedBackupSourceProp)) {
 		obj["managedBackupSource"] = managedBackupSourceProp
 	}
+	kmsKeyProp, err := expandMemorystoreInstanceKmsKey(d.Get("kms_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
+		obj["kmsKey"] = kmsKeyProp
+	}
 	labelsProp, err := expandMemorystoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1087,37 +1124,15 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = MemorystoreOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Instance", userAgent,
+	err = MemorystoreOperationWaitTime(
+		config, res, project, "Creating Instance", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Instance: %s", err)
 	}
-
-	opRes, err = resourceMemorystoreInstanceDecoder(d, meta, opRes)
-	if err != nil {
-		return fmt.Errorf("Error decoding response from operation: %s", err)
-	}
-	if opRes == nil {
-		return fmt.Errorf("Error decoding response from operation, could not find object")
-	}
-
-	if err := d.Set("name", flattenMemorystoreInstanceName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{instance_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Instance %q: %#v", d.Id(), res)
 
@@ -1263,6 +1278,12 @@ func resourceMemorystoreInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("backup_collection", flattenMemorystoreInstanceBackupCollection(res["backupCollection"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("kms_key", flattenMemorystoreInstanceKmsKey(res["kmsKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("managed_server_ca", flattenMemorystoreInstanceManagedServerCa(res["managedServerCa"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenMemorystoreInstanceTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -1298,7 +1319,7 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 	replicaCountProp, err := expandMemorystoreInstanceReplicaCount(d.Get("replica_count"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("replica_count"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, replicaCountProp)) {
+	} else if v, ok := d.GetOkExists("replica_count"); ok || !reflect.DeepEqual(v, replicaCountProp) {
 		obj["replicaCount"] = replicaCountProp
 	}
 	shardCountProp, err := expandMemorystoreInstanceShardCount(d.Get("shard_count"), d, config)
@@ -2446,6 +2467,45 @@ func flattenMemorystoreInstanceBackupCollection(v interface{}, d *schema.Resourc
 	return v
 }
 
+func flattenMemorystoreInstanceKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMemorystoreInstanceManagedServerCa(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ca_certs"] =
+		flattenMemorystoreInstanceManagedServerCaCaCerts(original["caCerts"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMemorystoreInstanceManagedServerCaCaCerts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"certificates": flattenMemorystoreInstanceManagedServerCaCaCertsCertificates(original["certificates"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenMemorystoreInstanceManagedServerCaCaCertsCertificates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenMemorystoreInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -3132,6 +3192,10 @@ func expandMemorystoreInstanceManagedBackupSourceBackup(v interface{}, d tpgreso
 	return v, nil
 }
 
+func expandMemorystoreInstanceKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandMemorystoreInstanceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -3316,5 +3380,49 @@ func resourceMemorystoreInstanceDecoder(d *schema.ResourceData, meta interface{}
 
 	}
 
+	// Such custom code is necessary as the instance's certificate authority has to be retrieved via a dedicated
+	// getCertificateAuthority API.
+	// See https://cloud.google.com/memorystore/docs/valkey/reference/rest/v1/projects.locations.instances/getCertificateAuthority
+	// for details about this API.
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	// Only instances with SERVER_AUTHENTICATION mode have certificate authority set
+	if v, ok := res["transitEncryptionMode"].(string); ok && v == "SERVER_AUTHENTICATION" {
+		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}/certificateAuthority")
+		if err != nil {
+			return nil, err
+		}
+
+		billingProject := ""
+
+		project, err := tpgresource.GetProject(d, config)
+		if err != nil {
+			return nil, fmt.Errorf("Error fetching project for instance: %s", err)
+		}
+
+		billingProject = project
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		certificateAuthority, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("Error reading certificateAuthority: %s", err)
+		}
+
+		res["managedServerCa"] = certificateAuthority["managedServerCa"]
+	}
 	return res, nil
 }

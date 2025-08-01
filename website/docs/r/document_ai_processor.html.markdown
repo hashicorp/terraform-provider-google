@@ -64,15 +64,13 @@ The following arguments are supported:
   The location of the resource.
 
 
-- - -
-
-
 * `kms_key_name` -
   (Optional)
   The KMS key used for encryption/decryption in CMEK scenarios. See https://cloud.google.com/security-key-management.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

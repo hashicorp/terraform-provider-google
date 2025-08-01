@@ -228,7 +228,6 @@ format as: projects/*/secrets/*/versions/*.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"auth_config.0.user_password", "auth_config.0.oauth2_jwt_bearer", "auth_config.0.oauth2_client_credentials", "auth_config.0.ssh_public_key", "auth_config.0.oauth2_auth_code_flow"},
 						},
 						"oauth2_client_credentials": {
 							Type:        schema.TypeList,
@@ -260,7 +259,6 @@ format as: projects/*/secrets/*/versions/*.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"auth_config.0.user_password", "auth_config.0.oauth2_jwt_bearer", "auth_config.0.oauth2_client_credentials", "auth_config.0.ssh_public_key", "auth_config.0.oauth2_auth_code_flow"},
 						},
 						"oauth2_jwt_bearer": {
 							Type:        schema.TypeList,
@@ -314,7 +312,6 @@ format as: projects/*/secrets/*/versions/*.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"auth_config.0.user_password", "auth_config.0.oauth2_jwt_bearer", "auth_config.0.oauth2_client_credentials", "auth_config.0.ssh_public_key", "auth_config.0.oauth2_auth_code_flow"},
 						},
 						"ssh_public_key": {
 							Type:        schema.TypeList,
@@ -367,7 +364,6 @@ format as: projects/*/secrets/*/versions/*.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"auth_config.0.user_password", "auth_config.0.oauth2_jwt_bearer", "auth_config.0.oauth2_client_credentials", "auth_config.0.ssh_public_key", "auth_config.0.oauth2_auth_code_flow"},
 						},
 						"user_password": {
 							Type:        schema.TypeList,
@@ -399,7 +395,6 @@ format as: projects/*/secrets/*/versions/*.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"auth_config.0.user_password", "auth_config.0.oauth2_jwt_bearer", "auth_config.0.oauth2_client_credentials", "auth_config.0.ssh_public_key", "auth_config.0.oauth2_auth_code_flow"},
 						},
 					},
 				},
@@ -801,6 +796,13 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 							Type:        schema.TypeBool,
 							Required:    true,
 							Description: `Enabled represents whether logging is enabled or not for a connection.`,
+						},
+						"level": {
+							Type:         schema.TypeString,
+							Computed:     true,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"LOG_LEVEL_UNSPECIFIED", "ERROR", "INFO", "DEBUG", ""}),
+							Description:  `Log configuration level. Possible values: ["LOG_LEVEL_UNSPECIFIED", "ERROR", "INFO", "DEBUG"]`,
 						},
 					},
 				},
@@ -1265,25 +1267,15 @@ func resourceIntegrationConnectorsConnectionCreate(d *schema.ResourceData, meta 
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = IntegrationConnectorsOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Connection", userAgent,
+	err = IntegrationConnectorsOperationWaitTime(
+		config, res, project, "Creating Connection", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Connection: %s", err)
 	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/connections/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	if err := waitforConnectionReady(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
 		return fmt.Errorf("Error waiting for Connection %q to finish being in CREATING state during creation: %q", d.Get("name").(string), err)
@@ -2396,9 +2388,15 @@ func flattenIntegrationConnectorsConnectionLogConfig(v interface{}, d *schema.Re
 	transformed := make(map[string]interface{})
 	transformed["enabled"] =
 		flattenIntegrationConnectorsConnectionLogConfigEnabled(original["enabled"], d, config)
+	transformed["level"] =
+		flattenIntegrationConnectorsConnectionLogConfigLevel(original["level"], d, config)
 	return []interface{}{transformed}
 }
 func flattenIntegrationConnectorsConnectionLogConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIntegrationConnectorsConnectionLogConfigLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3938,10 +3936,21 @@ func expandIntegrationConnectorsConnectionLogConfig(v interface{}, d tpgresource
 		transformed["enabled"] = transformedEnabled
 	}
 
+	transformedLevel, err := expandIntegrationConnectorsConnectionLogConfigLevel(original["level"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLevel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["level"] = transformedLevel
+	}
+
 	return transformed, nil
 }
 
 func expandIntegrationConnectorsConnectionLogConfigEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIntegrationConnectorsConnectionLogConfigLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

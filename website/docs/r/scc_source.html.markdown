@@ -63,12 +63,10 @@ The following arguments are supported:
   lives in.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   The description of the source (max of 1024 characters).
+
 
 
 ## Attributes Reference

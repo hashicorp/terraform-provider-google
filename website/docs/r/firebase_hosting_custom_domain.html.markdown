@@ -143,9 +143,6 @@ The following arguments are supported:
   The ID of the `CustomDomain`, which is the domain name you'd like to use with Firebase Hosting.
 
 
-- - -
-
-
 * `cert_preference` -
   (Optional)
   A field that lets you specify which SSL certificate type Hosting creates
@@ -166,6 +163,7 @@ The following arguments are supported:
 * `wait_dns_verification` - (Optional) If true, Terraform will wait for DNS records to be fully resolved on the `CustomDomain`.
 If false, Terraform will not wait for DNS records on the `CustomDomain`. Any issues in
 the `CustomDomain` will be returned and stored in the Terraform state.
+
 
 
 ## Attributes Reference

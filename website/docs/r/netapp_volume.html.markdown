@@ -98,9 +98,6 @@ The following arguments are supported:
   The name of the volume. Needs to be unique per location.
 
 
-- - -
-
-
 * `export_policy` -
   (Optional)
   Export policy of the volume for NFSV3 and/or NFSV4.1 access.
@@ -175,6 +172,11 @@ The following arguments are supported:
   Tiering policy for the volume.
   Structure is [documented below](#nested_tiering_policy).
 
+* `hybrid_replication_parameters` -
+  (Optional)
+  The Hybrid Replication parameters for the volume.
+  Structure is [documented below](#nested_hybrid_replication_parameters).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -182,6 +184,7 @@ The following arguments are supported:
 Volumes may have nested snapshot resources. Deleting such a volume will fail.
 Setting this parameter to FORCE will delete volumes including nested snapshots.
 Possible values: DEFAULT, FORCE.
+
 
 
 <a name="nested_export_policy"></a>The `export_policy` block supports:
@@ -368,6 +371,46 @@ Possible values: DEFAULT, FORCE.
   Optional. Flag indicating if the volume has tiering policy enable/pause. Default is PAUSED.
   Default value is `PAUSED`.
   Possible values are: `ENABLED`, `PAUSED`.
+
+* `hot_tier_bypass_mode_enabled` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Optional. Flag indicating that the hot tier bypass mode is enabled. Default is false.
+  Only applicable to Flex service level.
+
+<a name="nested_hybrid_replication_parameters"></a>The `hybrid_replication_parameters` block supports:
+
+* `replication` -
+  (Optional)
+  Required. Desired name for the replication of this volume.
+
+* `peer_volume_name` -
+  (Optional)
+  Required. Name of the user's local source volume to be peered with the destination volume.
+
+* `peer_cluster_name` -
+  (Optional)
+  Required. Name of the user's local source cluster to be peered with the destination cluster.
+
+* `peer_svm_name` -
+  (Optional)
+  Required. Name of the user's local source vserver svm to be peered with the destination vserver svm.
+
+* `peer_ip_addresses` -
+  (Optional)
+  Required. List of node ip addresses to be peered with.
+
+* `cluster_location` -
+  (Optional)
+  Optional. Name of source cluster location associated with the Hybrid replication. This is a free-form field for the display purpose only.
+
+* `description` -
+  (Optional)
+  Optional. Description of the replication.
+
+* `labels` -
+  (Optional)
+  Optional. Labels to be added to the replication as the key value pairs.
+  An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
 ## Attributes Reference
 

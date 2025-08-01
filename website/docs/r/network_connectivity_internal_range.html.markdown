@@ -183,6 +183,63 @@ resource "google_compute_subnetwork" "source" {
 data "google_project" "target_project" {
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_internal_ranges_allocation_algoritms&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Connectivity Internal Ranges Allocation Algoritms
+
+
+```hcl
+resource "google_network_connectivity_internal_range" "default" {
+  name    = "allocation-algorithms"
+  network = google_compute_network.default.id
+  usage   = "FOR_VPC"
+  peering = "FOR_SELF"
+  prefix_length = 24
+  target_cidr_range = [
+    "192.16.0.0/16"
+  ]
+  allocation_options {
+    allocation_strategy = "FIRST_SMALLEST_FITTING"
+  }
+}
+
+resource "google_compute_network" "default" {
+  name                    = "internal-ranges"
+  auto_create_subnetworks = false
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_internal_ranges_allocation_algoritms_random_first_n&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Connectivity Internal Ranges Allocation Algoritms Random First N
+
+
+```hcl
+resource "google_network_connectivity_internal_range" "default" {
+  name    = "allocation-algorithms-random-first-n"
+  network = google_compute_network.default.id
+  usage   = "FOR_VPC"
+  peering = "FOR_SELF"
+  prefix_length = 24
+  target_cidr_range = [
+    "192.16.0.0/16"
+  ]
+  allocation_options {
+    allocation_strategy = "RANDOM_FIRST_N_AVAILABLE"
+    first_available_ranges_lookup_size = 20
+  }
+}
+
+resource "google_compute_network" "default" {
+  name                    = "internal-ranges"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 
@@ -206,9 +263,6 @@ The following arguments are supported:
   (Required)
   The type of peering set for this internal range.
   Possible values are: `FOR_SELF`, `FOR_PEER`, `NOT_SHARED`.
-
-
-- - -
 
 
 * `labels` -
@@ -245,6 +299,11 @@ The following arguments are supported:
   Optional. List of IP CIDR ranges to be excluded. Resulting reserved Internal Range will not overlap with any CIDR blocks mentioned in this list.
   Only IPv4 CIDR ranges are supported.
 
+* `allocation_options` -
+  (Optional)
+  Options for automatically allocating a free range with a size given by prefixLength.
+  Structure is [documented below](#nested_allocation_options).
+
 * `overlaps` -
   (Optional)
   Optional. Types of resources that are allowed to overlap with the current internal range.
@@ -262,6 +321,19 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_allocation_options"></a>The `allocation_options` block supports:
+
+* `allocation_strategy` -
+  (Optional)
+  Optional. Sets the strategy used to automatically find a free range of a size given by prefixLength. Can be set only when trying to create a reservation that automatically finds the free range to reserve.
+  Possible values are: `RANDOM`, `FIRST_AVAILABLE`, `RANDOM_FIRST_N_AVAILABLE`, `FIRST_SMALLEST_FITTING`.
+
+* `first_available_ranges_lookup_size` -
+  (Optional)
+  Must be set when allocation_strategy is RANDOM_FIRST_N_AVAILABLE, otherwise must remain unset. Defines the size of the set of free ranges from which RANDOM_FIRST_N_AVAILABLE strategy randomy selects one,
+  in other words it sets the N in the RANDOM_FIRST_N_AVAILABLE.
 
 <a name="nested_migration"></a>The `migration` block supports:
 

@@ -114,6 +114,101 @@ resource "google_privateca_certificate_template" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=privateca_template_zero_max_issuer_path_length_null_ca&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Privateca Template Zero Max Issuer Path Length Null Ca
+
+
+```hcl
+resource "google_privateca_certificate_template" "default" {
+  name = "my-template"
+  location = "us-central1"
+  description = "A sample certificate template"
+
+  identity_constraints {
+    allow_subject_alt_names_passthrough = true
+    allow_subject_passthrough           = true
+
+    cel_expression {
+      description = "Always true"
+      expression  = "true"
+      location    = "any.file.anywhere"
+      title       = "Sample expression"
+    }
+  }
+
+  maximum_lifetime = "86400s"
+
+  passthrough_extensions {
+    additional_extensions {
+      object_id_path = [1, 6]
+    }
+    known_extensions = ["EXTENDED_KEY_USAGE"]
+  }
+
+  predefined_values {
+    additional_extensions {
+      object_id {
+        object_id_path = [1, 6]
+      }
+      value    = "c3RyaW5nCg=="
+      critical = true
+    }
+    aia_ocsp_servers = ["string"]
+    ca_options {
+      is_ca                       = false
+      null_ca                     = true
+      zero_max_issuer_path_length = true
+      max_issuer_path_length      = 0
+    }
+    key_usage {
+      base_key_usage {
+        cert_sign          = false
+        content_commitment = true
+        crl_sign           = false
+        data_encipherment  = true
+        decipher_only      = true
+        digital_signature  = true
+        encipher_only      = true
+        key_agreement      = true
+        key_encipherment   = true
+      }
+      extended_key_usage {
+        client_auth      = true
+        code_signing     = true
+        email_protection = true
+        ocsp_signing     = true
+        server_auth      = true
+        time_stamping    = true
+      }
+      unknown_extended_key_usages {
+        object_id_path = [1, 6]
+      }
+    }
+    policy_ids {
+      object_id_path = [1, 6]
+    }
+    name_constraints {
+      critical                  = true
+      permitted_dns_names       = ["*.example1.com", "*.example2.com"]
+      excluded_dns_names        = ["*.deny.example1.com", "*.deny.example2.com"]
+      permitted_ip_ranges       = ["10.0.0.0/8", "11.0.0.0/8"]
+      excluded_ip_ranges        = ["10.1.1.0/24", "11.1.1.0/24"]
+      permitted_email_addresses = [".example1.com", ".example2.com"]
+      excluded_email_addresses  = [".deny.example1.com", ".deny.example2.com"]
+      permitted_uris            = [".example1.com", ".example2.com"]
+      excluded_uris             = [".deny.example1.com", ".deny.example2.com"]
+    }
+  }
+
+  labels = {
+    label-one = "value-one"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -127,9 +222,6 @@ The following arguments are supported:
 * `location` -
   (Required)
   The location for the resource
-
-
-- - -
 
 
 * `predefined_values` -
@@ -165,6 +257,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+
 <a name="nested_predefined_values"></a>The `predefined_values` block supports:
 
 * `key_usage` -
@@ -190,6 +283,11 @@ The following arguments are supported:
   (Optional)
   Optional. Describes custom X.509 extensions.
   Structure is [documented below](#nested_predefined_values_additional_extensions).
+
+* `name_constraints` -
+  (Optional)
+  Describes the X.509 name constraints extension.
+  Structure is [documented below](#nested_predefined_values_name_constraints).
 
 
 <a name="nested_predefined_values_key_usage"></a>The `key_usage` block supports:
@@ -284,11 +382,24 @@ The following arguments are supported:
 
 * `is_ca` -
   (Optional)
-  Optional. Refers to the "CA" X.509 extension, which is a boolean value. When this value is missing, the extension will be omitted from the CA certificate.
+  Optional. Refers to the "CA" X.509 extension, which is a boolean value. When this value is true, the "CA" in Basic Constraints extension will be set to true.
+
+* `null_ca` -
+  (Optional)
+  Optional. When true, the "CA" in Basic Constraints extension will be set to null and omitted from the CA certificate.
+  If both `is_ca` and `null_ca` are unset, the "CA" in Basic Constraints extension will be set to false.
+  Note that the behavior when `is_ca = false` for this resource is different from the behavior in the Certificate Authority, Certificate and CaPool resources.
 
 * `max_issuer_path_length` -
   (Optional)
-  Optional. Refers to the path length restriction X.509 extension. For a CA certificate, this value describes the depth of subordinate CA certificates that are allowed. If this value is less than 0, the request will fail. If this value is missing, the max path length will be omitted from the CA certificate.
+  Optional. Refers to the "path length constraint" in Basic Constraints extension. For a CA certificate, this value describes the depth of
+  subordinate CA certificates that are allowed. If this value is less than 0, the request will fail.
+
+* `zero_max_issuer_path_length` -
+  (Optional)
+  Optional. When true, the "path length constraint" in Basic Constraints extension will be set to 0.
+  if both `max_issuer_path_length` and `zero_max_issuer_path_length` are unset,
+  the max path length will be omitted from the CA certificate.
 
 <a name="nested_predefined_values_policy_ids"></a>The `policy_ids` block supports:
 
@@ -317,6 +428,68 @@ The following arguments are supported:
 * `object_id_path` -
   (Required)
   Required. The parts of an OID path. The most significant parts of the path come first.
+
+<a name="nested_predefined_values_name_constraints"></a>The `name_constraints` block supports:
+
+* `critical` -
+  (Required)
+  Indicates whether or not the name constraints are marked critical.
+
+* `permitted_dns_names` -
+  (Optional)
+  Contains permitted DNS names. Any DNS name that can be
+  constructed by simply adding zero or more labels to
+  the left-hand side of the name satisfies the name constraint.
+  For example, `example.com`, `www.example.com`, `www.sub.example.com`
+  would satisfy `example.com` while `example1.com` does not.
+
+* `excluded_dns_names` -
+  (Optional)
+  Contains excluded DNS names. Any DNS name that can be
+  constructed by simply adding zero or more labels to
+  the left-hand side of the name satisfies the name constraint.
+  For example, `example.com`, `www.example.com`, `www.sub.example.com`
+  would satisfy `example.com` while `example1.com` does not.
+
+* `permitted_ip_ranges` -
+  (Optional)
+  Contains the permitted IP ranges. For IPv4 addresses, the ranges
+  are expressed using CIDR notation as specified in RFC 4632.
+  For IPv6 addresses, the ranges are expressed in similar encoding as IPv4
+  addresses.
+
+* `excluded_ip_ranges` -
+  (Optional)
+  Contains the excluded IP ranges. For IPv4 addresses, the ranges
+  are expressed using CIDR notation as specified in RFC 4632.
+  For IPv6 addresses, the ranges are expressed in similar encoding as IPv4
+  addresses.
+
+* `permitted_email_addresses` -
+  (Optional)
+  Contains the permitted email addresses. The value can be a particular
+  email address, a hostname to indicate all email addresses on that host or
+  a domain with a leading period (e.g. `.example.com`) to indicate
+  all email addresses in that domain.
+
+* `excluded_email_addresses` -
+  (Optional)
+  Contains the excluded email addresses. The value can be a particular
+  email address, a hostname to indicate all email addresses on that host or
+  a domain with a leading period (e.g. `.example.com`) to indicate
+  all email addresses in that domain.
+
+* `permitted_uris` -
+  (Optional)
+  Contains the permitted URIs that apply to the host part of the name.
+  The value can be a hostname or a domain with a
+  leading period (like `.example.com`)
+
+* `excluded_uris` -
+  (Optional)
+  Contains the excluded URIs that apply to the host part of the name.
+  The value can be a hostname or a domain with a
+  leading period (like `.example.com`)
 
 <a name="nested_identity_constraints"></a>The `identity_constraints` block supports:
 

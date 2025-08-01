@@ -35,6 +35,35 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
+func resourceComputeRegionSecurityPolicySpecRulesDiffSuppress(k, o, n string, d *schema.ResourceData) bool {
+	oldCount, newCount := d.GetChange("rules.#")
+	var count int
+	// There could be duplicates - worth continuing even if the counts are unequal.
+	if oldCount.(int) < newCount.(int) {
+		count = newCount.(int)
+	} else {
+		count = oldCount.(int)
+	}
+
+	old := make([]interface{}, 0, count)
+	new := make([]interface{}, 0, count)
+	for i := 0; i < count; i++ {
+		o, n := d.GetChange(fmt.Sprintf("rules.%d", i))
+
+		if o != nil {
+			old = append(old, o)
+		}
+		if n != nil {
+			new = append(new, n)
+		}
+	}
+
+	oldSet := schema.NewSet(schema.HashResource(ResourceComputeRegionSecurityPolicy().Schema["rules"].Elem.(*schema.Resource)), old)
+	newSet := schema.NewSet(schema.HashResource(ResourceComputeRegionSecurityPolicy().Schema["rules"].Elem.(*schema.Resource)), new)
+
+	return oldSet.Equal(newSet)
+}
+
 func ResourceComputeRegionSecurityPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRegionSecurityPolicyCreate,
@@ -98,10 +127,11 @@ Specifically, the name must be 1-63 characters long and match the regular expres
 If it is not provided, the provider region is used.`,
 			},
 			"rules": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Optional:    true,
-				Description: `The set of rules that belong to this policy. There must always be a default rule (rule with priority 2147483647 and match "*"). If no rules are provided when creating a security policy, a default rule with action "allow" will be added.`,
+				Type:             schema.TypeList,
+				Computed:         true,
+				Optional:         true,
+				DiffSuppressFunc: resourceComputeRegionSecurityPolicySpecRulesDiffSuppress,
+				Description:      `The set of rules that belong to this policy. There must always be a default rule (rule with priority 2147483647 and match "*"). If no rules are provided when creating a security policy, a default rule with action "allow" will be added.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"action": {
@@ -471,7 +501,7 @@ Valid option is "allow" only.`,
 									"enforce_on_key": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: verify.ValidateEnum([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "USER_IP", ""}),
+										ValidateFunc: verify.ValidateEnum([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "TLS_JA4_FINGERPRINT", "USER_IP", ""}),
 										Description: `Determines the key to enforce the rateLimitThreshold on. Possible values are:
 * ALL: A single rate limit threshold is applied to all the requests matching this rule. This is the default value if "enforceOnKey" is not configured.
 * IP: The source IP address of the request is the key. Each IP has this limit enforced separately.
@@ -482,7 +512,8 @@ Valid option is "allow" only.`,
 * SNI: Server name indication in the TLS session of the HTTPS request. The key value is truncated to the first 128 bytes. The key type defaults to ALL on a HTTP session.
 * REGION_CODE: The country/region from which the request originates.
 * TLS_JA3_FINGERPRINT: JA3 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
-* USER_IP: The IP address of the originating client, which is resolved based on "userIpRequestHeaders" configured with the security policy. If there is no "userIpRequestHeaders" configuration or an IP address cannot be resolved from it, the key type defaults to IP. Possible values: ["ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "USER_IP"]`,
+* TLS_JA4_FINGERPRINT: JA4 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
+* USER_IP: The IP address of the originating client, which is resolved based on "userIpRequestHeaders" configured with the security policy. If there is no "userIpRequestHeaders" configuration or an IP address cannot be resolved from it, the key type defaults to IP. Possible values: ["ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "TLS_JA4_FINGERPRINT", "USER_IP"]`,
 									},
 									"enforce_on_key_configs": {
 										Type:     schema.TypeList,
@@ -502,7 +533,7 @@ HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.`,
 												"enforce_on_key_type": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: verify.ValidateEnum([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "USER_IP", ""}),
+													ValidateFunc: verify.ValidateEnum([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "TLS_JA4_FINGERPRINT", "USER_IP", ""}),
 													Description: `Determines the key to enforce the rateLimitThreshold on. Possible values are:
 * ALL: A single rate limit threshold is applied to all the requests matching this rule. This is the default value if "enforceOnKeyConfigs" is not configured.
 * IP: The source IP address of the request is the key. Each IP has this limit enforced separately.
@@ -513,7 +544,8 @@ HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.`,
 * SNI: Server name indication in the TLS session of the HTTPS request. The key value is truncated to the first 128 bytes. The key type defaults to ALL on a HTTP session.
 * REGION_CODE: The country/region from which the request originates.
 * TLS_JA3_FINGERPRINT: JA3 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
-* USER_IP: The IP address of the originating client, which is resolved based on "userIpRequestHeaders" configured with the security policy. If there is no "userIpRequestHeaders" configuration or an IP address cannot be resolved from it, the key type defaults to IP. Possible values: ["ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "USER_IP"]`,
+* TLS_JA4_FINGERPRINT: JA4 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
+* USER_IP: The IP address of the originating client, which is resolved based on "userIpRequestHeaders" configured with the security policy. If there is no "userIpRequestHeaders" configuration or an IP address cannot be resolved from it, the key type defaults to IP. Possible values: ["ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "TLS_JA4_FINGERPRINT", "USER_IP"]`,
 												},
 											},
 										},

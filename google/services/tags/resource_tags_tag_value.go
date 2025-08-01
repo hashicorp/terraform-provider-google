@@ -415,7 +415,7 @@ func flattenTagsTagValueName(v interface{}, d *schema.ResourceData, config *tran
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenTagsTagValueParent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

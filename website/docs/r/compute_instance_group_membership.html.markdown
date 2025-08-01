@@ -88,15 +88,13 @@ The following arguments are supported:
   Represents an Instance Group resource name that the instance belongs to.
 
 
-- - -
-
-
 * `zone` -
   (Optional)
   A reference to the zone where the instance group resides.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

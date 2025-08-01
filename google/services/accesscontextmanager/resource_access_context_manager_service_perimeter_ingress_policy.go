@@ -426,45 +426,15 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyCreate(d *schema.R
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = AccessContextManagerOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating ServicePerimeterIngressPolicy", userAgent,
+	err = AccessContextManagerOperationWaitTime(
+		config, res, "Creating ServicePerimeterIngressPolicy", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create ServicePerimeterIngressPolicy: %s", err)
 	}
-
-	if _, ok := opRes["status"]; ok {
-		opRes, err = flattenNestedAccessContextManagerServicePerimeterIngressPolicy(d, meta, opRes)
-		if err != nil {
-			return fmt.Errorf("Error getting nested object from operation response: %s", err)
-		}
-		if opRes == nil {
-			// Object isn't there any more - remove it from the state.
-			return fmt.Errorf("Error decoding response from operation, could not find nested object")
-		}
-	}
-	if err := d.Set("ingress_from", flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFrom(opRes["ingressFrom"], d, config)); err != nil {
-		return err
-	}
-	if err := d.Set("ingress_to", flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressTo(opRes["ingressTo"], d, config)); err != nil {
-		return err
-	}
-	if err := d.Set("title", flattenNestedAccessContextManagerServicePerimeterIngressPolicyTitle(opRes["title"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{perimeter}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating ServicePerimeterIngressPolicy %q: %#v", d.Id(), res)
 

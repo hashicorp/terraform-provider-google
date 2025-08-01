@@ -79,9 +79,6 @@ The following arguments are supported:
   The client id of an OAuth client.
 
 
-- - -
-
-
 * `enabled` -
   (Optional)
   If this config allows users to sign in with the provider.
@@ -92,6 +89,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

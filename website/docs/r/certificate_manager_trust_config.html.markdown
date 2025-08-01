@@ -103,9 +103,6 @@ The following arguments are supported:
   The trust config location.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Set of label tags associated with the trust config.
@@ -130,6 +127,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_trust_stores"></a>The `trust_stores` block supports:

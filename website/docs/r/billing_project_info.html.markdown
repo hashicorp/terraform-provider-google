@@ -62,11 +62,9 @@ The following arguments are supported:
   For example, `"012345-567890-ABCDEF"` or `""`.
 
 
-- - -
-
-
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

@@ -1,0 +1,22 @@
+resource: 'google_managed_kafka_acl'
+generation_type: 'mmv1'
+source_file: 'products/managedkafka/Acl.yaml'
+api_service_name: 'managedkafka.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Acl'
+fields:
+  - field: 'acl_entries.host'
+  - field: 'acl_entries.operation'
+  - field: 'acl_entries.permission_type'
+  - field: 'acl_entries.principal'
+  - field: 'acl_id'
+    provider_only: true
+  - field: 'cluster'
+    provider_only: true
+  - field: 'etag'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'pattern_type'
+  - field: 'resource_name'
+  - field: 'resource_type'

@@ -128,9 +128,6 @@ The following arguments are supported:
   The resource name of the Feature Online Store. This value may be up to 60 characters, and valid characters are [a-z0-9_]. The first character cannot be a number.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   The labels with user-defined metadata to organize your feature online stores.
@@ -166,6 +163,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `force_destroy` - (Optional) If set to true, any FeatureViews and Features for this FeatureOnlineStore will also be deleted.
+
 
 <a name="nested_bigtable"></a>The `bigtable` block supports:
 

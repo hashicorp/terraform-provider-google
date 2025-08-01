@@ -125,9 +125,6 @@ The following arguments are supported:
   The API to attach the config to.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   A user-visible name for the API.
@@ -170,6 +167,7 @@ The following arguments are supported:
 
 * `api_config_id_prefix` - (Optional) Creates a unique name beginning with the
  specified prefix. If this and api_config_id are unspecified, a random value is chosen for the name.
+
 
 <a name="nested_gateway_config"></a>The `gateway_config` block supports:
 

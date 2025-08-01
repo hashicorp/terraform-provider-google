@@ -141,6 +141,27 @@ func resourceComputeInstanceSettingsCreate(d *schema.ResourceData, meta interfac
 	}
 
 	headers := make(http.Header)
+
+	fingerprintUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceSettings/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	fingerPrintRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    fingerprintUrl,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return err
+	}
+
+	fingerprintProp = fingerPrintRes["fingerprint"]
+	if v, ok := d.GetOkExists("fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(fingerprintProp)) && (ok || !reflect.DeepEqual(v, fingerprintProp)) {
+		obj["fingerprint"] = fingerprintProp
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",
@@ -274,6 +295,27 @@ func resourceComputeInstanceSettingsUpdate(d *schema.ResourceData, meta interfac
 
 	log.Printf("[DEBUG] Updating InstanceSettings %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+
+	fingerprintUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceSettings/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	fingerPrintRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    fingerprintUrl,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return err
+	}
+
+	fingerprintProp = fingerPrintRes["fingerprint"]
+	if v, ok := d.GetOkExists("fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(fingerprintProp)) && (ok || !reflect.DeepEqual(v, fingerprintProp)) {
+		obj["fingerprint"] = fingerprintProp
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -415,34 +457,7 @@ func flattenComputeInstanceSettingsZone(v interface{}, d *schema.ResourceData, c
 }
 
 func expandComputeInstanceSettingsFingerprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return nil, err
-	}
-
-	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
-	if err != nil {
-		return nil, err
-	}
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceSettings/{{name}}")
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   project,
-		RawURL:    url,
-		UserAgent: userAgent,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return res["fingerprint"], nil
+	return v, nil
 }
 
 func expandComputeInstanceSettingsMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

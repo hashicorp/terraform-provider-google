@@ -217,29 +217,15 @@ func resourceGKEHub2MembershipBindingCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = GKEHub2OperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating MembershipBinding", userAgent,
+	err = GKEHub2OperationWaitTime(
+		config, res, project, "Creating MembershipBinding", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create MembershipBinding: %s", err)
 	}
-
-	if err := d.Set("name", flattenGKEHub2MembershipBindingName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/memberships/{{membership_id}}/bindings/{{membership_binding_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating MembershipBinding %q: %#v", d.Id(), res)
 

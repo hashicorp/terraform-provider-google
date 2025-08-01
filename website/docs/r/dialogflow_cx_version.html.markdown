@@ -73,9 +73,6 @@ The following arguments are supported:
   The human-readable name of the version. Limit of 64 characters.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   The description of the version. The maximum length is 500 characters. If exceeded, the request is rejected.
@@ -84,6 +81,7 @@ The following arguments are supported:
   (Optional)
   The Flow to create an Version for.
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
+
 
 
 ## Attributes Reference

@@ -1127,6 +1127,11 @@ func resourceNetworkServicesEdgeCacheServiceCreate(d *schema.ResourceData, meta 
 		obj["labels"] = labelsProp
 	}
 
+	obj, err = resourceNetworkServicesEdgeCacheServiceEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheServices?edgeCacheServiceId={{name}}")
 	if err != nil {
 		return err
@@ -1346,6 +1351,11 @@ func resourceNetworkServicesEdgeCacheServiceUpdate(d *schema.ResourceData, meta 
 		return err
 	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
+	}
+
+	obj, err = resourceNetworkServicesEdgeCacheServiceEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheServices/{{name}}")
@@ -3592,4 +3602,60 @@ func expandNetworkServicesEdgeCacheServiceEffectiveLabels(v interface{}, d tpgre
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceNetworkServicesEdgeCacheServiceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// This encoder ensures TTL fields are handled correctly based on cache mode
+	routing, ok := obj["routing"].(map[string]interface{})
+	if !ok {
+		return obj, nil
+	}
+
+	pathMatchers, ok := routing["pathMatchers"].([]interface{})
+	if !ok || len(pathMatchers) == 0 {
+		return obj, nil
+	}
+
+	for _, pm := range pathMatchers {
+		pathMatcher, ok := pm.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		routeRules, ok := pathMatcher["routeRules"].([]interface{})
+		if !ok {
+			continue
+		}
+
+		for _, rr := range routeRules {
+			routeRule, ok := rr.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			routeAction, ok := routeRule["routeAction"].(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			cdnPolicy, ok := routeAction["cdnPolicy"].(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			// Handle TTL fields based on cache mode
+			if cacheMode, ok := cdnPolicy["cacheMode"].(string); ok {
+				switch cacheMode {
+				case "USE_ORIGIN_HEADERS", "BYPASS_CACHE":
+					delete(cdnPolicy, "clientTtl")
+					delete(cdnPolicy, "defaultTtl")
+					delete(cdnPolicy, "maxTtl")
+				case "FORCE_CACHE_ALL":
+					delete(cdnPolicy, "maxTtl")
+				}
+			}
+		}
+	}
+
+	return obj, nil
 }

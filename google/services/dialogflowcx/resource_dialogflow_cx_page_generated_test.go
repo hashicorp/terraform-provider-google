@@ -731,7 +731,7 @@ resource "google_dialogflow_cx_page" "my_page2" {
 
 resource "google_discovery_engine_data_store" "my_datastore" {
   location          = "global"
-  data_store_id     = "datastore-page-full"
+  data_store_id     = "tf-test-datastore-page-full%{random_suffix}"
   display_name      = "datastore-page-full"
   industry_vertical = "GENERIC"
   content_config    = "NO_CONTENT"

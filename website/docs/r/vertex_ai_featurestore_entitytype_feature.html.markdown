@@ -138,9 +138,6 @@ The following arguments are supported:
   The name of the Featurestore to use, in the format projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entitytype}.
 
 
-- - -
-
-
 * `name` -
   (Optional)
   The name of the feature. The feature can be up to 64 characters long and can consist only of ASCII Latin letters A-Z and a-z, underscore(_), and ASCII digits 0-9 starting with a letter. The value will be unique given an entity type.
@@ -155,6 +152,7 @@ The following arguments are supported:
 * `description` -
   (Optional)
   Description of the feature.
+
 
 
 ## Attributes Reference

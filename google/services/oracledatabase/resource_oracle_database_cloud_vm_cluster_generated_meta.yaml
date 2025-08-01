@@ -6,6 +6,7 @@ api_version: 'v1'
 api_resource_type_kind: 'CloudVmCluster'
 autogen_status: true
 fields:
+  - field: 'backup_odb_subnet'
   - field: 'backup_subnet_cidr'
   - field: 'cidr'
   - field: 'cloud_vm_cluster_id'
@@ -23,6 +24,8 @@ fields:
     provider_only: true
   - field: 'name'
   - field: 'network'
+  - field: 'odb_network'
+  - field: 'odb_subnet'
   - field: 'properties.cluster_name'
   - field: 'properties.compartment_id'
   - field: 'properties.cpu_core_count'

@@ -481,7 +481,7 @@ func flattenDialogflowCXVersionName(v interface{}, d *schema.ResourceData, confi
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenDialogflowCXVersionDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

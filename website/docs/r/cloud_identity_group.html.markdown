@@ -82,6 +82,26 @@ The following arguments are supported:
   Identity-mapped groups for Cloud Search have a label with a key of system/groups/external and an empty value.
 
 
+* `display_name` -
+  (Optional)
+  The display name of the Group.
+
+* `description` -
+  (Optional)
+  An extended description to help users determine the purpose of a Group.
+  Must not be longer than 4,096 characters.
+
+* `initial_group_config` -
+  (Optional)
+  The initial configuration options for creating a Group.
+  See the
+  [API reference](https://cloud.google.com/identity/docs/reference/rest/v1beta1/groups/create#initialgroupconfig)
+  for possible values.
+  Default value is `EMPTY`.
+  Possible values are: `INITIAL_GROUP_CONFIG_UNSPECIFIED`, `WITH_INITIAL_OWNER`, `EMPTY`.
+
+
+
 <a name="nested_group_key"></a>The `group_key` block supports:
 
 * `id` -
@@ -101,28 +121,6 @@ The following arguments are supported:
   If specified, the EntityKey represents an external-identity-mapped group.
   The namespace must correspond to an identity source created in Admin Console
   and must be in the form of `identitysources/{identity_source_id}`.
-
-- - -
-
-
-* `display_name` -
-  (Optional)
-  The display name of the Group.
-
-* `description` -
-  (Optional)
-  An extended description to help users determine the purpose of a Group.
-  Must not be longer than 4,096 characters.
-
-* `initial_group_config` -
-  (Optional)
-  The initial configuration options for creating a Group.
-  See the
-  [API reference](https://cloud.google.com/identity/docs/reference/rest/v1beta1/groups/create#initialgroupconfig)
-  for possible values.
-  Default value is `EMPTY`.
-  Possible values are: `INITIAL_GROUP_CONFIG_UNSPECIFIED`, `WITH_INITIAL_OWNER`, `EMPTY`.
-
 
 ## Attributes Reference
 

@@ -71,6 +71,33 @@ The following arguments are supported:
   The parent of the quota preference. Allowed parents are "projects/[project-id / number]" or "folders/[folder-id / number]" or "organizations/[org-id / number]".
 
 
+* `name` -
+  (Optional)
+  The resource name of the quota preference. Required except in the CREATE requests.
+
+* `dimensions` -
+  (Optional)
+  The dimensions that this quota preference applies to. The key of the map entry is the name of a dimension, such as "region", "zone", "network_id", and the value of the map entry is the dimension value. If a dimension is missing from the map of dimensions, the quota preference applies to all the dimension values except for those that have other quota preferences configured for the specific value.
+  NOTE: QuotaPreferences can only be applied across all values of "user" and "resource" dimension. Do not set values for "user" or "resource" in the dimension map.
+  Example: `{"provider": "Foo Inc"}` where "provider" is a service specific dimension.
+
+* `justification` -
+  (Optional)
+  The reason / justification for this quota preference.
+
+* `contact_email` -
+  (Optional)
+  An email address that can be used for quota related communication between the Google Cloud and the user in case the Google Cloud needs further information to make a decision on whether the user preferred quota can be granted.
+  The Google account for the email address must have quota update permission for the project, folder or organization this quota preference is for.
+
+* `ignore_safety_checks` -
+  (Optional)
+  The list of quota safety checks to be ignored.
+  Default value is `QUOTA_SAFETY_CHECK_UNSPECIFIED`.
+  Possible values are: `QUOTA_SAFETY_CHECK_UNSPECIFIED`, `QUOTA_DECREASE_BELOW_USAGE`, `QUOTA_DECREASE_PERCENTAGE_TOO_HIGH`.
+
+
+
 <a name="nested_quota_config"></a>The `quota_config` block supports:
 
 * `preferred_value` -
@@ -97,35 +124,6 @@ The following arguments are supported:
 * `request_origin` -
   (Output)
   The origin of the quota preference request.
-
-- - -
-
-
-* `name` -
-  (Optional)
-  The resource name of the quota preference. Required except in the CREATE requests.
-
-* `dimensions` -
-  (Optional)
-  The dimensions that this quota preference applies to. The key of the map entry is the name of a dimension, such as "region", "zone", "network_id", and the value of the map entry is the dimension value. If a dimension is missing from the map of dimensions, the quota preference applies to all the dimension values except for those that have other quota preferences configured for the specific value.
-  NOTE: QuotaPreferences can only be applied across all values of "user" and "resource" dimension. Do not set values for "user" or "resource" in the dimension map.
-  Example: `{"provider": "Foo Inc"}` where "provider" is a service specific dimension.
-
-* `justification` -
-  (Optional)
-  The reason / justification for this quota preference.
-
-* `contact_email` -
-  (Optional)
-  An email address that can be used for quota related communication between the Google Cloud and the user in case the Google Cloud needs further information to make a decision on whether the user preferred quota can be granted.
-  The Google account for the email address must have quota update permission for the project, folder or organization this quota preference is for.
-
-* `ignore_safety_checks` -
-  (Optional)
-  The list of quota safety checks to be ignored.
-  Default value is `QUOTA_SAFETY_CHECK_UNSPECIFIED`.
-  Possible values are: `QUOTA_SAFETY_CHECK_UNSPECIFIED`, `QUOTA_DECREASE_BELOW_USAGE`, `QUOTA_DECREASE_PERCENTAGE_TOO_HIGH`.
-
 
 ## Attributes Reference
 

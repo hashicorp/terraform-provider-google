@@ -70,9 +70,6 @@ The following arguments are supported:
   The resource name of deployment resource pool. The maximum length is 63 characters, and valid characters are `/^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/`.
 
 
-- - -
-
-
 * `dedicated_resources` -
   (Optional)
   The underlying dedicated resources that the deployment resource pool uses.
@@ -84,6 +81,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_dedicated_resources"></a>The `dedicated_resources` block supports:

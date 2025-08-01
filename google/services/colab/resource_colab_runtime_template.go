@@ -119,20 +119,22 @@ func ResourceColabRuntimeTemplate() *schema.Resource {
 				},
 			},
 			"euc_config": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `EUC configuration of the NotebookRuntimeTemplate.`,
-				MaxItems:    1,
+				Type:             schema.TypeList,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.EmptyOrUnsetBlockDiffSuppress,
+				Description:      `EUC configuration of the NotebookRuntimeTemplate.`,
+				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"euc_disabled": {
-							Type:        schema.TypeBool,
-							Computed:    true,
-							Optional:    true,
-							ForceNew:    true,
-							Description: `Disable end user credential access for the runtime.`,
+							Type:             schema.TypeBool,
+							Computed:         true,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: tpgresource.EmptyOrFalseSuppressBoolean,
+							Description:      `Disable end user credential access for the runtime.`,
 						},
 					},
 				},
@@ -248,26 +250,29 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				},
 			},
 			"shielded_vm_config": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Runtime Shielded VM spec.`,
-				MaxItems:    1,
+				Type:             schema.TypeList,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.EmptyOrUnsetBlockDiffSuppress,
+				Description:      `Runtime Shielded VM spec.`,
+				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enable_secure_boot": {
-							Type:        schema.TypeBool,
-							Computed:    true,
-							Optional:    true,
-							ForceNew:    true,
-							Description: `Enables secure boot for the runtime.`,
+							Type:             schema.TypeBool,
+							Computed:         true,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: tpgresource.EmptyOrFalseSuppressBoolean,
+							Description:      `Enables secure boot for the runtime.`,
 						},
 					},
 				},
 			},
 			"software_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `The notebook software configuration of the notebook runtime.`,
@@ -299,6 +304,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						"post_startup_script_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
+							Deprecated:  "`post_startup_script_config` is deprecated and will be removed in a future major release. New resource creation with this field is unavailable at this time.",
 							ForceNew:    true,
 							Description: `Post startup script config.`,
 							MaxItems:    1,
@@ -690,7 +696,7 @@ func flattenColabRuntimeTemplateName(v interface{}, d *schema.ResourceData, conf
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenColabRuntimeTemplateDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

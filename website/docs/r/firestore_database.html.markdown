@@ -63,6 +63,22 @@ resource "google_firestore_database" "database" {
   deletion_policy                   = "DELETE"
 }
 ```
+## Example Usage - Firestore Database With Tags
+
+
+```hcl
+resource "google_firestore_database" "database" {
+  project                           = "my-project-name"
+  name                              = "database-with-tags-id"
+  location_id                       = "nam5"
+  type                              = "FIRESTORE_NATIVE"
+  delete_protection_state           = "DELETE_PROTECTION_ENABLED"
+  deletion_policy                   = "DELETE"
+  tags = {
+    "keyname" = "valuename"
+  }
+}
+```
 ## Example Usage - Firestore Cmek Database
 
 
@@ -223,9 +239,6 @@ The following arguments are supported:
   Possible values are: `FIRESTORE_NATIVE`, `DATASTORE_MODE`.
 
 
-- - -
-
-
 * `database_edition` -
   (Optional)
   The database edition.
@@ -266,6 +279,15 @@ The following arguments are supported:
   encryption key.
   Structure is [documented below](#nested_cmek_config).
 
+* `tags` -
+  (Optional)
+  Input only. A map of resource manager tags. Resource manager tag keys
+  and values have the same definition as resource manager tags.
+  Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456.
+  The field is ignored when empty. The field is immutable and causes
+  resource replacement when mutated. To apply tags to an existing resource, see
+  the `google_tags_tag_value` resource.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -274,6 +296,7 @@ If the deletion policy is `ABANDON`, the database will be removed from Terraform
 If the deletion policy is `DELETE`, the database will both be removed from Terraform state and deleted from Google Cloud upon destruction.
 The default value is `ABANDON`.
 See also `delete_protection`.
+
 
 
 <a name="nested_cmek_config"></a>The `cmek_config` block supports:

@@ -23,8 +23,6 @@ description: |-
 
 BackendAuthenticationConfig groups the TrustConfig together with other settings that control how the load balancer authenticates, and expresses its identity to the backend.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about BackendAuthenticationConfig, see:
 * How-to Guides
@@ -40,7 +38,6 @@ To get more information about BackendAuthenticationConfig, see:
 
 ```hcl
 resource "google_network_security_backend_authentication_config" "default" {
-  provider = google-beta
   name             = "my-backend-authentication-config"
   labels           = {
     foo = "bar"
@@ -59,7 +56,6 @@ resource "google_network_security_backend_authentication_config" "default" {
 
 ```hcl
 resource "google_certificate_manager_certificate" "certificate" {
-  provider = google-beta
   name     = "my-certificate"
   labels   = {
     foo = "bar"
@@ -73,7 +69,6 @@ resource "google_certificate_manager_certificate" "certificate" {
 }
 
 resource "google_certificate_manager_trust_config" "trust_config" {
-  provider    = google-beta
   name        = "my-trust-config"
   description = "sample description for the trust config"
   location    = "global"
@@ -93,7 +88,6 @@ resource "google_certificate_manager_trust_config" "trust_config" {
 }
 
 resource "google_network_security_backend_authentication_config" "default" {
-  provider = google-beta
   name     = "my-backend-authentication-config"
   labels   = {
     bar = "foo"
@@ -105,6 +99,44 @@ resource "google_network_security_backend_authentication_config" "default" {
   trust_config       = google_certificate_manager_trust_config.trust_config.id
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=backend_service_tls_settings&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Tls Settings
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  name          = "backend-service"
+  health_checks = [google_compute_health_check.default.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol = "HTTPS"
+  tls_settings {
+    sni = "example.com"
+    subject_alt_names {
+        dns_name = "example.com"
+    }
+    subject_alt_names {
+        uniform_resource_identifier = "https://example.com"
+    }
+    authentication_config = "//networksecurity.googleapis.com/${google_network_security_backend_authentication_config.default.id}"
+  }
+}
+
+resource "google_compute_health_check" "default" {
+  name = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_network_security_backend_authentication_config" "default" {
+  name             = "authentication"
+  well_known_roots = "PUBLIC_ROOTS"
+}
+```
 
 ## Argument Reference
 
@@ -114,9 +146,6 @@ The following arguments are supported:
 * `name` -
   (Required)
   Name of the BackendAuthenticationConfig resource.
-
-
-- - -
 
 
 * `labels` -
@@ -153,6 +182,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

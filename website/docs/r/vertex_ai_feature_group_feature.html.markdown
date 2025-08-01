@@ -118,9 +118,6 @@ The following arguments are supported:
   The region for the resource. It should be the same as the feature group's region.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   The labels with user-defined metadata to organize your FeatureGroup.
@@ -137,6 +134,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

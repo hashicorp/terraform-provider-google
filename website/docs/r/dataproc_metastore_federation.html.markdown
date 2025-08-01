@@ -122,22 +122,6 @@ The following arguments are supported:
   3 and 63 characters.
 
 
-<a name="nested_backend_metastores"></a>The `backend_metastores` block supports:
-
-* `rank` - (Required) The identifier for this object. Format specified above.
-
-* `name` -
-  (Required)
-  The relative resource name of the metastore that is being federated. The formats of the relative resource names for the currently supported metastores are listed below: Dataplex: projects/{projectId}/locations/{location}/lakes/{lake_id} BigQuery: projects/{projectId} Dataproc Metastore: projects/{projectId}/locations/{location}/services/{serviceId}
-
-* `metastore_type` -
-  (Required)
-  The type of the backend metastore.
-  Possible values are: `METASTORE_TYPE_UNSPECIFIED`, `DATAPROC_METASTORE`, `BIGQUERY`.
-
-- - -
-
-
 * `labels` -
   (Optional)
   User-defined labels for the metastore federation.
@@ -155,6 +139,20 @@ The following arguments are supported:
 When the field is set to true in Terraform state, a `terraform apply`
 or `terraform destroy` that would delete the federation will fail.
 
+
+
+<a name="nested_backend_metastores"></a>The `backend_metastores` block supports:
+
+* `rank` - (Required) The identifier for this object. Format specified above.
+
+* `name` -
+  (Required)
+  The relative resource name of the metastore that is being federated. The formats of the relative resource names for the currently supported metastores are listed below: Dataplex: projects/{projectId}/locations/{location}/lakes/{lake_id} BigQuery: projects/{projectId} Dataproc Metastore: projects/{projectId}/locations/{location}/services/{serviceId}
+
+* `metastore_type` -
+  (Required)
+  The type of the backend metastore.
+  Possible values are: `METASTORE_TYPE_UNSPECIFIED`, `DATAPROC_METASTORE`, `BIGQUERY`.
 
 ## Attributes Reference
 

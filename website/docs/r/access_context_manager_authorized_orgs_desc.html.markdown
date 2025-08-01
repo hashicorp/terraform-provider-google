@@ -81,9 +81,6 @@ The following arguments are supported:
   After you create an `AuthorizedOrgsDesc`, you cannot change its `name`.
 
 
-- - -
-
-
 * `orgs` -
   (Optional)
   The list of organization ids in this AuthorizedOrgsDesc.
@@ -119,6 +116,7 @@ The following arguments are supported:
   (Optional)
   A granular control type for authorization levels. Valid value is "AUTHORIZATION_TYPE_TRUST".
   Possible values are: `AUTHORIZATION_TYPE_TRUST`.
+
 
 
 ## Attributes Reference

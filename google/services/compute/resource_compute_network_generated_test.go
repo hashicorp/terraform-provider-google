@@ -47,9 +47,10 @@ func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
 				Config: testAccComputeNetwork_networkBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_network.vpc_network",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network.vpc_network",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -80,9 +81,10 @@ func TestAccComputeNetwork_networkCustomMtuExample(t *testing.T) {
 				Config: testAccComputeNetwork_networkCustomMtuExample(context),
 			},
 			{
-				ResourceName:      "google_compute_network.vpc_network",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network.vpc_network",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -116,9 +118,10 @@ func TestAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(t *testi
 				Config: testAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(context),
 			},
 			{
-				ResourceName:      "google_compute_network.vpc_network",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network.vpc_network",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -152,9 +155,10 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeExample(t *testing.T) 
 				Config: testAccComputeNetwork_networkBgpBestPathSelectionModeExample(context),
 			},
 			{
-				ResourceName:      "google_compute_network.vpc_network",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network.vpc_network",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -187,9 +191,10 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardExample(t *tes
 				Config: testAccComputeNetwork_networkBgpBestPathSelectionModeStandardExample(context),
 			},
 			{
-				ResourceName:      "google_compute_network.vpc_network",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network.vpc_network",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -223,9 +228,10 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardCustomFieldsEx
 				Config: testAccComputeNetwork_networkBgpBestPathSelectionModeStandardCustomFieldsExample(context),
 			},
 			{
-				ResourceName:      "google_compute_network.vpc_network",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network.vpc_network",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})

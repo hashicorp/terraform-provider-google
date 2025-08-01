@@ -189,9 +189,6 @@ The following arguments are supported:
   The location of the queue
 
 
-- - -
-
-
 * `name` -
   (Optional)
   The queue name.
@@ -230,6 +227,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_app_engine_routing_override"></a>The `app_engine_routing_override` block supports:

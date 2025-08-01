@@ -579,6 +579,24 @@ The following arguments are supported:
   The region of the Restore Plan.
 
 
+* `description` -
+  (Optional)
+  User specified descriptive string for this RestorePlan.
+
+* `labels` -
+  (Optional)
+  Description: A set of custom labels supplied by the user.
+  A list of key->value pairs.
+  Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_restore_config"></a>The `restore_config` block supports:
 
 * `all_namespaces` -
@@ -904,26 +922,6 @@ The following arguments are supported:
   (Optional)
   Kind of a Kubernetes resource, e.g.
   "CustomResourceDefinition", "StorageClass", etc.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  User specified descriptive string for this RestorePlan.
-
-* `labels` -
-  (Optional)
-  Description: A set of custom labels supplied by the user.
-  A list of key->value pairs.
-  Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
-
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

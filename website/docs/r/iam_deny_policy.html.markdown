@@ -97,6 +97,12 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules).
 
 
+* `display_name` -
+  (Optional)
+  The display name of the rule.
+
+
+
 <a name="nested_rules"></a>The `rules` block supports:
 
 * `description` -
@@ -157,14 +163,6 @@ The following arguments are supported:
   (Optional)
   String indicating the location of the expression for error reporting,
   e.g. a file name and a position in the file.
-
-- - -
-
-
-* `display_name` -
-  (Optional)
-  The display name of the rule.
-
 
 ## Attributes Reference
 

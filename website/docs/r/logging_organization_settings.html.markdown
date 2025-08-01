@@ -63,9 +63,6 @@ The following arguments are supported:
   The organization for which to retrieve or configure settings.
 
 
-- - -
-
-
 * `kms_key_name` -
   (Optional)
   The resource name for the configured Cloud KMS key.
@@ -77,6 +74,7 @@ The following arguments are supported:
 * `disable_default_sink` -
   (Optional)
   If set to true, the _Default sink in newly created projects and folders will created in a disabled state. This can be used to automatically disable log storage if there is already an aggregated sink configured in the hierarchy. The _Default sink can be re-enabled manually if needed.
+
 
 
 ## Attributes Reference

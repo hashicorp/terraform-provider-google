@@ -40,13 +40,14 @@ To get more information about Instance, see:
 
 ```hcl
 resource "google_lustre_instance" "instance" {
-  instance_id  = "my-instance"
-  location     = "us-central1-a"
-  description  = "test lustre instance"
-  filesystem   = "testfs"
-  capacity_gib = 18000
-  network      = data.google_compute_network.lustre-network.id
-  labels       = {
+  instance_id                 = "my-instance"
+  location                    = "us-central1-a"
+  description                 = "test lustre instance"
+  filesystem                  = "testfs"
+  capacity_gib                = 18000
+  network                     = data.google_compute_network.lustre-network.id
+  per_unit_storage_throughput = 1000
+  labels                      = {
     test = "value"
   }
   timeouts {
@@ -74,20 +75,25 @@ The following arguments are supported:
 
 * `capacity_gib` -
   (Required)
-  Required. The storage capacity of the instance in gibibytes (GiB). Allowed values
-  are from 18000 to 954000, in increments of 9000.
+  The storage capacity of the instance in gibibytes (GiB). Allowed values
+  are from `18000` to `954000`, in increments of 9000.
 
 * `filesystem` -
   (Required)
-  Required. Immutable. The filesystem name for this instance. This name is used by client-side
-  tools, including when mounting the instance. Must be 8 characters or less
-  and may only contain letters and numbers.
+  The filesystem name for this instance. This name is used by client-side
+  tools, including when mounting the instance. Must be eight characters or
+  less and can only contain letters and numbers.
 
 * `network` -
   (Required)
-  Required. Immutable. The full name of the VPC network to which the instance is connected.
+  The full name of the VPC network to which the instance is connected.
   Must be in the format
   `projects/{project_id}/global/networks/{network_name}`.
+
+* `per_unit_storage_throughput` -
+  (Required)
+  The throughput of the instance in MB/s/TiB.
+  Valid values are 125, 250, 500, 1000.
 
 * `location` -
   (Required)
@@ -95,33 +101,31 @@ The following arguments are supported:
 
 * `instance_id` -
   (Required)
-  Required. The name of the Managed Lustre instance.
+  The name of the Managed Lustre instance.
   * Must contain only lowercase letters, numbers, and hyphens.
   * Must start with a letter.
   * Must be between 1-63 characters.
   * Must end with a number or a letter.
 
 
-- - -
-
-
-* `labels` -
+* `gke_support_enabled` -
   (Optional)
-  Optional. Labels as key value pairs.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
+  Indicates whether you want to enable support for GKE clients. By default,
+  GKE clients are not supported.
 
 * `description` -
   (Optional)
-  Optional. A user-readable description of the instance.
+  A user-readable description of the instance.
 
-* `gke_support_enabled` -
+* `labels` -
   (Optional)
-  Optional. Indicates whether you want to enable support for GKE clients. By default,
-  GKE clients are not supported.
+  Labels as key value pairs.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference
@@ -130,8 +134,11 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/instances/{{instance_id}}`
 
+* `update_time` -
+  Timestamp when the instance was last updated.
+
 * `state` -
-  Output only. The state of the instance.
+  The state of the instance.
   Possible values:
   STATE_UNSPECIFIED
   ACTIVE
@@ -142,13 +149,10 @@ In addition to the arguments listed above, the following computed attributes are
   STOPPED
 
 * `mount_point` -
-  Output only. Mount point of the instance in the format `IP_ADDRESS@tcp:/FILESYSTEM`.
+  Mount point of the instance in the format `IP_ADDRESS@tcp:/FILESYSTEM`.
 
 * `create_time` -
-  Output only. Timestamp when the instance was created.
-
-* `update_time` -
-  Output only. Timestamp when the instance was last updated.
+  Timestamp when the instance was created.
 
 * `name` -
   Identifier. The name of the instance.

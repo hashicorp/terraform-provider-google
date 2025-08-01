@@ -53,6 +53,8 @@ func ResourceIapBrand() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		DeprecationMessage: "after July 2025, the `google_iap_brand` Terraform resource will no longer function as intended due to the deprecation of the IAP OAuth Admin API",
+
 		Schema: map[string]*schema.Schema{
 			"application_title": {
 				Type:        schema.TypeString,

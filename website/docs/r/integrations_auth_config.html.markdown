@@ -68,9 +68,6 @@ The following arguments are supported:
   Location in which client needs to be provisioned.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A description of the auth config.
@@ -102,6 +99,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_decrypted_credential"></a>The `decrypted_credential` block supports:

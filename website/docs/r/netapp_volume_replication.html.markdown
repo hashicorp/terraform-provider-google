@@ -135,9 +135,6 @@ The following arguments are supported:
   The name of the replication. Needs to be unique per location.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Labels as key value pairs. Example: `{ "owner": "Bob", "department": "finance", "purpose": "testing" }`
@@ -178,6 +175,7 @@ volume will remain at the state of the last successful update. Default is false.
 * `wait_for_mirror` - (Optional) Replication resource state is independent of mirror_state. With enough data, it can take many hours
 for mirror_state to reach MIRRORED. If you want Terraform to wait for the mirror to finish on
 create/stop/resume operations, set this parameter to true. Default is false.
+
 
 
 <a name="nested_destination_volume_parameters"></a>The `destination_volume_parameters` block supports:
@@ -258,6 +256,13 @@ In addition to the arguments listed above, the following computed attributes are
     - true: The replication relationship is healthy. It has not missed the most recent scheduled transfer.
     - false: The replication relationship is not healthy. It has missed the most recent scheduled transfer.
 
+* `hybrid_replication_type` -
+  Hybrid replication type.
+
+* `hybrid_peering_details` -
+  HybridPeeringDetails contains details about the hybrid peering.
+  Structure is [documented below](#nested_hybrid_peering_details).
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -301,6 +306,37 @@ In addition to the arguments listed above, the following computed attributes are
 * `last_transfer_error` -
   (Output)
   A message describing the cause of the last transfer failure.
+
+<a name="nested_hybrid_peering_details"></a>The `hybrid_peering_details` block contains:
+
+* `subnet_ip` -
+  (Output)
+  Optional. IP address of the subnet.
+
+* `command` -
+  (Output)
+  Optional. Copy-paste-able commands to be used on user's ONTAP to accept peering requests.
+
+* `command_expiry_time` -
+  (Output)
+  Optional. Expiration time for the peering command to be executed on user's ONTAP.
+  Uses RFC 3339, where generated output will always be Z-normalized and uses 0, 3, 6 or 9 fractional digits. Offsets other than "Z" are also accepted.
+
+* `passphrase` -
+  (Output)
+  Optional. Temporary passphrase generated to accept cluster peering command.
+
+* `peer_volume_name` -
+  (Output)
+  Optional. Name of the user's local source volume to be peered with the destination volume.
+
+* `peer_cluster_name` -
+  (Output)
+  Optional. Name of the user's local source cluster to be peered with the destination cluster.
+
+* `peer_svm_name` -
+  (Output)
+  Optional. Name of the user's local source vserver svm to be peered with the destination vserver svm.
 
 ## Timeouts
 

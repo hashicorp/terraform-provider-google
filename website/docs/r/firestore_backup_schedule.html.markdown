@@ -98,9 +98,6 @@ The following arguments are supported:
   You can set this to a value up to 14 weeks.
 
 
-- - -
-
-
 * `daily_recurrence` -
   (Optional)
   For a schedule that runs daily.
@@ -116,6 +113,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_weekly_recurrence"></a>The `weekly_recurrence` block supports:

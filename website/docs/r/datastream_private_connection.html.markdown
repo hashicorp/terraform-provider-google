@@ -58,6 +58,48 @@ resource "google_compute_network" "default" {
   name = "my-network"
 }
 ```
+## Example Usage - Datastream Private Connection Psc Interface
+
+
+```hcl
+resource "google_datastream_private_connection" "default" {
+    display_name          = "Connection profile"
+    location              = "us-central1"
+    private_connection_id = "my-connection"
+
+    labels = {
+        key = "value"
+    }
+
+    psc_interface_config {
+        network_attachment = google_compute_network_attachment.default.id
+    }
+}
+
+resource "google_compute_network_attachment" "default" {
+    name                  = "my-network-attachment"
+    region                = "us-central1"
+    description           = "basic network attachment description"
+    connection_preference = "ACCEPT_AUTOMATIC"
+
+    subnetworks = [
+        google_compute_subnetwork.default.self_link
+    ]
+}
+
+resource "google_compute_network" "default" {
+    name                    = "my-network"
+    auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+    name   = "my-subnetwork"
+    region = "us-central1"
+
+    network       = google_compute_network.default.id
+    ip_cidr_range = "10.0.0.0/16"
+}
+```
 
 ## Argument Reference
 
@@ -68,12 +110,6 @@ The following arguments are supported:
   (Required)
   Display name.
 
-* `vpc_peering_config` -
-  (Required)
-  The VPC Peering configuration is used to create VPC peering
-  between Datastream and the consumer's VPC.
-  Structure is [documented below](#nested_vpc_peering_config).
-
 * `private_connection_id` -
   (Required)
   The private connectivity identifier.
@@ -81,6 +117,33 @@ The following arguments are supported:
 * `location` -
   (Required)
   The name of the location this private connection is located in.
+
+
+* `labels` -
+  (Optional)
+  Labels.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `vpc_peering_config` -
+  (Optional)
+  The VPC Peering configuration is used to create VPC peering
+  between Datastream and the consumer's VPC.
+  Structure is [documented below](#nested_vpc_peering_config).
+
+* `psc_interface_config` -
+  (Optional)
+  The PSC Interface configuration is used to create PSC Interface
+  between Datastream and the consumer's PSC.
+  Structure is [documented below](#nested_psc_interface_config).
+
+* `create_without_validation` -
+  (Optional)
+  If set to true, will skip validations.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
 
 
 <a name="nested_vpc_peering_config"></a>The `vpc_peering_config` block supports:
@@ -94,22 +157,16 @@ The following arguments are supported:
   (Required)
   A free subnet for peering. (CIDR of /29)
 
-- - -
+<a name="nested_psc_interface_config"></a>The `psc_interface_config` block supports:
 
-
-* `labels` -
-  (Optional)
-  Labels.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `create_without_validation` -
-  (Optional)
-  If set to true, will skip validations.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
+* `network_attachment` -
+  (Required)
+  Fully qualified name of the network attachment that Datastream will connect to.
+  Format: projects/{project}/regions/{region}/networkAttachments/{name}
+  To get Datastream project for the accepted list:
+  `gcloud datastream private-connections create [PC ID] --location=[LOCATION] --network-attachment=[NA URI] --validate-only --display-name=[ANY STRING]`
+  Add Datastream project to the attachment accepted list:
+  `gcloud compute network-attachments update [NA URI] --region=[NA region] --producer-accept-list=[TP from prev command]`
 
 ## Attributes Reference
 
@@ -150,9 +207,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 20 minutes.
-- `update` - Default is 20 minutes.
-- `delete` - Default is 20 minutes.
+- `create` - Default is 30 minutes.
+- `update` - Default is 30 minutes.
+- `delete` - Default is 30 minutes.
 
 ## Import
 

@@ -51,7 +51,7 @@ resource "google_notebooks_instance" "instance" {
   machine_type = "e2-medium"
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    image_family = "pytorch-latest-cu124"
   }
 }
 ```
@@ -70,7 +70,7 @@ resource "google_notebooks_instance" "instance" {
   machine_type = "e2-medium"
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    image_family = "pytorch-latest-cu124"
   }
   desired_state = "STOPPED"
 }
@@ -119,7 +119,7 @@ resource "google_notebooks_instance" "instance" {
   }
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-gpu"
+    image_family = "pytorch-latest-cu124"
   }
 }
 ```
@@ -134,7 +134,7 @@ resource "google_notebooks_instance" "instance" {
 
   vm_image {
     project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    image_family = "pytorch-latest-cu124"
   }
 
   instance_owners = [ "my@service-account.com"]
@@ -197,9 +197,6 @@ The following arguments are supported:
 * `location` -
   (Required)
   A reference to the zone where the machine resides.
-
-
-- - -
 
 
 * `post_startup_script` -
@@ -351,6 +348,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `desired_state` - (Optional) Desired state of the Notebook Instance. Set this field to `ACTIVE` to start the Instance, and `STOPPED` to stop the Instance.
+
 
 
 <a name="nested_accelerator_config"></a>The `accelerator_config` block supports:

@@ -283,6 +283,103 @@ data "google_project" "target_project" {
 `, context)
 }
 
+func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAllocationAlgoritmsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkConnectivityInternalRangeDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAllocationAlgoritmsExample(context),
+			},
+			{
+				ResourceName:            "google_network_connectivity_internal_range.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAllocationAlgoritmsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_connectivity_internal_range" "default" {
+  name    = "tf-test-allocation-algorithms%{random_suffix}"
+  network = google_compute_network.default.id
+  usage   = "FOR_VPC"
+  peering = "FOR_SELF"
+  prefix_length = 24
+  target_cidr_range = [
+    "192.16.0.0/16"
+  ]
+  allocation_options {
+    allocation_strategy = "FIRST_SMALLEST_FITTING"
+  }
+}
+
+resource "google_compute_network" "default" {
+  name                    = "tf-test-internal-ranges%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
+func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAllocationAlgoritmsRandomFirstNExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkConnectivityInternalRangeDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAllocationAlgoritmsRandomFirstNExample(context),
+			},
+			{
+				ResourceName:            "google_network_connectivity_internal_range.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAllocationAlgoritmsRandomFirstNExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_connectivity_internal_range" "default" {
+  name    = "tf-test-allocation-algorithms-random-first-n%{random_suffix}"
+  network = google_compute_network.default.id
+  usage   = "FOR_VPC"
+  peering = "FOR_SELF"
+  prefix_length = 24
+  target_cidr_range = [
+    "192.16.0.0/16"
+  ]
+  allocation_options {
+    allocation_strategy = "RANDOM_FIRST_N_AVAILABLE"
+    first_available_ranges_lookup_size = 20
+  }
+}
+
+resource "google_compute_network" "default" {
+  name                    = "tf-test-internal-ranges%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
 func testAccCheckNetworkConnectivityInternalRangeDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

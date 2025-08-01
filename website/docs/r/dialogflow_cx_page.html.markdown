@@ -741,9 +741,6 @@ The following arguments are supported:
   The human-readable name of the page, unique within the agent.
 
 
-- - -
-
-
 * `entry_fulfillment` -
   (Optional)
   The fulfillment to call when the session is entering the page.
@@ -808,6 +805,7 @@ The following arguments are supported:
   Page.transition_routes.trigger_fulfillment.messages
   Page.transition_routes.trigger_fulfillment.conditional_cases
   If not specified, the agent's default language is used. Many languages are supported. Note: languages must be enabled in the agent before they can be used.
+
 
 
 <a name="nested_entry_fulfillment"></a>The `entry_fulfillment` block supports:

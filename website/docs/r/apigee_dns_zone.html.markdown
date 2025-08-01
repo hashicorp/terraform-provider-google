@@ -87,6 +87,8 @@ The following arguments are supported:
   ID of the dns zone.
 
 
+
+
 <a name="nested_peering_config"></a>The `peering_config` block supports:
 
 * `target_project_id` -
@@ -96,10 +98,6 @@ The following arguments are supported:
 * `target_network_id` -
   (Required)
   The name of the producer VPC network.
-
-- - -
-
-
 
 ## Attributes Reference
 

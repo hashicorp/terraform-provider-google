@@ -70,6 +70,7 @@ fields:
   - field: 'spec.fleetobservability.logging_config.default_config.mode'
   - field: 'spec.fleetobservability.logging_config.fleet_scope_logs_config.mode'
   - field: 'spec.multiclusteringress.config_membership'
+  - field: 'spec.rbacrolebindingactuation.allowed_custom_roles'
   - field: 'state.state.code'
   - field: 'state.state.description'
   - field: 'state.state.update_time'

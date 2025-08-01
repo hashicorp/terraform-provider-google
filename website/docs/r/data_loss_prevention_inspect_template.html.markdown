@@ -313,9 +313,6 @@ The following arguments are supported:
   * `organizations/{{organization_id}}/locations/{{location}}`
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A description of the inspect template.
@@ -334,6 +331,7 @@ The following arguments are supported:
   (Optional)
   The core content of the template.
   Structure is [documented below](#nested_inspect_config).
+
 
 
 <a name="nested_inspect_config"></a>The `inspect_config` block supports:

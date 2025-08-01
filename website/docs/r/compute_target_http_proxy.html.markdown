@@ -156,6 +156,61 @@ resource "google_compute_url_map" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=target_http_proxy_fingerprint&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Target Http Proxy Fingerprint
+
+
+```hcl
+resource "google_compute_target_http_proxy" "default" {
+  name    = "test-fingerprint-proxy"
+  url_map = google_compute_url_map.default.id
+}
+
+resource "google_compute_url_map" "default" {
+  name            = "url-map"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_backend_service.default.id
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name        = "backend-service"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_http_health_check" "default" {
+  name               = "http-health-check"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+
+output "target_http_proxy_fingerprint" {
+  value       = google_compute_target_http_proxy.default.fingerprint
+  description = "The fingerprint of the target HTTP proxy for optimistic locking"
+}
+```
 
 ## Argument Reference
 
@@ -176,9 +231,6 @@ The following arguments are supported:
   (Required)
   A reference to the UrlMap resource that defines the mapping from URL
   to the BackendService.
-
-
-- - -
 
 
 * `description` -
@@ -206,6 +258,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -217,6 +270,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `proxy_id` -
   The unique identifier for the resource.
+
+* `fingerprint` -
+  Fingerprint of this resource. A hash of the contents stored in this object. This field is used in optimistic locking.
+  This field will be ignored when inserting a TargetHttpProxy. An up-to-date fingerprint must be provided in order to
+  patch/update the TargetHttpProxy; otherwise, the request will fail with error 412 conditionNotMet.
+  To see the latest fingerprint, make a get() request to retrieve the TargetHttpProxy.
+  A base64-encoded string.
 * `self_link` - The URI of the created resource.
 
 

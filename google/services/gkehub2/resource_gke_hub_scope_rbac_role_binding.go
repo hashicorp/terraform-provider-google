@@ -65,11 +65,18 @@ func ResourceGKEHub2ScopeRBACRoleBinding() *schema.Resource {
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"custom_role": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `CustomRole is the custom Kubernetes ClusterRole to be used. The custom role format must be allowlisted in the rbacrolebindingactuation feature and RFC 1123 compliant.`,
+							ExactlyOneOf: []string{"role.0.predefined_role", "role.0.custom_role"},
+						},
 						"predefined_role": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"UNKNOWN", "ADMIN", "EDIT", "VIEW", ""}),
 							Description:  `PredefinedRole is an ENUM representation of the default Kubernetes Roles Possible values: ["UNKNOWN", "ADMIN", "EDIT", "VIEW"]`,
+							ExactlyOneOf: []string{"role.0.predefined_role", "role.0.custom_role"},
 						},
 					},
 				},
@@ -250,29 +257,15 @@ func resourceGKEHub2ScopeRBACRoleBindingCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = GKEHub2OperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating ScopeRBACRoleBinding", userAgent,
+	err = GKEHub2OperationWaitTime(
+		config, res, project, "Creating ScopeRBACRoleBinding", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create ScopeRBACRoleBinding: %s", err)
 	}
-
-	if err := d.Set("name", flattenGKEHub2ScopeRBACRoleBindingName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/scopes/{{scope_id}}/rbacrolebindings/{{scope_rbac_role_binding_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating ScopeRBACRoleBinding %q: %#v", d.Id(), res)
 
@@ -601,9 +594,15 @@ func flattenGKEHub2ScopeRBACRoleBindingRole(v interface{}, d *schema.ResourceDat
 	transformed := make(map[string]interface{})
 	transformed["predefined_role"] =
 		flattenGKEHub2ScopeRBACRoleBindingRolePredefinedRole(original["predefinedRole"], d, config)
+	transformed["custom_role"] =
+		flattenGKEHub2ScopeRBACRoleBindingRoleCustomRole(original["customRole"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGKEHub2ScopeRBACRoleBindingRolePredefinedRole(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2ScopeRBACRoleBindingRoleCustomRole(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -665,10 +664,21 @@ func expandGKEHub2ScopeRBACRoleBindingRole(v interface{}, d tpgresource.Terrafor
 		transformed["predefinedRole"] = transformedPredefinedRole
 	}
 
+	transformedCustomRole, err := expandGKEHub2ScopeRBACRoleBindingRoleCustomRole(original["custom_role"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCustomRole); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["customRole"] = transformedCustomRole
+	}
+
 	return transformed, nil
 }
 
 func expandGKEHub2ScopeRBACRoleBindingRolePredefinedRole(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2ScopeRBACRoleBindingRoleCustomRole(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

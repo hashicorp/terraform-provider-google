@@ -289,19 +289,6 @@ The following arguments are supported:
   Structure is [documented below](#nested_oauth_config).
 
 
-<a name="nested_oauth_config"></a>The `oauth_config` block supports:
-
-* `client_id` -
-  (Required)
-  The client ID for the Oauth config.
-
-* `client_secret` -
-  (Required)
-  The client secret for the Oauth config.
-
-- - -
-
-
 * `admin_settings` -
   (Optional)
   Looker instance Admin settings.
@@ -348,8 +335,11 @@ The following arguments are supported:
   - LOOKER_CORE_NONPROD_STANDARD_ANNUAL: nonprod subscription standard instance
   - LOOKER_CORE_NONPROD_ENTERPRISE_ANNUAL: nonprod subscription enterprise instance
   - LOOKER_CORE_NONPROD_EMBED_ANNUAL: nonprod subscription embed instance
+  - LOOKER_CORE_TRIAL_STANDARD: A standard trial edition of Looker (Google Cloud core) product.
+  - LOOKER_CORE_TRIAL_ENTERPRISE: An enterprise trial edition of Looker (Google Cloud core) product.
+  - LOOKER_CORE_TRIAL_EMBED: An embed trial edition of Looker (Google Cloud core) product.
   Default value is `LOOKER_CORE_TRIAL`.
-  Possible values are: `LOOKER_CORE_TRIAL`, `LOOKER_CORE_STANDARD`, `LOOKER_CORE_STANDARD_ANNUAL`, `LOOKER_CORE_ENTERPRISE_ANNUAL`, `LOOKER_CORE_EMBED_ANNUAL`, `LOOKER_CORE_NONPROD_STANDARD_ANNUAL`, `LOOKER_CORE_NONPROD_ENTERPRISE_ANNUAL`, `LOOKER_CORE_NONPROD_EMBED_ANNUAL`.
+  Possible values are: `LOOKER_CORE_TRIAL`, `LOOKER_CORE_STANDARD`, `LOOKER_CORE_STANDARD_ANNUAL`, `LOOKER_CORE_ENTERPRISE_ANNUAL`, `LOOKER_CORE_EMBED_ANNUAL`, `LOOKER_CORE_NONPROD_STANDARD_ANNUAL`, `LOOKER_CORE_NONPROD_ENTERPRISE_ANNUAL`, `LOOKER_CORE_NONPROD_EMBED_ANNUAL`, `LOOKER_CORE_TRIAL_STANDARD`, `LOOKER_CORE_TRIAL_ENTERPRISE`, `LOOKER_CORE_TRIAL_EMBED`.
 
 * `private_ip_enabled` -
   (Optional)
@@ -401,6 +391,17 @@ If setting deletion_policy = "FORCE", the Looker instance will be deleted regard
 of its nested resources. If set to "DEFAULT", Looker instances that still have
 nested resources will return an error. Possible values: DEFAULT, FORCE
 
+
+
+<a name="nested_oauth_config"></a>The `oauth_config` block supports:
+
+* `client_id` -
+  (Required)
+  The client ID for the Oauth config.
+
+* `client_secret` -
+  (Required)
+  The client secret for the Oauth config.
 
 <a name="nested_admin_settings"></a>The `admin_settings` block supports:
 

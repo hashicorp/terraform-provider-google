@@ -371,37 +371,15 @@ func resourceHealthcarePipelineJobCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = HealthcareOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating PipelineJob", userAgent,
+	err = HealthcareOperationWaitTime(
+		config, res, "Creating PipelineJob", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create PipelineJob: %s", err)
 	}
-
-	opRes, err = resourceHealthcarePipelineJobDecoder(d, meta, opRes)
-	if err != nil {
-		return fmt.Errorf("Error decoding response from operation: %s", err)
-	}
-	if opRes == nil {
-		return fmt.Errorf("Error decoding response from operation, could not find object")
-	}
-
-	if err := d.Set("name", flattenHealthcarePipelineJobName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{dataset}}/pipelineJobs/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating PipelineJob %q: %#v", d.Id(), res)
 

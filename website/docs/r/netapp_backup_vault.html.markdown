@@ -59,9 +59,6 @@ The following arguments are supported:
   The resource name of the backup vault. Needs to be unique per location.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource.
@@ -82,9 +79,37 @@ The following arguments are supported:
   (Optional)
   Region in which backup is stored.
 
+* `backup_retention_policy` -
+  (Optional)
+  Backup retention policy defining the retention of the backups.
+  Structure is [documented below](#nested_backup_retention_policy).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_backup_retention_policy"></a>The `backup_retention_policy` block supports:
+
+* `backup_minimum_enforced_retention_days` -
+  (Required)
+  Minimum retention duration in days for backups in the backup vault.
+
+* `daily_backup_immutable` -
+  (Optional)
+  Indicates if the daily backups are immutable. At least one of daily_backup_immutable, weekly_backup_immutable, monthly_backup_immutable and manual_backup_immutable must be true.
+
+* `weekly_backup_immutable` -
+  (Optional)
+  Indicates if the weekly backups are immutable. At least one of daily_backup_immutable, weekly_backup_immutable, monthly_backup_immutable and manual_backup_immutable must be true.
+
+* `monthly_backup_immutable` -
+  (Optional)
+  Indicates if the monthly backups are immutable. At least one of daily_backup_immutable, weekly_backup_immutable, monthly_backup_immutable and manual_backup_immutable must be true.
+
+* `manual_backup_immutable` -
+  (Optional)
+  Indicates if the manual backups are immutable. At least one of daily_backup_immutable, weekly_backup_immutable, monthly_backup_immutable and manual_backup_immutable must be true.
 
 ## Attributes Reference
 

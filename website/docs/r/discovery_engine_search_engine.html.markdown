@@ -90,22 +90,6 @@ The following arguments are supported:
   Location.
 
 
-<a name="nested_search_engine_config"></a>The `search_engine_config` block supports:
-
-* `search_tier` -
-  (Optional)
-  The search feature tier of this engine. Defaults to SearchTier.SEARCH_TIER_STANDARD if not specified.
-  Default value is `SEARCH_TIER_STANDARD`.
-  Possible values are: `SEARCH_TIER_STANDARD`, `SEARCH_TIER_ENTERPRISE`.
-
-* `search_add_ons` -
-  (Optional)
-  The add-on that this search engine enables.
-  Each value may be one of: `SEARCH_ADD_ON_LLM`.
-
-- - -
-
-
 * `industry_vertical` -
   (Optional)
   The industry vertical that the engine registers. The restriction of the Engine industry vertical is based on DataStore: If unspecified, default to GENERIC. Vertical on Engine has to match vertical of the DataStore liniked to the engine.
@@ -120,6 +104,20 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_search_engine_config"></a>The `search_engine_config` block supports:
+
+* `search_tier` -
+  (Optional)
+  The search feature tier of this engine. Defaults to SearchTier.SEARCH_TIER_STANDARD if not specified.
+  Default value is `SEARCH_TIER_STANDARD`.
+  Possible values are: `SEARCH_TIER_STANDARD`, `SEARCH_TIER_ENTERPRISE`.
+
+* `search_add_ons` -
+  (Optional)
+  The add-on that this search engine enables.
+  Each value may be one of: `SEARCH_ADD_ON_LLM`.
 
 <a name="nested_common_config"></a>The `common_config` block supports:
 

@@ -81,9 +81,6 @@ The following arguments are supported:
   The name of the backup policy. Needs to be unique per location.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Labels as key value pairs. Example: `{ "owner": "Bob", "department": "finance", "purpose": "testing" }`.
@@ -102,6 +99,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

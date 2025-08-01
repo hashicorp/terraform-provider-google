@@ -136,6 +136,8 @@ The following arguments are supported:
   Numerical ID of the parent folder.
 
 
+
+
 <a name="nested_custom_config"></a>The `custom_config` block supports:
 
 * `predicate` -
@@ -241,10 +243,6 @@ The following arguments are supported:
 * `resource_types` -
   (Required)
   The resource types to run the detector on.
-
-- - -
-
-
 
 ## Attributes Reference
 

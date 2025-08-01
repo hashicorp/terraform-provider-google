@@ -39,6 +39,22 @@ resource "google_compute_region_network_firewall_policy" "policy" {
   description = "Terraform test"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_network_firewall_policy_roce&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Network Firewall Policy Roce
+
+
+```hcl
+resource "google_compute_region_network_firewall_policy" "policy" {
+  provider = google-beta
+  name = "rnf-policy"
+  description = "Terraform test"
+  policy_type = "RDMA_ROCE_POLICY"
+}
+```
 
 ## Argument Reference
 
@@ -50,12 +66,16 @@ The following arguments are supported:
   User-provided name of the Network firewall policy. The name should be unique in the project in which the firewall policy is created. The name must be 1-63 characters long, and comply with RFC1035. Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])? which means the first character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or digit, except the last character, which cannot be a dash.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource. Provide this property when you create the resource.
+
+* `policy_type` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Policy type is used to determine which resources (networks) the policy can be associated with.
+  A policy can be associated with a network only if the network has the matching policyType in its network profile.
+  Different policy types may support some of the Firewall Rules features.
+  Possible values are: `VPC_POLICY`, `RDMA_ROCE_POLICY`.
 
 * `region` -
   (Optional)
@@ -63,6 +83,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

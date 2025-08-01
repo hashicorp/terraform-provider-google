@@ -349,7 +349,7 @@ func flattenComposerUserWorkloadsConfigMapName(v interface{}, d *schema.Resource
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenComposerUserWorkloadsConfigMapData(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

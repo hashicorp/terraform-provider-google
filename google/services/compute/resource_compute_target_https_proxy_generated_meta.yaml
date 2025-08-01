@@ -9,6 +9,7 @@ fields:
   - field: 'certificate_map'
   - field: 'creation_timestamp'
   - field: 'description'
+  - field: 'fingerprint'
   - field: 'http_keep_alive_timeout_sec'
   - field: 'name'
   - field: 'proxy_bind'

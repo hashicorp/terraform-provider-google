@@ -330,37 +330,15 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = SpannerOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Database", userAgent,
+	err = SpannerOperationWaitTime(
+		config, res, project, "Creating Database", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Database: %s", err)
 	}
-
-	opRes, err = resourceSpannerDatabaseDecoder(d, meta, opRes)
-	if err != nil {
-		return fmt.Errorf("Error decoding response from operation: %s", err)
-	}
-	if opRes == nil {
-		return fmt.Errorf("Error decoding response from operation, could not find object")
-	}
-
-	if err := d.Set("name", flattenSpannerDatabaseName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{instance}}/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	// Note: Databases that are created with POSTGRESQL dialect do not support extra DDL
 	// statements at the time of database creation. To avoid users needing to run
@@ -833,7 +811,7 @@ func flattenSpannerDatabaseName(v interface{}, d *schema.ResourceData, config *t
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenSpannerDatabaseVersionRetentionPeriod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

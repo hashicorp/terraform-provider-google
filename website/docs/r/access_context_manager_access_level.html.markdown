@@ -90,9 +90,6 @@ The following arguments are supported:
   Format: accessPolicies/{policy_id}/accessLevels/{short_name}
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Description of the AccessLevel and its use. Does not affect behavior.
@@ -107,6 +104,7 @@ The following arguments are supported:
   Custom access level conditions are set using the Cloud Common Expression Language to represent the necessary conditions for the level to apply to a request.
   See CEL spec at: https://github.com/google/cel-spec.
   Structure is [documented below](#nested_custom).
+
 
 
 <a name="nested_basic"></a>The `basic` block supports:

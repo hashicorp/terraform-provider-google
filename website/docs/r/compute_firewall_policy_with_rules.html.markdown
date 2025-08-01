@@ -24,8 +24,6 @@ description: |-
 The Compute FirewallPolicy with rules resource. It declaratively manges all
 rules in the firewall policy.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Compute Firewall Policy With Rules Full
@@ -33,11 +31,9 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_compute_firewall_policy_with_rules" "primary" {
-  provider    = google-beta
   short_name  = "fw-policy"
   description = "Terraform test"
   parent      = "organizations/123456789"
@@ -48,7 +44,7 @@ resource "google_compute_firewall_policy_with_rules" "primary" {
     enable_logging   = true
     action           = "allow"
     direction        = "EGRESS"
-    target_resources = ["https://www.googleapis.com/compute/beta/projects/${data.google_project.project.project_id}/global/networks/default"]
+    target_resources = [google_compute_network.network.self_link]
 
     match {
       dest_ip_ranges            = ["11.100.0.1/32"]
@@ -106,34 +102,23 @@ resource "google_compute_firewall_policy_with_rules" "primary" {
   }
 
   rule {
-    description    = "network scope rule 1"
-    rule_name      = "network scope 1"
-    priority       = 4000
-    enable_logging = false
-    action         = "allow"
-    direction      = "INGRESS"
-    match {
-      src_ip_ranges     = ["11.100.0.1/32"]
-      src_network_scope = "VPC_NETWORKS"
-      src_networks      = [google_compute_network.network.id]
+    description             = "secure tags"
+    rule_name               = "secure tags rule"
+    priority                = 4000
+    enable_logging          = false
+    action                  = "allow"
+    direction               = "INGRESS"
 
-      layer4_config {
-        ip_protocol = "tcp"
-        ports       = [8080]
-      }
+    target_secure_tag {
+      name = google_tags_tag_value.basic_value.id
     }
-  }
 
-  rule {
-    description    = "network scope rule 2"
-    rule_name      = "network scope 2"
-    priority       = 5000
-    enable_logging = false
-    action         = "allow"
-    direction      = "EGRESS"
     match {
-      dest_ip_ranges     = ["0.0.0.0/0"]
-      dest_network_scope = "INTERNET"
+      src_ip_ranges = ["11.100.0.1/32"]
+
+      src_secure_tag {
+        name = google_tags_tag_value.basic_value.id
+      }
 
       layer4_config {
         ip_protocol = "tcp"
@@ -144,7 +129,6 @@ resource "google_compute_firewall_policy_with_rules" "primary" {
 }
 
 resource "google_network_security_address_group" "address_group_1" {
-  provider    = google-beta
   name        = "address-group"
   parent      = "organizations/123456789"
   description = "Global address group"
@@ -155,7 +139,6 @@ resource "google_network_security_address_group" "address_group_1" {
 }
 
 resource "google_network_security_security_profile_group" "security_profile_group_1" {
-  provider                  = google-beta
   name                      = "spg"
   parent                    = "organizations/123456789"
   description               = "my description"
@@ -163,7 +146,6 @@ resource "google_network_security_security_profile_group" "security_profile_grou
 }
 
 resource "google_network_security_security_profile" "security_profile_1" {
-  provider    = google-beta
   name        = "sp"
   type        = "THREAT_PREVENTION"
   parent      = "organizations/123456789"
@@ -171,9 +153,25 @@ resource "google_network_security_security_profile" "security_profile_1" {
 }
 
 resource "google_compute_network" "network" {
-  provider                = google-beta
   name                    = "network"
   auto_create_subnetworks = false
+}
+
+resource "google_tags_tag_key" "basic_key" {
+  description = "For keyname resources."
+  parent      = "organizations/123456789"
+  purpose     = "GCE_FIREWALL"
+  short_name  = "tag-key"
+
+  purpose_data = {
+    organization = "auto"
+  }
+}
+
+resource "google_tags_tag_value" "basic_value" {
+  description = "For valuename resources."
+  parent      = google_tags_tag_key.basic_key.id
+  short_name  = "tag-value"
 }
 ```
 
@@ -197,6 +195,12 @@ The following arguments are supported:
   Format: organizations/{organization_id} or folders/{folder_id}
 
 
+* `description` -
+  (Optional)
+  An optional description of this resource.
+
+
+
 <a name="nested_rule"></a>The `rule` block supports:
 
 * `description` -
@@ -218,6 +222,21 @@ The following arguments are supported:
   (Required)
   A match condition that incoming traffic is evaluated against. If it evaluates to true, the corresponding 'action' is enforced.
   Structure is [documented below](#nested_rule_rule_match).
+
+* `target_secure_tag` -
+  (Optional)
+  A list of secure tags that controls which instances the firewall rule
+  applies to. If <code>targetSecureTag</code> are specified, then the
+  firewall rule applies only to instances in the VPC network that have one
+  of those EFFECTIVE secure tags, if all the target_secure_tag are in
+  INEFFECTIVE state, then this rule will be ignored.
+  <code>targetSecureTag</code> may not be set at the same time as
+  <code>targetServiceAccounts</code>.
+  If neither <code>targetServiceAccounts</code> nor
+  <code>targetSecureTag</code> are specified, the firewall rule applies
+  to all instances on the specified network.
+  Maximum number of target secure tags allowed is 256.
+  Structure is [documented below](#nested_rule_rule_target_secure_tag).
 
 * `action` -
   (Required)
@@ -300,16 +319,16 @@ The following arguments are supported:
   traffic destination. Maximum number of destination fqdn allowed is 100.
 
 * `src_network_scope` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Network scope of the traffic source.
   Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
 
 * `src_networks` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Networks of the traffic source. It can be either a full or partial url.
 
 * `dest_network_scope` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Network scope of the traffic destination.
   Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
 
@@ -337,11 +356,33 @@ The following arguments are supported:
   Names of Network Threat Intelligence lists.
   The IPs in these lists will be matched against traffic destination.
 
+* `src_secure_tag` -
+  (Optional)
+  List of secure tag values, which should be matched at the source
+  of the traffic.
+  For INGRESS rule, if all the <code>srcSecureTag</code> are INEFFECTIVE,
+  and there is no <code>srcIpRange</code>, this rule will be ignored.
+  Maximum number of source tag values allowed is 256.
+  Structure is [documented below](#nested_rule_rule_match_src_secure_tag).
+
 * `layer4_config` -
   (Required)
   Pairs of IP protocols and ports that the rule should match.
   Structure is [documented below](#nested_rule_rule_match_layer4_config).
 
+
+<a name="nested_rule_rule_match_src_secure_tag"></a>The `src_secure_tag` block supports:
+
+* `name` -
+  (Optional)
+  Name of the secure tag, created with TagManager's TagValue API.
+  @pattern tagValues/[0-9]+
+
+* `state` -
+  (Output)
+  [Output Only] State of the secure tag, either `EFFECTIVE` or
+  `INEFFECTIVE`. A secure tag is `INEFFECTIVE` when it is deleted
+  or its network is deleted.
 
 <a name="nested_rule_rule_match_layer4_config"></a>The `layer4_config` block supports:
 
@@ -362,13 +403,18 @@ The following arguments are supported:
   Example inputs include: ["22"], ["80","443"], and
   ["12345-12349"].
 
-- - -
+<a name="nested_rule_rule_target_secure_tag"></a>The `target_secure_tag` block supports:
 
-
-* `description` -
+* `name` -
   (Optional)
-  An optional description of this resource.
+  Name of the secure tag, created with TagManager's TagValue API.
+  @pattern tagValues/[0-9]+
 
+* `state` -
+  (Output)
+  [Output Only] State of the secure tag, either `EFFECTIVE` or
+  `INEFFECTIVE`. A secure tag is `INEFFECTIVE` when it is deleted
+  or its network is deleted.
 
 ## Attributes Reference
 
@@ -420,6 +466,21 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   A match condition that incoming traffic is evaluated against. If it evaluates to true, the corresponding 'action' is enforced.
   Structure is [documented below](#nested_predefined_rules_predefined_rules_match).
+
+* `target_secure_tag` -
+  (Output)
+  A list of secure tags that controls which instances the firewall rule
+  applies to. If <code>targetSecureTag</code> are specified, then the
+  firewall rule applies only to instances in the VPC network that have one
+  of those EFFECTIVE secure tags, if all the target_secure_tag are in
+  INEFFECTIVE state, then this rule will be ignored.
+  <code>targetSecureTag</code> may not be set at the same time as
+  <code>targetServiceAccounts</code>.
+  If neither <code>targetServiceAccounts</code> nor
+  <code>targetSecureTag</code> are specified, the firewall rule applies
+  to all instances on the specified network.
+  Maximum number of target secure tags allowed is 256.
+  Structure is [documented below](#nested_predefined_rules_predefined_rules_target_secure_tag).
 
 * `action` -
   (Output)
@@ -529,6 +590,15 @@ In addition to the arguments listed above, the following computed attributes are
   Pairs of IP protocols and ports that the rule should match.
   Structure is [documented below](#nested_predefined_rules_predefined_rules_match_layer4_config).
 
+* `src_secure_tag` -
+  (Output)
+  List of secure tag values, which should be matched at the source
+  of the traffic.
+  For INGRESS rule, if all the <code>srcSecureTag</code> are INEFFECTIVE,
+  and there is no <code>srcIpRange</code>, this rule will be ignored.
+  Maximum number of source tag values allowed is 256.
+  Structure is [documented below](#nested_predefined_rules_predefined_rules_match_src_secure_tag).
+
 
 <a name="nested_predefined_rules_predefined_rules_match_layer4_config"></a>The `layer4_config` block contains:
 
@@ -548,6 +618,32 @@ In addition to the arguments listed above, the following computed attributes are
   applies to connections through any port.
   Example inputs include: ["22"], ["80","443"], and
   ["12345-12349"].
+
+<a name="nested_predefined_rules_predefined_rules_match_src_secure_tag"></a>The `src_secure_tag` block contains:
+
+* `name` -
+  (Output)
+  Name of the secure tag, created with TagManager's TagValue API.
+  @pattern tagValues/[0-9]+
+
+* `state` -
+  (Output)
+  [Output Only] State of the secure tag, either `EFFECTIVE` or
+  `INEFFECTIVE`. A secure tag is `INEFFECTIVE` when it is deleted
+  or its network is deleted.
+
+<a name="nested_predefined_rules_predefined_rules_target_secure_tag"></a>The `target_secure_tag` block contains:
+
+* `name` -
+  (Output)
+  Name of the secure tag, created with TagManager's TagValue API.
+  @pattern tagValues/[0-9]+
+
+* `state` -
+  (Output)
+  [Output Only] State of the secure tag, either `EFFECTIVE` or
+  `INEFFECTIVE`. A secure tag is `INEFFECTIVE` when it is deleted
+  or its network is deleted.
 
 ## Timeouts
 

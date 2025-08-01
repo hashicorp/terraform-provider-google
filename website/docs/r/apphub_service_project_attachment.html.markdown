@@ -81,9 +81,6 @@ The following arguments are supported:
   Required. The service project attachment identifier must contain the project_id of the service project specified in the service_project_attachment.service_project field. Hint: "projects/{project_id}"
 
 
-- - -
-
-
 * `service_project` -
   (Optional)
   "Immutable. Service project name in the format: \"projects/abc\"
@@ -92,6 +89,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

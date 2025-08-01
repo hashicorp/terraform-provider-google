@@ -869,7 +869,7 @@ func flattenDataPipelinePipelineName(v interface{}, d *schema.ResourceData, conf
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenDataPipelinePipelineDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
