@@ -483,7 +483,7 @@ resource "google_gke_hub_feature" "feature" {
   location = "global"
   fleet_default_member_config {
     configmanagement {
-      management = "MANAGEMENT_AUTOMATIC"
+      management = "MANAGEMENT_MANUAL"
       config_sync {
         enabled = true
       }
@@ -559,7 +559,7 @@ resource "google_gke_hub_feature" "feature" {
   location = "global"
   fleet_default_member_config {
     configmanagement {
-      management = "MANAGEMENT_AUTOMATIC"
+      management = "MANAGEMENT_MANUAL"
       config_sync {
         prevent_drift = true
         source_format = "unstructured"
