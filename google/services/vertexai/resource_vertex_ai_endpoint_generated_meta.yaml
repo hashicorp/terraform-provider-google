@@ -49,7 +49,6 @@ fields:
   - field: 'predict_request_response_logging_config.enabled'
   - field: 'predict_request_response_logging_config.sampling_rate'
   - field: 'private_service_connect_config.enable_private_service_connect'
-  - field: 'private_service_connect_config.enable_secure_private_service_connect'
   - field: 'private_service_connect_config.project_allowlist'
   - field: 'region'
     provider_only: true

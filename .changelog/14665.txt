@@ -1,0 +1,3 @@
+```release-note:bug
+vertexai: marked `enable_secure_private_service_connect` in `google_vertex_ai_endpoint` as beta isntead of GA (beta)
+```
