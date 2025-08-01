@@ -1,8 +1,5 @@
 ## 6.47.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* Update CHANGELOG.md ([#23782](https://github.com/hashicorp/terraform-provider-google/pull/23782))
-* Update main CHANGELOG.md for 6.45.0  ([#23726](https://github.com/hashicorp/terraform-provider-google/pull/23726))
 DEPRECATIONS:
 * compute: deprecated `network_self_link` field in `google_compute_subnetworks` data source. Use ``network_name` instead. ([#23753](https://github.com/hashicorp/terraform-provider-google/pull/23753))
 * resourcemanager: `project` field in `google_service_account_key` data source has been deprecated. The field is non functional and can safely be removed from your configuration. ([#23813](https://github.com/hashicorp/terraform-provider-google/pull/23813))
@@ -18,14 +15,14 @@ FEATURES:
 
 IMPROVEMENTS:
 * backupdr: added `backup_retention_inheritance` field to`google_backup_dr_backup_vault` resource ([#23817](https://github.com/hashicorp/terraform-provider-google/pull/23817))
-* bigqueryanalyticshub: Added 'commercial_info' and 'delete_commercial' fields in 'google_bigquery_analytics_hub_listing' resource ([#23731](https://github.com/hashicorp/terraform-provider-google/pull/23731))
+* bigqueryanalyticshub: added 'commercial_info' and 'delete_commercial' fields in 'google_bigquery_analytics_hub_listing' resource ([#23731](https://github.com/hashicorp/terraform-provider-google/pull/23731))
 * bigqueryanalyticshub: added `discovery_type` field to `google_bigquery_analytics_hub_data_exchange` resource ([#23801](https://github.com/hashicorp/terraform-provider-google/pull/23801))
 * bigqueryanalyticshub: added `state`, `discovery_type`, and `allow_only_metadata_sharing` fields to `google_bigquery_analytics_hub_listing` resource ([#23801](https://github.com/hashicorp/terraform-provider-google/pull/23801))
 * cloudfunction: added `automatic_update_policy` and `on_deploy_update_policy` to google_cloudfunctions_function resource ([#23819](https://github.com/hashicorp/terraform-provider-google/pull/23819))
 * cloudrunv2: added `gpu_zonal_redundancy_disabled` field to `google_cloud_run_v2_job` resource. ([#23811](https://github.com/hashicorp/terraform-provider-google/pull/23811))
 * compute: added `labels` field to `google_compute_storage_pool` resource ([#23783](https://github.com/hashicorp/terraform-provider-google/pull/23783))
 * compute: added `network_name` field to `google_compute_subnetworks` data source ([#23753](https://github.com/hashicorp/terraform-provider-google/pull/23753))
-* container: Support additional_ip_ranges_config (adding multiple subnets to a cluster). ([#23828](https://github.com/hashicorp/terraform-provider-google/pull/23828))
+* container: added support for `additional_ip_ranges_config` (adding multiple subnets to a `google_container_cluster`). ([#23828](https://github.com/hashicorp/terraform-provider-google/pull/23828))
 * container: added `addons_config.lustre_csi_driver_config` field to `google_container_cluster` resource ([#23729](https://github.com/hashicorp/terraform-provider-google/pull/23729))
 * container: added support for `rbac_binding_config` in `google_container_cluster` ([#23812](https://github.com/hashicorp/terraform-provider-google/pull/23812))
 * dataproc: added `cluster_config.cluster_tier` field to `google_dataproc_cluster` resource ([#23830](https://github.com/hashicorp/terraform-provider-google/pull/23830))
@@ -38,9 +35,9 @@ IMPROVEMENTS:
 BUG FIXES:
 * bigquery: fixed a crash in `google_bigquery_table` when configured as an external table with `parquet_options` ([#23808](https://github.com/hashicorp/terraform-provider-google/pull/23808))
 * cloudrunv2: added support for setting `manual_instance_count` to 0 in `google_cloud_run_v2_worker_pool`. ([#23798](https://github.com/hashicorp/terraform-provider-google/pull/23798))
-* composer: fixed updates failing for recovery_config with explicitly disabled scheduled snapshots ([#23715](https://github.com/hashicorp/terraform-provider-google/pull/23715))
+* composer: fixed updates failing for `recovery_config` with explicitly disabled scheduled snapshots ([#23715](https://github.com/hashicorp/terraform-provider-google/pull/23715))
 * iap: fixed an issue where deleting `google_iap_settings` without setting `GOOGLE_PROJECT` incorrectly failed ([#23724](https://github.com/hashicorp/terraform-provider-google/pull/23724))
-* storage: remove bucket name validations for `google_storage_bucket` as the same validations being performed on API ([#23719](https://github.com/hashicorp/terraform-provider-google/pull/23719))
+* storage: removed client-side validations for `google_storage_bucket` ([#23719](https://github.com/hashicorp/terraform-provider-google/pull/23719))
 
 ## 6.46.0 (July 29, 2025)
 
