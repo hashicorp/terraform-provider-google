@@ -59,6 +59,8 @@ resource "google_dataproc_cluster" "mycluster" {
   cluster_config {
     staging_bucket = "dataproc-staging-bucket"
 
+    cluster_tier = "CLUSTER_TIER_STANDARD"
+
     master_config {
       num_instances = 1
       machine_type  = "e2-medium"
@@ -354,6 +356,8 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
 * `temp_bucket` - (Optional) The Cloud Storage temp bucket used to store ephemeral cluster
    and jobs data, such as Spark and MapReduce history files.
    Note: If you don't explicitly specify a `temp_bucket` then GCP will auto create / assign one for you.
+
+* `cluster_tier` - (Optional) The tier of the cluster.
 
 * `gce_cluster_config` (Optional) Common config settings for resources of Google Compute Engine cluster
    instances, applicable to all instances in the cluster. Structure [defined below](#nested_gce_cluster_config).
