@@ -159,6 +159,8 @@ func schemaNodeConfig() *schema.Schema {
 					Description: `Type of the disk attached to each node. Such as pd-standard, pd-balanced or pd-ssd`,
 				},
 
+				"boot_disk": schemaBootDiskConfig(),
+
 				"guest_accelerator": {
 					Type:        schema.TypeList,
 					Optional:    true,
@@ -869,6 +871,45 @@ func schemaNodeConfig() *schema.Schema {
 	}
 }
 
+func schemaBootDiskConfig() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Optional:    true,
+		Computed:    true,
+		MaxItems:    1,
+		Description: `Boot disk configuration for node pools nodes.`,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"disk_type": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Computed:    true,
+					Description: `Type of the disk attached to each node. Such as pd-standard, pd-balanced or pd-ssd`,
+				},
+				"size_gb": {
+					Type:         schema.TypeInt,
+					Optional:     true,
+					Computed:     true,
+					ValidateFunc: validation.IntAtLeast(10),
+					Description:  `Size of the disk attached to each node, specified in GB. The smallest allowed disk size is 10GB.`,
+				},
+				"provisioned_iops": {
+					Type:        schema.TypeInt,
+					Optional:    true,
+					Computed:    true,
+					Description: `Configured IOPs provisioning. Only valid with disk type hyperdisk-balanced.`,
+				},
+				"provisioned_throughput": {
+					Type:        schema.TypeInt,
+					Optional:    true,
+					Computed:    true,
+					Description: `Configured throughput provisioning. Only valid with disk type hyperdisk-balanced.`,
+				},
+			},
+		},
+	}
+}
+
 // Separate since this currently only supports a single value -- a subset of
 // the overall NodeKubeletConfig
 func schemaNodePoolAutoConfigNodeKubeletConfig() *schema.Schema {
@@ -1002,6 +1043,10 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 
 	if v, ok := nodeConfig["disk_type"]; ok {
 		nc.DiskType = v.(string)
+	}
+
+	if v, ok := nodeConfig["boot_disk"]; ok {
+		nc.BootDisk = expandBootDiskConfig(v)
 	}
 
 	if v, ok := nodeConfig["local_ssd_count"]; ok {
@@ -1253,6 +1298,36 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 	}
 
 	return nc
+}
+
+func expandBootDiskConfig(v interface{}) *container.BootDisk {
+	bd := &container.BootDisk{}
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	cfg := ls[0].(map[string]interface{})
+
+	if v, ok := cfg["disk_type"]; ok {
+		bd.DiskType = v.(string)
+	}
+
+	if v, ok := cfg["size_gb"]; ok {
+		bd.SizeGb = int64(v.(int))
+	}
+
+	if v, ok := cfg["provisioned_iops"]; ok {
+		bd.ProvisionedIops = int64(v.(int))
+	}
+
+	if v, ok := cfg["provisioned_throughput"]; ok {
+		bd.ProvisionedThroughput = int64(v.(int))
+	}
+
+	return bd
 }
 
 func expandResourceManagerTags(v interface{}) *container.ResourceManagerTags {
@@ -1617,6 +1692,7 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 		"containerd_config":                  flattenContainerdConfig(c.ContainerdConfig),
 		"disk_size_gb":                       c.DiskSizeGb,
 		"disk_type":                          c.DiskType,
+		"boot_disk":                          flattenBootDiskConfig(c.BootDisk),
 		"guest_accelerator":                  flattenContainerGuestAccelerators(c.Accelerators),
 		"local_ssd_count":                    c.LocalSsdCount,
 		"logging_variant":                    flattenLoggingVariant(c.LoggingConfig),
@@ -1659,6 +1735,23 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 	if len(c.OauthScopes) > 0 {
 		config[0]["oauth_scopes"] = schema.NewSet(tpgresource.StringScopeHashcode, tpgresource.ConvertStringArrToInterface(c.OauthScopes))
 	}
+
+	return config
+}
+
+func flattenBootDiskConfig(c *container.BootDisk) []map[string]interface{} {
+	config := []map[string]interface{}{}
+
+	if c == nil {
+		return config
+	}
+
+	config = append(config, map[string]interface{}{
+		"disk_type":              c.DiskType,
+		"size_gb":                c.SizeGb,
+		"provisioned_iops":       c.ProvisionedIops,
+		"provisioned_throughput": c.ProvisionedThroughput,
+	})
 
 	return config
 }
@@ -2171,7 +2264,9 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 		if d.HasChange("node_config.0.disk_size_gb") ||
 			d.HasChange("node_config.0.disk_type") ||
 			d.HasChange("node_config.0.machine_type") ||
-			d.HasChange("node_config.0.storage_pools") {
+			d.HasChange("node_config.0.storage_pools") ||
+			d.HasChange("node_config.0.boot_disk") {
+
 			req := &container.UpdateNodePoolRequest{
 				Name:        name,
 				DiskSizeGb:  int64(d.Get("node_config.0.disk_size_gb").(int)),
@@ -2189,6 +2284,34 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 				req.StoragePools = storagePools
 			}
 
+			if v, ok := d.GetOk("node_config.0.boot_disk"); ok {
+				bd := expandBootDiskConfig(v)
+				req.BootDisk = bd
+
+				// The following checks are to ensure that the migrating fields are handled properly.
+				// Migrating fields are disk_type -> boot_disk.disk_type and disk_size_gb -> boot_disk.size_gb
+				// If the legacy (top level) disk_type field is not changing, nil it out to allow the API to fill it in.
+				legacyDiskTypeOld, legacyDiskTypeNew := d.GetChange("node_config.0.disk_type")
+				if legacyDiskTypeOld == legacyDiskTypeNew {
+					req.DiskType = ""
+				}
+				// If the new boot disk configuration disk_filed is not changing, nil it out to allow the API to fill it in.
+				bootDiskTypeOld, bootDiskTypeNew := d.GetChange("node_config.0.boot_disk.0.disk_type")
+				if bootDiskTypeOld == bootDiskTypeNew {
+					req.BootDisk.DiskType = ""
+				}
+				// If the legacy (top level) disk_size_gb field is not changing, nil it out to allow the API to fill it in.
+				legacyDiskSizeGbOld, legacyDiskSizeGbNew := d.GetChange("node_config.0.disk_size_gb")
+				if legacyDiskSizeGbOld == legacyDiskSizeGbNew {
+					req.DiskSizeGb = 0
+				}
+				// if the new boot disk configuration size_gb field is not changing, nil it out to allow the API to fill it in.
+				bootDiskSizeGbOld, bootDiskSizeGbNew := d.GetChange("node_config.0.boot_disk.0.size_gb")
+				if bootDiskSizeGbOld == bootDiskSizeGbNew {
+					req.BootDisk.SizeGb = 0
+				}
+			}
+
 			updateF := func() error {
 				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
 				if config.UserProjectOverride {
@@ -2203,14 +2326,14 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 				return ContainerOperationWait(config, op,
 					nodePoolInfo.project,
 					nodePoolInfo.location,
-					"updating GKE node pool disk_size_gb/disk_type/machine_type/storage_pools", userAgent,
+					"updating GKE node pool disk_size_gb/disk_type/machine_type/storage_pools/boot_disk", userAgent,
 					timeout)
 			}
 
 			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 				return err
 			}
-			log.Printf("[INFO] Updated disk disk_size_gb/disk_type/machine_type/storage_pools for Node Pool %s", d.Id())
+			log.Printf("[INFO] Updated disk disk_size_gb/disk_type/machine_type/storage_pools/boot_disk for Node Pool %s", d.Id())
 		}
 
 		if d.HasChange(prefix + "node_config.0.taint") {
