@@ -24,6 +24,7 @@ fields:
   - field: 'linked_resource'
   - field: 'name'
   - field: 'schema'
+    json: true
   - field: 'type'
   - field: 'user_specified_system'
   - field: 'user_specified_type'

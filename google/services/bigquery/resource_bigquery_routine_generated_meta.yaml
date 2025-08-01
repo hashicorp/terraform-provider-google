@@ -7,6 +7,7 @@ api_resource_type_kind: 'Routine'
 fields:
   - field: 'arguments.argument_kind'
   - field: 'arguments.data_type'
+    json: true
   - field: 'arguments.mode'
   - field: 'arguments.name'
   - field: 'creation_time'
@@ -24,7 +25,9 @@ fields:
   - field: 'remote_function_options.max_batching_rows'
   - field: 'remote_function_options.user_defined_context'
   - field: 'return_table_type'
+    json: true
   - field: 'return_type'
+    json: true
   - field: 'routine_id'
     api_field: 'routine_reference.routine_id'
   - field: 'routine_type'

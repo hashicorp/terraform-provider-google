@@ -12,7 +12,9 @@ fields:
   - field: 'description'
   - field: 'display_name'
   - field: 'function_spec.input_schema'
+    json: true
   - field: 'function_spec.output_schema'
+    json: true
   - field: 'name'
   - field: 'open_api_spec.authentication.api_key_config.api_key'
   - field: 'open_api_spec.authentication.api_key_config.key_name'
