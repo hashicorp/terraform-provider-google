@@ -184,6 +184,10 @@ Remove `service_config.service` from your configuration after upgrade.
 
 ## Resource: `google_cloud_run_v2_worker_pool`
 
-### `template.containers.depends_on` is reomved as it is not supported.
+### `template.containers.depends_on` is removed as it is not supported.
 
 Remove `template.containers.depends_on` from your configuration after upgrade.
+
+## Resource: `google_vertex_ai_endpoint`
+
+### `enable_secure_private_service_connect` is removed as it is not available in the GA version of the API, only in the beta version.
