@@ -31,8 +31,9 @@ func TestAccDataSourceComposerUserWorkloadsSecret_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"env_name":    fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t)),
-		"secret_name": fmt.Sprintf("%s-%d", testComposerUserWorkloadsSecretPrefix, acctest.RandInt(t)),
+		"env_name":        fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t)),
+		"secret_name":     fmt.Sprintf("%s-%d", testComposerUserWorkloadsSecretPrefix, acctest.RandInt(t)),
+		"service_account": fmt.Sprintf("tf-test-%d", acctest.RandInt(t)),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -92,13 +93,18 @@ func checkSecretDataSourceMatchesResource() resource.TestCheckFunc {
 
 func testAccDataSourceComposerUserWorkloadsSecret_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_project" "project" {}
 resource "google_composer_environment" "test" {
   name   = "%{env_name}"
   config {
     software_config {
       image_version = "composer-3-airflow-2"
     }
+    node_config {
+      service_account = google_service_account.test.name
+    }
   }
+  depends_on = [google_project_iam_member.composer-worker]
 }
 resource "google_composer_user_workloads_secret" "test" {
   environment = google_composer_environment.test.name
@@ -111,6 +117,15 @@ resource "google_composer_user_workloads_secret" "test" {
 data "google_composer_user_workloads_secret" "test" {
   name        = google_composer_user_workloads_secret.test.name
   environment = google_composer_environment.test.name
+}
+resource "google_service_account" "test" {
+  account_id   = "%{service_account}"
+  display_name = "Test Service Account for Composer Environment"
+}
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
 }
 `, context)
 }
