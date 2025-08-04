@@ -992,6 +992,11 @@ is set to true. Defaults to ZONAL.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"psa_write_endpoint": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: fmt.Sprintf(`If set, this field indicates this instance has a private service access (PSA) DNS endpoint that is pointing to the primary instance of the cluster. If this instance is the primary, then the DNS endpoint points to this instance. After a switchover or replica failover operation, this DNS endpoint points to the promoted instance. This is a read-only field, returned to the user as information. This field can exist even if a standalone instance doesn't have a DR replica yet or the DR replica is deleted.`),
+						},
 						"failover_dr_replica_name": {
 							Type:             schema.TypeString,
 							Optional:         true,
@@ -2549,6 +2554,10 @@ func flattenDatabaseFlags(databaseFlags []*sqladmin.DatabaseFlags) []map[string]
 // is nil since replication_cluster is computed+optional.
 func flattenReplicationCluster(replicationCluster *sqladmin.ReplicationCluster, d *schema.ResourceData) []map[string]interface{} {
 	data := make(map[string]interface{})
+	data["psa_write_endpoint"] = ""
+	if replicationCluster != nil && replicationCluster.PsaWriteEndpoint != "" {
+		data["psa_write_endpoint"] = replicationCluster.PsaWriteEndpoint
+	}
 	data["failover_dr_replica_name"] = ""
 	if replicationCluster != nil && replicationCluster.FailoverDrReplicaName != "" {
 		data["failover_dr_replica_name"] = replicationCluster.FailoverDrReplicaName
