@@ -22,7 +22,8 @@ IMPROVEMENTS:
 * cloudrunv2: added `gpu_zonal_redundancy_disabled` field to `google_cloud_run_v2_job` resource. ([#23811](https://github.com/hashicorp/terraform-provider-google/pull/23811))
 * compute: added `labels` field to `google_compute_storage_pool` resource ([#23783](https://github.com/hashicorp/terraform-provider-google/pull/23783))
 * compute: added `network_name` field to `google_compute_subnetworks` data source ([#23753](https://github.com/hashicorp/terraform-provider-google/pull/23753))
-* container: added support for `additional_ip_ranges_config` (adding multiple subnets to a `google_container_cluster`). ([#23828](https://github.com/hashicorp/terraform-provider-google/pull/23828))
+* container: added `ip_allocation_policy.additional_ip_ranges_config` field to `google_container_cluster` resource ([#23828](https://github.com/hashicorp/terraform-provider-google/pull/23828))
+* container: added `network_config.additional_node_network_configs.subnetwork` field to`google_container_node_pool` resource ([#23828](https://github.com/hashicorp/terraform-provider-google/pull/23828))
 * container: added `addons_config.lustre_csi_driver_config` field to `google_container_cluster` resource ([#23729](https://github.com/hashicorp/terraform-provider-google/pull/23729))
 * container: added support for `rbac_binding_config` in `google_container_cluster` ([#23812](https://github.com/hashicorp/terraform-provider-google/pull/23812))
 * dataproc: added `cluster_config.cluster_tier` field to `google_dataproc_cluster` resource ([#23830](https://github.com/hashicorp/terraform-provider-google/pull/23830))
@@ -34,10 +35,10 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * bigquery: fixed a crash in `google_bigquery_table` when configured as an external table with `parquet_options` ([#23808](https://github.com/hashicorp/terraform-provider-google/pull/23808))
-* cloudrunv2: added support for setting `manual_instance_count` to 0 in `google_cloud_run_v2_worker_pool`. ([#23798](https://github.com/hashicorp/terraform-provider-google/pull/23798))
+* cloudrunv2: fixed an issue where `manual_instance_count` was unable to set to `0` in `google_cloud_run_v2_worker_pool`. ([#23798](https://github.com/hashicorp/terraform-provider-google/pull/23798))
 * composer: fixed updates failing for `recovery_config` with explicitly disabled scheduled snapshots ([#23715](https://github.com/hashicorp/terraform-provider-google/pull/23715))
 * iap: fixed an issue where deleting `google_iap_settings` without setting `GOOGLE_PROJECT` incorrectly failed ([#23724](https://github.com/hashicorp/terraform-provider-google/pull/23724))
-* storage: removed client-side validations for `google_storage_bucket` ([#23719](https://github.com/hashicorp/terraform-provider-google/pull/23719))
+* storage: removed client-side GCS name validations for `google_storage_bucket` ([#23719](https://github.com/hashicorp/terraform-provider-google/pull/23719))
 
 ## 6.46.0 (July 29, 2025)
 
