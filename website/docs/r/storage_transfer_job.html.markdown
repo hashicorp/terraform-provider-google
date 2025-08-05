@@ -276,6 +276,8 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 
 * `managed_private_network` - (Optional) Egress bytes over a Google-managed private network. This network is shared between other users of Storage Transfer Service.
 
+* `cloudfront_domain` - (Optional) The CloudFront distribution domain name pointing to this bucket, to use when fetching. See [Transfer from S3 via CloudFront](https://cloud.google.com/storage-transfer/docs/s3-cloudfront) for more information. Format: `https://{id}.cloudfront.net` or any valid custom domain. Must begin with `https://`.
+
 The `aws_access_key` block supports:
 
 * `access_key_id` - (Required) AWS Key ID.
