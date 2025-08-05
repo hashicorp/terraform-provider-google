@@ -23,9 +23,13 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"regexp"
 	"testing"
 
 	"github.com/dnaeon/go-vcr/cassette"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
@@ -464,4 +468,123 @@ func TestReformConfigWithProvider(t *testing.T) {
 			t.Logf("Test Case: %s\nReformed config:\n%s", tc.name, newConfig)
 		})
 	}
+}
+
+func TestInsertDiffSteps(t *testing.T) {
+
+	var dummyCase = resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: `resource "google_new_resource" "original" {
+                    provider = google-beta
+                }`,
+			},
+			{
+				Config: `resource "google_new_resource" "original" {
+                    provider = google-beta
+                }`,
+			},
+			{
+				ResourceName:            "google_pubsub_subscription.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"topic"},
+			},
+			{
+				Config: `resource "google_example_widget" "foo" {
+					name = "dummy"
+					provider = google-beta
+				}`,
+				Check: resource.ComposeTestCheckFunc(
+					func(*terraform.State) error { return nil },
+				),
+			},
+			{
+				Config: `provider = "google-local"
+						// ... configuration that is expected to cause an error
+					`,
+				ExpectError: regexp.MustCompile(`"restore_continuous_backup_source": conflicts with restore_backup_source`),
+			},
+		},
+	}
+	temp_file, err := os.CreateTemp("", "release_diff_test_output_*.log")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	dummyCase = acctest.InsertDiffSteps(dummyCase, temp_file, "google-beta", "google-local")
+
+	// Expected steps after InsertDiffSteps runs.
+	// A "diff" step (using 'google-local') is added for each original step containing a Config field,
+	// unless the step has ExpectError set.
+	var expectedSteps = []resource.TestStep{
+		{
+			Config: `resource "google_new_resource" "original" {
+                    provider = google-beta
+                }`,
+		},
+		{
+			Config: `resource "google_new_resource" "original" {
+                    provider = google-local
+                }`,
+			ExpectNonEmptyPlan: false,
+			PlanOnly:           true,
+		},
+		{
+			Config: `resource "google_new_resource" "original" {
+                    provider = google-beta
+                }`,
+		},
+		{
+			Config: `resource "google_new_resource" "original" {
+                    provider = google-local
+                }`,
+			ExpectNonEmptyPlan: false,
+			PlanOnly:           true,
+		},
+		{
+			ResourceName: "google_pubsub_subscription.example", // No config, so no diff step added
+		},
+		{
+			Config: `resource "google_example_widget" "foo" {
+					name = "dummy"
+					provider = google-beta
+				}`,
+			Check: resource.ComposeTestCheckFunc(
+				func(*terraform.State) error { return nil },
+			),
+		},
+		{
+			Config: `resource "google_example_widget" "foo" {
+					name = "dummy"
+					provider = google-local
+				}`,
+			Check: resource.ComposeTestCheckFunc(
+				func(*terraform.State) error { return nil },
+			),
+			ExpectNonEmptyPlan: false,
+			PlanOnly:           true,
+		},
+		{
+			Config: `provider = "google-local"
+						// ... configuration that is expected to cause an error
+					`, // expect error means we don't do a second step
+		},
+	}
+
+	if len(dummyCase.Steps) != len(expectedSteps) {
+		t.Fatalf("Expected %d steps, but got %d", len(expectedSteps), len(dummyCase.Steps))
+	}
+
+	for i, step := range dummyCase.Steps {
+		if step.Config != expectedSteps[i].Config {
+			t.Fatalf("Expected step %d config to be:\n%q\nbut got:\n%q", i, expectedSteps[i].Config, step.Config)
+		}
+		if step.PlanOnly != expectedSteps[i].PlanOnly {
+			t.Fatalf("Expected step %d to have PlanOnly set to %v, but got %v", i, expectedSteps[i].PlanOnly, step.PlanOnly)
+		}
+	}
+
+	defer os.Remove(temp_file.Name())
 }

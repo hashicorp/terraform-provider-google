@@ -1240,6 +1240,76 @@ func TestAccDataprocCluster_withMetastoreConfig(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withClusterTier(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				// Set tier to CLUSTER_TIER_STANDARD
+				Config: testAccDataprocCluster_withClusterTier(rnd, subnetworkName, "CLUSTER_TIER_STANDARD"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.tier_cluster", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.tier_cluster", "cluster_config.0.cluster_tier", "CLUSTER_TIER_STANDARD"),
+				),
+			},
+			{
+				// Set tier to CLUSTER_TIER_PREMIUM
+				Config: testAccDataprocCluster_withClusterTier(rnd, subnetworkName, "CLUSTER_TIER_PREMIUM"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.tier_cluster", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.tier_cluster", "cluster_config.0.cluster_tier", "CLUSTER_TIER_PREMIUM"),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataprocCluster_withClusterTier(rnd, subnetworkName, tier string) string {
+	tierConfig := ""
+	if tier != "" {
+		tierConfig = fmt.Sprintf(`cluster_tier = "%s"`, tier)
+	}
+	clusterName := fmt.Sprintf("tf-test-dproc-tier-%s", rnd)
+	bucketName := clusterName + "-temp-bucket"
+
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = "true"
+}
+
+resource "google_dataproc_cluster" "tier_cluster" {
+  name   = "%s"
+  region = "us-central1"
+
+  cluster_config {
+	%s
+	staging_bucket = google_storage_bucket.bucket.name
+	temp_bucket = google_storage_bucket.bucket.name
+
+    software_config {
+      image_version = "2.3.4-debian12"
+    }
+
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+  }
+}
+`, bucketName, clusterName, tierConfig, subnetworkName)
+}
+
 func testAccCheckDataprocClusterDestroy(t *testing.T) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)

@@ -1,0 +1,40 @@
+resource: 'google_developer_connect_insights_config'
+generation_type: 'mmv1'
+source_file: 'products/developerconnect/InsightsConfig.yaml'
+api_service_name: 'developerconnect.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'InsightsConfig'
+autogen_status: true
+fields:
+  - field: 'annotations'
+  - field: 'app_hub_application'
+  - field: 'artifact_configs.google_artifact_analysis.project_id'
+  - field: 'artifact_configs.google_artifact_registry.artifact_registry_package'
+  - field: 'artifact_configs.google_artifact_registry.project_id'
+  - field: 'artifact_configs.uri'
+  - field: 'create_time'
+  - field: 'effective_annotations'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'errors.code'
+  - field: 'errors.details.detail_message'
+  - field: 'errors.message'
+  - field: 'insights_config_id'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'reconciling'
+  - field: 'runtime_configs.app_hub_workload.criticality'
+  - field: 'runtime_configs.app_hub_workload.environment'
+  - field: 'runtime_configs.app_hub_workload.workload'
+  - field: 'runtime_configs.gke_workload.cluster'
+  - field: 'runtime_configs.gke_workload.deployment'
+  - field: 'runtime_configs.state'
+  - field: 'runtime_configs.uri'
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

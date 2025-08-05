@@ -8,6 +8,7 @@ fields:
   - field: 'aspects.aspect.aspect_type'
   - field: 'aspects.aspect.create_time'
   - field: 'aspects.aspect.data'
+    json: true
   - field: 'aspects.aspect.path'
   - field: 'aspects.aspect.update_time'
   - field: 'aspects.aspect_key'

@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -67,6 +68,8 @@ var sourcesLock = sync.RWMutex{}
 var configs map[string]*transport_tpg.Config
 
 var sources map[string]VcrSource
+
+var diffFlag = "[Diff]"
 
 // VcrSource is a source for a given VCR test with the value that seeded it
 type VcrSource struct {
@@ -161,7 +164,15 @@ func VcrTest(t *testing.T, c resource.TestCase) {
 	if IsVcrEnabled() {
 		defer closeRecorder(t)
 	} else if isReleaseDiffEnabled() {
-		c = initializeReleaseDiffTest(c, t.Name())
+		// creates temporary file for the individual test, will be a temporary to store the output
+		tempOutputFile, err := createTemporaryFile()
+		if err != nil {
+			t.Errorf("creating temporary file %v", err)
+		}
+		defer func() {
+			writeOutputFileDeferFunction(tempOutputFile, t.Failed())
+		}()
+		c = initializeReleaseDiffTest(c, t.Name(), tempOutputFile)
 	}
 
 	c = extendWithTGCData(t, c)
@@ -180,6 +191,16 @@ func VcrTest(t *testing.T, c resource.TestCase) {
 	c.Steps = steps
 
 	resource.Test(t, c)
+}
+
+func createTemporaryFile() (*os.File, error) {
+	// creates temporary file for the individual test, will be a temporary to store the output
+	tempOutputFile, err := os.CreateTemp("", "release_diff_test_output_*.log")
+	if err != nil {
+		return nil, err
+	}
+
+	return tempOutputFile, nil
 }
 
 // We need to explicitly close the VCR recorder to save the cassette
@@ -223,7 +244,7 @@ func isReleaseDiffEnabled() bool {
 	return releaseDiff != ""
 }
 
-func initializeReleaseDiffTest(c resource.TestCase, testName string) resource.TestCase {
+func initializeReleaseDiffTest(c resource.TestCase, testName string, tempOutputFile *os.File) resource.TestCase {
 	var releaseProvider string
 	packagePath := fmt.Sprint(reflect.TypeOf(transport_tpg.Config{}).PkgPath())
 	if strings.Contains(packagePath, "google-beta") {
@@ -236,7 +257,9 @@ func initializeReleaseDiffTest(c resource.TestCase, testName string) resource.Te
 		c.ExternalProviders[releaseProvider] = resource.ExternalProvider{}
 	} else {
 		c.ExternalProviders = map[string]resource.ExternalProvider{
-			releaseProvider: {},
+			releaseProvider: {
+				// if left empty fetches most recent release provider
+			},
 		}
 	}
 
@@ -258,14 +281,33 @@ func initializeReleaseDiffTest(c resource.TestCase, testName string) resource.Te
 			},
 		}
 	}
+	// InsertDiffSteps adds modified steps to the test that run with an external provider
+	// these steps do the actual infrastructure provisioning, and c.Steps is updated in the method to have the modified steps
+	c = InsertDiffSteps(c, tempOutputFile, releaseProvider, localProviderName)
+	return c
+}
+
+// InsertDiffSteps inserts a new step into the test case that reformats the config to use the release provider - this allows us to see the diff
+// between the local provider and the release provider
+func InsertDiffSteps(c resource.TestCase, tempOutputFile *os.File, releaseProvider string, localProviderName string) resource.TestCase {
+	var countSteps = 0
 
 	var replacementSteps []resource.TestStep
 	for _, testStep := range c.Steps {
+		countSteps++
 		if testStep.Config != "" {
 			ogConfig := testStep.Config
+			fmt.Fprintf(tempOutputFile, "[DEBUG] Original config: %s\n", ogConfig)
 			testStep.Config = ReformConfigWithProvider(ogConfig, localProviderName)
-			if testStep.ExpectError == nil && testStep.PlanOnly == false {
+			fmt.Fprintf(tempOutputFile, "[DEBUG] Reformatted config: %s\n", testStep.Config)
+			testStep.PreConfig = func() {
+				fmt.Fprintf(tempOutputFile, "%s Step %d\n", diffFlag, countSteps)
+			}
+			if testStep.ExpectError == nil && !testStep.PlanOnly {
 				newStep := resource.TestStep{
+					PreConfig: func() {
+						fmt.Fprintf(tempOutputFile, "Regular Step %d\n", countSteps)
+					},
 					Config: ReformConfigWithProvider(ogConfig, releaseProvider),
 				}
 				testStep.PlanOnly = true
@@ -277,12 +319,14 @@ func initializeReleaseDiffTest(c resource.TestCase, testName string) resource.Te
 			replacementSteps = append(replacementSteps, testStep)
 		}
 	}
-
 	c.Steps = replacementSteps
-
 	return c
 }
 
+// reformConfigWithProvider reformats the config to use the given provider
+// The method matches a regex for the provider block and replaces it with the given provider.
+// For example: ' data "google_compute_network" "default" { provider = "google-local" } '
+// will be reformatted to ' data "google_compute_network" "default" { provider = "google-beta" } '
 func ReformConfigWithProvider(config, provider string) string {
 	configBytes := []byte(config)
 	providerReplacement := fmt.Sprintf("provider = %s", provider)
@@ -301,6 +345,83 @@ func ReformConfigWithProvider(config, provider string) string {
 
 	resourceHeader := regexp.MustCompile(`((resource|data) .*google_.* .*\w+.*\{ *)`)
 	return string(resourceHeader.ReplaceAll(configBytes, providerReplacementBytes))
+}
+
+// ReadDiffOutput reads the outputted temporary file and returns its contents
+func ReadDiffOutput(f *os.File) (string, error) {
+	if f == nil {
+		return "", fmt.Errorf("file handle is nil")
+	}
+
+	// Seek to the beginning of the file in case it was just written to.
+	if _, err := f.Seek(0, io.SeekStart); err != nil {
+		return "", fmt.Errorf("failed to seek to beginning of file: %w", err)
+	}
+
+	// Read the entire file content.
+	content, err := os.ReadFile(f.Name())
+	if err != nil {
+		return "", fmt.Errorf("failed to read file: %w", err)
+	}
+
+	return string(content), nil
+}
+
+// parseReleaseDiffOutput reads the temporary file created during the release diff test and returns whether the last line has a [Diff] flag, the test output, and any errors
+func ParseReleaseDiffOutput(output string) (isDiff bool) {
+	trimmedOutput := strings.TrimSpace(output)
+	if trimmedOutput == "" {
+		return false
+	}
+
+	lines := strings.Split(trimmedOutput, "\n")
+	lastLine := lines[len(lines)-1]
+
+	isDiff = strings.HasPrefix(lastLine, diffFlag)
+
+	return isDiff
+}
+
+func writeOutputFileDeferFunction(tempOutputFile *os.File, failed bool) {
+	if tempOutputFile == nil {
+		return
+	}
+	// parses the temporary file created during the release diff test and returns the last line of output
+	// This is useful for extracting the diff output from the file after the test has run
+
+	testOutput, err := ReadDiffOutput(tempOutputFile)
+	if err != nil {
+		fmt.Printf("Error reading temporary file: %v\n", err)
+		return
+	}
+	isDiff := ParseReleaseDiffOutput(testOutput)
+	tempOutputFile.Close()
+	err = os.Remove(tempOutputFile.Name())
+	if err != nil {
+		fmt.Printf("Temporary File Deletion Error: %v\n", err)
+	}
+	regularFailureFile, err := os.Create(filepath.Join("", "regular_failure_file.log"))
+	if err != nil {
+		fmt.Printf("Error creating file: %v\n", err)
+		return
+	}
+	defer regularFailureFile.Close()
+	diffFailureFile, err := os.Create(filepath.Join("", "diff_failure_file.log"))
+	if err != nil {
+		fmt.Printf("Error creating file: %v\n", err)
+		return
+	}
+	defer diffFailureFile.Close()
+	if failed {
+		// Check if the output line starts with "[Diff]"
+		if isDiff {
+			fmt.Fprintf(os.Stdout, "%s Breaking Change Detected] \n", diffFlag)
+			fmt.Fprintf(diffFailureFile, "%s %s\n", diffFlag, testOutput)
+		} else {
+			fmt.Fprintf(regularFailureFile, testOutput)
+			fmt.Fprintf(regularFailureFile, "FAILED --- %s\n", testOutput)
+		}
+	}
 }
 
 // HandleVCRConfiguration configures the recorder (github.com/dnaeon/go-vcr/recorder) used in the VCR test

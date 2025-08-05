@@ -440,6 +440,8 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
 * `anonymous_authentication_config` - (Optional)
   Configuration for [anonymous authentication restrictions](https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster#restrict-anon-access). Structure is [documented below](#anonymous_authentication_config).
 
+* `rbac_binding_config` - (Optional)
+  RBACBindingConfig allows user to restrict ClusterRoleBindings an RoleBindings that can be created. Structure is [documented below](#nested_rbac_binding_config).
 
 <a name="nested_default_snat_status"></a>The `default_snat_status` block supports
 
@@ -836,10 +838,20 @@ Possible values are `IPV4` and `IPV4_IPV6`.
 the cluster level. Used for Autopilot clusters and Standard clusters with which control of the
 secondary Pod IP address assignment to node pools isn't needed. Structure is [documented below](#nested_additional_pod_ranges_config).
 
+* `additional_ip_ranges_config` - (Optional) The configuration for individual additional subnetworks attached to the cluster.
+Structure is [documented below](#nested_additional_ip_ranges_config).
+
 
 <a name="nested_additional_pod_ranges_config"></a>The `additional_pod_ranges_config` block supports:
 
 * `pod_range_names` - (Required) The names of the Pod ranges to add to the cluster.
+
+
+<a name="nested_additional_ip_ranges_config"></a>The `additional_ip_ranges_config` block supports:
+
+* `subnetwork` - (Required) Name of the subnetwork. This can be the full path of the subnetwork or just the name.
+
+* `pod_ipv4_range_names`- (Required) List of secondary ranges names within this subnetwork that can be used for pod IPs.
 
 
 <a name="nested_master_auth"></a>The `master_auth` block supports:
@@ -881,13 +893,16 @@ The `master_authorized_networks_config.cidr_blocks` block supports:
 
 <a name="nested_node_config"></a>The `node_config` block supports:
 
+* `boot_disk` - (Optional) Configuration of the node pool boot disk. Structure is [documented below](#nested_boot_disk)
+
 * `confidential_nodes` - (Optional) Configuration for Confidential Nodes feature. Structure is [documented below](#nested_confidential_nodes).
 
 * `disk_size_gb` - (Optional) Size of the disk attached to each node, specified
-    in GB. The smallest allowed disk size is 10GB. Defaults to 100GB.
+    in GB. The smallest allowed disk size is 10GB. Defaults to 100GB. This is being migrated to `boot_disk.size_gb`, and must match if specified in both places.
+    Prefer configuring `boot_disk`.
 
 * `disk_type` - (Optional) Type of the disk attached to each node
-    (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-balanced'
+    (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-balanced' This is being migrated to `boot_disk.disk_type`, and must match if specified in both places. Prefer configuring `boot_disk`.
 
 * `enable_confidential_storage` - (Optional) Enabling Confidential Storage will create boot disk with confidential mode. It is disabled by default.
 
@@ -1076,6 +1091,17 @@ sole_tenant_config {
 * `advanced_machine_features` - (Optional) Specifies options for controlling
   advanced machine features. Structure is [documented below](#nested_advanced_machine_features).
 
+<a name="nested_boot_disk"></a>The `boot_disk` block supports:
+
+* `size_gb` - (Optional) Size of the disk attached to each node, specified
+    in GB. The smallest allowed disk size is 10GB. Defaults to 100GB. This is being migrated from `node_config.disk_size_gb`, and must match if specified in both places. Prefer using this field.
+
+* `disk_type` - (Optional) Type of the disk attached to each node
+    (e.g. 'pd-standard', 'pd-balanced', 'pd-ssd', 'hyperdisk-balanced'). If unspecified, the default disk type is 'pd-balanced' This is being migrated from `node_config.disk_type`, and must match if specified in both places. Prefer using this field.
+
+* `provisioned_iops` - (Optional) Configure disk IOPs. This is only valid if the `disk_type` is 'hyperdisk-balanced'. See [performance limit documention](https://cloud.google.com/compute/docs/disks/hyperdisk-perf-limits) for more information about valid values.
+
+* `provisioned_throughput` - (Optional) Configure disk throughput. This is only valid if the `disk_type` is 'hyperdisk-balanced'. See [performance limit documention](https://cloud.google.com/compute/docs/disks/hyperdisk-perf-limits) for more information about valid values.
 
 <a name="nested_confidential_nodes"></a> The `confidential_nodes` block supports:
 
@@ -1471,6 +1497,8 @@ such as `"300ms"`. Valid time units are "ns", "us" (or "µs"), "ms", "s", "m",
 
 * `allowed_unsafe_sysctls` - (Optional) Defines a comma-separated allowlist of unsafe sysctls or sysctl patterns which can be set on the Pods. The allowed sysctl groups are `kernel.shm*`, `kernel.msg*`, `kernel.sem`, `fs.mqueue.*`, and `net.*`.
 
+* `single_process_oom_kill` - (Optional) Defines whether to enable single process OOM killer. If true, the processes in the container will be OOM killed individually instead of as a group.
+
 <a name="nested_linux_node_config"></a>The `linux_node_config` block supports:
 
 * `sysctls` - (Optional) The Linux kernel parameters to be applied to the nodes
@@ -1573,6 +1601,11 @@ linux_node_config {
 <a name="anonymous_authentication_config"></a>The `anonymous_authentication_config` block supports:
 
 * `mode` - (Optional) Sets or removes authentication restrictions. Available options include `LIMITED` and `ENABLED`.
+
+<a name="nested_rbac_binding_config"></a>The `rbac_binding_config` block supports:
+
+* `enable_insecure_binding_system_unauthenticated` - (Optional) Setting this to true will allow any ClusterRoleBinding and RoleBinding with subjects system:anonymous or system:unauthenticated.
+* `enable_insecure_binding_system_authenticated` - (Optional) Setting this to true will allow any ClusterRoleBinding and RoleBinding with subjects system:authenticated.
 
 
 ## Attributes Reference

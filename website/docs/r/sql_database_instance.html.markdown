@@ -187,7 +187,7 @@ resource "google_sql_database_instance" "main" {
 }
 ```
 
-### Cloud SQL Instance with MCP
+### Cloud SQL Instance with Managed Connection Pooling
 ```hcl
 resource "google_sql_database_instance" "instance" {
   name:            = "mcp-enabled-main-instance"
@@ -361,9 +361,9 @@ The `settings` block supports:
 
 * `disk_autoresize_limit` - (Optional) The maximum size to which storage capacity can be automatically increased. The default value is 0, which specifies that there is no limit.
 
-* `disk_size` - (Optional) The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. The minimum value is 10GB for PD_SSD, PD_HDD and 20GB for HYPERDISK_BALANCED. Note that this value will override the resizing from `disk_autoresize` if that feature is enabled. To avoid this, set `lifecycle.ignore_changes` on this field.
+* `disk_size` - (Optional) The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. The minimum value is 10GB for `PD_SSD`, `PD_HDD` and 20GB for `HYPERDISK_BALANCED`. Note that this value will override the resizing from `disk_autoresize` if that feature is enabled. To avoid this, set `lifecycle.ignore_changes` on this field.
 
-* `disk_type` - (Optional) The type of data disk: PD_SSD, PD_HDD, or HYPERDISK_BALANCED. Defaults to `PD_SSD`. HYPERDISK_BALANCED is preview.
+* `disk_type` - (Optional) The type of data disk: `PD_SSD`, `PD_HDD`, or `HYPERDISK_BALANCED`. Defaults to `PD_SSD`. `HYPERDISK_BALANCED` is preview.
 
 * `data_disk_provisioned_iops` - (Optional, Beta) Provisioned number of I/O operations per second for the data disk. This field is only used for `HYPERDISK_BALANCED` disk types.
 
@@ -599,6 +599,8 @@ block during resource creation/update will trigger the restore action after the 
 * `project` - (Optional) The full project ID of the source instance.`
 
 The optional, computed `replication_cluster` block represents a primary instance and disaster recovery replica pair. Applicable to MySQL and PostgreSQL. This field can be set only after both the primary and replica are created. This block supports:
+
+* `psa_write_endpoint`: Read-only field which if set, indicates this instance has a private service access (PSA) DNS endpoint that is pointing to the primary instance of the cluster. If this instance is the primary, then the DNS endpoint points to this instance. After a switchover or replica failover operation, this DNS endpoint points to the promoted instance. This is a read-only field, returned to the user as information. This field can exist even if a standalone instance doesn't have a DR replica yet or the DR replica is deleted.
 
 * `failover_dr_replica_name`: (Optional) If the instance is a primary instance, then this field identifies the disaster recovery (DR) replica. The standard format of this field is "your-project:your-instance". You can also set this field to "your-instance", but cloud SQL backend will convert it to the aforementioned standard format.
 

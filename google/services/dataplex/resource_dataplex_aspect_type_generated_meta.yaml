@@ -16,6 +16,7 @@ fields:
   - field: 'location'
     provider_only: true
   - field: 'metadata_template'
+    json: true
   - field: 'name'
   - field: 'terraform_labels'
     provider_only: true

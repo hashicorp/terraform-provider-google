@@ -2714,6 +2714,60 @@ func TestAccSqlDatabaseInstance_SwitchoverSuccess(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_MysqlEplusWithPrivateNetwork(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-" + acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "endpoint")
+	projectId := envvar.GetTestProjectFromEnv()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusOnPrivateNetwork(projectId, networkName, instanceName, "MYSQL_8_0"),
+				Check:  resource.ComposeTestCheckFunc(verifyCreateOperationOnEplusWithPrivateNetwork("google_sql_database_instance.instance")),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_PostgresEplusWithPrivateNetwork(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-" + acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "endpoint")
+	projectId := envvar.GetTestProjectFromEnv()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusOnPrivateNetwork(projectId, networkName, instanceName, "POSTGRES_12"),
+				Check:  resource.ComposeTestCheckFunc(verifyCreateOperationOnEplusWithPrivateNetwork("google_sql_database_instance.instance")),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 // Switchover for MySQL.
 func TestAccSqlDatabaseInstance_MysqlSwitchoverSuccess(t *testing.T) {
 	t.Parallel()
@@ -4012,6 +4066,35 @@ resource "google_sql_database_instance" "original-replica" {
 `, replicaName)
 }
 
+func testGoogleSqlDatabaseInstanceConfig_eplusOnPrivateNetwork(project, networkName, instanceName, databaseVersion string) string {
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name                    = "%s"
+}
+
+resource "google_sql_database_instance" "instance" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "%s"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = "false"
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      enabled            = true
+    }
+  }
+}
+`, networkName, project, instanceName, databaseVersion)
+}
+
 func testGoogleSqlDatabaseInstanceConfig_mysqlEplusWithReplica(project, primaryName, replicaName string) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "original-primary" {
@@ -4765,6 +4848,28 @@ func verifyPscOperation(resourceName string, isPscConfigExpected bool, expectedP
 			if !ok || allowedConsumerProjects != len(expectedAllowedConsumerProjects) {
 				return fmt.Errorf("settings.0.ip_configuration.0.psc_config.0.allowed_consumer_projects property is not present or set as expected in state of %s", resourceName)
 			}
+		}
+
+		return nil
+	}
+}
+
+func verifyCreateOperationOnEplusWithPrivateNetwork(resourceName string) func(*terraform.State) error {
+	return func(s *terraform.State) error {
+		resource, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Can't find %s in state", resourceName)
+		}
+
+		resourceAttributes := resource.Primary.Attributes
+		_, ok = resourceAttributes["replication_cluster.#"]
+		if !ok {
+			return fmt.Errorf("replication_cluster.# block is not present in state for %s", resourceName)
+		}
+
+		_, ok = resourceAttributes["replication_cluster.0.psa_write_endpoint"]
+		if !ok {
+			return fmt.Errorf("replication_cluster.psa_write_endpoint is not present in state for %s", resourceName)
 		}
 
 		return nil

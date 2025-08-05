@@ -62,6 +62,15 @@ resource "google_discovery_engine_cmek_config" "default" {
   location            = "us"
   cmek_config_id      = "tf-test-cmek-config-id%{random_suffix}"
   kms_key             = "%{kms_key_name}"
+  depends_on = [google_kms_crypto_key_iam_member.crypto_key]
+}
+
+data "google_project" "project" {}
+
+resource "google_kms_crypto_key_iam_member" "crypto_key" {
+  crypto_key_id = "%{kms_key_name}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-discoveryengine.iam.gserviceaccount.com"
 }
 `, context)
 }

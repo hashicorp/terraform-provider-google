@@ -38,4 +38,5 @@ fields:
   - field: 'start_flow'
   - field: 'supported_language_codes'
   - field: 'text_to_speech_settings.synthesize_speech_configs'
+    json: true
   - field: 'time_zone'
