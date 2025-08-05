@@ -521,7 +521,7 @@ resource "google_redis_cluster" "cluster-aof" {
     maxmemory-policy	= "volatile-ttl"
   }
   deletion_protection_enabled = %{deletion_protection_enabled}
-
+  allow_fewer_zones_deployment = true
   zone_distribution_config {
     mode = "MULTI_ZONE"
   }

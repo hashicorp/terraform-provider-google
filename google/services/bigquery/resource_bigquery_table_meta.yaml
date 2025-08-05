@@ -58,6 +58,7 @@ fields:
   - field: 'external_data_configuration.parquet_options.enum_as_string'
   - field: 'external_data_configuration.reference_file_schema_uri'
   - field: 'external_data_configuration.schema'
+    json: true
   - field: 'external_data_configuration.source_format'
   - field: 'external_data_configuration.source_uris'
   - field: 'friendly_name'
@@ -80,6 +81,7 @@ fields:
   - field: 'require_partition_filter'
   - field: 'resource_tags'
   - field: 'schema'
+    json: true
   - field: 'self_link'
   - field: 'table_constraints.foreign_keys.column_references.referenced_column'
   - field: 'table_constraints.foreign_keys.column_references.referencing_column'

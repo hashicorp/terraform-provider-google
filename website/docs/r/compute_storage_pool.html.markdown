@@ -48,6 +48,13 @@ resource "google_compute_storage_pool" "test-storage-pool-basic" {
 
   zone = "us-central1-a"
 
+  labels = {
+    environment = "test"
+    purpose     = "storage-pool-testing"
+    team        = "infrastructure"
+    cost_center = "engineering"
+  }
+
   deletion_protection = false
 }
 
@@ -70,6 +77,13 @@ resource "google_compute_storage_pool" "test-storage-pool-full" {
   pool_provisioned_throughput   = "1024"
 
   storage_pool_type = data.google_compute_storage_pool_types.balanced.self_link
+
+  labels = {
+    environment = "test"
+    purpose     = "storage-pool-testing"
+    team        = "infrastructure"
+    cost_center = "engineering"
+  }
 
   deletion_protection = false
 
@@ -136,6 +150,13 @@ The following arguments are supported:
   Provisioning type of the performance-related parameters of the pool, such as throughput and IOPS.
   Possible values are: `STANDARD`, `ADVANCED`.
 
+* `labels` -
+  (Optional)
+  Labels to apply to this storage pool. These can be later modified by the setLabels method.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `zone` -
   (Optional)
   A reference to the zone where the storage pool resides.
@@ -176,6 +197,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `status` -
   Status information for the storage pool resource.
   Structure is [documented below](#nested_status).
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 <a name="nested_resource_status"></a>The `resource_status` block contains:

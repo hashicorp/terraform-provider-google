@@ -82,6 +82,23 @@ resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   log_linked_dataset_query_user_email = true
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_analyticshub_public_data_exchange&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Analyticshub Public Data Exchange
+
+
+```hcl
+resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
+  location         = "US"
+  data_exchange_id = "public_data_exchange"
+  display_name     = "public_data_exchange"
+  description      = "Example for public data exchange"
+  discovery_type   = "DISCOVERY_TYPE_PUBLIC"
+}
+```
 
 ## Argument Reference
 
@@ -122,6 +139,11 @@ The following arguments are supported:
   Configurable data sharing environment option for a data exchange.
   This field is required for data clean room exchanges.
   Structure is [documented below](#nested_sharing_environment_config).
+
+* `discovery_type` -
+  (Optional)
+  Type of discovery on the discovery page for all the listings under this exchange. Cannot be set for a Data Clean Room. Updating this field also updates (overwrites) the discoveryType field for all the listings under this exchange.
+  Possible values are: `DISCOVERY_TYPE_PRIVATE`, `DISCOVERY_TYPE_PUBLIC`.
 
 * `log_linked_dataset_query_user_email` -
   (Optional)

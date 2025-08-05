@@ -204,6 +204,88 @@ resource "google_parameter_manager_parameter_version" "parameter-version-with-ya
 `, context)
 }
 
+func TestAccParameterManagerParameterVersion_parameterVersionWithJsonFormatWithFileExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"data":          "./test-fixtures/parameter_data_json_format.json",
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckParameterManagerParameterVersionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccParameterManagerParameterVersion_parameterVersionWithJsonFormatWithFileExample(context),
+			},
+			{
+				ResourceName:            "google_parameter_manager_parameter_version.parameter-version-with-json-format-with-file",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parameter", "parameter_version_id"},
+			},
+		},
+	})
+}
+
+func testAccParameterManagerParameterVersion_parameterVersionWithJsonFormatWithFileExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_parameter_manager_parameter" "parameter-basic" {
+  parameter_id = "parameter%{random_suffix}"
+  format = "JSON"
+}
+
+resource "google_parameter_manager_parameter_version" "parameter-version-with-json-format-with-file" {
+  parameter = google_parameter_manager_parameter.parameter-basic.id
+  parameter_version_id = "tf_test_parameter_version%{random_suffix}"
+  parameter_data = file("%{data}") 
+}
+`, context)
+}
+
+func TestAccParameterManagerParameterVersion_parameterVersionWithYamlFormatWithFileExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"data":          "./test-fixtures/parameter_data_yaml_format.yaml",
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckParameterManagerParameterVersionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccParameterManagerParameterVersion_parameterVersionWithYamlFormatWithFileExample(context),
+			},
+			{
+				ResourceName:            "google_parameter_manager_parameter_version.parameter-version-with-yaml-format-with-file",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parameter", "parameter_version_id"},
+			},
+		},
+	})
+}
+
+func testAccParameterManagerParameterVersion_parameterVersionWithYamlFormatWithFileExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_parameter_manager_parameter" "parameter-basic" {
+  parameter_id = "parameter%{random_suffix}"
+  format = "YAML"
+}
+
+resource "google_parameter_manager_parameter_version" "parameter-version-with-yaml-format-with-file" {
+  parameter = google_parameter_manager_parameter.parameter-basic.id
+  parameter_version_id = "tf_test_parameter_version%{random_suffix}"
+  parameter_data = file("%{data}")
+}
+`, context)
+}
+
 func testAccCheckParameterManagerParameterVersionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

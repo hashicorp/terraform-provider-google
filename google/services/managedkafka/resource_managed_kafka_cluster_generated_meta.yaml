@@ -23,4 +23,6 @@ fields:
   - field: 'state'
   - field: 'terraform_labels'
     provider_only: true
+  - field: 'tls_config.ssl_principal_mapping_rules'
+  - field: 'tls_config.trust_config.cas_configs.ca_pool'
   - field: 'update_time'

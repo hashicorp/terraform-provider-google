@@ -13047,6 +13047,88 @@ resource "google_container_cluster" "primary" {
 `, name, networkName, subnetworkName, config)
 }
 
+func TestAccContainerCluster_additional_ip_ranges_config_on_create(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 2, 2),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				Check:                   resource.TestCheckResourceAttrSet("google_container_cluster.primary", "node_pool.0.network_config.subnetwork"),
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_additional_ip_ranges_config_on_update(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 0, 0),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				Check:                   resource.TestCheckResourceAttrSet("google_container_cluster.primary", "node_pool.0.network_config.subnetwork"),
+			},
+			{
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 1, 1),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 0, 0),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 2, 2),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 0, 0),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withAnonymousAuthenticationConfig(t *testing.T) {
 	t.Parallel()
 
@@ -13087,6 +13169,89 @@ func TestAccContainerCluster_withAnonymousAuthenticationConfig(t *testing.T) {
 	})
 }
 
+func testAccContainerCluster_additional_ip_ranges_config(name string, additionalSubnetCount int, secondaryRangeCount int) string {
+	var subnetStr string
+	var additionalIpRangesStr string
+	cumulativeRangeIndex := 0
+	for subnetIndex := 0; subnetIndex < additionalSubnetCount; subnetIndex++ {
+		var secondaryRangeStr string
+		var podIpv4RangeStr string
+		for rangeIndex := 0; rangeIndex < secondaryRangeCount; rangeIndex++ {
+			secondaryRangeStr += fmt.Sprintf(`
+                            secondary_ip_range {
+                              range_name = "range-%d"
+                              ip_cidr_range = "10.0.%d.0/24"
+                            }
+                          `, cumulativeRangeIndex, cumulativeRangeIndex)
+
+			podIpv4RangeStr += fmt.Sprintf("google_compute_subnetwork.extra_%d.secondary_ip_range[%d].range_name", subnetIndex, rangeIndex)
+			if rangeIndex != secondaryRangeCount-1 {
+				podIpv4RangeStr += ", "
+			}
+			cumulativeRangeIndex++
+		}
+
+		subnetStr += fmt.Sprintf(`
+                           resource "google_compute_subnetwork" "extra_%d" {
+                             ip_cidr_range = "10.1.%d.0/24"
+                             name = "tf-test-subnet-%d"
+                             network = google_compute_network.main.self_link
+                             region = "us-central1"
+                             %s
+                           }
+                         `, subnetIndex, subnetIndex, subnetIndex, secondaryRangeStr)
+
+		additionalIpRangesStr += fmt.Sprintf(`
+			additional_ip_ranges_config {
+				subnetwork  = google_compute_subnetwork.extra_%d.id
+				pod_ipv4_range_names = [%s]
+			}
+		`, subnetIndex, podIpv4RangeStr)
+	}
+
+	return fmt.Sprintf(`
+	resource "google_compute_network" "main" {
+	  name                    = "%s"
+	  auto_create_subnetworks = false
+	}
+
+	resource "google_compute_subnetwork" "main" {
+	  ip_cidr_range = "10.2.0.0/24"
+	  name          = "main"
+	  network       = google_compute_network.main.self_link
+	  region        = "us-central1"
+
+	  secondary_ip_range {
+	    range_name    = "services"
+	    ip_cidr_range = "10.3.0.0/16"
+	  }
+
+	  secondary_ip_range {
+	    range_name    = "pods"
+	    ip_cidr_range = "10.4.0.0/16"
+	  }
+	}
+
+        %s
+
+	resource "google_container_cluster" "primary" {
+	  name     = "%s"
+	  location = "us-central1-a"
+	  network    = google_compute_network.main.name
+	  subnetwork = google_compute_subnetwork.main.name
+          initial_node_count = 1
+
+	  ip_allocation_policy {
+	    cluster_secondary_range_name  = "pods"
+	    services_secondary_range_name = "services"
+	    %s
+	  }
+
+	  deletion_protection = false
+	}
+	`, name, subnetStr, name, additionalIpRangesStr)
+}
+
 func testAccContainerCluster_withAnonymousAuthenticationConfig(name, networkName, subnetworkName string, mode string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
@@ -13101,4 +13266,68 @@ resource "google_container_cluster" "primary" {
   }
 }
  `, name, networkName, subnetworkName, mode)
+}
+
+func TestAccContainerCluster_RbacBindingConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_RbacBindingConfig(clusterName, networkName, subnetworkName, true, true),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "rbac_binding_config.#", "1"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "rbac_binding_config.0.enable_insecure_binding_system_unauthenticated", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "rbac_binding_config.0.enable_insecure_binding_system_authenticated", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_RbacBindingConfig(clusterName, networkName, subnetworkName, false, false),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "rbac_binding_config.#", "1"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "rbac_binding_config.0.enable_insecure_binding_system_unauthenticated", "false"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "rbac_binding_config.0.enable_insecure_binding_system_authenticated", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_RbacBindingConfig(clusterName, networkName, subnetworkName string, unauthenticated, authenticated bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  network    = "%s"
+  subnetwork = "%s"
+
+  rbac_binding_config {
+	enable_insecure_binding_system_unauthenticated = %t
+	enable_insecure_binding_system_authenticated   = %t
+  }
+
+  deletion_protection = false
+}
+`, clusterName, networkName, subnetworkName, unauthenticated, authenticated)
 }

@@ -235,6 +235,8 @@ cluster.
 
 * `network_performance_config` - (Optional) Network bandwidth tier configuration. Structure is [documented below](#network_performance_config).
 
+* `subnetwork` - (Optional) The subnetwork path for the node pool. Format: `projects/{project}/regions/{region}/subnetworks/{subnetwork}`. If the cluster is associated with multiple subnetworks, the subnetwork for the node pool is picked based on the IP utilization during node pool creation and is immutable
+
 <a name="nested_additional_node_network_configs"></a>The `additional_node_network_configs` block supports:
 
 * `network` - Name of the VPC where the additional interface belongs.

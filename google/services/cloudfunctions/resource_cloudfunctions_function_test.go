@@ -583,6 +583,70 @@ func TestAccCloudFunctionsFunction_buildServiceAccount(t *testing.T) {
 	})
 }
 
+func TestAccCloudFunctionsFunction_abiuCRUD(t *testing.T) {
+	t.Parallel()
+
+	var function cloudfunctions.CloudFunction
+
+	funcResourceName := "google_cloudfunctions_function.function"
+	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt(t))
+	zipFilePath := acctest.CreateZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
+	defer os.Remove(zipFilePath) // clean up
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_abiuAutomatic(functionName, bucketName, zipFilePath),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCloudFunctionsFunctionExists(
+						t, funcResourceName, &function),
+					resource.TestCheckResourceAttrSet(funcResourceName,
+						"automatic_update_policy.#"),
+				),
+			},
+			{
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccCloudFunctionsFunction_abiuOndeploy(functionName, bucketName, zipFilePath),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCloudFunctionsFunctionExists(
+						t, funcResourceName, &function),
+					resource.TestCheckResourceAttrSet(funcResourceName,
+						"on_deploy_update_policy.#"),
+				),
+			},
+			{
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccCloudFunctionsFunction_basic(functionName, bucketName, zipFilePath),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCloudFunctionsFunctionExists(
+						t, funcResourceName, &function),
+					resource.TestCheckResourceAttrSet(funcResourceName,
+						"automatic_update_policy.#"),
+				),
+			},
+			{
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func testAccCheckCloudFunctionsFunctionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -1323,4 +1387,88 @@ resource "google_cloudfunctions_function" "function" {
   entry_point  = "helloGET"
 }
 `, bucketName, zipFilePath, saName, serviceAccount, functionName)
+}
+
+func testAccCloudFunctionsFunction_abiuAutomatic(functionName string, bucketName string, zipFilePath string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "%s"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name                  = "%s"
+  runtime               = "nodejs20"
+  description           = "test function"
+  docker_registry       = "ARTIFACT_REGISTRY"
+  available_memory_mb   = 128
+  source_archive_bucket = google_storage_bucket.bucket.name
+  source_archive_object = google_storage_bucket_object.archive.name
+  trigger_http          = true
+  timeout               = 61
+  entry_point           = "helloGET"
+  ingress_settings      = "ALLOW_INTERNAL_ONLY"
+  labels = {
+    my-label = "my-label-value"
+  }
+  environment_variables = {
+    TEST_ENV_VARIABLE = "test-env-variable-value"
+  }
+  build_environment_variables = {
+    TEST_ENV_VARIABLE = "test-build-env-variable-value"
+  }
+  automatic_update_policy {}
+  max_instances = 10
+  min_instances = 3
+}
+`, bucketName, zipFilePath, functionName)
+}
+
+func testAccCloudFunctionsFunction_abiuOndeploy(functionName string, bucketName string, zipFilePath string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "%s"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name                  = "%s"
+  runtime               = "nodejs20"
+  description           = "test function"
+  docker_registry       = "ARTIFACT_REGISTRY"
+  available_memory_mb   = 128
+  source_archive_bucket = google_storage_bucket.bucket.name
+  source_archive_object = google_storage_bucket_object.archive.name
+  trigger_http          = true
+  timeout               = 61
+  entry_point           = "helloGET"
+  ingress_settings      = "ALLOW_INTERNAL_ONLY"
+  labels = {
+    my-label = "my-label-value"
+  }
+  environment_variables = {
+    TEST_ENV_VARIABLE = "test-env-variable-value"
+  }
+  build_environment_variables = {
+    TEST_ENV_VARIABLE = "test-build-env-variable-value"
+  }
+  on_deploy_update_policy {}
+  max_instances = 10
+  min_instances = 3
+}
+`, bucketName, zipFilePath, functionName)
 }

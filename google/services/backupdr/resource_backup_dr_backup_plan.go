@@ -196,13 +196,19 @@ This is required for 'recurrence_type', 'HOURLY' and is not applicable otherwise
 				Type:     schema.TypeString,
 				Required: true,
 				Description: `The resource type to which the 'BackupPlan' will be applied.
-Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", and "storage.googleapis.com/Bucket".`,
+Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", "sqladmin.googleapis.com/Instance" and "storage.googleapis.com/Bucket".`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The description allows for additional details about 'BackupPlan' and its use cases to be provided.`,
 				Default:     "",
+			},
+			"log_retention_days": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `This is only applicable for CloudSql resource. Days for which logs will be stored. This value should be greater than or equal to minimum enforced log retention duration of the backup vault.`,
 			},
 			"backup_vault_service_account": {
 				Type:        schema.TypeString,
@@ -266,6 +272,12 @@ func resourceBackupDRBackupPlanCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("backup_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(backupRulesProp)) && (ok || !reflect.DeepEqual(v, backupRulesProp)) {
 		obj["backupRules"] = backupRulesProp
+	}
+	logRetentionDaysProp, err := expandBackupDRBackupPlanLogRetentionDays(d.Get("log_retention_days"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_retention_days"); !tpgresource.IsEmptyValue(reflect.ValueOf(logRetentionDaysProp)) && (ok || !reflect.DeepEqual(v, logRetentionDaysProp)) {
+		obj["logRetentionDays"] = logRetentionDaysProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupPlans/?backup_plan_id={{backup_plan_id}}")
@@ -388,6 +400,9 @@ func resourceBackupDRBackupPlanRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading BackupPlan: %s", err)
 	}
 	if err := d.Set("backup_rules", flattenBackupDRBackupPlanBackupRules(res["backupRules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err := d.Set("log_retention_days", flattenBackupDRBackupPlanLogRetentionDays(res["logRetentionDays"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupPlan: %s", err)
 	}
 
@@ -773,6 +788,23 @@ func flattenBackupDRBackupPlanBackupRulesStandardScheduleBackupWindowEndHourOfDa
 	return v // let terraform core handle it otherwise
 }
 
+func flattenBackupDRBackupPlanLogRetentionDays(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func expandBackupDRBackupPlanDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -986,5 +1018,9 @@ func expandBackupDRBackupPlanBackupRulesStandardScheduleBackupWindowStartHourOfD
 }
 
 func expandBackupDRBackupPlanBackupRulesStandardScheduleBackupWindowEndHourOfDay(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBackupDRBackupPlanLogRetentionDays(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -20,6 +20,7 @@ fields:
   - field: 'dry_run_spec.rules.deny_all'
   - field: 'dry_run_spec.rules.enforce'
   - field: 'dry_run_spec.rules.parameters'
+    json: true
   - field: 'dry_run_spec.rules.values.allowed_values'
   - field: 'dry_run_spec.rules.values.denied_values'
   - field: 'dry_run_spec.update_time'
@@ -38,6 +39,7 @@ fields:
   - field: 'spec.rules.deny_all'
   - field: 'spec.rules.enforce'
   - field: 'spec.rules.parameters'
+    json: true
   - field: 'spec.rules.values.allowed_values'
   - field: 'spec.rules.values.denied_values'
   - field: 'spec.update_time'

@@ -9,6 +9,7 @@ fields:
   - field: 'display_name'
   - field: 'last_test_result.conversation_turns.user_input.enable_sentiment_analysis'
   - field: 'last_test_result.conversation_turns.user_input.injected_parameters'
+    json: true
   - field: 'last_test_result.conversation_turns.user_input.input.dtmf.digits'
   - field: 'last_test_result.conversation_turns.user_input.input.dtmf.finish_digit'
   - field: 'last_test_result.conversation_turns.user_input.input.event.event'
@@ -20,8 +21,10 @@ fields:
   - field: 'last_test_result.conversation_turns.virtual_agent_output.differences.description'
   - field: 'last_test_result.conversation_turns.virtual_agent_output.differences.type'
   - field: 'last_test_result.conversation_turns.virtual_agent_output.session_parameters'
+    json: true
   - field: 'last_test_result.conversation_turns.virtual_agent_output.status.code'
   - field: 'last_test_result.conversation_turns.virtual_agent_output.status.details'
+    json: true
   - field: 'last_test_result.conversation_turns.virtual_agent_output.status.message'
   - field: 'last_test_result.conversation_turns.virtual_agent_output.text_responses.text'
   - field: 'last_test_result.conversation_turns.virtual_agent_output.triggered_intent.display_name'
@@ -37,6 +40,7 @@ fields:
   - field: 'tags'
   - field: 'test_case_conversation_turns.user_input.enable_sentiment_analysis'
   - field: 'test_case_conversation_turns.user_input.injected_parameters'
+    json: true
   - field: 'test_case_conversation_turns.user_input.input.dtmf.digits'
   - field: 'test_case_conversation_turns.user_input.input.dtmf.finish_digit'
   - field: 'test_case_conversation_turns.user_input.input.event.event'
@@ -46,6 +50,7 @@ fields:
   - field: 'test_case_conversation_turns.virtual_agent_output.current_page.display_name'
   - field: 'test_case_conversation_turns.virtual_agent_output.current_page.name'
   - field: 'test_case_conversation_turns.virtual_agent_output.session_parameters'
+    json: true
   - field: 'test_case_conversation_turns.virtual_agent_output.text_responses.text'
   - field: 'test_case_conversation_turns.virtual_agent_output.triggered_intent.display_name'
   - field: 'test_case_conversation_turns.virtual_agent_output.triggered_intent.name'

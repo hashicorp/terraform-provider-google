@@ -23,10 +23,6 @@ description: |-
 
 Create an Endpoint and deploy a Model Garden model to it.
 
-~> **Note:** This resource does not currently support deletion via Terraform and must be manually deleted if not in use.
-See https://cloud.google.com/vertex-ai/docs/predictions/undeploy-model for instructions on how to undeploy a model and delete an endpoint
-via the Google Cloud console.
-
 
 To get more information about EndpointWithModelGardenDeployment, see:
 
@@ -36,7 +32,7 @@ To get more information about EndpointWithModelGardenDeployment, see:
     * [Overview of self-deployed models](https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/self-deployed-models)
     * [Use models in Model Garden](https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/use-models)
 
-## Example Usage - Vertex Ai Deploy
+## Example Usage - Vertex Ai Deploy Basic
 
 
 ```hcl
@@ -47,8 +43,158 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy" {
     accept_eula =  true
   }
 }
+```
+## Example Usage - Vertex Ai Deploy Huggingface Model
 
-data "google_project" "project" {}
+
+```hcl
+resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy" {
+  hugging_face_model_id = "Qwen/Qwen3-0.6B"
+  location             = "us-central1"
+  model_config {
+    accept_eula = true
+  }
+}
+```
+## Example Usage - Vertex Ai Deploy With Configs
+
+
+```hcl
+resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy" {
+  publisher_model_name = "publishers/google/models/paligemma@paligemma-224-float32"
+  location             = "us-central1"
+  model_config {
+    accept_eula =  true
+  }
+  deploy_config {
+    dedicated_resources {
+      machine_spec {
+        machine_type      = "g2-standard-16"
+        accelerator_type  = "NVIDIA_L4"
+        accelerator_count = 1
+      }
+      min_replica_count = 1
+    }
+  }
+}
+```
+## Example Usage - Vertex Ai Deploy Multiple Models In Parallel
+
+
+```hcl
+resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy-gemma-1_1-2b-it" {
+  publisher_model_name = "publishers/google/models/gemma@gemma-1.1-2b-it"
+  location             = "us-central1"
+  model_config {
+    accept_eula = true
+  }
+  deploy_config {
+    dedicated_resources {
+      machine_spec {
+        machine_type      = "g2-standard-12"
+        accelerator_type  = "us-central1"
+        accelerator_count = 1
+      }
+      min_replica_count = 1
+    }
+  }
+}
+
+resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy-qwen3-0_6b" {
+  hugging_face_model_id = "Qwen/Qwen3-0.6B"
+  location             = "us-central1"
+  model_config {
+    accept_eula = true
+  }
+  deploy_config {
+    dedicated_resources {
+      machine_spec {
+        machine_type      = "g2-standard-12"
+        accelerator_type  = "NVIDIA_L4"
+        accelerator_count = 1
+      }
+      min_replica_count = 1
+    }
+  }
+}
+
+resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy-llama-3_2-1b" {
+  publisher_model_name = "publishers/meta/models/llama3-2@llama-3.2-1b"
+  location             = "us-central1"
+  model_config {
+    accept_eula = true
+  }
+  deploy_config {
+    dedicated_resources {
+      machine_spec {
+        machine_type      = "g2-standard-12"
+        accelerator_type  = "NVIDIA_L4"
+        accelerator_count = 1
+      }
+      min_replica_count = 1
+    }
+  }
+}
+```
+## Example Usage - Vertex Ai Deploy Multiple Models In Sequence
+
+
+```hcl
+resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy-gemma-1_1-2b-it" {
+  publisher_model_name = "publishers/google/models/gemma@gemma-1.1-2b-it"
+  location             = "us-central1"
+  model_config {
+    accept_eula = true
+  }
+  deploy_config {
+    dedicated_resources {
+      machine_spec {
+        machine_type      = "g2-standard-12"
+        accelerator_type  = "NVIDIA_L4"
+        accelerator_count = 1
+      }
+      min_replica_count = 1
+    }
+  }
+}
+
+resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy-qwen3-0_6b" {
+  hugging_face_model_id = "Qwen/Qwen3-0.6B"
+  location             = "us-central1"
+  model_config {
+    accept_eula = true
+  }
+  deploy_config {
+    dedicated_resources {
+      machine_spec {
+        machine_type      = "g2-standard-12"
+        accelerator_type  = "NVIDIA_L4"
+        accelerator_count = 1
+      }
+      min_replica_count = 1
+    }
+  }
+  depends_on = [ google_vertex_ai_endpoint_with_model_garden_deployment.deploy-gemma-1_1-2b-it ]
+}
+
+resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy-llama-3_2-1b" {
+  publisher_model_name = "publishers/meta/models/llama3-2@llama-3.2-1b"
+  location             = "us-central1"
+  model_config {
+    accept_eula = true
+  }
+  deploy_config {
+    dedicated_resources {
+      machine_spec {
+        machine_type      = "g2-standard-12"
+        accelerator_type  = "NVIDIA_L4"
+        accelerator_count = 1
+      }
+      min_replica_count = 1
+    }
+  }
+  depends_on = [ google_vertex_ai_endpoint_with_model_garden_deployment.deploy-qwen3-0_6b ]
+}
 ```
 
 ## Argument Reference
@@ -967,6 +1113,15 @@ In addition to the arguments listed above, the following computed attributes are
 * `endpoint` -
   Resource ID segment making up resource `endpoint`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
 
+* `deployed_model_id` -
+  Output only. The unique numeric ID that Vertex AI assigns to the model at the time it is deployed to the endpoint.
+  It is required to undeploy the model from the endpoint during resource deletion as described in
+  https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints/undeployModel.
+
+* `deployed_model_display_name` -
+  Output only. The display name assigned to the model deployed to the endpoint.
+  This is not required to delete the resource but is used for debug logging.
+
 
 ## Timeouts
 
@@ -974,7 +1129,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 180 minutes.
-- `delete` - Default is 0 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

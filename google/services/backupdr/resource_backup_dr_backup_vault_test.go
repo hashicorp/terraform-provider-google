@@ -50,7 +50,7 @@ func TestAccBackupDRBackupVault_fullUpdate(t *testing.T) {
 				ResourceName:            "google_backup_dr_backup_vault.backup-vault-test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_vault_id", "force_delete", "force_update", "ignore_backup_plan_references", "ignore_inactive_datasources", "access_restriction", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_vault_id", "force_delete", "force_update", "ignore_backup_plan_references", "ignore_inactive_datasources", "backup_retention_inheritance", "access_restriction", "labels", "location", "terraform_labels"},
 			},
 			{
 				Config: testAccBackupDRBackupVault_fullUpdate(context),
@@ -59,7 +59,7 @@ func TestAccBackupDRBackupVault_fullUpdate(t *testing.T) {
 				ResourceName:            "google_backup_dr_backup_vault.backup-vault-test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_vault_id", "force_delete", "force_update", "ignore_backup_plan_references", "ignore_inactive_datasources", "access_restriction", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_vault_id", "force_delete", "force_update", "ignore_backup_plan_references", "ignore_inactive_datasources", "backup_retention_inheritance", "access_restriction", "labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -84,6 +84,7 @@ resource "google_backup_dr_backup_vault" "backup-vault-test" {
   force_update = "true"
   ignore_inactive_datasources = "true"
   access_restriction = "WITHIN_ORGANIZATION"
+  backup_retention_inheritance = "INHERIT_VAULT_RETENTION"
   ignore_backup_plan_references = "true"
   allow_missing = "true"
 }
@@ -108,6 +109,7 @@ resource "google_backup_dr_backup_vault" "backup-vault-test" {
   }
   force_update = "true"
   access_restriction = "WITHIN_ORGANIZATION"
+  backup_retention_inheritance = "INHERIT_VAULT_RETENTION"
   ignore_inactive_datasources = "true"
   ignore_backup_plan_references = "true"
   allow_missing = "true"
