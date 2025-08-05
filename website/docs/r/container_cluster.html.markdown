@@ -1283,17 +1283,6 @@ notification_config {
 * `control_plane_disk_encryption_key` - (Optional) The Cloud KMS cryptoKey to use for Confidential Hyperdisk on the control plane nodes.
 * `gkeops_etcd_backup_encryption_key` - (Optional) Resource path of the Cloud KMS cryptoKey to use for encryption of internal etcd backups.
 
-<a name="nested_user_managed_keys_config"></a>The `user_managed_keys_config` block supports:
-
-* `cluster_ca` - (Optional) The Certificate Authority Service caPool to use for the cluster CA in this cluster.
-* `etcd_api_ca` - (Optional) The Certificate Authority Service caPool to use for the etcd API CA in this cluster.
-* `etcd_peer_ca` - (Optional) The Certificate Authority Service caPool to use for the etcd peer CA in this cluster.
-* `aggregation_ca` - (Optional) The Certificate Authority Service caPool to use for the aggreation CA in this cluster.
-* `service_account_signing_keys` - (Optional) The Cloud KMS cryptoKeyVersions to use for signing service account JWTs issued by this cluster.
-* `service_account_verification_keys` - (Optional) The Cloud KMS cryptoKeyVersions to use for verifying service account JWTs issued by this cluster.
-* `control_plane_disk_encryption_key` - (Optional) The Cloud KMS cryptoKey to use for Confidential Hyperdisk on the control plane nodes.
-* `gkeops_etcd_backup_encryption_key` - (Optional) Resource path of the Cloud KMS cryptoKey to use for encryption of internal etcd backups.
-
 <a name="nested_control_plane_endpoints_config"></a>The `control_plane_endpoints_config` block supports:
 
 * `dns_endpoint_config` - (Optional) DNS endpoint configuration.
