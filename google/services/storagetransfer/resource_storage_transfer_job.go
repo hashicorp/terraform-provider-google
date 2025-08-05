@@ -760,6 +760,11 @@ func awsS3DataSchema() *schema.Resource {
 				Optional:    true,
 				Description: `Egress bytes over a Google-managed private network. This network is shared between other users of Storage Transfer Service.`,
 			},
+			"cloudfront_domain": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The CloudFront distribution domain name pointing to this bucket, to use when fetching. See [Transfer from S3 via CloudFront](https://cloud.google.com/storage-transfer/docs/s3-cloudfront) for more information. Format: https://{id}.cloudfront.net or any valid custom domain. Must begin with https://.`,
+			},
 		},
 	}
 }
@@ -1328,6 +1333,10 @@ func expandAwsS3Data(awsS3Datas []interface{}) *storagetransfer.AwsS3Data {
 		result.ManagedPrivateNetwork = v.(bool)
 	}
 
+	if v, ok := awsS3Data["cloudfront_domain"]; ok {
+		result.CloudfrontDomain = v.(string)
+	}
+
 	return result
 }
 
@@ -1343,6 +1352,10 @@ func flattenAwsS3Data(awsS3Data *storagetransfer.AwsS3Data, d *schema.ResourceDa
 
 	if awsS3Data.ManagedPrivateNetwork {
 		data["managed_private_network"] = awsS3Data.ManagedPrivateNetwork
+	}
+
+	if awsS3Data.CloudfrontDomain != "" {
+		data["cloudfront_domain"] = awsS3Data.CloudfrontDomain
 	}
 
 	return []map[string]interface{}{data}
