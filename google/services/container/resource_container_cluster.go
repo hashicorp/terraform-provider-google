@@ -2247,7 +2247,6 @@ func ResourceContainerCluster() *schema.Resource {
 			"user_managed_keys_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				MaxItems:    1,
 				Description: `The custom keys configuration of the cluster.`,
 				Elem: &schema.Resource{
@@ -2255,21 +2254,25 @@ func ResourceContainerCluster() *schema.Resource {
 						"cluster_ca": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							ForceNew:    true,
 							Description: `The Certificate Authority Service caPool to use for the cluster CA in this cluster.`,
 						},
 						"etcd_api_ca": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							ForceNew:    true,
 							Description: `The Certificate Authority Service caPool to use for the etcd API CA in this cluster.`,
 						},
 						"etcd_peer_ca": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							ForceNew:    true,
 							Description: `The Certificate Authority Service caPool to use for the etcd peer CA in this cluster.`,
 						},
 						"aggregation_ca": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							ForceNew:    true,
 							Description: `The Certificate Authority Service caPool to use for the aggreation CA in this cluster.`,
 						},
 						"service_account_signing_keys": {
@@ -4832,6 +4835,21 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
 		return err
+	}
+
+	if d.HasChange("user_managed_keys_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredUserManagedKeysConfig: expandUserManagedKeysConfig(d.Get("user_managed_keys_config")),
+			},
+		}
+
+		updateF := updateFunc(req, "updating user managed keys config")
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s user managed keys config has been updated to %#v", d.Id(), req.Update.DesiredUserManagedKeysConfig)
 	}
 
 	return resourceContainerClusterRead(d, meta)

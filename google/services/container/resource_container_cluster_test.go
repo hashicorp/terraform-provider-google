@@ -5575,7 +5575,6 @@ func TestAccContainerCluster_WithCPAFeatures(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				// We are only supporting CPA features on create for now.
 				Config: testAccContainerCluster_EnableCPAFeatures(context),
 			},
 			{
@@ -13266,6 +13265,140 @@ resource "google_container_cluster" "primary" {
   }
 }
  `, name, networkName, subnetworkName, mode)
+}
+
+func TestAccContainerCluster_WithCPAFeaturesUpdate(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", suffix)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	// Bootstrap KMS keys and needed IAM role.
+	diskKey := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "control-plane-disk-encryption")
+	signingKey1 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ASYMMETRIC_SIGN", "us-central1", "rs256-service-account-signing-1")
+	signingKey2 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ASYMMETRIC_SIGN", "us-central1", "rs256-service-account-signing-2")
+	backupKey := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "etcd-backups")
+
+	// Here, we are granting the container engine service agent permissions on
+	// *ALL* Cloud KMS keys in the project.  A more realistic usage would be to
+	// grant the service agent the necessary roles only on the individual keys
+	// we have created.
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@container-engine-robot.iam.gserviceaccount.com",
+			Role:   "roles/container.cloudKmsKeyUser",
+		},
+		{
+			Member: "serviceAccount:service-{project_number}@container-engine-robot.iam.gserviceaccount.com",
+			Role:   "roles/privateca.certificateManager",
+		},
+		{
+			Member: "serviceAccount:service-{project_number}@container-engine-robot.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+		{
+			Member: "serviceAccount:service-{project_number}@container-engine-robot.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypterViaDelegation",
+		},
+	})
+
+	// Find an active cryptoKeyVersion on the signing key.
+	var signingCryptoKeyVersion1 *cloudkms.CryptoKeyVersion
+	for _, ckv := range signingKey1.CryptoKeyVersions {
+		if ckv.State == "ENABLED" && ckv.Algorithm == "RSA_SIGN_PKCS1_4096_SHA256" {
+			signingCryptoKeyVersion1 = ckv
+		}
+	}
+	if signingCryptoKeyVersion1 == nil {
+		t.Fatal("Didn't find an appropriate cryptoKeyVersion for signingCryptoKeyVersion1 to use as the service account signing key")
+	}
+
+	var signingCryptoKeyVersion2 *cloudkms.CryptoKeyVersion
+	for _, ckv := range signingKey2.CryptoKeyVersions {
+		if ckv.State == "ENABLED" && ckv.Algorithm == "RSA_SIGN_PKCS1_4096_SHA256" {
+			signingCryptoKeyVersion2 = ckv
+		}
+	}
+	if signingCryptoKeyVersion2 == nil {
+		t.Fatal("Didn't find an appropriate cryptoKeyVersion for signingCryptoKeyVersion2 to use as the service account signing key")
+	}
+
+	context := map[string]interface{}{
+		"resource_name":            clusterName,
+		"networkName":              networkName,
+		"subnetworkName":           subnetworkName,
+		"disk_key":                 diskKey.CryptoKey.Name,
+		"backup_key":               backupKey.CryptoKey.Name,
+		"signing_cryptokeyversion": signingCryptoKeyVersion1.Name,
+		"random_suffix":            suffix,
+	}
+
+	updateContext := map[string]interface{}{
+		"resource_name":            clusterName,
+		"networkName":              networkName,
+		"subnetworkName":           subnetworkName,
+		"disk_key":                 diskKey.CryptoKey.Name,
+		"backup_key":               backupKey.CryptoKey.Name,
+		"signing_cryptokeyversion": signingCryptoKeyVersion2.Name,
+		"random_suffix":            suffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_EnableCPAFeaturesWithSAkeys(context),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_cpa_features",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_EnableCPAFeaturesWithSAkeys(updateContext),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_cluster.with_cpa_features", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_cpa_features",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_EnableCPAFeaturesWithSAkeys(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+		resource "google_container_cluster" "with_cpa_features" {
+			name               = "%{resource_name}"
+			location           = "us-central1-a"
+			initial_node_count = 1
+			release_channel {
+				channel = "RAPID"
+			}
+			user_managed_keys_config {
+				service_account_signing_keys = [
+					"%{signing_cryptokeyversion}",
+				]
+				service_account_verification_keys = [
+					"%{signing_cryptokeyversion}",
+				]
+			}
+			deletion_protection = false
+			network    = "%{networkName}"
+			subnetwork    = "%{subnetworkName}"
+		}
+		`, context)
 }
 
 func TestAccContainerCluster_RbacBindingConfig(t *testing.T) {
