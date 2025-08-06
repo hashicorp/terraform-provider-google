@@ -10426,28 +10426,24 @@ resource "google_container_cluster" "primary" {
   min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
   initial_node_count = 1
 
-  # This feature has been available since GKE 1.27, and currently the only
-  # supported Beta API is authentication.k8s.io/v1beta1/selfsubjectreviews.
-  # However, in the future, more Beta APIs will be supported, such as the
-  # resource.k8s.io group. At the same time, some existing Beta APIs will be
-  # deprecated as the feature will be GAed, and the Beta API will be eventually
-  # removed. In the case of the SelfSubjectReview API, it is planned to be GAed
-  # in Kubernetes as of 1.28. And, the Beta API of SelfSubjectReview will be removed
-  # after at least 3 minor version bumps, so it will be removed as of Kubernetes 1.31
-  # or later.
-  # https://pr.k8s.io/117713
+  # Some existing Beta APIs will be deprecated as the feature will be GAed,
+  # and the Beta API will be eventually removed. In the case of the ResourceClaims
+  # and its depended APIs, they are GAed in Kubernetes as of 1.34. And, the Beta APIs
+  # will be removed after at least 3 minor version bumps, so it will be removed as
+  # of Kubernetes 1.37 or later.
+  # https://pr.k8s.io/132706
   # https://kubernetes.io/docs/reference/using-api/deprecation-guide/
-  #
-  # The new Beta APIs will be available since GKE 1.28
-  # - admissionregistration.k8s.io/v1beta1/validatingadmissionpolicies
-  # - admissionregistration.k8s.io/v1beta1/validatingadmissionpolicybindings
-  # https://pr.k8s.io/118644
   #
   # Removing the Beta API from Kubernetes will break the test.
   # TODO: Replace the Beta API with one available on the version of GKE
   # if the test is broken.
   enable_k8s_beta_apis {
-    enabled_apis = ["authentication.k8s.io/v1beta1/selfsubjectreviews"]
+    enabled_apis = [
+	  "resource.k8s.io/v1beta1/deviceclasses",
+	  "resource.k8s.io/v1beta1/resourceclaims",
+	  "resource.k8s.io/v1beta1/resourceclaimtemplates",
+	  "resource.k8s.io/v1beta1/resourceslices"
+	]
   }
   network    = "%s"
   subnetwork = "%s"
