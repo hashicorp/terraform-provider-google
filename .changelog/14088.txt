@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added `node_count` field to `sql_database_instance` resource, and added new value `READ_POOL_INSTANCE` to the `instance_type` field of `sql_database_instance` resource
+```
