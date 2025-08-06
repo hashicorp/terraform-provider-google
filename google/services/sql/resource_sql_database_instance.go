@@ -330,7 +330,16 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 settings.backup_configuration.enabled is set to true.
 For MySQL instances, ensure that settings.backup_configuration.binary_log_enabled is set to true.
 For Postgres instances, ensure that settings.backup_configuration.point_in_time_recovery_enabled
-is set to true. Defaults to ZONAL.`,
+is set to true. Defaults to ZONAL.
+For read pool instances, this field is read-only. The availability type is changed by specifying
+the number of nodes (node_count).`,
+						},
+						"effective_availability_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The availability type of the Cloud SQL instance, high availability
+(REGIONAL) or single zone (ZONAL). This field always contains the value that is reported by the
+API (for read pools, effective_availability_type may differ from availability_type).`,
 						},
 						"backup_configuration": {
 							Type:     schema.TypeList,
@@ -881,7 +890,14 @@ is set to true. Defaults to ZONAL.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
-				Description: `The type of the instance. The valid values are:- 'SQL_INSTANCE_TYPE_UNSPECIFIED', 'CLOUD_SQL_INSTANCE', 'ON_PREMISES_INSTANCE' and 'READ_REPLICA_INSTANCE'.`,
+				Description: `The type of the instance. See https://cloud.google.com/sql/docs/mysql/admin-api/rest/v1/instances#SqlInstanceType for supported values.`,
+			},
+
+			"node_count": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				Description: `For a read pool instance, the number of nodes in the read pool.`,
 			},
 
 			"replica_configuration": {
@@ -1262,6 +1278,10 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	if _, ok := d.GetOk("instance_type"); ok {
 		instance.InstanceType = d.Get("instance_type").(string)
+	}
+
+	if _, ok := d.GetOk("node_count"); ok {
+		instance.NodeCount = int64(d.Get("node_count").(int))
 	}
 
 	instance.RootPassword = d.Get("root_password").(string)
@@ -1848,10 +1868,12 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("instance_type", instance.InstanceType); err != nil {
 		return fmt.Errorf("Error setting instance_type: %s", err)
 	}
-	if err := d.Set("settings", flattenSettings(instance.Settings, d)); err != nil {
+	if err := d.Set("node_count", instance.NodeCount); err != nil {
+		return fmt.Errorf("Error setting node_count: %s", err)
+	}
+	if err := d.Set("settings", flattenSettings(instance.Settings, instance.InstanceType, d)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Settings")
 	}
-
 	if instance.DiskEncryptionConfiguration != nil {
 		if err := d.Set("encryption_key_name", instance.DiskEncryptionConfiguration.KmsKeyName); err != nil {
 			return fmt.Errorf("Error setting encryption_key_name: %s", err)
@@ -2199,6 +2221,10 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		instance.InstanceType = d.Get("instance_type").(string)
 	}
 
+	if _, ok := d.GetOk("node_count"); ok {
+		instance.NodeCount = int64(d.Get("node_count").(int))
+	}
+
 	// Database Version is required for all calls with Google ML integration enabled or it will be rejected by the API.
 	if d.Get("settings.0.enable_google_ml_integration").(bool) || len(_settings["connection_pool_config"].(*schema.Set).List()) > 0 {
 		instance.DatabaseVersion = databaseVersion
@@ -2358,13 +2384,14 @@ func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{})
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSettings(settings *sqladmin.Settings, d *schema.ResourceData) []map[string]interface{} {
+func flattenSettings(settings *sqladmin.Settings, iType string, d *schema.ResourceData) []map[string]interface{} {
 	data := map[string]interface{}{
 		"version":                     settings.SettingsVersion,
 		"tier":                        settings.Tier,
 		"edition":                     flattenEdition(settings.Edition),
 		"activation_policy":           settings.ActivationPolicy,
-		"availability_type":           settings.AvailabilityType,
+		"availability_type":           d.Get("settings.0.availability_type"),
+		"effective_availability_type": settings.AvailabilityType,
 		"collation":                   settings.Collation,
 		"connector_enforcement":       settings.ConnectorEnforcement,
 		"disk_type":                   settings.DataDiskType,
@@ -2375,6 +2402,18 @@ func flattenSettings(settings *sqladmin.Settings, d *schema.ResourceData) []map[
 		"time_zone":                   settings.TimeZone,
 		"deletion_protection_enabled": settings.DeletionProtectionEnabled,
 		"retain_backups_on_delete":    settings.RetainBackupsOnDelete,
+	}
+
+	if data["availability_type"] == "" {
+		data["availability_type"] = "ZONAL"
+	}
+	// For read pools, availability type is server managed. Above, we
+	// pull it from the old TF resource so that it never shows a
+	// diff. Now, here, for non-pool instances, we overwrite it with the
+	// value obtained from the API (which would be the typical way to
+	// populate the field).
+	if iType != "READ_POOL_INSTANCE" {
+		data["availability_type"] = settings.AvailabilityType
 	}
 
 	if settings.ActiveDirectoryConfig != nil {

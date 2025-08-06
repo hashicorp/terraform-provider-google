@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -3002,6 +3003,189 @@ func TestAccSqlDatabaseInstance_PostgresSwitchoverSuccess(t *testing.T) {
 	})
 }
 
+// Read pool for Postgres. Scale out (change node count)
+func TestAccSqlDatabaseInstance_PostgresReadPoolScaleOutSuccess(t *testing.T) {
+	t.Parallel()
+	primaryName := "tf-test-pg-readpool-primary-" + acctest.RandString(t, 10)
+	readPoolName := "tf-test-pg-readpool-" + acctest.RandString(t, 10)
+	project := envvar.GetTestProjectFromEnv()
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType: "POSTGRES_15",
+					ReplicaName:  readPoolName,
+					NodeCount:    1,
+				}),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-read-pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType: "POSTGRES_15",
+					ReplicaName:  readPoolName,
+					NodeCount:    2,
+				}),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-read-pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+// Read pool for Postgres. Scale up (change machine type)
+func TestAccSqlDatabaseInstance_PostgresReadPoolScaleUpSuccess(t *testing.T) {
+	t.Parallel()
+	primaryName := "tf-test-pg-readpool-mtc-primary-" + acctest.RandString(t, 10)
+	readPoolName := "tf-test-pg-readpool-mtc-" + acctest.RandString(t, 10)
+	project := envvar.GetTestProjectFromEnv()
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:       "POSTGRES_15",
+					ReplicaName:        readPoolName,
+					NodeCount:          1,
+					ReplicaMachineType: "db-perf-optimized-N-2",
+				}),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-read-pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:       "POSTGRES_15",
+					ReplicaName:        readPoolName,
+					NodeCount:          1,
+					ReplicaMachineType: "db-perf-optimized-N-4",
+				}),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-read-pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+// Read pool for MySQL. Enable and disable read pool
+func TestAccSqlDatabaseInstance_MysqlReadPoolEnableDisableSuccess(t *testing.T) {
+	t.Parallel()
+	primaryName := "tf-test-mysql-readpool-primary-" + acctest.RandString(t, 10)
+	readPoolName := "tf-test-mysql-readpool-" + acctest.RandString(t, 10)
+	project := envvar.GetTestProjectFromEnv()
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType: "MYSQL_8_0",
+					ReplicaName:  readPoolName,
+					InstanceType: "READ_REPLICA_INSTANCE",
+				}),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-read-pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			// Enable read pool
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType: "MYSQL_8_0",
+					ReplicaName:  readPoolName,
+					InstanceType: "READ_POOL_INSTANCE",
+					NodeCount:    1,
+				}),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-read-pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			// Disable read pool
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType: "MYSQL_8_0",
+					ReplicaName:  readPoolName,
+					InstanceType: "READ_REPLICA_INSTANCE",
+				}),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-read-pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_updateSslOptionsForPostgreSQL(t *testing.T) {
 	t.Parallel()
 
@@ -4728,6 +4912,81 @@ resource "google_sql_database_instance" "original-replica" {
   }
 }
 `, project, replicaName)
+}
+
+type ReadPoolConfig struct {
+	DatabaseType string
+	ReplicaName  string
+	// InstanceType specifies the instance type of the replica,
+	// defaulting to READ_POOL_INSTANCE.
+	//
+	// Despite the naming of this struct, you can also set it to
+	// READ_REPLICA_INSTANCE to create an ordinary read replica in order
+	// to test enable/disable pool scenarios.
+	InstanceType string
+	NodeCount    int64
+	// ReplicaMachineType gives the machine type of the read pool nodes
+	// or read replica. It defaults to db-perf-optimized-N-2.
+	ReplicaMachineType string
+}
+
+func testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName string, rpconfig ReadPoolConfig) string {
+	nodeCountStr := ""
+	if rpconfig.NodeCount > 0 {
+		nodeCountStr = fmt.Sprintf(`  node_count = %d
+`, rpconfig.NodeCount)
+	}
+
+	if rpconfig.InstanceType == "" {
+		rpconfig.InstanceType = "READ_POOL_INSTANCE"
+	}
+
+	if rpconfig.ReplicaMachineType == "" {
+		rpconfig.ReplicaMachineType = "db-perf-optimized-N-2"
+	}
+
+	primaryTxnLogs := ""
+	if strings.HasPrefix(rpconfig.DatabaseType, "MYSQL") {
+		primaryTxnLogs = "binary_log_enabled = true\n"
+	} else if strings.HasPrefix(rpconfig.DatabaseType, "POSTGRES") {
+		primaryTxnLogs = "point_in_time_recovery_enabled = true\n"
+	}
+
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "original-primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "%s"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      enabled                        = true
+%s
+    }
+  }
+}
+
+resource "google_sql_database_instance" "original-read-pool" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-east1"
+  database_version     = "%s"
+  instance_type        = "%s"
+%s
+  master_instance_name = google_sql_database_instance.original-primary.name
+  deletion_protection  = false
+
+  settings {
+    tier              = "%s"
+    edition           = "ENTERPRISE_PLUS"
+  }
+}
+`, project, primaryName, rpconfig.DatabaseType, primaryTxnLogs, project, rpconfig.ReplicaName, rpconfig.DatabaseType, rpconfig.InstanceType, nodeCountStr, rpconfig.ReplicaMachineType)
 }
 
 func testAccSqlDatabaseInstance_basicInstanceForPsc(instanceName string, projectId string, orgId string, billingAccount string) string {
