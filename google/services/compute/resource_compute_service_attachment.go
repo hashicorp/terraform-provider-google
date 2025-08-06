@@ -920,14 +920,6 @@ func expandComputeServiceAttachmentTargetService(v interface{}, d tpgresource.Te
 		return nil, fmt.Errorf("invalid value for target_service")
 	}
 
-	resourceKind := resource[len(resource)-2]
-	resourceBound := resource[len(resource)-4]
-
-	_, err := tpgresource.ParseRegionalFieldValue(resourceKind, v.(string), "project", resourceBound, "zone", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("invalid value for target_service: %w", err)
-	}
-
 	return v, nil
 }
 
