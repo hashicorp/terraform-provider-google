@@ -66,8 +66,6 @@ var configs map[string]*transport_tpg.Config
 
 var sources map[string]VcrSource
 
-var diffFlag = "[Diff]"
-
 // VcrSource is a source for a given VCR test with the value that seeded it
 type VcrSource struct {
 	seed   int64
