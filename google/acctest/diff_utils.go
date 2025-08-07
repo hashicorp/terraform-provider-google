@@ -32,6 +32,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
+const diffTag = "[Diff]"
+
 func isReleaseDiffEnabled() bool {
 	releaseDiff := os.Getenv("RELEASE_DIFF")
 	return releaseDiff != ""
@@ -94,7 +96,7 @@ func InsertDiffSteps(c resource.TestCase, tempOutputFile *os.File, releaseProvid
 			testStep.Config = ReformConfigWithProvider(ogConfig, localProviderName)
 			fmt.Fprintf(tempOutputFile, "[DEBUG] Reformatted config: %s\n", testStep.Config)
 			testStep.PreConfig = func() {
-				fmt.Fprintf(tempOutputFile, "%s Step %d\n", diffFlag, countSteps)
+				fmt.Fprintf(tempOutputFile, "%s Step %d\n", diffTag, countSteps)
 			}
 			if testStep.ExpectError == nil && !testStep.PlanOnly {
 				newStep := resource.TestStep{
@@ -170,7 +172,7 @@ func ParseReleaseDiffOutput(output string) (isDiff bool) {
 	lines := strings.Split(trimmedOutput, "\n")
 	lastLine := lines[len(lines)-1]
 
-	isDiff = strings.HasPrefix(lastLine, diffFlag)
+	isDiff = strings.HasPrefix(lastLine, diffTag)
 
 	return isDiff
 }
@@ -208,8 +210,8 @@ func writeOutputFileDeferFunction(tempOutputFile *os.File, failed bool) {
 	if failed {
 		// Check if the output line starts with "[Diff]"
 		if isDiff {
-			fmt.Fprintf(os.Stdout, "%s Breaking Change Detected] \n", diffFlag)
-			fmt.Fprintf(diffFailureFile, "%s %s\n", diffFlag, testOutput)
+			fmt.Fprintf(os.Stdout, "%s Breaking Change Detected] \n", diffTag)
+			fmt.Fprintf(diffFailureFile, "%s %s\n", diffTag, testOutput)
 		} else {
 			fmt.Fprintf(regularFailureFile, testOutput)
 			fmt.Fprintf(regularFailureFile, "FAILED --- %s\n", testOutput)
