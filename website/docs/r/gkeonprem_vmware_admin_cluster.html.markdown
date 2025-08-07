@@ -182,8 +182,9 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-metallb" {
   location = "us-west1"
   description = "test admin cluster"
   bootstrap_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
-  on_prem_version = "1.31.0-gke.35"
+  on_prem_version = "1.33.0-gke.35"
   image_type = "ubuntu_containerd"
+  enable_advanced_cluster = true
   vcenter {
     resource_pool = "test resource pool"
     datastore = "test data store"
@@ -310,6 +311,10 @@ The following arguments are supported:
   (Optional)
   The VMware platform configuration.
   Structure is [documented below](#nested_platform_config).
+
+* `enable_advanced_cluster` -
+  (Optional)
+  If set, the advanced cluster feature is enabled.
 
 * `private_registry_config` -
   (Optional)
@@ -800,9 +805,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `status` -
   ResourceStatus representing detailed cluster state.
   Structure is [documented below](#nested_status).
-
-* `enable_advanced_cluster` -
-  If set, the advanced cluster feature is enabled.
 
 * `effective_annotations` -
   All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
