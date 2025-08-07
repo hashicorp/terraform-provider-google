@@ -140,9 +140,9 @@ func listAndActionSecurityCenterV2ProjectMuteConfig(action sweeper.ResourceActio
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["projectMuteConfigs"]
+		resourceList, ok := res["muteConfigs"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'projectMuteConfigs'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'muteConfigs'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

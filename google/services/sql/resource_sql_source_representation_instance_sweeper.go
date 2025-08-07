@@ -145,9 +145,9 @@ func listAndActionSQLSourceRepresentationInstance(action sweeper.ResourceAction)
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["sourceRepresentationInstances"]
+		resourceList, ok := res["databaseInstances"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'sourceRepresentationInstances'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'databaseInstances'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

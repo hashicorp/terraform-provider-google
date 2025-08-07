@@ -152,9 +152,9 @@ func listAndActionComputeRegionSecurityPolicy(action sweeper.ResourceAction) err
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["regionSecurityPolicies"]
+		resourceList, ok := res["securityPolicies"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'regionSecurityPolicies'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'securityPolicies'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]
