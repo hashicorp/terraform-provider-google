@@ -570,6 +570,78 @@ This field is only used with l4 load balancing.`,
 					},
 				},
 			},
+			"ha_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Configures self-managed High Availability (HA) for External and Internal Protocol Forwarding.
+The backends of this regional backend service must only specify zonal network endpoint groups
+(NEGs) of type GCE_VM_IP. Note that haPolicy is not for load balancing, and therefore cannot
+be specified with sessionAffinity, connectionTrackingPolicy, and failoverPolicy. haPolicy
+requires customers to be responsible for tracking backend endpoint health and electing a
+leader among the healthy endpoints. Therefore, haPolicy cannot be specified with healthChecks.
+haPolicy can only be specified for External Passthrough Network Load Balancers and Internal
+Passthrough Network Load Balancers.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"fast_ip_move": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "GARP_RA", ""}),
+							Description: `Specifies whether fast IP move is enabled, and if so, the mechanism to achieve it.
+Supported values are:
+
+* 'DISABLED': Fast IP Move is disabled. You can only use the haPolicy.leader API to
+              update the leader.
+
+* 'GARP_RA': Provides a method to very quickly define a new network endpoint as the
+             leader. This method is faster than updating the leader using the
+             haPolicy.leader API. Fast IP move works as follows: The VM hosting the
+             network endpoint that should become the new leader sends either a
+             Gratuitous ARP (GARP) packet (IPv4) or an ICMPv6 Router Advertisement(RA)
+             packet (IPv6). Google Cloud immediately but temporarily associates the
+             forwarding rule IP address with that VM, and both new and in-flight packets
+             are quickly delivered to that VM. Possible values: ["DISABLED", "GARP_RA"]`,
+						},
+						"leader": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Selects one of the network endpoints attached to the backend NEGs of this service as the
+active endpoint (the leader) that receives all traffic.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"backend_group": {
+										Type:             schema.TypeString,
+										Optional:         true,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+										Description: `A fully-qualified URL of the zonal Network Endpoint Group (NEG) that the leader is
+attached to.`,
+									},
+									"network_endpoint": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `The network endpoint within the leader.backendGroup that is designated as the leader.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"instance": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `The name of the VM instance of the leader network endpoint. The instance must
+already be attached to the NEG specified in the haPolicy.leader.backendGroup.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				ConflictsWith: []string{"session_affinity", "failover_policy", "health_checks"},
+			},
 			"health_checks": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -1357,6 +1429,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
 	}
+	haPolicyProp, err := expandComputeRegionBackendServiceHaPolicy(d.Get("ha_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ha_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(haPolicyProp)) && (ok || !reflect.DeepEqual(v, haPolicyProp)) {
+		obj["haPolicy"] = haPolicyProp
+	}
 	regionProp, err := expandComputeRegionBackendServiceRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
@@ -1572,6 +1650,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	if err := d.Set("network", flattenComputeRegionBackendServiceNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
+	if err := d.Set("ha_policy", flattenComputeRegionBackendServiceHaPolicy(res["haPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
 	if err := d.Set("region", flattenComputeRegionBackendServiceRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
@@ -1747,6 +1828,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
+	}
+	haPolicyProp, err := expandComputeRegionBackendServiceHaPolicy(d.Get("ha_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ha_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, haPolicyProp)) {
+		obj["haPolicy"] = haPolicyProp
 	}
 	regionProp, err := expandComputeRegionBackendServiceRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -3094,6 +3181,64 @@ func flattenComputeRegionBackendServiceNetwork(v interface{}, d *schema.Resource
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeRegionBackendServiceHaPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["fast_ip_move"] =
+		flattenComputeRegionBackendServiceHaPolicyFastIPMove(original["fastIPMove"], d, config)
+	transformed["leader"] =
+		flattenComputeRegionBackendServiceHaPolicyLeader(original["leader"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceHaPolicyFastIPMove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceHaPolicyLeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["backend_group"] =
+		flattenComputeRegionBackendServiceHaPolicyLeaderBackendGroup(original["backendGroup"], d, config)
+	transformed["network_endpoint"] =
+		flattenComputeRegionBackendServiceHaPolicyLeaderNetworkEndpoint(original["networkEndpoint"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceHaPolicyLeaderBackendGroup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeRegionBackendServiceHaPolicyLeaderNetworkEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["instance"] =
+		flattenComputeRegionBackendServiceHaPolicyLeaderNetworkEndpointInstance(original["instance"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceHaPolicyLeaderNetworkEndpointInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionBackendServiceRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -4233,6 +4378,89 @@ func expandComputeRegionBackendServiceNetwork(v interface{}, d tpgresource.Terra
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeRegionBackendServiceHaPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedFastIPMove, err := expandComputeRegionBackendServiceHaPolicyFastIPMove(original["fast_ip_move"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFastIPMove); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fastIPMove"] = transformedFastIPMove
+	}
+
+	transformedLeader, err := expandComputeRegionBackendServiceHaPolicyLeader(original["leader"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLeader); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["leader"] = transformedLeader
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceHaPolicyFastIPMove(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceHaPolicyLeader(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBackendGroup, err := expandComputeRegionBackendServiceHaPolicyLeaderBackendGroup(original["backend_group"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBackendGroup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["backendGroup"] = transformedBackendGroup
+	}
+
+	transformedNetworkEndpoint, err := expandComputeRegionBackendServiceHaPolicyLeaderNetworkEndpoint(original["network_endpoint"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetworkEndpoint); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["networkEndpoint"] = transformedNetworkEndpoint
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceHaPolicyLeaderBackendGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceHaPolicyLeaderNetworkEndpoint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInstance, err := expandComputeRegionBackendServiceHaPolicyLeaderNetworkEndpointInstance(original["instance"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInstance); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["instance"] = transformedInstance
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceHaPolicyLeaderNetworkEndpointInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeRegionBackendServiceRegion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
