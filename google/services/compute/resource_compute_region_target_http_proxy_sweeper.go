@@ -144,9 +144,9 @@ func listAndActionComputeRegionTargetHttpProxy(action sweeper.ResourceAction) er
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["regionTargetHttpProxies"]
+		resourceList, ok := res["targetHttpProxies"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'regionTargetHttpProxies'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'targetHttpProxies'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

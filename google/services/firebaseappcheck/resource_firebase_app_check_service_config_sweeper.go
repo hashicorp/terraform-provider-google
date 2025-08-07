@@ -142,9 +142,9 @@ func listAndActionFirebaseAppCheckServiceConfig(action sweeper.ResourceAction) e
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["serviceConfigs"]
+		resourceList, ok := res["services"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'serviceConfigs'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'services'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]
