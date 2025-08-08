@@ -287,25 +287,24 @@ to a different credential configuration in the config will require an apply to u
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"secret_access_key": {
-							Type:          schema.TypeString,
-							Optional:      true,
-							Description:   `The Secret Access Key of the AWS account transferring data from.`,
-							Sensitive:     true,
-							ConflictsWith: []string{"sensitive_params.0.secret_access_key_wo"},
-							AtLeastOneOf:  []string{"sensitive_params.0.secret_access_key", "sensitive_params.0.secret_access_key_wo"},
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The Secret Access Key of the AWS account transferring data from.`,
+							Sensitive:   true,
 						},
 						"secret_access_key_wo": {
-							Type:          schema.TypeString,
-							Optional:      true,
-							Description:   `The Secret Access Key of the AWS account transferring data from.`,
-							WriteOnly:     true,
-							ConflictsWith: []string{"sensitive_params.0.secret_access_key"},
-							AtLeastOneOf:  []string{"sensitive_params.0.secret_access_key_wo", "sensitive_params.0.secret_access_key"},
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The Secret Access Key of the AWS account transferring data from.
+ Note: This property is write-only and will not be read from the API. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)`,
+							WriteOnly:    true,
+							ExactlyOneOf: []string{"sensitive_params.0.secret_access_key", "sensitive_params.0.secret_access_key_wo"},
+							RequiredWith: []string{"sensitive_params.0.secret_access_key_wo_version"},
 						},
 						"secret_access_key_wo_version": {
-							Type:         schema.TypeInt,
+							Type:         schema.TypeString,
 							Optional:     true,
-							Description:  `The version of the sensitive params - used to trigger updates of the write-only params. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)`,
+							Description:  `Triggers update of secret_access_key_wo write-only. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)`,
 							RequiredWith: []string{"sensitive_params.0.secret_access_key_wo"},
 						},
 					},
