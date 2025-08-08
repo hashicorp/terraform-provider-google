@@ -1310,7 +1310,7 @@ The following arguments are supported:
   region. If not provided, defaults to the same region as the function.
 
 * `event_type` -
-  (Optional)
+  (Required)
   Required. The type of event to observe.
 
 * `event_filters` -
