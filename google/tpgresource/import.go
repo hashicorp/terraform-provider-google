@@ -37,25 +37,15 @@ import (
 func ParseImportId(idRegexes []string, d TerraformResourceData, config *transport_tpg.Config) error {
 	for _, idFormat := range idRegexes {
 		re, err := regexp.Compile(idFormat)
-
 		if err != nil {
 			log.Printf("[DEBUG] Could not compile %s.", idFormat)
 			return fmt.Errorf("Import is not supported. Invalid regex formats.")
 		}
-
-		if d.Id() == "" {
-			identity, err := d.Identity()
-			if err != nil {
-				return err
-			}
-			if err := identityImport(re, identity, idFormat, d); err != nil {
-				return err
-			}
-			err = setDefaultValues(idRegexes[0], identity, d, config)
-			if err != nil {
-				return err
-			}
-		} else if fieldValues := re.FindStringSubmatch(d.Id()); fieldValues != nil {
+		identity, err := d.Identity()
+		if err != nil {
+			return err
+		}
+		if fieldValues := re.FindStringSubmatch(d.Id()); fieldValues != nil {
 			log.Printf("[DEBUG] matching ID %s to regex %s.", d.Id(), idFormat)
 			// Starting at index 1, the first match is the full string.
 			for i := 1; i < len(fieldValues); i++ {
@@ -76,12 +66,22 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 					if err = d.Set(fieldName, fieldValue); err != nil {
 						return err
 					}
+					if identity != nil {
+						if err = identity.Set(fieldName, fieldValue); err != nil {
+							return err
+						}
+					}
 				} else if _, ok := val.(int); ok {
 					if intVal, atoiErr := strconv.Atoi(fieldValue); atoiErr == nil {
 						// If the value can be parsed as an integer, we try to set the
 						// value as an integer.
 						if err = d.Set(fieldName, intVal); err != nil {
 							return err
+						}
+						if identity != nil {
+							if err = identity.Set(fieldName, intVal); err != nil {
+								return err
+							}
 						}
 					} else {
 						return fmt.Errorf("%s appears to be an integer, but %v cannot be parsed as an int", fieldName, fieldValue)
@@ -98,6 +98,20 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 				return err
 			}
 
+			err = setDefaultValues(idRegexes[0], identity, d, config)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		} else if d.Id() == "" {
+			if err := identityImport(re, identity, idFormat, d); err != nil {
+				return err
+			}
+			err = setDefaultValues(idRegexes[0], identity, d, config)
+			if err != nil {
+				return err
+			}
 			return nil
 		}
 	}
@@ -105,15 +119,21 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 }
 
 func identityImport(re *regexp.Regexp, identity *schema.IdentityData, idFormat string, d TerraformResourceData) error {
+	if identity == nil {
+		return nil
+	}
 	log.Print("[DEBUG] Using IdentitySchema to import resource")
 	namedGroups := re.SubexpNames()
-
 	for _, group := range namedGroups {
-		if identityValue, identityExists := identity.GetOk(group); identityExists {
-			log.Printf("[DEBUG] Importing %s = %s", group, identityValue)
+		if val, ok := d.GetOk(group); ok && group != "" {
+			log.Printf("[DEBUG] Group %s = %s Identity Group", group, val)
+			identity.Set(group, val)
+		}
+		if identityValue, identityExists := identity.GetOk(group); identityExists && group != "" {
+			log.Printf("[DEBUG] identity Importing %s = %s", group, identityValue)
 			d.Set(group, identityValue)
 		} else {
-			return fmt.Errorf("No value was found for %s during import", group)
+			return fmt.Errorf("[DEBUG] No value was found for %s during import", group)
 		}
 	}
 
