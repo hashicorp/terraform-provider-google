@@ -305,7 +305,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_iam_testable_permissions":                            resourcemanager.DataSourceGoogleIamTestablePermissions(),
 	"google_iam_workload_identity_pool":                          iambeta.DataSourceIAMBetaWorkloadIdentityPool(),
 	"google_iam_workload_identity_pool_provider":                 iambeta.DataSourceIAMBetaWorkloadIdentityPoolProvider(),
-	"google_iap_client":                                          iap.DataSourceGoogleIapClient(),
+	"google_iap_client":                                          iap.DataSourceIapClient(),
 	"google_kms_crypto_key":                                      kms.DataSourceGoogleKmsCryptoKey(),
 	"google_kms_crypto_keys":                                     kms.DataSourceGoogleKmsCryptoKeys(),
 	"google_kms_crypto_key_version":                              kms.DataSourceGoogleKmsCryptoKeyVersion(),
