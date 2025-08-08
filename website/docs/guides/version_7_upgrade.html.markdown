@@ -178,6 +178,10 @@ Remove `description` from your configuration after upgrade.
 
 ## Resource: `google_cloudfunctions2_function`
 
+### `event_trigger.event_type` is now required
+
+The `event_type` field is now required when `event_trigger` is configured.
+
 ### `service_config.service` is changed from `Argument` to `Attribute`
 
 Remove `service_config.service` from your configuration after upgrade.

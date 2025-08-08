@@ -273,17 +273,17 @@ response to a condition in another service.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"event_type": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Required. The type of event to observe.`,
+						},
 						"event_filters": {
 							Type:        schema.TypeSet,
 							Optional:    true,
 							Description: `Criteria used to filter events.`,
 							Elem:        cloudfunctions2functionEventTriggerEventFiltersSchema(),
 							// Default schema.HashSchema is used.
-						},
-						"event_type": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Required. The type of event to observe.`,
 						},
 						"pubsub_topic": {
 							Type:     schema.TypeString,
