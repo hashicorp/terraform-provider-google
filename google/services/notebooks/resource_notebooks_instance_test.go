@@ -107,8 +107,8 @@ resource "google_notebooks_instance" "test" {
   }
 
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "pytorch-latest-cu124"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
 }
 `, name)
@@ -122,8 +122,8 @@ resource "google_notebooks_instance" "instance" {
   machine_type = "e2-medium"
 
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "pytorch-latest-cu124"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
 
   metadata = {
@@ -148,8 +148,8 @@ resource "google_notebooks_instance" "instance" {
   machine_type = "e2-medium"
 
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "pytorch-latest-cu124"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
 
   metadata = {

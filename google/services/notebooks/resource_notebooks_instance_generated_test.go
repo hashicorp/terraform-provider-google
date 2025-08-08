@@ -63,8 +63,8 @@ resource "google_notebooks_instance" "instance" {
   location = "us-west1-a"
   machine_type = "e2-medium"
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "pytorch-latest-cu124"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
 }
 `, context)
@@ -90,7 +90,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicStoppedExample(t *testing.T) 
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "desired_state", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "vm_image"},
+				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "desired_state", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "update_time", "vm_image"},
 			},
 		},
 	})
@@ -103,8 +103,8 @@ resource "google_notebooks_instance" "instance" {
   location = "us-west1-a"
   machine_type = "e2-medium"
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "pytorch-latest-cu124"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
   desired_state = "STOPPED"
 }
@@ -130,7 +130,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicContainerExample(t *testing.T
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "vm_image"},
+				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "update_time", "vm_image"},
 			},
 		},
 	})
@@ -173,7 +173,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicGpuExample(t *testing.T) {
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "vm_image"},
+				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "update_time", "vm_image"},
 			},
 		},
 	})
@@ -192,8 +192,8 @@ resource "google_notebooks_instance" "instance" {
     core_count   = 1
   }
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "pytorch-latest-cu124"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
 }
 `, context)
@@ -220,7 +220,7 @@ func TestAccNotebooksInstance_notebookInstanceFullExample(t *testing.T) {
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "vm_image"},
+				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "update_time", "vm_image"},
 			},
 		},
 	})
@@ -234,8 +234,8 @@ resource "google_notebooks_instance" "instance" {
   machine_type = "e2-medium"
 
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "pytorch-latest-cu124"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
 
   instance_owners = [ "%{service_account}"]
@@ -243,7 +243,7 @@ resource "google_notebooks_instance" "instance" {
 
   install_gpu_driver = true
   boot_disk_type = "PD_SSD"
-  boot_disk_size_gb = 110
+  boot_disk_size_gb = 150
 
   no_public_ip = true
   no_proxy_access = true
