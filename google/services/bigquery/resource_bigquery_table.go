@@ -3517,9 +3517,9 @@ func flattenSerDeInfo(si *bigquery.SerDeInfo) []map[string]interface{} {
 func resourceBigQueryTableImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"^projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)/tables/(?P<table_id>[^/]+)$",
-		"^(?P<project>[^/]+)/(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)$",
-		"^(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)$",
+		"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)/tables/(?P<table_id>[^/]+)",
+		"(?P<project>[^/]+)/(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)",
+		"(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}

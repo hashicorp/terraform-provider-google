@@ -254,9 +254,9 @@ func resourceGoogleProjectIamCustomRoleDelete(d *schema.ResourceData, meta inter
 func resourceGoogleProjectIamCustomRoleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"^projects/(?P<project>[^/]+)/roles/(?P<role_id>[^/]+)$",
-		"^(?P<project>[^/]+)/(?P<role_id>[^/]+)$",
-		"^(?P<role_id>[^/]+)$",
+		"projects/(?P<project>[^/]+)/roles/(?P<role_id>[^/]+)",
+		"(?P<project>[^/]+)/(?P<role_id>[^/]+)",
+		"(?P<role_id>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}

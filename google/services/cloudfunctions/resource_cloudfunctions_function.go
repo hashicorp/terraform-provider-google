@@ -81,9 +81,9 @@ func (s *CloudFunctionId) locationId() string {
 
 func parseCloudFunctionId(d *schema.ResourceData, config *transport_tpg.Config) (*CloudFunctionId, error) {
 	if err := tpgresource.ParseImportId([]string{
-		"^projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<name>[^/]+)$",
-		"^(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)$",
-		"^(?P<name>[^/]+)$",
+		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
+		"(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}

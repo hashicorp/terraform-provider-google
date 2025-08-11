@@ -353,7 +353,7 @@ func resourceDataCatalogPolicyTagImport(d *schema.ResourceData, meta interface{}
 	config := meta.(*transport_tpg.Config)
 
 	if err := tpgresource.ParseImportId([]string{
-		"^(?P<taxonomy>projects/[^/]+/locations/[^/]+/taxonomies/[^/]+)/policyTags/(?P<name>.+)$"}, d, config); err != nil {
+		"(?P<taxonomy>projects/[^/]+/locations/[^/]+/taxonomies/[^/]+)/policyTags/(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

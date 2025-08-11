@@ -63,9 +63,9 @@ func resourceProjectOrgPolicyImporter(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*transport_tpg.Config)
 
 	if err := tpgresource.ParseImportId([]string{
-		"^projects/(?P<project>[^/]+):constraints/(?P<constraint>[^/]+)$",
-		"^(?P<project>[^/]+):constraints/(?P<constraint>[^/]+)$",
-		"^(?P<project>[^/]+):(?P<constraint>[^/]+)$"},
+		"projects/(?P<project>[^/]+):constraints/(?P<constraint>[^/]+)",
+		"(?P<project>[^/]+):constraints/(?P<constraint>[^/]+)",
+		"(?P<project>[^/]+):(?P<constraint>[^/]+)"},
 		d, config); err != nil {
 		return nil, err
 	}
