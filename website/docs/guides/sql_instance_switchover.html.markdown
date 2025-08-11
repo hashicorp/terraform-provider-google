@@ -46,11 +46,11 @@ replica_configuration {
 }
 ```
 
-2. Invoke switchover on the replica \
-a. Change `instance_type` from `READ_REPLICA_INSTANCE` to `CLOUD_SQL_INSTANCE` \
-b. Remove `master_instance_name` \
-c. Remove `replica_configuration` \
-d. Add current primary's name to the replica's `replica_names` list
+2. Invoke switchover on the replica
+    * Change `instance_type` from `READ_REPLICA_INSTANCE` to `CLOUD_SQL_INSTANCE`
+    * Remove `master_instance_name`
+    * Remove `replica_configuration`
+    * Add current primary's name to the replica's `replica_names` list
 
 ```diff 
 resource "google_sql_database_instance" "original-replica" {
@@ -68,13 +68,13 @@ resource "google_sql_database_instance" "original-replica" {
 }
 ```
 
-3. Update the old primary and run `terraform plan` \
-a. Change `instance_type` from `CLOUD_SQL_INSTANCE` to `READ_REPLICA_INSTANCE` \
-b. Set `master_instance_name` to the new primary (original replica) \
-c. Set `replica_configuration` and indicate this is a `cascadable-replica` \
-d. Remove old replica from `replica_names` \
-    ~> **NOTE**: Do **not** delete the replica_names field, even if it has no replicas remaining. Set replica_names = [ ] to indicate it having no replicas. \
-e. Run `terraform plan` and verify that everything is done in-place (or data will be lost)
+3. Update the old primary and run `terraform plan`
+    * Change `instance_type` from `CLOUD_SQL_INSTANCE` to `READ_REPLICA_INSTANCE`
+    * Set `master_instance_name` to the new primary (original replica)
+    * Set `replica_configuration` and indicate this is a `cascadable-replica`
+    * Remove old replica from `replica_names`
+        ~> **NOTE**: Do **not** delete the replica_names field, even if it has no replicas remaining. Set replica_names = [ ] to indicate it having no replicas.
+    * Run `terraform plan` and verify that everything is done in-place (or data will be lost)
 
 ```diff
 resource "google_sql_database_instance" "original-primary" {
