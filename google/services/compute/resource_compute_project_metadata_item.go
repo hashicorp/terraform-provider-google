@@ -196,8 +196,8 @@ func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta inter
 func resourceComputeProjectMetadataItemImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"^projects/(?P<project>[^/]+)/meta-data/(?P<key>[^/]+)$",
-		"^(?P<key>[^/]+)$",
+		"projects/(?P<project>[^/]+)/meta-data/(?P<key>[^/]+)",
+		"(?P<key>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
