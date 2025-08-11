@@ -228,7 +228,6 @@ The only allowed value for now is "ALL_IPV4_RANGES".`,
 			"linked_vpc_network": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `VPC network that is associated with the spoke.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -626,6 +625,12 @@ func resourceNetworkConnectivitySpokeUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("linked_router_appliance_instances"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, linkedRouterApplianceInstancesProp)) {
 		obj["linkedRouterApplianceInstances"] = linkedRouterApplianceInstancesProp
 	}
+	linkedVpcNetworkProp, err := expandNetworkConnectivitySpokeLinkedVpcNetwork(d.Get("linked_vpc_network"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("linked_vpc_network"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, linkedVpcNetworkProp)) {
+		obj["linkedVpcNetwork"] = linkedVpcNetworkProp
+	}
 	labelsProp, err := expandNetworkConnectivitySpokeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -657,6 +662,11 @@ func resourceNetworkConnectivitySpokeUpdate(d *schema.ResourceData, meta interfa
 	if d.HasChange("linked_router_appliance_instances") {
 		updateMask = append(updateMask, "linkedRouterApplianceInstances.instances",
 			"linkedRouterApplianceInstances.includeImportRanges")
+	}
+
+	if d.HasChange("linked_vpc_network") {
+		updateMask = append(updateMask, "linkedVpcNetwork.excludeExportRanges",
+			"linkedVpcNetwork.includeExportRanges")
 	}
 
 	if d.HasChange("effective_labels") {
