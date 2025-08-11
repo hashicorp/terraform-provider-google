@@ -1324,7 +1324,6 @@ resource "google_project" "project" {
 resource "google_project_service" "anthos" {
   project = google_project.project.project_id
   service = "anthos.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_project_service" "mesh" {
@@ -1355,19 +1354,16 @@ resource "google_project_service" "mcsd" {
 resource "google_project_service" "compute" {
   project = google_project.project.project_id
   service = "compute.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_project_service" "container" {
   project = google_project.project.project_id
   service = "container.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_project_service" "gkehub" {
   project = google_project.project.project_id
   service = "gkehub.googleapis.com"
-  disable_on_destroy = false
 }
 
 // It needs waiting until the API services are really activated.

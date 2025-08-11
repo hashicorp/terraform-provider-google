@@ -245,14 +245,16 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_service" "test" {
-  project = google_project.acceptance.project_id
-  service = "%s"
+  project            = google_project.acceptance.project_id
+  service            = "%s"
+  disable_on_destroy = true
 }
 
 resource "google_project_service" "test2" {
   project                    = google_project.acceptance.project_id
   service                    = "%s"
   disable_dependent_services = %s
+  disable_on_destroy         = true
 }
 `, pid, pid, org, billing, services[0], services[1], disableDependentServices)
 }

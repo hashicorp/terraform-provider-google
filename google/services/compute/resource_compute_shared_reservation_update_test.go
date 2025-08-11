@@ -84,7 +84,6 @@ resource "google_project" "owner_project" {
 resource "google_project_service" "compute" {
   project = google_project.owner_project.project_id
   service = "compute.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_project" "guest_project" {
@@ -124,19 +123,16 @@ resource "google_organization_policy" "shared_reservation_org_policy" {
 resource "google_project_service" "compute_second_project" {
   project = google_project.guest_project.project_id
   service = "compute.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_project_service" "compute_third_project" {
   project = google_project.guest_project_second.project_id
   service = "compute.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_project_service" "compute_fourth_project" {
   project = google_project.guest_project_third.project_id
   service = "compute.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_compute_reservation" "gce_reservation" {
@@ -176,7 +172,6 @@ resource "google_project" "owner_project" {
 resource "google_project_service" "compute" {
   project = google_project.owner_project.project_id
   service = "compute.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_project" "guest_project" {
@@ -216,19 +211,16 @@ resource "google_organization_policy" "shared_reservation_org_policy" {
 resource "google_project_service" "compute_second_project" {
   project = google_project.guest_project.project_id
   service = "compute.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_project_service" "compute_third_project" {
   project = google_project.guest_project_second.project_id
   service = "compute.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_project_service" "compute_fourth_project" {
   project = google_project.guest_project_third.project_id
   service = "compute.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_compute_reservation" "gce_reservation" {
