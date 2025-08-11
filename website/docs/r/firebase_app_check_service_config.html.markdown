@@ -37,7 +37,6 @@ To get more information about ServiceConfig, see:
 resource "google_project_service" "appcheck" {
   project = "my-project-name"
   service = "firebaseappcheck.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_firebase_app_check_service_config" "default" {
@@ -54,7 +53,6 @@ resource "google_firebase_app_check_service_config" "default" {
 resource "google_project_service" "appcheck" {
   project = "my-project-name"
   service = "firebaseappcheck.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_firebase_app_check_service_config" "default" {
@@ -72,7 +70,6 @@ resource "google_firebase_app_check_service_config" "default" {
 resource "google_project_service" "appcheck" {
   project = "my-project-name"
   service = "firebaseappcheck.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_firebase_app_check_service_config" "default" {

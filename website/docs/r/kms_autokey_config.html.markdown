@@ -65,7 +65,6 @@ resource "google_project_service" "kms_api_service" {
   provider                   = google-beta
   service                    = "cloudkms.googleapis.com"
   project                    = google_project.key_project.project_id
-  disable_on_destroy         = false
   disable_dependent_services = true
   depends_on                 = [google_project.key_project]
 }
