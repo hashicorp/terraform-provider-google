@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_pubsub_lite_reservation'
 generation_type: 'mmv1'
 source_file: 'products/pubsublite/Reservation.yaml'
