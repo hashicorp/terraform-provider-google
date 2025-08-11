@@ -1,0 +1,3 @@
+```release-note:bug
+networkconnectivity: added update support for `linked_vpc_network` in `google_network_connectivity_spoke`
+```
