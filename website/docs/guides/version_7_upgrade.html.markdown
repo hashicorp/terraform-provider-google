@@ -116,6 +116,12 @@ Description of the change and how users should adjust their configuration (if ne
 
 ## Resources
 
+## Resource: `google_artifact_registry_repository`
+
+### `public_repository` fields have had their default values removed.
+
+`public_repository` fields have had their default values removed. If your state has been reliant on them, they will need to be manually included into your configuration now.
+
 ## Resource: `google_bigtable_table_iam_binding`
 
 ### `instance` is now removed
