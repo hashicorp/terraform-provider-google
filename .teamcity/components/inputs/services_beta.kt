@@ -811,11 +811,6 @@ var ServicesListBeta = mapOf(
         "displayName" to "Tags",
         "path" to "./google-beta/services/tags"
     ),
-    "tpu" to mapOf(
-        "name" to "tpu",
-        "displayName" to "Tpu",
-        "path" to "./google-beta/services/tpu"
-    ),
     "tpuv2" to mapOf(
         "name" to "tpuv2",
         "displayName" to "Tpuv2",
