@@ -156,7 +156,6 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storageinsights"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storagetransfer"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/tags"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/tpu"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/transcoder"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vertexai"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vmwareengine"
