@@ -50,7 +50,7 @@ func TestAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleBasicExam
 				ResourceName:            "google_secure_source_manager_branch_rule.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"branch_rule_id", "location", "repository_id"},
+				ImportStateVerifyIgnore: []string{"branch_rule_id", "deletion_policy", "location", "repository_id"},
 			},
 		},
 	})
@@ -105,7 +105,7 @@ func TestAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleWithField
 				ResourceName:            "google_secure_source_manager_branch_rule.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"branch_rule_id", "location", "repository_id"},
+				ImportStateVerifyIgnore: []string{"branch_rule_id", "deletion_policy", "location", "repository_id"},
 			},
 		},
 	})

@@ -50,7 +50,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceBasicExample(
 				ResourceName:            "google_secure_source_manager_instance.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -92,7 +92,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceCmekExample(t
 				ResourceName:            "google_secure_source_manager_instance.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -147,7 +147,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateExampl
 				ResourceName:            "google_secure_source_manager_instance.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -261,7 +261,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscBac
 				ResourceName:            "google_secure_source_manager_instance.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -477,7 +477,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscEnd
 				ResourceName:            "google_secure_source_manager_instance.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -657,7 +657,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceWorkforceIden
 				ResourceName:            "google_secure_source_manager_instance.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
 			},
 		},
 	})
