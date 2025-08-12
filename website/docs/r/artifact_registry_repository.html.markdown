@@ -956,7 +956,6 @@ The following arguments are supported:
 * `public_repository` -
   (Optional)
   Address of the remote repository.
-  Default value is `DOCKER_HUB`.
   Possible values are: `DOCKER_HUB`.
 
 * `custom_repository` -
@@ -976,7 +975,6 @@ The following arguments are supported:
 * `public_repository` -
   (Optional)
   Address of the remote repository.
-  Default value is `MAVEN_CENTRAL`.
   Possible values are: `MAVEN_CENTRAL`.
 
 * `custom_repository` -
@@ -996,7 +994,6 @@ The following arguments are supported:
 * `public_repository` -
   (Optional)
   Address of the remote repository.
-  Default value is `NPMJS`.
   Possible values are: `NPMJS`.
 
 * `custom_repository` -
@@ -1016,7 +1013,6 @@ The following arguments are supported:
 * `public_repository` -
   (Optional)
   Address of the remote repository.
-  Default value is `PYPI`.
   Possible values are: `PYPI`.
 
 * `custom_repository` -

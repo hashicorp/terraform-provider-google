@@ -1,0 +1,3 @@
+```release-note:breaking-change
+artifactregistry: the default values for `public_repository` fields in `google_artifact_registry_repository` have been removed. If your state is reliant on them, they will now need to be manually included in your configuration.
+```
