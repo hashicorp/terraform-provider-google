@@ -50,7 +50,7 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryBasicExam
 				ResourceName:            "google_secure_source_manager_repository.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"initial_config", "location", "repository_id"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "initial_config", "location", "repository_id"},
 			},
 		},
 	})
@@ -97,7 +97,7 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryInitialCo
 				ResourceName:            "google_secure_source_manager_repository.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"initial_config", "location", "repository_id"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "initial_config", "location", "repository_id"},
 			},
 		},
 	})
