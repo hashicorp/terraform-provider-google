@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `eviction_soft`, `eviction_soft_grace_period`, `eviction_minimum_reclaim`, `eviction_max_pod_grace_period_seconds`, `max_parallel_image_pulls`, `transparent_hugepage_enabled`, `transparent_hugepage_defrag` and `min_node_cpus` fields to `node_config` block of `google_container_node_pool` and `google_container_cluster` resources
+```
