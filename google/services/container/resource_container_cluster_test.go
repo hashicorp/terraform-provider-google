@@ -1879,7 +1879,7 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 		Steps: []resource.TestStep{
 			// First test with empty `node_config.linux_node_config` (should result in "CGROUP_MODE_UNSPECIFIED")
 			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, ""),
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "", false),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						acctest.ExpectNoDelete(),
@@ -1890,11 +1890,11 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_linux_node_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			// Then add a config and make sure it updates.
 			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V2"),
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V2", false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_container_cluster.with_linux_node_config",
@@ -1911,11 +1911,11 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_linux_node_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			// Lastly, update the setting in-place. V1 since UNSPECIFIED is default
 			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V1"),
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V1", false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_container_cluster.with_linux_node_config",
@@ -1932,7 +1932,32 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_linux_node_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			// Update linux config transparent hugepage
+			{
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "", true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_linux_node_config",
+						"node_config.0.linux_node_config.0.transparent_hugepage_enabled", "TRANSPARENT_HUGEPAGE_ENABLED_ALWAYS",
+					),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_linux_node_config",
+						"node_config.0.linux_node_config.0.transparent_hugepage_defrag", "TRANSPARENT_HUGEPAGE_DEFRAG_ALWAYS",
+					),
+				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_linux_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2087,6 +2112,31 @@ func TestAccContainerCluster_withNodeConfigKubeletConfigSettingsUpdates(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withNodeConfigKubeletConfigSettingsInNodePool(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	nodePoolName := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodeConfigKubeletConfigSettingsInNodePool(clusterName, nodePoolName, networkName, subnetworkName, "TRANSPARENT_HUGEPAGE_DEFRAG_NEVER", "TRANSPARENT_HUGEPAGE_ENABLED_MADVISE"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_config_kubelet_config_settings_in_node_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -7747,7 +7797,35 @@ resource "google_container_cluster" "with_node_config_kubelet_config_settings" {
 
   node_config {
     kubelet_config {
-      pod_pids_limit = 1024
+      pod_pids_limit                        = 1024
+      container_log_max_files               = 4
+      single_process_oom_kill               = true
+      max_parallel_image_pulls              = 5
+      eviction_max_pod_grace_period_seconds = 200
+      eviction_soft {
+        memory_available    = "200Mi"
+	nodefs_available    = "10%%"
+        nodefs_inodes_free  = "20%%"
+        imagefs_available   = "30%%"
+        imagefs_inodes_free = "40%%"
+        pid_available       = "50%%"
+      }
+      eviction_soft_grace_period {
+        memory_available    = "4m"
+	nodefs_available    = "3m30s"
+        nodefs_inodes_free  = "3m"
+        imagefs_available   = "5m"
+        imagefs_inodes_free = "2.5m"
+        pid_available       = "10s"
+      }
+      eviction_minimum_reclaim {
+        memory_available    = "5%%"
+	nodefs_available    = "6%%"
+        nodefs_inodes_free  = "4%%"
+        imagefs_available   = "2.5%%"
+        imagefs_inodes_free = "9.0%%"
+        pid_available       = "1.5%%"
+      }
     }
   }
   network    = "%s"
@@ -7772,6 +7850,33 @@ resource "google_container_cluster" "with_node_config_kubelet_config_settings" {
       cpu_cfs_quota_period                   = "%s"
       insecure_kubelet_readonly_port_enabled = "%s"
       pod_pids_limit                         = %v
+      single_process_oom_kill                = true
+      max_parallel_image_pulls               = 5
+      eviction_max_pod_grace_period_seconds  = 200
+      eviction_soft {
+        memory_available    = "100Mi"
+	nodefs_available    = "50%%"
+        nodefs_inodes_free  = "40%%"
+        imagefs_available   = "30%%"
+        imagefs_inodes_free = "20%%"
+        pid_available       = "10%%"
+      }
+      eviction_soft_grace_period {
+        memory_available    = "5m"
+        nodefs_available    = "4m30s"
+        nodefs_inodes_free  = "3.6m"
+        imagefs_available   = "100s"
+        imagefs_inodes_free = "2m"
+        pid_available       = "3m2.6s"
+      }
+      eviction_minimum_reclaim {
+        memory_available    = "10%%"
+        nodefs_available    = "8.5%%"
+        nodefs_inodes_free  = "5.0%%"
+        imagefs_available   = "3%%"
+        imagefs_inodes_free = "9%%"
+        pid_available       = "5%%"
+      }
     }
   }
   network    = "%s"
@@ -7780,6 +7885,87 @@ resource "google_container_cluster" "with_node_config_kubelet_config_settings" {
   deletion_protection = false
 }
 `, clusterName, cpuManagerPolicy, cpuCfsQuota, cpuCfsQuotaPeriod, insecureKubeletReadonlyPortEnabled, podPidsLimit, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withNodeConfigKubeletConfigSettingsInNodePool(clusterName, nodePoolName, networkName, subnetworkName, thpDefrag, thpEnabled string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1f" {
+  location = "us-central1-f"
+}
+resource "google_compute_node_template" "soletenant-tmpl" {
+  name      = "%s"
+  region    = "us-central1"
+  node_type = "n1-node-96-624"
+  cpu_overcommit_type = "ENABLED"
+}
+resource "google_compute_node_group" "group" {
+  name        = "%s"
+  zone        = "us-central1-f"
+  description = "example google_compute_node_group for Terraform Google Provider"
+  initial_size	= 1
+  node_template = google_compute_node_template.soletenant-tmpl.id
+}
+resource "google_container_cluster" "with_node_config_kubelet_config_settings_in_node_pool" {
+  name     = "%s"
+  location = "us-central1-f"
+  min_master_version = data.google_container_engine_versions.central1f.latest_master_version
+
+  node_pool {
+    name               = "%s"
+    initial_node_count = 1
+    machine_type = "n1-standard-1"
+    node_config {
+      kubelet_config {
+        max_parallel_image_pulls               = 5
+	eviction_max_pod_grace_period_seconds  = 200
+	eviction_soft {
+	  memory_available = "200Mi"
+	  nodefs_available = "10%%"
+	  nodefs_inodes_free = "20%%"
+	  imagefs_available = "30%%"
+	  imagefs_inodes_free = "40%%"
+	  pid_available = "50%%"
+	}
+	eviction_soft_grace_period {
+	  memory_available = "1m"
+	  nodefs_available = "2s"
+	  nodefs_inodes_free = "3m"
+	  imagefs_available = "100s"
+	  imagefs_inodes_free = "2m"
+	  pid_available = "3m2.6s"
+	}
+	eviction_minimum_reclaim {
+	  memory_available = "10%%"
+	  nodefs_available = "8.5%%"
+	  nodefs_inodes_free = "5.0%%"
+	  imagefs_available = "3%%"
+	  imagefs_inodes_free = "9%%"
+	  pid_available = "5%%"
+	}
+      }
+      disk_size_gb = 15
+      disk_type    = "pd-ssd"
+      node_group   = google_compute_node_group.group.name
+      sole_tenant_config {
+        node_affinity {
+	  key      = "compute.googleapis.com/node-group-name"
+	  operator = "IN"
+	  values   = [google_compute_node_group.group.name]
+	}
+	min_node_cpus = 1
+      }
+      linux_node_config {
+        transparent_hugepage_defrag  = %s
+	transparent_hugepage_enabled = %s
+      }
+    }
+  }
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, clusterName, clusterName, clusterName, nodePoolName, thpDefrag, thpEnabled, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withInsecureKubeletReadonlyPortEnabledInNodePool(clusterName, nodePoolName, networkName, subnetworkName, insecureKubeletReadonlyPortEnabled string) string {
@@ -8003,7 +8189,7 @@ resource "google_container_cluster" "with_node_config" {
 `, clusterName, networkName, subnetworkName)
 }
 
-func testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, cgroupMode string) string {
+func testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, cgroupMode string, thpEnabled bool) string {
 	// Empty block inside node_config if cgroupMode is empty
 	linuxNodeConfig := ""
 
@@ -8015,11 +8201,23 @@ func testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkN
 `, cgroupMode)
 	}
 
+	if cgroupMode == "" && thpEnabled {
+		linuxNodeConfig = `
+    linux_node_config {
+      transparent_hugepage_defrag = "TRANSPARENT_HUGEPAGE_DEFRAG_ALWAYS"
+      transparent_hugepage_enabled = "TRANSPARENT_HUGEPAGE_ENABLED_ALWAYS"
+    }`
+	}
+
 	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
 resource "google_container_cluster" "with_linux_node_config" {
   name               = "%s"
   location           = "us-central1-f"
   initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
 
   node_config {
     disk_size_gb = 15
@@ -11021,6 +11219,7 @@ resource "google_compute_node_template" "soletenant-tmpl" {
   name      = "%s"
   region    = "us-central1"
   node_type = "n1-node-96-624"
+  cpu_overcommit_type = "ENABLED"
 }
 
 resource "google_compute_node_group" "group" {
@@ -11041,6 +11240,14 @@ resource "google_container_cluster" "primary" {
     disk_size_gb = 15
     disk_type    = "pd-ssd"
     node_group   = google_compute_node_group.group.name
+    sole_tenant_config {
+      node_affinity {
+        key      = "compute.googleapis.com/node-group-name"
+        operator = "IN"
+        values   = [google_compute_node_group.group.name]
+      }
+      min_node_cpus = 1
+    }
   }
   network    = "%s"
   subnetwork = "%s"

@@ -1908,6 +1908,7 @@ func TestAccContainerNodePool_withSoleTenantConfig(t *testing.T) {
 	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
 	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
 	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	minNodeCpus := 1
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1915,7 +1916,7 @@ func TestAccContainerNodePool_withSoleTenantConfig(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_withSoleTenantConfig(cluster, np, networkName, subnetworkName),
+				Config: testAccContainerNodePool_withSoleTenantConfig(cluster, np, networkName, subnetworkName, minNodeCpus),
 			},
 			{
 				ResourceName:      "google_container_node_pool.with_sole_tenant_config",
@@ -3733,8 +3734,34 @@ resource "google_container_node_pool" "with_kubelet_config" {
       image_gc_high_threshold_percent        = %d
       image_minimum_gc_age                   = %q
       image_maximum_gc_age                   = %q
-      allowed_unsafe_sysctls               = ["kernel.shm*", "kernel.msg*", "kernel.sem", "fs.mqueue.*", "net.*"]
+      allowed_unsafe_sysctls                 = ["kernel.shm*", "kernel.msg*", "kernel.sem", "fs.mqueue.*", "net.*"]
       single_process_oom_kill                = %v
+      max_parallel_image_pulls               = 5
+      eviction_max_pod_grace_period_seconds  = 200
+      eviction_soft {
+        memory_available = "100Mi"
+	nodefs_available = "50%%"
+        nodefs_inodes_free = "40%%"
+        imagefs_available = "30%%"
+        imagefs_inodes_free = "20%%"
+        pid_available = "10%%"
+      }
+      eviction_soft_grace_period {
+        memory_available = "5m"
+	nodefs_available = "4m30s"
+        nodefs_inodes_free = "3.6m"
+        imagefs_available = "100s"
+        imagefs_inodes_free = "2m"
+        pid_available = "3m2.6s"
+      }
+      eviction_minimum_reclaim {
+        memory_available = "10%%"
+        nodefs_available = "8.5%%"
+        nodefs_inodes_free = "5.0%%"
+        imagefs_available = "3%%"
+        imagefs_inodes_free = "9%%"
+        pid_available = "5%%"
+      }
     }
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
@@ -3767,6 +3794,8 @@ func testAccContainerNodePool_withLinuxNodeConfig(cluster, np, tcpMem, networkNa
         "net.ipv4.tcp_tw_reuse"       = 1
 	"kernel.shmmni"               = 8192
       }
+      transparent_hugepage_enabled = "TRANSPARENT_HUGEPAGE_ENABLED_ALWAYS"
+      transparent_hugepage_defrag  = "TRANSPARENT_HUGEPAGE_DEFRAG_DEFER_WITH_MADVISE"
     }
 `, tcpMem, tcpMem)
 	}
@@ -4648,7 +4677,7 @@ resource "google_container_node_pool" "np2" {
 `, cluster, networkName, subnetworkName, np1, np2)
 }
 
-func testAccContainerNodePool_withSoleTenantConfig(cluster, np, networkName, subnetworkName string) string {
+func testAccContainerNodePool_withSoleTenantConfig(cluster, np, networkName, subnetworkName string, minNodeCpus int) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
   location = "us-central1-a"
@@ -4658,6 +4687,7 @@ resource "google_compute_node_template" "soletenant-tmpl" {
   name      = "tf-test-soletenant-tmpl"
   region    = "us-central1"
   node_type = "n1-node-96-624"
+  cpu_overcommit_type = "ENABLED"
 }
 
 resource "google_compute_node_group" "nodes" {
@@ -4690,6 +4720,7 @@ resource "google_container_node_pool" "with_sole_tenant_config" {
         operator = "IN"
         values   = [google_compute_node_group.nodes.name]
       }
+      min_node_cpus = %d
     }
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
@@ -4697,7 +4728,7 @@ resource "google_container_node_pool" "with_sole_tenant_config" {
     ]
   }
 }
-`, cluster, networkName, subnetworkName, np)
+`, cluster, networkName, subnetworkName, np, minNodeCpus)
 }
 
 func TestAccContainerNodePool_withConfidentialNodes(t *testing.T) {
