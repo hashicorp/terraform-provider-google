@@ -160,6 +160,11 @@ The following arguments are supported:
   Configuration for Google Cloud Armor DDOS Proctection Config.
   Structure is [documented below](#nested_ddos_protection_config).
 
+* `advanced_options_config` -
+  (Optional)
+  Advanced Options Config of this security policy.
+  Structure is [documented below](#nested_advanced_options_config).
+
 * `user_defined_fields` -
   (Optional)
   Definitions of user-defined fields for CLOUD_ARMOR_NETWORK policies.
@@ -191,6 +196,40 @@ The following arguments are supported:
   - ADVANCED: additional protections for Managed Protection Plus subscribers who use network load balancers, protocol forwarding, or VMs with public IP addresses.
   - ADVANCED_PREVIEW: flag to enable the security policy in preview mode.
   Possible values are: `ADVANCED`, `ADVANCED_PREVIEW`, `STANDARD`.
+
+<a name="nested_advanced_options_config"></a>The `advanced_options_config` block supports:
+
+* `json_parsing` -
+  (Optional)
+  JSON body parsing. Supported values include: "DISABLED", "STANDARD", "STANDARD_WITH_GRAPHQL".
+  Possible values are: `DISABLED`, `STANDARD`, `STANDARD_WITH_GRAPHQL`.
+
+* `json_custom_config` -
+  (Optional)
+  Custom configuration to apply the JSON parsing. Only applicable when JSON parsing is set to STANDARD.
+  Structure is [documented below](#nested_advanced_options_config_json_custom_config).
+
+* `log_level` -
+  (Optional)
+  Logging level. Supported values include: "NORMAL", "VERBOSE".
+  Possible values are: `NORMAL`, `VERBOSE`.
+
+* `user_ip_request_headers` -
+  (Optional)
+  An optional list of case-insensitive request header names to use for resolving the callers client IP address.
+
+* `request_body_inspection_size` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The maximum request size chosen by the customer with Waf enabled. Values supported are "8KB", "16KB, "32KB", "48KB" and "64KB".
+  Values are case insensitive.
+  Possible values are: `8KB`, `16KB`, `32KB`, `48KB`, `64KB`.
+
+
+<a name="nested_advanced_options_config_json_custom_config"></a>The `json_custom_config` block supports:
+
+* `content_types` -
+  (Required)
+  A list of custom Content-Type header values to apply the JSON parsing.
 
 <a name="nested_user_defined_fields"></a>The `user_defined_fields` block supports:
 

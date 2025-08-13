@@ -140,9 +140,9 @@ func listAndActionComputeRegionNetworkFirewallPolicyWithRules(action sweeper.Res
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["regionNetworkFirewallPolicyWithRules"]
+		resourceList, ok := res["firewallPolicies"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'regionNetworkFirewallPolicyWithRules'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'firewallPolicies'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

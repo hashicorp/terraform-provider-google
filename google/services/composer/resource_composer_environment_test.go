@@ -678,13 +678,14 @@ func TestAccComposerEnvironment_customBucket(t *testing.T) {
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
 	subnetwork := network + "-1"
+	serviceAccount := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComposerEnvironment_customBucket(bucketName, envName, network, subnetwork),
+				Config: testAccComposerEnvironment_customBucket(bucketName, envName, network, subnetwork, serviceAccount),
 			},
 			{
 				ResourceName:      "google_composer_environment.test",
@@ -697,7 +698,7 @@ func TestAccComposerEnvironment_customBucket(t *testing.T) {
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
-				Config:             testAccComposerEnvironment_customBucket(bucketName, envName, network, subnetwork),
+				Config:             testAccComposerEnvironment_customBucket(bucketName, envName, network, subnetwork, serviceAccount),
 				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
@@ -1139,8 +1140,21 @@ func TestAccComposerEnvironmentComposer3_usesUnsupportedField_expectError(t *tes
 	})
 }
 
-func testAccComposerEnvironment_customBucket(bucketName, envName, network, subnetwork string) string {
+func testAccComposerEnvironment_customBucket(bucketName, envName, network, subnetwork, serviceAccount string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "test" {
+  account_id   = "%s"
+  display_name = "Test Service Account for Composer Environment"
+}
+
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+
 resource "google_storage_bucket" "test" {
   name   = "%s"
   location = "us-central1"
@@ -1154,6 +1168,7 @@ resource "google_composer_environment" "test" {
     node_config {
       network        = google_compute_network.test.self_link
       subnetwork     = google_compute_subnetwork.test.self_link
+      service_account = google_service_account.test.name
       ip_allocation_policy {
         cluster_ipv4_cidr_block = "10.0.0.0/16"
       }
@@ -1165,6 +1180,7 @@ resource "google_composer_environment" "test" {
   storage_config {
     bucket = google_storage_bucket.test.name
   }
+  depends_on = [google_project_iam_member.composer-worker]
 }
 
 // use a separate network to avoid conflicts with other tests running in parallel
@@ -1180,7 +1196,7 @@ resource "google_compute_subnetwork" "test" {
   region        = "us-central1"
   network       = google_compute_network.test.self_link
 }
-`, bucketName, envName, network, subnetwork)
+`, serviceAccount, bucketName, envName, network, subnetwork)
 }
 
 func testAccComposerEnvironment_customBucketWithUrl(bucketName, envName, network, subnetwork, serviceAccount string) string {
@@ -1316,7 +1332,6 @@ resource "google_kms_crypto_key_iam_member" "iam" {
   member  = "serviceAccount:service-${data.google_project.project.number}@gs-project-accounts.iam.gserviceaccount.com"
 }
 resource "google_composer_environment" "test" {
-  depends_on = [google_kms_crypto_key_iam_member.iam]
   name   = "%s"
   region = "us-central1"
   config {
@@ -1334,7 +1349,7 @@ resource "google_composer_environment" "test" {
       kms_key_name  = "%s"
     }
   }
-  depends_on = [google_project_iam_member.composer-worker]
+  depends_on = [google_project_iam_member.composer-worker, google_kms_crypto_key_iam_member.iam]
 }
 // use a separate network to avoid conflicts with other tests running in parallel
 // that use the default network/subnet

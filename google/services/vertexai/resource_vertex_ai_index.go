@@ -63,10 +63,12 @@ func ResourceVertexAIIndex() *schema.Resource {
 				Description: `The display name of the Index. The name can be up to 128 characters long and can consist of any UTF-8 characters.`,
 			},
 			"metadata": {
-				Type:        schema.TypeList,
-				Required:    true,
-				Description: `An additional information about the Index`,
-				MaxItems:    1,
+				Type:     schema.TypeList,
+				Required: true,
+				Description: `Additional information about the Index.
+Although this field is not marked as required in the API specification, it is currently required when creating an Index and must be provided.
+Attempts to create an Index without this field will result in an API error.`,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"config": {

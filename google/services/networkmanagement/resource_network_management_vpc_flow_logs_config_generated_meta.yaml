@@ -20,6 +20,7 @@ fields:
   - field: 'metadata_fields'
   - field: 'name'
   - field: 'state'
+  - field: 'target_resource_state'
   - field: 'terraform_labels'
     provider_only: true
   - field: 'update_time'

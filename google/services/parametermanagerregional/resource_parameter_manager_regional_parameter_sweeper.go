@@ -142,9 +142,9 @@ func listAndActionParameterManagerRegionalRegionalParameter(action sweeper.Resou
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["regionalParameters"]
+		resourceList, ok := res["parameters"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'regionalParameters'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'parameters'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

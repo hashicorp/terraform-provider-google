@@ -38,6 +38,12 @@ import (
 
 const datasetIdRegexp = `^[0-9A-Za-z_]+$`
 
+var bigqueryDatasetAccessPrimitiveToRoleMap = map[string]string{
+	"OWNER":  "roles/bigquery.dataOwner",
+	"WRITER": "roles/bigquery.dataEditor",
+	"READER": "roles/bigquery.dataViewer",
+}
+
 func validateDatasetId(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if !regexp.MustCompile(datasetIdRegexp).MatchString(value) {
@@ -60,6 +66,31 @@ func validateDefaultTableExpirationMs(v interface{}, k string) (ws []string, err
 	}
 
 	return
+}
+
+// bigqueryDatasetAccessHash is a custom hash function for the access block.
+// It normalizes the 'role' field before hashing, treating legacy roles
+// and their modern IAM equivalents as the same.
+func resourceBigqueryDatasetAccessHash(v interface{}) int {
+	m, ok := v.(map[string]interface{})
+	if !ok {
+		return 0
+	}
+	// Make a copy of the map to avoid modifying the underlying data.
+	copy := make(map[string]interface{}, len(m))
+	for k, val := range m {
+		copy[k] = val
+	}
+
+	// Normalize the role if it exists and matches a legacy role.
+	if role, ok := copy["role"].(string); ok {
+		if newRole, ok := bigqueryDatasetAccessPrimitiveToRoleMap[role]; ok {
+			copy["role"] = newRole
+		}
+	}
+
+	// Use the default HashResource function on the (potentially modified) copy.
+	return schema.HashResource(bigqueryDatasetAccessSchema())(copy)
 }
 
 func ResourceBigQueryDataset() *schema.Resource {
@@ -101,7 +132,7 @@ underscores (_). The maximum length is 1,024 characters.`,
 				Optional:    true,
 				Description: `An array of objects that define dataset access for one or more entities.`,
 				Elem:        bigqueryDatasetAccessSchema(),
-				// Default schema.HashSchema is used.
+				Set:         resourceBigqueryDatasetAccessHash,
 			},
 			"default_collation": {
 				Type:     schema.TypeString,
@@ -1034,7 +1065,7 @@ func flattenBigQueryDatasetAccess(v interface{}, d *schema.ResourceData, config 
 		return v
 	}
 	l := v.([]interface{})
-	transformed := schema.NewSet(schema.HashResource(bigqueryDatasetAccessSchema()), []interface{}{})
+	transformed := schema.NewSet(resourceBigqueryDatasetAccessHash, []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {

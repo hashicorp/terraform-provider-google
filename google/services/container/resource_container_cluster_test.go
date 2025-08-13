@@ -5575,7 +5575,6 @@ func TestAccContainerCluster_WithCPAFeatures(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				// We are only supporting CPA features on create for now.
 				Config: testAccContainerCluster_EnableCPAFeatures(context),
 			},
 			{
@@ -10425,28 +10424,24 @@ resource "google_container_cluster" "primary" {
   min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
   initial_node_count = 1
 
-  # This feature has been available since GKE 1.27, and currently the only
-  # supported Beta API is authentication.k8s.io/v1beta1/selfsubjectreviews.
-  # However, in the future, more Beta APIs will be supported, such as the
-  # resource.k8s.io group. At the same time, some existing Beta APIs will be
-  # deprecated as the feature will be GAed, and the Beta API will be eventually
-  # removed. In the case of the SelfSubjectReview API, it is planned to be GAed
-  # in Kubernetes as of 1.28. And, the Beta API of SelfSubjectReview will be removed
-  # after at least 3 minor version bumps, so it will be removed as of Kubernetes 1.31
-  # or later.
-  # https://pr.k8s.io/117713
+  # Some existing Beta APIs will be deprecated as the feature will be GAed,
+  # and the Beta API will be eventually removed. In the case of the ResourceClaims
+  # and its depended APIs, they are GAed in Kubernetes as of 1.34. And, the Beta APIs
+  # will be removed after at least 3 minor version bumps, so it will be removed as
+  # of Kubernetes 1.37 or later.
+  # https://pr.k8s.io/132706
   # https://kubernetes.io/docs/reference/using-api/deprecation-guide/
-  #
-  # The new Beta APIs will be available since GKE 1.28
-  # - admissionregistration.k8s.io/v1beta1/validatingadmissionpolicies
-  # - admissionregistration.k8s.io/v1beta1/validatingadmissionpolicybindings
-  # https://pr.k8s.io/118644
   #
   # Removing the Beta API from Kubernetes will break the test.
   # TODO: Replace the Beta API with one available on the version of GKE
   # if the test is broken.
   enable_k8s_beta_apis {
-    enabled_apis = ["authentication.k8s.io/v1beta1/selfsubjectreviews"]
+    enabled_apis = [
+	  "resource.k8s.io/v1beta1/deviceclasses",
+	  "resource.k8s.io/v1beta1/resourceclaims",
+	  "resource.k8s.io/v1beta1/resourceclaimtemplates",
+	  "resource.k8s.io/v1beta1/resourceslices"
+	]
   }
   network    = "%s"
   subnetwork = "%s"
@@ -13264,6 +13259,140 @@ resource "google_container_cluster" "primary" {
   }
 }
  `, name, networkName, subnetworkName, mode)
+}
+
+func TestAccContainerCluster_WithCPAFeaturesUpdate(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", suffix)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	// Bootstrap KMS keys and needed IAM role.
+	diskKey := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "control-plane-disk-encryption")
+	signingKey1 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ASYMMETRIC_SIGN", "us-central1", "rs256-service-account-signing-1")
+	signingKey2 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ASYMMETRIC_SIGN", "us-central1", "rs256-service-account-signing-2")
+	backupKey := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "etcd-backups")
+
+	// Here, we are granting the container engine service agent permissions on
+	// *ALL* Cloud KMS keys in the project.  A more realistic usage would be to
+	// grant the service agent the necessary roles only on the individual keys
+	// we have created.
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@container-engine-robot.iam.gserviceaccount.com",
+			Role:   "roles/container.cloudKmsKeyUser",
+		},
+		{
+			Member: "serviceAccount:service-{project_number}@container-engine-robot.iam.gserviceaccount.com",
+			Role:   "roles/privateca.certificateManager",
+		},
+		{
+			Member: "serviceAccount:service-{project_number}@container-engine-robot.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+		{
+			Member: "serviceAccount:service-{project_number}@container-engine-robot.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypterViaDelegation",
+		},
+	})
+
+	// Find an active cryptoKeyVersion on the signing key.
+	var signingCryptoKeyVersion1 *cloudkms.CryptoKeyVersion
+	for _, ckv := range signingKey1.CryptoKeyVersions {
+		if ckv.State == "ENABLED" && ckv.Algorithm == "RSA_SIGN_PKCS1_4096_SHA256" {
+			signingCryptoKeyVersion1 = ckv
+		}
+	}
+	if signingCryptoKeyVersion1 == nil {
+		t.Fatal("Didn't find an appropriate cryptoKeyVersion for signingCryptoKeyVersion1 to use as the service account signing key")
+	}
+
+	var signingCryptoKeyVersion2 *cloudkms.CryptoKeyVersion
+	for _, ckv := range signingKey2.CryptoKeyVersions {
+		if ckv.State == "ENABLED" && ckv.Algorithm == "RSA_SIGN_PKCS1_4096_SHA256" {
+			signingCryptoKeyVersion2 = ckv
+		}
+	}
+	if signingCryptoKeyVersion2 == nil {
+		t.Fatal("Didn't find an appropriate cryptoKeyVersion for signingCryptoKeyVersion2 to use as the service account signing key")
+	}
+
+	context := map[string]interface{}{
+		"resource_name":            clusterName,
+		"networkName":              networkName,
+		"subnetworkName":           subnetworkName,
+		"disk_key":                 diskKey.CryptoKey.Name,
+		"backup_key":               backupKey.CryptoKey.Name,
+		"signing_cryptokeyversion": signingCryptoKeyVersion1.Name,
+		"random_suffix":            suffix,
+	}
+
+	updateContext := map[string]interface{}{
+		"resource_name":            clusterName,
+		"networkName":              networkName,
+		"subnetworkName":           subnetworkName,
+		"disk_key":                 diskKey.CryptoKey.Name,
+		"backup_key":               backupKey.CryptoKey.Name,
+		"signing_cryptokeyversion": signingCryptoKeyVersion2.Name,
+		"random_suffix":            suffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_EnableCPAFeaturesWithSAkeys(context),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_cpa_features",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_EnableCPAFeaturesWithSAkeys(updateContext),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_cluster.with_cpa_features", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_cpa_features",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_EnableCPAFeaturesWithSAkeys(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+		resource "google_container_cluster" "with_cpa_features" {
+			name               = "%{resource_name}"
+			location           = "us-central1-a"
+			initial_node_count = 1
+			release_channel {
+				channel = "RAPID"
+			}
+			user_managed_keys_config {
+				service_account_signing_keys = [
+					"%{signing_cryptokeyversion}",
+				]
+				service_account_verification_keys = [
+					"%{signing_cryptokeyversion}",
+				]
+			}
+			deletion_protection = false
+			network    = "%{networkName}"
+			subnetwork    = "%{subnetworkName}"
+		}
+		`, context)
 }
 
 func TestAccContainerCluster_RbacBindingConfig(t *testing.T) {

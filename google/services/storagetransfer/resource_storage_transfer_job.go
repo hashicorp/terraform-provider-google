@@ -116,6 +116,11 @@ var (
 		"transfer_spec.0.aws_s3_data_source.0.aws_access_key",
 		"transfer_spec.0.aws_s3_data_source.0.role_arn",
 	}
+	azureOptionCredentials = []string{
+		"transfer_spec.0.azure_blob_storage_data_source.0.azure_credentials",
+		"transfer_spec.0.azure_blob_storage_data_source.0.credentials_secret",
+		"transfer_spec.0.azure_blob_storage_data_source.0.federated_identity_config",
+	}
 )
 
 func ResourceStorageTransferJob() *schema.Resource {
@@ -772,6 +777,11 @@ func awsS3DataSchema() *schema.Resource {
 				Optional:    true,
 				Description: `Egress bytes over a Google-managed private network. This network is shared between other users of Storage Transfer Service.`,
 			},
+			"cloudfront_domain": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The CloudFront distribution domain name pointing to this bucket, to use when fetching. See [Transfer from S3 via CloudFront](https://cloud.google.com/storage-transfer/docs/s3-cloudfront) for more information. Format: https://{id}.cloudfront.net or any valid custom domain. Must begin with https://.`,
+			},
 		},
 	}
 }
@@ -832,9 +842,10 @@ func azureBlobStorageDataSchema() *schema.Resource {
 				Description: `Root path to transfer objects. Must be an empty string or full path name that ends with a '/'. This field is treated as an object prefix. As such, it should generally not begin with a '/'.`,
 			},
 			"azure_credentials": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Type:         schema.TypeList,
+				Optional:     true,
+				ExactlyOneOf: azureOptionCredentials,
+				MaxItems:     1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"sas_token": {
@@ -846,6 +857,35 @@ func azureBlobStorageDataSchema() *schema.Resource {
 					},
 				},
 				Description: ` Credentials used to authenticate API requests to Azure.`,
+			},
+			"credentials_secret": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: azureOptionCredentials,
+				Description:  `The Resource name of a secret in Secret Manager containing SAS Credentials in JSON form. Service Agent must have permissions to access secret. If credentials_secret is specified, do not specify azure_credentials.`,
+			},
+			"federated_identity_config": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				ExactlyOneOf: azureOptionCredentials,
+				MaxItems:     1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"client_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Sensitive:   true,
+							Description: `The client (application) ID of the application with federated credentials.`,
+						},
+						"tenant_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Sensitive:   true,
+							Description: `The tenant (directory) ID of the application with federated credentials.`,
+						},
+					},
+				},
+				Description: ` Workload Identity Details used to authenticate API requests to Azure.`,
 			},
 		},
 	}
@@ -1138,6 +1178,30 @@ func resourceStorageTransferJobStateImporter(d *schema.ResourceData, meta interf
 	return []*schema.ResourceData{d}, nil
 }
 
+func expandAzureFederatedIdentifyConfig(federatedIdentifyConfig []interface{}) *storagetransfer.FederatedIdentityConfig {
+	if len(federatedIdentifyConfig) == 0 || federatedIdentifyConfig[0] == nil {
+		return nil
+	}
+
+	federatedIdentifyCfg := federatedIdentifyConfig[0].(map[string]interface{})
+	return &storagetransfer.FederatedIdentityConfig{
+		ClientId: federatedIdentifyCfg["client_id"].(string),
+		TenantId: federatedIdentifyCfg["tenant_id"].(string),
+	}
+}
+
+func flattenAzureFederatedIdentifyConfig(d *schema.ResourceData) []map[string]interface{} {
+	if (d.Get("transfer_spec.0.azure_blob_storage_data_source.0.federated_identity_config.0.client_id") == "") || (d.Get("transfer_spec.0.azure_blob_storage_data_source.0.federated_identity_config.0.tenant_id") == "") {
+		return []map[string]interface{}{}
+	}
+
+	data := map[string]interface{}{
+		"client_id": d.Get("transfer_spec.0.azure_blob_storage_data_source.0.federated_identity_config.0.client_id"),
+		"tenant_id": d.Get("transfer_spec.0.azure_blob_storage_data_source.0.federated_identity_config.0.tenant_id"),
+	}
+	return []map[string]interface{}{data}
+}
+
 func expandDates(dates []interface{}) *storagetransfer.Date {
 	if len(dates) == 0 || dates[0] == nil {
 		return nil
@@ -1340,6 +1404,10 @@ func expandAwsS3Data(awsS3Datas []interface{}) *storagetransfer.AwsS3Data {
 		result.ManagedPrivateNetwork = v.(bool)
 	}
 
+	if v, ok := awsS3Data["cloudfront_domain"]; ok {
+		result.CloudfrontDomain = v.(string)
+	}
+
 	return result
 }
 
@@ -1355,6 +1423,10 @@ func flattenAwsS3Data(awsS3Data *storagetransfer.AwsS3Data, d *schema.ResourceDa
 
 	if awsS3Data.ManagedPrivateNetwork {
 		data["managed_private_network"] = awsS3Data.ManagedPrivateNetwork
+	}
+
+	if awsS3Data.CloudfrontDomain != "" {
+		data["cloudfront_domain"] = awsS3Data.CloudfrontDomain
 	}
 
 	return []map[string]interface{}{data}
@@ -1429,6 +1501,10 @@ func expandAzureCredentials(azureCredentials []interface{}) *storagetransfer.Azu
 }
 
 func flattenAzureCredentials(d *schema.ResourceData) []map[string]interface{} {
+	if d.Get("transfer_spec.0.azure_blob_storage_data_source.0.azure_credentials.0.sas_token") == "" {
+		return []map[string]interface{}{}
+	}
+
 	data := map[string]interface{}{
 		"sas_token": d.Get("transfer_spec.0.azure_blob_storage_data_source.0.azure_credentials.0.sas_token"),
 	}
@@ -1444,19 +1520,23 @@ func expandAzureBlobStorageData(azureBlobStorageDatas []interface{}) *storagetra
 	azureBlobStorageData := azureBlobStorageDatas[0].(map[string]interface{})
 
 	return &storagetransfer.AzureBlobStorageData{
-		Container:        azureBlobStorageData["container"].(string),
-		Path:             azureBlobStorageData["path"].(string),
-		StorageAccount:   azureBlobStorageData["storage_account"].(string),
-		AzureCredentials: expandAzureCredentials(azureBlobStorageData["azure_credentials"].([]interface{})),
+		Container:               azureBlobStorageData["container"].(string),
+		Path:                    azureBlobStorageData["path"].(string),
+		StorageAccount:          azureBlobStorageData["storage_account"].(string),
+		AzureCredentials:        expandAzureCredentials(azureBlobStorageData["azure_credentials"].([]interface{})),
+		CredentialsSecret:       azureBlobStorageData["credentials_secret"].(string),
+		FederatedIdentityConfig: expandAzureFederatedIdentifyConfig(azureBlobStorageData["federated_identity_config"].([]interface{})),
 	}
 }
 
 func flattenAzureBlobStorageData(azureBlobStorageData *storagetransfer.AzureBlobStorageData, d *schema.ResourceData) []map[string]interface{} {
 	data := map[string]interface{}{
-		"container":         azureBlobStorageData.Container,
-		"path":              azureBlobStorageData.Path,
-		"storage_account":   azureBlobStorageData.StorageAccount,
-		"azure_credentials": flattenAzureCredentials(d),
+		"container":                 azureBlobStorageData.Container,
+		"path":                      azureBlobStorageData.Path,
+		"storage_account":           azureBlobStorageData.StorageAccount,
+		"azure_credentials":         flattenAzureCredentials(d),
+		"federated_identity_config": flattenAzureFederatedIdentifyConfig(d),
+		"credentials_secret":        azureBlobStorageData.CredentialsSecret,
 	}
 
 	return []map[string]interface{}{data}

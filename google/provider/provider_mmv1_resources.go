@@ -185,7 +185,9 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_artifact_registry_docker_image":                      artifactregistry.DataSourceArtifactRegistryDockerImage(),
 	"google_artifact_registry_docker_images":                     artifactregistry.DataSourceArtifactRegistryDockerImages(),
 	"google_artifact_registry_locations":                         artifactregistry.DataSourceGoogleArtifactRegistryLocations(),
+	"google_artifact_registry_repositories":                      artifactregistry.DataSourceArtifactRegistryRepositories(),
 	"google_artifact_registry_repository":                        artifactregistry.DataSourceArtifactRegistryRepository(),
+	"google_artifact_registry_package":                           artifactregistry.DataSourceArtifactRegistryPackage(),
 	"google_artifact_registry_version":                           artifactregistry.DataSourceArtifactRegistryVersion(),
 	"google_apphub_discovered_workload":                          apphub.DataSourceApphubDiscoveredWorkload(),
 	"google_app_engine_default_service_account":                  appengine.DataSourceGoogleAppEngineDefaultServiceAccount(),
@@ -302,7 +304,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_iam_testable_permissions":                            resourcemanager.DataSourceGoogleIamTestablePermissions(),
 	"google_iam_workload_identity_pool":                          iambeta.DataSourceIAMBetaWorkloadIdentityPool(),
 	"google_iam_workload_identity_pool_provider":                 iambeta.DataSourceIAMBetaWorkloadIdentityPoolProvider(),
-	"google_iap_client":                                          iap.DataSourceGoogleIapClient(),
+	"google_iap_client":                                          iap.DataSourceIapClient(),
 	"google_kms_crypto_key":                                      kms.DataSourceGoogleKmsCryptoKey(),
 	"google_kms_crypto_keys":                                     kms.DataSourceGoogleKmsCryptoKeys(),
 	"google_kms_crypto_key_version":                              kms.DataSourceGoogleKmsCryptoKeyVersion(),
@@ -553,9 +555,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 641
+// Generated resources: 643
 // Generated IAM resources: 312
-// Total generated resources: 953
+// Total generated resources: 955
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1018,6 +1020,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_dialogflow_cx_generator":                                             dialogflowcx.ResourceDialogflowCXGenerator(),
 	"google_dialogflow_cx_intent":                                                dialogflowcx.ResourceDialogflowCXIntent(),
 	"google_dialogflow_cx_page":                                                  dialogflowcx.ResourceDialogflowCXPage(),
+	"google_dialogflow_cx_playbook":                                              dialogflowcx.ResourceDialogflowCXPlaybook(),
 	"google_dialogflow_cx_security_settings":                                     dialogflowcx.ResourceDialogflowCXSecuritySettings(),
 	"google_dialogflow_cx_test_case":                                             dialogflowcx.ResourceDialogflowCXTestCase(),
 	"google_dialogflow_cx_tool":                                                  dialogflowcx.ResourceDialogflowCXTool(),
@@ -1465,6 +1468,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_vertex_ai_index":                                                     vertexai.ResourceVertexAIIndex(),
 	"google_vertex_ai_index_endpoint":                                            vertexai.ResourceVertexAIIndexEndpoint(),
 	"google_vertex_ai_index_endpoint_deployed_index":                             vertexai.ResourceVertexAIIndexEndpointDeployedIndex(),
+	"google_vertex_ai_rag_engine_config":                                         vertexai.ResourceVertexAIRagEngineConfig(),
 	"google_vertex_ai_tensorboard":                                               vertexai.ResourceVertexAITensorboard(),
 	"google_vmwareengine_cluster":                                                vmwareengine.ResourceVmwareengineCluster(),
 	"google_vmwareengine_external_access_rule":                                   vmwareengine.ResourceVmwareengineExternalAccessRule(),

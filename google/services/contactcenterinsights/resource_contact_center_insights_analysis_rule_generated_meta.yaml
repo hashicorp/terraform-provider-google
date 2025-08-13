@@ -4,6 +4,7 @@ source_file: 'products/contactcenterinsights/AnalysisRule.yaml'
 api_service_name: 'contactcenterinsights.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'AnalysisRule'
+autogen_status: true
 fields:
   - field: 'active'
   - field: 'analysis_percentage'
