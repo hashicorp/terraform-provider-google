@@ -1,0 +1,3 @@
+```release-note:enhancement
+resourcemanager: Added `management_project` and `configured_capabilities` fields to the `google_folder` resource.
+```

@@ -94,6 +94,17 @@ func ResourceGoogleFolder() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored when empty. This field is only set at create time and modifying this field after creation will trigger recreation. To apply tags to an existing resource, see the google_tags_tag_value resource.`,
 			},
+			"configured_capabilities": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `A list of capabilities that are configured for this folder.`,
+			},
+			"management_project": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The Management Project associated with the folder's configured capabilities.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -194,6 +205,12 @@ func resourceGoogleFolderRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	if err := d.Set("create_time", folder.CreateTime); err != nil {
 		return fmt.Errorf("Error setting create_time: %s", err)
+	}
+	if err := d.Set("configured_capabilities", folder.ConfiguredCapabilities); err != nil {
+		return fmt.Errorf("Error setting configured_capabilities: %s", err)
+	}
+	if err := d.Set("management_project", folder.ManagementProject); err != nil {
+		return fmt.Errorf("Error setting management_project: %s", err)
 	}
 
 	return nil

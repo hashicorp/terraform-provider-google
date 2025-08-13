@@ -70,6 +70,15 @@ func DataSourceGoogleFolder() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"configured_capabilities": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"management_project": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
