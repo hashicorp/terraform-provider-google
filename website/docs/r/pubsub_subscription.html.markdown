@@ -524,9 +524,12 @@ resource "google_pubsub_topic" "example" {
   name = "example-topic"
 }
 
-locals {
-  smts = [
-    {
+resource "google_pubsub_subscription" "example" {
+  name  = "example-subscription"
+  topic = google_pubsub_topic.example.id
+
+  message_transforms {
+    javascript_udf {
       function_name = "redactSSN"
       code = <<EOF
 function redactSSN(message, metadata) {
@@ -536,36 +539,25 @@ function redactSSN(message, metadata) {
   return message;
 }
 EOF
-    },
-    {
-      function_name = "otherFunc",
+    }
+  }
+
+  message_transforms {
+    javascript_udf {
+      function_name = "otherFunc"
       code = <<EOF
 function otherFunc(message, metadata) {
   return null;
 }
 EOF
-    },
-    {
-      function_name = "someSMTWeDisabled",
-      code = "..."
-      disabled = true
     }
-  ]
-}
+  }
 
-resource "google_pubsub_subscription" "example" {
-  name  = "example-subscription"
-  topic = google_pubsub_topic.example.id
-
-  dynamic "message_transforms" {
-    for_each = local.smts
-
-    content {
-      disabled = lookup(message_transforms.value, "disabled", null)
-      javascript_udf {
-        function_name = message_transforms.value.function_name
-        code = message_transforms.value.code
-      }
+  message_transforms {
+    disabled = true
+    javascript_udf {
+      function_name = "someSMTWeDisabled"
+      code = "..."
     }
   }
 }

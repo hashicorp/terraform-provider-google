@@ -482,6 +482,113 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 `, context)
 }
 
+func TestAccComputeServiceAttachment_serviceAttachmentCrossRegionIlbExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeServiceAttachmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeServiceAttachment_serviceAttachmentCrossRegionIlbExample(context),
+			},
+			{
+				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccComputeServiceAttachment_serviceAttachmentCrossRegionIlbExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
+  name                  = "sa%{random_suffix}"
+  region                = "us-central1"
+  description           = "A service attachment configured with Terraform"
+  connection_preference = "ACCEPT_AUTOMATIC"
+  enable_proxy_protocol = false
+  nat_subnets           = [google_compute_subnetwork.subnetwork_psc.id]
+  target_service        = google_compute_global_forwarding_rule.forwarding_rule.id
+}
+
+resource "google_compute_global_forwarding_rule" "forwarding_rule" {
+  name                  = "sa%{random_suffix}"
+  target                = google_compute_target_http_proxy.http_proxy.id
+  network               = google_compute_network.network.id
+  subnetwork            = google_compute_subnetwork.subnetwork.id
+  port_range            = "80"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+
+  depends_on = [google_compute_subnetwork.subnetwork_proxy]
+}
+
+resource "google_compute_target_http_proxy" "http_proxy" {
+  name        = "sa%{random_suffix}"
+  description = "a description"
+  url_map     = google_compute_url_map.url_map.id
+}
+
+resource "google_compute_url_map" "url_map" {
+  name            = "sa%{random_suffix}"
+  description     = "Url map."
+  default_service = google_compute_backend_service.backend_service.id
+}
+
+resource "google_compute_backend_service" "backend_service" {
+  name                  = "sa%{random_suffix}"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  health_checks         = [google_compute_health_check.health_check.id]
+}
+
+resource "google_compute_health_check" "health_check" {
+  name               = "sa%{random_suffix}"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_subnetwork" "subnetwork_psc" {
+  name          = "sa%{random_suffix}-psc"
+  region        = "us-central1"
+  network       = google_compute_network.network.id
+  purpose       =  "PRIVATE_SERVICE_CONNECT"
+  ip_cidr_range = "10.1.0.0/16"
+}
+
+resource "google_compute_subnetwork" "subnetwork_proxy" {
+  name          = "sa%{random_suffix}-proxy"
+  region        = "us-central1"
+  network       = google_compute_network.network.id
+  purpose       =  "GLOBAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+  ip_cidr_range = "10.2.0.0/16"
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name          = "sa%{random_suffix}"
+  region        = "us-central1"
+  network       = google_compute_network.network.id
+  ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_compute_network" "network" {
+  name                    = "sa%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
 func testAccCheckComputeServiceAttachmentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

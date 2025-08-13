@@ -142,9 +142,9 @@ func listAndActionColabRuntimeTemplate(action sweeper.ResourceAction) error {
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["runtimeTemplates"]
+		resourceList, ok := res["notebookRuntimeTemplates"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'runtimeTemplates'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'notebookRuntimeTemplates'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

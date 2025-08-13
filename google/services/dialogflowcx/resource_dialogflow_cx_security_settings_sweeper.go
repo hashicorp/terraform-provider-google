@@ -140,9 +140,9 @@ func listAndActionDialogflowCXSecuritySettings(action sweeper.ResourceAction) er
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["securitySettingss"]
+		resourceList, ok := res["securitySettings"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'securitySettingss'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'securitySettings'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

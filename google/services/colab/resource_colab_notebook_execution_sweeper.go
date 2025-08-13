@@ -142,9 +142,9 @@ func listAndActionColabNotebookExecution(action sweeper.ResourceAction) error {
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["notebookExecutions"]
+		resourceList, ok := res["notebookExecutionJobs"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'notebookExecutions'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'notebookExecutionJobs'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

@@ -142,9 +142,9 @@ func listAndActionSecurityCenterProjectCustomModule(action sweeper.ResourceActio
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["projectCustomModules"]
+		resourceList, ok := res["securityHealthAnalyticsCustomModules"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'projectCustomModules'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'securityHealthAnalyticsCustomModules'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]
