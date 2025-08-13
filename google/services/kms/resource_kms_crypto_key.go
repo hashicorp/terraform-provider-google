@@ -137,10 +137,10 @@ letter 's' (seconds). It must be greater than a day (ie, 86400).`,
 			"skip_initial_version_creation": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: true,
 				Description: `If set to true, the request will create a CryptoKey without any CryptoKeyVersions.
 You must use the 'google_kms_crypto_key_version' resource to create a new CryptoKeyVersion
-or 'google_kms_key_ring_import_job' resource to import the CryptoKeyVersion.`,
+or 'google_kms_key_ring_import_job' resource to import the CryptoKeyVersion.
+This field is only applicable during initial CryptoKey creation.`,
 			},
 			"version_template": {
 				Type:        schema.TypeList,
@@ -528,10 +528,6 @@ func resourceKMSCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	}
 	if err := d.Set("name", cryptoKeyId.Name); err != nil {
 		return nil, fmt.Errorf("Error setting name: %s", err)
-	}
-
-	if err := d.Set("skip_initial_version_creation", false); err != nil {
-		return nil, fmt.Errorf("Error setting skip_initial_version_creation: %s", err)
 	}
 
 	id, err := tpgresource.ReplaceVars(d, config, "{{key_ring}}/cryptoKeys/{{name}}")
