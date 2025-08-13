@@ -155,6 +155,7 @@ The following arguments are supported:
   If set to true, the request will create a CryptoKey without any CryptoKeyVersions.
   You must use the `google_kms_crypto_key_version` resource to create a new CryptoKeyVersion
   or `google_kms_key_ring_import_job` resource to import the CryptoKeyVersion.
+  This field is only applicable during initial CryptoKey creation.
 
 
 
