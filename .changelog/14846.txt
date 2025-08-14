@@ -1,0 +1,3 @@
+```release-note:bug
+`cloud_tasks`: set `name` field set to required in `google_cloud_tasks_queue` resource
+```
