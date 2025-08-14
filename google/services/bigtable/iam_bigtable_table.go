@@ -49,11 +49,11 @@ var IamBigtableTableSchema = map[string]*schema.Schema{
 }
 
 type BigtableTableIamUpdater struct {
-	project  string
-	instance string
-	table    string
-	d        tpgresource.TerraformResourceData
-	Config   *transport_tpg.Config
+	project      string
+	instanceName string
+	table        string
+	d            tpgresource.TerraformResourceData
+	Config       *transport_tpg.Config
 }
 
 func NewBigtableTableUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (tpgiamresource.ResourceIamUpdater, error) {
@@ -67,18 +67,18 @@ func NewBigtableTableUpdater(d tpgresource.TerraformResourceData, config *transp
 	}
 
 	return &BigtableTableIamUpdater{
-		project:  project,
-		instance: d.Get("instance").(string),
-		table:    d.Get("table").(string),
-		d:        d,
-		Config:   config,
+		project:      project,
+		instanceName: d.Get("instance_name").(string),
+		table:        d.Get("table").(string),
+		d:            d,
+		Config:       config,
 	}, nil
 }
 
 func BigtableTableIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
-	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/tables/(?P<table>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/instances/(?P<instance_name>[^/]+)/tables/(?P<table>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func BigtableTableIdParseFunc(d *schema.ResourceData, config *transport_tpg.Conf
 		return fmt.Errorf("Error setting project: %s", err)
 	}
 
-	if err := d.Set("instance", values["instance"]); err != nil {
+	if err := d.Set("instance_name", values["instance_name"]); err != nil {
 		return fmt.Errorf("Error setting instance: %s", err)
 	}
 
@@ -102,7 +102,7 @@ func BigtableTableIdParseFunc(d *schema.ResourceData, config *transport_tpg.Conf
 	}
 
 	// Explicitly set the id so imported resources have the same ID format as non-imported ones.
-	d.SetId(fmt.Sprintf("projects/%s/instances/%s/tables/%s", project, values["instance"], values["table"]))
+	d.SetId(fmt.Sprintf("projects/%s/instances/%s/tables/%s", project, values["instance_name"], values["table"]))
 	return nil
 }
 
@@ -149,13 +149,13 @@ func (u *BigtableTableIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 }
 
 func (u *BigtableTableIamUpdater) GetResourceId() string {
-	return fmt.Sprintf("projects/%s/instances/%s/tables/%s", u.project, u.instance, u.table)
+	return fmt.Sprintf("projects/%s/instances/%s/tables/%s", u.project, u.instanceName, u.table)
 }
 
 func (u *BigtableTableIamUpdater) GetMutexKey() string {
-	return fmt.Sprintf("iam-bigtable-instance-%s-%s-%s", u.project, u.instance, u.table)
+	return fmt.Sprintf("iam-bigtable-instance-%s-%s-%s", u.project, u.instanceName, u.table)
 }
 
 func (u *BigtableTableIamUpdater) DescribeResource() string {
-	return fmt.Sprintf("Bigtable Table %s/%s-%s", u.project, u.instance, u.table)
+	return fmt.Sprintf("Bigtable Table %s/%s-%s", u.project, u.instanceName, u.table)
 }
