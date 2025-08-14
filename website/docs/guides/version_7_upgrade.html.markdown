@@ -116,6 +116,12 @@ Description of the change and how users should adjust their configuration (if ne
 
 ## Resources
 
+
+## Resource: `google_beyondcorp_application` is now removed
+
+`google_beyondcorp_application`, the associated IAM resources `google_beyondcorp_application_iam_binding`, `google_beyondcorp_application_iam_member`, and `google_beyondcorp_application_iam_policy`, and the `google_beyondcorp_application_iam_policy` datasource have been removed. 
+Use `google_beyondcorp_security_gateway_application` instead.
+
 ## Resource: `google_artifact_registry_repository`
 
 ### `public_repository` fields have had their default values removed.
