@@ -71,6 +71,12 @@ func ResourceCloudTasksQueue() *schema.Resource {
 				ForceNew:    true,
 				Description: `The location of the queue`,
 			},
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The queue name.`,
+			},
 			"app_engine_routing_override": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -308,12 +314,6 @@ When specified, determines the Target UriOverride mode. If not specified, it def
 						},
 					},
 				},
-			},
-			"name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The queue name.`,
 			},
 			"rate_limits": {
 				Type:     schema.TypeList,
