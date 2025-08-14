@@ -1,0 +1,3 @@
+```release-note:bug
+clouddeploy: allowed sending `start_time` with default values in `weekly_windows` in  `google_clouddeploy_deploy_policy` resource. `start_time 00:00` means the policy will start at midnight.
+```

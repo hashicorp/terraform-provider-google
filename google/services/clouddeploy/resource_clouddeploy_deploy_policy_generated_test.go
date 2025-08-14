@@ -72,11 +72,11 @@ resource "google_clouddeploy_deploy_policy" "b-deploy-policy" {
         time_zone = "America/Los_Angeles"
         weekly_windows {
             start_time {
-                hours = "12"
-                minutes = "00"
+                hours = 0
+                minutes = 0
             }
             end_time {
-                hours = "13"
+                hours = "24"
                 minutes = "00"
             }
         }
@@ -150,16 +150,12 @@ resource "google_clouddeploy_deploy_policy" "f-deploy-policy" {
         time_zone = "America/Los_Angeles"
         weekly_windows {
             start_time {
-                hours = "12"
-                minutes = "00"
-                seconds = "00"
-                nanos = "00"
+                hours = 0
+                minutes = 0
             }
             end_time {
                 hours = "13"
                 minutes = "00"
-                seconds = "00"
-                nanos = "00"
             }
         }
       }
@@ -176,8 +172,6 @@ resource "google_clouddeploy_deploy_policy" "f-deploy-policy" {
             start_time {
                 hours = "13"
                 minutes = "00"
-                seconds = "00"
-                nanos = "00"
             }
             end_time {
                 hours = "14"
@@ -190,16 +184,12 @@ resource "google_clouddeploy_deploy_policy" "f-deploy-policy" {
 
         one_time_windows {
         start_time {
-            hours = "15"
+            hours = "00"
             minutes = "00"
-            seconds = "00"
-            nanos = "00"
         }
         end_time {
             hours = "16"
             minutes = "00"
-            seconds = "00"
-            nanos = "00"
         }
         start_date {
             year = "2019"
