@@ -73,7 +73,7 @@ Each certificate must match pattern projects/*/locations/*/certificates/*.`,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description:      `A map entry that is inputted into the cetrificate map`,
+				Description:      `A map entry that is inputted into the certificate map`,
 			},
 			"name": {
 				Type:     schema.TypeString,
