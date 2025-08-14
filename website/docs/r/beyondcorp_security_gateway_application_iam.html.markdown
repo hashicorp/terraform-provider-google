@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for BeyondCorp SecurityGatewayApplication
+
 Three different resources help you manage your IAM policy for BeyondCorp SecurityGatewayApplication. Each of these resources serves a different use case:
 
 * `google_beyondcorp_security_gateway_application_iam_policy`: Authoritative. Sets the IAM policy for the securitygatewayapplication and replaces any existing policy already attached.

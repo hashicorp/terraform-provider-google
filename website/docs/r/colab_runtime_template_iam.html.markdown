@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Colab Enterprise RuntimeTemplate
+
 Three different resources help you manage your IAM policy for Colab Enterprise RuntimeTemplate. Each of these resources serves a different use case:
 
 * `google_colab_runtime_template_iam_policy`: Authoritative. Sets the IAM policy for the runtimetemplate and replaces any existing policy already attached.

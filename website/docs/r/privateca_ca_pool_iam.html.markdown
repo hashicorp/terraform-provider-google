@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Certificate Authority Service CaPool
+
 Three different resources help you manage your IAM policy for Certificate Authority Service CaPool. Each of these resources serves a different use case:
 
 * `google_privateca_ca_pool_iam_policy`: Authoritative. Sets the IAM policy for the capool and replaces any existing policy already attached.

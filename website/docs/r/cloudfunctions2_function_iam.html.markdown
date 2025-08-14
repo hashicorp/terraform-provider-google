@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Cloud Functions (2nd gen) function
+
 Three different resources help you manage your IAM policy for Cloud Functions (2nd gen) function. Each of these resources serves a different use case:
 
 * `google_cloudfunctions2_function_iam_policy`: Authoritative. Sets the IAM policy for the function and replaces any existing policy already attached.

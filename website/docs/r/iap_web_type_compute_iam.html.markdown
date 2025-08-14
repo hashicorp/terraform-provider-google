@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Identity-Aware Proxy WebTypeCompute
+
 Three different resources help you manage your IAM policy for Identity-Aware Proxy WebTypeCompute. Each of these resources serves a different use case:
 
 * `google_iap_web_type_compute_iam_policy`: Authoritative. Sets the IAM policy for the webtypecompute and replaces any existing policy already attached.

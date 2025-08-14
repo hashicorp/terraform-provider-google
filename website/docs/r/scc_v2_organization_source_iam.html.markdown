@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Security Command Center (SCC) v2 API OrganizationSource
+
 Three different resources help you manage your IAM policy for Security Command Center (SCC) v2 API OrganizationSource. Each of these resources serves a different use case:
 
 * `google_scc_v2_organization_source_iam_policy`: Authoritative. Sets the IAM policy for the organizationsource and replaces any existing policy already attached.

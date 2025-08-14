@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Data Catalog EntryGroup
+
 Three different resources help you manage your IAM policy for Data Catalog EntryGroup. Each of these resources serves a different use case:
 
 * `google_data_catalog_entry_group_iam_policy`: Authoritative. Sets the IAM policy for the entrygroup and replaces any existing policy already attached.

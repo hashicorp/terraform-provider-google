@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Data Catalog Taxonomy
+
 Three different resources help you manage your IAM policy for Data Catalog Taxonomy. Each of these resources serves a different use case:
 
 * `google_data_catalog_taxonomy_iam_policy`: Authoritative. Sets the IAM policy for the taxonomy and replaces any existing policy already attached.
