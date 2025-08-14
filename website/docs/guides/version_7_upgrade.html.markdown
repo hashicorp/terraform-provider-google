@@ -114,6 +114,12 @@ Description of the change and how users should adjust their configuration (if ne
 
 Description of the change and how users should adjust their configuration (if needed).
 
+## Datasource: `google_service_account_key`
+
+### `project` is now removed
+
+`project` has been removed. It can be safely removed from your configuration.
+
 ## Resources
 
 
