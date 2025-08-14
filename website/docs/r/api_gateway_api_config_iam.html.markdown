@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for API Gateway ApiConfig
+
 Three different resources help you manage your IAM policy for API Gateway ApiConfig. Each of these resources serves a different use case:
 
 * `google_api_gateway_api_config_iam_policy`: Authoritative. Sets the IAM policy for the apiconfig and replaces any existing policy already attached.

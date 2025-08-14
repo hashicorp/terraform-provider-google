@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for BigQuery Connection Connection
+
 Three different resources help you manage your IAM policy for BigQuery Connection Connection. Each of these resources serves a different use case:
 
 * `google_bigquery_connection_iam_policy`: Authoritative. Sets the IAM policy for the connection and replaces any existing policy already attached.

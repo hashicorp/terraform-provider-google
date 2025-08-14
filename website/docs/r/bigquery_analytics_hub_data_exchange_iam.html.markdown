@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for BigQuery Analytics Hub DataExchange
+
 Three different resources help you manage your IAM policy for BigQuery Analytics Hub DataExchange. Each of these resources serves a different use case:
 
 * `google_bigquery_analytics_hub_data_exchange_iam_policy`: Authoritative. Sets the IAM policy for the dataexchange and replaces any existing policy already attached.

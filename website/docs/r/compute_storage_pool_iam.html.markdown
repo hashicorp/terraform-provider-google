@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Compute Engine StoragePool
+
 Three different resources help you manage your IAM policy for Compute Engine StoragePool. Each of these resources serves a different use case:
 
 * `google_compute_storage_pool_iam_policy`: Authoritative. Sets the IAM policy for the storagepool and replaces any existing policy already attached.

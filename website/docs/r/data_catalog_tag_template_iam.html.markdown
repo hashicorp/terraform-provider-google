@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Data Catalog TagTemplate
+
 Three different resources help you manage your IAM policy for Data Catalog TagTemplate. Each of these resources serves a different use case:
 
 * `google_data_catalog_tag_template_iam_policy`: Authoritative. Sets the IAM policy for the tagtemplate and replaces any existing policy already attached.

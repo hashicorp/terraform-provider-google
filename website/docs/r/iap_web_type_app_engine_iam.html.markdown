@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Identity-Aware Proxy WebTypeAppEngine
+
 Three different resources help you manage your IAM policy for Identity-Aware Proxy WebTypeAppEngine. Each of these resources serves a different use case:
 
 * `google_iap_web_type_app_engine_iam_policy`: Authoritative. Sets the IAM policy for the webtypeappengine and replaces any existing policy already attached.
