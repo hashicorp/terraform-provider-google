@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_certificate_manager_certificate_issuance_config'
 generation_type: 'mmv1'
 source_file: 'products/certificatemanager/CertificateIssuanceConfig.yaml'

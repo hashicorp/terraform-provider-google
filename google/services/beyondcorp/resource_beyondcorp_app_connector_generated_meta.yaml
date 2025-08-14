@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_beyondcorp_app_connector'
 generation_type: 'mmv1'
 source_file: 'products/beyondcorp/AppConnector.yaml'

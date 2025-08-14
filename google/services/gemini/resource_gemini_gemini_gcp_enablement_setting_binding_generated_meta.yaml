@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_gemini_gemini_gcp_enablement_setting_binding'
 generation_type: 'mmv1'
 source_file: 'products/gemini/GeminiGcpEnablementSettingBinding.yaml'
