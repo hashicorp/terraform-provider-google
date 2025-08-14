@@ -13419,7 +13419,7 @@ func testAccContainerCluster_additional_ip_ranges_config(name string, additional
 
 	resource "google_compute_subnetwork" "main" {
 	  ip_cidr_range = "10.2.0.0/24"
-	  name          = "main"
+	  name          = "%s"
 	  network       = google_compute_network.main.self_link
 	  region        = "us-central1"
 
@@ -13451,7 +13451,7 @@ func testAccContainerCluster_additional_ip_ranges_config(name string, additional
 
 	  deletion_protection = false
 	}
-	`, name, subnetStr, name, additionalIpRangesStr)
+	`, name, name, subnetStr, name, additionalIpRangesStr)
 }
 
 func testAccContainerCluster_withAnonymousAuthenticationConfig(name, networkName, subnetworkName string, mode string) string {
