@@ -189,6 +189,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_artifact_registry_package":                           artifactregistry.DataSourceArtifactRegistryPackage(),
 	"google_artifact_registry_repositories":                      artifactregistry.DataSourceArtifactRegistryRepositories(),
 	"google_artifact_registry_repository":                        artifactregistry.DataSourceArtifactRegistryRepository(),
+	"google_artifact_registry_tag":                               artifactregistry.DataSourceArtifactRegistryTag(),
 	"google_artifact_registry_tags":                              artifactregistry.DataSourceArtifactRegistryTags(),
 	"google_artifact_registry_version":                           artifactregistry.DataSourceArtifactRegistryVersion(),
 	"google_apphub_discovered_workload":                          apphub.DataSourceApphubDiscoveredWorkload(),
