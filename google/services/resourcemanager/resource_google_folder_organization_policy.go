@@ -63,9 +63,9 @@ func resourceFolderOrgPolicyImporter(d *schema.ResourceData, meta interface{}) (
 	config := meta.(*transport_tpg.Config)
 
 	if err := tpgresource.ParseImportId([]string{
-		"folders/(?P<folder>[^/]+)/constraints/(?P<constraint>[^/]+)",
-		"folders/(?P<folder>[^/]+)/(?P<constraint>[^/]+)",
-		"(?P<folder>[^/]+)/(?P<constraint>[^/]+)"},
+		"^folders/(?P<folder>[^/]+)/constraints/(?P<constraint>[^/]+)$",
+		"^folders/(?P<folder>[^/]+)/(?P<constraint>[^/]+)$",
+		"^(?P<folder>[^/]+)/(?P<constraint>[^/]+)$"},
 		d, config); err != nil {
 		return nil, err
 	}
