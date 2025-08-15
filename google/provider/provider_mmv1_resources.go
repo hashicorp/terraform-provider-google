@@ -214,6 +214,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_bigquery_default_service_account":                    bigquery.DataSourceGoogleBigqueryDefaultServiceAccount(),
 	"google_certificate_manager_certificates":                    certificatemanager.DataSourceGoogleCertificateManagerCertificates(),
 	"google_certificate_manager_certificate_map":                 certificatemanager.DataSourceGoogleCertificateManagerCertificateMap(),
+	"google_certificate_manager_dns_authorization":               certificatemanager.DataSourceGoogleCertificateManagerDnsAuthorization(),
 	"google_cloudbuild_trigger":                                  cloudbuild.DataSourceGoogleCloudBuildTrigger(),
 	"google_cloudfunctions_function":                             cloudfunctions.DataSourceGoogleCloudFunctionsFunction(),
 	"google_cloudfunctions2_function":                            cloudfunctions2.DataSourceGoogleCloudFunctions2Function(),
