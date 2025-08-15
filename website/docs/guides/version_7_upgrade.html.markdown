@@ -106,6 +106,10 @@ terraform {
 
 Description of the change and how users should adjust their configuration (if needed).
 
+### Resource import formats have improved validation
+
+Throughout the provider there were many resources which erroneously gave false positives to poorly formatted import input if a subset of the provided input was valid to their configured import formats. All GCP resource IDs supplied to "terraform import" must match the documentation specified import formats exactly.
+
 ## Datasources
 
 ## Datasource: `google_product_datasource`
