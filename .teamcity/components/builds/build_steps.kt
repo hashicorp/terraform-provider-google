@@ -226,3 +226,55 @@ fun BuildSteps.archiveArtifactsIfOverLimit() {
         // https://youtrack.jetbrains.com/issue/KT-2425/Provide-a-way-for-escaping-the-dollar-sign-symbol-in-multiline-strings-and-string-templates
     })
 }
+
+fun BuildSteps.runDiffTests() {
+    if (UseTeamCityGoTest) {
+        step(ScriptBuildStep {
+            name = "Run Diff Tests"
+            scriptContent = "go test -v \"%PACKAGE_PATH%\" -timeout=\"%TIMEOUT%h\" -test.parallel=\"%PARALLELISM%\" -run=\"%TEST_PREFIX%\" -json"
+        })
+    } else {
+        step(ScriptBuildStep {
+            name = "Compile Test Binary"
+            workingDir = "%PACKAGE_PATH%"
+            scriptContent = """
+                #!/bin/bash
+                export TEST_FILE_COUNT=$(ls ./*_test.go | wc -l)
+                if test ${'$'}TEST_FILE_COUNT -gt "0"; then
+                    echo "Compiling test binary"
+                    go test -c -o test-binary
+                else
+                    echo "Skipping compilation of test binary; no Go test files found"
+                fi
+            """.trimIndent()
+        })
+
+        step(ScriptBuildStep {
+            name = "Run via scripts/teamcitytestscripts/teamcity-diff-test"
+            workingDir = "%PACKAGE_PATH%"
+            scriptContent = """
+                #!/bin/bash
+                if ! test -f "./test-binary"; then
+                    echo "Skipping test execution; file ./test-binary does not exist."
+                    exit 0
+                fi
+                
+                echo "Compiling teamcity-diff-test..."
+                pushd ../../../scripts/teamcitytestscripts > /dev/null
+                go build -o ../../teamcity-diff-test .
+                popd > /dev/null
+
+
+                export TEST_COUNT=${'$'}(./test-binary -test.list="%TEST_PREFIX%" | wc -l)
+                echo "Found ${'$'}{TEST_COUNT} tests that match the given test prefix %TEST_PREFIX%"
+                if test ${'$'}TEST_COUNT -le "0"; then
+                    echo "Skipping test execution; no tests to run"
+                    exit 0
+                fi
+                
+                echo "Starting tests"
+                ./test-binary -test.list="%TEST_PREFIX%" | ../../../teamcity-diff-test -test ./test-binary -parallelism "%PARALLELISM%" -timeout "%TIMEOUT%h"
+            """.trimIndent()
+        })
+    }
+}
