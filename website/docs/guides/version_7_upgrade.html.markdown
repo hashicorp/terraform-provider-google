@@ -195,6 +195,12 @@ To reflect the new type explicitly, surround the current integer value in quotes
 
 Remove `description` from your configuration after upgrade.
 
+## Resource: `google_colab_runtime_template`
+
+### `post_startup_script_config` is now removed.
+
+Remove `post_startup_script_config` from your configuration after upgrade.
+
 ## Resource: `google_network_services_lb_traffic_extension`
 
 ### `load_balancing_scheme` is now required
