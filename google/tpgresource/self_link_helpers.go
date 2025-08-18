@@ -17,8 +17,10 @@
 package tpgresource
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"log"
 	"net/url"
 	"regexp"
 	"strings"
@@ -106,6 +108,34 @@ func GetRelativePath(selfLink string) (string, error) {
 func SelfLinkNameHash(selfLink interface{}) int {
 	name := GetResourceNameFromSelfLink(selfLink.(string))
 	return Hashcode(name)
+}
+
+// Hash based on relative url for a nested object containing a URL field.
+func NestedUrlSetHashFunc(v interface{}) int {
+	if v == nil {
+		return 0
+	}
+
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+	log.Printf("[DEBUG] hashing %v", m)
+
+	if v, ok := m["url"]; ok {
+		if v == nil {
+			v = ""
+		} else {
+			if relUrl, err := GetRelativePath(v.(string)); err != nil {
+				log.Printf("[WARN] Error on retrieving relative path of network url: %s", err)
+			} else {
+				v = relUrl
+			}
+		}
+
+		buf.WriteString(fmt.Sprintf("%v-", v))
+	}
+
+	log.Printf("[DEBUG] computed hash value of %v from %v", Hashcode(buf.String()), buf.String())
+	return Hashcode(buf.String())
 }
 
 func ConvertSelfLinkToV1(link string) string {

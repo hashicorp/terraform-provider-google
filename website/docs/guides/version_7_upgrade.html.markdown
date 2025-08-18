@@ -156,6 +156,12 @@ Use `google_beyondcorp_security_gateway_application` instead.
 
 `instance` has been removed in favor of `instance_name`.
 
+## Resource: `google_compute_packet_mirroring`
+
+### `subnetworks` and `instances` fields have been converted to sets
+
+`subnetworks` and `instances` fields have been converted to sets. If you need to access values in their nested objects, it will need to be accessed via `for_each` or locally converting the field to a list/array in your configuration.
+
 ## Resource: `google_compute_subnetwork`
 
 ### `enable_flow_logs`is now removed

@@ -111,6 +111,9 @@ resource "google_compute_packet_mirroring" "foobar" {
     instances {
       url = google_compute_instance.mirror.id
     }
+    subnetworks {
+      url = google_compute_subnetwork.default.id
+      }
   }
   filter {
     ip_protocols = ["tcp"]
