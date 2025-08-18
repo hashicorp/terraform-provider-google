@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added support for "connection_properties" for bigquery to `google_bigquery_job` (beta)
+```

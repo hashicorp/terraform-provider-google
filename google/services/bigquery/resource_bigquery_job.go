@@ -666,6 +666,35 @@ Creation, truncation and append actions occur as one atomic update upon job comp
 Requires destinationTable to be set. For standard SQL queries, this flag is ignored and large results are always allowed.
 However, you must still set destinationTable when result size exceeds the allowed maximum response size.`,
 						},
+						"connection_properties": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Description: `Connection properties to customize query behavior. Under JDBC, these correspond
+directly to connection properties passed to the DriverManager. Under ODBC, these
+correspond to properties in the connection string.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `The key of the property to set. Currently supported connection properties:
+* 'dataset_project_id': represents the default project for datasets that are used in the query
+* 'time_zone': represents the default timezone used to run the query
+* 'session_id': associates the query with a given session
+* 'query_label': associates the query with a given job label
+* 'service_account': indicates the service account to use to run a continuous query`,
+									},
+									"value": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `The value of the property to set.`,
+									},
+								},
+							},
+						},
 						"create_disposition": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -1353,6 +1382,8 @@ func flattenBigQueryJobConfigurationQuery(v interface{}, d *schema.ResourceData,
 		flattenBigQueryJobConfigurationQueryDestinationEncryptionConfiguration(original["destinationEncryptionConfiguration"], d, config)
 	transformed["script_options"] =
 		flattenBigQueryJobConfigurationQueryScriptOptions(original["scriptOptions"], d, config)
+	transformed["connection_properties"] =
+		flattenBigQueryJobConfigurationQueryConnectionProperties(original["connectionProperties"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBigQueryJobConfigurationQueryQuery(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1533,6 +1564,33 @@ func flattenBigQueryJobConfigurationQueryScriptOptionsStatementByteBudget(v inte
 }
 
 func flattenBigQueryJobConfigurationQueryScriptOptionsKeyResultStatement(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigQueryJobConfigurationQueryConnectionProperties(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"key":   flattenBigQueryJobConfigurationQueryConnectionPropertiesKey(original["key"], d, config),
+			"value": flattenBigQueryJobConfigurationQueryConnectionPropertiesValue(original["value"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenBigQueryJobConfigurationQueryConnectionPropertiesKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigQueryJobConfigurationQueryConnectionPropertiesValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2296,6 +2354,13 @@ func expandBigQueryJobConfigurationQuery(v interface{}, d tpgresource.TerraformR
 		transformed["scriptOptions"] = transformedScriptOptions
 	}
 
+	transformedConnectionProperties, err := expandBigQueryJobConfigurationQueryConnectionProperties(original["connection_properties"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConnectionProperties); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["connectionProperties"] = transformedConnectionProperties
+	}
+
 	return transformed, nil
 }
 
@@ -2534,6 +2599,43 @@ func expandBigQueryJobConfigurationQueryScriptOptionsStatementByteBudget(v inter
 }
 
 func expandBigQueryJobConfigurationQueryScriptOptionsKeyResultStatement(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryJobConfigurationQueryConnectionProperties(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedKey, err := expandBigQueryJobConfigurationQueryConnectionPropertiesKey(original["key"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["key"] = transformedKey
+		}
+
+		transformedValue, err := expandBigQueryJobConfigurationQueryConnectionPropertiesValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandBigQueryJobConfigurationQueryConnectionPropertiesKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryJobConfigurationQueryConnectionPropertiesValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
