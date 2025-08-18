@@ -1,0 +1,1 @@
+unknown: Set default_from_api for image field in VmwareNodePool
