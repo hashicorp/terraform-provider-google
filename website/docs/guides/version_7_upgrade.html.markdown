@@ -126,6 +126,13 @@ Description of the change and how users should adjust their configuration (if ne
 
 ## Resources
 
+## Resource: `google_alloydb_cluster`
+
+### Cluster deletion now prevented by default with `deletion_protection`
+
+The field `deletion_protection` has been added with a default value of `true`. This field prevents
+Terraform from destroying or recreating the cluster during `terraform apply`. In 7.0.0, existing clusters will have
+`deletion_protection` set to `true` during the next refresh unless otherwise set in configuration.
 
 ## Resource: `google_beyondcorp_application` is now removed
 

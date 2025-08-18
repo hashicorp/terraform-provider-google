@@ -1,0 +1,3 @@
+```release-note:enhancement
+alloydb: added `deletion_protection` field with a default value of `true` to `google_alloydb_cluster` resource
+```

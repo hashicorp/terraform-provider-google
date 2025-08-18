@@ -49,7 +49,7 @@ func TestAccAlloydbCluster_alloydbClusterBasicExample(t *testing.T) {
 				ResourceName:            "google_alloydb_cluster.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "cluster_id", "initial_user", "labels", "location", "restore_backup_source", "restore_continuous_backup_source", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "cluster_id", "deletion_protection", "initial_user", "labels", "location", "restore_backup_source", "restore_continuous_backup_source", "terraform_labels"},
 			},
 		},
 	})
@@ -63,6 +63,8 @@ resource "google_alloydb_cluster" "default" {
   network_config {
     network = google_compute_network.default.id
   }
+
+  deletion_protection = false
 }
 
 data "google_project" "project" {}
@@ -93,7 +95,7 @@ func TestAccAlloydbCluster_alloydbClusterBeforeUpgradeExample(t *testing.T) {
 				ResourceName:            "google_alloydb_cluster.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "cluster_id", "initial_user", "labels", "location", "restore_backup_source", "restore_continuous_backup_source", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "cluster_id", "deletion_protection", "initial_user", "labels", "location", "restore_backup_source", "restore_continuous_backup_source", "terraform_labels"},
 			},
 		},
 	})
@@ -123,6 +125,8 @@ resource "google_alloydb_cluster" "default" {
   initial_user {
     password = "tf-test-alloydb-cluster%{random_suffix}"
   }
+
+  deletion_protection = false
 }
 
 data "google_compute_network" "default" {
@@ -151,7 +155,7 @@ func TestAccAlloydbCluster_alloydbClusterAfterUpgradeExample(t *testing.T) {
 				ResourceName:            "google_alloydb_cluster.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "cluster_id", "initial_user", "labels", "location", "restore_backup_source", "restore_continuous_backup_source", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "cluster_id", "deletion_protection", "initial_user", "labels", "location", "restore_backup_source", "restore_continuous_backup_source", "terraform_labels"},
 			},
 		},
 	})
@@ -181,6 +185,8 @@ resource "google_alloydb_cluster" "default" {
   initial_user {
     password = "tf-test-alloydb-cluster%{random_suffix}"
   }
+
+  deletion_protection = false
 }
 
 data "google_compute_network" "default" {
@@ -208,7 +214,7 @@ func TestAccAlloydbCluster_alloydbClusterFullExample(t *testing.T) {
 				ResourceName:            "google_alloydb_cluster.full",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "cluster_id", "initial_user", "labels", "location", "restore_backup_source", "restore_continuous_backup_source", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "cluster_id", "deletion_protection", "initial_user", "labels", "location", "restore_backup_source", "restore_continuous_backup_source", "terraform_labels"},
 			},
 		},
 	})
@@ -262,6 +268,8 @@ resource "google_alloydb_cluster" "full" {
   labels = {
     test = "tf-test-alloydb-cluster-full%{random_suffix}"
   }
+
+  deletion_protection = false
 }
 
 data "google_project" "project" {}
@@ -292,7 +300,7 @@ func TestAccAlloydbCluster_alloydbSecondaryClusterBasicTestExample(t *testing.T)
 				ResourceName:            "google_alloydb_cluster.secondary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "cluster_id", "initial_user", "labels", "location", "restore_backup_source", "restore_continuous_backup_source", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "cluster_id", "deletion_protection", "initial_user", "labels", "location", "restore_backup_source", "restore_continuous_backup_source", "terraform_labels"},
 			},
 		},
 	})
@@ -306,6 +314,8 @@ resource "google_alloydb_cluster" "primary" {
   network_config {
     network = data.google_compute_network.default.id
   }
+
+  deletion_protection = false
 }
 
 resource "google_alloydb_instance" "primary" {
@@ -334,6 +344,7 @@ resource "google_alloydb_cluster" "secondary" {
     primary_cluster_name = google_alloydb_cluster.primary.name
   }
 
+  deletion_protection = false
   depends_on = [google_alloydb_instance.primary]
 }
 

@@ -77,6 +77,8 @@ resource "google_alloydb_cluster" "default" {
   initial_user {
     password = "tf-test-alloydb-cluster%{random_suffix}"
   }
+
+  deletion_protection = false
 }
 
 data "google_project" "project" {}
@@ -121,6 +123,8 @@ resource "google_alloydb_cluster" "primary" {
   network_config {
     network = data.google_compute_network.default.id
   }
+
+  deletion_protection = false
 }
 
 resource "google_alloydb_instance" "primary" {
@@ -151,6 +155,7 @@ resource "google_alloydb_cluster" "secondary" {
 
   deletion_policy = "FORCE"
 
+  deletion_protection = false
   depends_on = [google_alloydb_instance.primary]
 }
 
@@ -219,6 +224,8 @@ resource "google_alloydb_cluster" "default" {
   psc_config {
     psc_enabled = true
   }
+
+  deletion_protection = false
 }
 `, context)
 }

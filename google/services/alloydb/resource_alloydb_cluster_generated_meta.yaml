@@ -33,6 +33,8 @@ fields:
   - field: 'database_version'
   - field: 'deletion_policy'
     provider_only: true
+  - field: 'deletion_protection'
+    provider_only: true
   - field: 'display_name'
   - field: 'effective_annotations'
     provider_only: true
