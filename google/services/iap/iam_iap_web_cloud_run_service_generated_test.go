@@ -337,6 +337,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -362,6 +366,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -402,6 +410,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -429,6 +441,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -454,6 +470,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -479,6 +499,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -509,6 +533,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -561,6 +589,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -591,6 +623,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -643,6 +679,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
