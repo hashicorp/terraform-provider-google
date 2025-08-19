@@ -81,6 +81,7 @@ projects/{project}/locations/{region}/cloudExadataInfrastuctures/{cloud_extradat
 			},
 			"backup_odb_subnet": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 				Description: `The name of the backup OdbSubnet associated with the VM Cluster.
@@ -123,6 +124,7 @@ Format: projects/{project}/global/networks/{network}`,
 			},
 			"odb_network": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 				Description: `The name of the OdbNetwork associated with the VM Cluster.
@@ -133,6 +135,7 @@ the odb_subnet and backup_odb_subnet.`,
 			},
 			"odb_subnet": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 				Description: `The name of the OdbSubnet associated with the VM Cluster for
