@@ -501,6 +501,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_iap_app_engine_service_iam_policy":                  tpgiamresource.DataSourceIamPolicy(iap.IapAppEngineServiceIamSchema, iap.IapAppEngineServiceIamUpdaterProducer),
 	"google_iap_app_engine_version_iam_policy":                  tpgiamresource.DataSourceIamPolicy(iap.IapAppEngineVersionIamSchema, iap.IapAppEngineVersionIamUpdaterProducer),
 	"google_iap_web_cloud_run_service_iam_policy":               tpgiamresource.DataSourceIamPolicy(iap.IapWebCloudRunServiceIamSchema, iap.IapWebCloudRunServiceIamUpdaterProducer),
+	"google_iap_web_region_forwarding_rule_service_iam_policy":  tpgiamresource.DataSourceIamPolicy(iap.IapWebRegionForwardingRuleServiceIamSchema, iap.IapWebRegionForwardingRuleServiceIamUpdaterProducer),
 	"google_iap_tunnel_iam_policy":                              tpgiamresource.DataSourceIamPolicy(iap.IapTunnelIamSchema, iap.IapTunnelIamUpdaterProducer),
 	"google_iap_tunnel_dest_group_iam_policy":                   tpgiamresource.DataSourceIamPolicy(iap.IapTunnelDestGroupIamSchema, iap.IapTunnelDestGroupIamUpdaterProducer),
 	"google_iap_tunnel_instance_iam_policy":                     tpgiamresource.DataSourceIamPolicy(iap.IapTunnelInstanceIamSchema, iap.IapTunnelInstanceIamUpdaterProducer),
@@ -561,8 +562,8 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 
 // Resources
 // Generated resources: 646
-// Generated IAM resources: 312
-// Total generated resources: 958
+// Generated IAM resources: 315
+// Total generated resources: 961
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1170,6 +1171,9 @@ var generatedResources = map[string]*schema.Resource{
 	"google_iap_web_cloud_run_service_iam_binding":                               tpgiamresource.ResourceIamBinding(iap.IapWebCloudRunServiceIamSchema, iap.IapWebCloudRunServiceIamUpdaterProducer, iap.IapWebCloudRunServiceIdParseFunc),
 	"google_iap_web_cloud_run_service_iam_member":                                tpgiamresource.ResourceIamMember(iap.IapWebCloudRunServiceIamSchema, iap.IapWebCloudRunServiceIamUpdaterProducer, iap.IapWebCloudRunServiceIdParseFunc),
 	"google_iap_web_cloud_run_service_iam_policy":                                tpgiamresource.ResourceIamPolicy(iap.IapWebCloudRunServiceIamSchema, iap.IapWebCloudRunServiceIamUpdaterProducer, iap.IapWebCloudRunServiceIdParseFunc),
+	"google_iap_web_region_forwarding_rule_service_iam_binding":                  tpgiamresource.ResourceIamBinding(iap.IapWebRegionForwardingRuleServiceIamSchema, iap.IapWebRegionForwardingRuleServiceIamUpdaterProducer, iap.IapWebRegionForwardingRuleServiceIdParseFunc),
+	"google_iap_web_region_forwarding_rule_service_iam_member":                   tpgiamresource.ResourceIamMember(iap.IapWebRegionForwardingRuleServiceIamSchema, iap.IapWebRegionForwardingRuleServiceIamUpdaterProducer, iap.IapWebRegionForwardingRuleServiceIdParseFunc),
+	"google_iap_web_region_forwarding_rule_service_iam_policy":                   tpgiamresource.ResourceIamPolicy(iap.IapWebRegionForwardingRuleServiceIamSchema, iap.IapWebRegionForwardingRuleServiceIamUpdaterProducer, iap.IapWebRegionForwardingRuleServiceIdParseFunc),
 	"google_iap_settings":                                                        iap.ResourceIapSettings(),
 	"google_iap_tunnel_iam_binding":                                              tpgiamresource.ResourceIamBinding(iap.IapTunnelIamSchema, iap.IapTunnelIamUpdaterProducer, iap.IapTunnelIdParseFunc),
 	"google_iap_tunnel_iam_member":                                               tpgiamresource.ResourceIamMember(iap.IapTunnelIamSchema, iap.IapTunnelIamUpdaterProducer, iap.IapTunnelIdParseFunc),
