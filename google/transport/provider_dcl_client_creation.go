@@ -89,7 +89,7 @@ func NewDCLCloudbuildClient(config *Config, userAgent, billingProject string, ti
 		dcl.WithHTTPClient(config.Client),
 		dcl.WithUserAgent(userAgent),
 		dcl.WithLogger(dclLogger{}),
-		dcl.WithBasePath(config.CloudBuildWorkerPoolBasePath),
+		dcl.WithBasePath(config.CloudBuildBasePath),
 	}
 
 	if timeout != 0 {
@@ -273,7 +273,7 @@ func NewDCLGkeHubClient(config *Config, userAgent, billingProject string, timeou
 		dcl.WithHTTPClient(config.Client),
 		dcl.WithUserAgent(userAgent),
 		dcl.WithLogger(dclLogger{}),
-		dcl.WithBasePath(config.GKEHubFeatureBasePath),
+		dcl.WithBasePath(config.GKEHubBasePath),
 	}
 
 	if timeout != 0 {

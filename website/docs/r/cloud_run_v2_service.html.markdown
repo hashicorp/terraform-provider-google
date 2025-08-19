@@ -44,6 +44,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -95,11 +99,11 @@ resource "google_cloud_run_v2_service" "default" {
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
   
-  template {
-    scaling {
-      max_instance_count = 2
-    }
-  
+  scaling {
+    max_instance_count = 2
+  }
+
+  template { 
     volumes {
       name = "cloudsql"
       cloud_sql_instance {
@@ -259,6 +263,10 @@ resource "google_cloud_run_v2_service" "default" {
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
 
+  scaling {
+    max_instance_count = 1
+  }
+
   template {
     containers {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -275,9 +283,6 @@ resource "google_cloud_run_v2_service" "default" {
       accelerator = "nvidia-l4"
     }
     gpu_zonal_redundancy_disabled = true
-    scaling {
-      max_instance_count = 1
-    }
   }
 }
 ```
@@ -1374,6 +1379,10 @@ When the field is set to false, deleting the service is allowed.
 * `min_instance_count` -
   (Optional)
   Minimum number of instances for the service, to be divided among all revisions receiving traffic.
+
+* `max_instance_count` -
+  (Optional)
+  Combined maximum number of instances for all revisions receiving traffic.
 
 * `scaling_mode` -
   (Optional)

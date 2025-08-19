@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Cloud IAM WorkloadIdentityPool
+
 Three different resources help you manage your IAM policy for Cloud IAM WorkloadIdentityPool. Each of these resources serves a different use case:
 
 * `google_iam_workload_identity_pool_iam_policy`: Authoritative. Sets the IAM policy for the workloadidentitypool and replaces any existing policy already attached.

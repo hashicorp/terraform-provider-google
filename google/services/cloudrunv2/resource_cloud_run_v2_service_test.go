@@ -78,6 +78,10 @@ resource "google_cloud_run_v2_service" "default" {
   }
   client = "client-1"
   client_version = "client-version-1"
+  scaling {
+    min_instance_count = 1
+    max_instance_count = 3
+  }
   template {
     labels = {
       label-1 = "value-1"
@@ -85,10 +89,6 @@ resource "google_cloud_run_v2_service" "default" {
     timeout = "300s"
     service_account = google_service_account.service_account.email
     execution_environment = "EXECUTION_ENVIRONMENT_GEN2"
-    scaling {
-      max_instance_count = 3
-      min_instance_count = 1
-    }
     annotations = {
       generated-by = "magic-modules"
     }
@@ -146,7 +146,10 @@ resource "google_cloud_run_v2_service" "default" {
   }
   client = "client-update"
   client_version = "client-version-update"
-
+  scaling {
+    min_instance_count = 1
+    max_instance_count = 2
+  }
   template {
     labels = {
       label-1 = "value-update"
@@ -154,10 +157,6 @@ resource "google_cloud_run_v2_service" "default" {
     timeout = "500s"
     service_account = google_service_account.service_account.email
     execution_environment = "EXECUTION_ENVIRONMENT_GEN1"
-    scaling {
-      max_instance_count = 2
-      min_instance_count = 1
-    }
     annotations = {
       generated-by = "magic-modules"
     }
@@ -268,6 +267,10 @@ resource "google_cloud_run_v2_service" "default" {
   }
   client = "client-1"
   client_version = "client-version-1"
+  scaling {
+    min_instance_count = 1
+    max_instance_count = 3
+  }
   template {
     labels = {
       label-1 = "value-1"
@@ -275,10 +278,6 @@ resource "google_cloud_run_v2_service" "default" {
     timeout = "300s"
     service_account = google_service_account.service_account.email
     execution_environment = "EXECUTION_ENVIRONMENT_GEN2"
-    scaling {
-      max_instance_count = 3
-      min_instance_count = 1
-    }
     annotations = {
       generated-by = "magic-modules"
     }
@@ -1143,6 +1142,9 @@ resource "google_cloud_run_v2_service" "default" {
   }
   client = "client-1"
   client_version = "client-version-1"
+  scaling {
+    max_instance_count = 1
+  }
   template {
     containers {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -1153,9 +1155,6 @@ resource "google_cloud_run_v2_service" "default" {
         }
         startup_cpu_boost = true
       }
-    }
-    scaling {
-      max_instance_count = 1
     }
   }
 }
@@ -1178,6 +1177,9 @@ resource "google_cloud_run_v2_service" "default" {
   }
   client = "client-1"
   client_version = "client-version-1"
+  scaling {
+    max_instance_count = 1
+  }
   template {
     containers {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -1194,9 +1196,6 @@ resource "google_cloud_run_v2_service" "default" {
       accelerator = "nvidia-l4"
     }
     gpu_zonal_redundancy_disabled = true
-    scaling {
-      max_instance_count = 1
-    }
   }
 }
 `, context)

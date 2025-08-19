@@ -185,9 +185,11 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_artifact_registry_docker_image":                      artifactregistry.DataSourceArtifactRegistryDockerImage(),
 	"google_artifact_registry_docker_images":                     artifactregistry.DataSourceArtifactRegistryDockerImages(),
 	"google_artifact_registry_locations":                         artifactregistry.DataSourceGoogleArtifactRegistryLocations(),
+	"google_artifact_registry_package":                           artifactregistry.DataSourceArtifactRegistryPackage(),
 	"google_artifact_registry_repositories":                      artifactregistry.DataSourceArtifactRegistryRepositories(),
 	"google_artifact_registry_repository":                        artifactregistry.DataSourceArtifactRegistryRepository(),
-	"google_artifact_registry_package":                           artifactregistry.DataSourceArtifactRegistryPackage(),
+	"google_artifact_registry_tag":                               artifactregistry.DataSourceArtifactRegistryTag(),
+	"google_artifact_registry_tags":                              artifactregistry.DataSourceArtifactRegistryTags(),
 	"google_artifact_registry_version":                           artifactregistry.DataSourceArtifactRegistryVersion(),
 	"google_apphub_discovered_workload":                          apphub.DataSourceApphubDiscoveredWorkload(),
 	"google_app_engine_default_service_account":                  appengine.DataSourceGoogleAppEngineDefaultServiceAccount(),
@@ -211,6 +213,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_bigquery_default_service_account":                    bigquery.DataSourceGoogleBigqueryDefaultServiceAccount(),
 	"google_certificate_manager_certificates":                    certificatemanager.DataSourceGoogleCertificateManagerCertificates(),
 	"google_certificate_manager_certificate_map":                 certificatemanager.DataSourceGoogleCertificateManagerCertificateMap(),
+	"google_certificate_manager_dns_authorization":               certificatemanager.DataSourceGoogleCertificateManagerDnsAuthorization(),
 	"google_cloudbuild_trigger":                                  cloudbuild.DataSourceGoogleCloudBuildTrigger(),
 	"google_cloudfunctions_function":                             cloudfunctions.DataSourceGoogleCloudFunctionsFunction(),
 	"google_cloudfunctions2_function":                            cloudfunctions2.DataSourceGoogleCloudFunctions2Function(),
@@ -397,9 +400,9 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_storage_bucket_object":                               storage.DataSourceGoogleStorageBucketObject(),
 	"google_storage_bucket_objects":                              storage.DataSourceGoogleStorageBucketObjects(),
 	"google_storage_bucket_object_content":                       storage.DataSourceGoogleStorageBucketObjectContent(),
-	"google_storage_control_folder_intelligence_config":          storagecontrol.DataSourceGoogleStorageControlFolderIntelligenceConfig(),
-	"google_storage_control_organization_intelligence_config":    storagecontrol.DataSourceGoogleStorageControlOrganizationIntelligenceConfig(),
-	"google_storage_control_project_intelligence_config":         storagecontrol.DataSourceGoogleStorageControlProjectIntelligenceConfig(),
+	"google_storage_control_folder_intelligence_config":          storagecontrol.DataSourceStorageControlFolderIntelligenceConfig(),
+	"google_storage_control_organization_intelligence_config":    storagecontrol.DataSourceStorageControlOrganizationIntelligenceConfig(),
+	"google_storage_control_project_intelligence_config":         storagecontrol.DataSourceStorageControlProjectIntelligenceConfig(),
 	"google_storage_insights_dataset_config":                     storageinsights.DataSourceGoogleStorageInsightsDatasetConfig(),
 	"google_storage_object_signed_url":                           storage.DataSourceGoogleSignedUrl(),
 	"google_storage_project_service_account":                     storage.DataSourceGoogleStorageProjectServiceAccount(),
@@ -554,9 +557,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 642
+// Generated resources: 643
 // Generated IAM resources: 309
-// Total generated resources: 951
+// Total generated resources: 952
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1003,6 +1006,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_developer_connect_git_repository_link":                               developerconnect.ResourceDeveloperConnectGitRepositoryLink(),
 	"google_developer_connect_insights_config":                                   developerconnect.ResourceDeveloperConnectInsightsConfig(),
 	"google_dialogflow_agent":                                                    dialogflow.ResourceDialogflowAgent(),
+	"google_dialogflow_conversation_profile":                                     dialogflow.ResourceDialogflowConversationProfile(),
 	"google_dialogflow_encryption_spec":                                          dialogflow.ResourceDialogflowEncryptionSpec(),
 	"google_dialogflow_entity_type":                                              dialogflow.ResourceDialogflowEntityType(),
 	"google_dialogflow_fulfillment":                                              dialogflow.ResourceDialogflowFulfillment(),

@@ -228,7 +228,6 @@ func ExpandExternalCredentialsConfig(v interface{}) (*ExternalCredentials, error
 // Config is the configuration structure used to instantiate the Google
 // provider.
 type Config struct {
-	DCLConfig
 	AccessToken                               string
 	Credentials                               string
 	ExternalCredentials                       *ExternalCredentials
@@ -414,9 +413,14 @@ type Config struct {
 	BigtableAdminBasePath     string
 	TagsLocationBasePath      string
 
-	// dcl
-	ContainerAwsBasePath   string
-	ContainerAzureBasePath string
+	// DCL
+	ContainerAwsBasePath         string
+	ContainerAzureBasePath       string
+	ApikeysBasePath              string
+	AssuredWorkloadsBasePath     string
+	CloudResourceManagerBasePath string
+	FirebaserulesBasePath        string
+	RecaptchaEnterpriseBasePath  string
 
 	RequestBatcherServiceUsage *RequestBatcher
 	RequestBatcherIam          *RequestBatcher
@@ -732,9 +736,15 @@ var DefaultBasePaths = map[string]string{
 	IamCredentialsBasePathKey:           "https://iamcredentials.googleapis.com/v1/",
 	ResourceManagerV3BasePathKey:        "https://cloudresourcemanager.googleapis.com/v3/",
 	BigtableAdminBasePathKey:            "https://bigtableadmin.googleapis.com/v2/",
-	ContainerAwsBasePathKey:             "https://{{location}}-gkemulticloud.googleapis.com/v1/",
-	ContainerAzureBasePathKey:           "https://{{location}}-gkemulticloud.googleapis.com/v1/",
 	TagsLocationBasePathKey:             "https://{{location}}-cloudresourcemanager.googleapis.com/v3/",
+	// DCL
+	ContainerAwsBasePathKey:              "https://{{location}}-gkemulticloud.googleapis.com/v1/",
+	ContainerAzureBasePathKey:            "https://{{location}}-gkemulticloud.googleapis.com/v1/",
+	ApikeysEndpointEntryKey:              "https://apikeys.googleapis.com/v2/",
+	AssuredWorkloadsEndpointEntryKey:     "https://{{location}}-assuredworkloads.googleapis.com/v1beta1/",
+	CloudResourceManagerEndpointEntryKey: "https://cloudresourcemanager.googleapis.com/",
+	FirebaserulesEndpointEntryKey:        "https://firebaserules.googleapis.com/v1/",
+	RecaptchaEnterpriseEndpointEntryKey:  "https://recaptchaenterprise.googleapis.com/v1/",
 }
 
 var DefaultClientScopes = []string{
@@ -1589,6 +1599,9 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		}, DefaultBasePaths[TagsLocationBasePathKey]))
 	}
 
+	// DCL endpoints - these are hardcoded as a workaround for the DCL not providing a way to
+	// determine base paths at generation time.
+
 	if d.Get(ContainerAwsCustomEndpointEntryKey) == "" {
 		d.Set(ContainerAwsCustomEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_CONTAINERAWS_CUSTOM_ENDPOINT",
@@ -1599,6 +1612,31 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set(ContainerAzureCustomEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_CONTAINERAZURE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[ContainerAzureBasePathKey]))
+	}
+	if d.Get(ApikeysEndpointEntryKey) == "" {
+		d.Set(ApikeysEndpointEntryKey, MultiEnvDefault([]string{
+			"GOOGLE_APIKEYS_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[ApikeysEndpointEntryKey]))
+	}
+	if d.Get(AssuredWorkloadsEndpointEntryKey) == "" {
+		d.Set(AssuredWorkloadsEndpointEntryKey, MultiEnvDefault([]string{
+			"GOOGLE_ASSURED_WORKLOADS_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[AssuredWorkloadsEndpointEntryKey]))
+	}
+	if d.Get(CloudResourceManagerEndpointEntryKey) == "" {
+		d.Set(CloudResourceManagerEndpointEntryKey, MultiEnvDefault([]string{
+			"GOOGLE_CLOUD_RESOURCE_MANAGER_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[CloudResourceManagerEndpointEntryKey]))
+	}
+	if d.Get(FirebaserulesEndpointEntryKey) == "" {
+		d.Set(FirebaserulesEndpointEntryKey, MultiEnvDefault([]string{
+			"GOOGLE_FIREBASERULES_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[FirebaserulesEndpointEntryKey]))
+	}
+	if d.Get(RecaptchaEnterpriseEndpointEntryKey) == "" {
+		d.Set(RecaptchaEnterpriseEndpointEntryKey, MultiEnvDefault([]string{
+			"GOOGLE_RECAPTCHA_ENTERPRISE_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[RecaptchaEnterpriseEndpointEntryKey]))
 	}
 
 	return nil
@@ -2685,6 +2723,15 @@ func ConfigureBasePaths(c *Config) {
 	c.BigQueryBasePath = DefaultBasePaths[BigQueryBasePathKey]
 	c.BigtableAdminBasePath = DefaultBasePaths[BigtableAdminBasePathKey]
 	c.TagsLocationBasePath = DefaultBasePaths[TagsLocationBasePathKey]
+
+	// DCL
+	c.ContainerAwsBasePath = DefaultBasePaths[ContainerAwsBasePathKey]
+	c.ContainerAzureBasePath = DefaultBasePaths[ContainerAzureBasePathKey]
+	c.ApikeysBasePath = DefaultBasePaths[ApikeysEndpointEntryKey]
+	c.AssuredWorkloadsBasePath = DefaultBasePaths[AssuredWorkloadsEndpointEntryKey]
+	c.CloudResourceManagerBasePath = DefaultBasePaths[CloudResourceManagerEndpointEntryKey]
+	c.FirebaserulesBasePath = DefaultBasePaths[FirebaserulesEndpointEntryKey]
+	c.RecaptchaEnterpriseBasePath = DefaultBasePaths[RecaptchaEnterpriseEndpointEntryKey]
 }
 
 func GetCurrentUserEmail(config *Config, userAgent string) (string, error) {
