@@ -32,11 +32,7 @@ func DataSourceIapClient() *schema.Resource {
 
 	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(rs)
 
-	// Set 'Required' schema elements
 	tpgresource.AddRequiredFieldsToSchema(dsSchema, "brand", "client_id")
-
-	// Set 'Optional' schema elements
-	tpgresource.AddOptionalFieldsToSchema(dsSchema)
 
 	return &schema.Resource{
 		Read:   dataSourceIapClientRead,
