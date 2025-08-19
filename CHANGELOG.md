@@ -3,8 +3,9 @@
 DEPRECATIONS:
 * beyondcorp: `google_beyondcorp_application_iam_binding`, `google_beyondcorp_application_iam_member` and `google_beyondcorp_application_iam_policy` IAM resources, and the `google_beyondcorp_application_iam_policy ` datasource have been deprecated and will be removed in the upcoming major release ([#23995](https://github.com/hashicorp/terraform-provider-google/pull/23995))
 * tpu: deprecated `google_tpu_tensorflow_versions` data source. Use `google_tpu_v2_runtime_versions` instead. ([#23958](https://github.com/hashicorp/terraform-provider-google/pull/23958))
+
 BREAKING CHANGES:
-* vertexai: make the `metadata` field required in `google_vertex_ai_index` ([#23953](https://github.com/hashicorp/terraform-provider-google/pull/23953))
+* vertexai: made the `metadata` field required in `google_vertex_ai_index` ([#23953](https://github.com/hashicorp/terraform-provider-google/pull/23953))
 
 FEATURES:
 * **New Data Source:** `google_artifact_registry_tag` ([#23994](https://github.com/hashicorp/terraform-provider-google/pull/23994))
@@ -17,16 +18,14 @@ IMPROVEMENTS:
 * container: added `eviction_soft`, `eviction_soft_grace_period`, `eviction_minimum_reclaim`, `eviction_max_pod_grace_period_seconds`, `max_parallel_image_pulls`, `transparent_hugepage_enabled`, `transparent_hugepage_defrag` and `min_node_cpus` fields to `node_config` block of `google_container_node_pool` and `google_container_cluster` resources ([#23973](https://github.com/hashicorp/terraform-provider-google/pull/23973))
 * networkmanagement: added `subnet` and `network` fields to the `google_network_management_vpc_flow_logs_config` resource (beta) ([#23945](https://github.com/hashicorp/terraform-provider-google/pull/23945))
 * networkmanagement: added output-only field `target_resource_state` to the `google_network_management_vpc_flow_logs_config` resource ([#23945](https://github.com/hashicorp/terraform-provider-google/pull/23945))
-* provider: eliminated the need to manually add `*_wo` and `*_wo_version` for write-only properties ([#23921](https://github.com/hashicorp/terraform-provider-google/pull/23921))
-* resourcemanager: Added `management_project` and `configured_capabilities` fields to the `google_folder` resource. ([#23983](https://github.com/hashicorp/terraform-provider-google/pull/23983))
+* resourcemanager: added `management_project` and `configured_capabilities` fields to the `google_folder` resource. ([#23983](https://github.com/hashicorp/terraform-provider-google/pull/23983))
 
 BUG FIXES:
 * cloud_tasks: set `name` field set to required in `google_cloud_tasks_queue` resource ([#23997](https://github.com/hashicorp/terraform-provider-google/pull/23997))
-* clouddeploy: allowed sending `start_time` with default values in `weekly_windows` in  `google_clouddeploy_deploy_policy` resource. `start_time 00:00` means the policy will start at midnight. ([#23993](https://github.com/hashicorp/terraform-provider-google/pull/23993))
+* clouddeploy: allowed sending `weekly_windows.start_time` as an empty object in order to use default values in  the`google_clouddeploy_deploy_policy` resource ([#23993](https://github.com/hashicorp/terraform-provider-google/pull/23993))
 * kms: `skip_initial_version_creation` field is no longer immutable in `google_kms_crypto_key`, but is still only settable at-creation ([#23984](https://github.com/hashicorp/terraform-provider-google/pull/23984))
 * netapp: fixed bug where `google_netapp_volume.large_capacity` was not properly marked as immutable, causing updates to fail (and making it impossible to change the field value after creation) ([#24004](https://github.com/hashicorp/terraform-provider-google/pull/24004))
-* networkconnectivity`: added update support for `linked_vpc_network` in `google_network_connectivity_spoke` ([#23949](https://github.com/hashicorp/terraform-provider-google/pull/23949))
-* provider: fixed many import functions throughout the provider that erroneously matched a subset of the provided input, leading to unclear error messages when using `terraform input` with invalid resource IDs (revert) ([#23957](https://github.com/hashicorp/terraform-provider-google/pull/23957))
+* networkconnectivity: added update support for `linked_vpc_network` in `google_network_connectivity_spoke` ([#23949](https://github.com/hashicorp/terraform-provider-google/pull/23949))
 
 
 ## 6.48.0 (August 12, 2025)
