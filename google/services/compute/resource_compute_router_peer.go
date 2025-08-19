@@ -128,28 +128,14 @@ Leave this field blank to advertise no custom groups.`,
 				},
 			},
 			"advertised_ip_ranges": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Description: `User-specified list of individual IP ranges to advertise in
 custom mode. This field can only be populated if advertiseMode
 is 'CUSTOM' and is advertised to all peers of the router. These IP
 ranges will be advertised in addition to any specified groups.
 Leave this field blank to advertise no custom IP ranges.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"range": {
-							Type:     schema.TypeString,
-							Required: true,
-							Description: `The IP range to advertise. The value must be a
-CIDR-formatted string.`,
-						},
-						"description": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `User-specified description for the IP range.`,
-						},
-					},
-				},
+				Elem: computeRouterBgpPeerAdvertisedIpRangesSchema(),
 			},
 			"advertised_route_priority": {
 				Type:     schema.TypeInt,
@@ -403,6 +389,24 @@ Must be unique within a router. Must be referenced by exactly one bgpPeer. Must 
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+func computeRouterBgpPeerAdvertisedIpRangesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"range": {
+				Type:     schema.TypeString,
+				Required: true,
+				Description: `The IP range to advertise. The value must be a
+CIDR-formatted string.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `User-specified description for the IP range.`,
+			},
+		},
 	}
 }
 
@@ -1166,14 +1170,14 @@ func flattenNestedComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d *schem
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(schema.HashResource(computeRouterBgpPeerAdvertisedIpRangesSchema()), []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"range":       flattenNestedComputeRouterBgpPeerAdvertisedIpRangesRange(original["range"], d, config),
 			"description": flattenNestedComputeRouterBgpPeerAdvertisedIpRangesDescription(original["description"], d, config),
 		})
@@ -1402,6 +1406,7 @@ func expandNestedComputeRouterBgpPeerAdvertisedGroups(v interface{}, d tpgresour
 }
 
 func expandNestedComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
