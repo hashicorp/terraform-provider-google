@@ -214,12 +214,9 @@ type ProviderModel struct {
 	// dcl generated
 	ApikeysCustomEndpoint              types.String `tfsdk:"apikeys_custom_endpoint"`
 	AssuredWorkloadsCustomEndpoint     types.String `tfsdk:"assured_workloads_custom_endpoint"`
-	CloudBuildWorkerPoolCustomEndpoint types.String `tfsdk:"cloud_build_worker_pool_custom_endpoint"`
 	CloudResourceManagerCustomEndpoint types.String `tfsdk:"cloud_resource_manager_custom_endpoint"`
 	FirebaserulesCustomEndpoint        types.String `tfsdk:"firebaserules_custom_endpoint"`
 	RecaptchaEnterpriseCustomEndpoint  types.String `tfsdk:"recaptcha_enterprise_custom_endpoint"`
-
-	GkehubFeatureCustomEndpoint types.String `tfsdk:"gkehub_feature_custom_endpoint"`
 }
 
 type ProviderBatching struct {

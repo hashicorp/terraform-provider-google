@@ -54,11 +54,11 @@ resource "google_clouddeploy_deploy_policy" "b-deploy-policy" {
         time_zone = "America/Los_Angeles"
         weekly_windows {
             start_time {
-                hours = "12"
-                minutes = "00"
+                hours = 0
+                minutes = 0
             }
             end_time {
-                hours = "13"
+                hours = "24"
                 minutes = "00"
             }
         }
@@ -112,16 +112,12 @@ resource "google_clouddeploy_deploy_policy" "f-deploy-policy" {
         time_zone = "America/Los_Angeles"
         weekly_windows {
             start_time {
-                hours = "12"
-                minutes = "00"
-                seconds = "00"
-                nanos = "00"
+                hours = 0
+                minutes = 0
             }
             end_time {
                 hours = "13"
                 minutes = "00"
-                seconds = "00"
-                nanos = "00"
             }
         }
       }
@@ -138,8 +134,6 @@ resource "google_clouddeploy_deploy_policy" "f-deploy-policy" {
             start_time {
                 hours = "13"
                 minutes = "00"
-                seconds = "00"
-                nanos = "00"
             }
             end_time {
                 hours = "14"
@@ -152,16 +146,12 @@ resource "google_clouddeploy_deploy_policy" "f-deploy-policy" {
 
         one_time_windows {
         start_time {
-            hours = "15"
+            hours = "00"
             minutes = "00"
-            seconds = "00"
-            nanos = "00"
         }
         end_time {
             hours = "16"
             minutes = "00"
-            seconds = "00"
-            nanos = "00"
         }
         start_date {
             year = "2019"
@@ -191,12 +181,12 @@ The following arguments are supported:
 
 * `selectors` -
   (Required)
-  Required. Selected resources to which the policy will be applied. At least one selector is required. If one selector matches the resource the policy applies. For example, if there are two selectors and the action being attempted matches one of them, the policy will apply to that action.
+  Selected resources to which the policy will be applied. At least one selector is required. If one selector matches the resource the policy applies. For example, if there are two selectors and the action being attempted matches one of them, the policy will apply to that action.
   Structure is [documented below](#nested_selectors).
 
 * `rules` -
   (Required)
-  Required. Rules to apply. At least one rule must be present.
+  Rules to apply. At least one rule must be present.
   Structure is [documented below](#nested_rules).
 
 * `location` -
@@ -206,23 +196,23 @@ The following arguments are supported:
 
 * `description` -
   (Optional)
-  Optional. Description of the `DeployPolicy`. Max length is 255 characters.
+  Description of the `DeployPolicy`. Max length is 255 characters.
 
 * `annotations` -
   (Optional)
-  Optional. User annotations. These attributes can only be set and used by the user, and not by Cloud Deploy. Annotations must meet the following constraints: * Annotations are key/value pairs. * Valid annotation keys have two segments: an optional prefix and name, separated by a slash (`/`). * The name segment is required and must be 63 characters or less, beginning and ending with an alphanumeric character (`[a-z0-9A-Z]`) with dashes (`-`), underscores (`_`), dots (`.`), and alphanumerics between. * The prefix is optional. If specified, the prefix must be a DNS subdomain: a series of DNS labels separated by dots(`.`), not longer than 253 characters in total, followed by a slash (`/`). See https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/#syntax-and-character-set for more details.
+  User annotations. These attributes can only be set and used by the user, and not by Cloud Deploy. Annotations must meet the following constraints: * Annotations are key/value pairs. * Valid annotation keys have two segments: an optional prefix and name, separated by a slash (`/`). * The name segment is required and must be 63 characters or less, beginning and ending with an alphanumeric character (`[a-z0-9A-Z]`) with dashes (`-`), underscores (`_`), dots (`.`), and alphanumerics between. * The prefix is optional. If specified, the prefix must be a DNS subdomain: a series of DNS labels separated by dots(`.`), not longer than 253 characters in total, followed by a slash (`/`). See https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/#syntax-and-character-set for more details.
   **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
   Please refer to the field `effective_annotations` for all of the annotations present on the resource.
 
 * `labels` -
   (Optional)
-  Optional. Labels are attributes that can be set and used by both the user and by Cloud Deploy. Labels must meet the following constraints: * Keys and values can contain only lowercase letters, numeric characters, underscores, and dashes. * All characters must use UTF-8 encoding, and international characters are allowed. * Keys must start with a lowercase letter or international character. * Each resource is limited to a maximum of 64 labels. Both keys and values are additionally constrained to be <= 63 characters.
+  Labels are attributes that can be set and used by both the user and by Cloud Deploy. Labels must meet the following constraints: * Keys and values can contain only lowercase letters, numeric characters, underscores, and dashes. * All characters must use UTF-8 encoding, and international characters are allowed. * Keys must start with a lowercase letter or international character. * Each resource is limited to a maximum of 64 labels. Both keys and values are additionally constrained to be <= 63 characters.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `suspended` -
   (Optional)
-  Optional. When suspended, the policy will not prevent actions from occurring, even if the action violates the policy.
+  When suspended, the policy will not prevent actions from occurring, even if the action violates the policy.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -256,7 +246,7 @@ The following arguments are supported:
 
 * `id` -
   (Optional)
-  Optional. ID of the DeliveryPipeline. The value of this field could be one of the following:
+  ID of the DeliveryPipeline. The value of this field could be one of the following:
   - The last segment of a pipeline name
   - "*", all delivery pipelines in a location
 
@@ -268,7 +258,7 @@ The following arguments are supported:
 
 * `rollout_restriction` -
   (Optional)
-  Optional. Rollout restrictions.
+  Rollout restrictions.
   Structure is [documented below](#nested_rules_rules_rollout_restriction).
 
 
@@ -276,21 +266,21 @@ The following arguments are supported:
 
 * `id` -
   (Required)
-  Required. ID of the rule. This id must be unique in the `DeployPolicy` resource to which this rule belongs. The format is `a-z{0,62}`.
+  ID of the rule. This id must be unique in the `DeployPolicy` resource to which this rule belongs. The format is `a-z{0,62}`.
 
 * `invokers` -
   (Optional)
-  Optional. What invoked the action. If left empty, all invoker types will be restricted.
+  What invoked the action. If left empty, all invoker types will be restricted.
   Each value may be one of: `USER`, `DEPLOY_AUTOMATION`.
 
 * `actions` -
   (Optional)
-  Optional. Rollout actions to be restricted as part of the policy. If left empty, all actions will be restricted.
+  Rollout actions to be restricted as part of the policy. If left empty, all actions will be restricted.
   Each value may be one of: `ADVANCE`, `APPROVE`, `CANCEL`, `CREATE`, `IGNORE_JOB`, `RETRY_JOB`, `ROLLBACK`, `TERMINATE_JOBRUN`.
 
 * `time_windows` -
   (Optional)
-  Required. Time window within which actions are restricted.
+  Time window within which actions are restricted.
   Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows).
 
 
@@ -298,16 +288,16 @@ The following arguments are supported:
 
 * `time_zone` -
   (Required)
-  Required. The time zone in IANA format IANA Time Zone Database (e.g. America/New_York).
+  The time zone in IANA format IANA Time Zone Database (e.g. America/New_York).
 
 * `one_time_windows` -
   (Optional)
-  Optional. One-time windows within which actions are restricted.
+  One-time windows within which actions are restricted.
   Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_one_time_windows).
 
 * `weekly_windows` -
   (Optional)
-  Optional. Recurring weekly windows within which actions are restricted.
+  Recurring weekly windows within which actions are restricted.
   Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_weekly_windows).
 
 
@@ -315,22 +305,22 @@ The following arguments are supported:
 
 * `start_date` -
   (Required)
-  Required. Start date.
+  Start date.
   Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_one_time_windows_one_time_windows_start_date).
 
 * `end_date` -
   (Required)
-  Required. End date.
+  End date.
   Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_one_time_windows_one_time_windows_end_date).
 
 * `start_time` -
   (Required)
-  Required. Start time (inclusive). Use 00:00 for the beginning of the day.
+  Start time (inclusive). Use 00:00 for the beginning of the day.
   Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_one_time_windows_one_time_windows_start_time).
 
 * `end_time` -
   (Required)
-  Required. End time (exclusive). You may use 24:00 for the end of the day.
+  End time (exclusive). You may use 24:00 for the end of the day.
   Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_one_time_windows_one_time_windows_end_time).
 
 
@@ -402,17 +392,17 @@ The following arguments are supported:
 
 * `days_of_week` -
   (Optional)
-  Optional. Days of week. If left empty, all days of the week will be included.
+  Days of week. If left empty, all days of the week will be included.
   Each value may be one of: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 * `start_time` -
   (Optional)
-  Optional. Start time (inclusive). Use 00:00 for the beginning of the day. If you specify startTime you must also specify endTime. If left empty, this will block for the entire day for the days specified in daysOfWeek.
+  Start time (inclusive). Use 00:00 for the beginning of the day. If you specify startTime you must also specify endTime. If left empty, this will block for the entire day for the days specified in daysOfWeek.
   Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_weekly_windows_weekly_windows_start_time).
 
 * `end_time` -
   (Optional)
-  Optional. End time (exclusive). Use 24:00 to indicate midnight. If you specify endTime you must also specify startTime. If left empty, this will block for the entire day for the days specified in daysOfWeek.
+  End time (exclusive). Use 24:00 to indicate midnight. If you specify endTime you must also specify startTime. If left empty, this will block for the entire day for the days specified in daysOfWeek.
   Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_weekly_windows_weekly_windows_end_time).
 
 
@@ -468,7 +458,7 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. Time at which the DeployPolicy was updated.
 
 * `etag` -
-  Optional. The weak etag of the `DeployPolicy` resource. This checksum is computed by the server based on the value of other fields, and may be sent on update and delete requests to ensure the client has an up-to-date value before proceeding.
+  The weak etag of the `DeployPolicy` resource. This checksum is computed by the server based on the value of other fields, and may be sent on update and delete requests to ensure the client has an up-to-date value before proceeding.
 
 * `effective_annotations` -
   All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.

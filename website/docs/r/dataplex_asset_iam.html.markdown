@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Dataplex Asset
+
 Three different resources help you manage your IAM policy for Dataplex Asset. Each of these resources serves a different use case:
 
 * `google_dataplex_asset_iam_policy`: Authoritative. Sets the IAM policy for the asset and replaces any existing policy already attached.

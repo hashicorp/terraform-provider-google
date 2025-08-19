@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Artifact Registry Repository
+
 Three different resources help you manage your IAM policy for Artifact Registry Repository. Each of these resources serves a different use case:
 
 * `google_artifact_registry_repository_iam_policy`: Authoritative. Sets the IAM policy for the repository and replaces any existing policy already attached.

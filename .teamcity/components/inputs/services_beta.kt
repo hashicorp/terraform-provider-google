@@ -696,6 +696,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Runtimeconfig",
         "path" to "./google-beta/services/runtimeconfig"
     ),
+    "saasruntime" to mapOf(
+        "name" to "saasruntime",
+        "displayName" to "SaaS Runtime",
+        "path" to "./google-beta/services/saasruntime"
+    ),
     "secretmanager" to mapOf(
         "name" to "secretmanager",
         "displayName" to "Secretmanager",

@@ -601,6 +601,12 @@ func schemaNodeConfig() *schema.Schema {
 								Optional:    true,
 								Description: `Controls the maximum number of processes allowed to run in a pod.`,
 							},
+							"max_parallel_image_pulls": {
+								Type:        schema.TypeInt,
+								Optional:    true,
+								Computed:    true,
+								Description: `Set the maximum number of image pulls in parallel.`,
+							},
 							"container_log_max_size": {
 								Type:        schema.TypeString,
 								Optional:    true,
@@ -642,6 +648,131 @@ func schemaNodeConfig() *schema.Schema {
 								Optional:    true,
 								Description: `Defines whether to enable single process OOM killer.`,
 							},
+							"eviction_max_pod_grace_period_seconds": {
+								Type:        schema.TypeInt,
+								Optional:    true,
+								Description: `Defines the maximum allowed grace period (in seconds) to use when terminating pods in response to a soft eviction threshold being met.`,
+							},
+							"eviction_soft": {
+								Type:        schema.TypeList,
+								Optional:    true,
+								MaxItems:    1,
+								Description: `Defines a map of signal names to quantities or percentage that defines soft eviction thresholds.`,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"memory_available": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines quantity of soft eviction threshold for memory.available.`,
+										},
+										"nodefs_available": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines percentage of soft eviction threshold for nodefs.available.`,
+										},
+										"nodefs_inodes_free": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines percentage of soft eviction threshold for nodefs.inodesFree.`,
+										},
+										"imagefs_available": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines percentage of soft eviction threshold for imagefs.available.`,
+										},
+										"imagefs_inodes_free": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines percentage of soft eviction threshold for imagefs.inodesFree.`,
+										},
+										"pid_available": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines percentage of soft eviction threshold for pid.available.`,
+										},
+									},
+								},
+							},
+							"eviction_soft_grace_period": {
+								Type:        schema.TypeList,
+								Optional:    true,
+								MaxItems:    1,
+								Description: `Defines a map of signal names to durations that defines grace periods for soft eviction thresholds. Each soft eviction threshold must have a corresponding grace period.`,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"memory_available": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines grace period for the memory.available soft eviction threshold.`,
+										},
+										"nodefs_available": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines grace period for the nodefs.available soft eviction threshold.`,
+										},
+										"nodefs_inodes_free": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines grace period for the nodefs.inodesFree soft eviction threshold.`,
+										},
+										"imagefs_available": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines grace period for the imagefs.available soft eviction threshold`,
+										},
+										"imagefs_inodes_free": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines grace period for the imagefs.inodesFree soft eviction threshold.`,
+										},
+										"pid_available": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines grace period for the pid.available soft eviction threshold.`,
+										},
+									},
+								},
+							},
+							"eviction_minimum_reclaim": {
+								Type:        schema.TypeList,
+								Optional:    true,
+								MaxItems:    1,
+								Description: `Defines a map of signal names to percentage that defines minimum reclaims. It describes the minimum amount of a given resource the kubelet will reclaim when performing a pod eviction.`,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"memory_available": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines percentage of minimum reclaim for memory.available.`,
+										},
+										"nodefs_available": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines percentage of minimum reclaim for nodefs.available.`,
+										},
+										"nodefs_inodes_free": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines percentage of minimum reclaim for nodefs.inodesFree.`,
+										},
+										"imagefs_available": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines percentage of minimum reclaim for imagefs.available.`,
+										},
+										"imagefs_inodes_free": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines percentage of minimum reclaim for imagefs.inodesFree.`,
+										},
+										"pid_available": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: `Defines percentage of minimum reclaim for pid.available.`,
+										},
+									},
+								},
+							},
 						},
 					},
 				},
@@ -649,6 +780,7 @@ func schemaNodeConfig() *schema.Schema {
 					Type:        schema.TypeList,
 					Optional:    true,
 					MaxItems:    1,
+					Computed:    true,
 					Description: `Parameters that can be configured on Linux nodes.`,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
@@ -665,6 +797,21 @@ func schemaNodeConfig() *schema.Schema {
 								ValidateFunc:     validation.StringInSlice([]string{"CGROUP_MODE_UNSPECIFIED", "CGROUP_MODE_V1", "CGROUP_MODE_V2"}, false),
 								Description:      `cgroupMode specifies the cgroup mode to be used on the node.`,
 								DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("CGROUP_MODE_UNSPECIFIED"),
+							},
+							"transparent_hugepage_enabled": {
+								Type:             schema.TypeString,
+								Optional:         true,
+								Computed:         true,
+								ValidateFunc:     validation.StringInSlice([]string{"TRANSPARENT_HUGEPAGE_ENABLED_ALWAYS", "TRANSPARENT_HUGEPAGE_ENABLED_MADVISE", "TRANSPARENT_HUGEPAGE_ENABLED_NEVER", "TRANSPARENT_HUGEPAGE_ENABLED_UNSPECIFIED"}, false),
+								Description:      `The Linux kernel transparent hugepage setting.`,
+								DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("TRANSPARENT_HUGEPAGE_ENABLED_UNSPECIFIED"),
+							},
+							"transparent_hugepage_defrag": {
+								Type:             schema.TypeString,
+								Optional:         true,
+								ValidateFunc:     validation.StringInSlice([]string{"TRANSPARENT_HUGEPAGE_DEFRAG_ALWAYS", "TRANSPARENT_HUGEPAGE_DEFRAG_DEFER", "TRANSPARENT_HUGEPAGE_DEFRAG_DEFER_WITH_MADVISE", "TRANSPARENT_HUGEPAGE_DEFRAG_MADVISE", "TRANSPARENT_HUGEPAGE_DEFRAG_NEVER", "TRANSPARENT_HUGEPAGE_DEFRAG_UNSPECIFIED"}, false),
+								Description:      `The Linux kernel transparent hugepage defrag setting.`,
+								DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("TRANSPARENT_HUGEPAGE_DEFRAG_UNSPECIFIED"),
 							},
 							"hugepages_config": {
 								Type:        schema.TypeList,
@@ -780,6 +927,11 @@ func schemaNodeConfig() *schema.Schema {
 										},
 									},
 								},
+							},
+							"min_node_cpus": {
+								Type:        schema.TypeInt,
+								Optional:    true,
+								Description: `Specifies the minimum number of vCPUs that each sole tenant node must have to use CPU overcommit. If not specified, the CPU overcommit feature is disabled.`,
 							},
 						},
 					},
@@ -1405,6 +1557,9 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 	if podPidsLimit, ok := cfg["pod_pids_limit"]; ok {
 		kConfig.PodPidsLimit = int64(podPidsLimit.(int))
 	}
+	if maxParallelImagePulls, ok := cfg["max_parallel_image_pulls"]; ok {
+		kConfig.MaxParallelImagePulls = int64(maxParallelImagePulls.(int))
+	}
 	if containerLogMaxSize, ok := cfg["container_log_max_size"]; ok {
 		kConfig.ContainerLogMaxSize = containerLogMaxSize.(string)
 	}
@@ -1433,6 +1588,78 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 	if singleProcessOomKill, ok := cfg["single_process_oom_kill"]; ok {
 		kConfig.SingleProcessOomKill = singleProcessOomKill.(bool)
 	}
+	if evictionMaxPodGracePeriodSeconds, ok := cfg["eviction_max_pod_grace_period_seconds"]; ok {
+		kConfig.EvictionMaxPodGracePeriodSeconds = int64(evictionMaxPodGracePeriodSeconds.(int))
+	}
+	if v, ok := cfg["eviction_soft"]; ok && len(v.([]interface{})) > 0 {
+		es := v.([]interface{})[0].(map[string]interface{})
+		evictionSoft := &container.EvictionSignals{}
+		if val, ok := es["memory_available"]; ok {
+			evictionSoft.MemoryAvailable = val.(string)
+		}
+		if val, ok := es["nodefs_available"]; ok {
+			evictionSoft.NodefsAvailable = val.(string)
+		}
+		if val, ok := es["imagefs_available"]; ok {
+			evictionSoft.ImagefsAvailable = val.(string)
+		}
+		if val, ok := es["imagefs_inodes_free"]; ok {
+			evictionSoft.ImagefsInodesFree = val.(string)
+		}
+		if val, ok := es["nodefs_inodes_free"]; ok {
+			evictionSoft.NodefsInodesFree = val.(string)
+		}
+		if val, ok := es["pid_available"]; ok {
+			evictionSoft.PidAvailable = val.(string)
+		}
+		kConfig.EvictionSoft = evictionSoft
+	}
+	if v, ok := cfg["eviction_soft_grace_period"]; ok && len(v.([]interface{})) > 0 {
+		es := v.([]interface{})[0].(map[string]interface{})
+		periods := &container.EvictionGracePeriod{}
+		if val, ok := es["memory_available"]; ok {
+			periods.MemoryAvailable = val.(string)
+		}
+		if val, ok := es["nodefs_available"]; ok {
+			periods.NodefsAvailable = val.(string)
+		}
+		if val, ok := es["imagefs_available"]; ok {
+			periods.ImagefsAvailable = val.(string)
+		}
+		if val, ok := es["imagefs_inodes_free"]; ok {
+			periods.ImagefsInodesFree = val.(string)
+		}
+		if val, ok := es["nodefs_inodes_free"]; ok {
+			periods.NodefsInodesFree = val.(string)
+		}
+		if val, ok := es["pid_available"]; ok {
+			periods.PidAvailable = val.(string)
+		}
+		kConfig.EvictionSoftGracePeriod = periods
+	}
+	if v, ok := cfg["eviction_minimum_reclaim"]; ok && len(v.([]interface{})) > 0 {
+		es := v.([]interface{})[0].(map[string]interface{})
+		reclaim := &container.EvictionMinimumReclaim{}
+		if val, ok := es["memory_available"]; ok {
+			reclaim.MemoryAvailable = val.(string)
+		}
+		if val, ok := es["nodefs_available"]; ok {
+			reclaim.NodefsAvailable = val.(string)
+		}
+		if val, ok := es["imagefs_available"]; ok {
+			reclaim.ImagefsAvailable = val.(string)
+		}
+		if val, ok := es["imagefs_inodes_free"]; ok {
+			reclaim.ImagefsInodesFree = val.(string)
+		}
+		if val, ok := es["nodefs_inodes_free"]; ok {
+			reclaim.NodefsInodesFree = val.(string)
+		}
+		if val, ok := es["pid_available"]; ok {
+			reclaim.PidAvailable = val.(string)
+		}
+		kConfig.EvictionMinimumReclaim = reclaim
+	}
 	return kConfig
 }
 
@@ -1457,6 +1684,13 @@ func expandLinuxNodeConfig(v interface{}) *container.LinuxNodeConfig {
 	cgroupMode := expandCgroupMode(cfg)
 	if len(cgroupMode) != 0 {
 		linuxNodeConfig.CgroupMode = cgroupMode
+	}
+
+	if v, ok := cfg["transparent_hugepage_enabled"]; ok {
+		linuxNodeConfig.TransparentHugepageEnabled = v.(string)
+	}
+	if v, ok := cfg["transparent_hugepage_defrag"]; ok {
+		linuxNodeConfig.TransparentHugepageDefrag = v.(string)
 	}
 
 	if v, ok := cfg["hugepages_config"]; ok {
@@ -1625,24 +1859,24 @@ func expandSoleTenantConfig(v interface{}) *container.SoleTenantConfig {
 	if len(ls) == 0 {
 		return nil
 	}
+	stConfig := &container.SoleTenantConfig{}
 	cfg := ls[0].(map[string]interface{})
-	affinitiesRaw, ok := cfg["node_affinity"]
-	if !ok {
-		return nil
+	if affinitiesRaw, ok := cfg["node_affinity"]; ok {
+		affinities := make([]*container.NodeAffinity, 0)
+		for _, v := range affinitiesRaw.(*schema.Set).List() {
+			na := v.(map[string]interface{})
+			affinities = append(affinities, &container.NodeAffinity{
+				Key:      na["key"].(string),
+				Operator: na["operator"].(string),
+				Values:   tpgresource.ConvertStringArr(na["values"].([]interface{})),
+			})
+		}
+		stConfig.NodeAffinities = affinities
 	}
-	affinities := make([]*container.NodeAffinity, 0)
-	for _, v := range affinitiesRaw.(*schema.Set).List() {
-		na := v.(map[string]interface{})
-
-		affinities = append(affinities, &container.NodeAffinity{
-			Key:      na["key"].(string),
-			Operator: na["operator"].(string),
-			Values:   tpgresource.ConvertStringArr(na["values"].([]interface{})),
-		})
+	if v, ok := cfg["min_node_cpus"]; ok {
+		stConfig.MinNodeCpus = int64(v.(int))
 	}
-	return &container.SoleTenantConfig{
-		NodeAffinities: affinities,
-	}
+	return stConfig
 }
 
 func expandConfidentialNodes(configured interface{}) *container.ConfidentialNodes {
@@ -1991,6 +2225,11 @@ func flattenKubeletConfig(c *container.NodeKubeletConfig) []map[string]interface
 			"image_maximum_gc_age":                   c.ImageMaximumGcAge,
 			"allowed_unsafe_sysctls":                 c.AllowedUnsafeSysctls,
 			"single_process_oom_kill":                c.SingleProcessOomKill,
+			"max_parallel_image_pulls":               c.MaxParallelImagePulls,
+			"eviction_max_pod_grace_period_seconds":  c.EvictionMaxPodGracePeriodSeconds,
+			"eviction_soft":                          flattenEvictionSignals(c.EvictionSoft),
+			"eviction_soft_grace_period":             flattenEvictionGracePeriod(c.EvictionSoftGracePeriod),
+			"eviction_minimum_reclaim":               flattenEvictionMinimumReclaim(c.EvictionMinimumReclaim),
 		})
 	}
 	return result
@@ -2006,13 +2245,60 @@ func flattenNodePoolAutoConfigNodeKubeletConfig(c *container.NodeKubeletConfig) 
 	return result
 }
 
+func flattenEvictionSignals(c *container.EvictionSignals) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"memory_available":    c.MemoryAvailable,
+			"nodefs_available":    c.NodefsAvailable,
+			"nodefs_inodes_free":  c.NodefsInodesFree,
+			"imagefs_available":   c.ImagefsAvailable,
+			"imagefs_inodes_free": c.ImagefsInodesFree,
+			"pid_available":       c.PidAvailable,
+		})
+	}
+	return result
+}
+
+func flattenEvictionGracePeriod(c *container.EvictionGracePeriod) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"memory_available":    c.MemoryAvailable,
+			"nodefs_available":    c.NodefsAvailable,
+			"nodefs_inodes_free":  c.NodefsInodesFree,
+			"imagefs_available":   c.ImagefsAvailable,
+			"imagefs_inodes_free": c.ImagefsInodesFree,
+			"pid_available":       c.PidAvailable,
+		})
+	}
+	return result
+}
+
+func flattenEvictionMinimumReclaim(c *container.EvictionMinimumReclaim) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"memory_available":    c.MemoryAvailable,
+			"nodefs_available":    c.NodefsAvailable,
+			"nodefs_inodes_free":  c.NodefsInodesFree,
+			"imagefs_available":   c.ImagefsAvailable,
+			"imagefs_inodes_free": c.ImagefsInodesFree,
+			"pid_available":       c.PidAvailable,
+		})
+	}
+	return result
+}
+
 func flattenLinuxNodeConfig(c *container.LinuxNodeConfig) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	if c != nil {
 		result = append(result, map[string]interface{}{
-			"sysctls":          c.Sysctls,
-			"cgroup_mode":      c.CgroupMode,
-			"hugepages_config": flattenHugepagesConfig(c.Hugepages),
+			"sysctls":                      c.Sysctls,
+			"cgroup_mode":                  c.CgroupMode,
+			"hugepages_config":             flattenHugepagesConfig(c.Hugepages),
+			"transparent_hugepage_enabled": c.TransparentHugepageEnabled,
+			"transparent_hugepage_defrag":  c.TransparentHugepageDefrag,
 		})
 	}
 	return result
@@ -2133,6 +2419,7 @@ func flattenSoleTenantConfig(c *container.SoleTenantConfig) []map[string]interfa
 	}
 	return append(result, map[string]interface{}{
 		"node_affinity": affinities,
+		"min_node_cpus": c.MinNodeCpus,
 	})
 }
 

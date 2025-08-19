@@ -76,8 +76,8 @@ resource "google_clouddeploy_deploy_policy" "deploy_policy" {
         time_zone = "America/Los_Angeles"
         weekly_windows {
             start_time {
-                hours = "12"
-                minutes = "00"
+                hours = 0
+                minutes = 0
             }
             end_time {
                 hours = "13"
@@ -128,12 +128,14 @@ resource "google_clouddeploy_deploy_policy" "deploy_policy" {
         time_zone = "America/Los_Angeles"
         weekly_windows {
             start_time {
-                hours = "13"
-                minutes = "00"
+                hours = 13
+                minutes = 00
             }
             end_time {
-                hours = "14"
-                minutes = "00"
+                hours = 24
+                minutes = 0
+                seconds = 0
+                nanos = 0
             }
             days_of_week = ["MONDAY"]
           }

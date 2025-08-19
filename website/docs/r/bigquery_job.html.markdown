@@ -654,6 +654,13 @@ The following arguments are supported:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Whether to run the query as continuous or a regular query.
 
+* `connection_properties` -
+  (Optional)
+  Connection properties to customize query behavior. Under JDBC, these correspond
+  directly to connection properties passed to the DriverManager. Under ODBC, these
+  correspond to properties in the connection string.
+  Structure is [documented below](#nested_configuration_query_connection_properties).
+
 
 <a name="nested_configuration_query_destination_table"></a>The `destination_table` block supports:
 
@@ -718,6 +725,21 @@ The following arguments are supported:
   Determines which statement in the script represents the "key result",
   used to populate the schema and query results of the script job.
   Possible values are: `LAST`, `FIRST_SELECT`.
+
+<a name="nested_configuration_query_connection_properties"></a>The `connection_properties` block supports:
+
+* `key` -
+  (Required)
+  The key of the property to set. Currently supported connection properties:
+  * `dataset_project_id`: represents the default project for datasets that are used in the query
+  * `time_zone`: represents the default timezone used to run the query
+  * `session_id`: associates the query with a given session
+  * `query_label`: associates the query with a given job label
+  * `service_account`: indicates the service account to use to run a continuous query
+
+* `value` -
+  (Required)
+  The value of the property to set.
 
 <a name="nested_configuration_load"></a>The `load` block supports:
 

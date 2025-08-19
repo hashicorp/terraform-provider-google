@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for BigQuery Analytics Hub Listing
+
 Three different resources help you manage your IAM policy for BigQuery Analytics Hub Listing. Each of these resources serves a different use case:
 
 * `google_bigquery_analytics_hub_listing_iam_policy`: Authoritative. Sets the IAM policy for the listing and replaces any existing policy already attached.
