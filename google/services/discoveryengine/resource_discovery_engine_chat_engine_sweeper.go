@@ -144,9 +144,9 @@ func listAndActionDiscoveryEngineChatEngine(action sweeper.ResourceAction) error
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["chatEngines"]
+		resourceList, ok := res["engines"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'chatEngines'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'engines'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

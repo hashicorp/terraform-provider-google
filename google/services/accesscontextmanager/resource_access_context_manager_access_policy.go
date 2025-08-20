@@ -66,6 +66,7 @@ Format: 'organizations/{{organization_id}}'`,
 			"scopes": {
 				Type:     schema.TypeList,
 				Optional: true,
+				ForceNew: true,
 				Description: `Folder or project on which this policy is applicable.
 Format: 'folders/{{folder_id}}' or 'projects/{{project_number}}'`,
 				MaxItems: 1,
@@ -261,12 +262,6 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("title"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, titleProp)) {
 		obj["title"] = titleProp
 	}
-	scopesProp, err := expandAccessContextManagerAccessPolicyScopes(d.Get("scopes"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("scopes"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scopesProp)) {
-		obj["scopes"] = scopesProp
-	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "accessPolicies/{{name}}")
 	if err != nil {
@@ -286,10 +281,6 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 
 	if d.HasChange("title") {
 		updateMask = append(updateMask, "title")
-	}
-
-	if d.HasChange("scopes") {
-		updateMask = append(updateMask, "scopes")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it

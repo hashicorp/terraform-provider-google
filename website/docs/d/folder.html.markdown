@@ -61,3 +61,5 @@ The following attributes are exported:
 * `create_time` - Timestamp when the Organization was created. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
 * `lifecycle_state` - The Folder's current lifecycle state.
 * `organization` - If `lookup_organization` is enable, the resource name of the Organization that the folder belongs.
+* `configured_capabilities` - Optional capabilities configured for this folder.
+* `management_project` - Management Project associated with this folder (if capability is enabled).

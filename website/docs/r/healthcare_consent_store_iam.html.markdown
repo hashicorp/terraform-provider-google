@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Cloud Healthcare ConsentStore
+
 Three different resources help you manage your IAM policy for Cloud Healthcare ConsentStore. Each of these resources serves a different use case:
 
 * `google_healthcare_consent_store_iam_policy`: Authoritative. Sets the IAM policy for the consentstore and replaces any existing policy already attached.

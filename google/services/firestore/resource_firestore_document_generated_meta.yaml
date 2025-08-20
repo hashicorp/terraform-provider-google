@@ -13,6 +13,7 @@ fields:
   - field: 'document_id'
     provider_only: true
   - field: 'fields'
+    json: true
   - field: 'name'
   - field: 'path'
   - field: 'update_time'

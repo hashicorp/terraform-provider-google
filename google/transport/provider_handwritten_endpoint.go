@@ -111,6 +111,14 @@ var PrivatecaCertificateTemplateCustomEndpointEntry = &schema.Schema{
 	}, DefaultBasePaths[PrivatecaBasePathKey]),
 }
 
+var TagsLocationCustomEndpointEntryKey = "tags_location_custom_endpoint"
+var TagsLocationCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: ValidateCustomEndpoint,
+}
+
+// DCL
 var ContainerAwsCustomEndpointEntryKey = "container_aws_custom_endpoint"
 var ContainerAwsCustomEndpointEntry = &schema.Schema{
 	Type:         schema.TypeString,
@@ -124,12 +132,34 @@ var ContainerAzureCustomEndpointEntry = &schema.Schema{
 	Optional:     true,
 	ValidateFunc: ValidateCustomEndpoint,
 }
+var ApikeysEndpointEntryKey = "apikeys_custom_endpoint"
+var ApikeysEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+}
 
-var TagsLocationCustomEndpointEntryKey = "tags_location_custom_endpoint"
-var TagsLocationCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: ValidateCustomEndpoint,
+var AssuredWorkloadsEndpointEntryKey = "assured_workloads_custom_endpoint"
+var AssuredWorkloadsEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+}
+
+var CloudResourceManagerEndpointEntryKey = "cloud_resource_manager_custom_endpoint"
+var CloudResourceManagerEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+}
+
+var FirebaserulesEndpointEntryKey = "firebaserules_custom_endpoint"
+var FirebaserulesEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+}
+
+var RecaptchaEnterpriseEndpointEntryKey = "recaptcha_enterprise_custom_endpoint"
+var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
 }
 
 func ValidateCustomEndpoint(v interface{}, k string) (ws []string, errors []error) {

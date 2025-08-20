@@ -51,3 +51,5 @@ fields:
   - field: 'version_id'
   - field: 'vpc_connector'
   - field: 'vpc_connector_egress_settings'
+  - field: 'automatic_update_policy'
+  - field: 'on_deploy_update_policy.runtime_version'

@@ -249,8 +249,9 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-metallb" {
   location = "us-west1"
   description = "test admin cluster"
   bootstrap_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
-  on_prem_version = "1.31.0-gke.35"
+  on_prem_version = "1.33.0-gke.35"
   image_type = "ubuntu_containerd"
+  enable_advanced_cluster = true
   vcenter {
     resource_pool = "test resource pool"
     datastore = "test data store"

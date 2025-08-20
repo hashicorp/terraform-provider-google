@@ -142,9 +142,9 @@ func listAndActionNetworkSecurityUrlLists(action sweeper.ResourceAction) error {
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["urlListss"]
+		resourceList, ok := res["urlLists"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'urlListss'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'urlLists'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

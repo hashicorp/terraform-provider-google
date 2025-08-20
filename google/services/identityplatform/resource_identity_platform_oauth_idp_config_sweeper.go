@@ -142,9 +142,9 @@ func listAndActionIdentityPlatformOauthIdpConfig(action sweeper.ResourceAction) 
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["oauthIdpConfigs"]
+		resourceList, ok := res["oAuthIdpConfigs"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'oauthIdpConfigs'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'oAuthIdpConfigs'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

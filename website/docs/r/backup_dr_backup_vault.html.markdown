@@ -44,6 +44,7 @@ resource "google_backup_dr_backup_vault" "backup-vault-test" {
   }
   force_update = "true"
   access_restriction = "WITHIN_ORGANIZATION"
+  backup_retention_inheritance = "INHERIT_VAULT_RETENTION"
   ignore_inactive_datasources = "true"
   ignore_backup_plan_references = "true"
   allow_missing = "true"
@@ -94,6 +95,11 @@ The following arguments are supported:
   Access restriction for the backup vault. Default value is `WITHIN_ORGANIZATION` if not provided during creation.
   Default value is `WITHIN_ORGANIZATION`.
   Possible values are: `ACCESS_RESTRICTION_UNSPECIFIED`, `WITHIN_PROJECT`, `WITHIN_ORGANIZATION`, `UNRESTRICTED`, `WITHIN_ORG_BUT_UNRESTRICTED_FOR_BA`.
+
+* `backup_retention_inheritance` -
+  (Optional)
+  How a backup's enforced retention end time is inherited. Default value is `INHERIT_VAULT_RETENTION` if not provided during creation.
+  Possible values are: `BACKUP_RETENTION_INHERITANCE_UNSPECIFIED`, `INHERIT_VAULT_RETENTION`, `MATCH_BACKUP_EXPIRE_TIME`.
 
 * `force_update` -
   (Optional)

@@ -174,7 +174,7 @@ func TestAccKmsCryptoKey_basic(t *testing.T) {
 				ResourceName:            "google_kms_crypto_key.crypto_key",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"skip_initial_version_creation", "labels", "terraform_labels"},
 			},
 			// Test importing with a short id
 			{
@@ -182,7 +182,7 @@ func TestAccKmsCryptoKey_basic(t *testing.T) {
 				ImportState:             true,
 				ImportStateId:           fmt.Sprintf("%s/%s/%s/%s", projectId, location, keyRingName, cryptoKeyName),
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"skip_initial_version_creation", "labels", "terraform_labels"},
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			{
@@ -219,25 +219,28 @@ func TestAccKmsCryptoKey_rotation(t *testing.T) {
 				Config: testGoogleKmsCryptoKey_rotation(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, rotationPeriod),
 			},
 			{
-				ResourceName:      "google_kms_crypto_key.crypto_key",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_kms_crypto_key.crypto_key",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"skip_initial_version_creation"},
 			},
 			{
 				Config: testGoogleKmsCryptoKey_rotation(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, updatedRotationPeriod),
 			},
 			{
-				ResourceName:      "google_kms_crypto_key.crypto_key",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_kms_crypto_key.crypto_key",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"skip_initial_version_creation"},
 			},
 			{
 				Config: testGoogleKmsCryptoKey_rotationRemoved(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
 			},
 			{
-				ResourceName:      "google_kms_crypto_key.crypto_key",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_kms_crypto_key.crypto_key",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"skip_initial_version_creation"},
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			{
@@ -272,17 +275,19 @@ func TestAccKmsCryptoKey_template(t *testing.T) {
 				Config: testGoogleKmsCryptoKey_template(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, algorithm),
 			},
 			{
-				ResourceName:      "google_kms_crypto_key.crypto_key",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_kms_crypto_key.crypto_key",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"skip_initial_version_creation"},
 			},
 			{
 				Config: testGoogleKmsCryptoKey_template(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, updatedAlgorithm),
 			},
 			{
-				ResourceName:      "google_kms_crypto_key.crypto_key",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_kms_crypto_key.crypto_key",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"skip_initial_version_creation"},
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			{
@@ -318,7 +323,7 @@ func TestAccKmsCryptoKey_destroyDuration(t *testing.T) {
 				ResourceName:            "google_kms_crypto_key.crypto_key",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"skip_initial_version_creation", "labels", "terraform_labels"},
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			{
