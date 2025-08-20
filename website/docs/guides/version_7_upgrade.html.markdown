@@ -145,6 +145,12 @@ Use `google_beyondcorp_security_gateway_application` instead.
 
 `public_repository` fields have had their default values removed. If your state has been reliant on them, they will need to be manually included into your configuration now.
 
+## Resource: `google_bigquery_table`
+
+### `view.use_legacy_sql` no longer has a default value of `True`
+
+The `view.use_legacy_sql` field no longer has a default value. Configurations that relied on the old default will show no diff in the plan, and there will be no change to existing views. For a new view, leaving this field unspecified in the configuration will result in the view being created with no `use_legacy_sql` value, which the API interprets as a `true` and assumes the legacy SQL dialect for its query. See the [API documentation](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#ViewDefinition) for more details.
+
 ## Resource: `google_bigtable_table_iam_binding`
 
 ### `instance` is now removed
