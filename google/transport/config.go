@@ -51,6 +51,7 @@ import (
 	googleoauth "golang.org/x/oauth2/google"
 	externalaccount "golang.org/x/oauth2/google/externalaccount"
 	appengine "google.golang.org/api/appengine/v1"
+	backupdr "google.golang.org/api/backupdr/v1"
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/bigtableadmin/v2"
 	"google.golang.org/api/certificatemanager/v1"
@@ -2013,6 +2014,20 @@ func (c *Config) NewSqlAdminClient(userAgent string) *sqladmin.Service {
 	clientSqlAdmin.BasePath = sqlClientBasePath
 
 	return clientSqlAdmin
+}
+
+func (c *Config) NewBackupDRClient(userAgent string) *backupdr.Service {
+	backupdrClientBasePath := RemoveBasePathVersion(RemoveBasePathVersion(c.BackupDRBasePath))
+	log.Printf("[INFO] Instantiating Google SqlAdmin client for path %s", backupdrClientBasePath)
+	clientBackupdrAdmin, err := backupdr.NewService(c.Context, option.WithHTTPClient(c.Client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client storage: %s", err)
+		return nil
+	}
+	clientBackupdrAdmin.UserAgent = userAgent
+	clientBackupdrAdmin.BasePath = backupdrClientBasePath
+
+	return clientBackupdrAdmin
 }
 
 func (c *Config) NewPubsubClient(userAgent string) *pubsub.Service {
