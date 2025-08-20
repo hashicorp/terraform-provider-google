@@ -142,9 +142,9 @@ func listAndActionCloudBuildTrigger(action sweeper.ResourceAction) error {
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["triggers"]
+		resourceList, ok := res["buildTriggers"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'triggers'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'buildTriggers'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

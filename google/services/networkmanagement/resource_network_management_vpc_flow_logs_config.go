@@ -76,7 +76,7 @@ for resource type 'networkmanagement.googleapis.com/VpcFlowLogsConfig'.`,
 				Computed: true,
 				Optional: true,
 				Description: `Optional. The aggregation interval for the logs. Default value is
-INTERVAL_5_SEC.   Possible values:  AGGREGATION_INTERVAL_UNSPECIFIED INTERVAL_5_SEC INTERVAL_30_SEC INTERVAL_1_MIN INTERVAL_5_MIN INTERVAL_10_MIN INTERVAL_15_MIN"`,
+INTERVAL_5_SEC.   Possible values:  AGGREGATION_INTERVAL_UNSPECIFIED INTERVAL_5_SEC INTERVAL_30_SEC INTERVAL_1_MIN INTERVAL_5_MIN INTERVAL_10_MIN INTERVAL_15_MIN`,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -135,7 +135,8 @@ logs. Can only be specified if \"metadata\" was set to CUSTOM_METADATA.`,
 				Computed: true,
 				Optional: true,
 				Description: `Optional. The state of the VPC Flow Log configuration. Default value
-is ENABLED. When creating a new configuration, it must be enabled.   Possible`,
+is ENABLED. When creating a new configuration, it must be enabled.
+Possible values: STATE_UNSPECIFIED ENABLED DISABLED`,
 			},
 			"vpn_tunnel": {
 				Type:        schema.TypeString,
@@ -157,6 +158,16 @@ is ENABLED. When creating a new configuration, it must be enabled.   Possible`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Identifier. Unique name of the configuration using the form:     'projects/{project_id}/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}'`,
+			},
+			"target_resource_state": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Describes the state of the configured target resource for diagnostic
+purposes.
+Possible values:
+TARGET_RESOURCE_STATE_UNSPECIFIED
+TARGET_RESOURCE_EXISTS
+TARGET_RESOURCE_DOES_NOT_EXIST`,
 			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
@@ -385,6 +396,9 @@ func resourceNetworkManagementVpcFlowLogsConfigRead(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading VpcFlowLogsConfig: %s", err)
 	}
 	if err := d.Set("update_time", flattenNetworkManagementVpcFlowLogsConfigUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpcFlowLogsConfig: %s", err)
+	}
+	if err := d.Set("target_resource_state", flattenNetworkManagementVpcFlowLogsConfigTargetResourceState(res["targetResourceState"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VpcFlowLogsConfig: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenNetworkManagementVpcFlowLogsConfigTerraformLabels(res["labels"], d, config)); err != nil {
@@ -701,6 +715,10 @@ func flattenNetworkManagementVpcFlowLogsConfigCreateTime(v interface{}, d *schem
 }
 
 func flattenNetworkManagementVpcFlowLogsConfigUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementVpcFlowLogsConfigTargetResourceState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

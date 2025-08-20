@@ -31,7 +31,8 @@ func TestAccDataSourceComposerEnvironment_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix":   acctest.RandString(t, 10),
+		"service_account": fmt.Sprintf("tf-test-%d", acctest.RandInt(t)),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -95,6 +96,7 @@ func testAccCheckGoogleComposerEnvironmentMeta(n string) resource.TestCheckFunc 
 
 func testAccDataSourceComposerEnvironment_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_project" "project" {}
 resource "google_composer_environment" "test" {
 	name   = "tf-test-composer-env-%{random_suffix}"
 	region = "us-central1"
@@ -104,6 +106,7 @@ resource "google_composer_environment" "test" {
 			network    = google_compute_network.test.self_link
 			subnetwork = google_compute_subnetwork.test.self_link
 			zone       = "us-central1-a"
+      service_account = google_service_account.test.name
 		}
 		software_config {
 			image_version = "composer-1-airflow-2"
@@ -112,6 +115,7 @@ resource "google_composer_environment" "test" {
 	labels = {
 		my-label = "my-label-value"
 	}
+  depends_on = [google_project_iam_member.composer-worker]
 }
 
 // use a separate network to avoid conflicts with other tests running in parallel
@@ -131,6 +135,15 @@ resource "google_compute_subnetwork" "test" {
 data "google_composer_environment" "test" {
 	name   = google_composer_environment.test.name
 	region = google_composer_environment.test.region
+}
+resource "google_service_account" "test" {
+  account_id   = "%{service_account}"
+  display_name = "Test Service Account for Composer Environment"
+}
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
 }
 `, context)
 }

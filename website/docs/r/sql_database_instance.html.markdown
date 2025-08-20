@@ -187,7 +187,7 @@ resource "google_sql_database_instance" "main" {
 }
 ```
 
-### Cloud SQL Instance with MCP
+### Cloud SQL Instance with Managed Connection Pooling
 ```hcl
 resource "google_sql_database_instance" "instance" {
   name:            = "mcp-enabled-main-instance"
@@ -246,6 +246,31 @@ resource "google_sql_database_instance" "main" {
           consumer_network = "network-name"
           consumer_service_project_id = "project-id"
         }
+      }
+      ipv4_enabled = false
+    }
+    backup_configuration {
+      enabled = true
+      binary_log_enabled = true
+    }
+    availability_type = "REGIONAL"
+  }
+}
+```
+
+### Cloud SQL Instance with PSC outbound
+
+```hcl
+resource "google_sql_database_instance" "main" {
+  name             = "psc-enabled-main-instance"
+  database_version = "MYSQL_8_0"
+  settings {
+    tier    = "db-f1-micro"
+    ip_configuration {
+      psc_config {
+        psc_enabled = true
+        allowed_consumer_projects = ["allowed-consumer-project-name"]
+        network_attachment_uri = "network-attachment-uri"
       }
       ipv4_enabled = false
     }
@@ -341,11 +366,13 @@ The `settings` block supports:
     active. Can be either `ALWAYS`, `NEVER` or `ON_DEMAND`.
 
 * `availability_type` - (Optional) The availability type of the Cloud SQL
-  instance, high availability (`REGIONAL`) or single zone (`ZONAL`).' For all instances, ensure that
+  instance, high availability (`REGIONAL`) or single zone (`ZONAL`). For all instances, ensure that
   `settings.backup_configuration.enabled` is set to `true`.
   For MySQL instances, ensure that `settings.backup_configuration.binary_log_enabled` is set to `true`.
   For Postgres and SQL Server instances, ensure that `settings.backup_configuration.point_in_time_recovery_enabled`
   is set to `true`. Defaults to `ZONAL`.
+  For read pool instances, this field is read-only. The availability type is changed by specifying
+  the number of nodes (`node_count`).
 
 * `collation` - (Optional) The name of server instance collation.
 
@@ -361,13 +388,15 @@ The `settings` block supports:
 
 * `disk_autoresize_limit` - (Optional) The maximum size to which storage capacity can be automatically increased. The default value is 0, which specifies that there is no limit.
 
-* `disk_size` - (Optional) The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. The minimum value is 10GB for PD_SSD, PD_HDD and 20GB for HYPERDISK_BALANCED. Note that this value will override the resizing from `disk_autoresize` if that feature is enabled. To avoid this, set `lifecycle.ignore_changes` on this field.
+* `disk_size` - (Optional) The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. The minimum value is 10GB for `PD_SSD`, `PD_HDD` and 20GB for `HYPERDISK_BALANCED`. Note that this value will override the resizing from `disk_autoresize` if that feature is enabled. To avoid this, set `lifecycle.ignore_changes` on this field.
 
-* `disk_type` - (Optional) The type of data disk: PD_SSD, PD_HDD, or HYPERDISK_BALANCED. Defaults to `PD_SSD`. HYPERDISK_BALANCED is preview.
+* `disk_type` - (Optional) The type of data disk: `PD_SSD`, `PD_HDD`, or `HYPERDISK_BALANCED`. Defaults to `PD_SSD`. `HYPERDISK_BALANCED` is preview.
 
 * `data_disk_provisioned_iops` - (Optional, Beta) Provisioned number of I/O operations per second for the data disk. This field is only used for `HYPERDISK_BALANCED` disk types.
 
 * `data_disk_provisioned_throughput` - (Optional, Beta) Provisioned throughput measured in MiB per second for the data disk. This field is only used for `HYPERDISK_BALANCED` disk types.
+
+* `node_count` - For a read pool instance, the number of nodes in the read pool.
 
 * `pricing_plan` - (Optional) Pricing plan for this instance, can only be `PER_USE`.
 
@@ -478,6 +507,8 @@ The optional `settings.ip_configuration.psc_config` sublist supports:
 * The optional `psc_config.psc_auto_connections` subblock - (Optional) A comma-separated list of networks or a comma-separated list of network-project pairs. Each project in this list is represented by a project number (numeric) or by a project ID (alphanumeric). This allows Private Service Connect connections to be created automatically for the specified networks.
 
 * `consumer_network` - "The consumer network of this consumer endpoint. This must be a resource path that includes both the host project and the network name. For example, `projects/project1/global/networks/network1`. The consumer host project of this network might be different from the consumer service project."
+
+* `network_attachment_uri` - (Optional) Network Attachment URI in the format `projects/project1/regions/region1/networkAttachments/networkAttachment1` to enable outbound connectivity on PSC instance.
 
 * `consumer_service_project_id` - (Optional) The project ID of consumer service project of this consumer endpoint.
 
@@ -600,6 +631,8 @@ block during resource creation/update will trigger the restore action after the 
 
 The optional, computed `replication_cluster` block represents a primary instance and disaster recovery replica pair. Applicable to MySQL and PostgreSQL. This field can be set only after both the primary and replica are created. This block supports:
 
+* `psa_write_endpoint`: Read-only field which if set, indicates this instance has a private service access (PSA) DNS endpoint that is pointing to the primary instance of the cluster. If this instance is the primary, then the DNS endpoint points to this instance. After a switchover or replica failover operation, this DNS endpoint points to the promoted instance. This is a read-only field, returned to the user as information. This field can exist even if a standalone instance doesn't have a DR replica yet or the DR replica is deleted.
+
 * `failover_dr_replica_name`: (Optional) If the instance is a primary instance, then this field identifies the disaster recovery (DR) replica. The standard format of this field is "your-project:your-instance". You can also set this field to "your-instance", but cloud SQL backend will convert it to the aforementioned standard format.
 
 * `dr_replica`: Read-only field that indicates whether the replica is a DR replica.
@@ -670,12 +703,18 @@ performing filtering in a Terraform config.
 
 * `psc_service_attachment_link` - the URI that points to the service attachment of the instance.
 
-* `instance_type` - The type of the instance. The supported values are `SQL_INSTANCE_TYPE_UNSPECIFIED`, `CLOUD_SQL_INSTANCE`, `ON_PREMISES_INSTANCE` and `READ_REPLICA_INSTANCE`.
+* `instance_type` - The type of the instance. See [API reference for SqlInstanceType](https://cloud.google.com/sql/docs/mysql/admin-api/rest/v1/instances#SqlInstanceType) for supported values.
 
 ~> **NOTE:** Users can upgrade a read replica instance to a stand-alone Cloud SQL instance with the help of `instance_type`. To promote, users have to set the `instance_type` property as `CLOUD_SQL_INSTANCE` and remove/unset `master_instance_name` and `replica_configuration` from instance configuration. This operation might cause your instance to restart.
 
 * `settings.version` - Used to make sure changes to the `settings` block are
     atomic.
+
+* `settings.0.effective_availability_type` - (Computed) The availability type of
+  the Cloud SQL instance, high availability (REGIONAL) or single zone
+  (ZONAL). This field always contains the value that is reported by the API (for
+  read pools, `settings.0.effective_availability_type` may differ from
+  `settings.0.availability_type`).
 
 * `server_ca_cert.0.cert` - The CA Certificate used to connect to the SQL Instance via SSL.
 

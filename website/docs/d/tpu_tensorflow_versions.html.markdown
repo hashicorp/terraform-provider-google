@@ -17,6 +17,10 @@ subcategory: "Cloud TPU"
 description: |-
   Get available TensorFlow versions.
 ---
+~> **Warning:** 
+`google_tpu_tensorflow_versions` is deprecated and will be removed in a future major release.
+  Use `google_tpu_v2_runtime_versions` instead. For moving from TPU Node to TPU VM architecture, see
+  https://cloud.google.com/tpu/docs/system-architecture-tpu-vm#from-tpu-node-to-tpu-vm.
 
 # google_tpu_tensorflow_versions
 

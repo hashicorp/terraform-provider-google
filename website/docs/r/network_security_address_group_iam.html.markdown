@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Network Security ProjectAddressGroup
+
 Three different resources help you manage your IAM policy for Network Security ProjectAddressGroup. Each of these resources serves a different use case:
 
 * `google_network_security_address_group_iam_policy`: Authoritative. Sets the IAM policy for the projectaddressgroup and replaces any existing policy already attached.

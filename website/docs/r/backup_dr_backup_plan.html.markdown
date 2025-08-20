@@ -98,6 +98,40 @@ resource "google_backup_dr_backup_plan" "my-disk-backup-plan-1" {
   }
 }
 ```
+## Example Usage - Backup Dr Backup Plan For Csql Resource
+
+
+```hcl
+resource "google_backup_dr_backup_vault" "my_backup_vault" {
+  location                                      = "us-central1"
+  backup_vault_id                               = "backup-vault-csql-test"
+  backup_minimum_enforced_retention_duration    = "100000s"
+}
+
+resource "google_backup_dr_backup_plan" "my-csql-backup-plan-1" {
+  location       = "us-central1"
+  backup_plan_id = "backup-plan-csql-test"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = google_backup_dr_backup_vault.my_backup_vault.id
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 5
+
+    standard_schedule {
+      recurrence_type     = "HOURLY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 6
+      }
+    }
+  }
+  log_retention_days = 4
+}
+```
 
 ## Argument Reference
 
@@ -111,7 +145,7 @@ The following arguments are supported:
 * `resource_type` -
   (Required)
   The resource type to which the `BackupPlan` will be applied.
-  Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", and "storage.googleapis.com/Bucket".
+  Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", "sqladmin.googleapis.com/Instance" and "storage.googleapis.com/Bucket".
 
 * `backup_rules` -
   (Required)
@@ -130,6 +164,10 @@ The following arguments are supported:
 * `description` -
   (Optional)
   The description allows for additional details about `BackupPlan` and its use cases to be provided.
+
+* `log_retention_days` -
+  (Optional)
+  This is only applicable for CloudSql resource. Days for which logs will be stored. This value should be greater than or equal to minimum enforced log retention duration of the backup vault.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

@@ -1114,7 +1114,7 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 			PointInTimeRecoveryEnabled: true,
 		}
 		settings := &sqladmin.Settings{
-			Tier:                "db-f1-micro",
+			Tier:                "db-custom-2-3840",
 			BackupConfiguration: backupConfig,
 		}
 		bootstrapInstance = &sqladmin.DatabaseInstance{

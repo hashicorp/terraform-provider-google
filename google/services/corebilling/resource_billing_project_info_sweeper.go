@@ -142,9 +142,9 @@ func listAndActionCoreBillingProjectInfo(action sweeper.ResourceAction) error {
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["projectInfos"]
+		resourceList, ok := res["projectBillingInfos"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'projectInfos'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'projectBillingInfos'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

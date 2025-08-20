@@ -296,6 +296,7 @@ The following write-only attributes are supported:
 * `secret_access_key_wo` -
   (Optional)
   The Secret Access Key of the AWS account transferring data from.
+   Note: This property is write-only and will not be read from the API. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)
   **Note**: This property is write-only and will not be read from the API.
 
 ## Attributes Reference

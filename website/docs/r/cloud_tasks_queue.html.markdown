@@ -184,14 +184,14 @@ resource "google_service_account" "oauth_service_account" {
 The following arguments are supported:
 
 
+* `name` -
+  (Required)
+  The queue name.
+
 * `location` -
   (Required)
   The location of the queue
 
-
-* `name` -
-  (Optional)
-  The queue name.
 
 * `app_engine_routing_override` -
   (Optional)

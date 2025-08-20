@@ -134,7 +134,9 @@ The following arguments are supported:
 
 * `metadata` -
   (Optional)
-  An additional information about the Index
+  Additional information about the Index.
+  Although this field is not marked as required in the API specification, it is currently required when creating an Index and must be provided.
+  Attempts to create an Index without this field will result in an API error.
   Structure is [documented below](#nested_metadata).
 
 * `labels` -

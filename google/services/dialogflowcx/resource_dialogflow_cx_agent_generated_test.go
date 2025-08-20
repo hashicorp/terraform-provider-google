@@ -49,7 +49,7 @@ func TestAccDialogflowCXAgent_dialogflowcxAgentFullExample(t *testing.T) {
 				ResourceName:            "google_dialogflow_cx_agent.full_agent",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "advanced_settings.0.logging_settings", "enable_stackdriver_logging", "enable_stackdriver_logging", "git_integration_settings.0.github_settings.0.access_token", "git_integration_settings.0.github_settings.0.access_token", "location"},
+				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "advanced_settings.0.logging_settings", "answer_feedback_settings", "enable_stackdriver_logging", "enable_stackdriver_logging", "git_integration_settings.0.github_settings.0.access_token", "git_integration_settings.0.github_settings.0.access_token", "location", "start_playbook"},
 			},
 		},
 	})
@@ -126,6 +126,40 @@ resource "google_dialogflow_cx_agent" "full_agent" {
   }
   gen_app_builder_settings {
     engine = "projects/-/locations/-/collections/-/engines/-"
+  }
+  start_playbook = "projects/-/locations/-/agents/-/playbooks/00000000-0000-0000-0000-000000000000"
+  enable_multi_language_training = false
+  locked = false
+  answer_feedback_settings {
+    enable_answer_feedback = false
+  }
+  client_certificate_settings {
+    passphrase      = "projects/example-proj/secrets/example-secret/versions/example-version"
+    private_key     = "projects/example-proj/secrets/example-secret/versions/example-version"
+    ssl_certificate = <<EOT
+-----BEGIN CERTIFICATE-----
+MIIDdDCCAlygAwIBAgIJANg0gKeB5LKmMA0GCSqGSIb3DQEBCwUAMIGSMQswCQYD
+VQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5j
+aXNjbzEZMBcGA1UECgwQR2l0SHViLCBJbmMuMRkwFwYDVQQLDBBHb3Zlcm5tZW50
+IFRlYW0xGTAXBgNVBAMMEGdvdnN0YWNrLmdpdGh1Yi5pbzAeFw0yMDA1MDUxNzM2
+MzVaFw0zMDA1MDMxNzM2MzVaMIGSMQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2Fs
+aWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzEZMBcGA1UECgwQR2l0SHVi
+LCBJbmMuMRkwFwYDVQQLDBBHb3Zlcm5tZW50IFRlYW0xGTAXBgNVBAMMEGdvdnN0
+YWNrLmdpdGh1Yi5pbzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK5P
+4d9qWZPjZ2eA4eYV2Q8Z3Zp4g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+g8e6g8e6g8e6g8e6g8e6AgMBAAGjggEaMIIBFjAdBgNVHQ4EFgQUCneA9H8fC+tC
+g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+-----END CERTIFICATE-----
+EOT
+  }
+  personalization_settings {
+    default_end_user_metadata = "{\"example-key\": \"example-value\"}"
   }
 }
 `, context)

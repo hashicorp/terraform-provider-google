@@ -486,6 +486,11 @@ var schemaNodePool = map[string]*schema.Schema{
 						},
 					},
 				},
+				"subnetwork": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `The subnetwork path for the node pool. Format: projects/{project}/regions/{region}/subnetworks/{subnetwork} . If the cluster is associated with multiple subnetworks, the subnetwork for the node pool is picked based on the IP utilization during node pool creation and is immutable.`,
+				},
 			},
 		},
 	},
@@ -1238,6 +1243,7 @@ func flattenNodeNetworkConfig(c *container.NodeNetworkConfig, d *schema.Resource
 			"network_performance_config":      flattenNodeNetworkPerformanceConfig(c.NetworkPerformanceConfig),
 			"additional_node_network_configs": flattenAdditionalNodeNetworkConfig(c.AdditionalNodeNetworkConfigs),
 			"additional_pod_network_configs":  flattenAdditionalPodNetworkConfig(c.AdditionalPodNetworkConfigs),
+			"subnetwork":                      c.Subnetwork,
 		})
 	}
 	return result
@@ -1422,7 +1428,9 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 	}
 
 	if d.HasChange(prefix + "node_config") {
-		nodePoolNodeConfigUpdate(d, config, nodePoolInfo, prefix, name, timeout)
+		if err := nodePoolNodeConfigUpdate(d, config, nodePoolInfo, prefix, name, timeout); err != nil {
+			return err
+		}
 	}
 
 	if d.HasChange(prefix + "node_count") {

@@ -142,9 +142,9 @@ func listAndActionSecurityCenterProjectNotificationConfig(action sweeper.Resourc
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["projectNotificationConfigs"]
+		resourceList, ok := res["notificationConfigs"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'projectNotificationConfigs'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'notificationConfigs'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

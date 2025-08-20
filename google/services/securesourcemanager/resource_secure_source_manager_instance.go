@@ -92,17 +92,17 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"ca_pool": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `CA pool resource, resource must in the format of 'projects/{project}/locations/{location}/caPools/{ca_pool}'.`,
-						},
 						"is_private": {
 							Type:        schema.TypeBool,
 							Required:    true,
 							ForceNew:    true,
 							Description: `'Indicate if it's private instance.'`,
+						},
+						"ca_pool": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `CA pool resource, resource must in the format of 'projects/{project}/locations/{location}/caPools/{ca_pool}'.`,
 						},
 						"http_service_attachment": {
 							Type:        schema.TypeString,

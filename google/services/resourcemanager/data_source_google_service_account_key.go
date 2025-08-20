@@ -46,8 +46,9 @@ func DataSourceGoogleServiceAccountKey() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"TYPE_NONE", "TYPE_X509_PEM_FILE", "TYPE_RAW_PUBLIC_KEY"}, false),
 			},
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				Deprecated: "`project` is deprecated and will be removed in a future major release. This field is non-functional and can be removed from your configuration safely.",
 			},
 			"key_algorithm": {
 				Type:     schema.TypeString,

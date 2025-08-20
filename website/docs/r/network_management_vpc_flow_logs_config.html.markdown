@@ -16,59 +16,15 @@
 # ----------------------------------------------------------------------------
 subcategory: "Network Management"
 description: |-
-  VPC Flow Logs Config is a resource that lets you configure Flow Logs for VPC, Interconnect attachments or VPN Tunnels.
+  VPC Flow Logs Config is a resource that lets you configure Flow Logs for Networks, Subnets, Interconnect attachments or VPN Tunnels.
 ---
 
 # google_network_management_vpc_flow_logs_config
 
-VPC Flow Logs Config is a resource that lets you configure Flow Logs for VPC, Interconnect attachments or VPN Tunnels.
+VPC Flow Logs Config is a resource that lets you configure Flow Logs for Networks, Subnets, Interconnect attachments or VPN Tunnels.
 
 
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_management_vpc_flow_logs_config_interconnect_full&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Network Management Vpc Flow Logs Config Interconnect Full
-
-
-```hcl
-data "google_project" "project" {
-}
-
-resource "google_network_management_vpc_flow_logs_config" "interconnect-test" {
-  vpc_flow_logs_config_id = "full-interconnect-test-id"
-  location                = "global"
-  interconnect_attachment = "projects/${data.google_project.project.number}/regions/us-east4/interconnectAttachments/${google_compute_interconnect_attachment.attachment.name}"
-  state                   = "ENABLED"
-  aggregation_interval    = "INTERVAL_5_SEC"
-  description             = "VPC Flow Logs over a VPN Gateway."
-  flow_sampling           = 0.5
-  metadata                = "INCLUDE_ALL_METADATA"
-}
-
-resource "google_compute_network" "network" {
-  name     = "full-interconnect-test-network"
-}
-
-resource "google_compute_router" "router" {
-  name    = "full-interconnect-test-router"
-  network = google_compute_network.network.name
-  bgp {
-    asn = 16550
-  }
-}
-
-resource "google_compute_interconnect_attachment" "attachment" {
-  name                     = "full-interconnect-test-id"
-  edge_availability_domain = "AVAILABILITY_DOMAIN_1"
-  type                     = "PARTNER"
-  router                   = google_compute_router.router.id
-  mtu                      = 1500
-}
-
-```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_management_vpc_flow_logs_config_interconnect_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -184,83 +140,62 @@ resource "google_compute_route" "route" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_management_vpc_flow_logs_config_vpn_full&open_in_editor=main.tf" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_management_vpc_flow_logs_config_network_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Network Management Vpc Flow Logs Config Vpn Full
+## Example Usage - Network Management Vpc Flow Logs Config Network Basic
 
 
 ```hcl
 data "google_project" "project" {
+  provider = google-beta
 }
 
-resource "google_network_management_vpc_flow_logs_config" "vpn-test" {
-  vpc_flow_logs_config_id = "full-test-id"
+resource "google_network_management_vpc_flow_logs_config" "network-test" {
+  provider                = google-beta
+  vpc_flow_logs_config_id = "basic-network-test-id"
   location                = "global"
-  vpn_tunnel              = "projects/${data.google_project.project.number}/regions/us-central1/vpnTunnels/${google_compute_vpn_tunnel.tunnel.name}"
-  state                   = "ENABLED"
-  aggregation_interval    = "INTERVAL_5_SEC"
-  description             = "VPC Flow Logs over a VPN Gateway."
-  flow_sampling           = 0.5
-  metadata                = "INCLUDE_ALL_METADATA"
-}
-
-resource "google_compute_vpn_tunnel" "tunnel" {
-  name               = "full-test-tunnel"
-  peer_ip            = "15.0.0.120"
-  shared_secret      = "a secret message"
-  target_vpn_gateway = google_compute_vpn_gateway.target_gateway.id
-
-  depends_on = [
-    google_compute_forwarding_rule.fr_esp,
-    google_compute_forwarding_rule.fr_udp500,
-    google_compute_forwarding_rule.fr_udp4500,
-  ]
-}
-
-resource "google_compute_vpn_gateway" "target_gateway" {
-  name     = "full-test-gateway"
-  network  = google_compute_network.network.id
+  network                 = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.network.name}"
 }
 
 resource "google_compute_network" "network" {
-  name     = "full-test-network"
+  provider = google-beta
+  name     = "basic-network-test-network"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_management_vpc_flow_logs_config_subnet_basic&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Management Vpc Flow Logs Config Subnet Basic
+
+
+```hcl
+data "google_project" "project" {
+  provider = google-beta
 }
 
-resource "google_compute_address" "vpn_static_ip" {
-  name     = "full-test-address"
+resource "google_network_management_vpc_flow_logs_config" "subnet-test" {
+  provider                = google-beta
+  vpc_flow_logs_config_id = "basic-subnet-test-id"
+  location                = "global"
+  subnet                  = "projects/${data.google_project.project.number}/regions/us-central1/subnetworks/${google_compute_subnetwork.subnetwork.name}"
 }
 
-resource "google_compute_forwarding_rule" "fr_esp" {
-  name        = "full-test-fresp"
-  ip_protocol = "ESP"
-  ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.id
+resource "google_compute_network" "network" {
+  provider                = google-beta
+  name                    = "basic-subnet-test-network"
+  auto_create_subnetworks = false
 }
 
-resource "google_compute_forwarding_rule" "fr_udp500" {
-  name        = "full-test-fr500"
-  ip_protocol = "UDP"
-  port_range  = "500"
-  ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.id
-}
-
-resource "google_compute_forwarding_rule" "fr_udp4500" {
-  name        = "full-test-fr4500"
-  ip_protocol = "UDP"
-  port_range  = "4500"
-  ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.id
-}
-
-resource "google_compute_route" "route" {
-  name                = "full-test-route"
-  network             = google_compute_network.network.name
-  dest_range          = "15.0.0.0/24"
-  priority            = 1000
-  next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel.id
+resource "google_compute_subnetwork" "subnetwork" {
+  provider      = google-beta
+  name          = "basic-subnet-test-subnetwork"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.network.id
 }
 ```
 
@@ -288,12 +223,13 @@ The following arguments are supported:
 * `state` -
   (Optional)
   Optional. The state of the VPC Flow Log configuration. Default value
-  is ENABLED. When creating a new configuration, it must be enabled.   Possible
+  is ENABLED. When creating a new configuration, it must be enabled.
+  Possible values: STATE_UNSPECIFIED ENABLED DISABLED
 
 * `aggregation_interval` -
   (Optional)
   Optional. The aggregation interval for the logs. Default value is
-  INTERVAL_5_SEC.   Possible values:  AGGREGATION_INTERVAL_UNSPECIFIED INTERVAL_5_SEC INTERVAL_30_SEC INTERVAL_1_MIN INTERVAL_5_MIN INTERVAL_10_MIN INTERVAL_15_MIN"
+  INTERVAL_5_SEC.   Possible values:  AGGREGATION_INTERVAL_UNSPECIFIED INTERVAL_5_SEC INTERVAL_30_SEC INTERVAL_1_MIN INTERVAL_5_MIN INTERVAL_10_MIN INTERVAL_15_MIN
 
 * `flow_sampling` -
   (Optional)
@@ -325,6 +261,14 @@ The following arguments are supported:
   (Optional)
   Traffic will be logged from the VPN Tunnel. Format: projects/{project_id}/regions/{region}/vpnTunnels/{name}
 
+* `subnet` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Traffic will be logged from VMs within the subnetwork. Format: projects/{project_id}/regions/{region}/subnetworks/{name}
+
+* `network` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Traffic will be logged from VMs, VPN tunnels and Interconnect Attachments within the network. Format: projects/{project_id}/global/networks/{name}
+
 * `labels` -
   (Optional)
   Optional. Resource labels to represent user-provided metadata.
@@ -351,6 +295,14 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `update_time` -
   Output only. The time the config was updated.
+
+* `target_resource_state` -
+  Describes the state of the configured target resource for diagnostic
+  purposes.
+  Possible values:
+  TARGET_RESOURCE_STATE_UNSPECIFIED
+  TARGET_RESOURCE_EXISTS
+  TARGET_RESOURCE_DOES_NOT_EXIST
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

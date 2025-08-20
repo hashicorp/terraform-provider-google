@@ -942,6 +942,11 @@ For example, if ALPHA is provided as input, but only BETA and GA-level features 
 							Optional:    true,
 							Description: `Total instance count for the service in manual scaling mode. This number of instances is divided among all revisions with specified traffic based on the percent of traffic they are receiving.`,
 						},
+						"max_instance_count": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Combined maximum number of instances for all revisions receiving traffic.`,
+						},
 						"min_instance_count": {
 							Type:        schema.TypeInt,
 							Optional:    true,
@@ -1952,6 +1957,8 @@ func flattenCloudRunV2ServiceScaling(v interface{}, d *schema.ResourceData, conf
 	transformed := make(map[string]interface{})
 	transformed["min_instance_count"] =
 		flattenCloudRunV2ServiceScalingMinInstanceCount(original["minInstanceCount"], d, config)
+	transformed["max_instance_count"] =
+		flattenCloudRunV2ServiceScalingMaxInstanceCount(original["maxInstanceCount"], d, config)
 	transformed["scaling_mode"] =
 		flattenCloudRunV2ServiceScalingScalingMode(original["scalingMode"], d, config)
 	transformed["manual_instance_count"] =
@@ -1959,6 +1966,23 @@ func flattenCloudRunV2ServiceScaling(v interface{}, d *schema.ResourceData, conf
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2ServiceScalingMinInstanceCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunV2ServiceScalingMaxInstanceCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
@@ -3519,6 +3543,13 @@ func expandCloudRunV2ServiceScaling(v interface{}, d tpgresource.TerraformResour
 		transformed["minInstanceCount"] = transformedMinInstanceCount
 	}
 
+	transformedMaxInstanceCount, err := expandCloudRunV2ServiceScalingMaxInstanceCount(original["max_instance_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxInstanceCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxInstanceCount"] = transformedMaxInstanceCount
+	}
+
 	transformedScalingMode, err := expandCloudRunV2ServiceScalingScalingMode(original["scaling_mode"], d, config)
 	if err != nil {
 		return nil, err
@@ -3537,6 +3568,10 @@ func expandCloudRunV2ServiceScaling(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandCloudRunV2ServiceScalingMinInstanceCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceScalingMaxInstanceCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

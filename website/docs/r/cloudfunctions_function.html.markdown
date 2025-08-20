@@ -193,6 +193,10 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 
 * `secret_volumes` - (Optional) Secret volumes configuration. Structure is [documented below](#nested_secret_volumes).
 
+* `automatic_update_policy` - (Optional) Security patches are applied automatically to the runtime without requiring the function to be redeployed. This should be specified as an empty block and cannot be set alongside `on_deploy_update_policy`.
+
+* `on_deploy_update_policy` - (Optional) Security patches are only applied when a function is redeployed. This should be specified as an empty block and cannot be set alongside `automatic_update_policy`. Structure is [documented below](#nested_on_deploy_update_policy).
+
 <a name="nested_event_trigger"></a>The `event_trigger` block supports:
 
 * `event_type` - (Required) The type of event to observe. For example: `"google.storage.object.finalize"`.
@@ -225,6 +229,10 @@ which to observe events. For example, `"myBucket"` or `"projects/my-project/topi
 * `secret` - (Required) ID of the secret in secret manager (not the full resource name).
 
 * `version` - (Required) Version of the secret (version number or the string "latest"). It is recommended to use a numeric version for secret environment variables as any updates to the secret value is not reflected until new clones start.
+
+<a name="nested_on_deploy_update_policy"></a>The `on_deploy_update_policy` block supports:
+
+* `runtime_version` - (Output) The runtime version which was used during latest function deployment.
 
 <a name="nested_secret_volumes"></a>The `secret_volumes` block supports:
 

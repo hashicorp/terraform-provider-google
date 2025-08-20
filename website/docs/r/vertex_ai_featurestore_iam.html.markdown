@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Vertex AI Featurestore
+
 Three different resources help you manage your IAM policy for Vertex AI Featurestore. Each of these resources serves a different use case:
 
 * `google_vertex_ai_featurestore_iam_policy`: Authoritative. Sets the IAM policy for the featurestore and replaces any existing policy already attached.

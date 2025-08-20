@@ -16,6 +16,7 @@ fields:
   - field: 'notification_configs.pubsub_topic'
   - field: 'parser_config.allow_null_header'
   - field: 'parser_config.schema'
+    json: true
   - field: 'parser_config.segment_terminator'
   - field: 'parser_config.version'
   - field: 'reject_duplicate_message'

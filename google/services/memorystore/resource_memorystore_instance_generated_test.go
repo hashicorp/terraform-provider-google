@@ -151,41 +151,42 @@ func TestAccMemorystoreInstance_memorystoreInstanceFullExample(t *testing.T) {
 func testAccMemorystoreInstance_memorystoreInstanceFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_memorystore_instance" "instance-full" {
-  instance_id = "tf-test-full-instance%{random_suffix}"
-  shard_count = 1
+  instance_id                  = "tf-test-full-instance%{random_suffix}"
+  shard_count                  = 1
   desired_auto_created_endpoints {
-    network    = google_compute_network.producer_net.id
-    project_id = data.google_project.project.project_id
+    network                    = google_compute_network.producer_net.id
+    project_id                 = data.google_project.project.project_id
+  }     
+  location                     = "us-central1"
+  replica_count                = 1
+  node_type                    = "SHARED_CORE_NANO"
+  transit_encryption_mode      = "TRANSIT_ENCRYPTION_DISABLED"
+  authorization_mode           = "AUTH_DISABLED"
+  kms_key                      = "%{kms_key_name}"
+  engine_configs = {     
+    maxmemory-policy           = "volatile-ttl"
   }
-  location                = "us-central1"
-  replica_count           = 1
-  node_type               = "SHARED_CORE_NANO"
-  transit_encryption_mode = "TRANSIT_ENCRYPTION_DISABLED"
-  authorization_mode      = "AUTH_DISABLED"
-  kms_key                 = "%{kms_key_name}"
-  engine_configs = {
-    maxmemory-policy = "volatile-ttl"
-  }
+  allow_fewer_zones_deployment = true
   zone_distribution_config {
-    mode = "SINGLE_ZONE"
-    zone = "us-central1-b"
+    mode                       = "SINGLE_ZONE"
+    zone                       = "us-central1-b"
   }
   maintenance_policy {
     weekly_maintenance_window {
-      day = "MONDAY"
+      day                      = "MONDAY"
       start_time {
-        hours = 1
-        minutes = 0
-        seconds = 0
-        nanos = 0
+        hours                  = 1
+        minutes                = 0
+        seconds                = 0
+        nanos                  = 0
       }
     }
   }
   engine_version              = "VALKEY_7_2"
   deletion_protection_enabled = false
-  mode = "CLUSTER"
+  mode                        = "CLUSTER"
   persistence_config {
-    mode = "RDB"
+    mode                      = "RDB"
     rdb_config {
       rdb_snapshot_period     = "ONE_HOUR"
       rdb_snapshot_start_time = "2024-10-02T15:01:23Z"

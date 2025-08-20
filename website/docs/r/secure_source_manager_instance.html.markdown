@@ -601,7 +601,7 @@ Default is `DELETE`.  Possible values are:
   'Indicate if it's private instance.'
 
 * `ca_pool` -
-  (Required)
+  (Optional)
   CA pool resource, resource must in the format of `projects/{project}/locations/{location}/caPools/{ca_pool}`.
 
 * `http_service_attachment` -

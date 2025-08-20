@@ -11,6 +11,7 @@ fields:
   - field: 'annotations'
   - field: 'backup_count'
   - field: 'backup_minimum_enforced_retention_duration'
+  - field: 'backup_retention_inheritance'
   - field: 'backup_vault_id'
     provider_only: true
   - field: 'create_time'

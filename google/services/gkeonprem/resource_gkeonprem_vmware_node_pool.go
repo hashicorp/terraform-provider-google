@@ -90,6 +90,7 @@ MetalLB load balancers.`,
 						},
 						"image": {
 							Type:        schema.TypeString,
+							Computed:    true,
 							Optional:    true,
 							Description: `The OS image name in vCenter, only valid when using Windows.`,
 						},
