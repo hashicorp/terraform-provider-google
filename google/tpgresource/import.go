@@ -105,7 +105,7 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 
 			return nil
 		} else if d.Id() == "" {
-			if err := identityImport(re, identity, idFormat, d); err != nil {
+			if err := identityImport(re, identity, d); err != nil {
 				return err
 			}
 			err = setDefaultValues(idRegexes[0], identity, d, config)
@@ -118,7 +118,7 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 	return fmt.Errorf("Import id %q doesn't match any of the accepted formats: %v", d.Id(), idRegexes)
 }
 
-func identityImport(re *regexp.Regexp, identity *schema.IdentityData, idFormat string, d TerraformResourceData) error {
+func identityImport(re *regexp.Regexp, identity *schema.IdentityData, d TerraformResourceData) error {
 	if identity == nil {
 		return nil
 	}
@@ -132,8 +132,10 @@ func identityImport(re *regexp.Regexp, identity *schema.IdentityData, idFormat s
 		if identityValue, identityExists := identity.GetOk(group); identityExists && group != "" {
 			log.Printf("[DEBUG] identity Importing %s = %s", group, identityValue)
 			d.Set(group, identityValue)
+		} else if group == "" {
+			continue
 		} else {
-			return fmt.Errorf("[DEBUG] No value was found for %s during import", group)
+			log.Printf("[DEBUG] No value was found for %s in identity import block", group)
 		}
 	}
 
