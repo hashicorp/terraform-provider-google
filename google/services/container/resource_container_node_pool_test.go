@@ -3941,7 +3941,8 @@ resource "google_compute_subnetwork" "container_subnetwork" {
 
 resource "google_container_cluster" "cluster" {
   name               = "%s"
-  location           = "us-central1"
+  # Zonal rather than regional to reduce setup time and node count per zone.
+  location           = "us-central1-c"
   initial_node_count = 1
 
   network    = google_compute_network.container_network.name
@@ -3951,82 +3952,82 @@ resource "google_container_cluster" "cluster" {
     services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
   }
   release_channel {
-	channel = "RAPID"
+    channel = "RAPID"
   }
   deletion_protection = false
 }
 
 resource "google_container_node_pool" "with_manual_pod_cidr" {
-  name               = "%s-manual"
-  location           = "us-central1"
-  cluster            = google_container_cluster.cluster.name
+  name       = "%s-manual"
+  location   = google_container_cluster.cluster.location
+  cluster    = google_container_cluster.cluster.name
   node_count = 1
   network_config {
     create_pod_range = false
-    pod_range = google_compute_subnetwork.container_subnetwork.secondary_ip_range[2].range_name
+    pod_range        = google_compute_subnetwork.container_subnetwork.secondary_ip_range[2].range_name
   }
   node_config {
-	oauth_scopes = [
-	  "https://www.googleapis.com/auth/cloud-platform",
-	]
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
   }
 }
 
 resource "google_container_node_pool" "with_auto_pod_cidr" {
-  name               = "%s-auto"
-  location           = "us-central1"
-  cluster            = google_container_cluster.cluster.name
+  name       = "%s-auto"
+  location   = google_container_cluster.cluster.location
+  cluster    = google_container_cluster.cluster.name
   node_count = 1
   network_config {
-	create_pod_range    = true
-	pod_range           = "auto-pod-range"
-	pod_ipv4_cidr_block = "10.2.0.0/20"
+    create_pod_range    = true
+    pod_range           = "auto-pod-range"
+    pod_ipv4_cidr_block = "10.2.0.0/20"
   }
   node_config {
-	oauth_scopes = [
-	  "https://www.googleapis.com/auth/cloud-platform",
-	]
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
   }
 }
 
 resource "google_container_node_pool" "with_pco_disabled" {
-  name               = "%s-pco"
-  location           = "us-central1"
-  cluster            = google_container_cluster.cluster.name
+  name       = "%s-pco"
+  location   = google_container_cluster.cluster.location
+  cluster    = google_container_cluster.cluster.name
   node_count = 1
   network_config {
-	pod_cidr_overprovision_config {
-		disabled = true
-	}
+    pod_cidr_overprovision_config {
+      disabled = true
+    }
   }
   node_config {
-	oauth_scopes = [
-	  "https://www.googleapis.com/auth/cloud-platform",
-	]
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
   }
 }
 
 resource "google_container_node_pool" "with_tier1_net" {
-  name               = "%s-tier1"
-  location           = "us-central1"
-  cluster            = google_container_cluster.cluster.name
+  name       = "%s-tier1"
+  location   = google_container_cluster.cluster.location
+  cluster    = google_container_cluster.cluster.name
   node_count = 1
   node_locations = [
-	"us-central1-a",
+    "us-central1-c",
   ]
   network_config {
-	network_performance_config {
-		total_egress_bandwidth_tier = "%s"
-	}
+    network_performance_config {
+      total_egress_bandwidth_tier = "%s"
+    }
   }
   node_config {
-	machine_type = "n2-standard-32"
-	gvnic {
-		enabled = true
-	}
-	oauth_scopes = [
-		"https://www.googleapis.com/auth/cloud-platform",
-	]
+    machine_type = "n2-standard-32"
+    gvnic {
+      enabled = true
+    }
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
   }
 }
 
