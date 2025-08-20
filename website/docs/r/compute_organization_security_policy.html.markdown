@@ -48,27 +48,29 @@ resource "google_compute_organization_security_policy" "policy" {
 The following arguments are supported:
 
 
-* `display_name` -
-  (Required)
-  A textual name of the security policy.
-
 * `parent` -
   (Required)
   The parent of this OrganizationSecurityPolicy in the Cloud Resource Hierarchy.
   Format: organizations/{organization_id} or folders/{folder_id}
 
 
+* `display_name` -
+  (Optional)
+  User-provided name of the organization security policy. The name should be unique in the organization in which the security policy is created. This should only be used when SecurityPolicyType is FIREWALL.
+
 * `description` -
   (Optional)
   A textual description for the organization security policy.
 
+* `short_name` -
+  (Optional)
+  User-provided name of the organization security policy. The name should be unique in the organization in which the security policy is created. This should only be used when SecurityPolicyType is CLOUD_ARMOR.
+
 * `type` -
   (Optional)
-  The type indicates the intended use of the security policy.
-  For organization security policies, the only supported type
-  is "FIREWALL".
+  The type indicates the intended use of the security policy. This field can be set only at resource creation time.
   Default value is `FIREWALL`.
-  Possible values are: `FIREWALL`.
+  Possible values are: `FIREWALL`, `CLOUD_ARMOR`, `CLOUD_ARMOR_EDGE`, `CLOUD_ARMOR_INTERNAL_SERVICE`, `CLOUD_ARMOR_NETWORK`.
 
 
 
