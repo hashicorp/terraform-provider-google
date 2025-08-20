@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloud_tasks: added `desired_state` field to `google_cloud_tasks_queue ` resource
+```
