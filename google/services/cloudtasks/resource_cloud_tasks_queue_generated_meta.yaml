@@ -9,6 +9,8 @@ fields:
   - field: 'app_engine_routing_override.instance'
   - field: 'app_engine_routing_override.service'
   - field: 'app_engine_routing_override.version'
+  - field: 'desired_state'
+    provider_only: true
   - field: 'http_target.header_overrides.header.key'
   - field: 'http_target.header_overrides.header.value'
   - field: 'http_target.http_method'
@@ -34,3 +36,4 @@ fields:
   - field: 'retry_config.max_retry_duration'
   - field: 'retry_config.min_backoff'
   - field: 'stackdriver_logging_config.sampling_ratio'
+  - field: 'state'
