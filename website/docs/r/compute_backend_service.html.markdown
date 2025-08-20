@@ -949,6 +949,11 @@ The following arguments are supported:
   feature which together with Service Extension allows customized and complex routing logic.
   Structure is [documented below](#nested_dynamic_forwarding).
 
+* `params` -
+  (Optional)
+  Additional params passed with the request, but not persisted as part of resource payload
+  Structure is [documented below](#nested_params).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -1705,6 +1710,14 @@ The following arguments are supported:
 * `enabled` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   A boolean flag enabling IP:PORT based dynamic forwarding.
+
+<a name="nested_params"></a>The `params` block supports:
+
+* `resource_manager_tags` -
+  (Optional)
+  Resource manager tags to be bound to the backend service. Tag keys and values have the
+  same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+  and values are in the format tagValues/456.
 
 ## Attributes Reference
 
