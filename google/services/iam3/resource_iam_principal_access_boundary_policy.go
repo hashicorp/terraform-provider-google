@@ -204,11 +204,11 @@ func resourceIAM3PrincipalAccessBoundaryPolicyCreate(d *schema.ResourceData, met
 	} else if v, ok := d.GetOkExists("details"); !tpgresource.IsEmptyValue(reflect.ValueOf(detailsProp)) && (ok || !reflect.DeepEqual(v, detailsProp)) {
 		obj["details"] = detailsProp
 	}
-	annotationsProp, err := expandIAM3PrincipalAccessBoundaryPolicyEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandIAM3PrincipalAccessBoundaryPolicyEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IAM3BasePath}}organizations/{{organization}}/locations/{{location}}/principalAccessBoundaryPolicies?principalAccessBoundaryPolicyId={{principal_access_boundary_policy_id}}")
@@ -347,11 +347,11 @@ func resourceIAM3PrincipalAccessBoundaryPolicyUpdate(d *schema.ResourceData, met
 	} else if v, ok := d.GetOkExists("details"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, detailsProp)) {
 		obj["details"] = detailsProp
 	}
-	annotationsProp, err := expandIAM3PrincipalAccessBoundaryPolicyEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandIAM3PrincipalAccessBoundaryPolicyEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IAM3BasePath}}organizations/{{organization}}/locations/{{location}}/principalAccessBoundaryPolicies/{{principal_access_boundary_policy_id}}")

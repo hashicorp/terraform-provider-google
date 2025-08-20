@@ -648,17 +648,17 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	IPAddressProp, err := expandComputeForwardingRuleIPAddress(d.Get("ip_address"), d, config)
+	iPAddressProp, err := expandComputeForwardingRuleIPAddress(d.Get("ip_address"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ip_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(IPAddressProp)) && (ok || !reflect.DeepEqual(v, IPAddressProp)) {
-		obj["IPAddress"] = IPAddressProp
+	} else if v, ok := d.GetOkExists("ip_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(iPAddressProp)) && (ok || !reflect.DeepEqual(v, iPAddressProp)) {
+		obj["IPAddress"] = iPAddressProp
 	}
-	IPProtocolProp, err := expandComputeForwardingRuleIPProtocol(d.Get("ip_protocol"), d, config)
+	iPProtocolProp, err := expandComputeForwardingRuleIPProtocol(d.Get("ip_protocol"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ip_protocol"); !tpgresource.IsEmptyValue(reflect.ValueOf(IPProtocolProp)) && (ok || !reflect.DeepEqual(v, IPProtocolProp)) {
-		obj["IPProtocol"] = IPProtocolProp
+	} else if v, ok := d.GetOkExists("ip_protocol"); !tpgresource.IsEmptyValue(reflect.ValueOf(iPProtocolProp)) && (ok || !reflect.DeepEqual(v, iPProtocolProp)) {
+		obj["IPProtocol"] = iPProtocolProp
 	}
 	backendServiceProp, err := expandComputeForwardingRuleBackendService(d.Get("backend_service"), d, config)
 	if err != nil {
@@ -774,11 +774,11 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("ip_collection"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipCollectionProp)) && (ok || !reflect.DeepEqual(v, ipCollectionProp)) {
 		obj["ipCollection"] = ipCollectionProp
 	}
-	labelsProp, err := expandComputeForwardingRuleEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandComputeForwardingRuleEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 	regionProp, err := expandComputeForwardingRuleRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -844,8 +844,8 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error waiting to create ForwardingRule: %s", err)
 	}
 
-	if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		labels := d.Get("labels")
+	if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		userLabels := d.Get("labels")
 		terraformLables := d.Get("terraform_labels")
 
 		// Labels cannot be set in a create.  We'll have to set them here.
@@ -889,7 +889,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		}
 
 		// Set back the labels field, as it is needed to decide the value of "labels" in the state in the read function.
-		if err := d.Set("labels", labels); err != nil {
+		if err := d.Set("labels", userLabels); err != nil {
 			return fmt.Errorf("Error setting back labels: %s", err)
 		}
 

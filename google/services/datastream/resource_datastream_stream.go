@@ -1906,11 +1906,11 @@ func resourceDatastreamStreamCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("customer_managed_encryption_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(customerManagedEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, customerManagedEncryptionKeyProp)) {
 		obj["customerManagedEncryptionKey"] = customerManagedEncryptionKeyProp
 	}
-	labelsProp, err := expandDatastreamStreamEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandDatastreamStreamEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceDatastreamStreamEncoder(d, meta, obj)
@@ -2116,11 +2116,11 @@ func resourceDatastreamStreamUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("backfill_none"); ok || !reflect.DeepEqual(v, backfillNoneProp) {
 		obj["backfillNone"] = backfillNoneProp
 	}
-	labelsProp, err := expandDatastreamStreamEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandDatastreamStreamEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceDatastreamStreamEncoder(d, meta, obj)

@@ -98,11 +98,11 @@ func resourceAppEngineServiceNetworkSettingsCreate(d *schema.ResourceData, meta 
 	}
 
 	obj := make(map[string]interface{})
-	idProp, err := expandAppEngineServiceNetworkSettingsService(d.Get("service"), d, config)
+	serviceProp, err := expandAppEngineServiceNetworkSettingsService(d.Get("service"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("service"); !tpgresource.IsEmptyValue(reflect.ValueOf(idProp)) && (ok || !reflect.DeepEqual(v, idProp)) {
-		obj["id"] = idProp
+	} else if v, ok := d.GetOkExists("service"); !tpgresource.IsEmptyValue(reflect.ValueOf(serviceProp)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
+		obj["id"] = serviceProp
 	}
 	networkSettingsProp, err := expandAppEngineServiceNetworkSettingsNetworkSettings(d.Get("network_settings"), d, config)
 	if err != nil {
@@ -242,11 +242,11 @@ func resourceAppEngineServiceNetworkSettingsUpdate(d *schema.ResourceData, meta 
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	idProp, err := expandAppEngineServiceNetworkSettingsService(d.Get("service"), d, config)
+	serviceProp, err := expandAppEngineServiceNetworkSettingsService(d.Get("service"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("service"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, idProp)) {
-		obj["id"] = idProp
+	} else if v, ok := d.GetOkExists("service"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
+		obj["id"] = serviceProp
 	}
 	networkSettingsProp, err := expandAppEngineServiceNetworkSettingsNetworkSettings(d.Get("network_settings"), d, config)
 	if err != nil {

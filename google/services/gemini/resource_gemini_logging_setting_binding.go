@@ -157,11 +157,11 @@ func resourceGeminiLoggingSettingBindingCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("product"); !tpgresource.IsEmptyValue(reflect.ValueOf(productProp)) && (ok || !reflect.DeepEqual(v, productProp)) {
 		obj["product"] = productProp
 	}
-	labelsProp, err := expandGeminiLoggingSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGeminiLoggingSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/loggingSettings/{{logging_setting_id}}")
@@ -325,11 +325,11 @@ func resourceGeminiLoggingSettingBindingUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("product"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, productProp)) {
 		obj["product"] = productProp
 	}
-	labelsProp, err := expandGeminiLoggingSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGeminiLoggingSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/loggingSettings/{{logging_setting_id}}")

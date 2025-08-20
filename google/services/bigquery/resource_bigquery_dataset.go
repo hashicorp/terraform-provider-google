@@ -653,11 +653,11 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("external_catalog_dataset_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(externalCatalogDatasetOptionsProp)) && (ok || !reflect.DeepEqual(v, externalCatalogDatasetOptionsProp)) {
 		obj["externalCatalogDatasetOptions"] = externalCatalogDatasetOptionsProp
 	}
-	labelsProp, err := expandBigQueryDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandBigQueryDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets?accessPolicyVersion=3")
@@ -943,11 +943,11 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("external_catalog_dataset_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, externalCatalogDatasetOptionsProp)) {
 		obj["externalCatalogDatasetOptions"] = externalCatalogDatasetOptionsProp
 	}
-	labelsProp, err := expandBigQueryDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandBigQueryDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}?accessPolicyVersion=3")

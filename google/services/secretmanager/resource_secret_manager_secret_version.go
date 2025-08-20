@@ -178,11 +178,11 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 	}
 
 	obj := make(map[string]interface{})
-	stateProp, err := expandSecretManagerSecretVersionEnabled(d.Get("enabled"), d, config)
+	enabledProp, err := expandSecretManagerSecretVersionEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(stateProp)) && (ok || !reflect.DeepEqual(v, stateProp)) {
-		obj["state"] = stateProp
+	} else if v, ok := d.GetOkExists("enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(enabledProp)) && (ok || !reflect.DeepEqual(v, enabledProp)) {
+		obj["state"] = enabledProp
 	}
 	payloadProp, err := expandSecretManagerSecretVersionPayload(nil, d, config)
 	if err != nil {
