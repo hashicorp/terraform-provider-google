@@ -1132,6 +1132,11 @@ API (for read pools, effective_availability_type may differ from availability_ty
 					},
 				},
 			},
+			"backupdr_backup": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The name of the BackupDR backup to restore from.`,
+			},
 			"clone": {
 				Type:         schema.TypeList,
 				Optional:     true,
@@ -1438,7 +1443,14 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	// Perform a backup restore if the backup context exists
 	if r, ok := d.GetOk("restore_backup_context"); ok {
-		err = sqlDatabaseInstanceRestoreFromBackup(d, config, userAgent, project, name, r)
+		log.Printf("[DEBUG] Restoring instance %s from backup context: %v", name, r)
+		err = sqlDatabaseInstanceRestoreFromBackup(d, config, userAgent, project, name, r, "")
+		if err != nil {
+			return err
+		}
+	} else if b, ok := d.GetOk("backupdr_backup"); ok && b.(string) != "" {
+		log.Printf("[DEBUG] Restoring instance %s from BackupDR backup: %s", name, b.(string))
+		err = sqlDatabaseInstanceRestoreFromBackup(d, config, userAgent, project, name, nil, b)
 		if err != nil {
 			return err
 		}
@@ -2257,7 +2269,14 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	// Perform a backup restore if the backup context exists and has changed
 	if r, ok := d.GetOk("restore_backup_context"); ok {
 		if d.HasChange("restore_backup_context") {
-			err = sqlDatabaseInstanceRestoreFromBackup(d, config, userAgent, project, d.Get("name").(string), r)
+			err = sqlDatabaseInstanceRestoreFromBackup(d, config, userAgent, project, d.Get("name").(string), r, "")
+			if err != nil {
+				return err
+			}
+		}
+	} else if b, ok := d.GetOk("backupdr_backup"); ok && b.(string) != "" {
+		if d.HasChange("backupdr_backup") {
+			err = sqlDatabaseInstanceRestoreFromBackup(d, config, userAgent, project, d.Get("name").(string), nil, b)
 			if err != nil {
 				return err
 			}
@@ -2897,12 +2916,16 @@ func expandRestoreBackupContext(configured []interface{}) *sqladmin.RestoreBacku
 	}
 }
 
-func sqlDatabaseInstanceRestoreFromBackup(d *schema.ResourceData, config *transport_tpg.Config, userAgent, project, instanceId string, r interface{}) error {
+func sqlDatabaseInstanceRestoreFromBackup(d *schema.ResourceData, config *transport_tpg.Config, userAgent, project, instanceId string, r interface{}, backupdrBackup interface{}) error {
 	log.Printf("[DEBUG] Initiating SQL database instance backup restore")
-	restoreContext := r.([]interface{})
 
-	backupRequest := &sqladmin.InstancesRestoreBackupRequest{
-		RestoreBackupContext: expandRestoreBackupContext(restoreContext),
+	backupRequest := &sqladmin.InstancesRestoreBackupRequest{}
+
+	if r != nil {
+		restoreContext := r.([]interface{})
+		backupRequest.RestoreBackupContext = expandRestoreBackupContext(restoreContext)
+	} else if backupdrBackup != nil && backupdrBackup.(string) != "" {
+		backupRequest.BackupdrBackup = backupdrBackup.(string)
 	}
 
 	var op *sqladmin.Operation
