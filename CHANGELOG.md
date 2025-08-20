@@ -1,4 +1,9 @@
-## 6.49.0 (Unreleased)
+## 6.49.1 (August 20, 2025)
+BUG FIXES:
+secretmanager: fixed issue where `secret_data_wo_version` would show a plan/apply time diff when unset for `google_secret_manager_secret_version` ([#24061](https://github.com/hashicorp/terraform-provider-google/pull/24061))
+
+
+## 6.49.0 (August 19, 2025)
 
 DEPRECATIONS:
 * beyondcorp: `google_beyondcorp_application_iam_binding`, `google_beyondcorp_application_iam_member` and `google_beyondcorp_application_iam_policy` IAM resources, and the `google_beyondcorp_application_iam_policy ` datasource have been deprecated and will be removed in the upcoming major release ([#23995](https://github.com/hashicorp/terraform-provider-google/pull/23995))
