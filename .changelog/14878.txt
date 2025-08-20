@@ -1,0 +1,3 @@
+```release-note:enhancement
+lustre: increased `google_lustre_instance` resource create timeout to 120m from 20m
+```
