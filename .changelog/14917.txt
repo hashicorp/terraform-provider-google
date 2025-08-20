@@ -1,0 +1,3 @@
+```release-note:bug
+secretmanager: reverted breaking type and default value changes for secret manager
+```
