@@ -209,11 +209,11 @@ func resourceDataplexEntryTypeCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("required_aspects"); !tpgresource.IsEmptyValue(reflect.ValueOf(requiredAspectsProp)) && (ok || !reflect.DeepEqual(v, requiredAspectsProp)) {
 		obj["requiredAspects"] = requiredAspectsProp
 	}
-	labelsProp, err := expandDataplexEntryTypeEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandDataplexEntryTypeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/entryTypes?entryTypeId={{entry_type_id}}")
@@ -409,11 +409,11 @@ func resourceDataplexEntryTypeUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("required_aspects"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, requiredAspectsProp)) {
 		obj["requiredAspects"] = requiredAspectsProp
 	}
-	labelsProp, err := expandDataplexEntryTypeEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandDataplexEntryTypeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/entryTypes/{{entry_type_id}}")

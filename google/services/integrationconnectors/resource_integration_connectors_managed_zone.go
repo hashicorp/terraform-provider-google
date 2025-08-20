@@ -159,11 +159,11 @@ func resourceIntegrationConnectorsManagedZoneCreate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("target_vpc"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetVpcProp)) && (ok || !reflect.DeepEqual(v, targetVpcProp)) {
 		obj["targetVpc"] = targetVpcProp
 	}
-	labelsProp, err := expandIntegrationConnectorsManagedZoneEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandIntegrationConnectorsManagedZoneEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IntegrationConnectorsBasePath}}projects/{{project}}/locations/global/managedZones?managedZoneId={{name}}")
@@ -335,11 +335,11 @@ func resourceIntegrationConnectorsManagedZoneUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("target_vpc"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetVpcProp)) {
 		obj["targetVpc"] = targetVpcProp
 	}
-	labelsProp, err := expandIntegrationConnectorsManagedZoneEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandIntegrationConnectorsManagedZoneEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IntegrationConnectorsBasePath}}projects/{{project}}/locations/global/managedZones/{{name}}")

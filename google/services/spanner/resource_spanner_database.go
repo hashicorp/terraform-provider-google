@@ -253,11 +253,11 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("version_retention_period"); !tpgresource.IsEmptyValue(reflect.ValueOf(versionRetentionPeriodProp)) && (ok || !reflect.DeepEqual(v, versionRetentionPeriodProp)) {
 		obj["versionRetentionPeriod"] = versionRetentionPeriodProp
 	}
-	extraStatementsProp, err := expandSpannerDatabaseDdl(d.Get("ddl"), d, config)
+	ddlProp, err := expandSpannerDatabaseDdl(d.Get("ddl"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ddl"); !tpgresource.IsEmptyValue(reflect.ValueOf(extraStatementsProp)) && (ok || !reflect.DeepEqual(v, extraStatementsProp)) {
-		obj["extraStatements"] = extraStatementsProp
+	} else if v, ok := d.GetOkExists("ddl"); !tpgresource.IsEmptyValue(reflect.ValueOf(ddlProp)) && (ok || !reflect.DeepEqual(v, ddlProp)) {
+		obj["extraStatements"] = ddlProp
 	}
 	encryptionConfigProp, err := expandSpannerDatabaseEncryptionConfig(d.Get("encryption_config"), d, config)
 	if err != nil {

@@ -156,11 +156,11 @@ func resourceComputeRegionTargetTcpProxyCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("proxy_header"); !tpgresource.IsEmptyValue(reflect.ValueOf(proxyHeaderProp)) && (ok || !reflect.DeepEqual(v, proxyHeaderProp)) {
 		obj["proxyHeader"] = proxyHeaderProp
 	}
-	serviceProp, err := expandComputeRegionTargetTcpProxyBackendService(d.Get("backend_service"), d, config)
+	backendServiceProp, err := expandComputeRegionTargetTcpProxyBackendService(d.Get("backend_service"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("backend_service"); !tpgresource.IsEmptyValue(reflect.ValueOf(serviceProp)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
-		obj["service"] = serviceProp
+	} else if v, ok := d.GetOkExists("backend_service"); !tpgresource.IsEmptyValue(reflect.ValueOf(backendServiceProp)) && (ok || !reflect.DeepEqual(v, backendServiceProp)) {
+		obj["service"] = backendServiceProp
 	}
 	proxyBindProp, err := expandComputeRegionTargetTcpProxyProxyBind(d.Get("proxy_bind"), d, config)
 	if err != nil {

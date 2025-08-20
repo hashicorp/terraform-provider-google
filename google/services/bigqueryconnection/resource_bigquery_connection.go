@@ -360,11 +360,11 @@ func resourceBigqueryConnectionConnectionCreate(d *schema.ResourceData, meta int
 	}
 
 	obj := make(map[string]interface{})
-	connection_idProp, err := expandBigqueryConnectionConnectionConnectionId(d.Get("connection_id"), d, config)
+	connectionIdProp, err := expandBigqueryConnectionConnectionConnectionId(d.Get("connection_id"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("connection_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(connection_idProp)) && (ok || !reflect.DeepEqual(v, connection_idProp)) {
-		obj["connection_id"] = connection_idProp
+	} else if v, ok := d.GetOkExists("connection_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(connectionIdProp)) && (ok || !reflect.DeepEqual(v, connectionIdProp)) {
+		obj["connection_id"] = connectionIdProp
 	}
 	friendlyNameProp, err := expandBigqueryConnectionConnectionFriendlyName(d.Get("friendly_name"), d, config)
 	if err != nil {

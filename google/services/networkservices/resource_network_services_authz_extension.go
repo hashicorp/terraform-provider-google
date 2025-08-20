@@ -237,11 +237,11 @@ func resourceNetworkServicesAuthzExtensionCreate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("wire_format"); !tpgresource.IsEmptyValue(reflect.ValueOf(wireFormatProp)) && (ok || !reflect.DeepEqual(v, wireFormatProp)) {
 		obj["wireFormat"] = wireFormatProp
 	}
-	labelsProp, err := expandNetworkServicesAuthzExtensionEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkServicesAuthzExtensionEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 	nameProp, err := expandNetworkServicesAuthzExtensionName(d.Get("name"), d, config)
 	if err != nil {
@@ -467,11 +467,11 @@ func resourceNetworkServicesAuthzExtensionUpdate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("wire_format"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, wireFormatProp)) {
 		obj["wireFormat"] = wireFormatProp
 	}
-	labelsProp, err := expandNetworkServicesAuthzExtensionEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkServicesAuthzExtensionEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 	nameProp, err := expandNetworkServicesAuthzExtensionName(d.Get("name"), d, config)
 	if err != nil {

@@ -1726,11 +1726,11 @@ func resourceOSConfigV2PolicyOrchestratorCreate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("orchestration_scope"); !tpgresource.IsEmptyValue(reflect.ValueOf(orchestrationScopeProp)) && (ok || !reflect.DeepEqual(v, orchestrationScopeProp)) {
 		obj["orchestrationScope"] = orchestrationScopeProp
 	}
-	labelsProp, err := expandOSConfigV2PolicyOrchestratorEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandOSConfigV2PolicyOrchestratorEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{OSConfigV2BasePath}}projects/{{project}}/locations/global/policyOrchestrators?policyOrchestratorId={{policy_orchestrator_id}}")
@@ -1920,11 +1920,11 @@ func resourceOSConfigV2PolicyOrchestratorUpdate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("orchestration_scope"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, orchestrationScopeProp)) {
 		obj["orchestrationScope"] = orchestrationScopeProp
 	}
-	labelsProp, err := expandOSConfigV2PolicyOrchestratorEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandOSConfigV2PolicyOrchestratorEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{OSConfigV2BasePath}}projects/{{project}}/locations/global/policyOrchestrators/{{policy_orchestrator_id}}")
