@@ -207,6 +207,12 @@ Terraform [Type Conversion](https://developer.hashicorp.com/terraform/language/e
 
 To reflect the new type explicitly, surround the current integer value in quotes, i.e. `retention_period = 10` -> `retention_period = "10"`.
 
+## Resource: `google_gke_hub_feature_membership`
+
+### `configmanagement.binauthz` is now removed
+
+Remove `configmanagement.binauthz` from your configuration after upgrade.
+
 ## Resource: `google_gke_hub_membership`
 
 ### `description` is now removed
