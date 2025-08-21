@@ -638,6 +638,7 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return nil
 	})
 	if err != nil {
+		d.SetId("")
 		return fmt.Errorf("error creating NodePool: %s", err)
 	}
 	timeout -= time.Since(startTime)
