@@ -63,6 +63,7 @@ func WorkbenchInstanceLabelsDiffSuppress(k, old, new string, d *schema.ResourceD
 }
 
 var WorkbenchInstanceSettableUnmodifiableDefaultMetadata = []string{
+	"install-monitoring-agent",
 	"serial-port-logging-enable",
 }
 
@@ -106,7 +107,6 @@ var WorkbenchInstanceProvidedMetadata = []string{
 	"generate-diagnostics-options",
 	"google-logging-enabled",
 	"image-url",
-	"install-monitoring-agent",
 	"install-nvidia-driver",
 	"installed-extensions",
 	"instance-region",

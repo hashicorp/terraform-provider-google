@@ -1,0 +1,3 @@
+```release-note:bug
+workbench: made `install-monitoring-agent` metadata key settable for `google_workbench_instance`
+```
