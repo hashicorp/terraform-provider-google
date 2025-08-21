@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccComputeBackendBucket_basicModified(t *testing.T) {
@@ -216,6 +217,35 @@ func TestAccComputeBackendBucket_withCdnCacheMode_update(t *testing.T) {
 				ResourceName:      "google_compute_backend_bucket.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeBackendBucket_withTags(t *testing.T) {
+	t.Parallel()
+
+	org := envvar.GetTestOrgFromEnv(t)
+
+	backendName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	storageName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	tagKeyResult := acctest.BootstrapSharedTestTagKeyDetails(t, "crm-bb-tagkey", "organizations/"+org, make(map[string]interface{}))
+	sharedTagkey, _ := tagKeyResult["shared_tag_key"]
+	tagValueResult := acctest.BootstrapSharedTestTagValueDetails(t, "crm-bb-tagvalue", sharedTagkey, org)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendBucket_withTags(backendName, storageName, tagKeyResult["name"], tagValueResult["name"]),
+			},
+			{
+				ResourceName:            "google_compute_backend_bucket.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -429,4 +459,23 @@ resource "google_storage_bucket" "bucket" {
   location = "EU"
 }
 `, backendName, default_ttl, storageName)
+}
+
+func testAccComputeBackendBucket_withTags(backendName, storageName string, tagKey string, tagValue string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_bucket" "foobar" {
+  name        = "%s"
+  bucket_name = google_storage_bucket.bucket_one.name
+  params {
+	resource_manager_tags = {
+		"%s" = "%s"
+	}
+  }
+}
+
+resource "google_storage_bucket" "bucket_one" {
+  name     = "%s"
+  location = "EU"
+}
+`, backendName, tagKey, tagValue, storageName)
 }
