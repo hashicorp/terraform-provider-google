@@ -884,7 +884,6 @@ func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (
 		clusterNodePoolsGetCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 	}
 	_, err = clusterNodePoolsGetCall.Do()
-
 	if err != nil {
 		if err = transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Container NodePool %s", name)); err == nil {
 			return false, nil
