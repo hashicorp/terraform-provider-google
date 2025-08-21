@@ -1,0 +1,7 @@
+```release-note:breaking-change
+memorystore: remove `allow_fewer_zones_deployment` field from `google_memorystore_instance` resource because it isn't user-configurable
+```
+
+```release-note:breaking-change
+redis: remove `allow_fewer_zones_deployment` field from `google_redis_cluster` resource because it isn't user-configurable
+```

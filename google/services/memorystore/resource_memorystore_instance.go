@@ -85,15 +85,6 @@ This value is subject to the following restrictions:
 				Required:    true,
 				Description: `Required. Number of shards for the instance.`,
 			},
-			"allow_fewer_zones_deployment": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Description: `Allows customers to specify if they are okay with deploying a multi-zone
-instance in less than 3 zones. Once set, if there is a zonal outage during
-the instance creation, the instance will only be deployed in 2 zones, and
-stay within the 2 zones for its lifecycle.`,
-			},
 			"authorization_mode": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -1044,12 +1035,6 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("zone_distribution_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(zoneDistributionConfigProp)) && (ok || !reflect.DeepEqual(v, zoneDistributionConfigProp)) {
 		obj["zoneDistributionConfig"] = zoneDistributionConfigProp
 	}
-	allowFewerZonesDeploymentProp, err := expandMemorystoreInstanceAllowFewerZonesDeployment(d.Get("allow_fewer_zones_deployment"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("allow_fewer_zones_deployment"); !tpgresource.IsEmptyValue(reflect.ValueOf(allowFewerZonesDeploymentProp)) && (ok || !reflect.DeepEqual(v, allowFewerZonesDeploymentProp)) {
-		obj["allowFewerZonesDeployment"] = allowFewerZonesDeploymentProp
-	}
 	deletionProtectionEnabledProp, err := expandMemorystoreInstanceDeletionProtectionEnabled(d.Get("deletion_protection_enabled"), d, config)
 	if err != nil {
 		return err
@@ -1270,9 +1255,6 @@ func resourceMemorystoreInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("zone_distribution_config", flattenMemorystoreInstanceZoneDistributionConfig(res["zoneDistributionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("allow_fewer_zones_deployment", flattenMemorystoreInstanceAllowFewerZonesDeployment(res["allowFewerZonesDeployment"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("deletion_protection_enabled", flattenMemorystoreInstanceDeletionProtectionEnabled(res["deletionProtectionEnabled"], d, config)); err != nil {
@@ -2119,10 +2101,6 @@ func flattenMemorystoreInstanceZoneDistributionConfigMode(v interface{}, d *sche
 	return v
 }
 
-func flattenMemorystoreInstanceAllowFewerZonesDeployment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenMemorystoreInstanceDeletionProtectionEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -2933,10 +2911,6 @@ func expandMemorystoreInstanceZoneDistributionConfigZone(v interface{}, d tpgres
 }
 
 func expandMemorystoreInstanceZoneDistributionConfigMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandMemorystoreInstanceAllowFewerZonesDeployment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
