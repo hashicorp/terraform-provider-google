@@ -237,7 +237,6 @@ resource "google_billing_budget" "budget" {
     labels  = {
       label = "bar"
     }
-    subaccounts = []
   }
 
   amount {
@@ -428,7 +427,7 @@ resource "google_billing_budget" "budget" {
     labels  = {
       label1 = "bar2"
     }
-	calendar_period = "YEAR"
+  calendar_period = "YEAR"
   }
 
   amount {
@@ -476,19 +475,18 @@ resource "google_billing_budget" "budget" {
     labels  = {
       label1 = "bar2"
     }
-	custom_period {
-	  start_date {
-		year = 2022
-		month = 1
-		day = 1
-	  }
-	  end_date {
-		year = 2023
-		month = 12
-		day = 31
-	  }
-	}
-	credit_types = []
+    custom_period {
+      start_date {
+      year = 2022
+      month = 1
+      day = 1
+      }
+      end_date {
+      year = 2023
+      month = 12
+      day = 31
+      }
+    }
   }
 
   amount {
@@ -600,43 +598,43 @@ func testAccBillingBudget_budgetFilterProjectsOrdering1(context map[string]inter
 	return acctest.Nprintf(`
 
 data "google_billing_account" "account" {
-	billing_account = "%{billing_acct}"
+  billing_account = "%{billing_acct}"
 }
 
 resource "google_project" "project1" {
-	project_id      = "tf-test-%{random_suffix_1}"
-	name            = "tf-test-%{random_suffix_1}"
-	org_id          = "%{org}"
-	billing_account = "%{project_billing_acct}"
-	deletion_policy = "DELETE"
+  project_id      = "tf-test-%{random_suffix_1}"
+  name            = "tf-test-%{random_suffix_1}"
+  org_id          = "%{org}"
+  billing_account = "%{project_billing_acct}"
+  deletion_policy = "DELETE"
 }
 
 resource "google_project" "project2" {
-	project_id      = "tf-test-%{random_suffix_2}"
-	name            = "tf-test-%{random_suffix_2}"
-	org_id          = "%{org}"
-	billing_account = "%{project_billing_acct}"
-	deletion_policy = "DELETE"
+  project_id      = "tf-test-%{random_suffix_2}"
+  name            = "tf-test-%{random_suffix_2}"
+  org_id          = "%{org}"
+  billing_account = "%{project_billing_acct}"
+  deletion_policy = "DELETE"
 }
 
 resource "google_billing_budget" "budget" {
-	billing_account = data.google_billing_account.account.id
-	display_name    = "Example Billing Budget"
+  billing_account = data.google_billing_account.account.id
+  display_name    = "Example Billing Budget"
 
-	budget_filter {
-		projects = [
-			"projects/${google_project.project1.number}",
-			"projects/${google_project.project2.number}",
-		]
-	}
+  budget_filter {
+    projects = [
+      "projects/${google_project.project1.number}",
+      "projects/${google_project.project2.number}",
+    ]
+  }
 
-	amount {
-		last_period_amount = true
-	}
+  amount {
+    last_period_amount = true
+  }
 
-	threshold_rules {
-		threshold_percent =  10.0
-	}
+  threshold_rules {
+    threshold_percent =  10.0
+  }
 }
 
 `, context)
@@ -646,43 +644,43 @@ func testAccBillingBudget_budgetFilterProjectsOrdering2(context map[string]inter
 	return acctest.Nprintf(`
 
 data "google_billing_account" "account" {
-	billing_account = "%{billing_acct}"
+  billing_account = "%{billing_acct}"
 }
 
 resource "google_project" "project1" {
-	project_id      = "tf-test-%{random_suffix_1}"
-	name            = "tf-test-%{random_suffix_1}"
-	org_id          = "%{org}"
-	billing_account = "%{project_billing_acct}"
-	deletion_policy = "DELETE"
+  project_id      = "tf-test-%{random_suffix_1}"
+  name            = "tf-test-%{random_suffix_1}"
+  org_id          = "%{org}"
+  billing_account = "%{project_billing_acct}"
+  deletion_policy = "DELETE"
 }
 
 resource "google_project" "project2" {
-	project_id      = "tf-test-%{random_suffix_2}"
-	name            = "tf-test-%{random_suffix_2}"
-	org_id          = "%{org}"
-	billing_account = "%{project_billing_acct}"
-	deletion_policy = "DELETE"
+  project_id      = "tf-test-%{random_suffix_2}"
+  name            = "tf-test-%{random_suffix_2}"
+  org_id          = "%{org}"
+  billing_account = "%{project_billing_acct}"
+  deletion_policy = "DELETE"
 }
 
 resource "google_billing_budget" "budget" {
-	billing_account = data.google_billing_account.account.id
-	display_name    = "Example Billing Budget"
+  billing_account = data.google_billing_account.account.id
+  display_name    = "Example Billing Budget"
 
-	budget_filter {
-		projects = [
-			"projects/${google_project.project2.number}",
-			"projects/${google_project.project1.number}",
-		]
-	}
+  budget_filter {
+    projects = [
+      "projects/${google_project.project2.number}",
+      "projects/${google_project.project1.number}",
+    ]
+  }
 
-	amount {
-		last_period_amount = true
-	}
+  amount {
+    last_period_amount = true
+  }
 
-	threshold_rules {
-		threshold_percent =  10.0
-	}
+  threshold_rules {
+    threshold_percent =  10.0
+  }
 }
 
 `, context)
