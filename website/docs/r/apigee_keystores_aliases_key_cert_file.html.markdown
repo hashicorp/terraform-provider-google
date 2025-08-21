@@ -80,7 +80,7 @@ In addition to the arguments listed above, the following computed attributes are
   Optional.Type of Alias
 
 
-<a name="nested_certs_info"></a>The `certs_info` block contains:
+<a name="nested_certs_info"></a>The `certs_info` list contains:
 
 * `cert_info` -
   (Output)
