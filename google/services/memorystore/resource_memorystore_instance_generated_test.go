@@ -166,7 +166,6 @@ resource "google_memorystore_instance" "instance-full" {
   engine_configs = {     
     maxmemory-policy           = "volatile-ttl"
   }
-  allow_fewer_zones_deployment = true
   zone_distribution_config {
     mode                       = "SINGLE_ZONE"
     zone                       = "us-central1-b"
