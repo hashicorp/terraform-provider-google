@@ -1,0 +1,11 @@
+```release-note:breaking-change
+sql: on `google_sql_user`, made `password_wo_version` required when `password_wo` is set
+```
+
+```release-note:breaking-change
+secretmanager: on `google_secret_manager_secret_version`, made `secret_data_wo` and `secret_data_wo_version` both required when one is set
+```
+
+```release-note:breaking-change
+monitoring: on `google_monitoring_uptime_check_config`, made it required to set exactly one of `http_check.auth_info.password` and `http_check.auth_info.password_wo`
+```
