@@ -301,6 +301,7 @@ to a different credential configuration in the config will require an apply to u
 							WriteOnly:     true,
 							ConflictsWith: []string{"sensitive_params.0.secret_access_key"},
 							AtLeastOneOf:  []string{"sensitive_params.0.secret_access_key_wo", "sensitive_params.0.secret_access_key"},
+							RequiredWith:  []string{"sensitive_params.0.secret_access_key_wo_version"},
 						},
 						"secret_access_key_wo_version": {
 							Type:         schema.TypeInt,

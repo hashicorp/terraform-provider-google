@@ -176,14 +176,14 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 										Optional:     true,
 										Description:  `The password to authenticate.`,
 										Sensitive:    true,
-										ExactlyOneOf: []string{},
+										ExactlyOneOf: []string{"http_check.0.auth_info.0.password_wo", "http_check.0.auth_info.0.password"},
 									},
 									"password_wo": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										Description:  `The password to authenticate.`,
 										WriteOnly:    true,
-										ExactlyOneOf: []string{},
+										ExactlyOneOf: []string{"http_check.0.auth_info.0.password_wo", "http_check.0.auth_info.0.password"},
 										RequiredWith: []string{"http_check.0.auth_info.0.password_wo_version"},
 									},
 									"password_wo_version": {

@@ -119,6 +119,7 @@ func ResourceSqlUser() *schema.Resource {
 				Optional:      true,
 				WriteOnly:     true,
 				ConflictsWith: []string{"password"},
+				RequiredWith:  []string{"password_wo_version"},
 				Description: `The password for the user. Can be updated. For Postgres instances this is a Required field, unless type is set to
 				either CLOUD_IAM_USER or CLOUD_IAM_SERVICE_ACCOUNT.`,
 			},
