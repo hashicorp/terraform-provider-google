@@ -86,9 +86,10 @@ This value is subject to the following restrictions:
 				Description: `Required. Number of shards for the instance.`,
 			},
 			"allow_fewer_zones_deployment": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Deprecated: "allow_fewer_zone_deployment flag will no longer be a user settable field, default behaviour will be as if set to true",
+				ForceNew:   true,
 				Description: `Allows customers to specify if they are okay with deploying a multi-zone
 instance in less than 3 zones. Once set, if there is a zonal outage during
 the instance creation, the instance will only be deployed in 2 zones, and
