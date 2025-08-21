@@ -73,9 +73,10 @@ projects/{projectId}/locations/{locationId}/clusters/{clusterId}`,
 				Description: `Required. Number of shards for the Redis cluster.`,
 			},
 			"allow_fewer_zones_deployment": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Deprecated: "allow_fewer_zone_deployment flag will no longer be a user settable field, default behaviour will be as if set to true",
+				ForceNew:   true,
 				Description: `Allows customers to specify if they are okay with deploying a multi-zone
 cluster in less than 3 zones. Once set, if there is a zonal outage during
 the cluster creation, the cluster will only be deployed in 2 zones, and
