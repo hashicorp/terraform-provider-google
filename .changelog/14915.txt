@@ -1,0 +1,3 @@
+```release-note:note
+weekly difftests will skip when failing rather than passing (default behavior is passing in teamcity)
+```
