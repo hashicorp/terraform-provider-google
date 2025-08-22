@@ -47,9 +47,10 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 				Config: testAccComputeBackendBucket_backendBucketBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -87,9 +88,10 @@ func TestAccComputeBackendBucket_backendBucketFullExample(t *testing.T) {
 				Config: testAccComputeBackendBucket_backendBucketFullExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend_full",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend_full",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -138,9 +140,10 @@ func TestAccComputeBackendBucket_backendBucketSecurityPolicyExample(t *testing.T
 				Config: testAccComputeBackendBucket_backendBucketSecurityPolicyExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -185,9 +188,10 @@ func TestAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(t *tes
 				Config: testAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -230,9 +234,10 @@ func TestAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(t *testi
 				Config: testAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -275,9 +280,10 @@ func TestAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(t *testin
 				Config: testAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -405,9 +411,10 @@ func TestAccComputeBackendBucket_backendBucketBypassCacheExample(t *testing.T) {
 				Config: testAccComputeBackendBucket_backendBucketBypassCacheExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -450,9 +457,10 @@ func TestAccComputeBackendBucket_backendBucketCoalescingExample(t *testing.T) {
 				Config: testAccComputeBackendBucket_backendBucketCoalescingExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -495,9 +503,10 @@ func TestAccComputeBackendBucket_backendBucketGlobalIlbExample(t *testing.T) {
 				Config: testAccComputeBackendBucket_backendBucketGlobalIlbExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.global-ilb-backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.global-ilb-backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})

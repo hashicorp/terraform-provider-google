@@ -209,11 +209,11 @@ func resourceGKEHub2ScopeRBACRoleBindingCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("role"); !tpgresource.IsEmptyValue(reflect.ValueOf(roleProp)) && (ok || !reflect.DeepEqual(v, roleProp)) {
 		obj["role"] = roleProp
 	}
-	labelsProp, err := expandGKEHub2ScopeRBACRoleBindingEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGKEHub2ScopeRBACRoleBindingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/global/scopes/{{scope_id}}/rbacrolebindings/?rbacrolebinding_id={{scope_rbac_role_binding_id}}")
@@ -388,11 +388,11 @@ func resourceGKEHub2ScopeRBACRoleBindingUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("role"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, roleProp)) {
 		obj["role"] = roleProp
 	}
-	labelsProp, err := expandGKEHub2ScopeRBACRoleBindingEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGKEHub2ScopeRBACRoleBindingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/global/scopes/{{scope_id}}/rbacrolebindings/{{scope_rbac_role_binding_id}}")

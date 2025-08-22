@@ -994,11 +994,11 @@ func resourceGkeonpremVmwareAdminClusterCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("private_registry_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(privateRegistryConfigProp)) && (ok || !reflect.DeepEqual(v, privateRegistryConfigProp)) {
 		obj["privateRegistryConfig"] = privateRegistryConfigProp
 	}
-	annotationsProp, err := expandGkeonpremVmwareAdminClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandGkeonpremVmwareAdminClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GkeonpremBasePath}}projects/{{project}}/locations/{{location}}/vmwareAdminClusters?vmware_admin_cluster_id={{name}}")
@@ -1289,11 +1289,11 @@ func resourceGkeonpremVmwareAdminClusterUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("private_registry_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, privateRegistryConfigProp)) {
 		obj["privateRegistryConfig"] = privateRegistryConfigProp
 	}
-	annotationsProp, err := expandGkeonpremVmwareAdminClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandGkeonpremVmwareAdminClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GkeonpremBasePath}}projects/{{project}}/locations/{{location}}/vmwareAdminClusters/{{name}}")

@@ -348,6 +348,11 @@ includes an up-to-date reference of supported versions.
     **NOTE:** Restoring from a backup is an imperative action and not recommended via Terraform. Adding or modifying this
     block during resource creation/update will trigger the restore action after the resource is created/updated.
 
+*  `backupdr_backup` - (optional) The backupdr_backup needed to restore the database to a backup run. This field will
+    cause Terraform to trigger the database to restore from the backup run indicated. The configuration is detailed below.
+    **NOTE:** Restoring from a backup is an imperative action and not recommended via Terraform. Adding or modifying this
+    block during resource creation/update will trigger the restore action after the resource is created/updated.
+
 * `clone` - (Optional) The context needed to create this instance as a clone of another instance. When this field is set during
     resource creation, Terraform will attempt to clone another instance as indicated in the context. The
     configuration is detailed below.

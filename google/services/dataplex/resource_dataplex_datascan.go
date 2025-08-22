@@ -843,11 +843,11 @@ func resourceDataplexDatascanCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("data_discovery_spec"); ok || !reflect.DeepEqual(v, dataDiscoverySpecProp) {
 		obj["dataDiscoverySpec"] = dataDiscoverySpecProp
 	}
-	labelsProp, err := expandDataplexDatascanEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandDataplexDatascanEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/dataScans?dataScanId={{data_scan_id}}")
@@ -1055,11 +1055,11 @@ func resourceDataplexDatascanUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("data_discovery_spec"); ok || !reflect.DeepEqual(v, dataDiscoverySpecProp) {
 		obj["dataDiscoverySpec"] = dataDiscoverySpecProp
 	}
-	labelsProp, err := expandDataplexDatascanEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandDataplexDatascanEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/dataScans/{{data_scan_id}}")

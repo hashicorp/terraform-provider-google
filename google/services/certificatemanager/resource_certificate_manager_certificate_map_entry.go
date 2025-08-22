@@ -191,11 +191,11 @@ func resourceCertificateManagerCertificateMapEntryCreate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("matcher"); !tpgresource.IsEmptyValue(reflect.ValueOf(matcherProp)) && (ok || !reflect.DeepEqual(v, matcherProp)) {
 		obj["matcher"] = matcherProp
 	}
-	labelsProp, err := expandCertificateManagerCertificateMapEntryEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandCertificateManagerCertificateMapEntryEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 	nameProp, err := expandCertificateManagerCertificateMapEntryName(d.Get("name"), d, config)
 	if err != nil {
@@ -367,11 +367,11 @@ func resourceCertificateManagerCertificateMapEntryUpdate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("certificates"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, certificatesProp)) {
 		obj["certificates"] = certificatesProp
 	}
-	labelsProp, err := expandCertificateManagerCertificateMapEntryEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandCertificateManagerCertificateMapEntryEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")

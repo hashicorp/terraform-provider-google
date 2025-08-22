@@ -184,11 +184,11 @@ func resourceParameterManagerParameterCreate(d *schema.ResourceData, meta interf
 	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
 		obj["kmsKey"] = kmsKeyProp
 	}
-	labelsProp, err := expandParameterManagerParameterEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandParameterManagerParameterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ParameterManagerBasePath}}projects/{{project}}/locations/global/parameters?parameter_id={{parameter_id}}")
@@ -332,11 +332,11 @@ func resourceParameterManagerParameterUpdate(d *schema.ResourceData, meta interf
 	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
 		obj["kmsKey"] = kmsKeyProp
 	}
-	labelsProp, err := expandParameterManagerParameterEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandParameterManagerParameterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ParameterManagerBasePath}}projects/{{project}}/locations/global/parameters/{{parameter_id}}")

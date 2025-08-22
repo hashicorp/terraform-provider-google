@@ -81,6 +81,7 @@ projects/{project}/locations/{region}/cloudExadataInfrastuctures/{cloud_extradat
 			},
 			"backup_odb_subnet": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 				Description: `The name of the backup OdbSubnet associated with the VM Cluster.
@@ -123,6 +124,7 @@ Format: projects/{project}/global/networks/{network}`,
 			},
 			"odb_network": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 				Description: `The name of the OdbNetwork associated with the VM Cluster.
@@ -133,6 +135,7 @@ the odb_subnet and backup_odb_subnet.`,
 			},
 			"odb_subnet": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 				Description: `The name of the OdbSubnet associated with the VM Cluster for
@@ -514,11 +517,11 @@ func resourceOracleDatabaseCloudVmClusterCreate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("backup_odb_subnet"); !tpgresource.IsEmptyValue(reflect.ValueOf(backupOdbSubnetProp)) && (ok || !reflect.DeepEqual(v, backupOdbSubnetProp)) {
 		obj["backupOdbSubnet"] = backupOdbSubnetProp
 	}
-	labelsProp, err := expandOracleDatabaseCloudVmClusterEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandOracleDatabaseCloudVmClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/cloudVmClusters?cloudVmClusterId={{cloud_vm_cluster_id}}")

@@ -167,11 +167,11 @@ func resourceComputeTargetSslProxyCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("proxy_header"); !tpgresource.IsEmptyValue(reflect.ValueOf(proxyHeaderProp)) && (ok || !reflect.DeepEqual(v, proxyHeaderProp)) {
 		obj["proxyHeader"] = proxyHeaderProp
 	}
-	serviceProp, err := expandComputeTargetSslProxyBackendService(d.Get("backend_service"), d, config)
+	backendServiceProp, err := expandComputeTargetSslProxyBackendService(d.Get("backend_service"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("backend_service"); !tpgresource.IsEmptyValue(reflect.ValueOf(serviceProp)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
-		obj["service"] = serviceProp
+	} else if v, ok := d.GetOkExists("backend_service"); !tpgresource.IsEmptyValue(reflect.ValueOf(backendServiceProp)) && (ok || !reflect.DeepEqual(v, backendServiceProp)) {
+		obj["service"] = backendServiceProp
 	}
 	sslCertificatesProp, err := expandComputeTargetSslProxySslCertificates(d.Get("ssl_certificates"), d, config)
 	if err != nil {
