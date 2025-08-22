@@ -1,0 +1,3 @@
+```release-note:enhancement
+ssm: make `ca_pool` argument optional for private instances that use Google-managed trusted certificates.` to `secure_source_manager` resource
+```

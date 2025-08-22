@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `rule.match.src_secure_tags`, `rule.target_secure_tags`, `predefined_rules.match.src_secure_tags` and `predefined_rules.target_secure_tags` fields to `google_compute_firewall_policy_with_rules` resource
+```

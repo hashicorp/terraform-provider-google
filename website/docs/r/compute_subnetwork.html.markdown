@@ -458,6 +458,11 @@ The following arguments are supported:
   Additional params passed with the request, but not persisted as part of resource payload
   Structure is [documented below](#nested_params).
 
+* `params` -
+  (Optional)
+  Additional params passed with the request, but not persisted as part of resource payload
+  Structure is [documented below](#nested_params).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

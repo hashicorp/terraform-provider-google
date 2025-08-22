@@ -1,0 +1,7 @@
+```release-note:enhancement
+compute: added `specific_reservation.0.instance_properties.0.maintenance_interval`, `share_settings.0.projects` and `enable_emergent_maintenance` fields to `google_compute_reservation` resource (beta)
+```
+
+```release-note:enhancement
+compute: added `specific_reservation.0.source_instance_template`, `delete_at_time`, `delete_after_duration.0.seconds`, `delete_after_duration.0.nanos` and `reservation_sharing_policy.0.service_share_type` fields to `google_compute_reservation` resource (ga)
+```

@@ -122,7 +122,6 @@ The following arguments are supported:
   (Required)
   The client-provided identifier of the membership.
 
-
 * `labels` -
   (Optional)
   Labels to apply to this membership.

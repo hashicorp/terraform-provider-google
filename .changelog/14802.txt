@@ -1,0 +1,3 @@
+```release-note:bug
+kms: `skip_initial_version_creation` field is no longer immutable in `google_kms_crypto_key`, but is still only settable at-creation
+```

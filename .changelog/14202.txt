@@ -1,0 +1,19 @@
+```release-note:new-resource
+`google_kms_autokey_config` (ga)
+```
+
+```release-note:new-resource
+`google_kms_key_handle` (ga)
+```
+
+```release-note:new-datasource
+`google_kms_autokey_config` (ga)
+```
+
+```release-note:new-datasource
+`google_kms_key_handle` (ga)
+```
+
+```release-note:new-datasource
+`google_kms_key_handles` (ga)
+```

@@ -1,0 +1,1 @@
+unknown: google_compute_service_attachment: allow use of global target forwarding rules

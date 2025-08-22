@@ -134,7 +134,6 @@ The following arguments are supported:
   Attempts to create an Index without this field will result in an API error.
   Structure is [documented below](#nested_metadata).
 
-
 * `description` -
   (Optional)
   The description of the Index.

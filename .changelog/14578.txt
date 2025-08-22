@@ -1,0 +1,3 @@
+```release-note:bug
+networkconnectivity: fixed `instances[].ip_address` & `instances[].virtual_machine` fields in `linked_router_appliance_instances` block being incorrectly treated as immutable for `google_network_connectivity_spoke` resource
+```

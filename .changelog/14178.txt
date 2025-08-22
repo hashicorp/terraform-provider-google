@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `load_balancing_scheme` field to `google_compute_backend_bucket` resource
+```

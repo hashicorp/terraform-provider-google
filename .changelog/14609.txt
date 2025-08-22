@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added in-place update support for `provisioned_iops`, `provisioned_throughput`,  and `access_mode` fields in `google_compute_region_disk` resource
+```

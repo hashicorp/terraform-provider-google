@@ -1,0 +1,3 @@
+```release-note:new-resource
+gkeonprem: `google_gkeonprem_vmware_admin_cluster` (GA)
+```
