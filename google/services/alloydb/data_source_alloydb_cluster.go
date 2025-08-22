@@ -71,5 +71,10 @@ func dataSourceAlloydbDatabaseClusterRead(d *schema.ResourceData, meta interface
 	if d.Id() == "" {
 		return fmt.Errorf("%s not found", id)
 	}
+
+	if err := d.Set("deletion_protection", nil); err != nil {
+		return fmt.Errorf("Error setting deletion_protection: %s", err)
+	}
+
 	return nil
 }

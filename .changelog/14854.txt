@@ -1,0 +1,3 @@
+```release-note:bug
+compute: Fixed b/318814729 by making `advertised_ip_ranges` into Set instead of List
+```

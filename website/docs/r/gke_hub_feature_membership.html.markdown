@@ -18,7 +18,7 @@ description: |-
   Contains information about a GKEHub Feature Memberships.
 ---
 
-# google_gkehub_feature_membership
+# google_gke_hub_feature_membership
 
 Contains information about a GKEHub Feature Memberships. Feature Memberships configure GKEHub Features that apply to specific memberships rather than the project as a whole. The google_gke_hub is the Fleet API.
 
@@ -440,11 +440,6 @@ The following arguments are supported:
   (Optional)
   Version of Config Sync installed.
 
-* `binauthz` -
-  (Optional, Deprecated)
-  Binauthz configuration for the cluster. Structure is [documented below](#nested_binauthz).
-  This field will be ignored and should not be set.
-
 * `hierarchy_controller` -
   (Optional)
   Hierarchy Controller configuration for the cluster. Structure is [documented below](#nested_hierarchy_controller).
@@ -458,13 +453,6 @@ The following arguments are supported:
   Policy Controller configuration for the cluster. Structure is [documented below](#nested_policy_controller).
   Configuring Policy Controller through the configmanagement feature is no longer recommended.
   Use the policycontroller feature instead.
-
-    
-<a name="nested_binauthz"></a>The `binauthz` block supports:
-    
-* `enabled` -
-  (Optional)
-  Whether binauthz is enabled in this cluster.
     
 <a name="nested_config_sync"></a>The `config_sync` block supports:
 

@@ -1,0 +1,3 @@
+```release-note:breaking-change
+compute: `subnetworks` and `instances` fields in `google_compute_packet_mirroring` have been converted to sets from arrays
+```

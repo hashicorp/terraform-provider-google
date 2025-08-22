@@ -169,11 +169,6 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 							ForceNew:    true,
 							Description: `Required. If true, expose the IndexEndpoint via private service connect.`,
 						},
-						"enable_secure_private_service_connect": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `If set to true, enable secure private service connect with IAM authorization. Otherwise, private service connect will be done without authorization. Note latency will be slightly increased if authorization is enabled.`,
-						},
 						"project_allowlist": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -1200,8 +1195,6 @@ func flattenVertexAIEndpointPrivateServiceConnectConfig(v interface{}, d *schema
 		flattenVertexAIEndpointPrivateServiceConnectConfigEnablePrivateServiceConnect(original["enablePrivateServiceConnect"], d, config)
 	transformed["project_allowlist"] =
 		flattenVertexAIEndpointPrivateServiceConnectConfigProjectAllowlist(original["projectAllowlist"], d, config)
-	transformed["enable_secure_private_service_connect"] =
-		flattenVertexAIEndpointPrivateServiceConnectConfigEnableSecurePrivateServiceConnect(original["enableSecurePrivateServiceConnect"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAIEndpointPrivateServiceConnectConfigEnablePrivateServiceConnect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1209,10 +1202,6 @@ func flattenVertexAIEndpointPrivateServiceConnectConfigEnablePrivateServiceConne
 }
 
 func flattenVertexAIEndpointPrivateServiceConnectConfigProjectAllowlist(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointPrivateServiceConnectConfigEnableSecurePrivateServiceConnect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1359,13 +1348,6 @@ func expandVertexAIEndpointPrivateServiceConnectConfig(v interface{}, d tpgresou
 		transformed["projectAllowlist"] = transformedProjectAllowlist
 	}
 
-	transformedEnableSecurePrivateServiceConnect, err := expandVertexAIEndpointPrivateServiceConnectConfigEnableSecurePrivateServiceConnect(original["enable_secure_private_service_connect"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedEnableSecurePrivateServiceConnect); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["enableSecurePrivateServiceConnect"] = transformedEnableSecurePrivateServiceConnect
-	}
-
 	return transformed, nil
 }
 
@@ -1374,10 +1356,6 @@ func expandVertexAIEndpointPrivateServiceConnectConfigEnablePrivateServiceConnec
 }
 
 func expandVertexAIEndpointPrivateServiceConnectConfigProjectAllowlist(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandVertexAIEndpointPrivateServiceConnectConfigEnableSecurePrivateServiceConnect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

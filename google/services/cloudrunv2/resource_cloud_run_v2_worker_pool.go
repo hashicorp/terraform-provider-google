@@ -116,14 +116,6 @@ This field follows Kubernetes annotations' namespacing, limits, and rules.`,
 											Type: schema.TypeString,
 										},
 									},
-									"depends_on": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: `Containers which should be started before this container. If specified the container will wait to start until all containers with the listed names are healthy.`,
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
 									"env": {
 										Type:        schema.TypeSet,
 										Optional:    true,
@@ -1656,7 +1648,6 @@ func flattenCloudRunV2WorkerPoolTemplateContainers(v interface{}, d *schema.Reso
 			"resources":     flattenCloudRunV2WorkerPoolTemplateContainersResources(original["resources"], d, config),
 			"volume_mounts": flattenCloudRunV2WorkerPoolTemplateContainersVolumeMounts(original["volumeMounts"], d, config),
 			"working_dir":   flattenCloudRunV2WorkerPoolTemplateContainersWorkingDir(original["workingDir"], d, config),
-			"depends_on":    flattenCloudRunV2WorkerPoolTemplateContainersDependsOn(original["dependsOn"], d, config),
 		})
 	}
 	return transformed
@@ -1786,10 +1777,6 @@ func flattenCloudRunV2WorkerPoolTemplateContainersVolumeMountsMountPath(v interf
 }
 
 func flattenCloudRunV2WorkerPoolTemplateContainersWorkingDir(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCloudRunV2WorkerPoolTemplateContainersDependsOn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2671,13 +2658,6 @@ func expandCloudRunV2WorkerPoolTemplateContainers(v interface{}, d tpgresource.T
 			transformed["workingDir"] = transformedWorkingDir
 		}
 
-		transformedDependsOn, err := expandCloudRunV2WorkerPoolTemplateContainersDependsOn(original["depends_on"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedDependsOn); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["dependsOn"] = transformedDependsOn
-		}
-
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2865,10 +2845,6 @@ func expandCloudRunV2WorkerPoolTemplateContainersVolumeMountsMountPath(v interfa
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersWorkingDir(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2WorkerPoolTemplateContainersDependsOn(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -245,7 +245,6 @@ resource "google_project_service" "vertexai" {
     create = "30m"
     update = "40m"
   }
-  disable_on_destroy = false
   # Needed for CI tests for permissions to propagate, should not be needed for actual usage
   depends_on = [time_sleep.wait_60_seconds]
 }

@@ -63,7 +63,6 @@ func testAccFirebaseDataConnectService_firebasedataconnectServiceBasicExample(co
 resource "google_project_service" "fdc" {
   project = "%{project_id}"
   service = "firebasedataconnect.googleapis.com"
-  disable_on_destroy = false
 }
 
 # Create a Firebase Data Connect service
@@ -119,7 +118,6 @@ func testAccFirebaseDataConnectService_firebasedataconnectServiceWithForceDeleti
 resource "google_project_service" "fdc" {
   project = "%{project_id}"
   service = "firebasedataconnect.googleapis.com"
-  disable_on_destroy = false
 }
 
 # Create a Firebase Data Connect service

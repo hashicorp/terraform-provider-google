@@ -181,6 +181,15 @@ At least one forwarding rule is required. There can be only one LBTrafficExtensi
 					Type: schema.TypeString,
 				},
 			},
+			"load_balancing_scheme": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"INTERNAL_MANAGED", "EXTERNAL_MANAGED"}),
+				Description: `All backend services and forwarding rules referenced by this extension must share the same load balancing scheme.
+For more information, refer to [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service) and
+[Supported application load balancers](https://cloud.google.com/service-extensions/docs/callouts-overview#supported-lbs). Possible values: ["INTERNAL_MANAGED", "EXTERNAL_MANAGED"]`,
+			},
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -206,15 +215,6 @@ At least one forwarding rule is required. There can be only one LBTrafficExtensi
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
-			},
-			"load_balancing_scheme": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"INTERNAL_MANAGED", "EXTERNAL_MANAGED", ""}),
-				Description: `All backend services and forwarding rules referenced by this extension must share the same load balancing scheme.
-For more information, refer to [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service) and
-[Supported application load balancers](https://cloud.google.com/service-extensions/docs/callouts-overview#supported-lbs). Possible values: ["INTERNAL_MANAGED", "EXTERNAL_MANAGED"]`,
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,

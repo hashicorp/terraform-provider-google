@@ -119,7 +119,6 @@ resource "google_memorystore_instance" "instance-full" {
   engine_configs = {     
     maxmemory-policy           = "volatile-ttl"
   }
-  allow_fewer_zones_deployment = true
   zone_distribution_config {
     mode                       = "SINGLE_ZONE"
     zone                       = "us-central1-b"
@@ -467,15 +466,6 @@ The following arguments are supported:
   (Optional)
   Zone distribution configuration for allocation of instance resources.
   Structure is [documented below](#nested_zone_distribution_config).
-
-* `allow_fewer_zones_deployment` -
-  (Optional, Deprecated)
-  Allows customers to specify if they are okay with deploying a multi-zone
-  instance in less than 3 zones. Once set, if there is a zonal outage during
-  the instance creation, the instance will only be deployed in 2 zones, and
-  stay within the 2 zones for its lifecycle.
-
-  ~> **Warning:** allow_fewer_zone_deployment flag will no longer be a user settable field, default behaviour will be as if set to true
 
 * `deletion_protection_enabled` -
   (Optional)

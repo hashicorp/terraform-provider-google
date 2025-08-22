@@ -26,7 +26,7 @@ Models are deployed into it, and afterwards Endpoint is called to obtain predict
 
 To get more information about Endpoint, see:
 
-* [API documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.endpoints)
+* [API documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/vertex-ai/docs)
 
@@ -120,7 +120,6 @@ resource "google_vertex_ai_endpoint" "endpoint" {
     project_allowlist = [
       "${data.google_project.project.project_id}"
     ]
-    enable_secure_private_service_connect = false
   }
 }
 
@@ -236,7 +235,7 @@ The following arguments are supported:
   A list of Projects from which the forwarding rule will target the service attachment.
 
 * `enable_secure_private_service_connect` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   If set to true, enable secure private service connect with IAM authorization. Otherwise, private service connect will be done without authorization. Note latency will be slightly increased if authorization is enabled.
 
 <a name="nested_predict_request_response_logging_config"></a>The `predict_request_response_logging_config` block supports:

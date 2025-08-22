@@ -273,17 +273,17 @@ response to a condition in another service.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"event_type": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Required. The type of event to observe.`,
+						},
 						"event_filters": {
 							Type:        schema.TypeSet,
 							Optional:    true,
 							Description: `Criteria used to filter events.`,
 							Elem:        cloudfunctions2functionEventTriggerEventFiltersSchema(),
 							// Default schema.HashSchema is used.
-						},
-						"event_type": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Required. The type of event to observe.`,
 						},
 						"pubsub_topic": {
 							Type:     schema.TypeString,
@@ -479,12 +479,6 @@ given time.`,
 								},
 							},
 						},
-						"service": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Optional:    true,
-							Description: `Name of the service associated with a Function.`,
-						},
 						"service_account_email": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -514,6 +508,11 @@ timeout period. Defaults to 60 seconds.`,
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `URIs of the Service deployed`,
+						},
+						"service": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Name of the service associated with a Function.`,
 						},
 						"uri": {
 							Type:        schema.TypeString,

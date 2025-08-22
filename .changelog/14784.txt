@@ -1,0 +1,3 @@
+```release-note:breaking-change
+resourcemanager: removed non-functional `project` field from `google_service_account_key` datasource
+```

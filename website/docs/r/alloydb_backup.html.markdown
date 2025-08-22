@@ -48,6 +48,8 @@ resource "google_alloydb_cluster" "default" {
   network_config {
     network = google_compute_network.default.id
   }
+
+  deletion_protection = false
 }
 
 resource "google_alloydb_instance" "default" {
@@ -99,6 +101,8 @@ resource "google_alloydb_cluster" "default" {
   network_config {
     network = google_compute_network.default.id
   }
+
+  deletion_protection = false
 }
 
 resource "google_alloydb_instance" "default" {

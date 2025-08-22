@@ -281,8 +281,6 @@ resource "google_project" "project" {
 resource "google_project_service" "serviceusage" {
   project  = google_project.project.project_id
   service  = "serviceusage.googleapis.com"
-
-  disable_on_destroy = false # Need it enabled in the project when the test disables services in post-test cleanup
 }
 `, context)
 }
@@ -326,7 +324,6 @@ resource "google_project_service" "pubsub" {
 resource "google_project_service" "cloudresourcemanager" {
   project  = google_project.project.project_id
   service  = "cloudresourcemanager.googleapis.com"
-  disable_on_destroy = false # Need it enabled in the project when the test deletes the project resource in post-test cleanup
 }
 `, context)
 }

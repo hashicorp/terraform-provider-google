@@ -371,9 +371,9 @@ func resourceBigtableAuthorizedViewDestroy(d *schema.ResourceData, meta interfac
 func resourceBigtableAuthorizedViewImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/instances/(?P<instance_name>[^/]+)/tables/(?P<table_name>[^/]+)/authorizedViews/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<instance_name>[^/]+)/(?P<table_name>[^/]+)/(?P<name>[^/]+)",
-		"(?P<instance_name>[^/]+)/(?P<table_name>[^/]+)/(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/instances/(?P<instance_name>[^/]+)/tables/(?P<table_name>[^/]+)/authorizedViews/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<instance_name>[^/]+)/(?P<table_name>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<instance_name>[^/]+)/(?P<table_name>[^/]+)/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

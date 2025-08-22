@@ -273,7 +273,6 @@ resource "google_project" "owner_project" {
 resource "google_project_service" "compute" {
   project = google_project.owner_project.project_id
   service = "compute.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_project" "guest_project" {

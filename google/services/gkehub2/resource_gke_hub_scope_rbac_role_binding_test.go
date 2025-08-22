@@ -223,7 +223,6 @@ resource "google_project_service" "anthos" {
 resource "google_project_service" "gkehub" {
   project = google_project.project.project_id
   service = "gkehub.googleapis.com"
-  disable_on_destroy = false
 }
 `, context)
 }

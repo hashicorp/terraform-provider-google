@@ -523,6 +523,8 @@ resource "google_alloydb_cluster" "destination_alloydb" {
     user     = "tf-test-destination-alloydb%{random_suffix}"
     password = "tf-test-destination-alloydb%{random_suffix}"
   }
+
+  deletion_protection = false
 }
 
 resource "google_alloydb_instance" "destination_alloydb_primary" {

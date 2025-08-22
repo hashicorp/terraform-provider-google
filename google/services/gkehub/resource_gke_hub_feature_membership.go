@@ -121,15 +121,6 @@ func ResourceGkeHubFeatureMembership() *schema.Resource {
 func GkeHubFeatureMembershipConfigmanagementSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"binauthz": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Optional:    true,
-				Description: "**DEPRECATED** Binauthz configuration for the cluster. This field will be ignored and should not be set.",
-				MaxItems:    1,
-				Elem:        GkeHubFeatureMembershipConfigmanagementBinauthzSchema(),
-			},
-
 			"config_sync": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -166,18 +157,6 @@ func GkeHubFeatureMembershipConfigmanagementSchema() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 				Description: "Optional. Version of ACM to install. Defaults to the latest version.",
-			},
-		},
-	}
-}
-
-func GkeHubFeatureMembershipConfigmanagementBinauthzSchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"enabled": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "Whether binauthz is enabled in this cluster.",
 			},
 		},
 	}
@@ -1069,7 +1048,6 @@ func expandGkeHubFeatureMembershipConfigmanagement(o interface{}) *gkehub.Featur
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &gkehub.FeatureMembershipConfigmanagement{
-		Binauthz:            expandGkeHubFeatureMembershipConfigmanagementBinauthz(obj["binauthz"]),
 		ConfigSync:          expandGkeHubFeatureMembershipConfigmanagementConfigSync(obj["config_sync"]),
 		HierarchyController: expandGkeHubFeatureMembershipConfigmanagementHierarchyController(obj["hierarchy_controller"]),
 		Management:          gkehub.FeatureMembershipConfigmanagementManagementEnumRef(obj["management"].(string)),
@@ -1083,38 +1061,11 @@ func flattenGkeHubFeatureMembershipConfigmanagement(obj *gkehub.FeatureMembershi
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"binauthz":             flattenGkeHubFeatureMembershipConfigmanagementBinauthz(obj.Binauthz),
 		"config_sync":          flattenGkeHubFeatureMembershipConfigmanagementConfigSync(obj.ConfigSync),
 		"hierarchy_controller": flattenGkeHubFeatureMembershipConfigmanagementHierarchyController(obj.HierarchyController),
 		"management":           obj.Management,
 		"policy_controller":    flattenGkeHubFeatureMembershipConfigmanagementPolicyController(obj.PolicyController),
 		"version":              obj.Version,
-	}
-
-	return []interface{}{transformed}
-
-}
-
-func expandGkeHubFeatureMembershipConfigmanagementBinauthz(o interface{}) *gkehub.FeatureMembershipConfigmanagementBinauthz {
-	if o == nil {
-		return nil
-	}
-	objArr := o.([]interface{})
-	if len(objArr) == 0 || objArr[0] == nil {
-		return nil
-	}
-	obj := objArr[0].(map[string]interface{})
-	return &gkehub.FeatureMembershipConfigmanagementBinauthz{
-		Enabled: dcl.Bool(obj["enabled"].(bool)),
-	}
-}
-
-func flattenGkeHubFeatureMembershipConfigmanagementBinauthz(obj *gkehub.FeatureMembershipConfigmanagementBinauthz) interface{} {
-	if obj == nil || obj.Empty() {
-		return nil
-	}
-	transformed := map[string]interface{}{
-		"enabled": obj.Enabled,
 	}
 
 	return []interface{}{transformed}

@@ -176,7 +176,7 @@ Default is 'DELETE'.  Possible values are:
   * DELETE
   * PREVENT
   * ABANDON`,
-				Default: "DELETE",
+				Default: "PREVENT",
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -312,7 +312,7 @@ func resourceSecureSourceManagerRepositoryRead(d *schema.ResourceData, meta inte
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
-		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+		if err := d.Set("deletion_policy", "PREVENT"); err != nil {
 			return fmt.Errorf("Error setting deletion_policy: %s", err)
 		}
 	}
@@ -505,7 +505,7 @@ func resourceSecureSourceManagerRepositoryImport(d *schema.ResourceData, meta in
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import
-	if err := d.Set("deletion_policy", "DELETE"); err != nil {
+	if err := d.Set("deletion_policy", "PREVENT"); err != nil {
 		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
 	}
 
