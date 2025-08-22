@@ -1,4 +1,4 @@
-## 6.49.2 (August 21, 2025)
+## 6.49.2 (August 22, 2025)
 BUG FIXES:
 
 * container: fixed issue where a failed creation on `google_container_node_pool` would result in an unrecoverable tainted state  ([#10586](https://github.com/hashicorp/terraform-provider-google-beta/pull/10586))
