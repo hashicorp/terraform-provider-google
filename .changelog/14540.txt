@@ -1,0 +1,3 @@
+```release-note:enhancement
+vmwareengine: added `GOOGLE_CLOUD_NETAPP_VOLUMES` peering type to resource `google_vmwareengine_network_peering`
+```

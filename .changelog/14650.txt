@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: added `custom_delete` field to `google_vertex_ai_endpoint_with_model_garden_deployment` resource
+```

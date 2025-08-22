@@ -1,0 +1,3 @@
+```release-note:enhancement
+storage: added `force_empty_content_type` flag to force empty content type in resource `google_storage_bucket_object`
+```

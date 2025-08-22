@@ -1,0 +1,3 @@
+```release-note:deprecation
+resourcemanager: `project` field in `google_service_account_key` data source has been deprecated. The field is non functional and can safely be removed from your configuration.
+```

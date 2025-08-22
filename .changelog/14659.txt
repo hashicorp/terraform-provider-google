@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed a crash in `google_bigquery_table` when configured as an external table with `parquet_options`
+```

@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: fixed handling of non-legacy roles for access block inside `google_bigquery_dataset`
+```

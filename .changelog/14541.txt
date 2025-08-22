@@ -1,0 +1,3 @@
+```release-note:bug
+modelarmor: fixed conflicting field validation for `filter_config.sdp_settings` on `google_model_armor_template`
+```

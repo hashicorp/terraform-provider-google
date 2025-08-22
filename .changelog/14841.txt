@@ -1,0 +1,3 @@
+```release-note:bug
+netapp: fixed bug where `google_netapp_volume.large_capacity` was not properly marked as immutable, causing updates to fail (and making it impossible to change the field value after creation)
+```

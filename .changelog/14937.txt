@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed issue where a failed creation on `google_container_node_pool` would result in an unrecoverable tainted state
+```

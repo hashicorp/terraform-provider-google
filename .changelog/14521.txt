@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: Support additional_ip_ranges_config (adding multiple subnets to a cluster).
+```

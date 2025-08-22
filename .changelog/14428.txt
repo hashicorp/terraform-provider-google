@@ -1,0 +1,7 @@
+```release-note:bug
+sql: fixed a provider crash when importing `google_sql_database` resource
+```
+
+```release-note:note
+sql: removed the invalid import format `{{name}}` for `google_sql_database` resource
+```
