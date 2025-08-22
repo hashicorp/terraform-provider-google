@@ -82,7 +82,7 @@ For example, given this previous configuration:
 terraform {
   required_providers {
     google = {
-      version = "~> 6.48.0"
+      version = "~> 5.30.0"
     }
   }
 }
