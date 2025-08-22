@@ -510,11 +510,11 @@ func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("security_posture_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(securityPostureConfigProp)) && (ok || !reflect.DeepEqual(v, securityPostureConfigProp)) {
 		obj["securityPostureConfig"] = securityPostureConfigProp
 	}
-	annotationsProp, err := expandContainerAttachedClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandContainerAttachedClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters?attached_cluster_id={{name}}")
@@ -770,11 +770,11 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("security_posture_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, securityPostureConfigProp)) {
 		obj["securityPostureConfig"] = securityPostureConfigProp
 	}
-	annotationsProp, err := expandContainerAttachedClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandContainerAttachedClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")

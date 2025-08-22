@@ -199,11 +199,11 @@ func resourceNetworkConnectivityHubCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("export_psc"); !tpgresource.IsEmptyValue(reflect.ValueOf(exportPscProp)) && (ok || !reflect.DeepEqual(v, exportPscProp)) {
 		obj["exportPsc"] = exportPscProp
 	}
-	labelsProp, err := expandNetworkConnectivityHubEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkConnectivityHubEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVarsForId(d, config, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/global/hubs?hubId={{name}}")
@@ -375,11 +375,11 @@ func resourceNetworkConnectivityHubUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("export_psc"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, exportPscProp)) {
 		obj["exportPsc"] = exportPscProp
 	}
-	labelsProp, err := expandNetworkConnectivityHubEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkConnectivityHubEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVarsForId(d, config, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/global/hubs/{{name}}")

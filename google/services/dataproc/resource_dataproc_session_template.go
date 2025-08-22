@@ -347,11 +347,11 @@ func resourceDataprocSessionTemplateCreate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("spark_connect_session"); ok || !reflect.DeepEqual(v, sparkConnectSessionProp) {
 		obj["sparkConnectSession"] = sparkConnectSessionProp
 	}
-	labelsProp, err := expandDataprocSessionTemplateEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandDataprocSessionTemplateEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DataprocBasePath}}projects/{{project}}/locations/{{location}}/sessionTemplates")
@@ -522,11 +522,11 @@ func resourceDataprocSessionTemplateUpdate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("spark_connect_session"); ok || !reflect.DeepEqual(v, sparkConnectSessionProp) {
 		obj["sparkConnectSession"] = sparkConnectSessionProp
 	}
-	labelsProp, err := expandDataprocSessionTemplateEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandDataprocSessionTemplateEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DataprocBasePath}}{{name}}")

@@ -922,17 +922,17 @@ func resourceCloudRunV2WorkerPoolCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("instance_splits"); !tpgresource.IsEmptyValue(reflect.ValueOf(instanceSplitsProp)) && (ok || !reflect.DeepEqual(v, instanceSplitsProp)) {
 		obj["instanceSplits"] = instanceSplitsProp
 	}
-	labelsProp, err := expandCloudRunV2WorkerPoolEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandCloudRunV2WorkerPoolEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
-	annotationsProp, err := expandCloudRunV2WorkerPoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandCloudRunV2WorkerPoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/workerPools?workerPoolId={{name}}")
@@ -1202,17 +1202,17 @@ func resourceCloudRunV2WorkerPoolUpdate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("instance_splits"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, instanceSplitsProp)) {
 		obj["instanceSplits"] = instanceSplitsProp
 	}
-	labelsProp, err := expandCloudRunV2WorkerPoolEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandCloudRunV2WorkerPoolEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
-	annotationsProp, err := expandCloudRunV2WorkerPoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandCloudRunV2WorkerPoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/workerPools/{{name}}")

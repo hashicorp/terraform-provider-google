@@ -32,11 +32,7 @@ func DataSourceStorageControlProjectIntelligenceConfig() *schema.Resource {
 
 	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(rs)
 
-	// Set 'Required' schema elements
 	tpgresource.AddRequiredFieldsToSchema(dsSchema, "name")
-
-	// Set 'Optional' schema elements
-	tpgresource.AddOptionalFieldsToSchema(dsSchema)
 
 	return &schema.Resource{
 		Read:   dataSourceStorageControlProjectIntelligenceConfigRead,

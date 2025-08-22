@@ -92,17 +92,17 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"ca_pool": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `CA pool resource, resource must in the format of 'projects/{project}/locations/{location}/caPools/{ca_pool}'.`,
-						},
 						"is_private": {
 							Type:        schema.TypeBool,
 							Required:    true,
 							ForceNew:    true,
 							Description: `'Indicate if it's private instance.'`,
+						},
+						"ca_pool": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `CA pool resource, resource must in the format of 'projects/{project}/locations/{location}/caPools/{ca_pool}'.`,
 						},
 						"http_service_attachment": {
 							Type:        schema.TypeString,
@@ -253,11 +253,11 @@ func resourceSecureSourceManagerInstanceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("workforce_identity_federation_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(workforceIdentityFederationConfigProp)) && (ok || !reflect.DeepEqual(v, workforceIdentityFederationConfigProp)) {
 		obj["workforceIdentityFederationConfig"] = workforceIdentityFederationConfigProp
 	}
-	labelsProp, err := expandSecureSourceManagerInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandSecureSourceManagerInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{SecureSourceManagerBasePath}}projects/{{project}}/locations/{{location}}/instances?instance_id={{instance_id}}")

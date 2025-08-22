@@ -380,17 +380,17 @@ func resourceFirebaseAppHostingBuildCreate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("source"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceProp)) && (ok || !reflect.DeepEqual(v, sourceProp)) {
 		obj["source"] = sourceProp
 	}
-	annotationsProp, err := expandFirebaseAppHostingBuildEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandFirebaseAppHostingBuildEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
-	labelsProp, err := expandFirebaseAppHostingBuildEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandFirebaseAppHostingBuildEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppHostingBasePath}}projects/{{project}}/locations/{{location}}/backends/{{backend}}/builds?buildId={{build_id}}")

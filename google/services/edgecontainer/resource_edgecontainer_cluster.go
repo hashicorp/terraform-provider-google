@@ -705,11 +705,11 @@ func resourceEdgecontainerClusterCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("release_channel"); !tpgresource.IsEmptyValue(reflect.ValueOf(releaseChannelProp)) && (ok || !reflect.DeepEqual(v, releaseChannelProp)) {
 		obj["releaseChannel"] = releaseChannelProp
 	}
-	labelsProp, err := expandEdgecontainerClusterEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandEdgecontainerClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{location}}/clusters?cluster_id={{name}}")
@@ -947,11 +947,11 @@ func resourceEdgecontainerClusterUpdate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("release_channel"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, releaseChannelProp)) {
 		obj["releaseChannel"] = releaseChannelProp
 	}
-	labelsProp, err := expandEdgecontainerClusterEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandEdgecontainerClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{name}}")

@@ -191,11 +191,11 @@ func resourceDatabaseMigrationServicePrivateConnectionCreate(d *schema.ResourceD
 	} else if v, ok := d.GetOkExists("vpc_peering_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(vpcPeeringConfigProp)) && (ok || !reflect.DeepEqual(v, vpcPeeringConfigProp)) {
 		obj["vpcPeeringConfig"] = vpcPeeringConfigProp
 	}
-	labelsProp, err := expandDatabaseMigrationServicePrivateConnectionEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandDatabaseMigrationServicePrivateConnectionEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DatabaseMigrationServiceBasePath}}projects/{{project}}/locations/{{location}}/privateConnections?privateConnectionId={{private_connection_id}}&skip_validation={{create_without_validation}}")

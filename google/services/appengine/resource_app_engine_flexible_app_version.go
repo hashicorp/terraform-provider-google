@@ -908,11 +908,11 @@ func resourceAppEngineFlexibleAppVersionCreate(d *schema.ResourceData, meta inte
 	}
 
 	obj := make(map[string]interface{})
-	idProp, err := expandAppEngineFlexibleAppVersionVersionId(d.Get("version_id"), d, config)
+	versionIdProp, err := expandAppEngineFlexibleAppVersionVersionId(d.Get("version_id"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("version_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(idProp)) && (ok || !reflect.DeepEqual(v, idProp)) {
-		obj["id"] = idProp
+	} else if v, ok := d.GetOkExists("version_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(versionIdProp)) && (ok || !reflect.DeepEqual(v, versionIdProp)) {
+		obj["id"] = versionIdProp
 	}
 	inboundServicesProp, err := expandAppEngineFlexibleAppVersionInboundServices(d.Get("inbound_services"), d, config)
 	if err != nil {
@@ -1277,11 +1277,11 @@ func resourceAppEngineFlexibleAppVersionUpdate(d *schema.ResourceData, meta inte
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	idProp, err := expandAppEngineFlexibleAppVersionVersionId(d.Get("version_id"), d, config)
+	versionIdProp, err := expandAppEngineFlexibleAppVersionVersionId(d.Get("version_id"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("version_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, idProp)) {
-		obj["id"] = idProp
+	} else if v, ok := d.GetOkExists("version_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, versionIdProp)) {
+		obj["id"] = versionIdProp
 	}
 	inboundServicesProp, err := expandAppEngineFlexibleAppVersionInboundServices(d.Get("inbound_services"), d, config)
 	if err != nil {

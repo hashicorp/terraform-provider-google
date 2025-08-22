@@ -124,6 +124,45 @@ data "google_project" "project" {}
 `, context)
 }
 
+func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateTrustedCertExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecureSourceManagerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateTrustedCertExample(context),
+			},
+			{
+				ResourceName:            "google_secure_source_manager_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
+			},
+		},
+	})
+}
+
+func testAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateTrustedCertExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secure_source_manager_instance" "default" {
+  instance_id = "tf-test-my-instance%{random_suffix}"
+  location    = "us-central1"
+
+  private_config {
+    is_private = true
+  }
+  deletion_policy = "DELETE"
+}
+`, context)
+}
+
 func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateExample(t *testing.T) {
 	t.Parallel()
 

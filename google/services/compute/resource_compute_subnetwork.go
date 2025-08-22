@@ -539,11 +539,11 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("role"); !tpgresource.IsEmptyValue(reflect.ValueOf(roleProp)) && (ok || !reflect.DeepEqual(v, roleProp)) {
 		obj["role"] = roleProp
 	}
-	secondaryIpRangesProp, err := expandComputeSubnetworkSecondaryIpRange(d.Get("secondary_ip_range"), d, config)
+	secondaryIpRangeProp, err := expandComputeSubnetworkSecondaryIpRange(d.Get("secondary_ip_range"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("secondary_ip_range"); ok || !reflect.DeepEqual(v, secondaryIpRangesProp) {
-		obj["secondaryIpRanges"] = secondaryIpRangesProp
+	} else if v, ok := d.GetOkExists("secondary_ip_range"); ok || !reflect.DeepEqual(v, secondaryIpRangeProp) {
+		obj["secondaryIpRanges"] = secondaryIpRangeProp
 	}
 	privateIpGoogleAccessProp, err := expandComputeSubnetworkPrivateIpGoogleAccess(d.Get("private_ip_google_access"), d, config)
 	if err != nil {

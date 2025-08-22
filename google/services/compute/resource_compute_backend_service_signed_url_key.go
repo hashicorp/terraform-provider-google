@@ -91,11 +91,11 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 	}
 
 	obj := make(map[string]interface{})
-	keyNameProp, err := expandNestedComputeBackendServiceSignedUrlKeyName(d.Get("name"), d, config)
+	nameProp, err := expandNestedComputeBackendServiceSignedUrlKeyName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(keyNameProp)) && (ok || !reflect.DeepEqual(v, keyNameProp)) {
-		obj["keyName"] = keyNameProp
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["keyName"] = nameProp
 	}
 	keyValueProp, err := expandNestedComputeBackendServiceSignedUrlKeyKeyValue(d.Get("key_value"), d, config)
 	if err != nil {

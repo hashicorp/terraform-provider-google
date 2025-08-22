@@ -473,11 +473,11 @@ func resourceNetworkServicesEdgeCacheOriginCreate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("flex_shielding"); !tpgresource.IsEmptyValue(reflect.ValueOf(flexShieldingProp)) && (ok || !reflect.DeepEqual(v, flexShieldingProp)) {
 		obj["flexShielding"] = flexShieldingProp
 	}
-	labelsProp, err := expandNetworkServicesEdgeCacheOriginEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkServicesEdgeCacheOriginEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheOrigins?edgeCacheOriginId={{name}}")
@@ -715,11 +715,11 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("flex_shielding"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, flexShieldingProp)) {
 		obj["flexShielding"] = flexShieldingProp
 	}
-	labelsProp, err := expandNetworkServicesEdgeCacheOriginEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkServicesEdgeCacheOriginEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheOrigins/{{name}}")

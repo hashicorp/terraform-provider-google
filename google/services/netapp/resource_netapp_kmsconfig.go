@@ -145,11 +145,11 @@ func resourceNetappkmsconfigCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("crypto_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(cryptoKeyNameProp)) && (ok || !reflect.DeepEqual(v, cryptoKeyNameProp)) {
 		obj["cryptoKeyName"] = cryptoKeyNameProp
 	}
-	labelsProp, err := expandNetappkmsconfigEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetappkmsconfigEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/kmsConfigs?kmsConfigId={{name}}")
@@ -321,11 +321,11 @@ func resourceNetappkmsconfigUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("crypto_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cryptoKeyNameProp)) {
 		obj["cryptoKeyName"] = cryptoKeyNameProp
 	}
-	labelsProp, err := expandNetappkmsconfigEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetappkmsconfigEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/kmsConfigs/{{name}}")

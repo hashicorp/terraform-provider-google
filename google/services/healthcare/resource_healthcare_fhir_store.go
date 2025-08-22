@@ -410,11 +410,11 @@ func resourceHealthcareFhirStoreCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("notification_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(notificationConfigsProp)) && (ok || !reflect.DeepEqual(v, notificationConfigsProp)) {
 		obj["notificationConfigs"] = notificationConfigsProp
 	}
-	labelsProp, err := expandHealthcareFhirStoreEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandHealthcareFhirStoreEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/fhirStores?fhirStoreId={{name}}")
@@ -593,11 +593,11 @@ func resourceHealthcareFhirStoreUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("notification_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, notificationConfigsProp)) {
 		obj["notificationConfigs"] = notificationConfigsProp
 	}
-	labelsProp, err := expandHealthcareFhirStoreEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandHealthcareFhirStoreEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/fhirStores/{{name}}")

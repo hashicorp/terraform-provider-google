@@ -181,11 +181,11 @@ func resourceGeminiCodeToolsSettingCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("enabled_tool"); !tpgresource.IsEmptyValue(reflect.ValueOf(enabledToolProp)) && (ok || !reflect.DeepEqual(v, enabledToolProp)) {
 		obj["enabledTool"] = enabledToolProp
 	}
-	labelsProp, err := expandGeminiCodeToolsSettingEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGeminiCodeToolsSettingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/codeToolsSettings/{{code_tools_setting_id}}")
@@ -330,11 +330,11 @@ func resourceGeminiCodeToolsSettingUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("enabled_tool"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enabledToolProp)) {
 		obj["enabledTool"] = enabledToolProp
 	}
-	labelsProp, err := expandGeminiCodeToolsSettingEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGeminiCodeToolsSettingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/codeToolsSettings/{{code_tools_setting_id}}")

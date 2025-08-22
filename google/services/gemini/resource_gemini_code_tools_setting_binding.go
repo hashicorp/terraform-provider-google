@@ -157,11 +157,11 @@ func resourceGeminiCodeToolsSettingBindingCreate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("target"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetProp)) && (ok || !reflect.DeepEqual(v, targetProp)) {
 		obj["target"] = targetProp
 	}
-	labelsProp, err := expandGeminiCodeToolsSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGeminiCodeToolsSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/codeToolsSettings/{{code_tools_setting_id}}")
@@ -325,11 +325,11 @@ func resourceGeminiCodeToolsSettingBindingUpdate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("target"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetProp)) {
 		obj["target"] = targetProp
 	}
-	labelsProp, err := expandGeminiCodeToolsSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGeminiCodeToolsSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/codeToolsSettings/{{code_tools_setting_id}}")

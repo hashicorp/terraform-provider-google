@@ -210,17 +210,17 @@ func resourceEventarcMessageBusCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("crypto_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(cryptoKeyNameProp)) && (ok || !reflect.DeepEqual(v, cryptoKeyNameProp)) {
 		obj["cryptoKeyName"] = cryptoKeyNameProp
 	}
-	labelsProp, err := expandEventarcMessageBusEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandEventarcMessageBusEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
-	annotationsProp, err := expandEventarcMessageBusEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandEventarcMessageBusEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/messageBuses?messageBusId={{message_bus_id}}")
@@ -398,17 +398,17 @@ func resourceEventarcMessageBusUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("crypto_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cryptoKeyNameProp)) {
 		obj["cryptoKeyName"] = cryptoKeyNameProp
 	}
-	labelsProp, err := expandEventarcMessageBusEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandEventarcMessageBusEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
-	annotationsProp, err := expandEventarcMessageBusEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandEventarcMessageBusEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/messageBuses/{{message_bus_id}}")
