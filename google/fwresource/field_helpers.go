@@ -135,3 +135,10 @@ func ReplaceVarsForFrameworkTest(prov *transport_tpg.Config, rs *terraform.Resou
 
 	return re.ReplaceAllStringFunc(linkTmpl, replaceFunc), nil
 }
+
+func FlattenStringEmptyToNull(configuredValue types.String, apiValue string) types.String {
+	if configuredValue.IsNull() && apiValue == "" {
+		return types.StringNull()
+	}
+	return types.StringValue(apiValue)
+}
