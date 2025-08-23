@@ -39,6 +39,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/apigee"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 
+	"github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/version"
 
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -1198,6 +1199,7 @@ func (p *FrameworkProvider) DataSources(_ context.Context) []func() datasource.D
 func (p *FrameworkProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		apigee.NewApigeeKeystoresAliasesKeyCertFileResource,
+		storage.NewStorageNotificationResource,
 	}
 }
 
