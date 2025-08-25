@@ -24,23 +24,25 @@ BREAKING INCREASED VALIDATION:
 * networkservices: made `load_balancing_scheme` required in `google_network_services_lb_traffic_extension` [#23748](https://github.com/hashicorp/terraform-provider-google/pull/23748)
 * secretmanager: made `secret_data_wo` and `secret_data_wo_version` both required when one is set in `google_secret_manager_secret_version` [#24083](https://github.com/hashicorp/terraform-provider-google/pull/24083)
 * sql: made `password_wo_version` required when `password_wo` is set in `google_sql_user` [#24083](https://github.com/hashicorp/terraform-provider-google/pull/24083)
+* storage: added validation requiring the `topic` field to be in the form "projects/<project>/topics/<topic>" in `google_storage_notification`
 * storagetransfer: added path validation for GCS path source and sink in `google_storage_transfer_job` [#23493](https://github.com/hashicorp/terraform-provider-google/pull/23493)
 * vertexai: made `metadata`, and `metadata.config` required in `google_vertex_ai_index`. Resource creation would fail without these attributes already, so no change is necessary to existing configurations. [#23971](https://github.com/hashicorp/terraform-provider-google/pull/23971)
 
 OTHER BREAKING CHANGES:
 * alloydb: added `deletion_protection` field with a default value of `true` to `google_alloydb_cluster` resource [#24024](https://github.com/hashicorp/terraform-provider-google/pull/24024)
+* apigee: changed `certs_info` field in `google_apigee_keystores_aliases_key_cert_file` to be output-only
 * artifactregistry: removed the default values for `public_repository` fields in `google_artifact_registry_repository`. If your state is reliant on them, they will now need to be manually included in your configuration. [#23970](https://github.com/hashicorp/terraform-provider-google/pull/23970)
 * bigquery: removed the default value of `view.use_legacy_sql` in `google_bigquery_table` [#24065](https://github.com/hashicorp/terraform-provider-google/pull/24065)
 * bigtable: renamed instance to `instance_name` for bigtable_table_iam objects [#23399](https://github.com/hashicorp/terraform-provider-google/pull/23399)
 * billing: made `budget_filter.credit types` and `budget_filter.subaccounts` no longer optional+computed, only optional, in `google_billing_budget` resource [#24078](https://github.com/hashicorp/terraform-provider-google/pull/24078)
-* cloudfunctions2: changed `service_config.service` of `google_cloudfunctions2_function` resource to be output-only [#23790](https://github.com/hashicorp/terraform-provider-google/pull/23790)
-* compute: converted `subnetworks` and `instances` fields in `google_compute_packet_mirroring` have been to sets from arrays [#24021](https://github.com/hashicorp/terraform-provider-google/pull/24021)
-* compute: made `advertised_ip_ranges` in `google_compute_router` into a set instead of list [#24030](https://github.com/hashicorp/terraform-provider-google/pull/24030)
-* compute: made `disk.type`, `disk.mode` and `disk.interface` no longer use provider configured default values and instead will be set by the API in `google_compute_instance_template` and `google_compute_region_instance_template` resources [#24055](https://github.com/hashicorp/terraform-provider-google/pull/24055)
+* cloudfunctions2: changed `service_config.service` field in `google_cloudfunctions2_function` resource to be output-only [#23790](https://github.com/hashicorp/terraform-provider-google/pull/23790)
+* compute: `subnetworks` and `instances` fields in `google_compute_packet_mirroring` have been converted from arrays to sets [#24021](https://github.com/hashicorp/terraform-provider-google/pull/24021)
+* compute: `advertised_ip_ranges` field group in `google_compute_router` has been converted from a list to a set [#24030](https://github.com/hashicorp/terraform-provider-google/pull/24030)
+* compute: `disk.type`, `disk.mode` and `disk.interface` no longer use provider configured default values and instead will be set by the API in `google_compute_instance_template` and `google_compute_region_instance_template` resources [#24055](https://github.com/hashicorp/terraform-provider-google/pull/24055)
 * provider: fixed many import functions throughout the provider that erroneously matched a subset of the provided input, leading to unclear error messages when using `terraform input` with invalid resource IDs. [#24010](https://github.com/hashicorp/terraform-provider-google/pull/24010)
-* resourcemanager: changed the default of `disable_on_destroy` to `false` in `google_project_service` [#23951](https://github.com/hashicorp/terraform-provider-google/pull/23951)
+* resourcemanager: changed `disable_on_destroy` default value to `false` in `google_project_service` [#23951](https://github.com/hashicorp/terraform-provider-google/pull/23951)
 * securesourcemanager: changed `deletion_policy` default value from `DELETE` to `PREVENT` [#23963](https://github.com/hashicorp/terraform-provider-google/pull/23963)
-* storage: changed `retention_period` to `string` data type in resource `google_storage_bucket` [#23535](https://github.com/hashicorp/terraform-provider-google/pull/23535)
+* storage: `retention_period` field in `google_storage_bucket` has been converted from `int` to `string` data type [#23535](https://github.com/hashicorp/terraform-provider-google/pull/23535)
 
 FEATURES:
 * **New Data Source:** `google_artifact_registry_npm_package` ([#24072](https://github.com/hashicorp/terraform-provider-google/pull/24072))
