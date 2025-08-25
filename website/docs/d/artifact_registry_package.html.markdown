@@ -24,9 +24,10 @@ This data source fetches information of a package from a provided Artifact Regis
 ## Example Usage
 
 ```hcl
-resource "google_artifact_registry_package" "my_package" {
+data "google_artifact_registry_package" "my_package" {
   location      = "us-west1"
   repository_id = "my-repository"
+  name          = "app"
 }
 ```
 
