@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Cloud Workstations WorkstationConfig
+
 Three different resources help you manage your IAM policy for Cloud Workstations WorkstationConfig. Each of these resources serves a different use case:
 
 * `google_workstations_workstation_config_iam_policy`: Authoritative. Sets the IAM policy for the workstationconfig and replaces any existing policy already attached.

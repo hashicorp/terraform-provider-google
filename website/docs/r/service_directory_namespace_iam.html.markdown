@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Service Directory Namespace
+
 Three different resources help you manage your IAM policy for Service Directory Namespace. Each of these resources serves a different use case:
 
 * `google_service_directory_namespace_iam_policy`: Authoritative. Sets the IAM policy for the namespace and replaces any existing policy already attached.

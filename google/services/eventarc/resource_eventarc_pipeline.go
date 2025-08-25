@@ -799,17 +799,17 @@ func resourceEventarcPipelineCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("logging_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(loggingConfigProp)) && (ok || !reflect.DeepEqual(v, loggingConfigProp)) {
 		obj["loggingConfig"] = loggingConfigProp
 	}
-	annotationsProp, err := expandEventarcPipelineEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandEventarcPipelineEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
-	labelsProp, err := expandEventarcPipelineEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandEventarcPipelineEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/pipelines?pipelineId={{pipeline_id}}")
@@ -1023,17 +1023,17 @@ func resourceEventarcPipelineUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("logging_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, loggingConfigProp)) {
 		obj["loggingConfig"] = loggingConfigProp
 	}
-	annotationsProp, err := expandEventarcPipelineEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandEventarcPipelineEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
-	labelsProp, err := expandEventarcPipelineEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandEventarcPipelineEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/pipelines/{{pipeline_id}}")

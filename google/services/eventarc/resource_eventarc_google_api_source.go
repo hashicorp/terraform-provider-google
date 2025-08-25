@@ -222,17 +222,17 @@ func resourceEventarcGoogleApiSourceCreate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("logging_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(loggingConfigProp)) && (ok || !reflect.DeepEqual(v, loggingConfigProp)) {
 		obj["loggingConfig"] = loggingConfigProp
 	}
-	labelsProp, err := expandEventarcGoogleApiSourceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandEventarcGoogleApiSourceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
-	annotationsProp, err := expandEventarcGoogleApiSourceEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandEventarcGoogleApiSourceEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/googleApiSources?googleApiSourceId={{google_api_source_id}}")
@@ -419,17 +419,17 @@ func resourceEventarcGoogleApiSourceUpdate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("logging_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, loggingConfigProp)) {
 		obj["loggingConfig"] = loggingConfigProp
 	}
-	labelsProp, err := expandEventarcGoogleApiSourceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandEventarcGoogleApiSourceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
-	annotationsProp, err := expandEventarcGoogleApiSourceEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandEventarcGoogleApiSourceEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/googleApiSources/{{google_api_source_id}}")

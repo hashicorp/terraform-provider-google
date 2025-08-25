@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Vertex AI FeatureGroup
+
 Three different resources help you manage your IAM policy for Vertex AI FeatureGroup. Each of these resources serves a different use case:
 
 * `google_vertex_ai_feature_group_iam_policy`: Authoritative. Sets the IAM policy for the featuregroup and replaces any existing policy already attached.

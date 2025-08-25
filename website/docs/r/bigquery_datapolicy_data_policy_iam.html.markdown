@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for BigQuery Data Policy DataPolicy
+
 Three different resources help you manage your IAM policy for BigQuery Data Policy DataPolicy. Each of these resources serves a different use case:
 
 * `google_bigquery_datapolicy_data_policy_iam_policy`: Authoritative. Sets the IAM policy for the datapolicy and replaces any existing policy already attached.

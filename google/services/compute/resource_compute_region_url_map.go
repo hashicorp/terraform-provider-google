@@ -2713,11 +2713,11 @@ func resourceComputeRegionUrlMapCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	hostRulesProp, err := expandComputeRegionUrlMapHostRule(d.Get("host_rule"), d, config)
+	hostRuleProp, err := expandComputeRegionUrlMapHostRule(d.Get("host_rule"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("host_rule"); !tpgresource.IsEmptyValue(reflect.ValueOf(hostRulesProp)) && (ok || !reflect.DeepEqual(v, hostRulesProp)) {
-		obj["hostRules"] = hostRulesProp
+	} else if v, ok := d.GetOkExists("host_rule"); !tpgresource.IsEmptyValue(reflect.ValueOf(hostRuleProp)) && (ok || !reflect.DeepEqual(v, hostRuleProp)) {
+		obj["hostRules"] = hostRuleProp
 	}
 	fingerprintProp, err := expandComputeRegionUrlMapFingerprint(d.Get("fingerprint"), d, config)
 	if err != nil {
@@ -2731,17 +2731,17 @@ func resourceComputeRegionUrlMapCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	pathMatchersProp, err := expandComputeRegionUrlMapPathMatcher(d.Get("path_matcher"), d, config)
+	pathMatcherProp, err := expandComputeRegionUrlMapPathMatcher(d.Get("path_matcher"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("path_matcher"); !tpgresource.IsEmptyValue(reflect.ValueOf(pathMatchersProp)) && (ok || !reflect.DeepEqual(v, pathMatchersProp)) {
-		obj["pathMatchers"] = pathMatchersProp
+	} else if v, ok := d.GetOkExists("path_matcher"); !tpgresource.IsEmptyValue(reflect.ValueOf(pathMatcherProp)) && (ok || !reflect.DeepEqual(v, pathMatcherProp)) {
+		obj["pathMatchers"] = pathMatcherProp
 	}
-	testsProp, err := expandComputeRegionUrlMapTest(d.Get("test"), d, config)
+	testProp, err := expandComputeRegionUrlMapTest(d.Get("test"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("test"); !tpgresource.IsEmptyValue(reflect.ValueOf(testsProp)) && (ok || !reflect.DeepEqual(v, testsProp)) {
-		obj["tests"] = testsProp
+	} else if v, ok := d.GetOkExists("test"); !tpgresource.IsEmptyValue(reflect.ValueOf(testProp)) && (ok || !reflect.DeepEqual(v, testProp)) {
+		obj["tests"] = testProp
 	}
 	defaultUrlRedirectProp, err := expandComputeRegionUrlMapDefaultUrlRedirect(d.Get("default_url_redirect"), d, config)
 	if err != nil {
@@ -2931,11 +2931,11 @@ func resourceComputeRegionUrlMapUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	hostRulesProp, err := expandComputeRegionUrlMapHostRule(d.Get("host_rule"), d, config)
+	hostRuleProp, err := expandComputeRegionUrlMapHostRule(d.Get("host_rule"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("host_rule"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, hostRulesProp)) {
-		obj["hostRules"] = hostRulesProp
+	} else if v, ok := d.GetOkExists("host_rule"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, hostRuleProp)) {
+		obj["hostRules"] = hostRuleProp
 	}
 	fingerprintProp, err := expandComputeRegionUrlMapFingerprint(d.Get("fingerprint"), d, config)
 	if err != nil {
@@ -2949,17 +2949,17 @@ func resourceComputeRegionUrlMapUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	pathMatchersProp, err := expandComputeRegionUrlMapPathMatcher(d.Get("path_matcher"), d, config)
+	pathMatcherProp, err := expandComputeRegionUrlMapPathMatcher(d.Get("path_matcher"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("path_matcher"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pathMatchersProp)) {
-		obj["pathMatchers"] = pathMatchersProp
+	} else if v, ok := d.GetOkExists("path_matcher"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pathMatcherProp)) {
+		obj["pathMatchers"] = pathMatcherProp
 	}
-	testsProp, err := expandComputeRegionUrlMapTest(d.Get("test"), d, config)
+	testProp, err := expandComputeRegionUrlMapTest(d.Get("test"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("test"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, testsProp)) {
-		obj["tests"] = testsProp
+	} else if v, ok := d.GetOkExists("test"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, testProp)) {
+		obj["tests"] = testProp
 	}
 	defaultUrlRedirectProp, err := expandComputeRegionUrlMapDefaultUrlRedirect(d.Get("default_url_redirect"), d, config)
 	if err != nil {

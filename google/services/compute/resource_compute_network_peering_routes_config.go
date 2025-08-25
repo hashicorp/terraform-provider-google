@@ -111,11 +111,11 @@ func resourceComputeNetworkPeeringRoutesConfigCreate(d *schema.ResourceData, met
 	}
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandNestedComputeNetworkPeeringRoutesConfigPeering(d.Get("peering"), d, config)
+	peeringProp, err := expandNestedComputeNetworkPeeringRoutesConfigPeering(d.Get("peering"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("peering"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
+	} else if v, ok := d.GetOkExists("peering"); !tpgresource.IsEmptyValue(reflect.ValueOf(peeringProp)) && (ok || !reflect.DeepEqual(v, peeringProp)) {
+		obj["name"] = peeringProp
 	}
 	exportCustomRoutesProp, err := expandNestedComputeNetworkPeeringRoutesConfigExportCustomRoutes(d.Get("export_custom_routes"), d, config)
 	if err != nil {
@@ -299,11 +299,11 @@ func resourceComputeNetworkPeeringRoutesConfigUpdate(d *schema.ResourceData, met
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandNestedComputeNetworkPeeringRoutesConfigPeering(d.Get("peering"), d, config)
+	peeringProp, err := expandNestedComputeNetworkPeeringRoutesConfigPeering(d.Get("peering"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("peering"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
+	} else if v, ok := d.GetOkExists("peering"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, peeringProp)) {
+		obj["name"] = peeringProp
 	}
 	exportCustomRoutesProp, err := expandNestedComputeNetworkPeeringRoutesConfigExportCustomRoutes(d.Get("export_custom_routes"), d, config)
 	if err != nil {

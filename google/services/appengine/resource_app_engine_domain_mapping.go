@@ -165,11 +165,11 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("ssl_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(sslSettingsProp)) && (ok || !reflect.DeepEqual(v, sslSettingsProp)) {
 		obj["sslSettings"] = sslSettingsProp
 	}
-	idProp, err := expandAppEngineDomainMappingDomainName(d.Get("domain_name"), d, config)
+	domainNameProp, err := expandAppEngineDomainMappingDomainName(d.Get("domain_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("domain_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(idProp)) && (ok || !reflect.DeepEqual(v, idProp)) {
-		obj["id"] = idProp
+	} else if v, ok := d.GetOkExists("domain_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(domainNameProp)) && (ok || !reflect.DeepEqual(v, domainNameProp)) {
+		obj["id"] = domainNameProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "apps/{{project}}")

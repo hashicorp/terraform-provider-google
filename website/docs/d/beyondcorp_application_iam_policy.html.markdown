@@ -21,6 +21,7 @@ description: |-
 
 
 # google_beyondcorp_application_iam_policy
+~> **Warning:** `google_beyondcorp_application` and associated IAM resources are deprecated. Use `google_beyondcorp_security_gateway_application` instead.
 
 Retrieves the current IAM policy data for application
 

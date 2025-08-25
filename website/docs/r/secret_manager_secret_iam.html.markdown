@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Secret Manager Secret
+
 Three different resources help you manage your IAM policy for Secret Manager Secret. Each of these resources serves a different use case:
 
 * `google_secret_manager_secret_iam_policy`: Authoritative. Sets the IAM policy for the secret and replaces any existing policy already attached.

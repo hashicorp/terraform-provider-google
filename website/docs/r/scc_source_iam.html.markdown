@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Security Command Center (SCC) Source
+
 Three different resources help you manage your IAM policy for Security Command Center (SCC) Source. Each of these resources serves a different use case:
 
 * `google_scc_source_iam_policy`: Authoritative. Sets the IAM policy for the source and replaces any existing policy already attached.

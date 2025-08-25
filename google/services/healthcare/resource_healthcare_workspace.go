@@ -136,11 +136,11 @@ func resourceHealthcareWorkspaceCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(settingsProp)) && (ok || !reflect.DeepEqual(v, settingsProp)) {
 		obj["settings"] = settingsProp
 	}
-	labelsProp, err := expandHealthcareWorkspaceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandHealthcareWorkspaceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/dataMapperWorkspaces?workspaceId={{name}}")
@@ -250,11 +250,11 @@ func resourceHealthcareWorkspaceUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, settingsProp)) {
 		obj["settings"] = settingsProp
 	}
-	labelsProp, err := expandHealthcareWorkspaceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandHealthcareWorkspaceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/dataMapperWorkspaces/{{name}}")

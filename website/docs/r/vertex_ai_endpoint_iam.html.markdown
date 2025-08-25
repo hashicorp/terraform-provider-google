@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Vertex AI Endpoint
+
 Three different resources help you manage your IAM policy for Vertex AI Endpoint. Each of these resources serves a different use case:
 
 * `google_vertex_ai_endpoint_iam_policy`: Authoritative. Sets the IAM policy for the endpoint and replaces any existing policy already attached.

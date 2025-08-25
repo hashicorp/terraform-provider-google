@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Runtime Configurator Config
+
 Three different resources help you manage your IAM policy for Runtime Configurator Config. Each of these resources serves a different use case:
 
 * `google_runtimeconfig_config_iam_policy`: Authoritative. Sets the IAM policy for the config and replaces any existing policy already attached.

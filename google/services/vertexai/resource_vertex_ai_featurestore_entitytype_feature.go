@@ -149,11 +149,11 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureCreate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("value_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(valueTypeProp)) && (ok || !reflect.DeepEqual(v, valueTypeProp)) {
 		obj["valueType"] = valueTypeProp
 	}
-	labelsProp, err := expandVertexAIFeaturestoreEntitytypeFeatureEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandVertexAIFeaturestoreEntitytypeFeatureEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceVertexAIFeaturestoreEntitytypeFeatureEncoder(d, meta, obj)
@@ -293,11 +293,11 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandVertexAIFeaturestoreEntitytypeFeatureEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandVertexAIFeaturestoreEntitytypeFeatureEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceVertexAIFeaturestoreEntitytypeFeatureEncoder(d, meta, obj)

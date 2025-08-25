@@ -316,11 +316,11 @@ func resourceGkeonpremBareMetalNodePoolCreate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("node_pool_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(nodePoolConfigProp)) && (ok || !reflect.DeepEqual(v, nodePoolConfigProp)) {
 		obj["nodePoolConfig"] = nodePoolConfigProp
 	}
-	annotationsProp, err := expandGkeonpremBareMetalNodePoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandGkeonpremBareMetalNodePoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GkeonpremBasePath}}projects/{{project}}/locations/{{location}}/bareMetalClusters/{{bare_metal_cluster}}/bareMetalNodePools?bare_metal_node_pool_id={{name}}")
@@ -488,11 +488,11 @@ func resourceGkeonpremBareMetalNodePoolUpdate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("node_pool_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodePoolConfigProp)) {
 		obj["nodePoolConfig"] = nodePoolConfigProp
 	}
-	annotationsProp, err := expandGkeonpremBareMetalNodePoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandGkeonpremBareMetalNodePoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GkeonpremBasePath}}projects/{{project}}/locations/{{location}}/bareMetalClusters/{{bare_metal_cluster}}/bareMetalNodePools/{{name}}")

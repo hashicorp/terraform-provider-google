@@ -187,11 +187,11 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("admin"); !tpgresource.IsEmptyValue(reflect.ValueOf(adminProp)) && (ok || !reflect.DeepEqual(v, adminProp)) {
 		obj["admin"] = adminProp
 	}
-	labelsProp, err := expandActiveDirectoryDomainEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandActiveDirectoryDomainEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains?domainName={{domain_name}}")
@@ -373,11 +373,11 @@ func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("locations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, locationsProp)) {
 		obj["locations"] = locationsProp
 	}
-	labelsProp, err := expandActiveDirectoryDomainEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandActiveDirectoryDomainEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}{{name}}")

@@ -617,6 +617,8 @@ options for the [Autoscaling profile](https://cloud.google.com/kubernetes-engine
 feature, which lets you choose whether the cluster autoscaler should optimize for resource utilization or resource availability
 when deciding to remove nodes from a cluster. Can be `BALANCED` or `OPTIMIZE_UTILIZATION`. Defaults to `BALANCED`.
 
+* `default_compute_class_enabled` - (Optional) Specifies whether default compute class behaviour is enabled. If enabled, cluster autoscaler will use Compute Class with name default for all the workloads, if not overriden.
+
 <a name="nested_resource_limits"></a>The `resource_limits` block supports:
 
 * `resource_type` - (Required) The type of the resource. For example, `cpu` and
