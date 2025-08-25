@@ -735,6 +735,72 @@ resource "google_cloudbuild_trigger" "pubsub-with-repo-trigger" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudbuild_trigger_developer_connect_pull&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Developer Connect Pull
+
+
+```hcl
+resource "google_cloudbuild_trigger" "developer-connect-trigger-pull" {
+  location = "us-central1"
+
+  developer_connect_event_config {
+    git_repository_link = "projects/cryptic-tower-286020/locations/us-central1/connections/prod-bbs-push/gitRepositoryLinks/cbprob-prod-us-central1-push1"
+    pull_request {
+        branch = "^master$"
+        invert_regex = false
+        comment_control = "COMMENTS_ENABLED"
+    }
+  }
+  filename = "cloudbuild.yaml"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudbuild_trigger_developer_connect_push&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Developer Connect Push
+
+
+```hcl
+resource "google_cloudbuild_trigger" "developer-connect-trigger-push" {
+  location = "us-central1"
+
+  developer_connect_event_config {
+    git_repository_link = "projects/cryptic-tower-286020/locations/us-central1/connections/prod-bbs-push/gitRepositoryLinks/cbprob-prod-us-central1-push1"
+    push {
+        tag = "^0.1.*"
+        invert_regex = true
+    }
+  }
+  filename = "cloudbuild.yaml"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudbuild_trigger_developer_connect_push_branch&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Developer Connect Push Branch
+
+
+```hcl
+resource "google_cloudbuild_trigger" "dc-trigger-regular-push-branch" {
+  location = "us-central1"
+
+  developer_connect_event_config {
+    git_repository_link = "projects/cryptic-tower-286020/locations/us-central1/connections/prod-bbs-push/gitRepositoryLinks/cbprob-prod-us-central1-push1"
+    push {
+      branch = "main"
+    }
+  }
+  filename = "cloudbuild.yaml"
+}
+```
 
 ## Argument Reference
 
@@ -873,6 +939,11 @@ The following arguments are supported:
   (Optional)
   Contents of the build template. Either a filename or build template must be provided.
   Structure is [documented below](#nested_build).
+
+* `developer_connect_event_config` -
+  (Optional)
+  Configuration for triggers that respond to Developer Connect events.
+  Structure is [documented below](#nested_developer_connect_event_config).
 
 * `location` -
   (Optional)
@@ -1695,6 +1766,56 @@ The following arguments are supported:
   Path at which to mount the volume.
   Paths must be absolute and cannot conflict with other volume paths on the same
   build step or with certain reserved volume paths.
+
+<a name="nested_developer_connect_event_config"></a>The `developer_connect_event_config` block supports:
+
+* `git_repository_link` -
+  (Required)
+  The Developer Connect Git repository link, formatted as `projects/*/locations/*/connections/*/gitRepositoryLink/*`.
+
+* `git_repository_link_type` -
+  (Output)
+  The type of DeveloperConnect GitRepositoryLink.
+
+* `pull_request` -
+  (Optional)
+  Filter to match changes in pull requests.
+  Structure is [documented below](#nested_developer_connect_event_config_pull_request).
+
+* `push` -
+  (Optional)
+  Filter to match changes in refs like branches and tags.
+  Structure is [documented below](#nested_developer_connect_event_config_push).
+
+
+<a name="nested_developer_connect_event_config_pull_request"></a>The `pull_request` block supports:
+
+* `branch` -
+  (Optional)
+  Regex of branches to match.
+
+* `comment_control` -
+  (Optional)
+  Configure builds to run whether a repository owner or collaborator need to comment `/gcbrun`.
+  Possible values are: `COMMENTS_DISABLED`, `COMMENTS_ENABLED`, `COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY`.
+
+* `invert_regex` -
+  (Optional)
+  If true, branches that do NOT match the git_ref will trigger a build.
+
+<a name="nested_developer_connect_event_config_push"></a>The `push` block supports:
+
+* `branch` -
+  (Optional)
+  Regex of branches to match.
+
+* `tag` -
+  (Optional)
+  Regex of tags to match.
+
+* `invert_regex` -
+  (Optional)
+  If true, only trigger a build if the revision regex does NOT match the git_ref regex.
 
 ## Attributes Reference
 

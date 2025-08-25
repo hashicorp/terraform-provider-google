@@ -175,11 +175,11 @@ func resourceNetworkSecurityBackendAuthenticationConfigCreate(d *schema.Resource
 	} else if v, ok := d.GetOkExists("well_known_roots"); !tpgresource.IsEmptyValue(reflect.ValueOf(wellKnownRootsProp)) && (ok || !reflect.DeepEqual(v, wellKnownRootsProp)) {
 		obj["wellKnownRoots"] = wellKnownRootsProp
 	}
-	labelsProp, err := expandNetworkSecurityBackendAuthenticationConfigEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkSecurityBackendAuthenticationConfigEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/backendAuthenticationConfigs?backendAuthenticationConfigId={{name}}")
@@ -339,11 +339,11 @@ func resourceNetworkSecurityBackendAuthenticationConfigUpdate(d *schema.Resource
 	} else if v, ok := d.GetOkExists("well_known_roots"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, wellKnownRootsProp)) {
 		obj["wellKnownRoots"] = wellKnownRootsProp
 	}
-	labelsProp, err := expandNetworkSecurityBackendAuthenticationConfigEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkSecurityBackendAuthenticationConfigEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/backendAuthenticationConfigs/{{name}}")

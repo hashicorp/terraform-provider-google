@@ -238,11 +238,11 @@ func resourceBinaryAuthorizationAttestorCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	userOwnedGrafeasNoteProp, err := expandBinaryAuthorizationAttestorAttestationAuthorityNote(d.Get("attestation_authority_note"), d, config)
+	attestationAuthorityNoteProp, err := expandBinaryAuthorizationAttestorAttestationAuthorityNote(d.Get("attestation_authority_note"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("attestation_authority_note"); !tpgresource.IsEmptyValue(reflect.ValueOf(userOwnedGrafeasNoteProp)) && (ok || !reflect.DeepEqual(v, userOwnedGrafeasNoteProp)) {
-		obj["userOwnedGrafeasNote"] = userOwnedGrafeasNoteProp
+	} else if v, ok := d.GetOkExists("attestation_authority_note"); !tpgresource.IsEmptyValue(reflect.ValueOf(attestationAuthorityNoteProp)) && (ok || !reflect.DeepEqual(v, attestationAuthorityNoteProp)) {
+		obj["userOwnedGrafeasNote"] = attestationAuthorityNoteProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors?attestorId={{name}}")
@@ -374,11 +374,11 @@ func resourceBinaryAuthorizationAttestorUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	userOwnedGrafeasNoteProp, err := expandBinaryAuthorizationAttestorAttestationAuthorityNote(d.Get("attestation_authority_note"), d, config)
+	attestationAuthorityNoteProp, err := expandBinaryAuthorizationAttestorAttestationAuthorityNote(d.Get("attestation_authority_note"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("attestation_authority_note"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, userOwnedGrafeasNoteProp)) {
-		obj["userOwnedGrafeasNote"] = userOwnedGrafeasNoteProp
+	} else if v, ok := d.GetOkExists("attestation_authority_note"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, attestationAuthorityNoteProp)) {
+		obj["userOwnedGrafeasNote"] = attestationAuthorityNoteProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors/{{name}}")

@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Compute Engine Snapshot
+
 Three different resources help you manage your IAM policy for Compute Engine Snapshot. Each of these resources serves a different use case:
 
 * `google_compute_snapshot_iam_policy`: Authoritative. Sets the IAM policy for the snapshot and replaces any existing policy already attached.

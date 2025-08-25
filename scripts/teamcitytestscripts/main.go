@@ -28,7 +28,7 @@ import (
 
 func usage() string {
 	return `Usage:
-	teamcity-go-test -test <binary> [-parallelism n] [-timeout t]
+	teamcity-diff-test -test <binary> [-parallelism n] [-timeout t]
 
 	Test names must be listed one per line on stdin.
 `

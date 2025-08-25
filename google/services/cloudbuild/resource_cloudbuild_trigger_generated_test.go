@@ -936,6 +936,132 @@ resource "google_cloudbuild_trigger" "pubsub-with-repo-trigger" {
 `, context)
 }
 
+func TestAccCloudBuildTrigger_cloudbuildTriggerDeveloperConnectPullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_cloudbuildTriggerDeveloperConnectPullExample(context),
+			},
+			{
+				ResourceName:            "google_cloudbuild_trigger.developer-connect-trigger-pull",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccCloudBuildTrigger_cloudbuildTriggerDeveloperConnectPullExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloudbuild_trigger" "developer-connect-trigger-pull" {
+  location = "us-central1"
+
+  developer_connect_event_config {
+    git_repository_link = "projects/cryptic-tower-286020/locations/us-central1/connections/prod-bbs-push/gitRepositoryLinks/cbprob-prod-us-central1-push1"
+    pull_request {
+        branch = "^master$"
+        invert_regex = false
+        comment_control = "COMMENTS_ENABLED"
+    }
+  }
+  filename = "cloudbuild.yaml"
+}
+`, context)
+}
+
+func TestAccCloudBuildTrigger_cloudbuildTriggerDeveloperConnectPushExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_cloudbuildTriggerDeveloperConnectPushExample(context),
+			},
+			{
+				ResourceName:            "google_cloudbuild_trigger.developer-connect-trigger-push",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccCloudBuildTrigger_cloudbuildTriggerDeveloperConnectPushExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloudbuild_trigger" "developer-connect-trigger-push" {
+  location = "us-central1"
+
+  developer_connect_event_config {
+    git_repository_link = "projects/cryptic-tower-286020/locations/us-central1/connections/prod-bbs-push/gitRepositoryLinks/cbprob-prod-us-central1-push1"
+    push {
+        tag = "^0.1.*"
+        invert_regex = true
+    }
+  }
+  filename = "cloudbuild.yaml"
+}
+`, context)
+}
+
+func TestAccCloudBuildTrigger_cloudbuildTriggerDeveloperConnectPushBranchExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_cloudbuildTriggerDeveloperConnectPushBranchExample(context),
+			},
+			{
+				ResourceName:            "google_cloudbuild_trigger.dc-trigger-regular-push-branch",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccCloudBuildTrigger_cloudbuildTriggerDeveloperConnectPushBranchExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloudbuild_trigger" "dc-trigger-regular-push-branch" {
+  location = "us-central1"
+
+  developer_connect_event_config {
+    git_repository_link = "projects/cryptic-tower-286020/locations/us-central1/connections/prod-bbs-push/gitRepositoryLinks/cbprob-prod-us-central1-push1"
+    push {
+      branch = "main"
+    }
+  }
+  filename = "cloudbuild.yaml"
+}
+`, context)
+}
+
 func testAccCheckCloudBuildTriggerDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

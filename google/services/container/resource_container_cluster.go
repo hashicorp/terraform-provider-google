@@ -885,6 +885,11 @@ func ResourceContainerCluster() *schema.Resource {
 							ValidateFunc:     validation.StringInSlice([]string{"BALANCED", "OPTIMIZE_UTILIZATION"}, false),
 							Description:      `Configuration options for the Autoscaling profile feature, which lets you choose whether the cluster autoscaler should optimize for resource utilization or resource availability when deciding to remove nodes from a cluster. Can be BALANCED or OPTIMIZE_UTILIZATION. Defaults to BALANCED.`,
 						},
+						"default_compute_class_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Specifies whether default compute class behaviour is enabled. If enabled, cluster autoscaler will use Compute Class with name default for all the workloads, if not overriden.`,
+						},
 					},
 				},
 			},
@@ -5334,9 +5339,16 @@ func expandClusterAutoscaling(configured interface{}, d *schema.ResourceData) *c
 			}
 		}
 	}
+	var defaultCCConfig *container.DefaultComputeClassConfig
+	if defaultCCEnabled, ok := config["default_compute_class_enabled"]; ok {
+		defaultCCConfig = &container.DefaultComputeClassConfig{
+			Enabled: defaultCCEnabled.(bool),
+		}
+	}
 	return &container.ClusterAutoscaling{
 		EnableNodeAutoprovisioning:       config["enabled"].(bool),
 		ResourceLimits:                   resourceLimits,
+		DefaultComputeClassConfig:        defaultCCConfig,
 		AutoscalingProfile:               config["autoscaling_profile"].(string),
 		AutoprovisioningNodePoolDefaults: expandAutoProvisioningDefaults(config["auto_provisioning_defaults"], d),
 		AutoprovisioningLocations:        tpgresource.ConvertStringArr(config["auto_provisioning_locations"].([]interface{})),
@@ -6798,6 +6810,9 @@ func flattenClusterAutoscaling(a *container.ClusterAutoscaling) []map[string]int
 		r["enabled"] = false
 	}
 	r["autoscaling_profile"] = a.AutoscalingProfile
+	if a.DefaultComputeClassConfig != nil {
+		r["default_compute_class_enabled"] = a.DefaultComputeClassConfig.Enabled
+	}
 
 	return []map[string]interface{}{r}
 }

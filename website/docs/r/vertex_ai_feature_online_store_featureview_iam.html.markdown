@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Vertex AI FeatureOnlineStoreFeatureview
+
 Three different resources help you manage your IAM policy for Vertex AI FeatureOnlineStoreFeatureview. Each of these resources serves a different use case:
 
 * `google_vertex_ai_feature_online_store_featureview_iam_policy`: Authoritative. Sets the IAM policy for the featureonlinestorefeatureview and replaces any existing policy already attached.

@@ -211,11 +211,11 @@ func resourceEdgenetworkSubnetCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("vlan_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(vlanIdProp)) && (ok || !reflect.DeepEqual(v, vlanIdProp)) {
 		obj["vlanId"] = vlanIdProp
 	}
-	labelsProp, err := expandEdgenetworkSubnetEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandEdgenetworkSubnetEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EdgenetworkBasePath}}projects/{{project}}/locations/{{location}}/zones/{{zone}}/subnets?subnetId={{subnet_id}}")

@@ -86,9 +86,10 @@ This value is subject to the following restrictions:
 				Description: `Required. Number of shards for the instance.`,
 			},
 			"allow_fewer_zones_deployment": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Deprecated: "allow_fewer_zone_deployment flag will no longer be a user settable field, default behaviour will be as if set to true",
+				ForceNew:   true,
 				Description: `Allows customers to specify if they are okay with deploying a multi-zone
 instance in less than 3 zones. Once set, if there is a zonal outage during
 the instance creation, the instance will only be deployed in 2 zones, and
@@ -1086,11 +1087,11 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
 		obj["kmsKey"] = kmsKeyProp
 	}
-	labelsProp, err := expandMemorystoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandMemorystoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceMemorystoreInstanceEncoder(d, meta, obj)
@@ -1388,11 +1389,11 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("cross_instance_replication_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, crossInstanceReplicationConfigProp)) {
 		obj["crossInstanceReplicationConfig"] = crossInstanceReplicationConfigProp
 	}
-	labelsProp, err := expandMemorystoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandMemorystoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceMemorystoreInstanceEncoder(d, meta, obj)

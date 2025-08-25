@@ -186,9 +186,11 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_artifact_registry_docker_image":                      artifactregistry.DataSourceArtifactRegistryDockerImage(),
 	"google_artifact_registry_docker_images":                     artifactregistry.DataSourceArtifactRegistryDockerImages(),
 	"google_artifact_registry_locations":                         artifactregistry.DataSourceGoogleArtifactRegistryLocations(),
+	"google_artifact_registry_npm_package":                       artifactregistry.DataSourceArtifactRegistryNpmPackage(),
 	"google_artifact_registry_package":                           artifactregistry.DataSourceArtifactRegistryPackage(),
 	"google_artifact_registry_repositories":                      artifactregistry.DataSourceArtifactRegistryRepositories(),
 	"google_artifact_registry_repository":                        artifactregistry.DataSourceArtifactRegistryRepository(),
+	"google_artifact_registry_tag":                               artifactregistry.DataSourceArtifactRegistryTag(),
 	"google_artifact_registry_tags":                              artifactregistry.DataSourceArtifactRegistryTags(),
 	"google_artifact_registry_version":                           artifactregistry.DataSourceArtifactRegistryVersion(),
 	"google_apphub_discovered_workload":                          apphub.DataSourceApphubDiscoveredWorkload(),
@@ -213,6 +215,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_bigquery_default_service_account":                    bigquery.DataSourceGoogleBigqueryDefaultServiceAccount(),
 	"google_certificate_manager_certificates":                    certificatemanager.DataSourceGoogleCertificateManagerCertificates(),
 	"google_certificate_manager_certificate_map":                 certificatemanager.DataSourceGoogleCertificateManagerCertificateMap(),
+	"google_certificate_manager_dns_authorization":               certificatemanager.DataSourceGoogleCertificateManagerDnsAuthorization(),
 	"google_cloudbuild_trigger":                                  cloudbuild.DataSourceGoogleCloudBuildTrigger(),
 	"google_cloudfunctions_function":                             cloudfunctions.DataSourceGoogleCloudFunctionsFunction(),
 	"google_cloudfunctions2_function":                            cloudfunctions2.DataSourceGoogleCloudFunctions2Function(),
@@ -399,9 +402,9 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_storage_bucket_object":                               storage.DataSourceGoogleStorageBucketObject(),
 	"google_storage_bucket_objects":                              storage.DataSourceGoogleStorageBucketObjects(),
 	"google_storage_bucket_object_content":                       storage.DataSourceGoogleStorageBucketObjectContent(),
-	"google_storage_control_folder_intelligence_config":          storagecontrol.DataSourceGoogleStorageControlFolderIntelligenceConfig(),
-	"google_storage_control_organization_intelligence_config":    storagecontrol.DataSourceGoogleStorageControlOrganizationIntelligenceConfig(),
-	"google_storage_control_project_intelligence_config":         storagecontrol.DataSourceGoogleStorageControlProjectIntelligenceConfig(),
+	"google_storage_control_folder_intelligence_config":          storagecontrol.DataSourceStorageControlFolderIntelligenceConfig(),
+	"google_storage_control_organization_intelligence_config":    storagecontrol.DataSourceStorageControlOrganizationIntelligenceConfig(),
+	"google_storage_control_project_intelligence_config":         storagecontrol.DataSourceStorageControlProjectIntelligenceConfig(),
 	"google_storage_insights_dataset_config":                     storageinsights.DataSourceGoogleStorageInsightsDatasetConfig(),
 	"google_storage_object_signed_url":                           storage.DataSourceGoogleSignedUrl(),
 	"google_storage_project_service_account":                     storage.DataSourceGoogleStorageProjectServiceAccount(),
@@ -499,6 +502,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_iap_app_engine_service_iam_policy":                  tpgiamresource.DataSourceIamPolicy(iap.IapAppEngineServiceIamSchema, iap.IapAppEngineServiceIamUpdaterProducer),
 	"google_iap_app_engine_version_iam_policy":                  tpgiamresource.DataSourceIamPolicy(iap.IapAppEngineVersionIamSchema, iap.IapAppEngineVersionIamUpdaterProducer),
 	"google_iap_web_cloud_run_service_iam_policy":               tpgiamresource.DataSourceIamPolicy(iap.IapWebCloudRunServiceIamSchema, iap.IapWebCloudRunServiceIamUpdaterProducer),
+	"google_iap_web_region_forwarding_rule_service_iam_policy":  tpgiamresource.DataSourceIamPolicy(iap.IapWebRegionForwardingRuleServiceIamSchema, iap.IapWebRegionForwardingRuleServiceIamUpdaterProducer),
 	"google_iap_tunnel_iam_policy":                              tpgiamresource.DataSourceIamPolicy(iap.IapTunnelIamSchema, iap.IapTunnelIamUpdaterProducer),
 	"google_iap_tunnel_dest_group_iam_policy":                   tpgiamresource.DataSourceIamPolicy(iap.IapTunnelDestGroupIamSchema, iap.IapTunnelDestGroupIamUpdaterProducer),
 	"google_iap_tunnel_instance_iam_policy":                     tpgiamresource.DataSourceIamPolicy(iap.IapTunnelInstanceIamSchema, iap.IapTunnelInstanceIamUpdaterProducer),
@@ -558,9 +562,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 645
-// Generated IAM resources: 312
-// Total generated resources: 957
+// Generated resources: 646
+// Generated IAM resources: 315
+// Total generated resources: 961
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1011,6 +1015,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_developer_connect_git_repository_link":                               developerconnect.ResourceDeveloperConnectGitRepositoryLink(),
 	"google_developer_connect_insights_config":                                   developerconnect.ResourceDeveloperConnectInsightsConfig(),
 	"google_dialogflow_agent":                                                    dialogflow.ResourceDialogflowAgent(),
+	"google_dialogflow_conversation_profile":                                     dialogflow.ResourceDialogflowConversationProfile(),
 	"google_dialogflow_encryption_spec":                                          dialogflow.ResourceDialogflowEncryptionSpec(),
 	"google_dialogflow_entity_type":                                              dialogflow.ResourceDialogflowEntityType(),
 	"google_dialogflow_fulfillment":                                              dialogflow.ResourceDialogflowFulfillment(),
@@ -1167,6 +1172,9 @@ var generatedResources = map[string]*schema.Resource{
 	"google_iap_web_cloud_run_service_iam_binding":                               tpgiamresource.ResourceIamBinding(iap.IapWebCloudRunServiceIamSchema, iap.IapWebCloudRunServiceIamUpdaterProducer, iap.IapWebCloudRunServiceIdParseFunc),
 	"google_iap_web_cloud_run_service_iam_member":                                tpgiamresource.ResourceIamMember(iap.IapWebCloudRunServiceIamSchema, iap.IapWebCloudRunServiceIamUpdaterProducer, iap.IapWebCloudRunServiceIdParseFunc),
 	"google_iap_web_cloud_run_service_iam_policy":                                tpgiamresource.ResourceIamPolicy(iap.IapWebCloudRunServiceIamSchema, iap.IapWebCloudRunServiceIamUpdaterProducer, iap.IapWebCloudRunServiceIdParseFunc),
+	"google_iap_web_region_forwarding_rule_service_iam_binding":                  tpgiamresource.ResourceIamBinding(iap.IapWebRegionForwardingRuleServiceIamSchema, iap.IapWebRegionForwardingRuleServiceIamUpdaterProducer, iap.IapWebRegionForwardingRuleServiceIdParseFunc),
+	"google_iap_web_region_forwarding_rule_service_iam_member":                   tpgiamresource.ResourceIamMember(iap.IapWebRegionForwardingRuleServiceIamSchema, iap.IapWebRegionForwardingRuleServiceIamUpdaterProducer, iap.IapWebRegionForwardingRuleServiceIdParseFunc),
+	"google_iap_web_region_forwarding_rule_service_iam_policy":                   tpgiamresource.ResourceIamPolicy(iap.IapWebRegionForwardingRuleServiceIamSchema, iap.IapWebRegionForwardingRuleServiceIamUpdaterProducer, iap.IapWebRegionForwardingRuleServiceIdParseFunc),
 	"google_iap_settings":                                                        iap.ResourceIapSettings(),
 	"google_iap_tunnel_iam_binding":                                              tpgiamresource.ResourceIamBinding(iap.IapTunnelIamSchema, iap.IapTunnelIamUpdaterProducer, iap.IapTunnelIdParseFunc),
 	"google_iap_tunnel_iam_member":                                               tpgiamresource.ResourceIamMember(iap.IapTunnelIamSchema, iap.IapTunnelIamUpdaterProducer, iap.IapTunnelIdParseFunc),

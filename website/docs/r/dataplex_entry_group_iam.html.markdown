@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Dataplex EntryGroup
+
 Three different resources help you manage your IAM policy for Dataplex EntryGroup. Each of these resources serves a different use case:
 
 * `google_dataplex_entry_group_iam_policy`: Authoritative. Sets the IAM policy for the entrygroup and replaces any existing policy already attached.

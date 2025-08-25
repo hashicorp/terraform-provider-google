@@ -108,11 +108,11 @@ func resourceAppEngineServiceSplitTrafficCreate(d *schema.ResourceData, meta int
 	}
 
 	obj := make(map[string]interface{})
-	idProp, err := expandAppEngineServiceSplitTrafficService(d.Get("service"), d, config)
+	serviceProp, err := expandAppEngineServiceSplitTrafficService(d.Get("service"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("service"); !tpgresource.IsEmptyValue(reflect.ValueOf(idProp)) && (ok || !reflect.DeepEqual(v, idProp)) {
-		obj["id"] = idProp
+	} else if v, ok := d.GetOkExists("service"); !tpgresource.IsEmptyValue(reflect.ValueOf(serviceProp)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
+		obj["id"] = serviceProp
 	}
 	splitProp, err := expandAppEngineServiceSplitTrafficSplit(d.Get("split"), d, config)
 	if err != nil {
@@ -249,11 +249,11 @@ func resourceAppEngineServiceSplitTrafficUpdate(d *schema.ResourceData, meta int
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	idProp, err := expandAppEngineServiceSplitTrafficService(d.Get("service"), d, config)
+	serviceProp, err := expandAppEngineServiceSplitTrafficService(d.Get("service"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("service"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, idProp)) {
-		obj["id"] = idProp
+	} else if v, ok := d.GetOkExists("service"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
+		obj["id"] = serviceProp
 	}
 	splitProp, err := expandAppEngineServiceSplitTrafficSplit(d.Get("split"), d, config)
 	if err != nil {

@@ -144,11 +144,11 @@ func resourceCloudbuildv2RepositoryCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("remote_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(remoteUriProp)) && (ok || !reflect.DeepEqual(v, remoteUriProp)) {
 		obj["remoteUri"] = remoteUriProp
 	}
-	annotationsProp, err := expandCloudbuildv2RepositoryEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandCloudbuildv2RepositoryEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	obj, err = resourceCloudbuildv2RepositoryEncoder(d, meta, obj)

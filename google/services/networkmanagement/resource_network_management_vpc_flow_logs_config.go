@@ -254,11 +254,11 @@ func resourceNetworkManagementVpcFlowLogsConfigCreate(d *schema.ResourceData, me
 	} else if v, ok := d.GetOkExists("vpn_tunnel"); !tpgresource.IsEmptyValue(reflect.ValueOf(vpnTunnelProp)) && (ok || !reflect.DeepEqual(v, vpnTunnelProp)) {
 		obj["vpnTunnel"] = vpnTunnelProp
 	}
-	labelsProp, err := expandNetworkManagementVpcFlowLogsConfigEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkManagementVpcFlowLogsConfigEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/{{location}}/vpcFlowLogsConfigs?vpcFlowLogsConfigId={{vpc_flow_logs_config_id}}")
@@ -481,11 +481,11 @@ func resourceNetworkManagementVpcFlowLogsConfigUpdate(d *schema.ResourceData, me
 	} else if v, ok := d.GetOkExists("vpn_tunnel"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, vpnTunnelProp)) {
 		obj["vpnTunnel"] = vpnTunnelProp
 	}
-	labelsProp, err := expandNetworkManagementVpcFlowLogsConfigEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkManagementVpcFlowLogsConfigEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/{{location}}/vpcFlowLogsConfigs/{{vpc_flow_logs_config_id}}")

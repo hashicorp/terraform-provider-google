@@ -119,6 +119,28 @@ resource "google_apikeys_key" "primary" {
 
 
 ```
+## Example Usage - service_account_key
+```hcl
+resource "google_apikeys_key" "primary" {
+  name                  = "key"
+  display_name          = "sample-key"
+  project               = google_project.project.project_id
+  service_account_email = google_service_account.key_service_account.email
+}
+
+resource "google_project" "project" {
+  project_id      = "app"
+  name            = "app"
+  org_id          = "123456789"
+  deletion_policy = "DELETE"
+}
+
+resource "google_service_account" "key_service_account" {
+  account_id   = "app"
+  project      = google_project.project.project_id
+  display_name = "Test Service Account"
+}
+```
 
 ## Argument Reference
 
@@ -143,6 +165,10 @@ The following arguments are supported:
 * `restrictions` -
   (Optional)
   Key restrictions.
+  
+* `service_account_email` -
+  (Optional)
+  The email of the service account the key is bound to. If this field is specified, the key is a service account bound key and auth enabled. See [Documentation](https://cloud.devsite.corp.google.com/docs/authentication/api-keys?#api-keys-bound-sa) for more details.
   
 
 

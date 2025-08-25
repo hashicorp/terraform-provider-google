@@ -234,7 +234,7 @@ The following arguments are supported:
 
 * `secret_data_wo_version` -
   (Optional)
-  Triggers update of secret_data_wo write-only. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)
+  Triggers update of secret data write-only. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)
 
 * `deletion_policy` - (Optional) The deletion policy for the secret version. Setting `ABANDON` allows the resource
 to be abandoned rather than deleted. Setting `DISABLE` allows the resource to be
@@ -252,7 +252,7 @@ The following write-only attributes are supported:
 
 * `secret_data_wo` -
   (Optional)
-  The secret data. Must be no larger than 64KiB. Note: This property is write-only and will not be read from the API. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)
+  The secret data. Must be no larger than 64KiB. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)
   **Note**: This property is write-only and will not be read from the API.
 
 
@@ -260,7 +260,7 @@ The following write-only attributes are supported:
 
 * `secret_data_wo` -
   (Optional)
-  The secret data. Must be no larger than 64KiB. Note: This property is write-only and will not be read from the API. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)
+  The secret data. Must be no larger than 64KiB. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)
   **Note**: This property is write-only and will not be read from the API.
 
 ## Attributes Reference
