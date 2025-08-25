@@ -323,3 +323,141 @@ func TestBoundedDuration(t *testing.T) {
 		})
 	}
 }
+
+func TestStringValuesInSetValidator(t *testing.T) {
+	t.Parallel()
+
+	// Define the set of valid strings for the validator
+	validStrings := []string{"APPLE", "BANANA", "CHERRY"}
+
+	stringSet := func(elems []string) types.Set {
+		if elems == nil {
+			return types.SetNull(types.StringType)
+		}
+		val, diags := types.SetValueFrom(context.Background(), types.StringType, elems)
+		if diags.HasError() {
+			t.Fatalf("Failed to create test set: %v", diags)
+		}
+		return val
+	}
+
+	cases := map[string]struct {
+		ConfigValue        types.Set
+		ExpectedErrorCount int
+	}{
+		"valid set with one element": {
+			ConfigValue:        stringSet([]string{"APPLE"}),
+			ExpectedErrorCount: 0,
+		},
+		"valid set with multiple elements": {
+			ConfigValue:        stringSet([]string{"BANANA", "CHERRY"}),
+			ExpectedErrorCount: 0,
+		},
+		"valid empty set": {
+			ConfigValue:        stringSet([]string{}),
+			ExpectedErrorCount: 0,
+		},
+		"null set is valid": {
+			ConfigValue:        stringSet(nil),
+			ExpectedErrorCount: 0,
+		},
+		"unknown set is valid": {
+			ConfigValue:        types.SetUnknown(types.StringType),
+			ExpectedErrorCount: 0,
+		},
+		"invalid set with one element": {
+			ConfigValue:        stringSet([]string{"DURIAN"}),
+			ExpectedErrorCount: 1,
+		},
+		"invalid set with multiple elements": {
+			ConfigValue:        stringSet([]string{"DURIAN", "ELDERBERRY"}),
+			ExpectedErrorCount: 2,
+		},
+		"set with mixed valid and invalid elements": {
+			ConfigValue:        stringSet([]string{"APPLE", "DURIAN", "CHERRY"}),
+			ExpectedErrorCount: 1,
+		},
+	}
+
+	for tn, tc := range cases {
+		tn, tc := tn, tc
+		t.Run(tn, func(t *testing.T) {
+			t.Parallel()
+
+			req := validator.SetRequest{
+				Path:        path.Root("test_attribute"),
+				ConfigValue: tc.ConfigValue,
+			}
+			resp := &validator.SetResponse{
+				Diagnostics: diag.Diagnostics{},
+			}
+			v := fwvalidators.StringValuesInSet(validStrings...)
+
+			v.ValidateSet(context.Background(), req, resp)
+
+			if resp.Diagnostics.ErrorsCount() != tc.ExpectedErrorCount {
+				t.Errorf("Expected %d errors, but got %d. Errors: %v", tc.ExpectedErrorCount, resp.Diagnostics.ErrorsCount(), resp.Diagnostics.Errors())
+			}
+		})
+	}
+}
+
+func TestTopicPrefixValidator(t *testing.T) {
+	t.Parallel()
+
+	type testCase struct {
+		value         types.String
+		expectError   bool
+		errorContains string
+	}
+
+	tests := map[string]testCase{
+		"valid topic format": {
+			value:       types.StringValue("projects/my-project/topics/my-topic"),
+			expectError: false,
+		},
+		"invalid topic format - starts with pubsub prefix": {
+			value:         types.StringValue("//pubsub.googleapis.com/projects/my-project/topics/my-topic"),
+			expectError:   true,
+			errorContains: "The topic must not start with '//pubsub.googleapis.com/', please use the format projects/{project}/topics/{topic} instead.",
+		},
+	}
+
+	for name, test := range tests {
+		name, test := name, test
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			request := validator.StringRequest{
+				Path:           path.Root("test_topic"),
+				PathExpression: path.MatchRoot("test_topic"),
+				ConfigValue:    test.value,
+			}
+			response := validator.StringResponse{}
+			v := fwvalidators.NewTopicPrefixValidator()
+
+			v.ValidateString(context.Background(), request, &response)
+
+			if test.expectError && !response.Diagnostics.HasError() {
+				t.Errorf("expected error, got none for value: %q", test.value.ValueString())
+			}
+
+			if !test.expectError && response.Diagnostics.HasError() {
+				t.Errorf("got unexpected error for value: %q: %s", test.value.ValueString(), response.Diagnostics.Errors())
+			}
+
+			if test.errorContains != "" {
+				foundError := false
+				for _, err := range response.Diagnostics.Errors() {
+					if err.Detail() == test.errorContains {
+						foundError = true
+						break
+					}
+				}
+				if !foundError {
+					t.Errorf("expected error with detail %q, got none", test.errorContains)
+				}
+			}
+		})
+	}
+}

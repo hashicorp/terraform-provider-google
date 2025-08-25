@@ -1,0 +1,12 @@
+```release-note:breaking-change
+storage: added validation requiring the `topic` field to be in the form "projects/<project>/topics/<topic>" in `google_storage_notification`
+```
+```release-note:breaking-change
+apigee: changed `certs_info` field in `google_apigee_keystores_aliases_key_cert_file` to be output-only
+```
+```release-note:breaking-change
+apigee: migrated `google_apigee_keystores_aliases_key_cert_file` to the plugin framework
+```
+```release-note:breaking-change
+storage: migrated `google_storage_notification` to the plugin framework
+```

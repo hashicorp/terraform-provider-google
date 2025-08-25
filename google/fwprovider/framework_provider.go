@@ -36,7 +36,10 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/functions"
 	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
 	"github.com/hashicorp/terraform-provider-google/google/fwvalidators"
+	"github.com/hashicorp/terraform-provider-google/google/services/apigee"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+
+	"github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/version"
 
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -1216,7 +1219,10 @@ func (p *FrameworkProvider) DataSources(_ context.Context) []func() datasource.D
 
 // Resources defines the resources implemented in the provider.
 func (p *FrameworkProvider) Resources(_ context.Context) []func() resource.Resource {
-	return nil
+	return []func() resource.Resource{
+		apigee.NewApigeeKeystoresAliasesKeyCertFileResource,
+		storage.NewStorageNotificationResource,
+	}
 }
 
 // Functions defines the provider functions implemented in the provider.
