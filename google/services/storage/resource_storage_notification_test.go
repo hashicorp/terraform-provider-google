@@ -43,7 +43,7 @@ func TestAccStorageNotification_basic(t *testing.T) {
 	var notification storage.Notification
 	bucketName := acctest.TestBucketName(t)
 	topicName := fmt.Sprintf("tf-pstopic-test-%d", acctest.RandInt(t))
-	topic := fmt.Sprintf("//pubsub.googleapis.com/projects/%s/topics/%s", os.Getenv("GOOGLE_PROJECT"), topicName)
+	topic := fmt.Sprintf("projects/%s/topics/%s", os.Getenv("GOOGLE_PROJECT"), topicName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -87,7 +87,7 @@ func TestAccStorageNotification_withEventsAndAttributes(t *testing.T) {
 	var notification storage.Notification
 	bucketName := acctest.TestBucketName(t)
 	topicName := fmt.Sprintf("tf-pstopic-test-%d", acctest.RandInt(t))
-	topic := fmt.Sprintf("//pubsub.googleapis.com/projects/%s/topics/%s", os.Getenv("GOOGLE_PROJECT"), topicName)
+	topic := fmt.Sprintf("projects/%s/topics/%s", os.Getenv("GOOGLE_PROJECT"), topicName)
 	eventType1 := "OBJECT_FINALIZE"
 	eventType2 := "OBJECT_ARCHIVE"
 
@@ -131,9 +131,12 @@ func testAccStorageNotificationDestroyProducer(t *testing.T) func(s *terraform.S
 				continue
 			}
 
-			bucket, notificationID := tpgstorage.ResourceStorageNotificationParseID(rs.Primary.ID)
+			bucket, notificationID, err := tpgstorage.ParseStorageNotificationID(rs.Primary.ID)
+			if err != nil {
+				return err
+			}
 
-			_, err := config.NewStorageClient(config.UserAgent).Notifications.Get(bucket, notificationID).Do()
+			_, err = config.NewStorageClient(config.UserAgent).Notifications.Get(bucket, notificationID).Do()
 			if err == nil {
 				return fmt.Errorf("Notification configuration still exists")
 			}
@@ -156,7 +159,10 @@ func testAccCheckStorageNotificationExists(t *testing.T, resource string, notifi
 
 		config := acctest.GoogleProviderConfig(t)
 
-		bucket, notificationID := tpgstorage.ResourceStorageNotificationParseID(rs.Primary.ID)
+		bucket, notificationID, err := tpgstorage.ParseStorageNotificationID(rs.Primary.ID)
+		if err != nil {
+			return err
+		}
 
 		found, err := config.NewStorageClient(config.UserAgent).Notifications.Get(bucket, notificationID).Do()
 		if err != nil {
