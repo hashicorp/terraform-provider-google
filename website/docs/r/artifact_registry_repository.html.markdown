@@ -1100,6 +1100,9 @@ In addition to the arguments listed above, the following computed attributes are
   The name of the repository, for example:
   "repo1"
 
+* `registry_uri` -
+  The repository endpoint, for example: us-docker.pkg.dev/my-proj/my-repo.
+
 * `create_time` -
   The time when the repository was created.
 

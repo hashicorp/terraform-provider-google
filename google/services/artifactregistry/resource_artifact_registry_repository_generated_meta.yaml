@@ -29,6 +29,7 @@ fields:
   - field: 'maven_config.version_policy'
   - field: 'mode'
   - field: 'name'
+  - field: 'registry_uri'
   - field: 'remote_repository_config.apt_repository.public_repository.repository_base'
   - field: 'remote_repository_config.apt_repository.public_repository.repository_path'
   - field: 'remote_repository_config.common_repository.uri'
