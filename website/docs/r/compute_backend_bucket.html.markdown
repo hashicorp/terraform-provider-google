@@ -185,11 +185,13 @@ The following arguments are supported:
 * `enable_cdn` -
   (Optional)
   If true, enable Cloud CDN for this BackendBucket.
+  Note: This cannot be set to true when loadBalancingScheme is set to INTERNAL_MANAGED.
 
 * `load_balancing_scheme` -
   (Optional)
   The value can only be INTERNAL_MANAGED for cross-region internal layer 7 load balancer.
   If loadBalancingScheme is not specified, the backend bucket can be used by classic global external load balancers, or global application external load balancers, or both.
+  Important: CDN cannot be enabled (enableCdn cannot be set to true) when loadBalancingScheme is set to INTERNAL_MANAGED.
   Possible values are: `INTERNAL_MANAGED`.
 
 * `params` -

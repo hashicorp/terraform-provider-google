@@ -486,6 +486,7 @@ resource "google_storage_bucket" "image_bucket" {
 }
 
 func TestAccComputeBackendBucket_backendBucketGlobalIlbExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -514,6 +515,10 @@ func TestAccComputeBackendBucket_backendBucketGlobalIlbExample(t *testing.T) {
 
 func testAccComputeBackendBucket_backendBucketGlobalIlbExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+# Note: This example must be run in a project without Cloud Armor tier configured,
+# as it may cause conflicts with the INTERNAL_MANAGED load balancing scheme.
+# This test is skipped in VCR mode due to non-determinism in project creation and resource management.
+
 resource "google_project" "unarmored" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"
@@ -530,7 +535,7 @@ resource "google_project_service" "project" {
 
 resource "google_compute_backend_bucket" "global-ilb-backend" {
   name                  = "tf-test-global-ilb-backend-bucket%{random_suffix}"
-  project               = google_project.unarmored.name
+  project               = google_project.unarmored.number
   bucket_name           = google_storage_bucket.global-ilb-backend.name
   load_balancing_scheme = "INTERNAL_MANAGED"
 
