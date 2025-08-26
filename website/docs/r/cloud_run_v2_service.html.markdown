@@ -786,6 +786,11 @@ The following arguments are supported:
   Configuration for building a Cloud Run function.
   Structure is [documented below](#nested_build_config).
 
+* `multi_region_settings` -
+  (Optional)
+  Settings for creating a Multi-Region Service. Make sure to use region = 'global' when using them. For more information, visit https://cloud.google.com/run/docs/multiple-regions#deploy
+  Structure is [documented below](#nested_multi_region_settings).
+
 * `iap_enabled` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Used to enable/disable IAP for the service.
@@ -1449,6 +1454,16 @@ When the field is set to false, deleting the service is allowed.
 * `service_account` -
   (Optional)
   Service account to be used for building the container. The format of this field is `projects/{projectId}/serviceAccounts/{serviceAccountEmail}`.
+
+<a name="nested_multi_region_settings"></a>The `multi_region_settings` block supports:
+
+* `regions` -
+  (Optional)
+  The list of regions to deploy the multi-region Service.
+
+* `multi_region_id` -
+  (Output)
+  System-generated unique id for the multi-region Service.
 
 ## Attributes Reference
 

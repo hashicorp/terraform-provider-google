@@ -51,6 +51,8 @@ fields:
   - field: 'launch_stage'
   - field: 'location'
     provider_only: true
+  - field: 'multi_region_settings.multi_region_id'
+  - field: 'multi_region_settings.regions'
   - field: 'name'
     provider_only: true
   - field: 'observed_generation'
