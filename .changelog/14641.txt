@@ -1,0 +1,3 @@
+```release-note:note
+storage: removed deprecated status for field to `detect_md5hash`  in  `google_storage_bucket_object` resource
+```
