@@ -1,0 +1,3 @@
+```release-note:bug
+certificatemanager: Fixed typo for map entry description on word 'Certificate'
+```

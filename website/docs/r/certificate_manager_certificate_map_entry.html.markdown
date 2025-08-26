@@ -106,7 +106,7 @@ The following arguments are supported:
 
 * `map` -
   (Required)
-  A map entry that is inputted into the cetrificate map
+  A map entry that is inputted into the certificate map
 
 
 * `description` -
