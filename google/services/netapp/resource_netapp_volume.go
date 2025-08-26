@@ -480,6 +480,12 @@ To disable automatic snapshot creation you have to remove the whole snapshot_pol
 					},
 				},
 			},
+			"throughput_mibps": {
+				Type:        schema.TypeFloat,
+				Computed:    true,
+				Optional:    true,
+				Description: `Optional. Custom Performance Total Throughput of the pool (in MiB/s).`,
+			},
 			"tiering_policy": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -772,6 +778,12 @@ func resourceNetappVolumeCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("hybrid_replication_parameters"); !tpgresource.IsEmptyValue(reflect.ValueOf(hybridReplicationParametersProp)) && (ok || !reflect.DeepEqual(v, hybridReplicationParametersProp)) {
 		obj["hybridReplicationParameters"] = hybridReplicationParametersProp
 	}
+	throughputMibpsProp, err := expandNetappVolumeThroughputMibps(d.Get("throughput_mibps"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("throughput_mibps"); !tpgresource.IsEmptyValue(reflect.ValueOf(throughputMibpsProp)) && (ok || !reflect.DeepEqual(v, throughputMibpsProp)) {
+		obj["throughputMibps"] = throughputMibpsProp
+	}
 	effectiveLabelsProp, err := expandNetappVolumeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -988,6 +1000,9 @@ func resourceNetappVolumeRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("hybrid_replication_parameters", flattenNetappVolumeHybridReplicationParameters(res["hybridReplicationParameters"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
+	if err := d.Set("throughput_mibps", flattenNetappVolumeThroughputMibps(res["throughputMibps"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Volume: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetappVolumeTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
@@ -1092,6 +1107,12 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("hybrid_replication_parameters"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, hybridReplicationParametersProp)) {
 		obj["hybridReplicationParameters"] = hybridReplicationParametersProp
 	}
+	throughputMibpsProp, err := expandNetappVolumeThroughputMibps(d.Get("throughput_mibps"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("throughput_mibps"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, throughputMibpsProp)) {
+		obj["throughputMibps"] = throughputMibpsProp
+	}
 	effectiveLabelsProp, err := expandNetappVolumeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1162,6 +1183,10 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("hybrid_replication_parameters") {
 		updateMask = append(updateMask, "hybridReplicationParameters")
+	}
+
+	if d.HasChange("throughput_mibps") {
+		updateMask = append(updateMask, "throughputMibps")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -1958,6 +1983,10 @@ func flattenNetappVolumeHybridReplicationParametersLabels(v interface{}, d *sche
 	return v
 }
 
+func flattenNetappVolumeThroughputMibps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetappVolumeTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2644,6 +2673,10 @@ func expandNetappVolumeHybridReplicationParametersLabels(v interface{}, d tpgres
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandNetappVolumeThroughputMibps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandNetappVolumeEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

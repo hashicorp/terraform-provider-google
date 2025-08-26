@@ -1,0 +1,7 @@
+```release-note:enhancement
+netapp: added  `qosType` and `availableThroughputMibps` fields to `netapp_storage_pool` resource
+```
+
+```release-note:enhancement
+netapp: added  `throughputMibps` field to `netapp_volume` resource
+```
