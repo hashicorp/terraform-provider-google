@@ -226,7 +226,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_cloud_quotas_quota_info":                             cloudquotas.DataSourceGoogleCloudQuotasQuotaInfo(),
 	"google_cloud_quotas_quota_infos":                            cloudquotas.DataSourceGoogleCloudQuotasQuotaInfos(),
 	"google_cloud_run_locations":                                 cloudrun.DataSourceGoogleCloudRunLocations(),
-	"google_cloud_run_service":                                   cloudrun.DataSourceGoogleCloudRunService(),
+	"google_cloud_run_service":                                   cloudrun.DataSourceCloudRunService(),
 	"google_cloud_run_v2_job":                                    cloudrunv2.DataSourceGoogleCloudRunV2Job(),
 	"google_cloud_run_v2_service":                                cloudrunv2.DataSourceGoogleCloudRunV2Service(),
 	"google_cloud_run_v2_worker_pool":                            cloudrunv2.DataSourceGoogleCloudRunV2WorkerPool(),
