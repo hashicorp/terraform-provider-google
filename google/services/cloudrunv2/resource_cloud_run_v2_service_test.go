@@ -1161,6 +1161,103 @@ resource "google_cloud_run_v2_service" "default" {
 `, context)
 }
 
+func TestAccCloudRunV2Service_cloudrunv2MultiRegionService(t *testing.T) {
+	t.Parallel()
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2ServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceWithMultiRegion(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "launch_stage", "deletion_protection"},
+			},
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceWithMultiRegionUpdate(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "launch_stage", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceWithMultiRegion(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-service%{random_suffix}"
+  description = "Multi-Region Service"
+  location = "global"
+  deletion_protection = false
+  launch_stage = "GA"
+  annotations = {
+    generated-by = "magic-modules"
+  }
+  multi_region_settings {
+    regions = [
+      "us-central1",
+      "us-east1",
+      "us-west1",
+    ]
+  }
+  ingress = "INGRESS_TRAFFIC_ALL"
+  labels = {
+    label-1 = "value-1"
+  }
+  client = "client-1"
+  client_version = "client-version-1"
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceWithMultiRegionUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-service%{random_suffix}"
+  description = "Multi-Region Service"
+  location = "global"
+  deletion_protection = false
+  launch_stage = "GA"
+  annotations = {
+    generated-by = "magic-modules"
+  }
+  multi_region_settings {
+    regions = [
+      "us-central1",
+      "us-east1",
+    ]
+  }
+  ingress = "INGRESS_TRAFFIC_ALL"
+  labels = {
+    label-1 = "value-1"
+  }
+  client = "client-1"
+  client_version = "client-version-1"
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
+}
+`, context)
+}
+
 func testAccCloudRunV2Service_cloudrunv2ServiceWithGpu(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_service" "default" {

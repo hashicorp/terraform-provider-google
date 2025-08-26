@@ -930,6 +930,29 @@ If no value is specified, GA is assumed. Set the launch stage to a preview stage
 
 For example, if ALPHA is provided as input, but only BETA and GA-level features are used, this field will be BETA on output. Possible values: ["UNIMPLEMENTED", "PRELAUNCH", "EARLY_ACCESS", "ALPHA", "BETA", "GA", "DEPRECATED"]`,
 			},
+			"multi_region_settings": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Settings for creating a Multi-Region Service. Make sure to use region = 'global' when using them. For more information, visit https://cloud.google.com/run/docs/multiple-regions#deploy`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"regions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The list of regions to deploy the multi-region Service.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"multi_region_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `System-generated unique id for the multi-region Service.`,
+						},
+					},
+				},
+			},
 			"scaling": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -1380,6 +1403,12 @@ func resourceCloudRunV2ServiceCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("build_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(buildConfigProp)) && (ok || !reflect.DeepEqual(v, buildConfigProp)) {
 		obj["buildConfig"] = buildConfigProp
 	}
+	multiRegionSettingsProp, err := expandCloudRunV2ServiceMultiRegionSettings(d.Get("multi_region_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("multi_region_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(multiRegionSettingsProp)) && (ok || !reflect.DeepEqual(v, multiRegionSettingsProp)) {
+		obj["multiRegionSettings"] = multiRegionSettingsProp
+	}
 	effectiveLabelsProp, err := expandCloudRunV2ServiceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1586,6 +1615,9 @@ func resourceCloudRunV2ServiceRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("build_config", flattenCloudRunV2ServiceBuildConfig(res["buildConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
+	if err := d.Set("multi_region_settings", flattenCloudRunV2ServiceMultiRegionSettings(res["multiRegionSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
 	if err := d.Set("reconciling", flattenCloudRunV2ServiceReconciling(res["reconciling"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
@@ -1692,6 +1724,12 @@ func resourceCloudRunV2ServiceUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("build_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, buildConfigProp)) {
 		obj["buildConfig"] = buildConfigProp
+	}
+	multiRegionSettingsProp, err := expandCloudRunV2ServiceMultiRegionSettings(d.Get("multi_region_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("multi_region_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, multiRegionSettingsProp)) {
+		obj["multiRegionSettings"] = multiRegionSettingsProp
 	}
 	effectiveLabelsProp, err := expandCloudRunV2ServiceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -3424,6 +3462,29 @@ func flattenCloudRunV2ServiceBuildConfigEnvironmentVariables(v interface{}, d *s
 }
 
 func flattenCloudRunV2ServiceBuildConfigServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceMultiRegionSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["regions"] =
+		flattenCloudRunV2ServiceMultiRegionSettingsRegions(original["regions"], d, config)
+	transformed["multi_region_id"] =
+		flattenCloudRunV2ServiceMultiRegionSettingsMultiRegionId(original["multiRegionId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudRunV2ServiceMultiRegionSettingsRegions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceMultiRegionSettingsMultiRegionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -5213,6 +5274,40 @@ func expandCloudRunV2ServiceBuildConfigEnvironmentVariables(v interface{}, d tpg
 }
 
 func expandCloudRunV2ServiceBuildConfigServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceMultiRegionSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRegions, err := expandCloudRunV2ServiceMultiRegionSettingsRegions(original["regions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRegions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["regions"] = transformedRegions
+	}
+
+	transformedMultiRegionId, err := expandCloudRunV2ServiceMultiRegionSettingsMultiRegionId(original["multi_region_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMultiRegionId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["multiRegionId"] = transformedMultiRegionId
+	}
+
+	return transformed, nil
+}
+
+func expandCloudRunV2ServiceMultiRegionSettingsRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceMultiRegionSettingsMultiRegionId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
