@@ -959,6 +959,7 @@ resource "google_network_services_gateway" "foobar" {
   location                             = "us-central1"
   addresses                            = ["10.128.0.99"]
   type                                 = "SECURE_WEB_GATEWAY"
+  routing_mode                         = "EXPLICIT_ROUTING_MODE"
   ports                                = [443]
   description                          = "my description"
   gateway_security_policy              = google_network_security_gateway_security_policy.default.id

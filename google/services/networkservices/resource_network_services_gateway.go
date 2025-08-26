@@ -277,10 +277,11 @@ For example: 'projects/*/global/networks/network-1'.
 Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY'.`,
 			},
 			"routing_mode": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"NEXT_HOP_ROUTING_MODE", ""}),
-				Description:  `The routing mode of the Gateway. This field is configurable only for gateways of type SECURE_WEB_GATEWAY. This field is required for gateways of type SECURE_WEB_GATEWAY. Possible values: ["NEXT_HOP_ROUTING_MODE"]`,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ValidateFunc:     verify.ValidateEnum([]string{"NEXT_HOP_ROUTING_MODE", "EXPLICIT_ROUTING_MODE", ""}),
+				DiffSuppressFunc: tpgresource.SuppressRoutingModeDefault,
+				Description:      `The routing mode of the Gateway. This field is configurable only for gateways of type SECURE_WEB_GATEWAY. This field is required for gateways of type SECURE_WEB_GATEWAY. Possible values: ["NEXT_HOP_ROUTING_MODE", "EXPLICIT_ROUTING_MODE"]`,
 			},
 			"scope": {
 				Type:     schema.TypeString,
