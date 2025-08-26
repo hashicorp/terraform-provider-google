@@ -89,6 +89,40 @@ func CompareSelfLinkOrResourceName(_, old, new string, _ *schema.ResourceData) b
 	return CompareSelfLinkRelativePaths("", old, new, nil)
 }
 
+// canonicalizeSelfLink normalizes Compute API self-links by removing the version prefix (v1/beta),
+// ensuring a leading "/", collapsing duplicate slashes, trimming any trailing "/",
+// and lowercasing the result so logically identical links compare equal.
+func CompareSelfLinkCanonicalPaths(_, old, new string, _ *schema.ResourceData) bool {
+	return canonicalizeSelfLink(old) == canonicalizeSelfLink(new)
+}
+
+var (
+	rePrefix           = regexp.MustCompile(`(?i)^https?://[a-z0-9.-]*/compute/(v1|beta)/`)
+	reDuplicateSlashes = regexp.MustCompile(`/+`)
+)
+
+func canonicalizeSelfLink(link string) string {
+	if link == "" {
+		return ""
+	}
+
+	// Remove "https://…/compute/v1/" or "https://…/compute/beta/"
+	path := rePrefix.ReplaceAllString(link, "/")
+
+	// Ensure leading "/"
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+
+	// Collapse "//"
+	path = reDuplicateSlashes.ReplaceAllString(path, "/")
+
+	// Remove trailing "/"
+	path = strings.TrimSuffix(path, "/")
+
+	return strings.ToLower(path)
+}
+
 // Hash the relative path of a self link.
 func SelfLinkRelativePathHash(selfLink interface{}) int {
 	path, _ := GetRelativePath(selfLink.(string))
