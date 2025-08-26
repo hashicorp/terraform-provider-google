@@ -254,6 +254,29 @@ func ResourceDataplexEntry() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"entry_group_id": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"entry_id": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"entry_type": {
 				Type:         schema.TypeString,
@@ -630,6 +653,34 @@ func resourceDataplexEntryRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Entry: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("entry_group_id"); ok && v != "" {
+		err = identity.Set("entry_group_id", d.Get("entry_group_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting entry_group_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("entry_id"); ok && v != "" {
+		err = identity.Set("entry_id", d.Get("entry_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting entry_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

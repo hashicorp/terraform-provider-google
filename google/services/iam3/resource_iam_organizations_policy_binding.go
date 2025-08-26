@@ -55,6 +55,25 @@ func ResourceIAM3OrganizationsPolicyBinding() *schema.Resource {
 			tpgresource.SetAnnotationsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"organization": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"policy_binding_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -385,6 +404,28 @@ func resourceIAM3OrganizationsPolicyBindingRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading OrganizationsPolicyBinding: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("organization"); ok && v != "" {
+		err = identity.Set("organization", d.Get("organization").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting organization: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("policy_binding_id"); ok && v != "" {
+		err = identity.Set("policy_binding_id", d.Get("policy_binding_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting policy_binding_id: %s", err)
+		}
+	}
 	return nil
 }
 

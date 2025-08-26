@@ -50,6 +50,25 @@ func ResourceSecurityCenterV2FolderMuteConfig() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"folder": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"mute_config_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"filter": {
 				Type:     schema.TypeString,
@@ -244,6 +263,28 @@ func resourceSecurityCenterV2FolderMuteConfigRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("folder"); ok && v != "" {
+		err = identity.Set("folder", d.Get("folder").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting folder: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("mute_config_id"); ok && v != "" {
+		err = identity.Set("mute_config_id", d.Get("mute_config_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting mute_config_id: %s", err)
+		}
+	}
 	return nil
 }
 

@@ -51,6 +51,21 @@ func ResourceStorageAnywhereCache() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"anywhere_cache_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"bucket": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"bucket": {
 				Type:             schema.TypeString,
@@ -285,6 +300,22 @@ func resourceStorageAnywhereCacheRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading AnywhereCache: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("anywhere_cache_id"); ok && v != "" {
+		err = identity.Set("anywhere_cache_id", d.Get("anywhere_cache_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting anywhere_cache_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("bucket"); ok && v != "" {
+		err = identity.Set("bucket", d.Get("bucket").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting bucket: %s", err)
+		}
+	}
 	return nil
 }
 

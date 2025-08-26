@@ -155,6 +155,25 @@ func ResourceComputeNetworkEndpoints() *schema.Resource {
 			tpgresource.DefaultProviderZone,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"zone": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"network_endpoint_group": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"network_endpoint_group": {
 				Type:             schema.TypeString,
@@ -374,6 +393,28 @@ func resourceComputeNetworkEndpointsRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading NetworkEndpoints: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("zone"); ok && v != "" {
+		err = identity.Set("zone", d.Get("zone").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting zone: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("network_endpoint_group"); ok && v != "" {
+		err = identity.Set("network_endpoint_group", d.Get("network_endpoint_group").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting network_endpoint_group: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

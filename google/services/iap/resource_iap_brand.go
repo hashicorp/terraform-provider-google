@@ -55,6 +55,17 @@ func ResourceIapBrand() *schema.Resource {
 
 		DeprecationMessage: "after July 2025, the `google_iap_brand` Terraform resource will no longer function as intended due to the deprecation of the IAP OAuth Admin API",
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"application_title": {
 				Type:        schema.TypeString,
@@ -269,6 +280,17 @@ func resourceIapBrandRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	if err := d.Set("name", flattenIapBrandName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Brand: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
 	}
 
 	return nil

@@ -57,6 +57,25 @@ func ResourceBeyondcorpApplication() *schema.Resource {
 
 		DeprecationMessage: "`google_beyondcorp_application` is deprecated. Use `google_beyondcorp_security_gateway_application` instead.",
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"security_gateways_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"application_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"application_id": {
 				Type:     schema.TypeString,
@@ -325,6 +344,28 @@ func resourceBeyondcorpApplicationRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading Application: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("security_gateways_id"); ok && v != "" {
+		err = identity.Set("security_gateways_id", d.Get("security_gateways_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting security_gateways_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("application_id"); ok && v != "" {
+		err = identity.Set("application_id", d.Get("application_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting application_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

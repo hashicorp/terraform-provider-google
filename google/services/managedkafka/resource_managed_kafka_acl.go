@@ -55,6 +55,29 @@ func ResourceManagedKafkaAcl() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"cluster": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"acl_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"acl_entries": {
 				Type:        schema.TypeSet,
@@ -292,6 +315,34 @@ func resourceManagedKafkaAclRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Acl: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("cluster"); ok && v != "" {
+		err = identity.Set("cluster", d.Get("cluster").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting cluster: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("acl_id"); ok && v != "" {
+		err = identity.Set("acl_id", d.Get("acl_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting acl_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

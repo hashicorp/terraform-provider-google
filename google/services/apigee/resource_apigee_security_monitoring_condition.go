@@ -50,6 +50,21 @@ func ResourceApigeeSecurityMonitoringCondition() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"org_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"condition_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"condition_id": {
 				Type:        schema.TypeString,
@@ -239,6 +254,22 @@ func resourceApigeeSecurityMonitoringConditionRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading SecurityMonitoringCondition: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("org_id"); ok && v != "" {
+		err = identity.Set("org_id", d.Get("org_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting org_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("condition_id"); ok && v != "" {
+		err = identity.Set("condition_id", d.Get("condition_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting condition_id: %s", err)
+		}
+	}
 	return nil
 }
 

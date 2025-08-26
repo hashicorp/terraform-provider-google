@@ -50,6 +50,21 @@ func ResourceOSLoginSSHPublicKey() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"fingerprint": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"user": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"key": {
 				Type:        schema.TypeString,
@@ -227,6 +242,22 @@ func resourceOSLoginSSHPublicKeyRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading SSHPublicKey: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("fingerprint"); ok && v != "" {
+		err = identity.Set("fingerprint", d.Get("fingerprint").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting fingerprint: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("user"); ok && v != "" {
+		err = identity.Set("user", d.Get("user").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting user: %s", err)
+		}
+	}
 	return nil
 }
 

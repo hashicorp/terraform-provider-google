@@ -55,6 +55,21 @@ func ResourceMonitoringGenericService() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"service_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"service_id": {
 				Type:     schema.TypeString,
@@ -272,6 +287,22 @@ func resourceMonitoringGenericServiceRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading GenericService: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("service_id"); ok && v != "" {
+		err = identity.Set("service_id", d.Get("service_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting service_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

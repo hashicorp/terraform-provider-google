@@ -56,6 +56,21 @@ func ResourceOSConfigV2PolicyOrchestratorForFolder() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"folder_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"policy_orchestrator_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"action": {
 				Type:     schema.TypeString,
@@ -1845,6 +1860,22 @@ func resourceOSConfigV2PolicyOrchestratorForFolderRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading PolicyOrchestratorForFolder: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("folder_id"); ok && v != "" {
+		err = identity.Set("folder_id", d.Get("folder_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting folder_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("policy_orchestrator_id"); ok && v != "" {
+		err = identity.Set("policy_orchestrator_id", d.Get("policy_orchestrator_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting policy_orchestrator_id: %s", err)
+		}
+	}
 	return nil
 }
 
