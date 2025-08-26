@@ -390,6 +390,69 @@ resource "google_firestore_index" "my-index" {
 `, context)
 }
 
+func TestAccFirestoreIndex_firestoreIndexUniqueExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirestoreIndexDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFirestoreIndex_firestoreIndexUniqueExample(context),
+			},
+			{
+				ResourceName:            "google_firestore_index.my-index",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"collection", "database"},
+			},
+		},
+	})
+}
+
+func testAccFirestoreIndex_firestoreIndexUniqueExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_firestore_database" "database" {
+	project                  = "%{project_id}"
+	name                     = "tf-test-database-id-unique%{random_suffix}"
+	location_id              = "nam5"
+	type                     = "FIRESTORE_NATIVE"
+	database_edition         = "ENTERPRISE"
+
+	delete_protection_state = "DELETE_PROTECTION_DISABLED"
+	deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_index" "my-index" {
+	project    = "%{project_id}"
+	database   = google_firestore_database.database.name
+	collection = "atestcollection"
+
+	api_scope   = "MONGODB_COMPATIBLE_API"
+	query_scope = "COLLECTION_GROUP"
+	multikey    = true
+	density     = "DENSE"
+	unique      = true
+
+	fields {
+		field_path = "name"
+		order      = "ASCENDING"
+	}
+
+	fields {
+		field_path = "description"
+		order      = "DESCENDING"
+	}
+}
+`, context)
+}
+
 func testAccCheckFirestoreIndexDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
