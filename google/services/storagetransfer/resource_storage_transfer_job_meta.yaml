@@ -49,6 +49,7 @@ fields:
   - field: 'transfer_spec.aws_s3_data_source.managed_private_network'
   - field: 'transfer_spec.aws_s3_data_source.path'
   - field: 'transfer_spec.aws_s3_data_source.role_arn'
+  - field: 'transfer_spec.aws_s3_data_source.credentials_secret'
   - field: 'transfer_spec.azure_blob_storage_data_source.azure_credentials.sas_token'
   - field: 'transfer_spec.azure_blob_storage_data_source.container'
   - field: 'transfer_spec.azure_blob_storage_data_source.credentials_secret'
