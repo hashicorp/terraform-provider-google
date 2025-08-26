@@ -177,6 +177,10 @@ The following arguments are supported:
   The Hybrid Replication parameters for the volume.
   Structure is [documented below](#nested_hybrid_replication_parameters).
 
+* `throughput_mibps` -
+  (Optional)
+  Optional. Custom Performance Total Throughput of the pool (in MiB/s).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
