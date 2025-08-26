@@ -804,6 +804,11 @@ Repository. Upstream policies cannot be set on a standard repository.`,
 				Description: `The name of the repository, for example:
 "repo1"`,
 			},
+			"registry_uri": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The repository endpoint, for example: us-docker.pkg.dev/my-proj/my-repo.`,
+			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -1021,6 +1026,9 @@ func resourceArtifactRegistryRepositoryRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 	if err := d.Set("labels", flattenArtifactRegistryRepositoryLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err := d.Set("registry_uri", flattenArtifactRegistryRepositoryRegistryUri(res["registryUri"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 	if err := d.Set("kms_key_name", flattenArtifactRegistryRepositoryKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
@@ -1316,6 +1324,10 @@ func flattenArtifactRegistryRepositoryLabels(v interface{}, d *schema.ResourceDa
 	}
 
 	return transformed
+}
+
+func flattenArtifactRegistryRepositoryRegistryUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenArtifactRegistryRepositoryKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

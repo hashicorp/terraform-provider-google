@@ -1,0 +1,22 @@
+```release-note:enhancement
+artifactregistry: added `registry_uri` as attribute to `google_artifact_registry_repository`
+```
+
+**Tests:**
+
+```
+ make testacc TEST=./google/services/artifactregistry TESTARGS='-run=TestAccArtifactRegistryRepository_update'
+
+.TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google/services/artifactregistry -v -run=TestAccArtifactRegistryRepository_update -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google/version.ProviderVersion=acc"
+
+=== RUN   TestAccArtifactRegistryRepository_update
+=== PAUSE TestAccArtifactRegistryRepository_update
+=== RUN   TestAccArtifactRegistryRepository_updateEmptyMvn
+=== PAUSE TestAccArtifactRegistryRepository_updateEmptyMvn
+=== CONT  TestAccArtifactRegistryRepository_update
+=== CONT  TestAccArtifactRegistryRepository_updateEmptyMvn
+--- PASS: TestAccArtifactRegistryRepository_update (16.29s)
+--- PASS: TestAccArtifactRegistryRepository_updateEmptyMvn (25.40s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/artifactregistry 26.147s
+```
