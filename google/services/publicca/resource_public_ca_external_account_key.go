@@ -48,6 +48,33 @@ func ResourcePublicCAExternalAccountKey() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"key_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"b64_mac_key": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -162,6 +189,7 @@ func resourcePublicCAExternalAccountKeyCreate(d *schema.ResourceData, meta inter
 
 func resourcePublicCAExternalAccountKeyRead(d *schema.ResourceData, meta interface{}) error {
 	// This resource could not be read from the API.
+	return nil
 	return nil
 }
 

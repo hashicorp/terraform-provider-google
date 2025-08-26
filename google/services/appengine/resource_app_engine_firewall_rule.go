@@ -56,6 +56,21 @@ func ResourceAppEngineFirewallRule() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"priority": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"action": {
 				Type:         schema.TypeString,
@@ -282,6 +297,22 @@ func resourceAppEngineFirewallRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("priority"); ok && v != "" {
+		err = identity.Set("priority", d.Get("priority").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting priority: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

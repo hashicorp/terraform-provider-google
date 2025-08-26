@@ -55,6 +55,25 @@ func ResourceBeyondcorpSecurityGatewayApplication() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"security_gateway_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"application_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"application_id": {
 				Type:     schema.TypeString,
@@ -323,6 +342,28 @@ func resourceBeyondcorpSecurityGatewayApplicationRead(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading SecurityGatewayApplication: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("security_gateway_id"); ok && v != "" {
+		err = identity.Set("security_gateway_id", d.Get("security_gateway_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting security_gateway_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("application_id"); ok && v != "" {
+		err = identity.Set("application_id", d.Get("application_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting application_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

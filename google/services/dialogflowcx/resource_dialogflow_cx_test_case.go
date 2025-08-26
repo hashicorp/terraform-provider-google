@@ -55,6 +55,21 @@ func ResourceDialogflowCXTestCase() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"parent": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"display_name": {
 				Type:         schema.TypeString,
@@ -753,6 +768,22 @@ func resourceDialogflowCXTestCaseRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading TestCase: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("parent"); ok && v != "" {
+		err = identity.Set("parent", d.Get("parent").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting parent: %s", err)
+		}
+	}
 	return nil
 }
 

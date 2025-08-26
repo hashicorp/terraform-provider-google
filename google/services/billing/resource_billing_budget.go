@@ -74,6 +74,21 @@ func ResourceBillingBudget() *schema.Resource {
 			},
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"billing_account": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"amount": {
 				Type:        schema.TypeList,
@@ -577,6 +592,22 @@ func resourceBillingBudgetRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Budget: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("billing_account"); ok && v != "" {
+		err = identity.Set("billing_account", d.Get("billing_account").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting billing_account: %s", err)
+		}
+	}
 	return nil
 }
 

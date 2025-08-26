@@ -172,6 +172,57 @@ func ResourceBigQueryDatasetAccess() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"dataset_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"role": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"user_by_email": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"group_by_email": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"domain": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"special_group": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"iam_member": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"view": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"dataset": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"routine": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"dataset_id": {
 				Type:     schema.TypeString,
@@ -660,6 +711,76 @@ func resourceBigQueryDatasetAccessRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading DatasetAccess: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("dataset_id"); ok && v != "" {
+		err = identity.Set("dataset_id", d.Get("dataset_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting dataset_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("role"); ok && v != "" {
+		err = identity.Set("role", d.Get("role").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting role: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("user_by_email"); ok && v != "" {
+		err = identity.Set("user_by_email", d.Get("user_by_email").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting user_by_email: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("group_by_email"); ok && v != "" {
+		err = identity.Set("group_by_email", d.Get("group_by_email").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting group_by_email: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("domain"); ok && v != "" {
+		err = identity.Set("domain", d.Get("domain").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting domain: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("special_group"); ok && v != "" {
+		err = identity.Set("special_group", d.Get("special_group").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting special_group: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("iam_member"); ok && v != "" {
+		err = identity.Set("iam_member", d.Get("iam_member").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting iam_member: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("view"); ok && v != "" {
+		err = identity.Set("view", d.Get("view").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting view: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("dataset"); ok && v != "" {
+		err = identity.Set("dataset", d.Get("dataset").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting dataset: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("routine"); ok && v != "" {
+		err = identity.Set("routine", d.Get("routine").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting routine: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

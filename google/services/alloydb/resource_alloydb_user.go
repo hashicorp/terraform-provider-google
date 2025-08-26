@@ -50,6 +50,25 @@ func ResourceAlloydbUser() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"cluster": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"user_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"cluster": {
 				Type:             schema.TypeString,
@@ -205,6 +224,28 @@ func resourceAlloydbUserRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading User: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("cluster"); ok && v != "" {
+		err = identity.Set("cluster", d.Get("cluster").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting cluster: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("user_id"); ok && v != "" {
+		err = identity.Set("user_id", d.Get("user_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting user_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

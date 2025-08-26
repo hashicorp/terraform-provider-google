@@ -49,6 +49,17 @@ func ResourceLoggingOrganizationSettings() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"organization": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"organization": {
 				Type:        schema.TypeString,
@@ -212,6 +223,16 @@ func resourceLoggingOrganizationSettingsRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("organization"); ok && v != "" {
+		err = identity.Set("organization", d.Get("organization").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting organization: %s", err)
+		}
+	}
 	return nil
 }
 

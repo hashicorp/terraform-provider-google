@@ -50,6 +50,21 @@ func ResourceApigeeEnvgroup() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"org_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -187,6 +202,22 @@ func resourceApigeeEnvgroupRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Envgroup: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("org_id"); ok && v != "" {
+		err = identity.Set("org_id", d.Get("org_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting org_id: %s", err)
+		}
+	}
 	return nil
 }
 

@@ -50,6 +50,21 @@ func ResourceIapClient() *schema.Resource {
 
 		DeprecationMessage: "After July 2025, the `google_iap_client` Terraform resource will no longer function as intended due to the deprecation of the IAP OAuth Admin API",
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"client_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"brand": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"brand": {
 				Type:     schema.TypeString,
@@ -186,6 +201,22 @@ func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Client: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("client_id"); ok && v != "" {
+		err = identity.Set("client_id", d.Get("client_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting client_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("brand"); ok && v != "" {
+		err = identity.Set("brand", d.Get("brand").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting brand: %s", err)
+		}
+	}
 	return nil
 }
 

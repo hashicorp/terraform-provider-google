@@ -55,6 +55,29 @@ func ResourceAssuredWorkloadsWorkload() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "The location for the resource",
+					},
+					"organization": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "The organization for the resource",
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "Output only. The resource name of the workload.",
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"compliance_regime": {
 				Type:        schema.TypeString,

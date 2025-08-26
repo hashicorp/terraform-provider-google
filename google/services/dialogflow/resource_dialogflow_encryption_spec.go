@@ -49,6 +49,21 @@ func ResourceDialogflowEncryptionSpec() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"encryption_spec": {
 				Type:        schema.TypeList,
@@ -172,6 +187,7 @@ func resourceDialogflowEncryptionSpecCreate(d *schema.ResourceData, meta interfa
 
 func resourceDialogflowEncryptionSpecRead(d *schema.ResourceData, meta interface{}) error {
 	// This resource could not be read from the API.
+	return nil
 	return nil
 }
 

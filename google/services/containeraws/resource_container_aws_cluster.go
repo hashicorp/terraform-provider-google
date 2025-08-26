@@ -56,6 +56,29 @@ func ResourceContainerAwsCluster() *schema.Resource {
 			tpgresource.SetAnnotationsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "The location for the resource",
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+						Description:       "The project for the resource",
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "The name of this resource.",
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"authorization": {
 				Type:        schema.TypeList,

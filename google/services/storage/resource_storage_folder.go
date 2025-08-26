@@ -55,6 +55,21 @@ func ResourceStorageFolder() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"bucket": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"bucket": {
 				Type:        schema.TypeString,
@@ -210,7 +225,22 @@ func resourceStorageFolderRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Folder: %s", err)
 	}
-
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("bucket"); ok && v != "" {
+		err = identity.Set("bucket", d.Get("bucket").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting bucket: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
 	return nil
 }
 

@@ -52,6 +52,29 @@ func ResourceComputeInstanceGroupMembership() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"instance": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"zone": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"instance_group": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"instance": {
 				Type:             schema.TypeString,
@@ -226,6 +249,34 @@ func resourceComputeInstanceGroupMembershipRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading InstanceGroupMembership: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("instance"); ok && v != "" {
+		err = identity.Set("instance", d.Get("instance").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting instance: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("zone"); ok && v != "" {
+		err = identity.Set("zone", d.Get("zone").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting zone: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("instance_group"); ok && v != "" {
+		err = identity.Set("instance_group", d.Get("instance_group").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting instance_group: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

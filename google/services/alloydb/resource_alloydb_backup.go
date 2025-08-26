@@ -58,6 +58,25 @@ func ResourceAlloydbBackup() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"backup_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"backup_id": {
 				Type:        schema.TypeString,
@@ -488,6 +507,28 @@ func resourceAlloydbBackupRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Backup: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("backup_id"); ok && v != "" {
+		err = identity.Set("backup_id", d.Get("backup_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting backup_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

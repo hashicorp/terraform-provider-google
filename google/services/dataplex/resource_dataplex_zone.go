@@ -56,6 +56,34 @@ func ResourceDataplexZone() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "The location for the resource",
+					},
+					"lake": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "The lake for the resource",
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "The name of the zone.",
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+						Description:       "The project for the resource",
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"discovery_spec": {
 				Type:        schema.TypeList,

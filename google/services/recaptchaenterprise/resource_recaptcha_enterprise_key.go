@@ -56,6 +56,24 @@ func ResourceRecaptchaEnterpriseKey() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+						Description:       "The project for the resource",
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "The resource id for the Key, which is the same as the Site Key itself.",
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"display_name": {
 				Type:        schema.TypeString,
