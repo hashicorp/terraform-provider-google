@@ -43,7 +43,7 @@ fun googleSubProjectBeta(allConfig: AllContextParameters): Project {
         subProject(vcrRecording(betaId, ProviderNameBeta, HashiCorpVCSRootBeta, ModularMagicianVCSRootBeta, vcrConfig))
 
         // Beta Diff Test project that uses hashicorp/terraform-provider-google-beta-diff-test
-        subProject(weeklyDiffTests(betaId + "_DIFF_TEST", ProviderNameBeta, HashiCorpVCSRootBeta, betaConfig, NightlyTriggerConfiguration(daysOfWeek = "SAT", nightlyTestsEnabled = false)))
+        subProject(weeklyDiffTests(betaId + "_DIFF_TEST", ProviderNameBeta, ModularMagicianVCSRootBeta, betaConfig, NightlyTriggerConfiguration(daysOfWeek = "SAT", nightlyTestsEnabled = false)))
 
         params {
             readOnlySettings()
