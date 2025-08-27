@@ -154,6 +154,8 @@ The following arguments are supported:
 * `project` - (Optional) The project in which the resource belongs. If it
 	is not provided, the provider project is used.
 
+* `service_account` - (Optional) The user-managed service account to run the job. If this field is specified, the given service account is granted the necessary permissions to all applicable resources (e.g. GCS buckets) required by the job.
+
 * `status` - (Optional) Status of the job. Default: `ENABLED`. **NOTE: The effect of the new job status takes place during a subsequent job run. For example, if you change the job status from ENABLED to DISABLED, and an operation spawned by the transfer is running, the status change would not affect the current operation.**
 
 * `notification_config` - (Optional) Notification configuration. This is not supported for transfers involving PosixFilesystem. Structure [documented below](#nested_notification_config).
@@ -342,13 +344,13 @@ The `azure_credentials` block supports:
 
 <a name="nested_logging_config"></a>The `loggin_config` block supports:
 
-* `log_actions` - (Optional) A list of actions to be logged. If empty, no logs are generated. Not supported for transfers with PosixFilesystem data sources; use enableOnpremGcsTransferLogs instead. 
+* `log_actions` - (Optional) A list of actions to be logged. If empty, no logs are generated. Not supported for transfers with PosixFilesystem data sources; use enableOnpremGcsTransferLogs instead.
 Each action may be one of `FIND`, `DELETE`, and `COPY`.
 
 * `log_action_states` - (Optional) A list of loggable action states. If empty, no logs are generated. Not supported for transfers with PosixFilesystem data sources; use enableOnpremGcsTransferLogs instead.
 Each action state may be one of `SUCCEEDED`, and `FAILED`.
 
-* `enable_on_prem_gcs_transfer` - (Optional) For transfers with a PosixFilesystem source, this option enables the Cloud Storage transfer logs for this transfer. 
+* `enable_on_prem_gcs_transfer` - (Optional) For transfers with a PosixFilesystem source, this option enables the Cloud Storage transfer logs for this transfer.
 Defaults to false.
 
 ## Attributes Reference
