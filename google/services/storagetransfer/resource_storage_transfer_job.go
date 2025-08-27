@@ -158,6 +158,11 @@ func ResourceStorageTransferJob() *schema.Resource {
 				ForceNew:    true,
 				Description: `The project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
+			"service_account": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The user-managed service account to run the job. If this field is specified, the given service account is granted the necessary permissions to all applicable resources (e.g. GCS buckets) required by the job.`,
+			},
 			"event_stream": {
 				Type:             schema.TypeList,
 				Optional:         true,
@@ -925,6 +930,7 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 		ReplicationSpec:    expandReplicationSpecs(d.Get("replication_spec").([]interface{})),
 		LoggingConfig:      expandTransferJobLoggingConfig(d.Get("logging_config").([]interface{})),
 		NotificationConfig: expandTransferJobNotificationConfig(d.Get("notification_config").([]interface{})),
+		ServiceAccount:     d.Get("service_account").(string),
 	}
 
 	var res *storagetransfer.TransferJob
@@ -991,6 +997,9 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 	}
 	if err := d.Set("deletion_time", res.DeletionTime); err != nil {
 		return fmt.Errorf("Error setting deletion_time: %s", err)
+	}
+	if err := d.Set("service_account", res.ServiceAccount); err != nil {
+		return fmt.Errorf("Error setting service_account: %s", err)
 	}
 
 	err = d.Set("schedule", flattenTransferSchedule(res.Schedule))
@@ -1098,6 +1107,13 @@ func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) 
 			transferJob.LoggingConfig = expandTransferJobLoggingConfig(v.([]interface{}))
 		} else {
 			transferJob.LoggingConfig = nil
+		}
+	}
+
+	if d.HasChange("service_account") {
+		fieldMask = append(fieldMask, "service_account")
+		if v, ok := d.GetOk("service_account"); ok {
+			transferJob.ServiceAccount = v.(string)
 		}
 	}
 
