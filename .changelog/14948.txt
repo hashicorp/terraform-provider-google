@@ -1,0 +1,3 @@
+```release-note:bug
+compute: marked `network` field in `google_compute_region_network_endpoint_group` as `default_from_api`, to fix creating PSC NEGs creation without specifying the network
+```
