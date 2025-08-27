@@ -18,9 +18,10 @@ package storage
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"log"
 	"math"
-	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -1587,8 +1588,14 @@ func ResourceStorageBucketStateUpgradeV3(_ context.Context, rawState map[string]
 		retentionPolicies := rawState["retention_policy"].([]interface{})
 		if len(retentionPolicies) > 0 {
 			retentionPolicy := retentionPolicies[0].(map[string]interface{})
-			if v, ok := retentionPolicy["retention_period"]; ok {
-				retentionPolicy["retention_period"] = strconv.Itoa(v.(int))
+			// nil check
+			if v, ok := retentionPolicy["retention_period"]; ok && v != nil {
+				// number conversion check to error rather than crash
+				if num, ok := v.(json.Number); ok {
+					retentionPolicy["retention_period"] = num.String()
+				} else {
+					return rawState, fmt.Errorf("retention_period in state has unexpected type %T", v)
+				}
 			}
 		}
 	}
