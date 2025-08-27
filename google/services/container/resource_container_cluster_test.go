@@ -13315,8 +13315,75 @@ resource "google_container_cluster" "primary" {
 `, name, networkName, subnetworkName, config)
 }
 
+type subnetRangeInfo struct {
+	SubnetName string
+	RangeNames []string
+}
+
+func bootstrapAdditionalIpRangesNetworkConfig(t *testing.T, name string, additionalSubnetCount int, secondaryRangeCount int) (string, []subnetRangeInfo) {
+	sri := []subnetRangeInfo{}
+
+	// We create our network to ensure no range collisions.
+	networkName := acctest.BootstrapSharedTestNetwork(t, fmt.Sprintf("%s-network", name))
+	mainSubnet := acctest.BootstrapSubnetWithOverrides(t, fmt.Sprintf("%s-subnet-main", name), networkName, map[string]interface{}{
+		"ipCidrRange": "10.2.0.0/24",
+		"secondaryIpRanges": []map[string]interface{}{
+			{
+				"rangeName":   "pods",
+				"ipCidrRange": "10.3.0.0/16",
+			},
+			{
+				"rangeName":   "services",
+				"ipCidrRange": "10.4.0.0/16",
+			},
+		},
+	})
+
+	si := subnetRangeInfo{
+		SubnetName: mainSubnet,
+		RangeNames: []string{"pods"},
+	}
+	sri = append(sri, si)
+
+	cumulativeRangeIndex := 0
+	for subnetIndex := 0; subnetIndex < additionalSubnetCount; subnetIndex++ {
+		ranges := []map[string]interface{}{}
+		rangeNames := []string{}
+		for rangeIndex := 0; rangeIndex < secondaryRangeCount; rangeIndex++ {
+			rangeName := fmt.Sprintf("range-%d", cumulativeRangeIndex)
+			r := map[string]interface{}{
+				"rangeName":   rangeName,
+				"ipCidrRange": fmt.Sprintf("10.0.%d.0/24", cumulativeRangeIndex),
+			}
+			rangeNames = append(rangeNames, rangeName)
+			ranges = append(ranges, r)
+			cumulativeRangeIndex++
+		}
+
+		subnetOverrides := map[string]interface{}{
+			"ipCidrRange":       fmt.Sprintf("10.1.%d.0/24", subnetIndex),
+			"secondaryIpRanges": ranges,
+		}
+
+		subnetName := fmt.Sprintf("%s-subnet-add-%d", name, subnetIndex)
+		acctest.BootstrapSubnetWithOverrides(t, subnetName, networkName, subnetOverrides)
+
+		si := subnetRangeInfo{
+			SubnetName: subnetName,
+			RangeNames: rangeNames,
+		}
+
+		sri = append(sri, si)
+	}
+
+	return networkName, sri
+}
+
 func TestAccContainerCluster_additional_ip_ranges_config_on_create(t *testing.T) {
 	t.Parallel()
+
+	testName := "gke-msc"
+	network, sri := bootstrapAdditionalIpRangesNetworkConfig(t, testName, 2, 2)
 
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
@@ -13325,7 +13392,7 @@ func TestAccContainerCluster_additional_ip_ranges_config_on_create(t *testing.T)
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 2, 2),
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, network, sri),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -13341,6 +13408,9 @@ func TestAccContainerCluster_additional_ip_ranges_config_on_create(t *testing.T)
 func TestAccContainerCluster_additional_ip_ranges_config_on_update(t *testing.T) {
 	t.Parallel()
 
+	testName := "gke-msc-update"
+	network, sri := bootstrapAdditionalIpRangesNetworkConfig(t, testName, 2, 2)
+
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -13348,7 +13418,7 @@ func TestAccContainerCluster_additional_ip_ranges_config_on_update(t *testing.T)
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 0, 0),
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, network, sri),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -13358,7 +13428,7 @@ func TestAccContainerCluster_additional_ip_ranges_config_on_update(t *testing.T)
 				Check:                   resource.TestCheckResourceAttrSet("google_container_cluster.primary", "node_pool.0.network_config.subnetwork"),
 			},
 			{
-				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 1, 1),
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, network, sri[:len(sri)-1]),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -13367,7 +13437,7 @@ func TestAccContainerCluster_additional_ip_ranges_config_on_update(t *testing.T)
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 0, 0),
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, network, sri[:1]),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -13376,7 +13446,7 @@ func TestAccContainerCluster_additional_ip_ranges_config_on_update(t *testing.T)
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 2, 2),
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, network, sri),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -13385,7 +13455,7 @@ func TestAccContainerCluster_additional_ip_ranges_config_on_update(t *testing.T)
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 0, 0),
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, network, sri[:1]),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -13437,76 +13507,31 @@ func TestAccContainerCluster_withAnonymousAuthenticationConfig(t *testing.T) {
 	})
 }
 
-func testAccContainerCluster_additional_ip_ranges_config(name string, additionalSubnetCount int, secondaryRangeCount int) string {
-	var subnetStr string
+func testAccContainerCluster_additional_ip_ranges_config(clusterName string, networkName string, sri []subnetRangeInfo) string {
 	var additionalIpRangesStr string
-	cumulativeRangeIndex := 0
-	for subnetIndex := 0; subnetIndex < additionalSubnetCount; subnetIndex++ {
-		var secondaryRangeStr string
-		var podIpv4RangeStr string
-		for rangeIndex := 0; rangeIndex < secondaryRangeCount; rangeIndex++ {
-			secondaryRangeStr += fmt.Sprintf(`
-                            secondary_ip_range {
-                              range_name = "range-%d"
-                              ip_cidr_range = "10.0.%d.0/24"
-                            }
-                          `, cumulativeRangeIndex, cumulativeRangeIndex)
 
-			podIpv4RangeStr += fmt.Sprintf("google_compute_subnetwork.extra_%d.secondary_ip_range[%d].range_name", subnetIndex, rangeIndex)
-			if rangeIndex != secondaryRangeCount-1 {
+	for _, si := range sri[1:] {
+		var podIpv4RangeStr string
+		for i, rn := range si.RangeNames {
+			podIpv4RangeStr += fmt.Sprintf("\"%s\"", rn)
+			if i != len(si.RangeNames)-1 {
 				podIpv4RangeStr += ", "
 			}
-			cumulativeRangeIndex++
 		}
-
-		subnetStr += fmt.Sprintf(`
-                           resource "google_compute_subnetwork" "extra_%d" {
-                             ip_cidr_range = "10.1.%d.0/24"
-                             name = "tf-test-subnet-%d"
-                             network = google_compute_network.main.self_link
-                             region = "us-central1"
-                             %s
-                           }
-                         `, subnetIndex, subnetIndex, subnetIndex, secondaryRangeStr)
-
 		additionalIpRangesStr += fmt.Sprintf(`
 			additional_ip_ranges_config {
-				subnetwork  = google_compute_subnetwork.extra_%d.id
+				subnetwork  = "%s"
 				pod_ipv4_range_names = [%s]
 			}
-		`, subnetIndex, podIpv4RangeStr)
+		`, si.SubnetName, podIpv4RangeStr)
 	}
 
 	return fmt.Sprintf(`
-	resource "google_compute_network" "main" {
-	  name                    = "%s"
-	  auto_create_subnetworks = false
-	}
-
-	resource "google_compute_subnetwork" "main" {
-	  ip_cidr_range = "10.2.0.0/24"
-	  name          = "%s"
-	  network       = google_compute_network.main.self_link
-	  region        = "us-central1"
-
-	  secondary_ip_range {
-	    range_name    = "services"
-	    ip_cidr_range = "10.3.0.0/16"
-	  }
-
-	  secondary_ip_range {
-	    range_name    = "pods"
-	    ip_cidr_range = "10.4.0.0/16"
-	  }
-	}
-
-        %s
-
 	resource "google_container_cluster" "primary" {
 	  name     = "%s"
 	  location = "us-central1-a"
-	  network    = google_compute_network.main.name
-	  subnetwork = google_compute_subnetwork.main.name
+	  network    = "%s"
+	  subnetwork = "%s"
           initial_node_count = 1
 
 	  ip_allocation_policy {
@@ -13517,7 +13542,7 @@ func testAccContainerCluster_additional_ip_ranges_config(name string, additional
 
 	  deletion_protection = false
 	}
-	`, name, name, subnetStr, name, additionalIpRangesStr)
+	`, clusterName, networkName, sri[0].SubnetName, additionalIpRangesStr)
 }
 
 func testAccContainerCluster_withAnonymousAuthenticationConfig(name, networkName, subnetworkName string, mode string) string {
