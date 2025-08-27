@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed acceptance test flakiness for TestAccComputeRegionBackendService_regionBackendServiceHaPolicyManualLeader_update.
+```
