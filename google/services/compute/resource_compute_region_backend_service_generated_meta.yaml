@@ -104,6 +104,7 @@ fields:
   - field: 'outlier_detection.success_rate_minimum_hosts'
   - field: 'outlier_detection.success_rate_request_volume'
   - field: 'outlier_detection.success_rate_stdev_factor'
+  - field: 'params.resource_manager_tags'
   - field: 'port_name'
   - field: 'protocol'
   - field: 'region'

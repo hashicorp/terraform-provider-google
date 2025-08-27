@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccComputeRegionBackendService_basic(t *testing.T) {
@@ -683,6 +684,35 @@ func TestAccComputeRegionBackendService_withDynamicBackendCount(t *testing.T) {
 				ResourceName:      "google_compute_region_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeRegionBackendService_withTags(t *testing.T) {
+	t.Parallel()
+
+	org := envvar.GetTestOrgFromEnv(t)
+
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	tagKeyResult := acctest.BootstrapSharedTestTagKeyDetails(t, "crm-rbs-tagkey", "organizations/"+org, make(map[string]interface{}))
+	sharedTagkey, _ := tagKeyResult["shared_tag_key"]
+	tagValueResult := acctest.BootstrapSharedTestTagValueDetails(t, "crm-rbs-tagvalue", sharedTagkey, org)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_withTags(serviceName, checkName, tagKeyResult["name"], tagValueResult["name"]),
+			},
+			{
+				ResourceName:            "google_compute_region_backend_service.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -1419,4 +1449,29 @@ resource "google_compute_region_health_check" "health_check" {
   }
 }
 `, serviceName, checkName)
+}
+
+func testAccComputeRegionBackendService_withTags(serviceName, checkName string, tagKey string, tagValue string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_health_check.zero.self_link]
+  region        = "us-central1"
+  params {
+    resource_manager_tags = {
+      "%s" = "%s"
+    }
+  }
+}
+
+resource "google_compute_health_check" "zero" {
+  name               = "%s"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+`, serviceName, tagKey, tagValue, checkName)
 }

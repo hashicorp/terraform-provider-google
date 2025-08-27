@@ -913,6 +913,11 @@ The following arguments are supported:
   Passthrough Network Load Balancers.
   Structure is [documented below](#nested_ha_policy).
 
+* `params` -
+  (Optional)
+  Additional params passed with the request, but not persisted as part of resource payload
+  Structure is [documented below](#nested_params).
+
 * `region` -
   (Optional)
   The Region in which the created backend service should reside.
@@ -1610,6 +1615,14 @@ The following arguments are supported:
   (Optional)
   The name of the VM instance of the leader network endpoint. The instance must
   already be attached to the NEG specified in the haPolicy.leader.backendGroup.
+
+<a name="nested_params"></a>The `params` block supports:
+
+* `resource_manager_tags` -
+  (Optional)
+  Resource manager tags to be bound to the region backend service. Tag keys and values have the
+  same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+  and values are in the format tagValues/456.
 
 ## Attributes Reference
 
