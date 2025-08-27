@@ -1,0 +1,15 @@
+```release-note:new-datasource
+`google_iap_web_forwarding_rule_service_iam_policy`
+```
+
+```release-note:new-resource
+`google_iap_web_forwarding_rule_service_iam_policy`
+```
+
+```release-note:new-resource
+`google_iap_web_forwarding_rule_service_iam_binding`
+```
+
+```release-note:new-resource
+`google_iap_web_forwarding_rule_service_iam_member`
+```
