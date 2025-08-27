@@ -61,6 +61,11 @@ func DataSourceGoogleCloudBackupDRBackup() *schema.Resource {
 						Computed:    true,
 						Description: `Name of the Data Source associated with Backup.`,
 					},
+					"create_time": {
+						Type:        schema.TypeString,
+						Computed:    true,
+						Description: `The time when the backup was created.`,
+					},
 				},
 			},
 		},
@@ -79,6 +84,11 @@ func DataSourceGoogleCloudBackupDRBackup() *schema.Resource {
 		"backup_vault_id": {
 			Type:     schema.TypeString,
 			Required: true,
+		},
+		"create_time": {
+			Type:        schema.TypeString,
+			Computed:    true,
+			Description: `The time when the backup was created.`,
 		},
 	}
 
@@ -162,6 +172,7 @@ func flattenDataSourceBackupDRBackups(v interface{}, d *schema.ResourceData, con
 			"backup_id":       flattenDataSourceBackupDRBackupsBackupId(original["backupId"], d, config),
 			"backup_vault_id": flattenDataSourceBackupDRBackupsBackupVaultId(original["backupVaultId"], d, config),
 			"data_source_id":  flattenDataSourceBackupDRBackupsDataSourceId(original["dataSourceId"], d, config),
+			"create_time":     flattenDataSourceBackupDRBackupsCreateTime(original["createTime"], d, config),
 		})
 	}
 	return transformed
@@ -184,5 +195,9 @@ func flattenDataSourceBackupDRBackupsBackupVaultId(v interface{}, d *schema.Reso
 }
 
 func flattenDataSourceBackupDRBackupsDataSourceId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataSourceBackupDRBackupsCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
