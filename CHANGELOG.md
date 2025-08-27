@@ -1,4 +1,9 @@
-## 7.0.0 (Unreleased)
+## 7.0.1 (Unreleased)
+
+BUG FIXES:
+* storage: fixed a conversion crash in `google_storage_bucket` state migration [#24186](https://github.com/hashicorp/terraform-provider-google/pull/24186)
+
+## 7.0.0 (August 26, 2025)
 
 [Terraform Google Provider 7.0.0 Upgrade Guide](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/version_7_upgrade)
 
