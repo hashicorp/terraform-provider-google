@@ -210,7 +210,7 @@ fun ParametrizedWithType.acceptanceTestBuildParams(parallelism: Int, prefix: Str
     text("PARALLELISM", "%d".format(parallelism))
     text("TEST_PREFIX", prefix)
     text("TIMEOUT", timeout)
-    text("RELEASE_DIFF", "true")
+    text("env.RELEASE_DIFF", releaseDiffTest)
 }
 
 // ParametrizedWithType.sweeperParameters sets build parameters that affect how sweepers are run
