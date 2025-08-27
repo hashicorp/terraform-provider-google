@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudbuild: added `worker_config.enable_nested_virtualization` field to `google_cloudbuild_worker_pool` resource
+```
