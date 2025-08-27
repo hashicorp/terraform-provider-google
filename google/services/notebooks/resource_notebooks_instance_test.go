@@ -41,7 +41,7 @@ func TestAccNotebooksInstance_create_vm_image(t *testing.T) {
 				ResourceName:            "google_notebooks_instance.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"vm_image", "metadata"},
+				ImportStateVerifyIgnore: []string{"vm_image", "metadata", "update_time"},
 			},
 		},
 	})
