@@ -6596,10 +6596,10 @@ resource "google_sql_database_instance" "instance" {
   region           = "us-central1"
 
   settings {
-    tier = "db-g1-small"
+	tier = "db-g1-small"
 	backup_configuration {
-    	enabled = true
-    }
+		enabled = "false"
+	}
   }
   lifecycle {
 	ignore_changes = [
