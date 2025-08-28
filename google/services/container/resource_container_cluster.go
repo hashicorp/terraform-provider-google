@@ -2315,12 +2315,14 @@ func ResourceContainerCluster() *schema.Resource {
 				MaxItems:    1,
 				Computed:    true,
 				Description: `Defines the config needed to enable/disable GKE Enterprise`,
+				Deprecated:  `GKE Enterprise features are now available without an Enterprise tier. This field is deprecated and will be removed in a future major release`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cluster_tier": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `Indicates the effective cluster tier. Available options include STANDARD and ENTERPRISE.`,
+							Deprecated:  `GKE Enterprise features are now available without an Enterprise tier. This field is deprecated and will be removed in a future major release`,
 						},
 						"desired_tier": {
 							Type:             schema.TypeString,
@@ -2328,6 +2330,7 @@ func ResourceContainerCluster() *schema.Resource {
 							Computed:         true,
 							ValidateFunc:     validation.StringInSlice([]string{"STANDARD", "ENTERPRISE"}, false),
 							Description:      `Indicates the desired cluster tier. Available options include STANDARD and ENTERPRISE.`,
+							Deprecated:       `GKE Enterprise features are now available without an Enterprise tier. This field is deprecated and will be removed in a future major release`,
 							DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("CLUSTER_TIER_UNSPECIFIED"),
 						},
 					},

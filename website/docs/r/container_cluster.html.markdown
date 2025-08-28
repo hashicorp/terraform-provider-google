@@ -435,7 +435,7 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
   Configuration for [direct-path (via ALTS) with workload identity.](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#workloadaltsconfig). Structure is [documented below](#nested_workload_alts_config).
 
 * `enterprise_config` - (Optional)
-  Configuration for [Enterprise edition].(https://cloud.google.com/kubernetes-engine/enterprise/docs/concepts/gke-editions). Structure is [documented below](#nested_enterprise_config).
+  (DEPRECATED) Configuration for [Enterprise edition].(https://cloud.google.com/kubernetes-engine/enterprise/docs/concepts/gke-editions). Structure is [documented below](#nested_enterprise_config). Deprecated as GKE Enterprise features are now available without an Enterprise tier. See https://cloud.google.com/blog/products/containers-kubernetes/gke-gets-new-pricing-and-capabilities-on-10th-birthday for the announcement of this change.
 
 * `anonymous_authentication_config` - (Optional)
   Configuration for [anonymous authentication restrictions](https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster#restrict-anon-access). Structure is [documented below](#anonymous_authentication_config).
@@ -1657,7 +1657,7 @@ linux_node_config {
 
 <a name="nested_enterprise_config"></a>The `enterprise_config` block supports:
 
-* `desired_tier` - (Optional) Sets the tier of the cluster. Available options include `STANDARD` and `ENTERPRISE`.
+* `desired_tier` - (Optional) (DEPRECATED) Sets the tier of the cluster. Available options include `STANDARD` and `ENTERPRISE`. Deprecated as GKE Enterprise features are now available without an Enterprise tier. See https://cloud.google.com/blog/products/containers-kubernetes/gke-gets-new-pricing-and-capabilities-on-10th-birthday for the announcement of this change.
 
 <a name="anonymous_authentication_config"></a>The `anonymous_authentication_config` block supports:
 
