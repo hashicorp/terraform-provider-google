@@ -563,6 +563,21 @@ API (for read pools, effective_availability_type may differ from availability_ty
 																Required:    true,
 																Description: `The consumer network of this consumer endpoint. This must be a resource path that includes both the host project and the network name. The consumer host project of this network might be different from the consumer service project.`,
 															},
+															"consumer_network_status": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The connection policy status of the consumer network.`,
+															},
+															"ip_address": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The IP address of the consumer endpoint.`,
+															},
+															"status": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The connection status of the consumer endpoint.`,
+															},
 														},
 													},
 													Description: `A comma-separated list of networks or a comma-separated list of network-project pairs. Each project in this list is represented by a project number (numeric) or by a project ID (alphanumeric). This allows Private Service Connect connections to be created automatically for the specified networks.`,
@@ -2694,7 +2709,10 @@ func flattenPscAutoConnections(pscAutoConnections []*sqladmin.PscAutoConnectionC
 	for _, flag := range pscAutoConnections {
 		data := map[string]interface{}{
 			"consumer_network":            flag.ConsumerNetwork,
+			"consumer_network_status":     flag.ConsumerNetworkStatus,
 			"consumer_service_project_id": flag.ConsumerProject,
+			"ip_address":                  flag.IpAddress,
+			"status":                      flag.Status,
 		}
 
 		flags = append(flags, data)

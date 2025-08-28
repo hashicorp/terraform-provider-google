@@ -712,6 +712,12 @@ performing filtering in a Terraform config.
 
 ~> **NOTE:** Users can upgrade a read replica instance to a stand-alone Cloud SQL instance with the help of `instance_type`. To promote, users have to set the `instance_type` property as `CLOUD_SQL_INSTANCE` and remove/unset `master_instance_name` and `replica_configuration` from instance configuration. This operation might cause your instance to restart.
 
+* `settings.ip_configuration.psc_config.psc_auto_connections.consumer_network_status` - (Output) The connection policy status of the consumer network.
+
+* `settings.ip_configuration.psc_config.psc_auto_connections.ip_address` - (Output) The IP address of the consumer endpoint.
+
+* `settings.ip_configuration.psc_config.psc_auto_connections.status` - (Output) The connection status of the consumer endpoint.
+
 * `settings.version` - Used to make sure changes to the `settings` block are
     atomic.
 
