@@ -151,6 +151,7 @@ Possible values are: AUTO, MANUAL. Possible values: ["QOS_TYPE_UNSPECIFIED", "AU
 			},
 			"total_iops": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				Description: `Optional. Custom Performance Total IOPS of the pool If not provided, it will be calculated based on the totalThroughputMibps`,
 			},

@@ -1,0 +1,3 @@
+```release-note:bug
+netapp: fixed a permadiff on `total_iops` in `google_netapp_storage_pool` resource
+```
