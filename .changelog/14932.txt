@@ -1,0 +1,3 @@
+```release-note:deprecation
+container: deprecated `enterprise_config` field in `google_container_cluster` resource. GKE Enterprise features are now available without an Enterprise tier.
+```
