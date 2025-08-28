@@ -1,0 +1,1 @@
+unknown: Update unit test - AutomaticManagement is no longer supported on the gkehub api server for the ConfigManagement feature
