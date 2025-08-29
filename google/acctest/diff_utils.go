@@ -36,7 +36,7 @@ const diffTag = "[Diff]"
 
 func isReleaseDiffEnabled() bool {
 	releaseDiff := os.Getenv("RELEASE_DIFF")
-	return releaseDiff != ""
+	return releaseDiff == "true"
 }
 
 func initializeReleaseDiffTest(c resource.TestCase, testName string, tempOutputFile *os.File) resource.TestCase {
